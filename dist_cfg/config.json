@@ -7,12 +7,12 @@
                 "display": "Test"
             },
             "downloads": {
-                "games" : ["byar:test", "chobby:test"],
+                "games" : ["byar:test", "chobby:test", "byar-chobby:test"],
                 "engines" : [ "104.0.1-1239-g12caea1 maintenance" ]
             },
             "no_start_script" : true,
             "launch": {
-                "start_args" : ["--menu", "rapid://chobby:test"]
+                "start_args" : ["--menu", "rapid://byar-chobby:test"]
             }
         },
         {
@@ -26,7 +26,7 @@
             "no_start_script" : true,
             "no_downloads" : true,
             "launch": {
-                "start_args" : ["--menu", "Chobby $VERSION"]
+                "start_args" : ["--menu", "BYAR Chobby $VERSION"]
             }
         }
     ]
