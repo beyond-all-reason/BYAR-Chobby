@@ -613,4 +613,6 @@ for i = 1, #settingsConfig do
 	end
 end
 
-return settingsConfig, settingsNames, settingsDefault
+return {}, {}, {}	-- disabled graphics/interface settings, these settings are handled ingame
+
+--return settingsConfig, settingsNames, settingsDefault
