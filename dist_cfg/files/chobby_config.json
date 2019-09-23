@@ -1,9 +1,9 @@
 {
     "server" : {
-        "address"    : "springrts.com",
+        "address"    : "road-flag.bnr.la",
         "port"       : 8200,
         "protocol"   : "spring",
-        "serverName" : "Spring"
+        "serverName" : "BAR"
     },
     "game" : "byar"
 }
