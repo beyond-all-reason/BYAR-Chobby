@@ -81,7 +81,7 @@ body::-webkit-scrollbar {
   bottom: 20px;
   overflow: scroll;
   display: none;
-  width: 90%;
+  width: 99%;
   padding-right: 10px;
   height: 370px;
   /* user-select: all; */
@@ -129,7 +129,7 @@ body::-webkit-scrollbar {
   padding-top: 165px;
   padding-left: 20px;
   padding-right: 10px;
-  padding-bottom: 40px;
+  padding-bottom: 45px;
   width: 73%;
   display: inline-block;
 }

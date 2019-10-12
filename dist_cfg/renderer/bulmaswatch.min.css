@@ -201,7 +201,7 @@ article,aside,figure,footer,header,hgroup,section {
     display:block
 }
 body,button,input,select,textarea {
-    font-family:"exo2","Lato",-apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue","Helvetica","Arial",sans-serif
+    font-family:"exo2","Lato",-apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue","Helvetica","Arial",sans-serif;
 }
 code,pre {
     -moz-osx-font-smoothing:auto;
@@ -2332,13 +2332,13 @@ a.box:active {
 }
 .input.is-small,.textarea.is-small {
     border-radius:3px;
-    font-size:.85em
+    font-size:.75em
 }
 .input.is-medium,.textarea.is-medium {
-    font-size:1.25rem
+    font-size:1.1rem
 }
 .input.is-large,.textarea.is-large {
-    font-size:1.5rem
+    font-size:1.3rem
 }
 .input.is-fullwidth,.textarea.is-fullwidth {
     display:block;
@@ -3418,7 +3418,7 @@ a.box:active {
 .progress::-webkit-progress-bar {
     background-color:#5e6d6f
     background: rgb(85,99,101);
-    background: linear-gradient(180deg, rgba(85,99,101,1) 0%, rgba(102,118,120,1) 100%);
+    background: linear-gradient(0deg, rgba(85,99,101,1) 0%, rgba(102,118,120,1) 100%);
 }
 .progress.is-white::-webkit-progress-value {
     background-color:#fff
@@ -5415,7 +5415,7 @@ body.has-navbar-fixed-bottom,html.has-navbar-fixed-bottom {
     background-color:#282f2f;
     border-radius:.4em .4em 0 0;
     color:#f2f2f2;
-    font-size:1.25em;
+    font-size:1.15em;
     line-height:1.25;
     padding:.5em .75em
 }
