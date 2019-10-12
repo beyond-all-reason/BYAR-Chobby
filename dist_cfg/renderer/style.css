@@ -82,6 +82,7 @@ body::-webkit-scrollbar {
   overflow: scroll;
   display: none;
   width: 95%;
+  margin-top: 20px;
   padding-right: 10px;
   height: 370px;
   /* user-select: all; */
