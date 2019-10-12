@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+  <html>
+    <head>
+      <meta charset="UTF-8">
+      <title>DEFAULT-WINDOW-TITLE</title>
+      <script>
+        require('./renderer.js')
+      </script>
+
+      <link href="./font-awesome.min.css" rel="stylesheet" />
+      <link href="./bulmaswatch.min.css" rel="stylesheet" />
+      <link href="./style.css" rel="stylesheet">
+    </head>
+    <body >
+      <div class="section">
+        <div id="config-select__div">
+          <label for="select_span" id="current_config">Config:</label>
+          <span class="select is-small" id="select__span">
+            <select id="config-select">
+            </select>
+          </span>
+        </div>
+        <h1 id="main-title" class="title is-1">Beyond all Reason</h1>
+        <div class="progress-block">
+          <div class="progress-status">
+            <button id="btn-show-log" class="button is-small status-button" onfocus="this.blur();" tabindex="-1">Toggle log</button>
+            <button id="btn-upload-log" class="button is-small status-button" onfocus="this.blur();" tabindex="-1">Upload log</button>
+            <button id="btn-show-dir" class="button is-small status-button" onfocus="this.blur();" tabindex="-1">Open install directory</button>
+            <label id="lbl-progress-full" for="progress-full" class="progress-label"></label>
+            <label id="lbl-progress-part" for="progress-part" class="progress-label"></label>
+          </div>
+          <progress id="progress-part" max="100" value="0" class="progress is-primary is-small">0%</progress>
+          <progress id="progress-full" max="100" value="0" class="progress is-primary is-small">0%</progress>
+        </div>
+        <div class="button-block">
+          <button id="btn-progress" class="button is-primary is-large is-right">Start</button>
+        </div>
+        <div id="note-content" class="box infobox" tabindex="-1"/>
+      </div>
+    </body>
+</html>
