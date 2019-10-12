@@ -129,15 +129,16 @@ body::-webkit-scrollbar {
   padding-top: 165px;
   padding-left: 20px;
   padding-right: 10px;
+  padding-bottom: 40px;
   width: 73%;
   display: inline-block;
 }
 
 .button-block {
-  position: relative;
+  position: absolute;
   display: inline-block;
   padding-left: 30px;
-  bottom: 80px;
+  top: 220px;
 }
 
 #btn-progress {
