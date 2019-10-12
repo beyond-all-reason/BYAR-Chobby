@@ -17,6 +17,10 @@ body {
 }
 
 h1{
+    display: inline-block;
+    position: absolute;
+    top: 45px;
+    left: 40px;
     margin-top: -10px;
     padding-bottom: 20px;
 }
@@ -118,8 +122,10 @@ body::-webkit-scrollbar {
 
 .progress-block {
   position: relative;
-  padding-top: 80px;
-  width: 70%;
+  padding-top: 165px;
+  padding-left: 20px;
+  padding-right: 10px;
+  width: 72%;
   display: inline-block;
 }
 
