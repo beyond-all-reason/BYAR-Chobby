@@ -68,7 +68,11 @@ body::-webkit-scrollbar {
 #config-select__div {
   position: absolute;
   top: 20px;
-  right: 10px;
+  right: 20px;
+  opacity: 0.08;
+}
+#config-select__div:hover {
+  opacity: 0.66;
 }
 
 .infobox {
@@ -125,7 +129,7 @@ body::-webkit-scrollbar {
   padding-top: 165px;
   padding-left: 20px;
   padding-right: 10px;
-  width: 72%;
+  width: 73%;
   display: inline-block;
 }
 
