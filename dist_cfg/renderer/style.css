@@ -126,7 +126,7 @@ body::-webkit-scrollbar {
 
 .progress-block {
   position: relative;
-  padding-top: 165px;
+  padding-top: 190px;
   padding-left: 20px;
   padding-right: 10px;
   padding-bottom: 45px;
@@ -138,7 +138,7 @@ body::-webkit-scrollbar {
   position: absolute;
   display: inline-block;
   padding-left: 30px;
-  top: 220px;
+  top: 250px;
 }
 
 #btn-progress {
