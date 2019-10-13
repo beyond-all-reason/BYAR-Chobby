@@ -13,7 +13,11 @@
     </head>
     <body>
       <div class="video">
-        <video id="videoplayer" src="video/mayhem.mp4" autoplay loop muted></video>
+        <video id="videoplayer" autoplay loop muted></video>
+        <script type="text/javascript">
+          var videos = ['mayhem.mp4', 'dynamicwater.mp4', 'pyros.mp4'];
+          document.getElementById('videoplayer').src = "video/" + videos[Math.floor(Math.random() * videos.length)];
+        </script>
       </div>
       <div class="section">
         <div id="config-select__div">
