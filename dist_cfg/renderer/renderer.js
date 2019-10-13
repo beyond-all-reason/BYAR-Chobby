@@ -100,11 +100,10 @@ function stepError(message) {
   document.getElementById("progress-part").classList.add("is-danger");
   setInProgress(false);
 }
-
 window.onload = function() {
 
   var videos = ['mayhem.mp4', 'dynamicwater.mp4', 'pyros.mp4'];
-  document.getElementById('videoplayer').src = "video/" + videos[Math.floor(Math.random() * videos.length];
+  document.getElementById('videoplayer').src = "video/" + videos[Math.floor(Math.random() * videos.length)];
   document.getElementById('videoplayer').load();
   document.getElementById('videoplayer').play();
 
