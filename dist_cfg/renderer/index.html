@@ -11,7 +11,10 @@
       <link href="./bulmaswatch.min.css" rel="stylesheet" />
       <link href="./style.css" rel="stylesheet">
     </head>
-    <body >
+    <body>
+      <div class="video">
+        <video id="videoplayer" src="video/mayhem.mp4" autoplay loop muted></video>
+      </div>
       <div class="section">
         <div id="config-select__div">
           <label for="select_span" id="current_config">Config:</label>
@@ -20,7 +23,7 @@
             </select>
           </span>
         </div>
-        <h1 id="main-title" class="title is-1">Beyond all Reason</h1>
+        <h1 id="main-title" class="title is-1">Beyond All Reason</h1>
         <div class="progress-block">
           <div class="progress-status">
             <button id="btn-show-log" class="button is-small status-button" onfocus="this.blur();" tabindex="-1">Toggle log</button>
