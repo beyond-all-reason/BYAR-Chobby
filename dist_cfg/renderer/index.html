@@ -16,7 +16,11 @@
         <video id="videoplayer" autoplay loop muted></video>
         <script type="text/javascript">
           var videos = ['mayhem.mp4', 'dynamicwater.mp4', 'pyros.mp4'];
-          document.getElementById('videoplayer').src = "video/" + videos[Math.floor(Math.random() * videos.length)];
+          var video = videos[Math.floor(Math.random() * videos.length)]
+          document.getElementById('videoplayer').src = "video/" + video;
+          if (video == 'mayhem.mp4') {
+            document.getElementById('videoplayer').style.transform = " scale(1.66)";
+          }
         </script>
       </div>
       <div class="section">
