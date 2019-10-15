@@ -11,13 +11,24 @@ function widget:GetInfo()
 	}
 end
 
+local vsx,vsy = 0,0
+local panel_layout = 1
+
 function uiScaler()
 	if WG.Chobby and WG.Chobby.Configuration and WG.Chobby.Configuration.uiScale then
-		local vsx,vsy = Spring.Orig.GetViewSizes()
-		WG.Chobby.Configuration:SetConfigValue('uiScale', vsx / 1850)
+        local old_vsx, old_vsy = vsx, vsy
+		vsx,vsy = Spring.Orig.GetViewSizes()
+
+        if vsx ~= old_vsx or vsy ~= old_vsy or panel_layout ~= WG.Chobby.Configuration.panel_layout then
+			panel_layout = WG.Chobby.Configuration.panel_layout
+			if WG.Chobby.Configuration.panel_layout == 1 then
+				WG.Chobby.Configuration:SetConfigValue('uiScale', vsx / 1920)	-- two panels
+			else
+				WG.Chobby.Configuration:SetConfigValue('uiScale', vsx / 1600)	-- single panel
+			end
+        end
 	end
 end
-
 
 function widget:ViewResize()
 	uiScaler()
