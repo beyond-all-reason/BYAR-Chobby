@@ -6,16 +6,16 @@ function widget:GetInfo()
 		author = "Floris",
 		date = "",
 		license = "",
-		layer = 1,
+		layer = 0,
 		enabled = true
 	}
 end
 
 function checkResolution()
 	-- resize resolution if is larger than screen resolution
-	local wsx,wsy,wpx,wpy = Spring.GetWindowGeometry()
+	local vsx,vsy = Spring.Orig.GetViewSizes()
 	local ssx,ssy,spx,spy = Spring.GetScreenGeometry()
-	if wsx > ssx or wsy > ssy then
+	if (vsx > ssx or vsy > ssy) and Spring.SendCommands then
 		if tonumber(Spring.GetConfigInt("Fullscreen",1) or 1) == 1 then
 			Spring.SendCommands("Fullscreen 0")
 		else
@@ -31,11 +31,16 @@ function checkResolution()
 			Spring.SendCommands("Fullscreen 1")
 		end
 	end
+	if WG.Chobby and WG.Chobby.Configuration and WG.Chobby.Configuration.uiScale then
+		WG.Chobby.Configuration:SetConfigValue('uiScale', vsx / 1800)
+	end
 end
+
 
 function widget:ViewResize()
 	checkResolution()
 end
+
 
 function widget:Initialize()
 	widget:ViewResize()

@@ -62,15 +62,6 @@ function widget:Initialize()
 	widget:ViewResize()
 end
 
-local sec = 0
-function widget:Update(dt)
-	sec = sec + dt
-	if sec > 2 then
-		sec = 0
-		widget:ViewResize()
-	end
-end
-
 ----------------------------
 -- load cursors
 function SetCursor(cursorSet)
