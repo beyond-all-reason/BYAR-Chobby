@@ -23,6 +23,9 @@ function widget:ViewResize()
 	uiScaler()
 end
 
+function widget:Update()
+	uiScaler()
+end
 
 function widget:Initialize()
 	widget:ViewResize()
