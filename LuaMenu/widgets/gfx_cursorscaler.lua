@@ -62,8 +62,6 @@ function widget:Initialize()
 	widget:ViewResize()
 end
 
-----------------------------
--- load cursors
 function SetCursor(cursorSet)
 	local oldSetName = Settings['cursorSet']..'_'..Settings['cursorSize']
 	Settings['cursorSet'] = cursorSet
