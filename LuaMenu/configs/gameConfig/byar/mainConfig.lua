@@ -6,7 +6,7 @@ local singleplayerConfig = VFS.Include(LUA_DIRNAME .. "configs/gameConfig/" .. s
 local helpSubmenuConfig  = VFS.Include(LUA_DIRNAME .. "configs/gameConfig/" .. shortname .. "/helpSubmenuConfig.lua")
 local skirmishDefault    = VFS.Include(LUA_DIRNAME .. "configs/gameConfig/" .. shortname .. "/skirmishDefault.lua")
 local defaultModoptions  = VFS.Include(LUA_DIRNAME .. "configs/gameConfig/" .. shortname .. "/ModOptions.lua")
-local rankFunction       = VFS.Include(LUA_DIRNAME .. "configs/gameConfig/zk/rankFunction.lua")
+--local rankFunction       = VFS.Include(LUA_DIRNAME .. "configs/gameConfig/zk/rankFunction.lua")
 local backgroundConfig   = VFS.Include(LUA_DIRNAME .. "configs/gameConfig/" .. shortname .. "/skinning/skinConfig.lua")
 
 local link_homePage, link_maps = VFS.Include(LUA_DIRNAME .. "configs/gameConfig/" .. shortname .. "/linkFunctions.lua")
@@ -29,8 +29,8 @@ if VFS.FileExists(randomBackgroundImage) then
 	background.image = randomBackgroundImage
 end
 
-local minimapOverridePath  = LUA_DIRNAME .. "configs/gameConfig/zk/minimapOverride/"
-local minimapThumbnailPath = LUA_DIRNAME .. "configs/gameConfig/zk/minimapThumbnail/"
+local minimapOverridePath  = LUA_DIRNAME .. "configs/gameConfig/" .. shortname .. "/minimapOverride/"
+local minimapThumbnailPath = LUA_DIRNAME .. "configs/gameConfig/" .. shortname .. "/minimapThumbnail/"
 
 ---------------------------------------------------------------------------------
 -- Getters
@@ -52,7 +52,7 @@ local externalFuncAndData = {
 	helpSubmenuConfig      = helpSubmenuConfig,
 	skirmishDefault        = skirmishDefault,
 	defaultModoptions      = defaultModoptions,
-	rankFunction           = rankFunction,
+	--rankFunction           = rankFunction,
 	headingLarge           = headingLarge,
 	headingSmall           = headingSmall,
 	skinName               = "EvolvedByar",
