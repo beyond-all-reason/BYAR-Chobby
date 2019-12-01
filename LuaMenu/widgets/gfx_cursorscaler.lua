@@ -13,7 +13,7 @@ end
 
 local sizeMult = 1
 local Settings = {}
-Settings['cursorSet'] = 'bar'
+Settings['cursorSet'] = 'icexuick'
 Settings['cursorSize'] = 100
 
 local force = true
@@ -54,7 +54,7 @@ end
 
 function widget:ViewResize()
 	local ssx,ssy = Spring.GetScreenGeometry()
-	autoCursorSize = 100 * (0.55 + (ssx*ssy / 6600000)) * sizeMult
+	autoCursorSize = 100 * (0.6 + (ssx*ssy / 10000000)) * sizeMult
 	SetCursor(Settings['cursorSet'])
 end
 
