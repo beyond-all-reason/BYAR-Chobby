@@ -9,7 +9,7 @@ local defaultModoptions  = VFS.Include(LUA_DIRNAME .. "configs/gameConfig/" .. s
 --local rankFunction       = VFS.Include(LUA_DIRNAME .. "configs/gameConfig/zk/rankFunction.lua")
 local backgroundConfig   = VFS.Include(LUA_DIRNAME .. "configs/gameConfig/" .. shortname .. "/skinning/skinConfig.lua")
 
-local link_homePage, link_maps = VFS.Include(LUA_DIRNAME .. "configs/gameConfig/" .. shortname .. "/linkFunctions.lua")
+local link_homePage, link_replays, link_maps = VFS.Include(LUA_DIRNAME .. "configs/gameConfig/" .. shortname .. "/linkFunctions.lua")
 
 local settingsConfig, settingsNames, settingsDefault = VFS.Include(LUA_DIRNAME .. "configs/gameConfig/" .. shortname .. "/settingsMenu.lua")
 
@@ -69,8 +69,10 @@ local externalFuncAndData = {
 	disablePlanetwars 			= true, -- removes settings related to planetwars
 	disableMatchMaking 			= true, -- removes match making
 	disableCommunityWindow 		= true, -- removes Community Window
-	link_homePage,
-	link_maps,
+	featuredMapsSelectionDisable 	= true, -- removes the setting to enable a filter that allows featured (by Zero-K) map
+	link_homePage           = link_homePage,
+	link_replays            = link_replays,
+	link_maps               = link_maps,
 	--openTrack = '',	-- dont leave empty
 	randomTrackList = {
 		"LuaMenu/configs/gameConfig/byar/lobbyMusic/ProfessorKliq-TensionGrowl.ogg",

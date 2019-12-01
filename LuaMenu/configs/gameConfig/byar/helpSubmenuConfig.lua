@@ -89,7 +89,7 @@ local communityLines = {
 		"Browse and download maps.",
 		"Maps",
 		function ()
-			WG.BrowserHandler.OpenUrl("https://www.beyondallreason.info/maps")
+			WG.BrowserHandler.OpenUrl("https://springfiles.com/spring/spring-maps")
 		end
 	},
 	{
