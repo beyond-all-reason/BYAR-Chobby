@@ -265,7 +265,7 @@ local function InitializeControls()
 		mapList:AddItem(mapName, control, sortData)
 	end
 	
-	if not Configuration.onlyShowFeaturedMaps then
+	--if not Configuration.onlyShowFeaturedMaps then
 		for i, archive in pairs(VFS.GetAllArchives()) do
 			local info = VFS.GetArchiveInfo(archive)
 			if info and info.modtype == 3 and not mapFuncs[info.name] then
@@ -273,7 +273,7 @@ local function InitializeControls()
 				mapList:AddItem(info.name, control, sortData)
 			end
 		end
-	end
+	--end
 	
 	-------------------------
 	-- Buttons
