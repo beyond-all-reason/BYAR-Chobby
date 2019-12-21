@@ -240,7 +240,7 @@ function Configuration:init()
 
 	self.countryShortnames = VFS.Include(LUA_DIRNAME .. "configs/countryShortname.lua")
 
-	self.game_settings = VFS.Include(LUA_DIRNAME .. "configs/springsettings/springsettings.lua")
+	self.game_settings = VFS.Include(LUA_DIRNAME .. "configs/gameConfig/byar/defaultSettings/springsettings.lua")
 	self.forcedCompatibilityProfile = VFS.Include(LUA_DIRNAME .. "configs/springsettings/forcedCompatibilityProfile.lua")
 
 	local default = self.gameConfig.SettingsPresetFunc and self.gameConfig.SettingsPresetFunc()

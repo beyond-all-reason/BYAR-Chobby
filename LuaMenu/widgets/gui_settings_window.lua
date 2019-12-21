@@ -1747,15 +1747,15 @@ end
 
 local firstCall = true
 function widget:ActivateMenu()
-	if firstCall then
-		local gameSettings = WG.Chobby.Configuration.game_settings
-		for key, value in pairs(gameSettings) do
-			WG.Chobby.Configuration:SetSpringsettingsValue(key, value)
-		end
-
-		firstCall = false
-		return
-	end
+	--if firstCall then
+	--	local gameSettings = WG.Chobby.Configuration.game_settings
+	--	for key, value in pairs(gameSettings) do
+	--		WG.Chobby.Configuration:SetSpringsettingsValue(key, value)
+	--	end
+	--
+	--	firstCall = false
+	--	return
+	--end
 	if not (WG.Chobby and WG.Chobby.Configuration) then
 		return
 	end
@@ -1837,8 +1837,14 @@ function widget:Initialize()
 			Configuration:SetSpringsettingsValue("Fullscreen", 1)
 		end
 
-		for key, value in pairs(gameSettings) do
-			Configuration:SetSpringsettingsValue(key, value)
+		-- only run once, ever
+		local firstRun = tonumber(Spring.GetConfigInt("FirstRun",1) or 1) == 1
+		if not firstRun then
+			local gameSettings = WG.Chobby.Configuration.game_settings
+			for key, value in pairs(gameSettings) do
+				Configuration:SetSpringsettingsValue(key, value)
+			end
+			Spring.SetConfigInt("FirstRun", 0)
 		end
 
 		local compatProfile = Configuration.forcedCompatibilityProfile
