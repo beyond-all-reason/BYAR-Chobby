@@ -4,7 +4,7 @@
         {
             "package": {
                 "id": "test",
-                "display": "Test"
+                "display": "Alpha"
             },
             "downloads": {
                 "games" : ["byar:test", "chobby:test", "byar-chobby:test"],
