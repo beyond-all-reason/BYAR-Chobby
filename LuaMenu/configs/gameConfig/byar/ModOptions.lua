@@ -192,6 +192,17 @@ local options={
 		step   = 0.2,
 	},
 	{
+		key    = 'scavengers',
+		name   = 'Scavenger amount',
+		desc   = 'This multiplier will be applied on the amount of civilians a map will end up with',
+		type   = 'number',
+		section= 'options',
+		def    = 0,
+		min    = 0,
+		max    = 5,
+		step   = 0.1,
+	},
+	{
 		key    = "newbie_placer",
 		name   = "Newbie Placer",
 		desc   = "Chooses a startpoint and a random faction for all rank 1 accounts (online only)",
@@ -199,7 +210,6 @@ local options={
 		def    = false,
 		section= "options",
 	},
-
 
 	{
 		key    = 'restrictions',
@@ -276,7 +286,7 @@ local options={
 
 
 
-	-- Chicken Defense Options
+-- Chicken Defense Options
 	{
 		key    = 'chicken_defense_options',
 		name   = 'Chicken Defense Options',
@@ -354,9 +364,9 @@ local options={
 		type   = "bool",
 		def    = true,
 		section= "chicken_defense_options",
-	},
+    },
 
-	-- Chicken Defense Custom Difficulty Settings
+-- Chicken Defense Custom Difficulty Settings
 	{
 		key    = 'chicken_defense_custom_settings',
 		name   = 'Chicken Defense Custom Settings',
@@ -462,6 +472,6 @@ local options={
 		step   = 1,
 		section= "chicken_defense_custom_settings",
 	},
-	-- End Chicken Defense Settings
+-- End Chicken Defense Settings
 }
 return options
