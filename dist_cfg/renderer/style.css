@@ -15,9 +15,11 @@ body {
 }
 video{
   position: absolute;
-  width: 100%;
-  height: 100%;
-  transform: scale(1.4);
+  left: 0px;
+  top: 0px;
+  right: 0px;
+  bottom: 0px;
+  transform: scale(1.015);
 }
 
 @font-face {
