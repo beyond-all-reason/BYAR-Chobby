@@ -4,8 +4,8 @@ return {
 		control = WG.BattleRoomWindow.GetSingleplayerControl(),
 		entryCheck = WG.BattleRoomWindow.SetSingleplayerGame,
 	},
-	{
-		name = "editor",
-		control = WG.SpringBoardWindow.GetControl(),
-	},
+	--{
+	--	name = "editor",
+	--	control = WG.SpringBoardWindow.GetControl(),
+	--},
 }
