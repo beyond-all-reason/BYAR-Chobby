@@ -1,4 +1,4 @@
 return {
-	map = "Eye_Of_Horus_v2",
-	enemyAI = "DAI",
+	map = "Desert 2.8",
+	enemyAI = "DAI stai",
 }
