@@ -91,7 +91,7 @@ function Configuration:init()
 	self.displayBots = false
 	self.displayBadEngines2 = false
 	self.allEnginesRunnable = true
-	self.doNotSetAnySpringSettings = true
+	self.doNotSetAnySpringSettings = false		-- NOTE: setting this to true generates error
 	self.agressivelySetBorderlessWindowed = false
 
 	self.useWrongEngine = false
