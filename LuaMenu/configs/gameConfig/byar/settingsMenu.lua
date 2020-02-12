@@ -156,51 +156,14 @@ local settingsConfig = {
 --
 		settings = {
 			{
-				name = "windowmode",
-				humanName = "Window mode",
-				options = {
-					{
-						name = "Fullscreen",
-						applyFunction = function()
-							if not WG.Chobby then
-								return
-							end
-							Spring.SetConfigInt("WindowState", 0)
-							Spring.SetConfigInt("Fullscreen", 1)
-							return {}
-						end
-					},
-					{
-						name = "Windowed",
-						applyFunction = function()
-							if not WG.Chobby then
-								return
-							end
-							Spring.SetConfigInt("Fullscreen", 1)	-- needed to force update
-							Spring.SetConfigInt("WindowPosX", 0)
-							Spring.SetConfigInt("WindowPosY", 20)
-							Spring.SetConfigInt("WindowBorderless", 0)
-							Spring.SetConfigInt("WindowState", 0)
-							Spring.SetConfigInt("Fullscreen", 0)
-							return {}
-						end
-					},
-					{
-						name = "Borderless window",
-						applyFunction = function()
-							if not WG.Chobby then
-								return
-							end
-							Spring.SetConfigInt("Fullscreen", 1)	-- needed to force update
-							Spring.SetConfigInt("WindowPosX", 0)
-							Spring.SetConfigInt("WindowPosY", 0)
-							Spring.SetConfigInt("WindowBorderless", 1)
-							Spring.SetConfigInt("WindowState", 1)
-							Spring.SetConfigInt("Fullscreen", 0)
-							return {}
-						end
-					},
-				}
+				name = "DisplayMode",
+				humanName = "Ingame Display Mode",
+				displayModeToggle = true,
+			},
+			{
+				name = "LobbyDisplayMode",
+				humanName = "Menu Display Mode",
+				lobbyDisplayModeToggle = true,
 			},
 			{
 				name = "Resolution",
