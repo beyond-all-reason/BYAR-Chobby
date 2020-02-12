@@ -50,7 +50,3 @@ end
 function widget:Initialize()
 	checkResolution()
 end
-
-function widget:Update()
-	--checkResolution()
-end
