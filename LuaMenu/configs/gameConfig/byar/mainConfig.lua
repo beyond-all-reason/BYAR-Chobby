@@ -78,6 +78,7 @@ local externalFuncAndData = {
 		"LuaMenu/configs/gameConfig/byar/lobbyMusic/ProfessorKliq-TensionGrowl.ogg",
 		"LuaMenu/configs/gameConfig/byar/lobbyMusic/RobRichert-AliasZero.ogg",
 	},
+	disableColorChoosing = true,
 }
 
 function externalFuncAndData.CheckAvailability()
