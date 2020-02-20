@@ -44,6 +44,7 @@ local externalFuncAndData = {
 	_defaultGameRapidTag   = "byar:test", -- Do not read directly
 	--editor                 = "rapid://sb-byar:test",
 	--editor                 = "SpringBoard BYAR $VERSION",
+	defaultChatChannels    = {"main", "newbies"},
 	mapWhitelist           = mapWhitelist,
 	aiBlacklist            = aiBlacklist,
 	settingsConfig         = settingsConfig,
