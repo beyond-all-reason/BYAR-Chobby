@@ -165,11 +165,11 @@ local settingsConfig = {
 				humanName = "Menu Display Mode",
 				lobbyDisplayModeToggle = true,
 			},
-			{
-				name = "Resolution",
-				humanName = "Resolution",
-				options = resolutionOptions,
-			},
+			--{
+			--	name = "Resolution",
+			--	humanName = "Resolution",
+			--	options = resolutionOptions,
+			--},
 			--{
 			--	name = "DisplayMode",
 			--	humanName = "Display",
