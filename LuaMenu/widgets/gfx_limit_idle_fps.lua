@@ -52,12 +52,14 @@ function widget:Update()
 	if enabled then
 		local prevIsIdle = isIdle
 
-		local mouseX, mouseY, lmb, mmb, rmb  = Spring.GetMouseState()
+		local mouseX, mouseY, lmb, mmb, rmb, mouseOffscreen  = Spring.GetMouseState()
 		if mouseX ~= lastMouseX or mouseY ~= lastMouseY or lmb or mmb or rmb  then
 			lastMouseX, lastMouseY = mouseX, mouseY
 			lastUserInputTime = os.clock()
 		end
-
+		if mouseOffScreen then
+			lastUserInputTime = os.clock() - idleTime-1
+		end
 		if lastUserInputTime < os.clock() - idleTime then
 			isIdle = true
 		else
