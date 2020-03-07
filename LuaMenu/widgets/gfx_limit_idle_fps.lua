@@ -42,6 +42,12 @@ end
 
 
 function widget:Update()
+	-- detect change by user
+	local curVsync = Spring.GetConfigInt("VSync",1)
+	if curVsync ~= vsyncValueIdle and curVsync ~= vsyncValueActive then
+		vsyncValueActive = curVsync
+	end
+
 	local prevEnabled = enabled
 	if WG.Chobby and WG.Chobby.interfaceRoot then
 		enabled = WG.Chobby.interfaceRoot.GetLobbyInterfaceHolder().visible
