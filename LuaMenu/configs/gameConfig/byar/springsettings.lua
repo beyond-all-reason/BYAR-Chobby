@@ -1,4 +1,4 @@
-local settings = {
+return {
     AdvModelShading = 1,
     AdvMapShading = 1,
     AdvSky = 0,
@@ -38,7 +38,6 @@ local settings = {
     MaximumTransmissionUnit = 0,
     MiddleClickScrollSpeed = -0.005,
     MinimapOnLeft = 1,
-    NormalMapping = 1,
     MouseDragScrollThreshold = 0,
     MoveWarnings = 0,
     MSAA = 1,
@@ -68,4 +67,3 @@ local settings = {
     snd_volmaster = 100,
     snd_volmusic = 30,
 }
-return settings

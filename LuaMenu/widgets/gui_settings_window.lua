@@ -1799,8 +1799,6 @@ function widget:Initialize()
 		local Configuration = WG.Chobby.Configuration
 
 		-- Settings which rely on io
-		local gameSettings = Configuration.game_settings
-
 		if battleStartDisplay == 1 then -- Borderless Window
 			Configuration:SetSpringsettingsValue("XResolutionWindowed", screenX)
 			Configuration:SetSpringsettingsValue("YResolutionWindowed", screenY)
@@ -1838,10 +1836,9 @@ function widget:Initialize()
 		end
 
 		-- only run once, ever
-		local firstRun = tonumber(Spring.GetConfigInt("FirstRun",1) or 1) == 1
-		if not firstRun then
-			local gameSettings = WG.Chobby.Configuration.game_settings
-			for key, value in pairs(gameSettings) do
+		local firstRun = tonumber(Spring.GetConfigInt("FirstRun", 1) or 1) == 1
+		if firstRun then
+			for key, value in pairs(Configuration.game_settings) do
 				Configuration:SetSpringsettingsValue(key, value)
 			end
 			Spring.SetConfigInt("FirstRun", 0)
