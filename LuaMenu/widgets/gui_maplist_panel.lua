@@ -56,13 +56,13 @@ local function GetTerrainType(hillLevel, waterLevel)
 	else
 		second = "mixed"
 	end
-	
+
 	return first .. second
 end
 
 local function CreateMapEntry(mapName, mapData, CloseFunc)--{"ResourceID":7098,"Name":"2_Mountains_Battlefield","SupportLevel":2,"Width":16,"Height":16,"IsAssymetrical":false,"Hills":2,"WaterLevel":1,"Is1v1":false,"IsTeams":true,"IsFFA":false,"IsChickens":false,"FFAMaxTeams":null,"RatingCount":3,"RatingSum":10,"IsSpecial":false},
 	local Configuration = WG.Chobby.Configuration
-	
+
 	local mapButton = Button:New {
 		x = 0,
 		y = 0,
@@ -78,7 +78,7 @@ local function CreateMapEntry(mapName, mapData, CloseFunc)--{"ResourceID":7098,"
 			end
 		},
 	}
-	
+
 	local minimap = Panel:New {
 		name = "minimap",
 		x = 3,
@@ -88,7 +88,7 @@ local function CreateMapEntry(mapName, mapData, CloseFunc)--{"ResourceID":7098,"
 		padding = {1,1,1,1},
 		parent = mapButton,
 	}
-	
+
 	local mapImageFile, needDownload = Configuration:GetMinimapSmallImage(mapName)
 	local minimapImage = Image:New {
 		name = "minimapImage",
@@ -102,7 +102,7 @@ local function CreateMapEntry(mapName, mapData, CloseFunc)--{"ResourceID":7098,"
 		checkFileExists = needDownload,
 		parent = minimap,
 	}
-	
+
 	TextBox:New {
 		x = 65,
 		y = 12,
@@ -113,7 +113,7 @@ local function CreateMapEntry(mapName, mapData, CloseFunc)--{"ResourceID":7098,"
 		text = mapName:gsub("_", " "),
 		parent = mapButton,
 	}
-	
+
 	local haveMap = VFS.HasArchive(mapName)
 	local imHaveGame = Image:New {
 		x = 612,
@@ -123,7 +123,7 @@ local function CreateMapEntry(mapName, mapData, CloseFunc)--{"ResourceID":7098,"
 		file = (haveMap and IMG_READY) or IMG_UNREADY,
 		parent = mapButton,
 	}
-	
+
 	local sortData
 	if mapData then
 		TextBox:New {
@@ -136,7 +136,7 @@ local function CreateMapEntry(mapName, mapData, CloseFunc)--{"ResourceID":7098,"
 			text = (mapData.Width or " ?") .. "x" .. (mapData.Height or " ?"),
 			parent = mapButton,
 		}
-		
+
 		local mapType = GetMapType(mapData.Is1v1, mapData.IsTeams, mapData.IsFFA, mapData.IsChickens, mapData.IsSpecial)
 		TextBox:New {
 			x = 356,
@@ -148,7 +148,7 @@ local function CreateMapEntry(mapName, mapData, CloseFunc)--{"ResourceID":7098,"
 			text = mapType,
 			parent = mapButton,
 		}
-		
+
 		local terrainType = GetTerrainType(mapData.Hills, mapData.WaterLevel)
 		TextBox:New {
 			x = 438,
@@ -160,21 +160,21 @@ local function CreateMapEntry(mapName, mapData, CloseFunc)--{"ResourceID":7098,"
 			text = terrainType,
 			parent = mapButton,
 		}
-		
+
 		sortData = {mapName, (mapData.Width or 0)*100 + (mapData.Height or 0), mapType, terrainType, (haveMap and 1) or 0}
 	else
 		sortData = {mapName, 0, "", "", (haveMap and 1) or 0}
 	end
-	
+
 	local externalFunctions = {}
-	
+
 	function externalFunctions.UpdateHaveMap()
 		haveMap = VFS.HasArchive(mapName)
 		imHaveGame.file = (haveMap and IMG_READY) or IMG_UNREADY
 		imHaveGame:Invalidate()
 		sortData[5] = (haveMap and 1) or 0 -- This line is pretty evil.
 	end
-	
+
 	return mapButton, sortData, externalFunctions
 end
 
@@ -184,7 +184,7 @@ end
 
 local function InitializeControls()
 	local Configuration = WG.Chobby.Configuration
-	
+
 	local mapListWindow = Window:New {
 		classname = "main_window",
 		parent = WG.Chobby.lobbyInterfaceHolder,
@@ -194,7 +194,7 @@ local function InitializeControls()
 		draggable = false,
 		padding = {0, 0, 0, 0},
 	}
-	
+
 	Label:New {
 		x = 20,
 		right = 5,
@@ -204,11 +204,11 @@ local function InitializeControls()
 		font = Configuration:GetFont(3),
 		caption = "Select a Map",
 	}
-	
+
 	local function CloseFunc()
 		mapListWindow:Hide()
 	end
-	
+
 	--local loadingPanel = Panel:New {
 	--	classname = "overlay_window",
 	--	x = "20%",
@@ -229,11 +229,11 @@ local function InitializeControls()
 	--	font = Configuration:GetFont(3),
 	--	caption = "Loading",
 	--}
-	
+
 	-------------------------
 	-- Map List
 	-------------------------
-	
+
 	local listHolder = Control:New {
 		x = 12,
 		right = 15,
@@ -244,7 +244,7 @@ local function InitializeControls()
 		draggable = false,
 		padding = {0, 0, 0, 0},
 	}
-	
+
 	local headings = {
 		{name = "Name", x = 62, width = 208},
 		{name = "Size", x = 272, width = 80},
@@ -252,19 +252,19 @@ local function InitializeControls()
 		{name = "Terrain", x = 436, width = 172},
 		{name = "", tooltip = "Downloaded", x = 610, width = 40, image = "LuaMenu/images/download.png"},
 	}
-	
+
 	local featuredMapList = WG.CommunityWindow.LoadStaticCommunityData().MapItems or {}
 	local mapFuncs = {}
-	
+
 	local mapList = WG.Chobby.SortableList(listHolder, headings, 60)
-	
+
 	local control, sortData
 	for i = 1, #featuredMapList do
 		local mapName = featuredMapList[i].Name
 		control, sortData, mapFuncs[mapName] = CreateMapEntry(mapName, featuredMapList[i], CloseFunc)
 		mapList:AddItem(mapName, control, sortData)
 	end
-	
+
 	--if not Configuration.onlyShowFeaturedMaps then
 		for i, archive in pairs(VFS.GetAllArchives()) do
 			local info = VFS.GetArchiveInfo(archive)
@@ -274,11 +274,11 @@ local function InitializeControls()
 			end
 		end
 	--end
-	
+
 	-------------------------
 	-- Buttons
 	-------------------------
-	
+
 	local btnClose = Button:New {
 		right = 11,
 		y = 7,
@@ -294,7 +294,7 @@ local function InitializeControls()
 			end
 		},
 	}
-	
+
 	local btnOnlineMaps = Button:New {
 		right = 95,
 		y = 7,
@@ -311,9 +311,9 @@ local function InitializeControls()
 		},
 	}
 	WG.Chobby.PriorityPopup(mapListWindow, CloseFunc)
-	
+
 	local externalFunctions = {}
-	
+
 	function externalFunctions.Show(zoomToMap)
 		if not mapListWindow.visible then
 			mapListWindow:Show()
@@ -323,13 +323,13 @@ local function InitializeControls()
 			mapList:ScrollToItem(zoomToMap)
 		end
 	end
-	
+
 	function externalFunctions.UpdateHaveMap(thingName)
 		if mapFuncs[thingName] then
 			mapFuncs[thingName].UpdateHaveMap()
 		end
 	end
-	
+
 	return externalFunctions
 end
 
@@ -360,7 +360,7 @@ function widget:Initialize()
 		end
 	end
 	WG.DownloadHandler.AddListener("DownloadFinished", DownloadFinished)
-	
+
 	WG.MapListPanel = MapListPanel
 end
 

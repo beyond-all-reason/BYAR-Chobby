@@ -16,9 +16,9 @@ local function GetImageFunction(level, skill, isBot, isModerator)
 			levelBracket = levelBracket + 1
 		end
 		levelBracket = levelBracket - 1
-		
+
 		local skillBracket = math.max(0, math.min(7, math.floor((skill-1000)/200)))
-		
+
 		return RANK_DIR .. levelBracket .. "_" .. skillBracket .. ".png"
 	end
 	return IMAGE_PLAYER

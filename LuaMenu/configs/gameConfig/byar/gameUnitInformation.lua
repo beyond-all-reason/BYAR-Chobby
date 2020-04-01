@@ -524,7 +524,7 @@ local categories = {
 }
 
 local humanNames = {
-	
+
 	-- Soldiders
 	--euf_barracks = {
 	--	category = "veh",
@@ -634,7 +634,7 @@ local humanNames = {
 	--	description = "Produces Tactical Nukes",
 	--	humanName = "Nuclear Missile Silo",
 	--},
-	
+
 }
 
 --------- To Generate ------------
@@ -648,18 +648,18 @@ local function AddUnit(unitName)
 	end
 	inNameList[unitName] = true
 	nameList[#nameList + 1] = unitName
-	
+
 	local ud = UnitDefNames[unitName]
 	if ud.buildOptions then
 		for i = 1, #ud.buildOptions do
 			AddUnit(UnitDefs[ud.buildOptions[i] ].name)
 		end
 	end
-	
+
 	if ud.customParams.morphto then
 		AddUnit(ud.customParams.morphto)
 	end
-	
+
 	if ud.weapons then
 		for i = 1, #ud.weapons do
 			local wd = WeaponDefs[ud.weapons[i].weaponDef]
@@ -668,7 +668,7 @@ local function AddUnit(unitName)
 			end
 		end
 	end
-	
+
 	if carrierDefs[ud.id] then
 		local data = carrierDefs[ud.id]
 		for i = 1, #data do
@@ -705,7 +705,7 @@ local function UnitOrder(name1, name2)
 	if not data2 then
 		return true
 	end
-	
+
 	local category1 = categories[data1.category].order
 	local category2 = categories[data2.category].order
 	return category1 < category2 or (category1 == category2 and data1.order < data2.order)

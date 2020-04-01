@@ -1,4 +1,4 @@
-return {	
+return {
 	CppTestAI = true,
 	E323AI = true,
 	HughAI = true,
