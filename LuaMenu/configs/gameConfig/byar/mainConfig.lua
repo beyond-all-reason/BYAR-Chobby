@@ -12,7 +12,7 @@ local backgroundConfig   = VFS.Include(LUA_DIRNAME .. "configs/gameConfig/" .. s
 local link_homePage, link_replays, link_maps = VFS.Include(LUA_DIRNAME .. "configs/gameConfig/" .. shortname .. "/linkFunctions.lua")
 
 local settingsConfig, settingsNames, settingsDefault = VFS.Include(LUA_DIRNAME .. "configs/gameConfig/" .. shortname .. "/settingsMenu.lua")
-local springSettingsPath = LUA_DIRNAME .. "configs/gameConfig/" .. shortname .. "/springsettings.lua"
+--local springSettingsPath = LUA_DIRNAME .. "configs/gameConfig/" .. shortname .. "/springsettings.lua"
 
 local headingLarge    = LUA_DIRNAME .. "configs/gameConfig/" .. shortname .. "/skinning/headingLarge.png"
 local headingSmall    = LUA_DIRNAME .. "configs/gameConfig/" .. shortname .. "/skinning/headingSmall.png"
@@ -55,7 +55,7 @@ local externalFuncAndData = {
 	skirmishDefault        = skirmishDefault,
 	defaultModoptions      = defaultModoptions,
 	--rankFunction           = rankFunction,
-	springSettingsPath     = springSettingsPath,
+	--springSettingsPath     = springSettingsPath,
 	headingLarge           = headingLarge,
 	headingSmall           = headingSmall,
 	skinName               = "Evolved",
