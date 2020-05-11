@@ -65,5 +65,11 @@
     "WindowPosY": 0,
     "snd_general": 100,
     "snd_volmaster": 100,
-    "snd_volmusic": 30
+    "snd_volmusic": 30,
+    "UseNetMessageSmoothingBuffer": 0,
+    "NetworkLossFactor": 2,
+    "LinkOutgoingBandwidth": 262144,
+    "LinkIncomingSustainedBandwidth": 262144,
+    "LinkIncomingPeakBandwidth": 262144,
+    "LinkIncomingMaxPacketRate": 2048
 }
