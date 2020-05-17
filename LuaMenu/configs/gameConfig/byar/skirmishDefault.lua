@@ -1,4 +1,4 @@
 return {
-	map = "Desert 2.8",
+	map = "Desert 3.1",
 	enemyAI = "DAI",
 }
