@@ -28,7 +28,6 @@
             "launch": {
                 "start_args" : ["--menu", "BYAR Chobby $VERSION"]
             }
-
         }
     ]
 }
