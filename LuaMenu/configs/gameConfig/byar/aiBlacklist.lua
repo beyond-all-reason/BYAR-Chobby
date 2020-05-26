@@ -8,4 +8,6 @@ return {
 	RAI = true,
 	Sharddev = true,
 	AAI = true,
+	CircuitAI = true,
+	Shard = true,
 }
