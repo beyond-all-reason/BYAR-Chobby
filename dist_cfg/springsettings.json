@@ -66,6 +66,7 @@
     "snd_general": 100,
     "snd_volmaster": 100,
     "snd_volmusic": 30,
+    "snd_airAbsorption": 0.35,
     "UseNetMessageSmoothingBuffer": 0,
     "NetworkLossFactor": 2,
     "LinkOutgoingBandwidth": 262144,

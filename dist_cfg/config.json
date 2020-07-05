@@ -8,7 +8,7 @@
             },
             "downloads": {
                 "games" : ["byar:test", "chobby:test", "byar-chobby:test"],
-                "engines" : [ "104.0.1-1510-g89bb8e3 maintenance"]
+                "engines" : [ "104.0.1-1529-gffcc8d2 maintenance"]
             },
             "no_start_script" : true,
             "launch": {
@@ -21,7 +21,7 @@
                 "display": "Dev Lobby"
             },
             "downloads": {
-                "engines" : [ "104.0.1-1510-g89bb8e3 maintenance" ]
+                "engines" : [ "104.0.1-1529-gffcc8d2 maintenance" ]
             },
             "no_start_script" : true,
             "no_downloads" : true,
