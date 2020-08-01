@@ -3,16 +3,46 @@
     "setups" : [
         {
             "package": {
-                "id": "test",
-                "display": "Alpha"
+                "id": "alpha-win",
+				"display": "Alpha",
+				"platform": "win32"
             },
             "downloads": {
                 "games" : ["byar:test", "chobby:test", "byar-chobby:test"],
-                "engines" : [ "104.0.1-1551-g55f31b1 maintenance"]
+				"resources": [
+					{
+					  "url": "https://springrts.com/dl/buildbot/default/maintenance/104.0.1-1551-g55f31b1/win32/spring_%7bmaintenance%7d104.0.1-1551-g55f31b1_win32-minimal-portable.7z",
+					  "destination": "engine/104.0.1-1551-g55f31b1 maintenance",
+					  "extract": true
+					}
+				  ]
             },
             "no_start_script" : true,
             "launch": {
-                "start_args" : ["--menu", "rapid://byar-chobby:test"]
+				"start_args" : ["--menu", "rapid://byar-chobby:test"],
+				"engine": "104.0.1-1551-g55f31b1 maintenance"
+			}
+		},
+		{
+            "package": {
+                "id": "alpha-linux",
+				"display": "Alpha",
+				"platform": "linux"
+            },
+            "downloads": {
+                "games" : ["byar:test", "chobby:test", "byar-chobby:test"],
+				"resources": [
+					{
+					  "url": "https://springrts.com/dl/buildbot/default/maintenance/104.0.1-1551-g55f31b1/linux64/spring_%7bmaintenance%7d104.0.1-1551-g55f31b1_minimal-portable-linux64-static.7z",
+					  "destination": "engine/104.0.1-1551-g55f31b1 maintenance",
+					  "extract": true
+					}
+				]
+            },
+            "no_start_script" : true,
+            "launch": {
+				"start_args" : ["--menu", "rapid://byar-chobby:test"],
+				"engine": "104.0.1-1551-g55f31b1 maintenance"
             }
         },
         {
