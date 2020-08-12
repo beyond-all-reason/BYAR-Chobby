@@ -35,6 +35,8 @@
     "MaxParticles": 20000,
     "MaxSounds": 128,
     "MaximumTransmissionUnit": 0,
+    "MaxTextureAtlasSizeX": 4096,
+    "MaxTextureAtlasSizeZ": 4096,
     "MiddleClickScrollSpeed": -0.005,
     "MinimapOnLeft": 1,
     "MouseDragScrollThreshold": 0,
