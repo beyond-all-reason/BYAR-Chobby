@@ -3,7 +3,7 @@
     "setups" : [
         {
             "package": {
-                "id": "test",
+                "id": "alpha",
                 "display": "Alpha"
             },
             "downloads": {
@@ -13,6 +13,50 @@
             "no_start_script" : true,
             "launch": {
                 "start_args" : ["--menu", "rapid://byar-chobby:test"]
+            }
+        },
+        {
+            "package": {
+                "id": "manual-win",
+                "display": "Alpha (Direct Download)",
+                "platform": "win32"
+            },
+            "downloads": {
+                "games" : ["byar:test", "chobby:test", "byar-chobby:test"],
+                "resources": [
+                    {
+                        "url": "https://springrts.com/dl/buildbot/default/maintenance/104.0.1-1553-gd3c0012/win32/spring_%7bmaintenance%7d104.0.1-1553-gd3c0012_win32-minimal-portable.7z",
+                        "destination": "engine/104.0.1-1553-gd3c0012 maintenance",
+                        "extract": true
+                    }
+                ]
+            },
+            "no_start_script" : true,
+            "launch": {
+                "start_args" : ["--menu", "rapid://byar-chobby:test"],
+				"engine": "104.0.1-1553-gd3c0012 maintenance"
+            }
+        },
+        {
+            "package": {
+                "id": "manual-linux",
+                "display": "Alpha (Direct Download)",
+                "platform": "linux"
+            },
+            "downloads": {
+                "games" : ["byar:test", "chobby:test", "byar-chobby:test"],
+                "resources": [
+                    {
+                        "url": "https://springrts.com/dl/buildbot/default/maintenance/104.0.1-1553-gd3c0012/linux64/spring_%7bmaintenance%7d104.0.1-1553-gd3c0012_minimal-portable-linux64-static.7z",
+                        "destination": "engine/104.0.1-1553-gd3c0012 maintenance",
+                        "extract": true
+                    }
+                ]
+            },
+            "no_start_script" : true,
+            "launch": {
+                "start_args" : ["--menu", "rapid://byar-chobby:test"],
+                "engine": "104.0.1-1553-gd3c0012 maintenance"
             }
         },
         {
