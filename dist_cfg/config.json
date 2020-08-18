@@ -3,20 +3,6 @@
     "setups" : [
         {
             "package": {
-                "id": "alpha",
-                "display": "Alpha"
-            },
-            "downloads": {
-                "games" : ["byar:test", "chobby:test", "byar-chobby:test"],
-                "engines" : [ "104.0.1-1553-gd3c0012 maintenance"]
-            },
-            "no_start_script" : true,
-            "launch": {
-                "start_args" : ["--menu", "rapid://byar-chobby:test"]
-            }
-        },
-        {
-            "package": {
                 "id": "manual-win",
                 "display": "Alpha (Direct Download)",
                 "platform": "win32"
@@ -35,6 +21,20 @@
             "launch": {
                 "start_args" : ["--menu", "rapid://byar-chobby:test"],
 				"engine": "104.0.1-1553-gd3c0012 maintenance"
+            }
+        },
+        {
+            "package": {
+                "id": "alpha",
+                "display": "Alpha"
+            },
+            "downloads": {
+                "games" : ["byar:test", "chobby:test", "byar-chobby:test"],
+                "engines" : [ "104.0.1-1553-gd3c0012 maintenance"]
+            },
+            "no_start_script" : true,
+            "launch": {
+                "start_args" : ["--menu", "rapid://byar-chobby:test"]
             }
         },
         {
