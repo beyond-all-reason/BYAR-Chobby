@@ -30,11 +30,11 @@
 
   #config-select__div {
 	right: 20px;
-	opacity: 0.18;
+	opacity: 0.2;
   }
   #config-select__div:hover {
 	opacity: 0.66;
-	transition: opacity 4s;
+	transition: opacity 3s;
   }
 
   h1 {
