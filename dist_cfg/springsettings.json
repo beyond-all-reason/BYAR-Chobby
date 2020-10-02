@@ -39,7 +39,7 @@
     "MaxTextureAtlasSizeZ": 4096,
     "MiddleClickScrollSpeed": -0.005,
     "MinimapOnLeft": 1,
-    "MouseDragScrollThreshold": 0,
+    "MouseDragScrollThreshold": 0.3,
     "MoveWarnings": 0,
     "MSAA": 1,
     "MSAALevel": 4,
