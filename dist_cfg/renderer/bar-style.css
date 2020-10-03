@@ -33,8 +33,8 @@
 	opacity: 0.2;
   }
   #config-select__div:hover {
-	opacity: 0.66;
-	transition: opacity 3s;
+	opacity: 0.75;
+	transition: opacity 0.5s;
   }
 
   h1 {
