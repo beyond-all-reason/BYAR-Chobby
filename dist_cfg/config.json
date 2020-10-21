@@ -15,6 +15,36 @@
                         "destination": "engine/104.0.1-1553-gd3c0012 maintenance",
                         "extract": true
                     }
+                    {
+                        "url": "https://spring-launcher.ams3.digitaloceanspaces.com/maps/altored_divide_bar_remake_1.55.sd7",
+                        "destination": "maps/",
+                        "extract": false
+                    }
+                    {
+                        "url": "https://spring-launcher.ams3.digitaloceanspaces.com/maps/boulder_beach_v1.sd7",
+                        "destination": "maps/",
+                        "extract": false
+                    }
+                    {
+                        "url": "https://spring-launcher.ams3.digitaloceanspaces.com/maps/dsdr_3.98.sd7",
+                        "destination": "maps/",
+                        "extract": false
+                    }
+                    {
+                        "url": "https://spring-launcher.ams3.digitaloceanspaces.com/maps/quicksilver_remake_1.24.sd7",
+                        "destination": "maps/",
+                        "extract": false
+                    }
+                    {
+                        "url": "https://spring-launcher.ams3.digitaloceanspaces.com/maps/red_comet_remake_1.8.sd7",
+                        "destination": "maps/",
+                        "extract": false
+                    }
+                    {
+                        "url": "https://spring-launcher.ams3.digitaloceanspaces.com/maps/trefoil_remake_2.20.sd7",
+                        "destination": "maps/",
+                        "extract": false
+                    }
                 ]
             },
             "no_start_script" : true,
