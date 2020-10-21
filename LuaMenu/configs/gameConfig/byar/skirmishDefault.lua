@@ -1,5 +1,5 @@
 return {
-	map = "Desert 3.1",
+	map = "Quicksilver Remake 1.24",
 	enemyAI = "DAI",
 	AIOptionsEnabled = true,
 }

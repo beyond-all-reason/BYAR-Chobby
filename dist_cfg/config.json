@@ -14,6 +14,32 @@
                         "url": "https://springrts.com/dl/buildbot/default/maintenance/104.0.1-1553-gd3c0012/linux64/spring_%7bmaintenance%7d104.0.1-1553-gd3c0012_minimal-portable-linux64-static.7z",
                         "destination": "engine/104.0.1-1553-gd3c0012 maintenance",
                         "extract": true
+                    },
+
+                    {
+                        "url": "https://spring-launcher.ams3.digitaloceanspaces.com/maps/altored_divide_bar_remake_1.55.sd7",
+                        "destination": "maps/altored_divide_bar_remake_1.55.sd7",
+                        "extract": false
+                    },
+                    {
+                        "url": "https://spring-launcher.ams3.digitaloceanspaces.com/maps/dsdr_3.98.sd7",
+                        "destination": "maps/dsdr_3.98.sd7",
+                        "extract": false
+                    },
+                    {
+                        "url": "https://spring-launcher.ams3.digitaloceanspaces.com/maps/quicksilver_remake_1.24.sd7",
+                        "destination": "maps/quicksilver_remake_1.24.sd7",
+                        "extract": false
+                    },
+                    {
+                        "url": "https://spring-launcher.ams3.digitaloceanspaces.com/maps/red_comet_remake_1.8.sd7",
+                        "destination": "maps/red_comet_remake_1.8.sd7",
+                        "extract": false
+                    },
+                    {
+                        "url": "https://spring-launcher.ams3.digitaloceanspaces.com/maps/trefoil_remake_2.20.sd7",
+                        "destination": "maps/trefoil_remake_2.20.sd7",
+                        "extract": false
                     }
                 ]
             },
@@ -36,6 +62,32 @@
                         "url": "https://springrts.com/dl/buildbot/default/maintenance/104.0.1-1553-gd3c0012/win64/spring_%7bmaintenance%7d104.0.1-1553-gd3c0012_win64-minimal-portable.7z",
                         "destination": "engine/104.0.1-1553-gd3c0012 maintenance",
                         "extract": true
+                    },
+
+                    {
+                        "url": "https://spring-launcher.ams3.digitaloceanspaces.com/maps/altored_divide_bar_remake_1.55.sd7",
+                        "destination": "maps/altored_divide_bar_remake_1.55.sd7",
+                        "extract": false
+                    },
+                    {
+                        "url": "https://spring-launcher.ams3.digitaloceanspaces.com/maps/dsdr_3.98.sd7",
+                        "destination": "maps/dsdr_3.98.sd7",
+                        "extract": false
+                    },
+                    {
+                        "url": "https://spring-launcher.ams3.digitaloceanspaces.com/maps/quicksilver_remake_1.24.sd7",
+                        "destination": "maps/quicksilver_remake_1.24.sd7",
+                        "extract": false
+                    },
+                    {
+                        "url": "https://spring-launcher.ams3.digitaloceanspaces.com/maps/red_comet_remake_1.8.sd7",
+                        "destination": "maps/red_comet_remake_1.8.sd7",
+                        "extract": false
+                    },
+                    {
+                        "url": "https://spring-launcher.ams3.digitaloceanspaces.com/maps/trefoil_remake_2.20.sd7",
+                        "destination": "maps/trefoil_remake_2.20.sd7",
+                        "extract": false
                     }
                 ]
             },
