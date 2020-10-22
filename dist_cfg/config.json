@@ -22,6 +22,11 @@
                         "extract": false
                     },
                     {
+                        "url": "https://spring-launcher.ams3.digitaloceanspaces.com/maps/boulder_beach_v1.sd7",
+                        "destination": "maps/boulder_beach_v1.sd7",
+                        "extract": false
+                    },
+                    {
                         "url": "https://spring-launcher.ams3.digitaloceanspaces.com/maps/dsdr_3.98.sd7",
                         "destination": "maps/dsdr_3.98.sd7",
                         "extract": false
@@ -67,6 +72,11 @@
                     {
                         "url": "https://spring-launcher.ams3.digitaloceanspaces.com/maps/altored_divide_bar_remake_1.55.sd7",
                         "destination": "maps/altored_divide_bar_remake_1.55.sd7",
+                        "extract": false
+                    },
+                    {
+                        "url": "https://spring-launcher.ams3.digitaloceanspaces.com/maps/boulder_beach_v1.sd7",
+                        "destination": "maps/boulder_beach_v1.sd7",
                         "extract": false
                     },
                     {
