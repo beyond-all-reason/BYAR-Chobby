@@ -14,3 +14,5 @@ BYAR mutator for Chobby
 3. Open the install folder (there's a button for that in the launcher), and clone this repository inside the `games` folder, `git clone https://github.com/beyond-all-reason/BYAR-Chobby.git BYAR-Chobby.sdd`
 4. Choose the "Dev Lobby" config which will run the lobby version on your PC. You can now develop and test any BYAR specific lobby functionality.
 5. If you want to develop Chobby itself, clone it in the `games` folder similar to step 3: `git clone https://github.com/Spring-Chobby/Chobby.git Chobby.sdd`. You must also change the `depend` table in `BYAR-Chobby.sdd/modinfo.lua` to use `Chobby $VERSION` instead of `rapid://chobby:test`.
+
+To enable debugmode, make an empty devmode.txt in the /data/ folder, and then the settings->developer tab will appear in the lobby. All debug messages are visible in th Debug chat panel.
