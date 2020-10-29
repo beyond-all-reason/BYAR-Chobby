@@ -19,13 +19,36 @@ end
 
 local replayListWindow
 
+local delayedAddReplays = {}
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 -- Utilities
 
 local function CreateReplayEntry(replayPath, engineName, gameName, mapName)
 	local Configuration = WG.Chobby.Configuration
+  --[[
 
+  -- params needed: engine name, mapname from 20201021_194926_Tetrad_V2_104.0.1-1553-gd3c0012 maintenance.sdfz
+  -- input is replayPath
+  local replayFilename = string.sub(replayPath, 7)
+  -- WE ARE ASSUMING ALL DEMOS ARE IN demos/ or demos\, this is pure idiocy but ok
+  local time_map_engine_branch = string.gsub(replayFilename, "%.sdfz", "")
+
+  --all engine branches are loved equally:
+  local time_map_engine = string.gsub(string.gsub(string.gsub(string.gsub(time_map_engine_branch, " maintenance", ""), " develop", ""), " luaVAO",""), " transition", "")
+  
+  Spring.Echo(replayFilename, time_map_engine_branch, time_map_engine)
+  
+  --string.find(your_string, "_[^_]*$") -- last underscore
+  local engineName = string.sub(time_map_engine,string.find(time_map_engine, "_[^_]*$")+1 )
+  local mymapname = string.sub(time_map_engine, 17, string.find(time_map_engine, "_[^_]*$")-1 )
+  
+  
+  local myreplayTime = string.sub(replayFilename, 0, 4) .. "-" .. string.sub(replayFilename, 5, 6) .. "-" .. string.sub(replayFilename, 7, 8) .. " at " .. string.sub(replayFilename, 10, 11) .. ":" .. string.sub(replayFilename, 12, 13) .. ":" .. string.sub(replayFilename, 14, 15)
+  Spring.Echo("demo file path Parse complete:", myreplayTime, engineName,mymapname,time_map_engine,replayFilename,replayName)
+  ]]--
+  
+  
 	local fileName = string.sub(replayPath, 7)
 	if string.sub(fileName, 0, 4) == "hide" then
 		return
@@ -35,7 +58,7 @@ local function CreateReplayEntry(replayPath, engineName, gameName, mapName)
 	fileName = string.gsub(fileName, "%.sdfz", "")
 
 	local replayTime = string.sub(fileName, 0, 15)
-	replayTime = string.sub(fileName, 0, 4) .. "-" .. string.sub(fileName, 5, 6) .. "-" .. string.sub(fileName, 7, 8) .. " at " .. string.sub(fileName, 10, 11) .. ":" .. string.sub(fileName, 12, 13) .. ":" .. string.sub(fileName, 14, 15)
+	replayTime = string.sub(fileName, 0, 4) .. "-" .. string.sub(fileName, 5, 6) .. "-" .. string.sub(fileName, 7, 8) .. " " .. string.sub(fileName, 10, 11) .. ":" .. string.sub(fileName, 12, 13) 
 
 	local replayPanel = Panel:New {
 		x = 0,
@@ -79,7 +102,7 @@ local function CreateReplayEntry(replayPath, engineName, gameName, mapName)
 	}
 	local replayMap = TextBox:New {
 		name = "replayMap",
-		x = 305,
+		x = 250,
 		y = 12,
 		right = 0,
 		height = 20,
@@ -90,7 +113,7 @@ local function CreateReplayEntry(replayPath, engineName, gameName, mapName)
 	}
 	local replayVersion = TextBox:New {
 		name = "replayVersion",
-		x = 535,
+		x = 435,
 		y = 12,
 		width = 400,
 		height = 20,
@@ -99,17 +122,17 @@ local function CreateReplayEntry(replayPath, engineName, gameName, mapName)
 		text = gameName,
 		parent = replayPanel,
 	}
-	--local replayEngine = TextBox:New {
-	--	name = "replayEngine",
-	--	x = 535,
-	--	y = 16,
-	--	width = 400,
-	--	height = 20,
-	--	valign = 'center',
-	--	fontsize = Configuration:GetFont(2).size,
-	--	text = engineName,
-	--	parent = replayPanel,
-	--}
+	local replayEngine = TextBox:New {
+		name = "replayEngine",
+		x = 535,
+		y = 16,
+		width = 400,
+		height = 20,
+		valign = 'center',
+		fontsize = Configuration:GetFont(2).size,
+		text = engineName,
+		parent = replayPanel,
+	}
 
 	return replayPanel, {replayTime, string.lower(mapName), gameName}
 end
@@ -168,9 +191,10 @@ local function InitializeControls(parentControl)
 	}
 
 	local headings = {
-		{name = "Time", x = 88, width = 207},
-		{name = "Map", x = 300, width = 225},
-		{name = "Version", x = 530, right = 5},
+		{name = "Time", x = 88, width = 150},
+		{name = "Map", x = 250, width = 100},
+		{name = "Game", x = 350, width = 100},
+		{name = "Engine", x = 530, right = 5},
 	}
 
 	local replayList = WG.Chobby.SortableList(listHolder, headings, nil, nil, false)
@@ -201,7 +225,11 @@ local function InitializeControls(parentControl)
 					return
 				end
 				local replayPath = replays[index]
-				WG.WrapperLoopback.ReadReplayInfo(replayPath)
+				--Spring.Echo("WG.WrapperLoopback.ReadReplayInfo(replayPath) commented out",replayPath)
+				--WG.WrapperLoopback.ReadReplayInfo(replayPath)
+        --replayListWindow.AddReplay(replayPath, "NGINE", "BAR", "DUCK", "script")
+        --ReplayHandler.ReadReplayInfoDone(replayPath, "NGINE", "BAR", "DUCK", "script")
+        delayedAddReplays[#delayedAddReplays + 1 ] = replayPath
 				index = index - 1
 			end
 
@@ -344,6 +372,34 @@ function widget:Initialize()
 	WG.Delay(DelayedInitialize, 1)
 
 	WG.ReplayHandler = ReplayHandler
+end
+
+
+
+function widget:Update() --BECAUSE YOU CANT POPULATE REPLAY LIST WHILE IT IS BEING CREATED: fuck counter++
+    if #delayedAddReplays > 1 then
+      for i = 1, #delayedAddReplays do
+        local replayPath = delayedAddReplays[i]
+        
+        
+        local replayFilename = string.sub(replayPath, 7)
+        -- WE ARE ASSUMING ALL DEMOS ARE IN demos/ or demos\, this is pure idiocy but ok
+        local time_map_engine_branch = string.gsub(replayFilename, "%.sdfz", "")
+
+        --all engine branches are loved equally:
+        local time_map_engine = string.gsub(string.gsub(string.gsub(string.gsub(time_map_engine_branch, " maintenance", ""), " develop", ""), " luaVAO",""), " transition", "")
+        
+        
+        --string.find(your_string, "_[^_]*$") -- last underscore
+        local replayEngine = string.sub(time_map_engine,string.find(time_map_engine, "_[^_]*$")+1 )
+        local mymapname = string.sub(time_map_engine, 17, string.find(time_map_engine, "_[^_]*$")-1 )
+  
+        WG.ReplayHandler.ReadReplayInfoDone(replayPath, replayEngine,'BAR',mymapname,'I HAVE NO SCRIPT PLS HELP')
+        
+        
+      end
+      delayedAddReplays = {}
+    end 
 end
 
 --------------------------------------------------------------------------------
