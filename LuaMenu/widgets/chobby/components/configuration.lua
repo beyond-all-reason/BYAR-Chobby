@@ -722,6 +722,7 @@ function Configuration:GetMinimapSmallImage(mapName)
 		filePath = "LuaMenu/Images/MinimapThumbnails/" .. mapName .. ".jpg"
 	end
   if not VFS.FileExists(filePath) then
+    Spring.Log("Chobby", LOG.WARNING,"GetMinimapSmallImage not found for",mapName)
 		filePath = "LuaMenu/Images/minimapNotFound.png"
 	end
 	if WG.WrapperLoopback and WG.WrapperLoopback.DownloadImage and (not VFS.FileExists(filePath)) then
@@ -745,6 +746,7 @@ function Configuration:GetMinimapImage(mapName)
 		filePath = "LuaMenu/Images/Minimaps/" .. mapName .. ".jpg"
 	end
 	if not VFS.FileExists(filePath) then
+    Spring.Log("Chobby", LOG.WARNING,"GetMinimapImage not found for",mapName)
 		filePath = "LuaMenu/Images/minimapNotFound.png"
 	end
 	if WG.WrapperLoopback and WG.WrapperLoopback.DownloadImage and (not VFS.FileExists(filePath)) then
