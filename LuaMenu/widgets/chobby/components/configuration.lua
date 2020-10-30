@@ -719,7 +719,10 @@ function Configuration:GetMinimapSmallImage(mapName)
 	mapName = string.gsub(mapName, " ", "_")
 	local filePath = self.gameConfig.minimapThumbnailPath .. mapName .. ".png"
 	if not VFS.FileExists(filePath) then
-		filePath = "LuaMenu/Images/MinimapThumbnails" .. mapName .. ".jpg"
+		filePath = "LuaMenu/Images/MinimapThumbnails/" .. mapName .. ".jpg"
+	end
+  if not VFS.FileExists(filePath) then
+		filePath = "LuaMenu/Images/minimapNotFound.png"
 	end
 	if WG.WrapperLoopback and WG.WrapperLoopback.DownloadImage and (not VFS.FileExists(filePath)) then
 		if not self.minimapThumbDownloads[mapName] then
@@ -740,6 +743,9 @@ function Configuration:GetMinimapImage(mapName)
 	local filePath = self.gameConfig.minimapOverridePath .. mapName .. ".jpg"
 	if not VFS.FileExists(filePath) then
 		filePath = "LuaMenu/Images/Minimaps/" .. mapName .. ".jpg"
+	end
+	if not VFS.FileExists(filePath) then
+		filePath = "LuaMenu/Images/minimapNotFound.png"
 	end
 	if WG.WrapperLoopback and WG.WrapperLoopback.DownloadImage and (not VFS.FileExists(filePath)) then
 		if not self.minimapDownloads[mapName] then
