@@ -111,8 +111,15 @@ function widget:DrawScreen()
 	if loadFade then
 		local vsx,vsy = gl.GetViewSizes()
 		gl.Color(1,1,1,loadFade)
-		gl.Texture(loadTex)
-    gl.TexRect(0,0,vsx,vsy)
+		gl.Texture(loadTex)    
+    -- origin bottom left
+    if (vsx>= vsy) then -- wider than tall
+      local pad = (vsx-vsy) / 2
+      gl.TexRect(pad,0,vsx-pad, vsy)
+    else -- taller than wide
+      local pad = (vsy-vsx) / 2
+      gl.TexRect(0,pad,vsx, vsy-pad)
+    end
 		gl.Color(1,1,1,1)
 
 		if not hideInterface then
