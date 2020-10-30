@@ -17,6 +17,8 @@ end
 --------------------------------------------------------------------------------
 -- Local Variables
 
+local DEFLATE =  VFS.Include("libs/LibDeflate/deflate.lua")
+
 local replayListWindow
 
 local delayedAddReplays = {}
@@ -374,31 +376,105 @@ function widget:Initialize()
 	WG.ReplayHandler = ReplayHandler
 end
 
+--https://github.com/spring/spring/blob/30862626214bd263b1c4489bb197ef1c3dbc0738/rts/System/LoadSave/demofile.h#L53
+local function ParseReplayBinaryString(rs)
+  --local header = rs:sub(1,352)
+  
+  --local magic = rs:sub(1,16)                   --///< DEMOFILE_MAGIC
+	--local version = VFS.UnpackU32(rs:sub(16,19)) --///< DEMOFILE_VERSION
+	--local headerSize = VFS.UnpackU32(rs:sub(20,23)) --///< Size of the DemoFileHeader, minor version number.
+  --Spring.Echo(magic, version, headerSize)
+  
+	--local versionString = rs:sub(24,279)  --///< Spring version string, e.g. "0.75b2", "0.75b2+svn4123"
+  --Spring.Echo(versionString)
+	--local gameID = rs:sub(278, 278+15) --///< Unique game identifier. Identical for each player of the game.
+  --local unixTime =  VFS.UnpackU32(rs:sub(278+15,278+15+3)) --     ///< Unix time when game was started.
+  local int32params = VFS.UnpackU32(rs,305,12)
+  --[[
+	int scriptSize;               ///< Size of startscript.
+	int demoStreamSize;           ///< Size of the demo stream.
+	int gameTime;                 ///< Total number of seconds game time.
+	int wallclockTime;            ///< Total number of seconds wallclock time.
+	int numPlayers;               ///< Number of players for which stats are saved. (this contains also later joined spectators!)
+	int playerStatSize;           ///< Size of the entire player statistics chunk.
+	int playerStatElemSize;       ///< sizeof(CPlayer::Statistics)
+	int numTeams;                 ///< Number of teams for which stats are saved.
+	int teamStatSize;             ///< Size of the entire team statistics chunk.
+	int teamStatElemSize;         ///< sizeof(CTeam::Statistics)
+	int teamStatPeriod;           ///< Interval (in seconds) between team stats.
+	int winningAllyTeamsSize;     ///< The size of the vector of the winning ally teams
+  ]]--
+
+  local scriptsize = int32params[1]
+  local scripttext = rs:sub(305+48,305+48+scriptsize -2) -- -2 to remove null terminator
+  --Spring.Echo('scriptsize:',scriptsize,'scripttxt:',scripttext)
+  local gameVersion = nil
+  for line in scripttext:gmatch("[^\n]+") do
+      if line:find("gametype") then
+        gameVersion = line:sub(line:find("=")+1,line:find(";")-1)
+      end
+  end
+  --Spring.Echo(scripttext, gameVersion)
+  return scripttext, gameVersion
+
+end
 
 
 function widget:Update() --BECAUSE YOU CANT POPULATE REPLAY LIST WHILE IT IS BEING CREATED: fuck counter++
-    if #delayedAddReplays > 1 then
-      for i = 1, #delayedAddReplays do
-        local replayPath = delayedAddReplays[i]
+    if #delayedAddReplays > 1 then -- worlds greatest asyncronous method of loading replays
+        local replayPath = delayedAddReplays[#delayedAddReplays]
         
-        
-        local replayFilename = string.sub(replayPath, 7)
-        -- WE ARE ASSUMING ALL DEMOS ARE IN demos/ or demos\, this is pure idiocy but ok
-        local time_map_engine_branch = string.gsub(replayFilename, "%.sdfz", "")
+        if replayPath:sub(-string.len('.sdfz')) == '.sdfz' then
+          local replayFilename = string.sub(replayPath, 7)
+          -- WE ARE ASSUMING ALL DEMOS ARE IN demos/ or demos\, this is pure idiocy but ok
+          local time_map_engine_branch = string.gsub(replayFilename, "%.sdfz", "")
 
-        --all engine branches are loved equally:
-        local time_map_engine = string.gsub(string.gsub(string.gsub(string.gsub(time_map_engine_branch, " maintenance", ""), " develop", ""), " luaVAO",""), " transition", "")
-        
-        
-        --string.find(your_string, "_[^_]*$") -- last underscore
-        local replayEngine = string.sub(time_map_engine,string.find(time_map_engine, "_[^_]*$")+1 )
-        local mymapname = string.sub(time_map_engine, 17, string.find(time_map_engine, "_[^_]*$")-1 )
-  
-        WG.ReplayHandler.ReadReplayInfoDone(replayPath, replayEngine,'BAR',mymapname,'I HAVE NO SCRIPT PLS HELP')
-        
-        
-      end
-      delayedAddReplays = {}
+          --all engine branches are loved equally:
+          local time_map_engine = string.gsub(string.gsub(string.gsub(string.gsub(time_map_engine_branch, " maintenance", ""), " develop", ""), " luaVAO",""), " transition", "")
+          
+          --string.find(your_string, "_[^_]*$") -- find last underscore
+          local replayEngine = string.sub(time_map_engine,string.find(time_map_engine, "_[^_]*$")+1 )
+          local mymapname = string.sub(time_map_engine, 17, string.find(time_map_engine, "_[^_]*$")-1 )
+          
+          --[[
+          local zippedreplay = VFS.LoadFile(replayPath,VFS.RAW)
+          local unzippedreplay = VFS.ZlibDecompress(zippedreplay,256000) --does not work!
+          ]]--
+          
+          local rfh = io.open(replayPath,'rb')
+          local startchunk = rfh:read(8192)
+          rfh:close()
+          
+          if startchunk and string.len(startchunk) > 1000 then
+          
+            local tmpdemozip = 'demos/temp_zipped_replay_chunk'
+            
+            local tmpdemounzip = 'demos/temp_unzipped_replay_chunk'
+            
+            local tmpdemozip_handle = io.open(tmpdemozip,'wb')
+            tmpdemozip_handle:write(startchunk)
+            tmpdemozip_handle:close()
+
+            local fh = io.open(tmpdemozip,'rb')
+            local ofh = io.open(tmpdemounzip,'wb')
+            -- we pcall to trap EOF because we are scum.
+            if pcall( function () DEFLATE.gunzip {input = fh, output = ofh, disable_crc= true} end ) then
+            end
+              
+            fh:close()
+            ofh:close()
+            
+            local zippedreplay = VFS.LoadFile(tmpdemounzip,VFS.RAW) -- can it load freshly made files?
+            --local scumfile = io.open(tmpdemounzip,'rb')
+            --local scumfilebin = scumfile:read()
+            local scripttext, gameVersion = ParseReplayBinaryString(zippedreplay)
+            
+            if scripttext ~= nil and gameVersion ~= nil then
+              WG.ReplayHandler.ReadReplayInfoDone(replayPath, replayEngine,gameVersion,mymapname,scripttext)
+            end
+          end
+        end
+      delayedAddReplays[#delayedAddReplays] = nil -- pop
     end 
 end
 
