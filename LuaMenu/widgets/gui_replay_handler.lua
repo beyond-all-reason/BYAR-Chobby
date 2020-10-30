@@ -26,6 +26,26 @@ local delayedAddReplays = {}
 --------------------------------------------------------------------------------
 -- Utilities
 
+local function ShortenGameName(gameName)
+  gameName = gameName:gsub("Beyond All Reason","BAR")
+  gameName = gameName:gsub("test","")
+  if gameName:find("-[^-]*$") then
+    gameName = gameName:sub(1, gameName:find("-[^-]*$") -1 )
+  end
+  return gameName
+end
+
+local function ShortenEngineName(engineName)
+  if engineName:find("-[^-]*$") then
+    engineName = engineName:sub(1, engineName:find("-[^-]*$") -1)
+  end
+  return engineName
+end
+
+local function ternary ( cond , T , F )
+    if cond then return T else return F end
+end
+
 local function CreateReplayEntry(replayPath, engineName, gameName, mapName)
 	local Configuration = WG.Chobby.Configuration
   --[[
@@ -77,7 +97,7 @@ local function CreateReplayEntry(replayPath, engineName, gameName, mapName)
 		bottom = 3,
 		width = 65,
 		caption = i18n("start"),
-		classname = "action_button",
+		classname = ternary(WG.Chobby.Configuration:IsValidEngineVersion(engineName),"action_button",option_button),
 		font = WG.Chobby.Configuration:GetFont(2),
 		OnClick = {
 			function()
@@ -115,24 +135,25 @@ local function CreateReplayEntry(replayPath, engineName, gameName, mapName)
 	}
 	local replayVersion = TextBox:New {
 		name = "replayVersion",
-		x = 435,
+		x = 425,
 		y = 12,
 		width = 400,
 		height = 20,
 		valign = 'center',
 		fontsize = Configuration:GetFont(2).size,
-		text = gameName,
+		text = ShortenGameName(gameName),
 		parent = replayPanel,
 	}
+  
 	local replayEngine = TextBox:New {
 		name = "replayEngine",
-		x = 535,
-		y = 16,
-		width = 400,
+		x = 565,
+		y = 12,
+		width = 200,
 		height = 20,
 		valign = 'center',
 		fontsize = Configuration:GetFont(2).size,
-		text = engineName,
+		text = ShortenEngineName(engineName),
 		parent = replayPanel,
 	}
 
