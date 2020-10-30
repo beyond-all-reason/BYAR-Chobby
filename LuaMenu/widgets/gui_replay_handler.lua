@@ -17,7 +17,7 @@ end
 --------------------------------------------------------------------------------
 -- Local Variables
 
-local DEFLATE =  VFS.Include("libs/LibDeflate/deflate.lua")
+local DEFLATE = VFS.Include("libs/LibDeflate/deflate.lua")
 
 local replayListWindow
 
@@ -42,34 +42,12 @@ local function ShortenEngineName(engineName)
   return engineName
 end
 
-local function ternary ( cond , T , F )
-    if cond then return T else return F end
+local function ternary(condition, T, F)
+    if condition then return T else return F end
 end
 
 local function CreateReplayEntry(replayPath, engineName, gameName, mapName)
 	local Configuration = WG.Chobby.Configuration
-  --[[
-
-  -- params needed: engine name, mapname from 20201021_194926_Tetrad_V2_104.0.1-1553-gd3c0012 maintenance.sdfz
-  -- input is replayPath
-  local replayFilename = string.sub(replayPath, 7)
-  -- WE ARE ASSUMING ALL DEMOS ARE IN demos/ or demos\, this is pure idiocy but ok
-  local time_map_engine_branch = string.gsub(replayFilename, "%.sdfz", "")
-
-  --all engine branches are loved equally:
-  local time_map_engine = string.gsub(string.gsub(string.gsub(string.gsub(time_map_engine_branch, " maintenance", ""), " develop", ""), " luaVAO",""), " transition", "")
-  
-  Spring.Echo(replayFilename, time_map_engine_branch, time_map_engine)
-  
-  --string.find(your_string, "_[^_]*$") -- last underscore
-  local engineName = string.sub(time_map_engine,string.find(time_map_engine, "_[^_]*$")+1 )
-  local mymapname = string.sub(time_map_engine, 17, string.find(time_map_engine, "_[^_]*$")-1 )
-  
-  
-  local myreplayTime = string.sub(replayFilename, 0, 4) .. "-" .. string.sub(replayFilename, 5, 6) .. "-" .. string.sub(replayFilename, 7, 8) .. " at " .. string.sub(replayFilename, 10, 11) .. ":" .. string.sub(replayFilename, 12, 13) .. ":" .. string.sub(replayFilename, 14, 15)
-  Spring.Echo("demo file path Parse complete:", myreplayTime, engineName,mymapname,time_map_engine,replayFilename,replayName)
-  ]]--
-  
   
 	local fileName = string.sub(replayPath, 7)
 	if string.sub(fileName, 0, 4) == "hide" then
@@ -250,8 +228,6 @@ local function InitializeControls(parentControl)
 				local replayPath = replays[index]
 				--Spring.Echo("WG.WrapperLoopback.ReadReplayInfo(replayPath) commented out",replayPath)
 				--WG.WrapperLoopback.ReadReplayInfo(replayPath)
-        --replayListWindow.AddReplay(replayPath, "NGINE", "BAR", "DUCK", "script")
-        --ReplayHandler.ReadReplayInfoDone(replayPath, "NGINE", "BAR", "DUCK", "script")
         delayedAddReplays[#delayedAddReplays + 1 ] = replayPath
 				index = index - 1
 			end
@@ -397,6 +373,7 @@ function widget:Initialize()
 	WG.ReplayHandler = ReplayHandler
 end
 
+-- replay struct looks like this:
 --https://github.com/spring/spring/blob/30862626214bd263b1c4489bb197ef1c3dbc0738/rts/System/LoadSave/demofile.h#L53
 local function ParseReplayBinaryString(rs)
   --local header = rs:sub(1,352)
@@ -433,6 +410,7 @@ local function ParseReplayBinaryString(rs)
   for line in scripttext:gmatch("[^\n]+") do
       if line:find("gametype") then
         gameVersion = line:sub(line:find("=")+1,line:find(";")-1)
+        break;
       end
   end
   --Spring.Echo(scripttext, gameVersion)
@@ -441,62 +419,59 @@ local function ParseReplayBinaryString(rs)
 end
 
 
-function widget:Update() --BECAUSE YOU CANT POPULATE REPLAY LIST WHILE IT IS BEING CREATED: fuck counter++
-    if #delayedAddReplays > 1 then -- worlds greatest asyncronous method of loading replays
-        local replayPath = delayedAddReplays[#delayedAddReplays]
-        
-        if replayPath:sub(-string.len('.sdfz')) == '.sdfz' then
-          local replayFilename = string.sub(replayPath, 7)
-          -- WE ARE ASSUMING ALL DEMOS ARE IN demos/ or demos\, this is pure idiocy but ok
-          local time_map_engine_branch = string.gsub(replayFilename, "%.sdfz", "")
+function widget:Update() 
+  -- This is needed because you cant populate a replay list efficiently
+  -- So we process on on each update which has the side effect of looking nice
+  if #delayedAddReplays > 1 then 
+    local replayPath = delayedAddReplays[#delayedAddReplays]
+    delayedAddReplays[#delayedAddReplays] = nil -- pop last one
+    
+    if replayPath:sub(-string.len('.sdfz')) ~= '.sdfz' then return end -- ignore other file types in /demos
+    
+    local replayFilename = string.sub(replayPath, 7)
+    -- We assume all replays are in demos/ or demos\, dangerous!
+    local time_map_engine_branch = string.gsub(replayFilename, "%.sdfz", "")
 
-          --all engine branches are loved equally:
-          local time_map_engine = string.gsub(string.gsub(string.gsub(string.gsub(time_map_engine_branch, " maintenance", ""), " develop", ""), " luaVAO",""), " transition", "")
-          
-          --string.find(your_string, "_[^_]*$") -- find last underscore
-          local replayEngine = string.sub(time_map_engine,string.find(time_map_engine, "_[^_]*$")+1 )
-          local mymapname = string.sub(time_map_engine, 17, string.find(time_map_engine, "_[^_]*$")-1 )
-          
-          --[[
-          local zippedreplay = VFS.LoadFile(replayPath,VFS.RAW)
-          local unzippedreplay = VFS.ZlibDecompress(zippedreplay,256000) --does not work!
-          ]]--
-          
-          local rfh = io.open(replayPath,'rb')
-          local startchunk = rfh:read(8192)
-          rfh:close()
-          
-          if startchunk and string.len(startchunk) > 1000 then
-          
-            local tmpdemozip = 'demos/temp_zipped_replay_chunk'
-            
-            local tmpdemounzip = 'demos/temp_unzipped_replay_chunk'
-            
-            local tmpdemozip_handle = io.open(tmpdemozip,'wb')
-            tmpdemozip_handle:write(startchunk)
-            tmpdemozip_handle:close()
+    --all engine branches are loved equally:
+    local time_map_engine = string.gsub(string.gsub(string.gsub(string.gsub(time_map_engine_branch, " maintenance", ""), " develop", ""), " luaVAO",""), " transition", "")
+    
+    --string.find(your_string, "_[^_]*$") -- find last underscore
+    local replayEngine = string.sub(time_map_engine,string.find(time_map_engine, "_[^_]*$")+1 )
+    local mymapname = string.sub(time_map_engine, 17, string.find(time_map_engine, "_[^_]*$")-1 )
+    
+    --[[ local zippedreplay = VFS.LoadFile(replayPath,VFS.RAW)
+    local unzippedreplay = VFS.ZlibDecompress(zippedreplay,256000) --does not work!  ]]--
+    
+    local replayFileHandle = io.open(replayPath,'rb')
+    local replayFile8kChunk = replayFileHandle:read(8192) --read an 8k chunk and hope that it contains the script
+    replayFileHandle:close()
+    
+    if replayFile8kChunk == nil or string.len(replayFile8kChunk) < 1000 then return end
+    
+    local demoZipFilename = 'demos/replayFile8kChunk_zipped.tmp'
+    local demoUnzippedFilename = 'demos/replayFile8kChunk_unzipped.tmp'
+    
+    local demoZipFile = io.open(demoZipFilename,'wb')
+    demoZipFile:write(replayFile8kChunk)
+    demoZipFile:close()
 
-            local fh = io.open(tmpdemozip,'rb')
-            local ofh = io.open(tmpdemounzip,'wb')
-            -- we pcall to trap EOF because we are scum.
-            if pcall( function () DEFLATE.gunzip {input = fh, output = ofh, disable_crc= true} end ) then
-            end
-              
-            fh:close()
-            ofh:close()
-            
-            local zippedreplay = VFS.LoadFile(tmpdemounzip,VFS.RAW) -- can it load freshly made files?
-            --local scumfile = io.open(tmpdemounzip,'rb')
-            --local scumfilebin = scumfile:read()
-            local scripttext, gameVersion = ParseReplayBinaryString(zippedreplay)
-            
-            if scripttext ~= nil and gameVersion ~= nil then
-              WG.ReplayHandler.ReadReplayInfoDone(replayPath, replayEngine,gameVersion,mymapname,scripttext)
-            end
-          end
-        end
-      delayedAddReplays[#delayedAddReplays] = nil -- pop
-    end 
+    demoZipFile = io.open(demoZipFilename,'rb')
+    local demoUnzippedFile = io.open(demoUnzippedFilename,'wb')
+    -- we pcall to trap EOF error  because we are only unzipping an 8k chunk of replay
+    if pcall( function () DEFLATE.gunzip {input = demoZipFile, output = demoUnzippedFile, disable_crc= true} end ) then  end
+      
+    demoZipFile:close()
+    demoUnzippedFile:close()
+    
+    local zippedReplay = VFS.LoadFile(demoUnzippedFilename,VFS.RAW) -- can it load freshly made files?
+    --local scumfile = io.open(tmpdemounzip,'rb')
+    --local scumfilebin = scumfile:read()
+    local scripttext, gameVersion = ParseReplayBinaryString(zippedReplay)
+    
+    if scripttext == nil or gameVersion == nil then return end
+    
+    WG.ReplayHandler.ReadReplayInfoDone(replayPath, replayEngine,gameVersion,mymapname,scripttext)
+  end 
 end
 
 --------------------------------------------------------------------------------
