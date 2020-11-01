@@ -233,6 +233,8 @@ function Interface:HostBattle(battleTitle, password, modeName, mapName)
 end
 
 function Interface:RejoinBattle(battleID)
+    Spring.Echo("BYAR-Chobby.sdd\libs\liblobby\lobby\interface_zerok.lua","Interface:RejoinBattle(battleID)",battleID)  -- Beherith Debug
+	
 	local sendData = {
 		BattleID = battleID,
 	}
@@ -252,6 +254,7 @@ end
 
 function Interface:LeaveBattle()
 	local myBattleID = self:GetMyBattleID()
+
 	if not myBattleID then
 		Spring.Echo("LeaveBattle sent while not in battle")
 		return

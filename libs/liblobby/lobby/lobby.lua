@@ -110,8 +110,16 @@ function Lobby:StartBattle()
 	return self
 end
 
+
+function Lobby:JoinAsSpec()
+  Spring.Echo("BYAR-Chobby.sdd\libs\liblobby\lobby\lobby.lua","Lobby:JoinAsSpec()")
+  self:SayBattle("!joinas spec")
+end
+
+
 -- TODO: Provide clean implementation/specification
 function Lobby:SelectMap(mapName)
+  --Spring.Echo("self:SayBattle(!map " .. mapName .."))")
 	self:SayBattle("!map " .. mapName)
 end
 
@@ -212,8 +220,8 @@ function Lobby:HostBattle(battleName, password)
 	return self
 end
 
-function Lobby:RejoinBattle(battleID)
-	return self
+function Lobby:RejoinBattle(battleID) --empty, not called!
+  Spring.Echo("BYAR-Chobby.sdd\libs\liblobby\lobby\lobby.lua","Lobby:RejoinBattle(battleID)",battleID) -- Beherith debug
 end
 
 function Lobby:JoinBattle(battleID, password, scriptPassword)
@@ -299,11 +307,11 @@ function Lobby:ConnectToBattle(useSpringRestart, battleIp, battlePort, clientPor
 end
 
 function Lobby:VoteYes()
-	return self
+  self:SayBattle("!vote y")
 end
 
 function Lobby:VoteNo()
-	return self
+  self:SayBattle("!vote n")
 end
 
 function Lobby:VoteOption(id)

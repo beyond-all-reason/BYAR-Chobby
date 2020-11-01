@@ -191,7 +191,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	}
 
 	local function RejoinBattleFunc()
-    Spring.Echo("E:\Spring\BYAR_Chobby\Beyond-All-Reason\data\games\Chobby.sdd\LuaMenu\widgets\chobby\components\battle\battle_watch_list_window.lua","RejoinBattleFunc()","") -- Beherith Debug
+    --Spring.Echo("\LuaMenu\widgets\chobby\components\battle\battle_watch_list_window.lua","RejoinBattleFunc()","") -- Beherith Debug
 		battleLobby:RejoinBattle(battleID)
 		WG.Analytics.SendOnetimeEvent("lobby:multiplayer:custom:rejoin")
 	end

@@ -193,7 +193,11 @@ end
 
 function Interface:RejoinBattle(battleID)
 	local battle = self:GetBattle(battleID)
-	if battle then
+	if battle then 
+    --Spring.Echo("BYAR-Chobby.sdd\libs\liblobby\lobby\interface.lua","Interface:RejoinBattle(battleID)",self.useSpringRestart, battle.ip, battle.port, nil, self:GetScriptPassword())  -- Beherith Debug
+    --Spring.Echo(debug.traceback())
+    --self:super("SayBattle", "!joinas spec")
+    self:JoinAsSpec()
 		self:ConnectToBattle(self.useSpringRestart, battle.ip, battle.port, nil, self:GetScriptPassword())
 	end
 
