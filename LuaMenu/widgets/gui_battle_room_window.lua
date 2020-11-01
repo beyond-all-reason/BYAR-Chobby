@@ -1272,7 +1272,7 @@ local function SetupVotePanel(votePanel, battle, battleID)
 		parent = votePanel,
 	}
 
-	activePanel:SetVisibility(true)
+	activePanel:SetVisibility(false)
 	multiVotePanel:SetVisibility(false)
 	minimapPanel:SetVisibility(false)
 	voteResultLabel:SetVisibility(false)
@@ -1956,8 +1956,88 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		end
 		votePanel.VoteEnd((isBattleStarting and "Match starting") or "Not enough players", isBattleStarting)
 	end
+  
+  --[[
+
+	function externalFunctions.VoteUpdate(voteMessage, pollType, mapPoll, candidates, votesNeeded, pollUrl)
+
+	function externalFunctions.VoteEnd(message, success)
+
+	function externalFunctions.ImmediateVoteEnd()
+  ]]--
+  
+  --externalFunctions.VoteUpdate(voteMessage, pollType, mapPoll, candidates, votesNeeded, pollUrl)
+  local function pyPartition(s,p,left)
+    if string.find(s,p,nil,true) then
+      local startfind, endfind =  string.find(s,p,nil,true) 
+      if left then
+        return string.sub(s,1,startfind-1)
+      else
+        return string.sub(s,endfind+1)
+      end
+    else 
+      return s
+    end
+  end
+  -- whoever wrote lua string parser needs to get rammed by a horse
+  
+  
+  local function ParseForVotingSaidBattle(userName,message)
+    -- https://github.com/beyond-all-reason/Beyond-All-Reason/blob/master/luaui/Widgets_BAR/gui_vote_interface.lua#L193      
+    
+    --* [teh]host * Vote in progress: "set map Quicksilver Remake 1.24" [y:2/3, n:0/2] (42s remaining) 
+    ----Vote in progress: "set map Throne Acidic" [y:1/3, n:1/2] (41s remaining)
+    -- [teh]BaNa called a vote for command "forcestart" [!vote y, !vote n, !vote b]
+    if string.find(message, " called a vote ", nil, true) or string.find(message, " Vote in progress:", nil, true) then
+        local title = string.sub(message, string.find(message, ' "',nil,true) + 2, string.find(message, '" ', nil, true) - 1) .. '?'
+        title = title:sub(1, 1):upper() .. title:sub(2)
+        --local userwhocalledvote = message:sub(1,string:find(message, " called a vote ", nil, true)) -- not for vote in progress
+        local votesNeeded = 2
+        local yesvotes = 1
+        local novotes = 0
+        if string.find(message, " Vote in progress:", nil, true) then
+          local startOfVoteResults = pyPartition(message," [y:",false)
+          yesvotes = tonumber(pyPartition(startOfVoteResults,"/",true)) or 0
+          votesNeeded =  tonumber(pyPartition(pyPartition(startOfVoteResults,"/",false), ",",true)) or 0
+          novotes = tonumber(pyPartition(pyPartition(startOfVoteResults," n:",false),'/',true)) or 0
+          print (yesvotes,neededvotes,novotes)
+        end
+        local candidates = {}
+        candidates[1] = {
+          id = nil,
+          votes = yesvotes,
+          url = "",
+        }
+        candidates[2] = {
+          id = nil,
+          votes = novotes,
+          url = "",
+        }
+        votePanel.VoteUpdate(title,nil, "", candidates, votesNeeded, "")
+        
+    elseif string.find(message, " Vote for command ", nil, true) then --votestart
+      --[21:13:58] * [teh]host * Vote for command "bSet coop 1" passed. --voteend
+        local passed = string.find(message, "passed", nil, true) 
+        local failed = string.find(message, "failed", nil, true) 
+        if passed or failed then
+          local title = string.sub(message, string.find(message, ' "') + 2, string.find(message, '" ', nil, true) - 1)
+          title = title:sub(1, 1):upper() .. title:sub(2)
+          votePanel.VoteEnd(title, passed)
+        end
+
+    elseif string.find(message, " Vote cancelled by ", nil, true) then --votecancel
+      --[14:42:53] * [teh]host * Vote cancelled by [teh]BaNa
+      votePanel.ImmediateVoteEnd()
+    
+    elseif string.find(message, "command executed directly by ", nil, true) and string.find(message, " Cancelling ", nil, true)  then --votecancel
+      --[14:43:19] * [teh]host * Cancelling "set map Throne Acidic" vote (command executed directly by [teh]Beherith)
+      votePanel.ImmediateVoteEnd()
+    end
+  end
+  
 
 	local function OnSaidBattle(listener, userName, message)
+    --ParseForVotingSaidBattle(userName,message) --only on EX?
 		local myUserName = battleLobby:GetMyUserName()
 		local iAmMentioned = myUserName and userName ~= myUserName and string.find(message, myUserName)
 		local chatColour = (iAmMentioned and CHAT_MENTION) or nil
@@ -1965,6 +2045,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	end
 
 	local function OnSaidBattleEx(listener, userName, message)
+    ParseForVotingSaidBattle(userName,message)
 		local myUserName = battleLobby:GetMyUserName()
 		local iAmMentioned = myUserName and userName ~= myUserName and string.find(message, myUserName)
 		local chatColour = (iAmMentioned and CHAT_MENTION) or CHAT_ME

@@ -757,6 +757,8 @@ function Interface:_Welcome(data)
 	-- REVERSE COMPAT
 	self.REVERSE_COMPAT = (data.Version == "1.4.9.26")
 	self.REVERSE_COMPAT_2 = (data.Version == "1.4.9.195")
+  Spring.Echo("interface_zerok.lua","Interface:_Welcome(data)",data.Version)  -- Beherith Debug, looks like this is never called!
+  Spring.Echo(debug.traceback())
 	self.userCountLimited = data.UserCountLimited
 	self:_OnConnect(4, data.Engine, 2, 1)
 	self:_OnUserCount(data.UserCount)
