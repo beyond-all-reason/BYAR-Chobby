@@ -61,7 +61,7 @@ local function MakeExclusivePopup(text, buttonText, ClickFunc, buttonClass, heig
 	if replacablePopup then
 		replacablePopup:Close()
 	end
-	replacablePopup = WG.Chobby.InformationPopup(text, {caption = buttonText, closeFunc = ClickFunc, buttonClass = buttonClass, height = height})
+	replacablePopup = WG.Chobby.InformationPopup(text, {caption = buttonText, closeFunc = ClickFunc, buttonClass = buttonClass, height = height, width = 500})
 end
 
 local function CloseExclusivePopup()
@@ -201,7 +201,7 @@ local function CheckDownloads(gameName, mapName, DoneFunc, gameList)
 	end
 	DownloadUpdateFunction = Update
 
-	local dlString = "Waiting on content: "
+	local dlString = "Waiting on content:\nCancel and retry if unsuccessful"
 	downloading = {
 		downloads = {
 		},
