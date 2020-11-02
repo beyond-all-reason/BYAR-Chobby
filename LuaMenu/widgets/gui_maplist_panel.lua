@@ -38,6 +38,61 @@ local function GetMapType(is1v1, isTeam, isFFA, isChicken, isSpecial)
 	return "Special"
 end
 
+local function GetMapTypeBar(is1v1, isTeam, isFFA)
+  local mapTypeString = ""
+	if is1v1 then
+    mapTypeString = "1v1"
+  end
+  if isTeam then
+    if mapTypeString ~= "" then
+      mapTypeString = mapTypeString .. ", "
+    end
+    mapTypeString = mapTypeString .. "Team"
+  end
+	if isFFA then
+    if mapTypeString ~= "" then
+      mapTypeString = mapTypeString .. ", "
+    end
+    mapTypeString = mapTypeString .. "FFA"
+  end
+  return mapTypeString
+end
+
+local function GetTerrainTypeBar(special, flat, hills, water)
+  local terrainTypeString = ""
+  if special then
+    terrainTypeString = terrainTypeString .. special
+  end
+  if flat then
+    if terrainTypeString ~= "" then
+      terrainTypeString = terrainTypeString .. ", "
+    end
+    terrainTypeString = terrainTypeString .. "Flat"
+  end
+  
+  if hills then
+    if terrainTypeString ~= "" then
+      terrainTypeString = terrainTypeString .. ", "
+    end
+    terrainTypeString = terrainTypeString .. "Hills"
+  end
+  
+  if water then
+    if terrainTypeString ~= "" then
+      terrainTypeString = terrainTypeString .. ", "
+    end
+    terrainTypeString = terrainTypeString .. "Water"
+  end
+  return terrainTypeString
+end
+
+local function GetCertifiedLevelBar(isCertified,isClassic) 
+  if isCertified then return "Certified" end
+  if isClassic then return "Classic" end
+  return "Unofficial"
+end
+
+
 local function GetTerrainType(hillLevel, waterLevel)
 	if waterLevel == 3 then
 		return "Sea"
@@ -59,6 +114,7 @@ local function GetTerrainType(hillLevel, waterLevel)
 
 	return first .. second
 end
+
 
 local function CreateMapEntry(mapName, mapData, CloseFunc)--{"ResourceID":7098,"Name":"2_Mountains_Battlefield","SupportLevel":2,"Width":16,"Height":16,"IsAssymetrical":false,"Hills":2,"WaterLevel":1,"Is1v1":false,"IsTeams":true,"IsFFA":false,"IsChickens":false,"FFAMaxTeams":null,"RatingCount":3,"RatingSum":10,"IsSpecial":false},
 	local Configuration = WG.Chobby.Configuration
@@ -124,6 +180,18 @@ local function CreateMapEntry(mapName, mapData, CloseFunc)--{"ResourceID":7098,"
 		parent = mapButton,
 	}
 
+  local certificationLevel = GetCertifiedLevelBar( mapData and mapData.IsCertified, mapData and mapData.IsInPool)
+    TextBox:New {
+			x = 655,
+			y = 12,
+			width = 160,
+			height = 20,
+			valign = 'center',
+			fontsize = Configuration:GetFont(2).size,
+			text = certificationLevel,
+			parent = mapButton,
+		}
+
 	local sortData
 	if mapData then
 		TextBox:New {
@@ -137,11 +205,12 @@ local function CreateMapEntry(mapName, mapData, CloseFunc)--{"ResourceID":7098,"
 			parent = mapButton,
 		}
 
-		local mapType = GetMapType(mapData.Is1v1, mapData.IsTeams, mapData.IsFFA, mapData.IsChickens, mapData.IsSpecial)
+  
+		local mapType = GetMapTypeBar(mapData.Is1v1, mapData.IsTeam, mapData.IsFFA)
 		TextBox:New {
 			x = 356,
 			y = 12,
-			width = 68,
+			width = 98,
 			height = 20,
 			valign = 'center',
 			fontsize = Configuration:GetFont(2).size,
@@ -149,9 +218,9 @@ local function CreateMapEntry(mapName, mapData, CloseFunc)--{"ResourceID":7098,"
 			parent = mapButton,
 		}
 
-		local terrainType = GetTerrainType(mapData.Hills, mapData.WaterLevel)
+		local terrainType = GetTerrainTypeBar(mapData.Special, mapData.Flat, mapData.Hills, mapData.WaterLevel)
 		TextBox:New {
-			x = 438,
+			x = 468,
 			y = 12,
 			width = 160,
 			height = 20,
@@ -160,10 +229,12 @@ local function CreateMapEntry(mapName, mapData, CloseFunc)--{"ResourceID":7098,"
 			text = terrainType,
 			parent = mapButton,
 		}
+    
 
-		sortData = {mapName, (mapData.Width or 0)*100 + (mapData.Height or 0), mapType, terrainType, (haveMap and 1) or 0}
+
+		sortData = {mapName, (mapData.Width or 0)*100 + (mapData.Height or 0), mapType, terrainType, (haveMap and 1) or 0, certificationLevel}
 	else
-		sortData = {mapName, 0, "", "", (haveMap and 1) or 0}
+		sortData = {mapName, 0, "", "", (haveMap and 1) or 0,certificationLevel}
 	end
 
 	local externalFunctions = {}
@@ -189,7 +260,7 @@ local function InitializeControls()
 		classname = "main_window",
 		parent = WG.Chobby.lobbyInterfaceHolder,
 		height = 700,
-		width = 700,
+		width = 810,
 		resizable = false,
 		draggable = false,
 		padding = {0, 0, 0, 0},
@@ -202,7 +273,8 @@ local function InitializeControls()
 		height = 20,
 		parent = mapListWindow,
 		font = Configuration:GetFont(3),
-		caption = "Select a Map",
+		caption = "Select a Map. Choose a Certified map for the best experience!",
+		caption = "Select a Map. Certified maps are recommended.",
 	}
 
 	local function CloseFunc()
@@ -247,16 +319,21 @@ local function InitializeControls()
 
 	local headings = {
 		{name = "Name", x = 62, width = 208},
-		{name = "Size", x = 272, width = 80},
-		{name = "Type", x = 354, width = 80},
-		{name = "Terrain", x = 436, width = 172},
+		{name = "Size", tooltip = "Choose larger maps for longer games.",x = 272, width = 80},
+		{name = "Type", tooltip = "Each map is designed with a specific gameplay setup in mind, but can be played as you desire.", x = 354, width = 110},
+		{name = "Terrain", tooltip = "Water maps have underwater resources, and feature naval combat. KBots perform better than vehicles on Hilly maps.", x = 466, width = 142},
 		{name = "", tooltip = "Downloaded", x = 610, width = 40, image = "LuaMenu/images/download.png"},
+		{name = "Certified", tooltip = "Certified maps guarantee the best experience, Classic maps offer a great variety of gameplay, and third party maps are markes as Unofficial", x = 653, width = 100},
 	}
 
 	local featuredMapList = WG.CommunityWindow.LoadStaticCommunityData().MapItems or {}
+  
+  local tempmaplist = {}
+  tempmaplist["Akilon"] = nil
 	local mapFuncs = {}
 
 	local mapList = WG.Chobby.SortableList(listHolder, headings, 60)
+  
 
 	local control, sortData
 	for i = 1, #featuredMapList do
@@ -269,10 +346,14 @@ local function InitializeControls()
 		for i, archive in pairs(VFS.GetAllArchives()) do
 			local info = VFS.GetArchiveInfo(archive)
 			if info and info.modtype == 3 and not mapFuncs[info.name] then
-				control, sortData, mapFuncs[info.name] = CreateMapEntry(info.name, nil, CloseFunc)
+        --Spring.Echo("Map name debug list", info.name)
+				control, sortData, mapFuncs[info.name] = CreateMapEntry(info.name, Configuration.gameConfig.mapDetails[info.name] , CloseFunc)
 				mapList:AddItem(info.name, control, sortData)
 			end
 		end
+    
+
+    
 	--end
 
 	-------------------------

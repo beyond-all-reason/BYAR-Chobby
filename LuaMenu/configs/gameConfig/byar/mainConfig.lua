@@ -8,6 +8,7 @@ local skirmishDefault    = VFS.Include(LUA_DIRNAME .. "configs/gameConfig/" .. s
 local defaultModoptions  = VFS.Include(LUA_DIRNAME .. "configs/gameConfig/" .. shortname .. "/ModOptions.lua")
 --local rankFunction       = VFS.Include(LUA_DIRNAME .. "configs/gameConfig/zk/rankFunction.lua")
 local backgroundConfig   = VFS.Include(LUA_DIRNAME .. "configs/gameConfig/" .. shortname .. "/skinning/skinConfig.lua")
+local mapDetails   = VFS.Include(LUA_DIRNAME .. "configs/gameConfig/" .. shortname .. "/mapDetails.lua")
 
 local link_homePage, link_replays, link_maps = VFS.Include(LUA_DIRNAME .. "configs/gameConfig/" .. shortname .. "/linkFunctions.lua")
 
@@ -47,6 +48,7 @@ local externalFuncAndData = {
 	defaultChatChannels    = {"main", "newbies"},
 	mapWhitelist           = mapWhitelist,
 	aiBlacklist            = aiBlacklist,
+	mapDetails             = mapDetails,
 	settingsConfig         = settingsConfig,
 	settingsNames          = settingsNames,
 	settingsDefault        = settingsDefault,
@@ -78,20 +80,20 @@ local externalFuncAndData = {
     ['SimpleAI']= "A simple, easy playing beginner AI (Great for your first game!)",
     ['SimpleCheaterAI']= "A moderately difficult AI, cheats!",
     ['SimpleDefenderAI']= "An easy AI, mostly defends and doesnt attack much",
-    ['ScavengersAI']= "This is a PvE game mode, with an increasing difficulty waves of Scavenger AI controlled units attacking the players.",
-    ['DAI']= "A medium difficulty stable non-cheating AI, with great offense (Recommended!)",
+    ['ScavengersAI']= "This is a PvE game mode, with an increasing difficulty waves of Scavenger AI controlled units attacking the players. Only add 1 per game.",
+    ['DAI']=  "Recommended medium difficulty stable non-cheating AI, with great offense. Add more for extra difficulty.",
     ['STAI']= "A medium to hard difficulty, experimental, non cheating AI.",
     ['NullAI 0.1']= "A game-testing AI. Literally does nothing.",
-    ['BARbarIAn 0.57']= "A hard difficulty non-cheating AI, add more for extra difficulty",
-    ['BARbarIAn 0.58']= "A hard difficulty non-cheating AI, add more for extra difficulty",
-    ['BARbarIAn 0.59']= "A hard difficulty non-cheating AI, add more for extra difficulty",
-    ['Chicken: Very Easy']= "A moderate difficulty PvE AI, where hordes of alien creatures attack the players",
-    ['Chicken: Easy']= "An intermediate difficulty PvE AI, where hordes of alien creatures attack the players",
-    ['Chicken: Normal']= "A hard difficulty PvE AI, where hordes of alien creatures attack the players",
-    ['Chicken: Hard']= "A hard difficulty PvE AI, where hordes of alien creatures attack the players",
-    ['Chicken: Very Hard']= "A very hard difficulty PvE AI, where hordes of alien creatures attack the players",
-    ['Chicken: Epic!']= "An extreme difficulty PvE AI, where hordes of alien creatures attack the players",
-    ['Chicken: Survival']= "An extreme difficulty PvE AI, where ENDLESS hordes of alien creatures attack the players",
+    ['BARbarIAn 0.57']= "A hard difficulty non-cheating AI, add more for extra difficulty.",
+    ['BARbarIAn 0.58']= "A hard difficulty non-cheating AI, add more for extra difficulty.",
+    ['BARbarIAn 0.59']= "A hard difficulty non-cheating AI, add more for extra difficulty.",
+    ['Chicken: Very Easy']= "A moderate difficulty PvE AI, where hordes of alien creatures attack the players. Only add 1 per game.",
+    ['Chicken: Easy']= "An intermediate difficulty PvE AI, where hordes of alien creatures attack the players. Only add 1 per game.",
+    ['Chicken: Normal']= "A hard difficulty PvE AI, where hordes of alien creatures attack the players. Only add 1 per game.",
+    ['Chicken: Hard']= "A hard difficulty PvE AI, where hordes of alien creatures attack the players. Only add 1 per game.",
+    ['Chicken: Very Hard']= "A very hard difficulty PvE AI, where hordes of alien creatures attack the players. Only add 1 per game.",
+    ['Chicken: Epic!']= "An extreme difficulty PvE AI, where hordes of alien creatures attack the players. Only add 1 per game.",
+    ['Chicken: Survival']= "An extreme difficulty PvE AI, where ENDLESS hordes of alien creatures attack the players. Only add 1 per game.",
     
     },
 	defaultModoptions      = defaultModoptions,
@@ -122,7 +124,7 @@ local externalFuncAndData = {
 		"LuaMenu/configs/gameConfig/byar/lobbyMusic/ProfessorKliq-TensionGrowl.ogg",
 		"LuaMenu/configs/gameConfig/byar/lobbyMusic/RobRichert-AliasZero.ogg",
 	},
-	disableColorChoosing = true,
+	disableColorChoosing = false,
 }
 
 function externalFuncAndData.CheckAvailability()
