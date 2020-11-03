@@ -2212,9 +2212,19 @@ function BattleRoomWindow.GetSingleplayerControl(setupData)
 					isSpectator = false,
 					sync = (haveMapAndGame and 1) or 2, -- 0 = unknown, 1 = synced, 2 = unsynced
 				})
-
+        local totalAIcount = 1
+				if not (setupData and WG.Chobby.Configuration.simplifiedSkirmishSetup) and singleplayerDefault and singleplayerDefault.friendlyAI then
+          for i, aiName in ipairs(singleplayerDefault.friendlyAI) do
+            battleLobby:AddAi(aiName .. "  (".. totalAIcount ..")", aiName, 0)
+            totalAIcount = totalAIcount + 1
+          end
+				end
 				if not (setupData and WG.Chobby.Configuration.simplifiedSkirmishSetup) and singleplayerDefault and singleplayerDefault.enemyAI then
-					battleLobby:AddAi(singleplayerDefault.enemyAI .. " (1)", singleplayerDefault.enemyAI, 1)
+          for i, aiName in ipairs(singleplayerDefault.enemyAI) do
+            Spring.Echo("singleplayerDefault.enemyAI", aiName)
+            battleLobby:AddAi(aiName .. "  ("..totalAIcount..")", aiName, 1)
+            totalAIcount = totalAIcount + 1
+          end
 				end
 			end
 		},
