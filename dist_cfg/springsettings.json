@@ -32,6 +32,7 @@
     "LODScaleRefraction": 1.000,
     "LODScaleShadow": 1.000,
     "LuaShaders": 1,
+    "LoadingMT": 0,
     "MaxParticles": 20000,
     "MaxSounds": 128,
     "MaximumTransmissionUnit": 0,
