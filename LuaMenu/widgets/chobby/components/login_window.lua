@@ -199,6 +199,16 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		}
 		registerChildren[#registerChildren + 1] = self.ebEmail
 	end
+  
+  self.lblRegistrationMultiplayer = Label:New {
+		x = 15,
+		width = 170,
+		y = 220,
+		height = 35,
+		caption = "Required for online play only",
+		font = Configuration:GetFont(3),
+	}
+	registerChildren[#registerChildren + 1] = self.lblRegistrationMultiplayer
 
 	self.cbAutoLogin = Checkbox:New {
 		x = 15,
