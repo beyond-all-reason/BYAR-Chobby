@@ -50,6 +50,7 @@ local externalFuncAndData = {
 	mapWhitelist           = mapWhitelist,
 	aiBlacklist            = aiBlacklist,
 	mapDetails             = mapDetails,
+	mapStartBoxes             = mapStartBoxes,
 	settingsConfig         = settingsConfig,
 	settingsNames          = settingsNames,
 	settingsDefault        = settingsDefault,

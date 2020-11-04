@@ -25,6 +25,8 @@ local battleLobby
 local wrapperControl
 local mainWindowFunctions
 
+local showDefaultStartCheckbox = false
+
 local singleplayerWrapper
 local multiplayerWrapper
 
@@ -132,6 +134,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		file = IMG_LINK,
 		parent = btnMapLink,
 	}
+  
 
 	local function SetMapName(mapName, width)
 		currentMapName = mapName
@@ -189,6 +192,24 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		checkFileExists = needDownload,
 		parent = btnMinimap,
 	}
+  if showDefaultStartCheckbox then
+    local cbUseDefaultStartBoxes = Checkbox:New {
+      x = 0,
+      bottom = 130,
+      boxalign = "left",
+      boxsize = 15,
+      caption = "Use Default Start Boxes",
+      checked = false,
+      tooltip = "All teams start together in pre-specified areas",
+      font = config:GetFont(2),
+      parent = rightInfo,
+      OnClick = {function (obj)
+        config.useDefaultStartBoxes =  obj.checked
+      end},
+
+    }
+  end
+
 
 	local function RejoinBattleFunc()
     --Spring.Echo("\LuaMenu\widgets\chobby\components\battle\battle_watch_list_window.lua","RejoinBattleFunc()","") -- Beherith Debug
@@ -1602,6 +1623,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	end
 
 	local isSingleplayer = (battleLobby.name == "singleplayer")
+  showDefaultStartCheckbox = isSingleplayer
 	local isHost = (not isSingleplayer) and (battleLobby:GetMyUserName() == battle.founder)
 
 	local EXTERNAL_PAD_VERT = 9

@@ -34,42 +34,74 @@ local function parseSpadsBoxLine(sbl)
     local startdata = pyPartition(sbl,".smf:",false) --2|0 0 50 200;150 0 200 200
     local playercount = tonumber(pyPartition(startdata,"|",true))
     local boxes = {}
-    boxes[playercount] = {}
     local boxinfo = pyPartition(startdata,"|",false)
     for i,strbox in pairs(split(boxinfo, ";")) do
-        boxes[playercount][i] = {}
+        boxes[i] = {}
         for j, position in pairs(split(strbox," ")) do
-          boxes[playercount][i][j] = tonumber(position)/200.0
+          boxes[i][j] = tonumber(position)/200.0
         end
     end
-    return mapName, boxes
+    return mapName, playercount, boxes
 end
 
-parseSpadsBoxLine("Aetherian Void 1.7.smf:4|0 0 80 80;120 120 200 200;0 120 80 200;120 0 200 80\n") --this is a unit test
+--parseSpadsBoxLine("Aetherian Void 1.7.smf:4|0 0 80 80;120 120 200 200;0 120 80 200;120 0 200 80\n") --this is a unit test
 
-  -- spads style boxen: 	!addBox <left> <top> <right> <bottom> [<teamNumber>] - adds a new start box (0,0 is top left corner, 200,200 is bottom right corner)
+-- spads style boxen: 	!addBox <left> <top> <right> <bottom> [<teamNumber>] - adds a new start box (0,0 is top left corner, 200,200 is bottom right corner)
 -- make a table for each mapname
 local savedBoxesFilename = LUA_DIRNAME .. "configs/gameConfig/byar/savedBoxes.dat" --taken from spads
 local savedBoxesSpads =  VFS.LoadFile(savedBoxesFilename)
 
 local savedBoxes = {}
-
+local numBoxes = 0
 if savedBoxesSpads then
 	local fileLines = lines(savedBoxesSpads)
 	for i, line in ipairs(fileLines) do
-    local mapname, boxes = parseSpadsBoxLine(line)
-    --Spring.Echo("Start boxes parsed for",mapname,boxes,line)
+    local mapname, playercount, boxes = parseSpadsBoxLine(line)
+    --Spring.Echo("Start boxes parsed for",mapname,boxes,line,#savedBoxes)
     if mapname ~= nil then
+        numBoxes = numBoxes + 1
         if savedBoxes[mapname] then
-          savedBoxes[mapname][#savedBoxes[mapname]] = boxes[1]
+          savedBoxes[mapname][playercount] = boxes
+          
+          --Spring.Echo("updated existing",#savedBoxes,#boxes,playercount)
+          
+          --table.insert(savedBoxes[mapname],boxes,playercount)
         else
-          savedBoxes[mapname] = boxes
+          --table.insert(savedBoxes,{playercount = boxes},mapname)
+          savedBoxes[mapname] = {}
+          savedBoxes[mapname][playercount] = boxes
+          
+          --Spring.Echo("added new entry",#savedBoxes,#boxes,playercount)
         end
     end
   end
 end
 
+
+Spring.Echo("Parsed ",numBoxes, " start boxes from",savedBoxesFilename)
+
 return savedBoxes
+
+--v2 table layout:
+--[[
+savedboxes = {
+  ["my garbage map"] = {
+    "2" = {
+      team1 = {
+        top = 0.0,
+        left = 0.0,
+        right = 1.0,
+        bottom = 1.0,
+        }
+      team2 = {
+        top = 0.0
+      }
+    }
+  }
+}
+
+]]--
+
 
 --['mapname'] = {2={0={}}}
 
