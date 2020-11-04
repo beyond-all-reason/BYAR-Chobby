@@ -450,13 +450,13 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 			name = "singleplayer",
 			tabs = Configuration.gameConfig.singleplayerConfig,
 			titleText = i18n("singleplayercoop"),
-			twoline = true,
 		},
 		{
 			name = "multiplayer",
 			entryCheck = WG.LoginWindowHandler.TryLoginMultiplayer,
 			tabs = multiPlayerTabs,
-			cleanupFunction = Configuration.leaveMultiplayerOnMainMenu and CleanMultiplayerState or nil
+			cleanupFunction = Configuration.leaveMultiplayerOnMainMenu and CleanMultiplayerState or nil,
+			twoline = true,
 		},
 		{
 			name = "replays",
