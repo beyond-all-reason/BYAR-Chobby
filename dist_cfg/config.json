@@ -142,7 +142,7 @@
             "no_start_script" : true,
             "launch": {
                 "start_args" : ["--menu", "rapid://byar-chobby:test"],
-                "engine": "104.0.1-1637-g4b087ca bar"
+                "engine": "104.0.1-1641-g96e01ba bar"
             }
         },
         {
@@ -190,7 +190,7 @@
             "no_start_script" : true,
             "launch": {
                 "start_args" : ["--menu", "rapid://byar-chobby:test"],
-				"engine": "104.0.1-1637-g4b087ca bar"
+				"engine": "104.0.1-1641-g96e01ba bar"
             }
         },
         {
