@@ -297,7 +297,7 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 		file = IMAGE_TOP_BACKGROUND,
 		parent = mainWindow_buttonsHolder,
 		keepAspect = false,
-		color = {0.218, 0.23, 0.49, 0.1},
+		color = {0.218, 0.23, 0.49, 0.0},
 	}
 
 	local mainWindow_mainContent = Control:New {
@@ -396,7 +396,7 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 		file = IMAGE_TOP_BACKGROUND,
 		parent = lobbyInterfaceHolder,
 		keepAspect = false,
-		color = {0.218, 0.23, 0.49, 0.25},
+		color = {0, 0, 0, 0.0},
 	}
 
 	-----------------------------------
@@ -808,16 +808,16 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 		holder_status:SetPos(nil, topOffset)
 
 		if showTopBar then
-			buttonsHolder_image.color[4] = 0.3
+			buttonsHolder_image.color[4] = 0.0
 			buttonsHolder_image:Invalidate()
-			holder_topImage.color[4] = 0.45
+			holder_topImage.color[4] = 0.0
 			holder_topImage:Invalidate()
 		else
 			backgroundHolder:SetEnabled(true)
 			ingameBackgroundHolder:SetEnabled(false)
-			buttonsHolder_image.color[4] = 0.1
+			buttonsHolder_image.color[4] = 0.0
 			buttonsHolder_image:Invalidate()
-			holder_topImage.color[4] = 0.25
+			holder_topImage.color[4] = 0.0
 			holder_topImage:Invalidate()
 		end
 
@@ -866,7 +866,7 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 		height = 38,
 		name = "switchToMenuButton",
 		caption = "Menu",
-		font = WG.Chobby.Configuration:GetFont(3),
+		font = WG.Chobby.Configuration:GetFont(2),
 		parent = ingameInterfaceHolder,
 		resizable = false,
 		draggable = false,
@@ -881,11 +881,11 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 	local switchToGameButton = Button:New {
 		y = 2,
 		right = 3,
-		width = 108,
+		width = 220,
 		height = 38,
 		name = "switchToGameButton",
-		caption = "Game",
-		font = WG.Chobby.Configuration:GetFont(3),
+		caption = "Return to Game",
+		font = WG.Chobby.Configuration:GetFont(2),
 		parent = holder_topBar,
 		resizable = false,
 		draggable = false,
@@ -904,12 +904,12 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 
 	local leaveGameButton = Button:New {
 		y = 2,
-		right = 114,
+		right = 226,
 		width = 108,
 		height = 38,
 		name = "leaveGameButton",
 		caption = "Leave",
-		font = WG.Chobby.Configuration:GetFont(3),
+		font = WG.Chobby.Configuration:GetFont(2),
 		parent = holder_topBar,
 		resizable = false,
 		draggable = false,
@@ -930,7 +930,7 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 		file = IMAGE_TOP_BACKGROUND,
 		parent = holder_topBar,
 		keepAspect = false,
-		color = {0.218, 0.23, 0.49, 0.9},
+		color = {0, 0, 0, 0.0},
 	}
 
 	-------------------------------------------------------------------
