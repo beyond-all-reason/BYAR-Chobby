@@ -196,101 +196,46 @@ function InterfaceSkirmish:_StartScript(gameName, mapName, playerName, friendLis
 		teamCount = teamCount + 1
 	end
   
-  
-  -- calc the number of allyTeamCount
-  local allyTeamMap = {}
-  for i, teamData in pairs(teams) do
-    if not allyTeamMap[teamData.AllyTeam] then
-      allyTeamMap[teamData.AllyTeam] = allyTeamCount
-      allyTeamCount = allyTeamCount + 1
-    end
-    teamData.AllyTeam = allyTeamMap[teamData.AllyTeam]
+
+	-- calc the number of allyTeamCount
+	local allyTeamMap = {}
+	for i, teamData in pairs(teams) do
+		if not allyTeamMap[teamData.AllyTeam] then
+			allyTeamMap[teamData.AllyTeam] = allyTeamCount
+			allyTeamCount = allyTeamCount + 1
+		end
+		teamData.AllyTeam = allyTeamMap[teamData.AllyTeam]
 	end
-  
-  -- time to parse our nice boxen
-  local Configuration = WG.Chobby.Configuration
-  
-  local startBoxes  = nil
-  --if Configuration.gameConfig.mapStartBoxes then
-  --  Spring.Echo("Number of mapStartBoxes is",#Configuration.gameConfig.mapStartBoxes, allyTeamCount)
-  --end
-  if Configuration.gameConfig.useDefaultStartBoxes then
-    Spring.Echo("Skirmish: Using default startboxes")
-  else
-    
-    Spring.Echo("Skirmish: Default startboxes disabled")
-  end
-  
-  if Configuration.gameConfig and Configuration.gameConfig.useDefaultStartBoxes and Configuration.gameConfig.mapStartBoxes and Configuration.gameConfig.mapStartBoxes[mapName] then 
-    startBoxes = Configuration.gameConfig.mapStartBoxes[mapName] 
-    if startBoxes[allyTeamCount] then
-      Spring.Echo("Found startbox table for allyTeamCount",allyTeamCount)
-    else
-      Spring.Echo("No startbox table for allyTeamCount",allyTeamCount)
-    end
-  else
-    Spring.Echo("No map startBoxes found for map",mapName)
-  end
-  
-	-- rules for boxes placement:
-  -- if there is a box set of the number of allyteams, use that
-  -- if there is no box set for the number of allyteams, but there is one that is larger, then use that
-  -- if there is no box set for the number of allyteams, but there is one that is smaller, then use that and blank the rest
-  
-  local function selectStartBoxesForAllyTeamCount(startboxes, allyteamcount) 
-    if startboxes == nil then return nil end
-    local mystartboxes = nil
-    local closestlarger = 10000
-    local closestsmaller = 0
-    for i, boxset in pairs(startboxes) do
-      if i == allyteamcount then 
-        Spring.Echo("Found exact boxset for allyteamcount ",allyteamcount)
-        return boxset 
-      end
-      if i > allyteamcount and i < closestlarger then 
-        closestlarger = i
-      end
-      if i < allyteamcount and i > closestsmaller then
-        closestsmaller = i
-      end
-    end
-    if closestlarger < 10000 then
-      Spring.Echo("Found larger boxset ",closestlarger ," for allyteamcount ",allyteamcount)
-      return startboxes[closestlarger]
-    end
-    if closestsmaller > 0 then
-      Spring.Echo("Found smaller boxset ",closestsmaller, " for allyteamcount", allyteamcount)
-      return startboxes[closestsmaller]
-    end
-    return nil
-  end
-  
-  local function makeallyteambox(startboxes, allyteamindex) 
-      -- -- spads style boxen: 	!addBox <left> <top> <right> <bottom> [<teamNumber>] - adds a new start box (0,0 is top left corner, 200,200 is bottom right corner)
-      --  startrectbottom=1;
-      --  startrectleft=0;
-      --  startrecttop=0.75;
-      --  startrectright=1;
-      local allyteamtable = {
-          numallies = 0,
-        }
-      if startboxes and startboxes[allyteamindex + 1] then
-        allyteamtable = {
-          numallies = 0,
-          startrectleft  = startboxes[allyteamindex + 1][1],
-          startrecttop   = startboxes[allyteamindex + 1][2],
-          startrectright = startboxes[allyteamindex + 1][3],
-          startrectbottom= startboxes[allyteamindex + 1][4],
-        }
-      end
-      return allyteamtable
-  end
-  
-  local goodboxes = selectStartBoxesForAllyTeamCount(startBoxes,allyTeamCount)
+
+	-- time to parse our nice boxen
+	local Configuration = WG.Chobby.Configuration
+
+	local startBoxes  = nil
+	--if Configuration.gameConfig.mapStartBoxes then
+	--  Spring.Echo("Number of mapStartBoxes is",#Configuration.gameConfig.mapStartBoxes, allyTeamCount)
+	--end
+
+	if Configuration.gameConfig and 
+		Configuration.gameConfig.useDefaultStartBoxes and 
+		Configuration.gameConfig.mapStartBoxes and 
+		Configuration.gameConfig.mapStartBoxes.savedBoxes and 
+		Configuration.gameConfig.mapStartBoxes.savedBoxes[mapName] then 
+		startBoxes = Configuration.gameConfig.mapStartBoxes.savedBoxes[mapName] 
+		Spring.Echo("Skirmish: Using default startboxes",startBoxes)
+		startBoxes = Configuration.gameConfig.mapStartBoxes.selectStartBoxesForAllyTeamCount(startBoxes,allyTeamCount)
+	else
+		Spring.Echo("No map startBoxes found or disabled for map",mapName)
+	end
   
 	for i, teamData in pairs(teams) do
 		if not allyTeams[teamData.AllyTeam] then
-       allyTeams[teamData.AllyTeam] = makeallyteambox(goodboxes,teamData.AllyTeam)
+		    if startBoxes then
+				allyTeams[teamData.AllyTeam] = Configuration.gameConfig.mapStartBoxes.makeAllyTeamBox(startBoxes,teamData.AllyTeam)
+		    else
+				allyTeams[teamData.AllyTeam] = {
+							numallies = 0,
+						}
+			end
 		end
 	end
 

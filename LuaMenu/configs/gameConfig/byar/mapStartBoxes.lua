@@ -78,9 +78,68 @@ if savedBoxesSpads then
 end
 
 
-Spring.Echo("Parsed ",numBoxes, " start boxes from",savedBoxesFilename)
+Spring.Log("mapStartBoxes",LOG.INFO,"Parsed ",numBoxes, " start boxes from",savedBoxesFilename)
 
-return savedBoxes
+  
+-- rules for boxes selection:
+-- if there is a box set of the number of allyteams, use that
+-- if there is no box set for the number of allyteams, but there is one that is larger, then use that
+-- if there is no box set for the number of allyteams, but there is one that is smaller, then use that and blank the rest
+  
+local function selectStartBoxesForAllyTeamCount(startboxes, allyteamcount) 
+  if startboxes == nil then return nil end
+  local mystartboxes = nil
+  local closestlarger = 10000
+  local closestsmaller = 0
+  for i, boxset in pairs(startboxes) do
+    if i == allyteamcount then 
+      Spring.Log("mapStartBoxes",LOG.INFO,"Found exact boxset for allyteamcount ",allyteamcount)
+      return boxset 
+    end
+    if i > allyteamcount and i < closestlarger then 
+      closestlarger = i
+    end
+    if i < allyteamcount and i > closestsmaller then
+      closestsmaller = i
+    end
+  end
+  if closestlarger < 10000 then
+    Spring.Log("mapStartBoxes",LOG.INFO,"Found larger boxset ",closestlarger ," for allyteamcount ",allyteamcount)
+    return startboxes[closestlarger]
+  end
+  if closestsmaller > 0 then
+    Spring.Echo("Found smaller boxset ",closestsmaller, " for allyteamcount", allyteamcount)
+    return startboxes[closestsmaller]
+  end
+  return nil
+end
+
+local function makeAllyTeamBox(startboxes, allyteamindex) 
+    -- -- spads style boxen: 	!addBox <left> <top> <right> <bottom> [<teamNumber>] - adds a new start box (0,0 is top left corner, 200,200 is bottom right corner)
+    --  startrectbottom=1;
+    --  startrectleft=0;
+    --  startrecttop=0.75;
+    --  startrectright=1;
+    local allyteamtable = {
+        numallies = 0,
+      }
+    if startboxes and startboxes[allyteamindex + 1] then
+      allyteamtable = {
+        numallies = 0,
+        startrectleft  = startboxes[allyteamindex + 1][1],
+        startrecttop   = startboxes[allyteamindex + 1][2],
+        startrectright = startboxes[allyteamindex + 1][3],
+        startrectbottom= startboxes[allyteamindex + 1][4],
+      }
+    end
+    return allyteamtable
+end
+
+return {
+  savedBoxes = savedBoxes,
+  selectStartBoxesForAllyTeamCount = selectStartBoxesForAllyTeamCount,
+  makeAllyTeamBox = makeAllyTeamBox,
+}
 
 --v2 table layout:
 --[[
