@@ -135,10 +135,56 @@ local function makeAllyTeamBox(startboxes, allyteamindex)
     return allyteamtable
 end
 
+-- how about some more helpers?
+local function initCustomBox(mapName)
+  if savedBoxes[mapName] == nil then 
+    savedBoxes[mapName] = {}
+  end
+  if savedBoxes[mapName]["customBoxes"] == nil then
+    savedBoxes[mapName]["customBoxes"] = {}
+  end
+end
+
+local function addBox(mapName, left,top, right, bottom, allyTeam) --in spads order
+  initCustomBox(mapName)
+  savedBoxes[mapName]["customBoxes"][allyTeam] = {left,top,right,bottom}
+end
+
+local function removeBox(mapName,allyTeam)
+  initCustomBox(mapName)
+  if savedBoxes[mapName]["customBoxes"][allyTeam] then
+    savedBoxes[mapName]["customBoxes"][allyTeam] = nil
+  end
+end
+
+local function clearBoxes(mapName)
+  initCustomBox(mapName)
+  savedBoxes[mapName]["customBoxes"] = {}
+end
+
+local function getBox(allyTeam)
+  if savedBoxes[mapName] == nil then
+    initCustomBox(mapName)
+  end
+  if savedboxes[mapName]["customBoxes"] then
+    return savedBoxes[mapName]["customBoxes"][allyTeam]
+  else
+    local defaultboxes =  selectStartBoxesForAllyTeamCount(mapName,2)
+    if defaultboxes then  
+      return defaultboxes[allyTeam]
+    end
+  end
+  return nil
+end
+
 return {
   savedBoxes = savedBoxes,
   selectStartBoxesForAllyTeamCount = selectStartBoxesForAllyTeamCount,
   makeAllyTeamBox = makeAllyTeamBox,
+  getBox = getBox,
+  clearBoxes = clearBoxes,
+  removeBox = removeBox,
+  addBox = addBox,
 }
 
 --v2 table layout:
