@@ -198,13 +198,13 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
       bottom = 130,
       boxalign = "left",
       boxsize = 15,
-      caption = "Use Default Start Boxes",
-      checked = false,
+      caption = "Use Start Boxes",
+      checked = true,
       tooltip = "All teams start together in pre-specified areas",
       font = config:GetFont(2),
       parent = rightInfo,
       OnClick = {function (obj)
-        config.useDefaultStartBoxes =  obj.checked
+        config.gameConfig.useDefaultStartBoxes =  obj.checked
       end},
 
     }

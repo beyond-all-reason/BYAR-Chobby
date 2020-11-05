@@ -8,8 +8,12 @@ local skirmishDefault    = VFS.Include(LUA_DIRNAME .. "configs/gameConfig/" .. s
 local defaultModoptions  = VFS.Include(LUA_DIRNAME .. "configs/gameConfig/" .. shortname .. "/ModOptions.lua")
 --local rankFunction       = VFS.Include(LUA_DIRNAME .. "configs/gameConfig/zk/rankFunction.lua")
 local backgroundConfig   = VFS.Include(LUA_DIRNAME .. "configs/gameConfig/" .. shortname .. "/skinning/skinConfig.lua")
+
+--Map stuff:
 local mapDetails   = VFS.Include(LUA_DIRNAME .. "configs/gameConfig/" .. shortname .. "/mapDetails.lua")
 local mapStartBoxes   = VFS.Include(LUA_DIRNAME .. "configs/gameConfig/" .. shortname .. "/mapStartBoxes.lua")
+local useDefaultStartBoxes = true
+
 
 local link_homePage, link_replays, link_maps = VFS.Include(LUA_DIRNAME .. "configs/gameConfig/" .. shortname .. "/linkFunctions.lua")
 
@@ -50,7 +54,8 @@ local externalFuncAndData = {
 	mapWhitelist           = mapWhitelist,
 	aiBlacklist            = aiBlacklist,
 	mapDetails             = mapDetails,
-	mapStartBoxes             = mapStartBoxes,
+	mapStartBoxes          = mapStartBoxes,
+	useDefaultStartBoxes   = useDefaultStartBoxes,
 	settingsConfig         = settingsConfig,
 	settingsNames          = settingsNames,
 	settingsDefault        = settingsDefault,

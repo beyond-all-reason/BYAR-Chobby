@@ -214,14 +214,14 @@ function InterfaceSkirmish:_StartScript(gameName, mapName, playerName, friendLis
   --if Configuration.gameConfig.mapStartBoxes then
   --  Spring.Echo("Number of mapStartBoxes is",#Configuration.gameConfig.mapStartBoxes, allyTeamCount)
   --end
-  if Configuration.useDefaultStartBoxes then
+  if Configuration.gameConfig.useDefaultStartBoxes then
     Spring.Echo("Skirmish: Using default startboxes")
   else
     
     Spring.Echo("Skirmish: Default startboxes disabled")
   end
   
-  if Configuration.useDefaultStartBoxes and Configuration.gameConfig and Configuration.gameConfig.mapStartBoxes and Configuration.gameConfig.mapStartBoxes[mapName] then 
+  if Configuration.gameConfig and Configuration.gameConfig.useDefaultStartBoxes and Configuration.gameConfig.mapStartBoxes and Configuration.gameConfig.mapStartBoxes[mapName] then 
     startBoxes = Configuration.gameConfig.mapStartBoxes[mapName] 
     if startBoxes[allyTeamCount] then
       Spring.Echo("Found startbox table for allyTeamCount",allyTeamCount)
