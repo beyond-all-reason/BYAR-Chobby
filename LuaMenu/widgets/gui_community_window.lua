@@ -255,6 +255,7 @@ local function GetDateTimeDisplay(parentControl, xPosition, yPosition, timeStrin
 
 	function externalFunctions.UpdateCountdown()
 		local difference, inTheFuture, isNow = Spring.Utilities.GetTimeDifference(timeString)
+
 		if isNow then
 			countdown:SetText("Starting " .. difference .. ".")
 		elseif inTheFuture then
@@ -583,6 +584,7 @@ local function GetNewsHandler(parentControl, headingSize, timeAsTooltip, topHead
 			return
 		end
 		for i = 1, #items do
+			Spring.Echo("Adding news item",items[i].Header)
 			local entry = {
 				heading = items[i].Header,
 				link = items[i].Url,
@@ -845,35 +847,69 @@ local function InitializeControls(window)
 	local lobby = WG.LibLobby.lobby
 	local staticCommunityData = LoadStaticCommunityData()
 
-	local topWide     = GetScroll(window, 0, 0, 0, "60%", true)
-	local leftCenter  = GetScroll(window, 0, "66.6%", "40%", "31%", false)
-	local midCenter   = GetScroll(window, "33.4%", "33.4%", "40%", "31%", true)
-	local rightCenter = GetScroll(window, "66.6%", 0, "40%", "31%", true)
-	local lowerWide   = GetScroll(window, 0, 0, "69%", 0, true)
+	local topWide     = GetScroll(window, 0, 0, 0, "30%", true) -- GetScroll(window, x, right, y, bottom, verticalScrollbar)
+	local leftCenter  = GetScroll(window, 0, 0, "70%", "0%", false)
+	--local midCenter   = GetScroll(window, "33.4%", "33.4%", "40%", "1%", true)
+	--local rightCenter = GetScroll(window, "66.6%", 0, "40%", "1%", true)
+	--local lowerWide   = GetScroll(window, 0, 0, "69%", 0, true)
 	--local leftLower   = GetScroll(window, 0, "33.4%", "69%", 0, false)
 	--local rightLower  = GetScroll(window, "66.6%", 0, "69%", 0, false)
 
 	LeaveIntentionallyBlank(rightLower, "(reserved)")
 
 	-- Populate link panel
-	AddLinkButton(leftCenter, "Zero-K", "Visit your home page at Zero-K", "http://zero-k.info/", 0, 0, "75.5%", 0)
-	AddLinkButton(leftCenter, "Forum",   "Browse or post on the forums.", "http://zero-k.info/Forum",   0, 0, "25.5%", "50.5%")
-	AddLinkButton(leftCenter, "Manual",  "Read the manual and unit guide.", "http://zero-k.info/mediawiki/index.php?title=Manual", 0, 0, "50.5%", "25.5%")
-	AddLinkButton(leftCenter, "Discord", "Chat on the Zero-K Discord server.", "https://discord.gg/aab63Vt", 0, 0, 0, "75.5%")
-
+	AddLinkButton(leftCenter, "Donate",   "Help us continue development", "https://www.beyondallreason.info/donate-for-bar",0, 0, "75.5%", 0) --last
+	AddLinkButton(leftCenter, "Manual",  "A quick guide on how the game mechanics work", "https://www.beyondallreason.info/guides", 0, 0, "50.5%", "25.5%") --third
+	AddLinkButton(leftCenter, "Homepage", "Visit our website for more", "https://www.beyondallreason.info/",   0, 0, "25.5%", "50.5%") --second
+	AddLinkButton(leftCenter, "Talk to us", "Chat on the BAR Discord server.", "https://discord.gg/N968ddE", 0, 0, 0, "75.5%") --first
 
 	-- News Handler
-	local newsHandler = GetNewsHandler(topWide, 4)
-	if staticCommunityData and staticCommunityData.NewsItems then
-		newsHandler.ReplaceNews(staticCommunityData.NewsItems)
-	end
+	--[[
+				heading = items[i].Header,
+				link = items[i].Url,
+				atTime = items[i].Time,
+				text = items[i].Text,
 
+	]]--
+
+	local newsItems = {
+		{
+			Header = "Welcome to BAR Alpha",
+			Url = "https://www.beyondallreason.info/",
+			Time = nil,-- "NowTime",
+			Text = "This lobby is currently being built, more functionality coming soon. Right now you can enjoy single player skirmish with multiple AIs or multiplayer battles, join one of active rooms to play with the community.",
+		},
+		{
+			Header = "Play with your friends",
+			Url = nil,--"https://www.beyondallreason.info/",
+			Time = nil,-- "NowTime",
+			Text = "Join any empty room with your friends and type !boss to be able to !lock the game. Hosting your own battles is under development.",
+		},
+		{
+			Header = "Useful battle room commands",
+			--Url = "https://www.beyondallreason.info/",
+			--Time = "NowTime",
+			Text = "Type these commands into the battle room chat\n" ..  
+				   "!help - The battle room will give you detailed commands in the chat tab\n" .. 
+				   "!boss - set yourself as a boss to gain full control\n" .. 
+				   "!preset teams - sets the room to Team vs Team game\n" ..  
+				   "!preset ffa - sets the room to Free-for-all game\n" ..
+				   "!forcestart - starts the game even if teams arent balanced\n"   
+				   ,
+		},
+	}
+	local newsHandler = GetNewsHandler(topWide, 4)
+	if newsItems then
+		newsHandler.ReplaceNews(newsItems)
+	end
+	
 	local function OnNewsList(_, newsItems)
 		newsHandler.ReplaceNews(newsItems)
 	end
 	lobby:AddListener("OnNewsList", OnNewsList)
-
+	
 	-- Forum Handler
+	--[[
 	local forumHandler = GetNewsHandler(midCenter, 2, true, "Recent Posts", true)
 	if staticCommunityData and staticCommunityData.ForumItems then
 		forumHandler.ReplaceNews(staticCommunityData.ForumItems)
@@ -883,8 +919,9 @@ local function InitializeControls(window)
 		forumHandler.ReplaceNews(forumItems)
 	end
 	lobby:AddListener("OnForumList", OnForumList)
-
+	]]--
 	-- Ladder Handler
+	--[[
 	local ladderHandler = GetLadderHandler(rightCenter)
 	if staticCommunityData and staticCommunityData.LadderItems then
 		ladderHandler.UpdateLadder(staticCommunityData.LadderItems)
@@ -894,7 +931,9 @@ local function InitializeControls(window)
 		ladderHandler.UpdateLadder(ladderItems)
 	end
 	lobby:AddListener("OnLadderList", OnLadderList)
+	]]--
 
+	--[[
 	-- Profile Handler
 	local profileHandle = GetProfileHandler(lowerWide)
 	local function OnUserProfile(_, profileData)
@@ -906,6 +945,7 @@ local function InitializeControls(window)
 		profileHandle.UpdateUserName()
 	end
 	lobby:AddListener("OnAccepted", OnAccepted)
+	]]--
 end
 
 --------------------------------------------------------------------------------
@@ -957,7 +997,7 @@ end
 
 local function DelayedInitialize()
 	if WG.Chobby.Configuration.firstBattleStarted then
-		WG.Chobby.interfaceRoot.OpenRightPanelTab("community")
+		WG.Chobby.interfaceRoot.OpenRightPanelTab("Welcome")
 	end
 end
 
