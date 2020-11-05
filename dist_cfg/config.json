@@ -107,8 +107,8 @@
                 "games" : ["byar:test", "chobby:test", "byar-chobby:test"],
                 "resources": [
                     {
-                        "url": "https://github.com/beyond-all-reason/spring/releases/download/spring_bar_%7BBAR%7D104.0.1-1637-g4b087ca/spring_bar_.BAR.104.0.1-1637-g4b087ca_linux-64-minimal-portable.7z",
-                        "destination": "engine/104.0.1-1637-g4b087ca bar",
+                        "url": "https://github.com/beyond-all-reason/spring/releases/download/spring_bar_%7BBAR%7D104.0.1-1641-g96e01ba/spring_bar_.BAR.104.0.1-1641-g96e01ba_linux-64-minimal-portable.7z",
+                        "destination": "engine/104.0.1-1641-g96e01ba bar",
                         "extract": true
                     },
 
@@ -155,8 +155,8 @@
                 "games" : ["byar:test", "chobby:test", "byar-chobby:test"],
                 "resources": [
                     {
-                        "url": "https://github.com/beyond-all-reason/spring/releases/download/spring_bar_%7BBAR%7D104.0.1-1637-g4b087ca/spring_bar_.BAR.104.0.1-1637-g4b087ca_windows-64-minimal-portable.7z",
-                        "destination": "engine/104.0.1-1637-g4b087ca bar",
+                        "url": "https://github.com/beyond-all-reason/spring/releases/download/spring_bar_%7BBAR%7D104.0.1-1641-g96e01ba/spring_bar_.BAR.104.0.1-1641-g96e01ba_windows-64-minimal-portable.7z",
+                        "destination": "engine/104.0.1-1641-g96e01ba bar",
                         "extract": true
                     },
 
