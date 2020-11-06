@@ -872,39 +872,18 @@ local function InitializeControls(window)
 
 	]]--
 
-	local newsItems = {
-		{
-			Header = "Welcome to BAR Alpha",
-			Url = "https://www.beyondallreason.info/",
-			Time = nil,-- "NowTime",
-			Text = "This lobby is currently being built, more functionality coming soon. Right now you can enjoy single player skirmish with multiple AIs or multiplayer battles, join one of active rooms to play with the community.",
-		},
-		{
-			Header = "Play with your friends",
-			Url = nil,--"https://www.beyondallreason.info/",
-			Time = nil,-- "NowTime",
-			Text = "Join any empty room with your friends and type !boss to be able to !lock the game. Hosting your own battles is under development.",
-		},
-		{
-			Header = "Useful battle room commands",
-			--Url = "https://www.beyondallreason.info/",
-			--Time = "NowTime",
-			Text = "Type these commands into the battle room chat\n" ..  
-				   "!help - The battle room will give you detailed commands in the chat tab\n" .. 
-				   "!boss - set yourself as a boss to gain full control\n" .. 
-				   "!preset teams - sets the room to Team vs Team game\n" ..  
-				   "!preset ffa - sets the room to Free-for-all game\n" ..
-				   "!forcestart - starts the game even if teams arent balanced\n"   
-				   ,
-		},
-	}
+	local welcomePanelItems = {}
+	if WG.Chobby.Configuration and WG.Chobby.Configuration.gameConfig and WG.Chobby.Configuration.gameConfig.welcomePanelItems then
+		welcomePanelItems = WG.Chobby.Configuration.gameConfig.welcomePanelItems
+	end
+
 	local newsHandler = GetNewsHandler(topWide, 4)
-	if newsItems then
-		newsHandler.ReplaceNews(newsItems)
+	if welcomePanelItems then
+		newsHandler.ReplaceNews(welcomePanelItems)
 	end
 	
-	local function OnNewsList(_, newsItems)
-		newsHandler.ReplaceNews(newsItems)
+	local function OnNewsList(_, welcomePanelItems)
+		newsHandler.ReplaceNews(welcomePanelItems)
 	end
 	lobby:AddListener("OnNewsList", OnNewsList)
 	
