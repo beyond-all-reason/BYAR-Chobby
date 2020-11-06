@@ -148,6 +148,7 @@ end
 local function addBox(mapName, left,top, right, bottom, allyTeam) --in spads order
   initCustomBox(mapName)
   savedBoxes[mapName]["customBoxes"][allyTeam] = {left,top,right,bottom}
+  -- if online then: function Interface:AddStartRect(allyNo, left, top, right, bottom)
 end
 
 local function removeBox(mapName,allyTeam)
