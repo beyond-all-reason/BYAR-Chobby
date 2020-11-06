@@ -40,6 +40,8 @@ end
 local minimapOverridePath  = LUA_DIRNAME .. "configs/gameConfig/" .. shortname .. "/minimapOverride/"
 local minimapThumbnailPath = LUA_DIRNAME .. "configs/gameConfig/" .. shortname .. "/minimapThumbnail/"
 
+local sayPrivateSelectAndActivateChatTab = true
+
 ---------------------------------------------------------------------------------
 -- Getters
 ---------------------------------------------------------------------------------
@@ -52,6 +54,7 @@ local externalFuncAndData = {
 	--editor                 = "rapid://sb-byar:test",
 	--editor                 = "SpringBoard BYAR $VERSION",
 	defaultChatChannels    = {"main", "newbies"},
+	sayPrivateSelectAndActivateChatTab = sayPrivateSelectAndActivateChatTab,
 	mapWhitelist           = mapWhitelist,
 	aiBlacklist            = aiBlacklist,
 	mapDetails             = mapDetails,
