@@ -161,6 +161,7 @@ end
 ------------------------
 
 function Lobby:SetIngameStatus(isInGame)
+	--Spring.Echo("Lobby:SetIngameStatus(isInGame)",isInGame)
 	return self
 end
 

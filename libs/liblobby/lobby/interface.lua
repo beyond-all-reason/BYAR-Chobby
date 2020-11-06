@@ -1018,7 +1018,20 @@ function Interface:MuteList(chanName)
 end
 
 function Interface:MyStatus(status)
+	--Spring.Echo("Interface:MyStatus(status)",status)
 	self:_SendCommand(concat("MYSTATUS", status))
+	return self
+end
+
+
+function Interface:SetIngameStatus(status)
+	--Spring.Echo("Interface:SetIngameStatus(status)",status)
+	if status == true then
+		self:_SendCommand(concat("MYSTATUS", "1"))
+	elseif status == false then
+		self:_SendCommand(concat("MYSTATUS", "0"))
+	end
+
 	return self
 end
 
