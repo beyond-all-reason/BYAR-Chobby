@@ -125,7 +125,7 @@ local function CreateReplayEntry(replayPath, engineName, gameName, mapName)
   
 	local replayEngine = TextBox:New {
 		name = "replayEngine",
-		x = 565,
+		x = 530,
 		y = 12,
 		width = 200,
 		height = 20,
@@ -194,7 +194,7 @@ local function InitializeControls(parentControl)
 	local headings = {
 		{name = "Time", x = 88, width = 150},
 		{name = "Map", x = 250, width = 100},
-		{name = "Game", x = 350, width = 100},
+		{name = "Game", x = 420, width = 100},
 		{name = "Engine", x = 530, right = 5},
 	}
 
