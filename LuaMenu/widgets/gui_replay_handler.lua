@@ -407,26 +407,29 @@ local function ParseReplayBinaryString(rs)
   local scripttext = rs:sub(305+48,305+48+scriptsize -2) -- -2 to remove null terminator
   --Spring.Echo('scriptsize:',scriptsize,'scripttxt:',scripttext)
   local gameVersion = nil
+
   for line in scripttext:gmatch("[^\n]+") do
-      if line:find("gametype") then
+      if line:find("gametype=") then --gametype=Beyond All Reason test-13561-f7b35a8;
         gameVersion = line:sub(line:find("=")+1,line:find(";")-1)
         break;
       end
   end
-  --Spring.Echo(scripttext, gameVersion)
-  return scripttext, gameVersion
+
+  local mapName = nil --  mapname=Tropical;  --because the demo file name does not contain the name of the map after the first '.' character
+	for line in scripttext:gmatch("[^\n]+") do
+		if line:find("mapname=") then --gametype=Beyond All Reason test-13561-f7b35a8;
+			mapName = line:sub(line:find("=")+1,line:find(";")-1)
+			break;
+		end
+	end
+
+  --Spring.Echo(scripttext, gameVersion,mapName)
+  return scripttext, gameVersion, mapName
 
 end
 
-
-function widget:Update() 
-  -- This is needed because you cant populate a replay list efficiently
-  -- So we process on on each update which has the side effect of looking nice
-  if #delayedAddReplays > 1 then 
-    local replayPath = delayedAddReplays[#delayedAddReplays]
-    delayedAddReplays[#delayedAddReplays] = nil -- pop last one
-    
-    if replayPath:sub(-string.len('.sdfz')) ~= '.sdfz' then return end -- ignore other file types in /demos
+local function UnzipReplayHeaderString(replayPath)
+	if replayPath:sub(-string.len('.sdfz')) ~= '.sdfz' then return nil end -- ignore other file types in /demos
     
     local replayFilename = string.sub(replayPath, 7)
     -- We assume all replays are in demos/ or demos\, dangerous!
@@ -437,7 +440,7 @@ function widget:Update()
     
     --string.find(your_string, "_[^_]*$") -- find last underscore
     local replayEngine = string.sub(time_map_engine,string.find(time_map_engine, "_[^_]*$")+1 )
-    local mymapname = string.sub(time_map_engine, 17, string.find(time_map_engine, "_[^_]*$")-1 )
+    local mymapname = string.sub(time_map_engine, 17, string.find(time_map_engine, "_[^_]*$")-1 )  --because the demo file name does not contain the name of the map after the first '.' character
     
     --[[ local zippedreplay = VFS.LoadFile(replayPath,VFS.RAW)
     local unzippedreplay = VFS.ZlibDecompress(zippedreplay,256000) --does not work!  ]]--
@@ -446,7 +449,7 @@ function widget:Update()
     local replayFile8kChunk = replayFileHandle:read(8192) --read an 8k chunk and hope that it contains the script
     replayFileHandle:close()
     
-    if replayFile8kChunk == nil or string.len(replayFile8kChunk) < 1000 then return end
+    if replayFile8kChunk == nil or string.len(replayFile8kChunk) < 1000 then return nil end
     
     local demoZipFilename = 'demos/replayFile8kChunk_zipped.tmp'
     local demoUnzippedFilename = 'demos/replayFile8kChunk_unzipped.tmp'
@@ -463,14 +466,32 @@ function widget:Update()
     demoZipFile:close()
     demoUnzippedFile:close()
     
-    local zippedReplay = VFS.LoadFile(demoUnzippedFilename,VFS.RAW) -- can it load freshly made files?
-    --local scumfile = io.open(tmpdemounzip,'rb')
-    --local scumfilebin = scumfile:read()
-    local scripttext, gameVersion = ParseReplayBinaryString(zippedReplay)
+	local unzippedReplay = VFS.LoadFile(demoUnzippedFilename,VFS.RAW) -- can it load freshly made files?
+	return unzippedReplay, replayEngine
+end
+
+
+function widget:Update() 
+  -- This is needed because you cant populate a replay list efficiently
+  -- So we process on on each update which has the side effect of looking nice
+  if #delayedAddReplays > 1 then 
+    local replayPath = delayedAddReplays[#delayedAddReplays]
+    delayedAddReplays[#delayedAddReplays] = nil -- pop last one
     
-    if scripttext == nil or gameVersion == nil then return end
-    
-    WG.ReplayHandler.ReadReplayInfoDone(replayPath, replayEngine,gameVersion,mymapname,scripttext)
+	local unzippedReplayString, replayEngine = UnzipReplayHeaderString(replayPath)
+	if unzippedReplayString == nil then 
+		Spring.Log("Chobby",LOG.NOTICE,"Unable to unzip replay file", replayPath)
+		return 
+	end
+	
+	local scripttext, gameVersion, mapName= ParseReplayBinaryString(unzippedReplayString)
+	if scripttext == nil or gameVersion == nil or mapName == nil then 
+		Spring.Log("Chobby",LOG.NOTICE,"Unable to parse replay header", replayPath,gameVersion,replayEngine,mapname)
+		return 
+	end
+	
+	Spring.Log("Chobby",LOG.INFO,"Parsed replay", replayPath,gameVersion,mapname)
+    WG.ReplayHandler.ReadReplayInfoDone(replayPath, replayEngine,gameVersion,mapName,scripttext)
   end 
 end
 
