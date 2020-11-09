@@ -2051,7 +2051,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
       --[14:42:53] * [teh]host * Vote cancelled by [teh]BaNa
       votePanel.ImmediateVoteEnd()
     
-    elseif string.find(message, "command executed directly by ", nil, true) and string.find(message, " Cancelling ", nil, true)  then --votecancel
+    elseif string.find(message, "command executed directly by ", nil, true) and string.find(string.lower(message), " cancelling ", nil, true)  then --votecancel
       --[14:43:19] * [teh]host * Cancelling "set map Throne Acidic" vote (command executed directly by [teh]Beherith)
       votePanel.ImmediateVoteEnd()
     end

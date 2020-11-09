@@ -72,7 +72,7 @@
     "snd_volmaster": 100,
     "snd_volmusic": 30,
     "snd_airAbsorption": 0.35,
-    "ui_opacity": 0.55,
+    "ui_opacity": 0.6,
     "UseNetMessageSmoothingBuffer": 0,
     "NetworkLossFactor": 2,
     "LinkOutgoingBandwidth": 262144,
