@@ -823,8 +823,8 @@
                 "games" : ["byar:test", "chobby:test", "byar-chobby:test"],
                 "resources": [
                     {
-                        "url": "https://github.com/beyond-all-reason/spring/releases/download/spring_bar_%7BBAR%7D104.0.1-1641-g96e01ba/spring_bar_.BAR.104.0.1-1641-g96e01ba_linux-64-minimal-portable.7z",
-                        "destination": "engine/104.0.1-1641-g96e01ba bar",
+                        "url": "https://github.com/beyond-all-reason/spring/releases/download/spring_bar_%7BBAR%7D104.0.1-1656-gad7994a/spring_bar_.BAR.104.0.1-1656-gad7994a_linux-64-minimal-portable.7z",
+                        "destination": "engine/104.0.1-1656-gad7994a bar",
                         "extract": true
                     },
 
@@ -858,7 +858,7 @@
             "no_start_script" : true,
             "launch": {
                 "start_args" : ["--menu", "rapid://byar-chobby:test"],
-                "engine": "104.0.1-1641-g96e01ba bar"
+                "engine": "104.0.1-1656-gad7994a bar"
             }
         },
         {
@@ -871,8 +871,8 @@
                 "games" : ["byar:test", "chobby:test", "byar-chobby:test"],
                 "resources": [
                     {
-                        "url": "https://github.com/beyond-all-reason/spring/releases/download/spring_bar_%7BBAR%7D104.0.1-1641-g96e01ba/spring_bar_.BAR.104.0.1-1641-g96e01ba_windows-64-minimal-portable.7z",
-                        "destination": "engine/104.0.1-1641-g96e01ba bar",
+                        "url": "https://github.com/beyond-all-reason/spring/releases/download/spring_bar_%7BBAR%7D104.0.1-1656-gad7994a/spring_bar_.BAR.104.0.1-1656-gad7994a_windows-64-minimal-portable.7z",
+                        "destination": "engine/104.0.1-1656-gad7994a bar",
                         "extract": true
                     },
 
@@ -906,7 +906,7 @@
             "no_start_script" : true,
             "launch": {
                 "start_args" : ["--menu", "rapid://byar-chobby:test"],
-				"engine": "104.0.1-1641-g96e01ba bar"
+				"engine": "104.0.1-1656-gad7994a bar"
             }
         },
         {
