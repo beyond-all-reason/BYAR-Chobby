@@ -433,11 +433,17 @@ local function UnzipReplayHeaderString(replayPath)
     
     local replayFilename = string.sub(replayPath, 7)
     -- We assume all replays are in demos/ or demos\, dangerous!
-    local time_map_engine_branch = string.gsub(replayFilename, "%.sdfz", "")
-
+	local time_map_engine = replayFilename
+	
     --all engine branches are loved equally:
-    local time_map_engine = string.gsub(string.gsub(string.gsub(string.gsub(time_map_engine_branch, " maintenance", ""), " develop", ""), " luaVAO",""), " transition", "")
-    
+	local validEngineBranches = {"maintenance","develop","luaVAO","transition","BAR"}
+	for k, branch in pairs(validEngineBranches) do
+		--Spring.Echo(time_map_engine,branch)
+		time_map_engine = string.gsub( time_map_engine," "..branch..".sdfz","")
+		time_map_engine = string.gsub( time_map_engine,"_"..branch..".sdfz","")
+	end
+ 
+
     --string.find(your_string, "_[^_]*$") -- find last underscore
     local replayEngine = string.sub(time_map_engine,string.find(time_map_engine, "_[^_]*$")+1 )
     local mymapname = string.sub(time_map_engine, 17, string.find(time_map_engine, "_[^_]*$")-1 )  --because the demo file name does not contain the name of the map after the first '.' character
