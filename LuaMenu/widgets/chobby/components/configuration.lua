@@ -78,7 +78,7 @@ function Configuration:init()
 	self.highlightedColor = "\255\125\255\0"
 	self.meColor = "\255\0\190\190"
 
-	self.moderatorColor = {0.68, 0.78, 1, 1}
+	self.moderatorColor = {0.2, 1.0, 0.2, 1}
 	self.founderColor = {0.7, 1, 0.65, 1}
 	self.ignoredUserNameColor = {0.6, 0.6, 0.6, 1}
 	self.userNameColor = {1, 1, 1, 1}
