@@ -22,6 +22,7 @@ local welcomePanelItems = {
                "!boss - set yourself as a boss to gain full control\n" .. 
                "!preset teams - sets the room to Team vs Team game\n" ..  
                "!preset ffa - sets the room to Free-for-all game\n" ..
+               "!preset coop - sets all players to one team and AIs to the other\n" ..
                "!fixcolors - Makes sure players dont have identical colors\n" ..
                "!forcestart - starts the game even if teams arent balanced or colors arent fixed\n" .. 
                "!autobalance off - turns off automatic balancing (Recommended for PVE):\n" ..
