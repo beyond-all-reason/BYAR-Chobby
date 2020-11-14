@@ -22,7 +22,11 @@ local welcomePanelItems = {
                "!boss - set yourself as a boss to gain full control\n" .. 
                "!preset teams - sets the room to Team vs Team game\n" ..  
                "!preset ffa - sets the room to Free-for-all game\n" ..
-               "!forcestart - starts the game even if teams arent balanced\n"   
+               "!fixcolors - Makes sure players dont have identical colors\n" ..
+               "!forcestart - starts the game even if teams arent balanced or colors arent fixed\n" .. 
+               "!autobalance off - turns off automatic balancing (Recommended for PVE):\n" ..
+               "  !force Playername bonus [0-100] - Sets a % resource bonus for player or AI\n"..
+               "  !force Playername team 1 - Places player or AI into a specific team"
                ,
     },
 }
