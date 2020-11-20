@@ -113,6 +113,11 @@
                     },
 
                     {
+                        "url": "https://content.spring-launcher.com/maps/FolsomdamR.sd7",
+                        "destination": "maps/FolsomdamR.sd7",
+                        "extract": false
+                    },
+                    {
                         "url": "https://content.spring-launcher.com/maps/AlphaSiegeDry.sd7",
                         "destination": "maps/AlphaSiegeDry.sd7",
                         "extract": false
@@ -470,6 +475,11 @@
                         "extract": true
                     },
 
+                    {
+                        "url": "https://content.spring-launcher.com/maps/FolsomdamR.sd7",
+                        "destination": "maps/FolsomdamR.sd7",
+                        "extract": false
+                    },
                     {
                         "url": "https://content.spring-launcher.com/maps/AlphaSiegeDry.sd7",
                         "destination": "maps/AlphaSiegeDry.sd7",
