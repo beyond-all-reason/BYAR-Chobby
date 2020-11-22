@@ -277,7 +277,7 @@ return {
 		login_noun = 'Anmeldung',
 		login_verb = 'Anmelden',
 		profile = 'Profil',
-		home = 'Website',
+		home = 'Webseite',
 		error_log = 'Fehlerliste',
 		register_verb = "Registrieren",
 		link_verb = "Link",
