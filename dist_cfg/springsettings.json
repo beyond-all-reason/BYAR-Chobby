@@ -19,6 +19,7 @@
     "FPSFOV": 90,
     "FeatureDrawDistance": 10000,
     "FeatureFadeDistance": 10000,
+    "ForceDisableShaders": 0,
     "Fullscreen": 0,
     "FullscreenEdgeMove": 1,
     "GrassDetail": 0,

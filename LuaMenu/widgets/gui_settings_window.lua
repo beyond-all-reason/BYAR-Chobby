@@ -1844,13 +1844,13 @@ function widget:Initialize()
 			Spring.SetConfigInt("FirstRun", 0)
 		end
 
-		local compatProfile = Configuration.forcedCompatibilityProfile
-		Spring.Utilities.TableEcho(compatProfile, "compatProfile")
-		if compatProfile then
-			for key, value in pairs(compatProfile) do
-				Configuration:SetSpringsettingsValue(key, value, true)
-			end
-		end
+		--local compatProfile = Configuration.forcedCompatibilityProfile
+		--Spring.Utilities.TableEcho(compatProfile, "compatProfile")
+		--if compatProfile then
+		--	for key, value in pairs(compatProfile) do
+		--		Configuration:SetSpringsettingsValue(key, value, true)
+		--	end
+		--end
 	end
 	WG.LibLobby.lobby:AddListener("OnBattleAboutToStart", onBattleAboutToStart)
 	WG.LibLobby.localLobby:AddListener("OnBattleAboutToStart", onBattleAboutToStart)
