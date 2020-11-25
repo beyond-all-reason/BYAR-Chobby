@@ -1397,6 +1397,11 @@ local function SetupVotePanel(votePanel, battle, battleID)
 		HideVoteResult()
 	end
 
+	function externalFunctions.VoteButtonVisible(visible)
+		buttonNo:SetVisibility(visible)
+		buttonYes:SetVisibility(visible)
+	end
+
 	function externalFunctions.GetMatchmakerMode()
 		return matchmakerModeEnabled
 	end
@@ -1897,6 +1902,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 
 	-- Lobby interface
 	local function OnUpdateUserTeamStatus(listener, userName, allyNumber, isSpectator)
+		votePanel.VoteButtonVisible(isSpectator == false)
 		infoHandler.UpdateUserTeamStatus(userName, allyNumber, isSpectator)
 		playerHandler.UpdateUserTeamStatus(userName, allyNumber, isSpectator)
 	end
