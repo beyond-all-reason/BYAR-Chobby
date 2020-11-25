@@ -42,6 +42,21 @@ local minimapThumbnailPath = LUA_DIRNAME .. "configs/gameConfig/" .. shortname .
 
 local sayPrivateSelectAndActivateChatTab = true
 
+
+
+local function ShortenNameString(instring)
+	local shortenNameStrings = {
+		['Beyond All Reason test'] = "BAR",
+		['Beyond all Reason test'] = "BAR",
+		['Beyond All Reason'] = "BAR",
+		['Beyond all Reason'] = "BAR",
+	}
+	for longstring, shortstring in pairs(shortenNameStrings) do
+		instring = instring:gsub( longstring,shortstring)
+	end
+	return instring
+end
+
 ---------------------------------------------------------------------------------
 -- Getters
 ---------------------------------------------------------------------------------
@@ -137,6 +152,9 @@ local externalFuncAndData = {
 		"LuaMenu/configs/gameConfig/byar/lobbyMusic/RobRichert-AliasZero.ogg",
 	},
 	disableColorChoosing = false,
+	showHandicap = true,
+	spadsLobbyFeatures = true,
+	ShortenNameString = ShortenNameString,
 }
 
 function externalFuncAndData.CheckAvailability()
