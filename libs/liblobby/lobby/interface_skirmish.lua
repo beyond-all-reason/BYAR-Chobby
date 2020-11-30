@@ -92,6 +92,7 @@ function InterfaceSkirmish:_StartScript(gameName, mapName, playerName, friendLis
 					TeamLeader = 0,
 					AllyTeam = data.allyNumber,
 					RgbColor = getTeamColor(userName),
+					Side = WG.Chobby.Configuration:GetSideById(data.side).name,
 				}
 				maxAllyTeamID = math.max(maxAllyTeamID, data.allyNumber)
 				teamCount = teamCount + 1
@@ -115,6 +116,7 @@ function InterfaceSkirmish:_StartScript(gameName, mapName, playerName, friendLis
 						TeamLeader = playerCount,
 						AllyTeam = data.allyNumber,
 						RgbColor = getTeamColor(userName),
+						Side = WG.Chobby.Configuration:GetSideById(data.side).name,
 					}
 					teamCount = teamCount + 1
 					if friendsReplaceAI then
@@ -166,7 +168,7 @@ function InterfaceSkirmish:_StartScript(gameName, mapName, playerName, friendLis
 					TeamLeader = 0,
 					AllyTeam = data.allyNumber,
 					RgbColor = getTeamColor(userName),
-					Side = data.side,
+					Side = WG.Chobby.Configuration:GetSideById(data.side).name,
 				}
 				maxAllyTeamID = math.max(maxAllyTeamID, data.allyNumber)
 

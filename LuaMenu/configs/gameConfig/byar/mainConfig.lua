@@ -1,5 +1,6 @@
 local shortname = "byar"
 
+local sidedata           = VFS.Include(LUA_DIRNAME .. "configs/gameConfig/" .. shortname .. "/sidedata.lua")
 local mapWhitelist       = VFS.Include(LUA_DIRNAME .. "configs/gameConfig/" .. shortname .. "/mapWhitelist.lua")
 local aiBlacklist        = VFS.Include(LUA_DIRNAME .. "configs/gameConfig/" .. shortname .. "/aiBlacklist.lua")
 local singleplayerConfig = VFS.Include(LUA_DIRNAME .. "configs/gameConfig/" .. shortname .. "/singleplayerMenu.lua")
@@ -82,6 +83,7 @@ local externalFuncAndData = {
 	singleplayerConfig     = singleplayerConfig,
 	helpSubmenuConfig      = helpSubmenuConfig,
 	skirmishDefault        = skirmishDefault,
+	sidedata               = sidedata,
 
 	simpleAiOrder = {
 		['SimpleAI']= 1,

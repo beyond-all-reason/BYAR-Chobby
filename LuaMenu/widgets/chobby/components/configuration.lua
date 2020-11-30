@@ -849,6 +849,24 @@ function Configuration:GetDefaultGameName()
 	return self.gameConfig._defaultGameArchiveName
 end
 
+function Configuration:GetSideData()
+	if not self.gameConfig then
+		return nil
+	end
+	return self.gameConfig.sidedata
+end
+
+function Configuration:GetSideById(sideId)
+	if sideId == nil then
+		return { name = nil, logo = nil }
+	end
+	local sidedata = Configuration:GetSideData()
+	if sidedata == nil or sideId < 0 or sideId > #sidedata - 1 then
+		return { name = nil, logo = nil }
+	end
+	return sidedata[sideId + 1]
+end
+
 function Configuration:GetIsRunning64Bit()
 	if self.isRunning64Bit ~= nil then
 		return self.isRunning64Bit
