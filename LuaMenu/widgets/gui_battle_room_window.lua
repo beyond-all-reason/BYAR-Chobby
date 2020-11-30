@@ -134,7 +134,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		file = IMG_LINK,
 		parent = btnMapLink,
 	}
-  
+
 
 	local function SetMapName(mapName, width)
 		currentMapName = mapName
@@ -1984,7 +1984,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		end
 		votePanel.VoteEnd((isBattleStarting and "Match starting") or "Not enough players", isBattleStarting)
 	end
-  
+
   --[[
 
 	function externalFunctions.VoteUpdate(voteMessage, pollType, mapPoll, candidates, votesNeeded, pollUrl)
@@ -1993,27 +1993,27 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 
 	function externalFunctions.ImmediateVoteEnd()
   ]]--
-  
+
   --externalFunctions.VoteUpdate(voteMessage, pollType, mapPoll, candidates, votesNeeded, pollUrl)
   local function pyPartition(s,p,left)
     if string.find(s,p,nil,true) then
-      local startfind, endfind =  string.find(s,p,nil,true) 
+      local startfind, endfind =  string.find(s,p,nil,true)
       if left then
         return string.sub(s,1,startfind-1)
       else
         return string.sub(s,endfind+1)
       end
-    else 
+    else
       return s
     end
   end
   -- whoever wrote lua string parser needs to get rammed by a horse
-  
-  
+
+
   local function ParseForVotingSaidBattle(userName,message)
-    -- https://github.com/beyond-all-reason/Beyond-All-Reason/blob/master/luaui/Widgets_BAR/gui_vote_interface.lua#L193      
-    
-    --* [teh]host * Vote in progress: "set map Quicksilver Remake 1.24" [y:2/3, n:0/2] (42s remaining) 
+    -- https://github.com/beyond-all-reason/Beyond-All-Reason/blob/master/luaui/Widgets_BAR/gui_vote_interface.lua#L193
+
+    --* [teh]host * Vote in progress: "set map Quicksilver Remake 1.24" [y:2/3, n:0/2] (42s remaining)
     ----Vote in progress: "set map Throne Acidic" [y:1/3, n:1/2] (41s remaining)
     -- [teh]BaNa called a vote for command "forcestart" [!vote y, !vote n, !vote b]
     if string.find(message, " called a vote ", nil, true) or string.find(message, " Vote in progress:", nil, true) then
@@ -2042,11 +2042,11 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
           url = "",
         }
         votePanel.VoteUpdate(title,nil, "", candidates, votesNeeded, "")
-        
+
     elseif string.find(message, " Vote for command ", nil, true) then --votestart
       --[21:13:58] * [teh]host * Vote for command "bSet coop 1" passed. --voteend
-        local passed = string.find(message, "passed", nil, true) 
-        local failed = string.find(message, "failed", nil, true) 
+        local passed = string.find(message, "passed", nil, true)
+        local failed = string.find(message, "failed", nil, true)
         if passed or failed then
           local title = string.sub(message, string.find(message, ' "') + 2, string.find(message, '" ', nil, true) - 1)
           title = title:sub(1, 1):upper() .. title:sub(2)
@@ -2056,13 +2056,13 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
     elseif string.find(message, " Vote cancelled by ", nil, true) then --votecancel
       --[14:42:53] * [teh]host * Vote cancelled by [teh]BaNa
       votePanel.ImmediateVoteEnd()
-    
+
     elseif string.find(message, "command executed directly by ", nil, true) and string.find(string.lower(message), " cancelling ", nil, true)  then --votecancel
       --[14:43:19] * [teh]host * Cancelling "set map Throne Acidic" vote (command executed directly by [teh]Beherith)
       votePanel.ImmediateVoteEnd()
     end
   end
-  
+
 
 	local function OnSaidBattle(listener, userName, message)
     --ParseForVotingSaidBattle(userName,message) --only on EX?
@@ -2239,20 +2239,34 @@ function BattleRoomWindow.GetSingleplayerControl(setupData)
 					allyNumber = 0,
 					isSpectator = false,
 					sync = (haveMapAndGame and 1) or 2, -- 0 = unknown, 1 = synced, 2 = unsynced
+
+
+					side = 0, -- Our default side is Armada
 				})
-        local totalAIcount = 1
-				if not (setupData and WG.Chobby.Configuration.simplifiedSkirmishSetup) and singleplayerDefault and singleplayerDefault.friendlyAI then
-          for i, aiName in ipairs(singleplayerDefault.friendlyAI) do
-            battleLobby:AddAi(aiName .. "  (".. totalAIcount ..")", aiName, 0)
-            totalAIcount = totalAIcount + 1
-          end
-				end
-				if not (setupData and WG.Chobby.Configuration.simplifiedSkirmishSetup) and singleplayerDefault and singleplayerDefault.enemyAI then
-          for i, aiName in ipairs(singleplayerDefault.enemyAI) do
-            Spring.Echo("singleplayerDefault.enemyAI", aiName)
-            battleLobby:AddAi(aiName .. "  ("..totalAIcount..")", aiName, 1)
-            totalAIcount = totalAIcount + 1
-          end
+
+				if not (setupData and WG.Chobby.Configuration.simplifiedSkirmishSetup) and singleplayerDefault then
+					local totalAIcount = 1
+
+					for i, aiName in ipairs(singleplayerDefault.friendlyAI or {}) do
+						local aiFullName = aiName .. "  (".. totalAIcount ..")"
+						battleLobby:AddAi(aiFullName, aiName, 0)
+						battleLobby:UpdateAi(aiFullName, {
+							side = 0 -- Default side for friendly AI is Armada
+						})
+
+						totalAIcount = totalAIcount + 1
+					end
+
+					for i, aiName in ipairs(singleplayerDefault.enemyAI or {}) do
+						local aiFullName = aiName .. "  (".. totalAIcount ..")"
+						Spring.Echo("singleplayerDefault.enemyAI", aiName)
+						battleLobby:AddAi(aiFullName, aiName, 1)
+						battleLobby:UpdateAi(aiFullName, {
+							side = 1 -- Default side for enemy AI is Cortex
+						})
+
+						totalAIcount = totalAIcount + 1
+					end
 				end
 			end
 		},
