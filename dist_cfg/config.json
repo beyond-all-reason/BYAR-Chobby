@@ -11,7 +11,7 @@
                 "games" : ["byar:test", "chobby:test", "byar-chobby:test"],
                 "resources": [
                     {
-                        "url": "http://imolarpg.dyndns.org/bar/engine_builds/spring_%7bmaintenance%7d104.0.1-1553-gd3c0012_minimal-portable-linux64-static.7z",
+                        "url": "https://content.spring-launcher.com/engines/spring_%7Bmaintenance%7D104.0.1-1553-gd3c0012_minimal-portable-linux64-static.7z",
                         "destination": "engine/104.0.1-1553-gd3c0012 maintenance",
                         "extract": true
                     },
@@ -59,7 +59,7 @@
                 "games" : ["byar:test", "chobby:test", "byar-chobby:test"],
                 "resources": [
                     {
-                        "url": "http://imolarpg.dyndns.org/bar/engine_builds/spring_%7bmaintenance%7d104.0.1-1553-gd3c0012_win64-minimal-portable.7z",
+                        "url": "https://content.spring-launcher.com/engines/spring_%7Bmaintenance%7D104.0.1-1553-gd3c0012_win64-minimal-portable.7z",
                         "destination": "engine/104.0.1-1553-gd3c0012 maintenance",
                         "extract": true
                     },
@@ -107,7 +107,7 @@
                 "games" : ["byar:test", "chobby:test", "byar-chobby:test"],
                 "resources": [
                     {
-                        "url": "http://imolarpg.dyndns.org/bar/engine_builds/spring_%7bmaintenance%7d104.0.1-1553-gd3c0012_minimal-portable-linux64-static.7z",
+                        "url": "https://content.spring-launcher.com/engines/spring_%7Bmaintenance%7D104.0.1-1553-gd3c0012_minimal-portable-linux64-static.7z",
                         "destination": "engine/104.0.1-1553-gd3c0012 maintenance",
                         "extract": true
                     },
@@ -470,7 +470,7 @@
                 "games" : ["byar:test", "chobby:test", "byar-chobby:test"],
                 "resources": [
                     {
-                        "url": "http://imolarpg.dyndns.org/bar/engine_builds/spring_%7bmaintenance%7d104.0.1-1553-gd3c0012_win64-minimal-portable.7z",
+                        "url": "https://content.spring-launcher.com/engines/spring_%7Bmaintenance%7D104.0.1-1553-gd3c0012_win64-minimal-portable.7z",
                         "destination": "engine/104.0.1-1553-gd3c0012 maintenance",
                         "extract": true
                     },
