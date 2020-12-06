@@ -35,3 +35,13 @@ jobs:
 
       - name: Build BYAR's launcher
         run: cd spring-launcher-backend && node src/builder/run_build.js beyond-all-reason/BYAR-Chobby
+
+      - name: Upload build results
+        uses: actions/upload-artifact@v2
+        with:
+          name: Launcher
+          path: |
+            spring-launcher-backend/build/beyond-all-reason/BYAR-Chobby/dist/*.AppImage
+            spring-launcher-backend/build/beyond-all-reason/BYAR-Chobby/dist/*.exe
+            spring-launcher-backend/build/beyond-all-reason/BYAR-Chobby/dist/*.exe.blockmap
+            spring-launcher-backend/build/beyond-all-reason/BYAR-Chobby/dist/*.yml
