@@ -34,7 +34,7 @@ jobs:
         run: cd spring-launcher-backend && npm ci
 
       - name: Build BYAR's launcher
-        run: cd spring-launcher-backend && node src/builder/run_build.js beyond-all-reason/BYAR-Chobby
+        run: cd spring-launcher-backend && node src/builder/run_build.js beyond-all-reason/BYAR-Chobby --no-generic-backend
 
       - name: Upload build results
         uses: actions/upload-artifact@v2
