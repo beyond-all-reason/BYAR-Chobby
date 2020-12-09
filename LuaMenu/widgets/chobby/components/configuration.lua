@@ -53,6 +53,7 @@ function Configuration:init()
 	self.battleFilterPassworded2 = true
 	self.battleFilterNonFriend = false
 	self.battleFilterRunning = false
+	self.battleFilterRedundant = true
 
 	self.manualBorderless = {
 		game = {},
@@ -151,7 +152,7 @@ function Configuration:init()
 
 	self.campaignPath = "campaign/sample"
 	self.campaignConfigName = "sample"
-	self.campaignConfig = VFS.Include("campaign/sample/mainConfig.lua")
+	self.campaignConfig = nil -- VFS.Include("campaign/sample/mainConfig.lua") -- no campaign yet for BYAR
 	self.campaignSaveFile = nil -- Set by user
 	self.nextCampaignSaveNumber = 1
 	self.campaignConfigOptions = {
@@ -277,6 +278,7 @@ function Configuration:init()
 	self.animate_lobby = (gl.CreateShader ~= nil)
 	self.minimapDownloads = {}
 	self.minimapThumbDownloads = {}
+	self.downloadRetryCount = 3
 
 	local saneCharacterList = {
 		"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z",
