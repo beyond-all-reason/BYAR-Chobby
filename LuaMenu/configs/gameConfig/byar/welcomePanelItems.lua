@@ -19,7 +19,7 @@ local welcomePanelItems = {
         --Time = "NowTime",
         Text = "Type these commands into the battle room chat\n" ..  
                "!help - The battle room will give you detailed commands in the chat tab\n" .. 
-               "!boss username - set yourself as a boss to gain full control (to disable: !boss)\n" ..
+               "!boss username - set username as a boss to gain full control (to disable: !boss)\n" ..
                "!preset teams - sets the room to Team vs Team game\n" ..  
                "!preset ffa - sets the room to Free-for-all game\n" ..
                "!preset coop - sets all players to one team and AIs to the other\n" ..
