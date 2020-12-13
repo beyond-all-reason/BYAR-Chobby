@@ -996,6 +996,9 @@ local function GetVoidTabControls()
 	children[#children + 1], offset = AddCheckboxSetting(offset, "Use wrong engine", "useWrongEngine", false)
 	children[#children + 1], offset = AddCheckboxSetting(offset, "Show old AI versions", "showOldAiVersions", false)
 	children[#children + 1], offset = AddCheckboxSetting(offset, "Show AIOptions", "showAiOptions", true)
+	if Configuration.gameConfig.filterEmptyRegionalAutohosts then
+		children[#children + 1], offset = AddCheckboxSetting(offset, "Filter redundant battles", "battleFilterRedundant", true, nil, "Hides redundant empty regional autohosts.")
+	end
 
 	children[#children + 1] = Label:New {
 		x = 20,

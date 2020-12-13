@@ -197,7 +197,7 @@ function InterfaceSkirmish:_StartScript(gameName, mapName, playerName, friendLis
 		maxAllyTeamID = maxAllyTeamID + 1
 		teamCount = teamCount + 1
 	end
-  
+
 
 	-- calc the number of allyTeamCount
 	local allyTeamMap = {}
@@ -217,18 +217,18 @@ function InterfaceSkirmish:_StartScript(gameName, mapName, playerName, friendLis
 	--  Spring.Echo("Number of mapStartBoxes is",#Configuration.gameConfig.mapStartBoxes, allyTeamCount)
 	--end
 
-	if Configuration.gameConfig and 
-		Configuration.gameConfig.useDefaultStartBoxes and 
-		Configuration.gameConfig.mapStartBoxes and 
-		Configuration.gameConfig.mapStartBoxes.savedBoxes and 
-		Configuration.gameConfig.mapStartBoxes.savedBoxes[mapName] then 
-		startBoxes = Configuration.gameConfig.mapStartBoxes.savedBoxes[mapName] 
+	if Configuration.gameConfig and
+		Configuration.gameConfig.useDefaultStartBoxes and
+		Configuration.gameConfig.mapStartBoxes and
+		Configuration.gameConfig.mapStartBoxes.savedBoxes and
+		Configuration.gameConfig.mapStartBoxes.savedBoxes[mapName] then
+		startBoxes = Configuration.gameConfig.mapStartBoxes.savedBoxes[mapName]
 		Spring.Echo("Skirmish: Using default startboxes",startBoxes)
 		startBoxes = Configuration.gameConfig.mapStartBoxes.selectStartBoxesForAllyTeamCount(startBoxes,allyTeamCount)
 	else
 		Spring.Echo("No map startBoxes found or disabled for map",mapName)
 	end
-  
+
 	for i, teamData in pairs(teams) do
 		if not allyTeams[teamData.AllyTeam] then
 		    if startBoxes then

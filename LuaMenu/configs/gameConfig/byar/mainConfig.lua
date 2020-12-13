@@ -53,7 +53,7 @@ local function ShortenNameString(instring)
 		['Beyond all Reason'] = "BAR",
 	}
 	for longstring, shortstring in pairs(shortenNameStrings) do
-		instring = instring:gsub( longstring,shortstring)
+		instring = instring:gsub(longstring, shortstring)
 	end
 	return instring
 end
@@ -95,7 +95,7 @@ local externalFuncAndData = {
 		['NullAI 0.1']= 4.5,
 		['BARbarIAn 0.57']= 6,
 		['BARbarIAn 0.58']= 7,
-		['BARbarIAn 0.59']= 8, 
+		['BARbarIAn 0.59']= 8,
 		['Chicken: Very Easy']= 9,
 		['Chicken: Easy']= 10,
 		['Chicken: Normal']= 11,
@@ -105,7 +105,7 @@ local externalFuncAndData = {
 		['Chicken: Survival']= 15,
 	},
 
-  	aiTooltip = {
+	aiTooltip = {
 		['SimpleAI']= "A simple, easy playing beginner AI (Great for your first game!)",
 		['SimpleCheaterAI']= "A moderately difficult AI, cheats!",
 		['SimpleDefenderAI']= "An easy AI, mostly defends and doesnt attack much",
@@ -124,7 +124,7 @@ local externalFuncAndData = {
 		['Chicken: Epic!']= "An extreme difficulty PvE AI, where hordes of alien creatures attack the players. Only add 1 per game.",
 		['Chicken: Survival']= "An extreme difficulty PvE AI, where ENDLESS hordes of alien creatures attack the players. Only add 1 per game.",
 	},
-	
+
 	defaultModoptions      = defaultModoptions,
 	--rankFunction           = rankFunction,
 	--springSettingsPath     = springSettingsPath,
@@ -156,6 +156,8 @@ local externalFuncAndData = {
 	disableColorChoosing = false,
 	showHandicap = true,
 	spadsLobbyFeatures = true,
+	filterEmptyRegionalAutohosts = true,
+
 	ShortenNameString = ShortenNameString,
 }
 
