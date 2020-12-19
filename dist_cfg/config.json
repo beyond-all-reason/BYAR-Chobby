@@ -833,8 +833,8 @@
                 "games" : ["byar:test", "chobby:test", "byar-chobby:test"],
                 "resources": [
                     {
-                        "url": "https://content.spring-launcher.com/engines/spring_%7Bmaintenance%7D104.0.1-1553-gd3c0012_minimal-portable-linux64-static.7z",
-                        "destination": "engine/104.0.1-1553-gd3c0012 maintenance",
+                        "url": "https://github.com/beyond-all-reason/spring/releases/download/spring_bar_%7BBAR%7D104.0.1-1707-gc0fc18e/spring_bar_.BAR.104.0.1-1707-gc0fc18e_linux-64-minimal-portable.7z",
+                        "destination": "engine/104.0.1-1707-gc0fc18e bar",
                         "extract": true
                     },
 
@@ -868,7 +868,7 @@
             "no_start_script" : true,
             "launch": {
                 "start_args" : ["--menu", "rapid://byar-chobby:test"],
-                "engine": "104.0.1-1553-gd3c0012 maintenance"
+                "engine": "104.0.1-1707-gc0fc18e bar"
             }
         },
         {
@@ -881,8 +881,8 @@
                 "games" : ["byar:test", "chobby:test", "byar-chobby:test"],
                 "resources": [
                     {
-                        "url": "https://content.spring-launcher.com/engines/spring_%7Bmaintenance%7D104.0.1-1553-gd3c0012_win64-minimal-portable.7z",
-                        "destination": "engine/104.0.1-1553-gd3c0012 maintenance",
+                        "url": "https://github.com/beyond-all-reason/spring/releases/download/spring_bar_%7BBAR%7D104.0.1-1707-gc0fc18e/spring_bar_.BAR.104.0.1-1707-gc0fc18e_windows-64-minimal-portable.7z",
+                        "destination": "engine/104.0.1-1707-gc0fc18e bar",
                         "extract": true
                     },
 
@@ -916,7 +916,7 @@
             "no_start_script" : true,
             "launch": {
                 "start_args" : ["--menu", "rapid://byar-chobby:test"],
-				"engine": "104.0.1-1553-gd3c0012 maintenance"
+				"engine": "104.0.1-1707-gc0fc18e bar"
             }
         },
         {
@@ -925,7 +925,7 @@
                 "display": "Dev Lobby"
             },
             "downloads": {
-                "engines" : [ "104.0.1-1553-gd3c0012 maintenance" ]
+                "engines" : [ "104.0.1-1707-gc0fc18e bar" ]
             },
             "no_start_script" : true,
             "no_downloads" : true,
