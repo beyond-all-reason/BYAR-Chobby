@@ -4,7 +4,7 @@
         {
             "package": {
                 "id": "manual-linux",
-                "display": "Alpha (Direct Download)",
+                "display": "Alpha",
                 "platform": "linux"
             },
             "downloads": {
@@ -52,7 +52,7 @@
         {
             "package": {
                 "id": "manual-win",
-                "display": "Alpha (Direct Download)",
+                "display": "Alpha",
                 "platform": "win32"
             },
             "downloads": {
@@ -825,112 +825,23 @@
         },
         {
             "package": {
-                "id": "manual-linux-old",
-                "display": "Alpha [deprecated]",
-                "platform": "linux"
+                "id": "dev-lobby",
+                "display": "Dev Lobby"
             },
             "downloads": {
-                "games" : ["byar:test", "chobby:test", "byar-chobby:test"],
-                "resources": [
-                    {
-                        "url": "https://github.com/beyond-all-reason/spring/releases/download/spring_bar_%7BBAR%7D104.0.1-1707-gc0fc18e/spring_bar_.BAR.104.0.1-1707-gc0fc18e_linux-64-minimal-portable.7z",
-                        "destination": "engine/104.0.1-1707-gc0fc18e bar",
-                        "extract": true
-                    },
-
-                    {
-                        "url": "https://content.spring-launcher.com/maps/altored_divide_bar_remake_1.55.sd7",
-                        "destination": "maps/altored_divide_bar_remake_1.55.sd7",
-                        "extract": false
-                    },
-                    {
-                        "url": "https://content.spring-launcher.com/maps/boulder_beach_v1.sd7",
-                        "destination": "maps/boulder_beach_v1.sd7",
-                        "extract": false
-                    },
-                    {
-                        "url": "https://content.spring-launcher.com/maps/dsdr_3.98.sd7",
-                        "destination": "maps/dsdr_3.98.sd7",
-                        "extract": false
-                    },
-                    {
-                        "url": "https://content.spring-launcher.com/maps/quicksilver_remake_1.24.sd7",
-                        "destination": "maps/quicksilver_remake_1.24.sd7",
-                        "extract": false
-                    },
-                    {
-                        "url": "https://content.spring-launcher.com/maps/trefoil_remake_2.20.sd7",
-                        "destination": "maps/trefoil_remake_2.20.sd7",
-                        "extract": false
-                    }
-                ]
-            },
-            "no_start_script" : true,
-            "launch": {
-                "start_args" : ["--menu", "rapid://byar-chobby:test"],
-                "engine": "104.0.1-1707-gc0fc18e bar"
-            }
-        },
-        {
-            "package": {
-                "id": "manual-win-old",
-                "display": "Alpha [deprecated]",
-                "platform": "win32"
-            },
-            "downloads": {
-                "games" : ["byar:test", "chobby:test", "byar-chobby:test"],
                 "resources": [
                     {
                         "url": "https://github.com/beyond-all-reason/spring/releases/download/spring_bar_%7BBAR%7D104.0.1-1707-gc0fc18e/spring_bar_.BAR.104.0.1-1707-gc0fc18e_windows-64-minimal-portable.7z",
                         "destination": "engine/104.0.1-1707-gc0fc18e bar",
                         "extract": true
-                    },
-
-                    {
-                        "url": "https://content.spring-launcher.com/maps/altored_divide_bar_remake_1.55.sd7",
-                        "destination": "maps/altored_divide_bar_remake_1.55.sd7",
-                        "extract": false
-                    },
-                    {
-                        "url": "https://content.spring-launcher.com/maps/boulder_beach_v1.sd7",
-                        "destination": "maps/boulder_beach_v1.sd7",
-                        "extract": false
-                    },
-                    {
-                        "url": "https://content.spring-launcher.com/maps/dsdr_3.98.sd7",
-                        "destination": "maps/dsdr_3.98.sd7",
-                        "extract": false
-                    },
-                    {
-                        "url": "https://content.spring-launcher.com/maps/quicksilver_remake_1.24.sd7",
-                        "destination": "maps/quicksilver_remake_1.24.sd7",
-                        "extract": false
-                    },
-                    {
-                        "url": "https://content.spring-launcher.com/maps/trefoil_remake_2.20.sd7",
-                        "destination": "maps/trefoil_remake_2.20.sd7",
-                        "extract": false
                     }
                 ]
             },
             "no_start_script" : true,
-            "launch": {
-                "start_args" : ["--menu", "rapid://byar-chobby:test"],
-				"engine": "104.0.1-1707-gc0fc18e bar"
-            }
-        },
-        {
-            "package": {
-                "id": "dev-lobby",
-                "display": "Dev Lobby"
-            },
-            "downloads": {
-                "engines" : [ "104.0.1-1707-gc0fc18e bar" ]
-            },
-            "no_start_script" : true,
             "no_downloads" : true,
             "launch": {
-                "start_args" : ["--menu", "BYAR Chobby $VERSION"]
+                "start_args" : ["--menu", "BYAR Chobby $VERSION"],
+                "engine" : "104.0.1-1707-gc0fc18e bar"
             }
         }
     ]
