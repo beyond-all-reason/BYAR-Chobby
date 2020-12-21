@@ -148,7 +148,7 @@ local externalFuncAndData = {
 	link_homePage           = link_homePage,
 	link_replays            = link_replays,
 	link_maps               = link_maps,
-	--openTrack = '',	-- dont leave empty
+	openTrack = "LuaMenu/configs/gameConfig/byar/lobbyMusic/Ryan Krause - Friend Or Foe.ogg",	-- dont leave empty
 	randomTrackList = {
 		"LuaMenu/configs/gameConfig/byar/lobbyMusic/ProfessorKliq-TensionGrowl.ogg",
 		"LuaMenu/configs/gameConfig/byar/lobbyMusic/RobRichert-AliasZero.ogg",
