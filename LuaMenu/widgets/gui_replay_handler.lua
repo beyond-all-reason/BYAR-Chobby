@@ -483,7 +483,8 @@ function widget:Update()
   if #delayedAddReplays > 1 then 
     local replayPath = delayedAddReplays[#delayedAddReplays]
     delayedAddReplays[#delayedAddReplays] = nil -- pop last one
-    
+	--Spring.Log("Chobby",LOG.NOTICE,"Attempting to parse replay file:",replayPath)
+
 	local unzippedReplayString, replayEngine = UnzipReplayHeaderString(replayPath)
 	if unzippedReplayString == nil then 
 		Spring.Log("Chobby",LOG.NOTICE,"Unable to unzip replay file", replayPath)
@@ -496,7 +497,7 @@ function widget:Update()
 		return 
 	end
 	
-	Spring.Log("Chobby",LOG.INFO,"Parsed replay", replayPath,gameVersion,mapname)
+	Spring.Log("Chobby",LOG.NOTICE,"Parsed replay", replayPath,gameVersion,mapName,replayEngine)
     WG.ReplayHandler.ReadReplayInfoDone(replayPath, replayEngine,gameVersion,mapName,scripttext)
   end 
 end

@@ -798,12 +798,16 @@ function Configuration:GetTruncatedEngineVersion()
 		-- Add as required.
 		return (Spring.Utilities.GetEngineVersion() .. ".0")
 	else
-		return string.gsub(string.gsub(Spring.Utilities.GetEngineVersion(), " maintenance", ""), " develop", "")
+		return string.gsub(string.gsub(string.gsub(Spring.Utilities.GetEngineVersion(), " maintenance", ""), " develop", "")," BAR", "")
 	end
 end
 
 function Configuration:IsValidEngineVersion(engineVersion)
-	return engineVersion == Spring.Utilities.GetEngineVersion() or engineVersion == self:GetTruncatedEngineVersion()
+	local validengine = (engineVersion == Spring.Utilities.GetEngineVersion() or engineVersion == self:GetTruncatedEngineVersion())
+	--Spring.Echo(" Configuration:IsValidEngineVersion(engineVersion)",engineVersion, validengine)
+	--Spring.Echo(" Spring.Utilities.GetEngineVersion() ",Spring.Utilities.GetEngineVersion() )
+	--Spring.Echo(" self:GetTruncatedEngineVersion()",self:GetTruncatedEngineVersion())
+	return validengine
 end
 
 function Configuration:SanitizeName(name, usedNames)
