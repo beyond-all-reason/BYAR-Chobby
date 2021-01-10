@@ -12,6 +12,7 @@ function widget:GetInfo()
 end
 
 local idleTime = 3
+local awayTime = 60
 
 local vsyncValueActive = Spring.GetConfigInt("VSync",1)
 if vsyncValueActive > 1 then
@@ -52,6 +53,7 @@ local vsyncValueIdle = 4    -- sometimes somehow vsync 6 results in higher fps t
 --end
 
 local isIdle = false
+local isAway = false
 local lastUserInputTime = os.clock()
 local lastMouseX, lastMouseY = Spring.GetMouseState()
 local drawAtFullspeed = true
@@ -88,7 +90,8 @@ function widget:Update()
 		Spring.SetConfigInt("VSync", vsyncValueActive)
 	end
 	if enabled then
-		local prevIsIdle = isIdle
+        local prevIsIdle = isIdle
+        local prevIsAway = isAway
 
 		local mouseX, mouseY, lmb, mmb, rmb, mouseOffscreen  = Spring.GetMouseState()
 		if mouseX ~= lastMouseX or mouseY ~= lastMouseY or lmb or mmb or rmb  then
@@ -102,19 +105,28 @@ function widget:Update()
 			isIdle = true
 		else
 			isIdle = false
+        end
+        
+        if lastUserInputTime < os.clock() - awayTime then
+            isAway = true
+        else
+			isAway = false
 		end
+
 		if isIdle ~= prevIsIdle then
 			if WG.Chobby and WG.Chobby.Configuration then
 				-- when we set vsync to 6 while drawAtFullSpeed=false -> cpu usage goes up instead of down, enabling drawAtFullSpeed prevents this
 				WG.Chobby.Configuration.drawAtFullSpeed = isIdle and isIdle or drawAtFullspeed
 			end
 			Spring.SetConfigInt("VSync", (isIdle and vsyncValueIdle or vsyncValueActive))
-			
-			local lobby = WG.LibLobby.lobby
+        end
+        
+        if isAway ~= prevIsAway then
+            local lobby = WG.LibLobby.lobby
 			if lobby.SetIngameStatus then
-				lobby:SetIngameStatus(nil,isIdle)
-			end
-		end
+				lobby:SetIngameStatus(nil,isAway)
+            end
+        end
 	end
 end
 
