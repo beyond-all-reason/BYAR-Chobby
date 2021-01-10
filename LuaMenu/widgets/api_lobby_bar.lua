@@ -19,6 +19,11 @@ end
 function widget:Initialize()
 	local lobby = WG.LibLobby.lobby
 
+	lobby.MyStatusIngame = false
+	lobby.MyStatusAway = false
+	lobby.MyStatus = 0
+
+
 	lobby.RejoinBattle = function(self, battleID)
 		local battle = self:GetBattle(battleID)
 		if battle then
@@ -29,12 +34,26 @@ function widget:Initialize()
 		return self
 	end
 
-	lobby.SetIngameStatus = function(self, status)
-		--Spring.Echo("Interface:SetIngameStatus(status)",status)
-		if status == true then
-			self:_SendCommand(concat("MYSTATUS", "1"))
-		elseif status == false then
-			self:_SendCommand(concat("MYSTATUS", "0"))
+	lobby.SetIngameStatus = function(self, ingame, away) 
+		-- this still isnt perfect; if away status is ever reported, then ingame status wont be returned by server when playing skirmish
+		if ingame ~= nil then lobby.MyStatusIngame = ingame end
+
+		if away ~= nil then lobby.MyStatusAway = away end
+
+		local newstatus = 0
+		if lobby.MyStatusIngame then  -- cant be away and ingame at the same time
+			newstatus = 1
+		else
+			if lobby.MyStatusAway then newstatus =  2 end
+		end
+		
+		--Spring.Echo("widget:api_lobby_bar.lua:","Interface:SetIngameStatus(ingame, away)",ingame, away, newstatus)
+		if lobby.MyStatus ~= newstatus then -- dont spam clientstatus
+			if newstatus == 1 and lobby.MyStatus == 2 then
+				self:_SendCommand("MYSTATUS " .. 0) -- return from away BEFORE going ingame
+			end
+			self:_SendCommand("MYSTATUS " .. newstatus)
+			lobby.MyStatus = newstatus
 		end
 
 		return self

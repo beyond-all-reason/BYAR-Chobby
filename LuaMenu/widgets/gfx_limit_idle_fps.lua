@@ -109,6 +109,11 @@ function widget:Update()
 				WG.Chobby.Configuration.drawAtFullSpeed = isIdle and isIdle or drawAtFullspeed
 			end
 			Spring.SetConfigInt("VSync", (isIdle and vsyncValueIdle or vsyncValueActive))
+			
+			local lobby = WG.LibLobby.lobby
+			if lobby.SetIngameStatus then
+				lobby:SetIngameStatus(nil,isIdle)
+			end
 		end
 	end
 end
