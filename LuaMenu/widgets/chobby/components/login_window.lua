@@ -48,10 +48,15 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		return
 	end
 	self.emailRequired = (params and params.emailRequired) or false
-	self.windowHeight = (params and params.windowHeight) or (self.emailRequired and 430) or 390
+	self.windowHeight = (params and params.windowHeight) or (self.emailRequired and 430+400) or 390+400
 	self.loginAfterRegister = (params and params.loginAfterRegister) or false
 
 	local registerChildren = {}
+
+	local recoverChildren = {}
+
+	local loginChildren = {}
+		
 
 	self.ResetText = function()
 		if self.txtError then
@@ -75,6 +80,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		caption = i18n("login_long"),
 		font = Configuration:GetFont(3),
 	}
+	loginChildren[#loginChildren+1] = self.lblLoginInstructions
 
 	self.lblRegisterInstructions = Label:New {
 		x = 15,
@@ -94,6 +100,8 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		text = i18n("username") .. ":",
 		fontsize = Configuration:GetFont(3).size,
 	}
+	loginChildren[#loginChildren+1] = self.txtUsername
+
 	self.ebUsername = EditBox:New {
 		x = 135,
 		width = 200,
@@ -103,6 +111,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		font = Configuration:GetFont(3),
 		useIME = false,
 	}
+	loginChildren[#loginChildren+1] = self.ebUsername
 
 	self.txtPassword = TextBox:New {
 		x = 15,
@@ -112,6 +121,9 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		text = i18n("password") .. ":",
 		fontsize = Configuration:GetFont(3).size,
 	}
+	loginChildren[#loginChildren+1] = self.txtPassword
+
+
 	self.ebPassword = EditBox:New {
 		x = 135,
 		width = 200,
@@ -134,6 +146,65 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 			end
 		},
 	}
+	loginChildren[#loginChildren+1] = self.ebPassword
+
+	
+	self.txtUsernameRegister = TextBox:New {
+		x = 15,
+		width = 170,
+		y = 60,
+		height = 35,
+		text = i18n("username") .. ":",
+		fontsize = Configuration:GetFont(3).size,
+	}
+	registerChildren[#registerChildren+1] = self.txtUsernameRegister
+
+	self.ebUsernameRegister = EditBox:New {
+		x = 135,
+		width = 200,
+		y = 51,
+		height = 35,
+		text = Configuration.userName or Configuration.suggestedNameFromSteam or "",
+		font = Configuration:GetFont(3),
+		useIME = false,
+	}
+	registerChildren[#registerChildren+1] = self.ebUsernameRegister
+
+
+	self.txtPasswordRegister = TextBox:New {
+		x = 15,
+		width = 170,
+		y = 100,
+		height = 35,
+		text = i18n("password") .. ":",
+		fontsize = Configuration:GetFont(3).size,
+	}
+	registerChildren[#registerChildren+1] = self.txtPasswordRegister
+
+	self.ebPasswordRegister = EditBox:New {
+		x = 135,
+		width = 200,
+		y = 91,
+		height = 35,
+		text = Configuration.password or "",
+		passwordInput = true,
+		hint = "Enter password",
+		font = Configuration:GetFont(3),
+		useIME = false,
+		OnKeyPress = {
+			function(obj, key, mods, ...)
+				if key == Spring.GetKeyCode("enter") or key == Spring.GetKeyCode("numpad_enter") then
+					if self.tabPanel.tabBar:IsSelected("login") then
+						self:tryLogin()
+					else
+						self:tryRegister()
+					end
+				end
+			end
+		},
+	}
+	registerChildren[#registerChildren+1] = self.ebPasswordRegister
+
 
 	self.txtConfirmPassword = TextBox:New {
 		x = 15,
@@ -224,6 +295,23 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 			Configuration:SetConfigValue("autoLogin", obj.checked)
 		end},
 	}
+	loginChildren[#loginChildren+1] = self.cbAutoLogin
+
+	self.cbAutoLoginRegister = Checkbox:New {
+		x = 15,
+		width = 215,
+		y = self.windowHeight - 180,
+		height = 35,
+		boxalign = "right",
+		boxsize = 15,
+		caption = i18n("autoLogin"),
+		checked = Configuration.autoLogin,
+		font = Configuration:GetFont(2),
+		OnClick = {function (obj)
+			Configuration:SetConfigValue("autoLogin", obj.checked)
+		end},
+	}
+	registerChildren[#registerChildren + 1] = self.cbAutoLoginRegister
 
 	self.txtError = TextBox:New {
 		x = 15,
@@ -233,6 +321,17 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		text = "",
 		fontsize = Configuration:GetFont(3).size,
 	}
+	loginChildren[#loginChildren+1] = self.txtError
+	
+	self.txtErrorRegister = TextBox:New {
+		x = 15,
+		right = 15,
+		y = self.windowHeight - 216,
+		height = 90,
+		text = "",
+		fontsize = Configuration:GetFont(3).size,
+	}
+	registerChildren[#registerChildren + 1] = self.txtErrorRegister
 
 	self.btnLogin = Button:New {
 		right = 140,
@@ -248,6 +347,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 			end
 		},
 	}
+	loginChildren[#loginChildren+1] = self.btnLogin
 
 	self.btnRegister = Button:New {
 		right = 140,
@@ -280,19 +380,389 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		},
 	}
 
+
+	-- Recovery needs the following abilities
+		-- Change user name (requires old email)
+			-- Requires user to be logged in
+		-- Reset Password (requires old email)
+			-- User cant even log in, needs email and then verification code
+		-- Change email associated with account
+			-- requires user to be logged in
+		-- Forgot username
+			-- requires email?
+		-- Change password
+			-- must be logged in
+
+	-- row grid goes by 40 pixels plus 10 
+	-- col grid is 6 pieces 125 pixels plus 10
+	
+-----------------------CHANGE USERNAME-------------------------------
+	self.txtChangeUserName = TextBox:New {
+		x = 15,
+		width = 600,
+		y = 15,
+		height = 80,
+		-- caption = i18n("register_long"),
+		text = "Change user name. You must be logged in, and will be logged out on successful change.",
+		font = Configuration:GetFont(3),
+	}
+	recoverChildren[#recoverChildren+1] = self.txtChangeUserName
+
+	self.lblChangeUserName =  Label:New {
+		x = 15,
+		width = 200,
+		y = 15 + 80,
+		height = 35,
+		-- caption = i18n("register_long"),
+		caption = "New user name:",
+		font = Configuration:GetFont(3),
+	}
+	recoverChildren[#recoverChildren+1] = self.lblChangeUserName
+
+	self.ebChangeUserName = EditBox:New {
+		x = 15 + 200,
+		width = 250,
+		y = 15 + 80,
+		height = 35,
+		text = Configuration.userName or Configuration.suggestedNameFromSteam or "",
+		font = Configuration:GetFont(3),
+		tooltip = 'User name may contain only letters, numbers, square brackets and underscores',
+		useIME = false,
+	}
+	recoverChildren[#recoverChildren+1] = self.ebChangeUserName
+
+	self.btnChangeUserName = Button:New {
+		right = 15,
+		width = 200,
+		y = 15+80,
+		height = 40,
+		caption = i18n("Change username"),
+		font = Configuration:GetFont(3),
+		classname = "negative_button",
+		OnClick = {
+			function()
+				self:tryChangeUserName()
+			end
+		},
+	}
+	recoverChildren[#recoverChildren+1] = self.btnChangeUserName
+
+	self.txtErrorChangeUserName = TextBox:New {
+		x = 15,
+		width = 600,
+		y = 15+120,
+		height = 40,
+		text = "No errors",
+		fontsize = Configuration:GetFont(3).size,
+	}
+	recoverChildren[#recoverChildren+1] = self.txtErrorChangeUserName
+------------------------------RESET PASSWORD----------------------------------
+	self.txtResetPassword = TextBox:New {
+		x = 15,
+		width = 600,
+		y = 15 + 160,
+		height = 80,
+		-- caption = i18n("register_long"),
+		text = "Reset forgotten password: Enter your email address used for registration, then enter the validation code sent via email.",
+		font = Configuration:GetFont(3),
+	}
+	recoverChildren[#recoverChildren+1] = self.txtResetPassword
+
+	self.lblResetPasswordEmail =  Label:New {
+		x = 15,
+		width = 200,
+		y = 15 + 240,
+		height = 35,
+		-- caption = i18n("register_long"),
+		caption = "Email address:",
+		font = Configuration:GetFont(3),
+	}
+	recoverChildren[#recoverChildren+1] = self.lblResetPasswordEmail
+
+	self.ebResetPasswordEmail = EditBox:New {
+		x = 15 + 200,
+		width = 200,
+		y = 15 + 240,
+		height = 35,
+		text = "Enter your email address",
+		font = Configuration:GetFont(3),
+		tooltip = 'Make sure you enter your valid email address',
+		useIME = false,
+	}
+	recoverChildren[#recoverChildren+1] = self.ebResetPasswordEmail
+
+	self.lblResetPasswordVerification =  Label:New {
+		x = 15,
+		width = 200,
+		y = 15 + 280,
+		height = 35,
+		-- caption = i18n("register_long"),
+		caption = "Verification Code:",
+		font = Configuration:GetFont(3),
+	}
+	recoverChildren[#recoverChildren+1] = self.lblResetPasswordVerification
+
+	self.ebResetPasswordVerification = EditBox:New {
+		x = 15 + 200,
+		width = 200,
+		y = 15 + 280,
+		height = 35,
+		text = "Enter verification code",
+		font = Configuration:GetFont(3),
+		tooltip = 'You will recieve this code via email after submitting your email in the above box',
+		useIME = false,
+	}
+	recoverChildren[#recoverChildren+1] = self.ebResetPasswordVerification
+
+	self.btnResetPasswordEmail = Button:New {
+		right = 15,
+		width = 200,
+		y = 15+240,
+		height = 40,
+		caption = i18n("Submit email"),
+		font = Configuration:GetFont(3),
+		classname = "negative_button",
+		OnClick = {
+			function()
+				self:tryResetPasswordEmail()
+			end
+		},
+	}
+	recoverChildren[#recoverChildren+1] = self.btnResetPasswordEmail
+
+	self.btnResetPasswordVerification = Button:New {
+		right = 15,
+		width = 200,
+		y = 15+280,
+		height = 40,
+		caption = i18n("Submit Verification"),
+		font = Configuration:GetFont(3),
+		classname = "negative_button",
+		OnClick = {
+			function()
+				self:tryResetPasswordVerification()
+			end
+		},
+	}
+	recoverChildren[#recoverChildren+1] = self.btnResetPasswordVerification
+
+	self.txtErrorResetPassword = TextBox:New {
+		x = 15,
+		width = 600,
+		y = 15+320,
+		height = 40,
+		text = "No error",
+		fontsize = Configuration:GetFont(3).size,
+	}
+	recoverChildren[#recoverChildren+1] = self.txtErrorResetPassword
+
+
+---------------------------Change Password--------------------------------
+	self.txtChangePassword = TextBox:New {
+		x = 15,
+		width = 600,
+		y = 15 + 360,
+		height = 80,
+		-- caption = i18n("register_long"),
+		text = "Change Password: You must be logged in, enter your old and your new password",
+		font = Configuration:GetFont(3),
+	}
+	recoverChildren[#recoverChildren+1] = self.txtChangePassword
+
+	self.lblChangePasswordOld =  Label:New {
+		x = 15,
+		width = 200,
+		y = 15 + 400,
+		height = 35,
+		-- caption = i18n("register_long"),
+		caption = "Old password:",
+		font = Configuration:GetFont(3),
+	}
+	recoverChildren[#recoverChildren+1] = self.lblChangePasswordOld
+
+	self.ebChangePasswordOld = EditBox:New {
+		x = 15 + 200,
+		width = 200,
+		y = 15 + 400,
+		height = 35,
+		text = "",
+		font = Configuration:GetFont(3),
+		tooltip = 'Enter your old password here',
+		useIME = false,
+	}
+	recoverChildren[#recoverChildren+1] = self.ebChangePasswordOld
+
+	self.lblChangePasswordNew =  Label:New {
+		x = 15,
+		width = 200,
+		y = 15 + 440,
+		height = 35,
+		-- caption = i18n("register_long"),
+		caption = "New Password:",
+		font = Configuration:GetFont(3),
+	}
+	recoverChildren[#recoverChildren+1] = self.lblChangePasswordNew
+
+	self.ebChangePasswordNew = EditBox:New {
+		x = 15 + 200,
+		width = 200,
+		y = 15 + 440,
+		height = 35,
+		text = "",
+		font = Configuration:GetFont(3),
+		tooltip = 'Enter your new password here',
+		useIME = false,
+	}
+	recoverChildren[#recoverChildren+1] = self.ebChangePasswordNew
+
+	self.btnChangePassword = Button:New {
+		right = 15,
+		width = 200,
+		y = 15+400,
+		height = 80,
+		caption = i18n("Change Password"),
+		font = Configuration:GetFont(3),
+		classname = "negative_button",
+		OnClick = {
+			function()
+				self:tryChangePassword()
+			end
+		},
+	}
+	recoverChildren[#recoverChildren+1] = self.btnChangePassword
+
+	self.txtErrorChangePassword = TextBox:New {
+		x = 15,
+		width = 600,
+		y = 15+480,
+		height = 40,
+		text = "No error",
+		fontsize = Configuration:GetFont(3).size,
+	}
+	recoverChildren[#recoverChildren+1] = self.txtErrorChangePassword
+
+
+	---------------------------Change Email-------------------------------
+	self.txtChangeEmail = TextBox:New {
+		x = 15,
+		width = 600,
+		y = 15 + 520,
+		height = 80,
+		-- caption = i18n("register_long"),
+		text = "Change email address associated with your account. You must be logged in. Enter the new email address you wish to use, then enter the validation code sent to the new email address.",
+		font = Configuration:GetFont(3),
+	}
+	recoverChildren[#recoverChildren+1] = self.txtChangeEmail
+
+	self.lblChangeEmailEmail =  Label:New {
+		x = 15,
+		width = 200,
+		y = 15 + 600,
+		height = 35,
+		-- caption = i18n("register_long"),
+		caption = "New email address:",
+		font = Configuration:GetFont(3),
+	}
+	recoverChildren[#recoverChildren+1] = self.lblChangeEmailEmail
+
+	self.ebChangeEmailEmail = EditBox:New {
+		x = 15 + 200,
+		width = 200,
+		y = 15 + 600,
+		height = 35,
+		text = "",
+		font = Configuration:GetFont(3),
+		tooltip = 'Make sure you enter your new email address',
+		useIME = false,
+	}
+	recoverChildren[#recoverChildren+1] = self.ebChangeEmailEmail
+
+	self.lblChangeEmailVerification =  Label:New {
+		x = 15,
+		width = 200,
+		y = 15 + 640,
+		height = 35,
+		-- caption = i18n("register_long"),
+		caption = "Verification Code:",
+		font = Configuration:GetFont(3),
+	}
+	recoverChildren[#recoverChildren+1] = self.lblChangeEmailVerification
+
+	self.ebChangeEmailVerification = EditBox:New {
+		x = 15 + 200,
+		width = 200,
+		y = 15 + 640,
+		height = 35,
+		text = "",
+		font = Configuration:GetFont(3),
+		tooltip = 'You will recieve this code via email after submitting your email in the above box',
+		useIME = false,
+	}
+	recoverChildren[#recoverChildren+1] = self.ebChangeEmailVerification
+
+	self.btnChangeEmail = Button:New {
+		right = 15,
+		width = 200,
+		y = 15+600,
+		height = 40,
+		caption = i18n("Submit email"),
+		font = Configuration:GetFont(3),
+		classname = "negative_button",
+		OnClick = {
+			function()
+				self:tryChangeEmail()
+			end
+		},
+	}
+	recoverChildren[#recoverChildren+1] = self.btnChangeEmail
+
+	self.btnChangeEmailVerification = Button:New {
+		right = 15,
+		width = 200,
+		y = 15+640,
+		height = 40,
+		caption = i18n("Submit Verification"),
+		font = Configuration:GetFont(3),
+		classname = "negative_button",
+		OnClick = {
+			function()
+				self:tryChangeEmailVerification()
+			end
+		},
+	}
+	recoverChildren[#recoverChildren+1] = self.btnChangeEmailVerification
+
+	self.txtErrorChangeEmail = TextBox:New {
+		x = 15,
+		width = 600,
+		y = 15+680,
+		height = 40,
+		text = "No error",
+		fontsize = Configuration:GetFont(3).size,
+	}
+	recoverChildren[#recoverChildren+1] = self.txtErrorChangeEmail
+
+	
+		-- Reset Password (requires old email)
+			-- User cant even log in, needs email and then verification code
+
+
 	local ww, wh = Spring.GetWindowGeometry()
-	local width = 430
+	local width = 800
+
 
 	self.tabPanel = Chili.DetachableTabPanel:New {
 		x = 0,
 		right = 0,
 		y = 0,
-		minTabWidth = width/2 - 20,
+		minTabWidth = width/3 - 20,
 		bottom = 0,
 		padding = {0, 0, 0, 0},
 		tabs = {
-			[1] = { name = "login", caption = i18n("login"), children = {self.btnLogin, self.lblLoginInstructions}, font = Configuration:GetFont(2)},
+			[1] = { name = "login", caption = i18n("login"), children = loginChildren, font = Configuration:GetFont(2)},
 			[2] = { name = "register", caption = i18n("register_verb"), children = registerChildren, font = Configuration:GetFont(2)},
+			[3] = { name = "reset", caption = "Recover", children = recoverChildren, font = Configuration:GetFont(2)},
+			--[3] = { name = "test", caption = "teset2", children = {self.testbutton}, font = Configuration:GetFont(2)},
 		},
 	}
 
@@ -320,15 +790,9 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		right = 5,
 		y = 30,
 		bottom = 4,
-		horizontalScrollbar = false,
+		horizontalScrollbar = true,
 		children = {
 			self.tabPanel,
-			self.txtUsername,
-			self.txtPassword,
-			self.ebUsername,
-			self.ebPassword,
-			self.txtError,
-			self.cbAutoLogin,
 			self.btnCancel
 		}
 	}
@@ -392,6 +856,10 @@ function LoginWindow:RemoveListeners()
 		lobby:RemoveListener("OnDisconnected", self.onDisconnected)
 		self.onDisconnected = nil
 	end
+
+	if self.OnChangeEmailRequestDenied then
+		lobby:RemoveListener("OnChangeEmailRequestDenied", self.OnChangeEmailRequestDenied)
+	end
 end
 
 function LoginWindow:tryLogin()
@@ -429,8 +897,38 @@ function LoginWindow:tryLogin()
 	self.loginAttempts = self.loginAttempts + 1
 end
 
+function isValidUserName(username)
+	local badwords = {"fuck","cunt","shit","cock","faggot","adolf","hitler","nigger"}
+
+	validUserNameRegex = "^[a-zA-Z%d%[%]_]+$"
+	if string.match(username,validUserNameRegex) and string.len( username) == string.len( string.match(username,validUserNameRegex)) then 
+		--print (username .. " is OK")
+		for index, badword in ipairs(badwords) do
+			if string.match(string.lower( username),badword) then
+				return false
+			end
+		end
+		return true 
+	else 
+		--print (username .. " is not OK: " .. ( string.match(username,validUserNameRegex) or "") )
+		return false
+	end
+end
+  
+
 function LoginWindow:tryRegister()
-	if self.ebPassword.text ~= self.ebConfirmPassword.text then
+	local username = self.ebUsernameRegister.text
+
+	if username == '' then
+		return
+	end
+
+	if not isValidUserName(username) then 
+		self.txtError:SetText(Configuration:GetErrorColor() .. "Username may only contain letters, numbers, [] and _")
+		return 
+	end
+
+	if self.ebPasswordRegister.text ~= self.ebConfirmPassword.text then
 		self.txtError:SetText(Configuration:GetErrorColor() .. "Passwords do not match.")
 		return
 	end
@@ -438,8 +936,7 @@ function LoginWindow:tryRegister()
 	WG.Analytics.SendOnetimeEvent("lobby:try_register")
 	self.txtError:SetText("")
 
-	local username = self.ebUsername.text
-	local password = (self.ebPassword.visible and self.ebPassword.text) or nil
+	local password = (self.ebPasswordRegister.visible and self.ebPasswordRegister.text) or nil
 	local email = (self.emailRequired and self.ebEmail.visible and self.ebEmail.text) or nil
 	if username == '' then
 		return
@@ -467,6 +964,252 @@ function LoginWindow:tryRegister()
 	self.loginAttempts = self.loginAttempts + 1
 end
 
+---------------------------- Change Username ---------------------------
+
+function LoginWindow:tryChangeUserName()
+	local newusername = self.ebChangeUserName.text
+	if not isValidUserName(newusername) then 
+		self.txtErrorChangeUserName:SetText(Configuration:GetErrorColor() .. "Username may only contain letters, numbers, [] and _")
+		return
+	end
+	if lobby.connected then 
+		WG.Analytics.SendOnetimeEvent("lobby:try_changeusername")
+		lobby:RenameAccount(newusername)
+		self.txtErrorChangeUserName:SetText("You will be disconnected on success. Your new user name is" .. newusername)
+	else
+		self.txtErrorChangeUserName:SetText(Configuration:GetErrorColor() .. "Must be logged in to change user name!")
+	end
+end
+
+---------------------------- Change Email Address ---------------------------
+
+
+function LoginWindow:tryChangeEmail()
+	-- https://springrts.com/dl/LobbyProtocol/ProtocolDescription.html#CHANGEEMAILREQUEST:client
+	-- step 1, send a CHANGEEMAILREQUEST packet, which either returns CHANGEEMAILREQUESTDENIED or CHANGEEMAILREQUESTACCEPTED
+	if not lobby.connected then
+		self.txtErrorChangeEmail:setText(
+			Configuration:GetErrorColor() .. 
+			"Must be logged in to change email address"
+		)
+		return false
+	end
+
+	local newemail = self.ebChangeEmailEmail.text
+	if string.len(newemail) < 5 then 
+		self.txtErrorChangeEmail:setText(
+		Configuration:GetErrorColor() .. 
+		"Enter a valid email address, not " .. newemail
+		)
+		return false
+	end
+
+	self.txtErrorChangeEmail:setText(
+		Configuration:GetWarningColor() .. 
+		"Sending Request for: " .. newemail
+	)
+	
+	WG.Analytics.SendOnetimeEvent("lobby:try_changeemail")
+	lobby:AddListener("OnChangeEmailRequestDenied", self.onChangeEmailRequestDenied)
+	lobby:AddListener("OnChangeEmailRequestAccepted", self.onChangeEmailRequestAccepted)
+	lobby:ChangeEmailRequest(newemail)
+end
+
+function LoginWindow:onChangeEmailRequestDenied(errorMsg)
+	self.txtErrorChangeEmail:setText(
+			Configuration:GetErrorColor() .. 
+			"Change Email Request Denied: " .. errorMsg
+		)
+end
+
+function LoginWindow:onChangeEmailReqestAccepted()
+	self.txtErrorChangeEmail:setText(
+			Configuration:GetSuccessColor() .. 
+			"Request Accepted, enter verification code recieved via email"
+		)
+end
+
+function LoginWindow:tryChangeEmailVerification ()
+	if not lobby.connected then
+		self.txtErrorChangeEmail:setText(
+			Configuration:GetErrorColor() .. 
+			"Must be logged in to change email address"
+		)
+		return false
+	end
+
+	local newemail = self.ebChangeEmailEmail.text
+	if string.len(newemail) < 5 then 
+		self.txtErrorChangeEmail:setText(
+		Configuration:GetErrorColor() .. 
+		"Enter a valid email address, not" .. newemail
+		)
+		return false
+	end
+
+	local verificationCode = self.ebChangeEmailVerification.text
+
+	if string.len(verificationCode) < 3 then
+		self.txtErrorChangeEmail:setText(
+			Configuration:GetErrorColor() .. 
+			"Verification code too short: " .. verificationCode
+			)
+		return false
+	end
+
+	self.txtErrorChangeEmail:setText(
+		Configuration:GetWarningColor() .. 
+		"Sending Verification Code: " .. verificationCode .. " for ".. newemail
+	)
+	lobby:AddListener("OnChangeEmailDenied", self.onChangeEmailDenied)
+	lobby:AddListener("OnChangeEmailAccepted", self.onChangeEmailAccepted)
+	
+	WG.Analytics.SendOnetimeEvent("lobby:try_changeemailverification")
+	lobby:ChangeEmail(newemail, verificationCode)
+end
+
+function LoginWindow:onChangeEmailDenied(errorMsg)
+	self.txtErrorChangeEmail:setText(
+			Configuration:GetErrorColor() .. 
+			"Change Email Denied: " .. errorMsg
+		)
+end
+
+function LoginWindow:onChangeEmailReqestAccepted()
+	self.txtErrorChangeEmail:setText(
+			Configuration:GetSuccessColor() .. 
+			"Email changed successfully to " .. self.ebChangeEmailEmail.text
+		)
+end
+
+
+---------------------------- Reset Password ---------------------------
+
+
+function LoginWindow:tryResetPasswordEmail()
+	-- https://springrts.com/dl/LobbyProtocol/ProtocolDescription.html#RESETPASSWORDREQUEST:client
+	if not lobby.connected then
+		self.txtErrorResetPassword:setText(
+			Configuration:GetErrorColor() .. 
+			"Not connected to server, changing password might not work"
+		)
+	
+	end
+
+	local emailaddress = self.ebResetPasswordEmail.text
+	if string.len(newemail) < 5 then 
+		self.txtErrorResetPassword:setText(
+		Configuration:GetErrorColor() .. 
+		"Enter a valid email address, not " .. emailaddress
+		)
+		return false
+	end
+
+	self.txtErrorResetPassword:setText(
+		Configuration:GetWarningColor() .. 
+		"Sending reset request for: " .. emailaddress
+	)
+	lobby:AddListener("OnResetPasswordRequestDenied", self.onResetPasswordRequestDenied)
+	lobby:AddListener("OnResetPasswordRequestAccepted", self.onResetPasswordRequestAccepted)
+	
+	WG.Analytics.SendOnetimeEvent("lobby:try_resetpassword")
+	lobby:ResetPasswordRequest(emailaddress)
+end
+
+function LoginWindow:onResetPasswordRequestDenied(errorMsg)
+	self.txtErrorResetPassword:setText(
+			Configuration:GetErrorColor() .. 
+			"Password reset request denied: " .. errorMsg
+		)
+end
+
+function LoginWindow:onResetPasswordRequestAccepted()
+	self.txtErrorResetPassword:setText(
+			Configuration:GetSuccessColor() .. 
+			"Request Accepted, enter verification code recieved via email"
+		)
+end
+
+function LoginWindow:tryResetPasswordVerification ()
+	if not lobby.connected then
+		self.txtErrorResetPassword:setText(
+			Configuration:GetErrorColor() .. 
+			"Must be connected to change email address"
+		)
+	end
+
+	local emailaddress = self.ebResetPasswordEmail.text
+	if string.len(newemail) < 5 then 
+		self.txtErrorResetPassword:setText(
+		Configuration:GetErrorColor() .. 
+		"Enter a valid email address, not " .. emailaddress
+		)
+		return false
+	end
+
+
+	local verificationCode = self.ebResetPasswordVerification.text
+	if string.len(verificationCode) < 3 then
+		self.txtErrorResetPassword:setText(
+			Configuration:GetErrorColor() .. 
+			"Verification code too short: " .. verificationCode
+			)
+		return false
+	end
+
+	self.txtErrorResetPassword:setText(
+		Configuration:GetWarningColor() .. 
+		"Sending Verification Code: " .. verificationCode .. " for ".. emailaddress
+	)
+	lobby:AddListener("OnResetPasswordDenied", self.onResetPasswordDenied)
+	lobby:AddListener("OnChangeEmailAccepted", self.onResetPasswordAccepted)
+	
+	WG.Analytics.SendOnetimeEvent("lobby:try_resetpasswordverification")
+	lobby:ResetPassword(emailaddress, verificationCode)
+end
+
+function LoginWindow:onResetPasswordDenied(errorMsg)
+	self.txtErrorResetPassword:setText(
+			Configuration:GetErrorColor() .. 
+			"Reset Password Denied: " .. errorMsg
+		)
+end
+
+function LoginWindow:onResetPasswordAccepted()
+	self.txtErrorResetPassword:setText(
+			Configuration:GetSuccessColor() .. 
+			"Password successfully reset for " .. self.ebResetPasswordEmail.text
+		)
+end
+
+------------------ Change Password --------------
+
+function LoginWindow:tryChangePassword()
+	if not lobby.connected then
+		self.txtErrorChangePassword:setText(
+			Configuration:GetErrorColor() .. 
+			"Must be connected to change password!"
+		)
+		return
+	end
+
+	local oldPassword = self.ebChangePasswordOld.text
+	local newPassword = self.ebChangePasswordNew.text
+	
+	WG.Analytics.SendOnetimeEvent("lobby:try_changepassword")
+	lobby:ChangePassword(oldPassword,newPassword)
+
+	self.txtErrorChangePassword:setText(
+		Configuration:GetWarningColor() .. 
+		"Password change request sent, you will be logged out if it succeeds"
+	)
+end
+
+
+
+-----------------  OnConnected ----------------------
+
+
 function LoginWindow:OnConnected()
 	Spring.Echo("OnConnected")
 	--self.txtError:SetText(Configuration:GetPartialColor() .. i18n("connecting"))
@@ -483,6 +1226,9 @@ function LoginWindow:OnConnected()
 	end
 	lobby:AddListener("OnAgreementEnd", self.onAgreementEnd)
 end
+
+
+
 
 function LoginWindow:createAgreementWindow()
 	self.agreementWindow = Window:New {
@@ -507,6 +1253,7 @@ function LoginWindow:createAgreementWindow()
 
 	ScrollPanel:New {
 		x = 1,
+
 		right = 7,
 		y = 1,
 		height = 390,
