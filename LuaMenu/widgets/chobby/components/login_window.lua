@@ -988,7 +988,7 @@ function LoginWindow:tryChangeEmail()
 	-- https://springrts.com/dl/LobbyProtocol/ProtocolDescription.html#CHANGEEMAILREQUEST:client
 	-- step 1, send a CHANGEEMAILREQUEST packet, which either returns CHANGEEMAILREQUESTDENIED or CHANGEEMAILREQUESTACCEPTED
 	if not lobby.connected then
-		self.txtErrorChangeEmail:setText(
+		self.txtErrorChangeEmail:SetText(
 			Configuration:GetErrorColor() .. 
 			"Must be logged in to change email address"
 		)
@@ -997,14 +997,14 @@ function LoginWindow:tryChangeEmail()
 
 	local newemail = self.ebChangeEmailEmail.text
 	if string.len(newemail) < 5 then 
-		self.txtErrorChangeEmail:setText(
+		self.txtErrorChangeEmail:SetText(
 		Configuration:GetErrorColor() .. 
 		"Enter a valid email address, not " .. newemail
 		)
 		return false
 	end
 
-	self.txtErrorChangeEmail:setText(
+	self.txtErrorChangeEmail:SetText(
 		Configuration:GetWarningColor() .. 
 		"Sending Request for: " .. newemail
 	)
@@ -1016,14 +1016,14 @@ function LoginWindow:tryChangeEmail()
 end
 
 function LoginWindow:onChangeEmailRequestDenied(errorMsg)
-	self.txtErrorChangeEmail:setText(
+	self.txtErrorChangeEmail:SetText(
 			Configuration:GetErrorColor() .. 
 			"Change Email Request Denied: " .. errorMsg
 		)
 end
 
 function LoginWindow:onChangeEmailReqestAccepted()
-	self.txtErrorChangeEmail:setText(
+	self.txtErrorChangeEmail:SetText(
 			Configuration:GetSuccessColor() .. 
 			"Request Accepted, enter verification code recieved via email"
 		)
@@ -1031,7 +1031,7 @@ end
 
 function LoginWindow:tryChangeEmailVerification ()
 	if not lobby.connected then
-		self.txtErrorChangeEmail:setText(
+		self.txtErrorChangeEmail:SetText(
 			Configuration:GetErrorColor() .. 
 			"Must be logged in to change email address"
 		)
@@ -1040,7 +1040,7 @@ function LoginWindow:tryChangeEmailVerification ()
 
 	local newemail = self.ebChangeEmailEmail.text
 	if string.len(newemail) < 5 then 
-		self.txtErrorChangeEmail:setText(
+		self.txtErrorChangeEmail:SetText(
 		Configuration:GetErrorColor() .. 
 		"Enter a valid email address, not" .. newemail
 		)
@@ -1050,14 +1050,14 @@ function LoginWindow:tryChangeEmailVerification ()
 	local verificationCode = self.ebChangeEmailVerification.text
 
 	if string.len(verificationCode) < 3 then
-		self.txtErrorChangeEmail:setText(
+		self.txtErrorChangeEmail:SetText(
 			Configuration:GetErrorColor() .. 
 			"Verification code too short: " .. verificationCode
 			)
 		return false
 	end
 
-	self.txtErrorChangeEmail:setText(
+	self.txtErrorChangeEmail:SetText(
 		Configuration:GetWarningColor() .. 
 		"Sending Verification Code: " .. verificationCode .. " for ".. newemail
 	)
@@ -1069,14 +1069,14 @@ function LoginWindow:tryChangeEmailVerification ()
 end
 
 function LoginWindow:onChangeEmailDenied(errorMsg)
-	self.txtErrorChangeEmail:setText(
+	self.txtErrorChangeEmail:SetText(
 			Configuration:GetErrorColor() .. 
 			"Change Email Denied: " .. errorMsg
 		)
 end
 
 function LoginWindow:onChangeEmailReqestAccepted()
-	self.txtErrorChangeEmail:setText(
+	self.txtErrorChangeEmail:SetText(
 			Configuration:GetSuccessColor() .. 
 			"Email changed successfully to " .. self.ebChangeEmailEmail.text
 		)
@@ -1089,7 +1089,7 @@ end
 function LoginWindow:tryResetPasswordEmail()
 	-- https://springrts.com/dl/LobbyProtocol/ProtocolDescription.html#RESETPASSWORDREQUEST:client
 	if not lobby.connected then
-		self.txtErrorResetPassword:setText(
+		self.txtErrorResetPassword:SetText(
 			Configuration:GetErrorColor() .. 
 			"Not connected to server, changing password might not work"
 		)
@@ -1098,14 +1098,14 @@ function LoginWindow:tryResetPasswordEmail()
 
 	local emailaddress = self.ebResetPasswordEmail.text
 	if string.len(newemail) < 5 then 
-		self.txtErrorResetPassword:setText(
+		self.txtErrorResetPassword:SetText(
 		Configuration:GetErrorColor() .. 
 		"Enter a valid email address, not " .. emailaddress
 		)
 		return false
 	end
 
-	self.txtErrorResetPassword:setText(
+	self.txtErrorResetPassword:SetText(
 		Configuration:GetWarningColor() .. 
 		"Sending reset request for: " .. emailaddress
 	)
@@ -1117,14 +1117,14 @@ function LoginWindow:tryResetPasswordEmail()
 end
 
 function LoginWindow:onResetPasswordRequestDenied(errorMsg)
-	self.txtErrorResetPassword:setText(
+	self.txtErrorResetPassword:SetText(
 			Configuration:GetErrorColor() .. 
 			"Password reset request denied: " .. errorMsg
 		)
 end
 
 function LoginWindow:onResetPasswordRequestAccepted()
-	self.txtErrorResetPassword:setText(
+	self.txtErrorResetPassword:SetText(
 			Configuration:GetSuccessColor() .. 
 			"Request Accepted, enter verification code recieved via email"
 		)
@@ -1132,7 +1132,7 @@ end
 
 function LoginWindow:tryResetPasswordVerification ()
 	if not lobby.connected then
-		self.txtErrorResetPassword:setText(
+		self.txtErrorResetPassword:SetText(
 			Configuration:GetErrorColor() .. 
 			"Must be connected to change email address"
 		)
@@ -1140,7 +1140,7 @@ function LoginWindow:tryResetPasswordVerification ()
 
 	local emailaddress = self.ebResetPasswordEmail.text
 	if string.len(newemail) < 5 then 
-		self.txtErrorResetPassword:setText(
+		self.txtErrorResetPassword:SetText(
 		Configuration:GetErrorColor() .. 
 		"Enter a valid email address, not " .. emailaddress
 		)
@@ -1150,14 +1150,14 @@ function LoginWindow:tryResetPasswordVerification ()
 
 	local verificationCode = self.ebResetPasswordVerification.text
 	if string.len(verificationCode) < 3 then
-		self.txtErrorResetPassword:setText(
+		self.txtErrorResetPassword:SetText(
 			Configuration:GetErrorColor() .. 
 			"Verification code too short: " .. verificationCode
 			)
 		return false
 	end
 
-	self.txtErrorResetPassword:setText(
+	self.txtErrorResetPassword:SetText(
 		Configuration:GetWarningColor() .. 
 		"Sending Verification Code: " .. verificationCode .. " for ".. emailaddress
 	)
@@ -1169,14 +1169,14 @@ function LoginWindow:tryResetPasswordVerification ()
 end
 
 function LoginWindow:onResetPasswordDenied(errorMsg)
-	self.txtErrorResetPassword:setText(
+	self.txtErrorResetPassword:SetText(
 			Configuration:GetErrorColor() .. 
 			"Reset Password Denied: " .. errorMsg
 		)
 end
 
 function LoginWindow:onResetPasswordAccepted()
-	self.txtErrorResetPassword:setText(
+	self.txtErrorResetPassword:SetText(
 			Configuration:GetSuccessColor() .. 
 			"Password successfully reset for " .. self.ebResetPasswordEmail.text
 		)
@@ -1186,7 +1186,7 @@ end
 
 function LoginWindow:tryChangePassword()
 	if not lobby.connected then
-		self.txtErrorChangePassword:setText(
+		self.txtErrorChangePassword:SetText(
 			Configuration:GetErrorColor() .. 
 			"Must be connected to change password!"
 		)
@@ -1199,7 +1199,7 @@ function LoginWindow:tryChangePassword()
 	WG.Analytics.SendOnetimeEvent("lobby:try_changepassword")
 	lobby:ChangePassword(oldPassword,newPassword)
 
-	self.txtErrorChangePassword:setText(
+	self.txtErrorChangePassword:SetText(
 		Configuration:GetWarningColor() .. 
 		"Password change request sent, you will be logged out if it succeeds"
 	)
