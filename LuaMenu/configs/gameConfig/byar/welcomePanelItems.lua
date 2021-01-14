@@ -8,6 +8,12 @@ local welcomePanelItems = {
         "This lobby is currently being built, more functionality coming soon." ,
     },
     {
+        Header = "Lobby Updates!",
+        Url = nil,--"https://www.beyondallreason.info/",
+        Time = nil,-- "NowTime",
+        Text = "Account recovery and start boxes on minimaps in progress!",
+    },
+    {
         Header = "Play with your friends",
         Url = nil,--"https://www.beyondallreason.info/",
         Time = nil,-- "NowTime",
