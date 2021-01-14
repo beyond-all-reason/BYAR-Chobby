@@ -580,6 +580,34 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 			imMinimap.file, imMinimap.checkFileExists  = config:GetMinimapImage(battleInfo.mapName)
 			imMinimap:Invalidate()
 
+			local isSingleplayer = (battleLobby.name == "singleplayer")
+			local mapName = battleInfo.mapName
+			local allyTeamCount = emptyTeamIndex
+			local startboxes = nil
+			local Configuration = WG.Chobby.Configuration
+
+			if isSingleplayer then
+				imMinimap.children = {}
+				if Configuration.gameConfig and
+						Configuration.gameConfig.useDefaultStartBoxes and
+						Configuration.gameConfig.mapStartBoxes and
+						Configuration.gameConfig.mapStartBoxes.savedBoxes and
+						Configuration.gameConfig.mapStartBoxes.savedBoxes[mapName] then
+					startBoxes = Configuration.gameConfig.mapStartBoxes.savedBoxes[mapName]
+					Spring.Echo("Skirmish: Using default startboxesfor",mapName, startBoxes)
+					startBoxes = Configuration.gameConfig.mapStartBoxes.selectStartBoxesForAllyTeamCount(startBoxes,allyTeamCount)
+
+					for i = 1, allyTeamCount do
+						if startBoxes[i] then
+							externalFunctions.AddStartRect(i-1,200*startBoxes[i][1],200*startBoxes[i][2],200*startBoxes[i][3],200*startBoxes[i][4])
+						end
+					end
+
+				else
+					Spring.Echo("No map startBoxes found or disabled for map",mapName,"teamcount:",allyTeamCount)
+				end
+			end
+
 			-- TODO: Bit lazy here, seeing as we only need to update the map
 			UpdateArchiveStatus(true)
 			MaybeDownloadMap(battle)
@@ -620,6 +648,8 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	end
 
 	function externalFunctions.AddStartRect(allyNo, left, top, right, bottom)
+		--Spring.Log("Chobby AddStartRect",LOG.WARNING,"AddStartRect", allyNo, left, top, right, bottom)
+		
 		local newStartRect = Button:New {
 			x = tostring(left/2) .. '%',
 			y = tostring(top/2)  .. '%',
@@ -636,7 +666,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 				end
 			},
 		}
-		newStartRect:BringToFront()
+		--newStartRect:BringToFront()
 		imMinimap.children[allyNo+1] = newStartRect
 	end
 
@@ -1672,7 +1702,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	end
 
 	local isSingleplayer = (battleLobby.name == "singleplayer")
-  showDefaultStartCheckbox = isSingleplayer
+    showDefaultStartCheckbox = isSingleplayer
 	local isHost = (not isSingleplayer) and (battleLobby:GetMyUserName() == battle.founder)
 
 	local EXTERNAL_PAD_VERT = 9
@@ -2126,12 +2156,12 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	end
 
 	local function OnRemoveStartRect(listener, allyNo)
-		Spring.Log("Chobby gui_battle_room_window.lua",LOG.INFO,"OnRemoveStartRect", allyNo)
+		--Spring.Log("Chobby gui_battle_room_window.lua",LOG.INFO,"OnRemoveStartRect", allyNo)
 		infoHandler.RemoveStartRect(allyNo)
 	end
 
 	local function OnAddStartRect(listener, allyNo, left, top, right, bottom)
-		Spring.Log("Chobby gui_battle_room_window.lua",LOG.WARNING,"OnAddStartRect", allyNo, left, top, right, bottom)
+		--Spring.Log("Chobby gui_battle_room_window.lua",LOG.WARNING,"OnAddStartRect", allyNo, left, top, right, bottom)
 		infoHandler.AddStartRect(allyNo, left, top, right, bottom)
 	end
 
