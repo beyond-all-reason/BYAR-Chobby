@@ -8,7 +8,7 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 	local titleWidthRel = 28
 	local panelWidthRel = 42
 
-	local userStatusPanelWidth = 250
+	local userStatusPanelWidth = 300
 
 	local battleStatusWidth = 480
 	local panelButtonsWidth = 578
@@ -36,7 +36,7 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 	local mainButtonsWidth = 180
 	local mainButtonsWidthSmall = 140
 
-	local userStatusWidth = 225
+	local userStatusWidth = 275
 
 	local imageFudge = 0
 
