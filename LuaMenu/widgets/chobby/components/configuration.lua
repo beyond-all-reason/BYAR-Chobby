@@ -196,6 +196,7 @@ function Configuration:init()
 	self.planetwarsNotifications = false -- Possibly too intrusive? See how it goes.
 	self.ingameNotifcations = true -- Party, chat
 	self.nonFriendNotifications = true -- Party, chat
+	self.friendActivityNotification = true
 	self.simplifiedSkirmishSetup = true
 	self.debugMode = false
 	self.devMode = (VFS.FileExists("devmode.txt") and true) or false
