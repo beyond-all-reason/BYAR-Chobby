@@ -163,7 +163,7 @@ local function clearBoxes(mapName)
   savedBoxes[mapName]["customBoxes"] = {}
 end
 
-local function getBox(allyTeam)
+local function getBox(mapName,allyTeam)
   if savedBoxes[mapName] == nil then
     initCustomBox(mapName)
   end
