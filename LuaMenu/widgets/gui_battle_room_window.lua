@@ -107,6 +107,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		caption = "",
 		padding = {0, 0, 0, 0},
 		parent = rightInfo,
+		--tooltip = "Choose a different map",
 		OnClick = {
 			function ()
 				if currentMapName and config.gameConfig.link_particularMapPage ~= nil then
@@ -125,6 +126,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		parent = btnMapLink,
 		fontsize = config:GetFont(2).size,
 	}
+	--[[
 	local imMapLink = Image:New {
 		x = 0,
 		y = 1,
@@ -134,6 +136,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		file = IMG_LINK,
 		parent = btnMapLink,
 	}
+	]]--
 
 
 	local function SetMapName(mapName, width)
@@ -148,7 +151,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		mapName = StringUtilities.GetTruncatedStringWithDotDot(mapName, tbMapName.font, width - 22)
 		tbMapName:SetText(mapName)
 		local length = tbMapName.font:GetTextWidth(mapName)
-		imMapLink:SetPos(length + 5)
+		--imMapLink:SetPos(length + 5)
 	end
 	SetMapName(battle.mapName, mapLinkWidth)
 
@@ -164,7 +167,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		padding = {1,1,1,1},
 		parent = rightInfo,
 	}
-	local btnMinimap = Button:New {
+	--[[local btnMinimap = Button:New {
 		x = 0,
 		y = 0,
 		right = 0,
@@ -178,7 +181,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 				WG.MapListPanel.Show(battleLobby, battle.mapName)
 			end
 		},
-	}
+	}]]--
 
 	local mapImageFile, needDownload = config:GetMinimapImage(battle.mapName)
 	local imMinimap = Image:New {
@@ -186,12 +189,13 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		y = 0,
 		right = 0,
 		bottom = 0,
-		keepAspect = true,
+		keepAspect = false, -- force wrong aspect ratio for correct start boxes display
 		file = mapImageFile,
 		fallbackFile = config:GetLoadingImage(3),
 		checkFileExists = needDownload,
-		parent = btnMinimap,
-	}
+		parent = minimapPanel,
+		tooltip = "Currently selected map. Green boxes show where each team will start"
+	} 
   if showDefaultStartCheckbox then
     local cbUseDefaultStartBoxes = Checkbox:New {
       x = 0,
@@ -225,6 +229,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		caption = i18n("start"),
 		classname = "action_button",
 		font = config:GetFont(4),
+		tooltip = "Start the game, or call a vote to start multiplayer, or join a running game",
 		OnClick = {
 			function()
 				if not haveMapAndGame then
@@ -261,6 +266,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		classname = "button_highlight",
 		caption = "\255\66\138\201" .. i18n("spectator") ..  "\b",
 		font =  config:GetFont(3),
+		tooltip = "Watch the game as a spectator",
 		OnClick = {
 			function(obj)
 				battleLobby:SetBattleStatus({isSpectator = true})
@@ -282,6 +288,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		classname = "button_highlight",
 		caption = "\255\66\138\201" .. i18n("player") ..  "\b",
 		font =  config:GetFont(3),
+		tooltip = "Become a player in this game",
 		OnClick = {
 			function(obj)
 				battleLobby:SetBattleStatus({isSpectator = false})
@@ -326,6 +333,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		classname = "option_button",
 		caption = i18n("add_team") ..  "\b",
 		font = config:GetFont(2),
+		tooltip = "Add another team for players or AI to join into",
 		OnClick = {
 			function()
 				if OpenNewTeam then
@@ -365,6 +373,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		classname = "option_button",
 		caption = i18n("pick_map") ..  "\b",
 		font =  config:GetFont(2),
+		tooltip = "Select a map from the maps you have downloaded",
 		OnClick = {
 			function()
 				WG.MapListPanel.Show(battleLobby, battle.mapName)
@@ -383,6 +392,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		classname = "option_button",
 		caption = "Adv Options" ..  "\b",
 		font =  config:GetFont(2),
+		tooltip = "Configure custom gameplay options",
 		OnClick = {
 			function()
 				WG.ModoptionsPanel.ShowModoptions()
@@ -443,6 +453,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		padding = {2, 0, 2, 0},
 		autosize = false,
 		resizable = false,
+		tooltip = "All custom gameplay options are listed here",
 		children = {
 			WG.ModoptionsPanel.GetModoptionsControl()
 		},
@@ -608,6 +619,32 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		end
 	end
 
+	function externalFunctions.AddStartRect(allyNo, left, top, right, bottom)
+		local newStartRect = Button:New {
+			x = tostring(left/2) .. '%',
+			y = tostring(top/2)  .. '%',
+			width = tostring((right-left)/2) .. '%',
+			height = tostring((bottom-top)/2) .. '%',
+			classname = "action_button",
+			caption = tostring(allyNo + 1),
+			parent = imMinimap,
+			padding = {0,0,0,0},
+			tooltip = "Click to remove box",
+			OnClick = {
+				function()
+					Spring.Log("Chobby",LOG.WARNING,"start rect clicked")
+				end
+			},
+		}
+		newStartRect:BringToFront()
+		imMinimap.children[allyNo+1] = newStartRect
+	end
+
+	function externalFunctions.RemoveStartRect(allyNo)
+		--imMinimap.RemoveChild(allyNo + 1)
+		imMinimap.children[allyNo+1] = nil
+	end
+
 	MaybeDownloadGame(battle)
 	MaybeDownloadMap(battle)
 	UpdateArchiveStatus(true)
@@ -628,6 +665,7 @@ local function AddTeamButtons(parent, offX, joinFunc, aiFunc, unjoinable, disall
 			OnClick = {aiFunc},
 			classname = "option_button",
 			parent = parent,
+			tooltip = "Add an AI to the game",
 		}
 		offX = offX + 82
 	end
@@ -643,6 +681,7 @@ local function AddTeamButtons(parent, offX, joinFunc, aiFunc, unjoinable, disall
 			OnClick = {joinFunc},
 			classname = "option_button",
 			parent = parent,
+			tooltip = "Change your team to this one",
 		}
 	end
 end
@@ -1133,6 +1172,7 @@ local function SetupVotePanel(votePanel, battle, battleID)
 		width = height,
 		caption = "",
 		classname = "positive_button",
+		tooltip = "Vote YES on the current poll",
 		OnClick = {
 			function (obj)
 				ButtonUtilities.SetButtonSelected(obj)
@@ -1166,6 +1206,7 @@ local function SetupVotePanel(votePanel, battle, battleID)
 		width = height,
 		caption = "",
 		classname = "negative_button",
+		tooltip = "Vote NO on the current poll",
 		OnClick = {
 			function (obj)
 				ButtonUtilities.SetButtonSelected(obj)
@@ -1210,6 +1251,7 @@ local function SetupVotePanel(votePanel, battle, battleID)
 		bottom = 0,
 		value = 0,
 		parent = activePanel,
+		tooltip = "How many players have voted out of the required number have voted to pass",
 	}
 
 	local voteCountLabel = Label:New {
@@ -1221,6 +1263,7 @@ local function SetupVotePanel(votePanel, battle, battleID)
 		font = config:GetFont(2),
 		caption = "20/50",
 		parent = activePanel,
+		tooltip = "How many votes have been cast (#yes / #needed)",
 	}
 
 	local MULTI_POLL_MAX = 4
@@ -1405,6 +1448,7 @@ local function SetupVotePanel(votePanel, battle, battleID)
 	function externalFunctions.GetMatchmakerMode()
 		return matchmakerModeEnabled
 	end
+
 
 	return externalFunctions
 end
@@ -1737,6 +1781,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		font = Configuration:GetFont(3),
 		caption = (isSingleplayer and i18n("close")) or i18n("leave"),
 		classname = "negative_button",
+		tooltip = "Leave the battleroom",
 		OnClick = {
 			function()
 				battleLobby:LeaveBattle()
@@ -2080,6 +2125,16 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		battleRoomConsole:AddMessage(message, userName, false, chatColour, true)
 	end
 
+	local function OnRemoveStartRect(listener, allyNo)
+		Spring.Log("Chobby gui_battle_room_window.lua",LOG.INFO,"OnRemoveStartRect", allyNo)
+		infoHandler.RemoveStartRect(allyNo)
+	end
+
+	local function OnAddStartRect(listener, allyNo, left, top, right, bottom)
+		Spring.Log("Chobby gui_battle_room_window.lua",LOG.WARNING,"OnAddStartRect", allyNo, left, top, right, bottom)
+		infoHandler.AddStartRect(allyNo, left, top, right, bottom)
+	end
+
 	battleLobby:AddListener("OnUpdateUserTeamStatus", OnUpdateUserTeamStatus)
 	battleLobby:AddListener("OnBattleIngameUpdate", OnBattleIngameUpdate)
 	battleLobby:AddListener("OnUpdateBattleInfo", OnUpdateBattleInfo)
@@ -2094,6 +2149,8 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	battleLobby:AddListener("OnMatchMakerReadyCheck", OnMatchMakerReadyCheck)
 	battleLobby:AddListener("OnMatchMakerReadyUpdate", OnMatchMakerReadyUpdate)
 	battleLobby:AddListener("OnMatchMakerReadyResult", OnMatchMakerReadyResult)
+	battleLobby:AddListener("OnRemoveStartRect", OnRemoveStartRect)
+	battleLobby:AddListener("OnAddStartRect", OnAddStartRect)
 
 	local function OnDisposeFunction()
 		emptyTeamIndex = 0
