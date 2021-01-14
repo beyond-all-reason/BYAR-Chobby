@@ -421,8 +421,8 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 
 	self.ebChangeUserName = EditBox:New {
 		x = 15 + 200,
-		width = 250,
-		y = 15 + 80,
+		width = 200,
+		y = 10 + 80,
 		height = 35,
 		text = Configuration.userName or Configuration.suggestedNameFromSteam or "",
 		font = Configuration:GetFont(3),
@@ -434,7 +434,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 	self.btnChangeUserName = Button:New {
 		right = 15,
 		width = 200,
-		y = 15+80,
+		y = 10+80,
 		height = 40,
 		caption = i18n("Change username"),
 		font = Configuration:GetFont(3),
@@ -452,10 +452,13 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		width = 600,
 		y = 15+120,
 		height = 40,
-		text = "No errors",
+		text = "This doesnt work yet!",
 		fontsize = Configuration:GetFont(3).size,
 	}
 	recoverChildren[#recoverChildren+1] = self.txtErrorChangeUserName
+
+	recoverChildren[#recoverChildren+1] = Line:New{x=5,y=160,right=0, height = 1}
+
 ------------------------------RESET PASSWORD----------------------------------
 	self.txtResetPassword = TextBox:New {
 		x = 15,
@@ -482,9 +485,9 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 	self.ebResetPasswordEmail = EditBox:New {
 		x = 15 + 200,
 		width = 200,
-		y = 15 + 240,
+		y = 10 + 240,
 		height = 35,
-		text = "Enter your email address",
+		text = "",
 		font = Configuration:GetFont(3),
 		tooltip = 'Make sure you enter your valid email address',
 		useIME = false,
@@ -505,9 +508,9 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 	self.ebResetPasswordVerification = EditBox:New {
 		x = 15 + 200,
 		width = 200,
-		y = 15 + 280,
+		y = 10 + 280,
 		height = 35,
-		text = "Enter verification code",
+		text = "",
 		font = Configuration:GetFont(3),
 		tooltip = 'You will recieve this code via email after submitting your email in the above box',
 		useIME = false,
@@ -517,7 +520,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 	self.btnResetPasswordEmail = Button:New {
 		right = 15,
 		width = 200,
-		y = 15+240,
+		y = 10+240,
 		height = 40,
 		caption = i18n("Submit email"),
 		font = Configuration:GetFont(3),
@@ -533,7 +536,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 	self.btnResetPasswordVerification = Button:New {
 		right = 15,
 		width = 200,
-		y = 15+280,
+		y = 10+280,
 		height = 40,
 		caption = i18n("Submit Verification"),
 		font = Configuration:GetFont(3),
@@ -551,11 +554,12 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		width = 600,
 		y = 15+320,
 		height = 40,
-		text = "No error",
+		text = "This doesnt work yet!",
 		fontsize = Configuration:GetFont(3).size,
 	}
 	recoverChildren[#recoverChildren+1] = self.txtErrorResetPassword
 
+	recoverChildren[#recoverChildren+1] = Line:New{x=5,y=360,right=0, height = 1}
 
 ---------------------------Change Password--------------------------------
 	self.txtChangePassword = TextBox:New {
@@ -583,7 +587,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 	self.ebChangePasswordOld = EditBox:New {
 		x = 15 + 200,
 		width = 200,
-		y = 15 + 400,
+		y = 10 + 400,
 		height = 35,
 		text = "",
 		font = Configuration:GetFont(3),
@@ -606,7 +610,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 	self.ebChangePasswordNew = EditBox:New {
 		x = 15 + 200,
 		width = 200,
-		y = 15 + 440,
+		y = 10 + 440,
 		height = 35,
 		text = "",
 		font = Configuration:GetFont(3),
@@ -618,7 +622,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 	self.btnChangePassword = Button:New {
 		right = 15,
 		width = 200,
-		y = 15+400,
+		y = 10+400,
 		height = 80,
 		caption = i18n("Change Password"),
 		font = Configuration:GetFont(3),
@@ -636,11 +640,12 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		width = 600,
 		y = 15+480,
 		height = 40,
-		text = "No error",
+		text = "This doesnt work yet!",
 		fontsize = Configuration:GetFont(3).size,
 	}
 	recoverChildren[#recoverChildren+1] = self.txtErrorChangePassword
 
+	recoverChildren[#recoverChildren+1] = Line:New{x=5,y=520,right=0, height = 1}
 
 	---------------------------Change Email-------------------------------
 	self.txtChangeEmail = TextBox:New {
@@ -668,7 +673,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 	self.ebChangeEmailEmail = EditBox:New {
 		x = 15 + 200,
 		width = 200,
-		y = 15 + 600,
+		y = 10 + 600,
 		height = 35,
 		text = "",
 		font = Configuration:GetFont(3),
@@ -691,7 +696,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 	self.ebChangeEmailVerification = EditBox:New {
 		x = 15 + 200,
 		width = 200,
-		y = 15 + 640,
+		y = 10 + 640,
 		height = 35,
 		text = "",
 		font = Configuration:GetFont(3),
@@ -703,7 +708,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 	self.btnChangeEmail = Button:New {
 		right = 15,
 		width = 200,
-		y = 15+600,
+		y = 10+600,
 		height = 40,
 		caption = i18n("Submit email"),
 		font = Configuration:GetFont(3),
@@ -719,7 +724,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 	self.btnChangeEmailVerification = Button:New {
 		right = 15,
 		width = 200,
-		y = 15+640,
+		y = 10+640,
 		height = 40,
 		caption = i18n("Submit Verification"),
 		font = Configuration:GetFont(3),
@@ -737,7 +742,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		width = 600,
 		y = 15+680,
 		height = 40,
-		text = "No error",
+		text = "This doesnt work yet!",
 		fontsize = Configuration:GetFont(3).size,
 	}
 	recoverChildren[#recoverChildren+1] = self.txtErrorChangeEmail
@@ -748,7 +753,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 
 
 	local ww, wh = Spring.GetWindowGeometry()
-	local width = 800
+	local width = 700
 
 
 	self.tabPanel = Chili.DetachableTabPanel:New {
@@ -1097,16 +1102,16 @@ function LoginWindow:tryResetPasswordEmail()
 	end
 
 	local emailaddress = self.ebResetPasswordEmail.text
-	if string.len(newemail) < 5 then 
+	if string.len(emailaddress) < 5 then
 		self.txtErrorResetPassword:SetText(
-		Configuration:GetErrorColor() .. 
+		Configuration:GetErrorColor() ..
 		"Enter a valid email address, not " .. emailaddress
 		)
 		return false
 	end
 
 	self.txtErrorResetPassword:SetText(
-		Configuration:GetWarningColor() .. 
+		Configuration:GetWarningColor() ..
 		"Sending reset request for: " .. emailaddress
 	)
 	lobby:AddListener("OnResetPasswordRequestDenied", self.onResetPasswordRequestDenied)
@@ -1118,7 +1123,7 @@ end
 
 function LoginWindow:onResetPasswordRequestDenied(errorMsg)
 	self.txtErrorResetPassword:SetText(
-			Configuration:GetErrorColor() .. 
+			Configuration:GetErrorColor() ..
 			"Password reset request denied: " .. errorMsg
 		)
 end
