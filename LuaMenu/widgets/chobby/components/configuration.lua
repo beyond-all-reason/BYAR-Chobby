@@ -151,17 +151,19 @@ function Configuration:init()
 	self.gameConfigName = fileConfig.game
 	self:LoadGameConfig(gameConfPath .. self.gameConfigName .. "/mainConfig.lua")
 
-	self.campaignPath = "campaign/sample"
-	self.campaignConfigName = "sample"
-	self.campaignConfig = nil -- VFS.Include("campaign/sample/mainConfig.lua") -- no campaign yet for BYAR
+	self.campaignPath = "campaign/byartest"
+	self.campaignConfigName = "byartest"
+	self.campaignConfig = VFS.Include("campaign/byartest/mainConfig.lua") -- no campaign yet for BYAR
 	self.campaignSaveFile = nil -- Set by user
 	self.nextCampaignSaveNumber = 1
 	self.campaignConfigOptions = {
 		"sample",
+		"byartest",
 		"--dev"
 	}
 	self.campaignConfigHumanNames = {
 		"Sample",
+		"BYARtest",
 		--"Dev"
 	}
 	local gameConfigOptions = {}
