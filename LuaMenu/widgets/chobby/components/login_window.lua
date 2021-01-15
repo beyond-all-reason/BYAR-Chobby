@@ -908,6 +908,9 @@ function isValidUserName(username)
 	validUserNameRegex = "^[a-zA-Z%d%[%]_]+$"
 	if string.match(username,validUserNameRegex) and string.len( username) == string.len( string.match(username,validUserNameRegex)) then 
 		--print (username .. " is OK")
+		if string.len(username) >20 then
+			return false
+		end
 		for index, badword in ipairs(badwords) do
 			if string.match(string.lower( username),badword) then
 				return false
