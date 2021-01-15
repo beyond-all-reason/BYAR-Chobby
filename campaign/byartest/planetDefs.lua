@@ -1,4 +1,4 @@
-local shortname = "sample"
+local shortname = "byartest"
 
 local N_PLANETS = 71
 

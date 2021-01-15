@@ -1,5 +1,5 @@
 -- A list of all unlocks
-local shortname = "sample"
+local shortname = "byartest"
 
 local planetDefs     = VFS.Include("campaign/" .. shortname .. "/planetDefs.lua")
 local initialUnlocks = VFS.Include("campaign/" .. shortname .. "/initialUnlocks.lua")
