@@ -137,6 +137,11 @@ function widget:Initialize()
 						caption="per widget",
 						OnMouseUp = {function() tree0.root:Clear(); tracePerWidget(tree0.root) end},
 					},
+					Chili.Button:New{
+						caption="close",
+						OnMouseUp = {function()
+							widgetHandler:RemoveWidget() end},
+					},
 				},
 			},
 		},
