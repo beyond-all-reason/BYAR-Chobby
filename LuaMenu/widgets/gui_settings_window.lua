@@ -983,10 +983,17 @@ local function GetVoidTabControls()
 		widgetHandler:ToggleWidget("ChiliInspector")
 	end
 
+	
+	local function toggleCampaignFunc(newState)
+		WG.Chobby.Configuration.ShowCampaignButton = newState
+	end
+
+
 	children[#children + 1], offset = AddCheckboxSetting(offset, i18n("debugMode"), "debugMode", false)
 	children[#children + 1], offset = AddCheckboxSetting(offset, "Debug Auto Win", "debugAutoWin", false)
 	children[#children + 1], offset = AddCheckboxSetting(offset, "Enable Profiler", "enableProfiler", false, EnableProfilerFunc)
 	children[#children + 1], offset = AddCheckboxSetting(offset, "Enable Inspector", "enableInspector", false, EnableInspectorFunc)
+	children[#children + 1], offset = AddCheckboxSetting(offset, "Show Campaign button", "toggleCampaign", false, toggleCampaignFunc)
 	children[#children + 1], offset = AddCheckboxSetting(offset, "Show Planet Unlocks", "showPlanetUnlocks", false)
 	children[#children + 1], offset = AddCheckboxSetting(offset, "Show Planet Enemy Units", "showPlanetEnemyUnits", false)
 	children[#children + 1], offset = AddCheckboxSetting(offset, "Campaign Spawn Debug", "campaignSpawnDebug", false)

@@ -1,11 +1,15 @@
-return {
-	{
-		name = "skirmish",
-		control = WG.BattleRoomWindow.GetSingleplayerControl(),
-		entryCheck = WG.BattleRoomWindow.SetSingleplayerGame,
-	},
-	{
-		name = "WiP Campaign",
+
+local items = 	{{
+	name = "skirmish",
+	control = WG.BattleRoomWindow.GetSingleplayerControl(),
+	entryCheck = WG.BattleRoomWindow.SetSingleplayerGame,
+},}
+
+if WG.Chobby.Configuration and
+	WG.Chobby.Configuration.gameConfig and
+	WG.Chobby.Configuration.gameConfig.ShowCampaignButton then
+	items[#items+1] = 	{
+		name = "WiP Campaign", 
 		entryCheck = WG.CampaignSaveWindow.PromptInitialSaveName,
 		entryCheckBootMode = true,
 		submenuData = {
@@ -29,9 +33,14 @@ return {
 				},
 			},
 		},
-	},
+	}
+end
+
+return items
+
+
 	--{
 		--name = "WiP Editor",
 		--control = WG.SpringBoardWindow.GetControl(),
 	--},
-}
+
