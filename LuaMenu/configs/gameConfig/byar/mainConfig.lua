@@ -7,7 +7,7 @@ local singleplayerConfig = VFS.Include(LUA_DIRNAME .. "configs/gameConfig/" .. s
 local helpSubmenuConfig  = VFS.Include(LUA_DIRNAME .. "configs/gameConfig/" .. shortname .. "/helpSubmenuConfig.lua")
 local skirmishDefault    = VFS.Include(LUA_DIRNAME .. "configs/gameConfig/" .. shortname .. "/skirmishDefault.lua")
 local defaultModoptions  = VFS.Include(LUA_DIRNAME .. "configs/gameConfig/" .. shortname .. "/ModOptions.lua")
---local rankFunction       = VFS.Include(LUA_DIRNAME .. "configs/gameConfig/zk/rankFunction.lua")
+local rankFunction       = VFS.Include(LUA_DIRNAME .. "configs/gameConfig/byar/rankFunction.lua")
 local backgroundConfig   = VFS.Include(LUA_DIRNAME .. "configs/gameConfig/" .. shortname .. "/skinning/skinConfig.lua")
 local welcomePanelItems   = VFS.Include(LUA_DIRNAME .. "configs/gameConfig/" .. shortname .. "/welcomePanelItems.lua")
 
@@ -128,7 +128,7 @@ local externalFuncAndData = {
 	},
 
 	defaultModoptions      = defaultModoptions,
-	--rankFunction           = rankFunction,
+	rankFunction           = rankFunction,
 	--springSettingsPath     = springSettingsPath,
 	headingLarge           = headingLarge,
 	headingSmall           = headingSmall,

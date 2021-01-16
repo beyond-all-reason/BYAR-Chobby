@@ -1,27 +1,28 @@
-local RANK_DIR = LUA_DIRNAME .. "configs/gameConfig/zk/rankImages/"
+--local RANK_DIR = LUA_DIRNAME .. "configs/gameConfig/zk/rankImages/"
 local IMAGE_DIR          = LUA_DIRNAME .. "images/"
 
 local IMAGE_AUTOHOST     = IMAGE_DIR .. "ranks/robot.png"
 local IMAGE_PLAYER       = IMAGE_DIR .. "ranks/player.png"
+local IMAGE_MODERATOR    = IMAGE_DIR .. "ranks/moderator.png"
 
-local rankUnlocks = {5, 10, 20, 35, 50, 75, 100}
-local rankCount = #rankUnlocks
+local rankPics = {"1", "2", "3", "4", "19", "20", "21","moderator"}
+local rankCount = #rankPics
 
-local function GetImageFunction(level, skill, isBot, isModerator)
-	if isBot then
+local function GetImageFunction(icon,level, skill, isBot, isModerator)
+	--Spring.Echo("Warning: ","GetImageFunction(icon,level, skill, isBot, isModerator)",icon,level, skill, isBot, isModerator)
+	if isBot and isBot == true then
 		return IMAGE_AUTOHOST
-	elseif level and skill then
-		local levelBracket = 1
-		while levelBracket <= rankCount and rankUnlocks[levelBracket] <= level do
-			levelBracket = levelBracket + 1
-		end
-		levelBracket = levelBracket - 1
-
-		local skillBracket = math.max(0, math.min(7, math.floor((skill-1000)/200)))
-
-		return RANK_DIR .. levelBracket .. "_" .. skillBracket .. ".png"
 	end
+	if isModerator then
+		return IMAGE_MODERATOR
+	end
+	if level and level > 0 then -- for some reason skill contains lobby level
+		return IMAGE_DIR ..'ranks/'.. rankPics[level] .. ".png"
+	end
+
 	return IMAGE_PLAYER
 end
 
 return GetImageFunction
+--[t=00:00:13.117750][f=-000001] Warning: UserLevelToImage(icon, level, skill, isBot, isAdmin), <function>, nil, 4, 0, nil, false
+--[t=00:00:13.117750][f=-000001] Warning: , GetImageFunction(level, skill, isBot, isModerator), nil, 4, 0, nil
