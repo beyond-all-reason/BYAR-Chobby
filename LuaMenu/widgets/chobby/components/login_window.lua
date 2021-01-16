@@ -48,7 +48,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		return
 	end
 	self.emailRequired = (params and params.emailRequired) or false
-	self.windowHeight = (params and params.windowHeight) or (self.emailRequired and 430+400) or 390+400
+	self.windowHeight = (params and params.windowHeight) or (self.emailRequired and 430+200) or 390+200
 	self.loginAfterRegister = (params and params.loginAfterRegister) or false
 
 	local registerChildren = {}
@@ -395,49 +395,52 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 
 	-- row grid goes by 40 pixels plus 10 
 	-- col grid is 6 pieces 125 pixels plus 10
+	local formw = 150
+	local formh = 20
+	local pad = 15
 	
 -----------------------CHANGE USERNAME-------------------------------
 	self.txtChangeUserName = TextBox:New {
-		x = 15,
-		width = 600,
-		y = 15,
-		height = 80,
+		x = pad + formw * 0 ,
+		y = pad + formh * 0 ,
+		width =   formw * 3 ,
+		height =  formh * 2 ,
 		-- caption = i18n("register_long"),
 		text = "Change user name. You must be logged in, and will be logged out on successful change.",
-		font = Configuration:GetFont(3),
+		font = Configuration:GetFont(1),
 	}
 	recoverChildren[#recoverChildren+1] = self.txtChangeUserName
 
 	self.lblChangeUserName =  Label:New {
-		x = 15,
-		width = 200,
-		y = 15 + 80,
-		height = 35,
+		x = pad + formw * 0 ,
+		y = pad + formh * 2 ,
+		width =   formw * 1 ,
+		height =  formh * 1 ,
 		-- caption = i18n("register_long"),
 		caption = "New user name:",
-		font = Configuration:GetFont(3),
+		font = Configuration:GetFont(1),
 	}
 	recoverChildren[#recoverChildren+1] = self.lblChangeUserName
 
 	self.ebChangeUserName = EditBox:New {
-		x = 15 + 200,
-		width = 200,
-		y = 10 + 80,
-		height = 35,
+		x = pad + formw * 1 ,
+		y = pad + formh * 2 ,
+		width =   formw * 1 ,
+		height =  formh * 1 ,
 		text = Configuration.userName or Configuration.suggestedNameFromSteam or "",
-		font = Configuration:GetFont(3),
+		font = Configuration:GetFont(1),
 		tooltip = 'User name may contain only letters, numbers, square brackets and underscores',
 		useIME = false,
 	}
 	recoverChildren[#recoverChildren+1] = self.ebChangeUserName
 
 	self.btnChangeUserName = Button:New {
-		right = 15,
-		width = 200,
-		y = 10+80,
-		height = 40,
+		x = pad + formw * 2 ,
+		y = pad + formh * 2 ,
+		width =   formw * 1 ,
+		height =  formh * 1 ,
 		caption = i18n("Change username"),
-		font = Configuration:GetFont(3),
+		font = Configuration:GetFont(1),
 		classname = "negative_button",
 		OnClick = {
 			function()
@@ -448,82 +451,82 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 	recoverChildren[#recoverChildren+1] = self.btnChangeUserName
 
 	self.txtErrorChangeUserName = TextBox:New {
-		x = 15,
-		width = 600,
-		y = 15+120,
-		height = 40,
+		x = pad + formw * 0 ,
+		y = pad + formh * 3 ,
+		width =   formw * 3 ,
+		height =  formh * 1 ,
 		text = "This doesnt work yet!",
-		fontsize = Configuration:GetFont(3).size,
+		fontsize = Configuration:GetFont(1).size,
 	}
 	recoverChildren[#recoverChildren+1] = self.txtErrorChangeUserName
 
-	recoverChildren[#recoverChildren+1] = Line:New{x=5,y=160,right=0, height = 1}
+	recoverChildren[#recoverChildren+1] = Line:New{x=5,y=formh * 5,right=5, height = 1}
 
 ------------------------------RESET PASSWORD----------------------------------
 	self.txtResetPassword = TextBox:New {
-		x = 15,
-		width = 600,
-		y = 15 + 160,
-		height = 80,
+		x = pad + formw * 0 ,
+		y = pad + formh * 5 ,
+		width =   formw * 3 ,
+		height =  formh * 1 ,
 		-- caption = i18n("register_long"),
 		text = "Reset forgotten password: Enter your email address used for registration, then enter the validation code sent via email.",
-		font = Configuration:GetFont(3),
+		font = Configuration:GetFont(1),
 	}
 	recoverChildren[#recoverChildren+1] = self.txtResetPassword
 
 	self.lblResetPasswordEmail =  Label:New {
-		x = 15,
-		width = 200,
-		y = 15 + 240,
-		height = 35,
+		x = pad + formw * 0 ,
+		y = pad + formh * 7 ,
+		width =   formw * 1 ,
+		height =  formh * 1 ,
 		-- caption = i18n("register_long"),
 		caption = "Email address:",
-		font = Configuration:GetFont(3),
+		font = Configuration:GetFont(1),
 	}
 	recoverChildren[#recoverChildren+1] = self.lblResetPasswordEmail
 
 	self.ebResetPasswordEmail = EditBox:New {
-		x = 15 + 200,
-		width = 200,
-		y = 10 + 240,
-		height = 35,
+		x = pad + formw * 1 ,
+		y = pad + formh * 7 ,
+		width =   formw * 1 ,
+		height =  formh * 1 ,
 		text = "",
-		font = Configuration:GetFont(3),
+		font = Configuration:GetFont(1),
 		tooltip = 'Make sure you enter your valid email address',
 		useIME = false,
 	}
 	recoverChildren[#recoverChildren+1] = self.ebResetPasswordEmail
 
 	self.lblResetPasswordVerification =  Label:New {
-		x = 15,
-		width = 200,
-		y = 15 + 280,
-		height = 35,
+		x = pad + formw * 0 ,
+		y = pad + formh * 8 ,
+		width =   formw * 1 ,
+		height =  formh * 1 ,
 		-- caption = i18n("register_long"),
 		caption = "Verification Code:",
-		font = Configuration:GetFont(3),
+		font = Configuration:GetFont(1),
 	}
 	recoverChildren[#recoverChildren+1] = self.lblResetPasswordVerification
 
 	self.ebResetPasswordVerification = EditBox:New {
-		x = 15 + 200,
-		width = 200,
-		y = 10 + 280,
-		height = 35,
+		x = pad + formw * 1 ,
+		y = pad + formh * 8 ,
+		width =   formw * 1 ,
+		height =  formh * 1 ,
 		text = "",
-		font = Configuration:GetFont(3),
+		font = Configuration:GetFont(1),
 		tooltip = 'You will recieve this code via email after submitting your email in the above box',
 		useIME = false,
 	}
 	recoverChildren[#recoverChildren+1] = self.ebResetPasswordVerification
 
 	self.btnResetPasswordEmail = Button:New {
-		right = 15,
-		width = 200,
-		y = 10+240,
-		height = 40,
+		x = pad + formw * 2 ,
+		y = pad + formh * 7 ,
+		width =   formw * 1 ,
+		height =  formh * 1 ,
 		caption = i18n("Submit email"),
-		font = Configuration:GetFont(3),
+		font = Configuration:GetFont(1),
 		classname = "negative_button",
 		OnClick = {
 			function()
@@ -534,12 +537,12 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 	recoverChildren[#recoverChildren+1] = self.btnResetPasswordEmail
 
 	self.btnResetPasswordVerification = Button:New {
-		right = 15,
-		width = 200,
-		y = 10+280,
-		height = 40,
+		x = pad + formw * 2 ,
+		y = pad + formh * 8 ,
+		width =   formw * 1 ,
+		height =  formh * 1 ,
 		caption = i18n("Submit Verification"),
-		font = Configuration:GetFont(3),
+		font = Configuration:GetFont(1),
 		classname = "negative_button",
 		OnClick = {
 			function()
@@ -550,82 +553,82 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 	recoverChildren[#recoverChildren+1] = self.btnResetPasswordVerification
 
 	self.txtErrorResetPassword = TextBox:New {
-		x = 15,
-		width = 600,
-		y = 15+320,
-		height = 40,
+		x = pad + formw * 0 ,
+		y = pad + formh * 9 ,
+		width =   formw * 3 ,
+		height =  formh * 1 ,
 		text = "This doesnt work yet!",
-		fontsize = Configuration:GetFont(3).size,
+		fontsize = Configuration:GetFont(1).size,
 	}
 	recoverChildren[#recoverChildren+1] = self.txtErrorResetPassword
 
-	recoverChildren[#recoverChildren+1] = Line:New{x=5,y=360,right=0, height = 1}
+	recoverChildren[#recoverChildren+1] = Line:New{x=5,y=formh * 11,right=5, height = 1}
 
 ---------------------------Change Password--------------------------------
 	self.txtChangePassword = TextBox:New {
-		x = 15,
-		width = 600,
-		y = 15 + 360,
-		height = 80,
+		x = pad + formw * 0 ,
+		y = pad + formh * 11 ,
+		width =   formw * 3 ,
+		height =  formh * 1 ,
 		-- caption = i18n("register_long"),
 		text = "Change Password: You must be logged in, enter your old and your new password",
-		font = Configuration:GetFont(3),
+		font = Configuration:GetFont(1),
 	}
 	recoverChildren[#recoverChildren+1] = self.txtChangePassword
 
 	self.lblChangePasswordOld =  Label:New {
-		x = 15,
-		width = 200,
-		y = 15 + 400,
-		height = 35,
+		x = pad + formw * 0 ,
+		y = pad + formh * 13 ,
+		width =   formw * 1 ,
+		height =  formh * 1 ,
 		-- caption = i18n("register_long"),
 		caption = "Old password:",
-		font = Configuration:GetFont(3),
+		font = Configuration:GetFont(1),
 	}
 	recoverChildren[#recoverChildren+1] = self.lblChangePasswordOld
 
 	self.ebChangePasswordOld = EditBox:New {
-		x = 15 + 200,
-		width = 200,
-		y = 10 + 400,
-		height = 35,
+		x = pad + formw * 1 ,
+		y = pad + formh * 13 ,
+		width =   formw * 1 ,
+		height =  formh * 1 ,
 		text = "",
-		font = Configuration:GetFont(3),
+		font = Configuration:GetFont(1),
 		tooltip = 'Enter your old password here',
 		useIME = false,
 	}
 	recoverChildren[#recoverChildren+1] = self.ebChangePasswordOld
 
 	self.lblChangePasswordNew =  Label:New {
-		x = 15,
-		width = 200,
-		y = 15 + 440,
-		height = 35,
+		x = pad + formw * 0 ,
+		y = pad + formh * 14 ,
+		width =   formw * 1 ,
+		height =  formh * 1 ,
 		-- caption = i18n("register_long"),
 		caption = "New Password:",
-		font = Configuration:GetFont(3),
+		font = Configuration:GetFont(1),
 	}
 	recoverChildren[#recoverChildren+1] = self.lblChangePasswordNew
 
 	self.ebChangePasswordNew = EditBox:New {
-		x = 15 + 200,
-		width = 200,
-		y = 10 + 440,
-		height = 35,
+		x = pad + formw * 1 ,
+		y = pad + formh * 14 ,
+		width =   formw * 1 ,
+		height =  formh * 1 ,
 		text = "",
-		font = Configuration:GetFont(3),
+		font = Configuration:GetFont(1),
 		tooltip = 'Enter your new password here',
 		useIME = false,
 	}
 	recoverChildren[#recoverChildren+1] = self.ebChangePasswordNew
 
 	self.btnChangePassword = Button:New {
-		right = 15,
-		width = 200,
-		y = 10+400,
-		height = 80,
+		x = pad + formw * 2 ,
+		y = pad + formh * 13 ,
+		width =   formw * 1 ,
+		height =  formh * 2 ,
 		caption = i18n("Change Password"),
-		font = Configuration:GetFont(3),
+		font = Configuration:GetFont(1),
 		classname = "negative_button",
 		OnClick = {
 			function()
@@ -636,82 +639,82 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 	recoverChildren[#recoverChildren+1] = self.btnChangePassword
 
 	self.txtErrorChangePassword = TextBox:New {
-		x = 15,
-		width = 600,
-		y = 15+480,
-		height = 40,
+		x = pad + formw * 0 ,
+		y = pad + formh * 15 ,
+		width =   formw * 3 ,
+		height =  formh * 1 ,
 		text = "This doesnt work yet!",
-		fontsize = Configuration:GetFont(3).size,
+		fontsize = Configuration:GetFont(1).size,
 	}
 	recoverChildren[#recoverChildren+1] = self.txtErrorChangePassword
 
-	recoverChildren[#recoverChildren+1] = Line:New{x=5,y=520,right=0, height = 1}
+	recoverChildren[#recoverChildren+1] = Line:New{x=5,y=formh * 17,right=5, height = 1}
 
 	---------------------------Change Email-------------------------------
 	self.txtChangeEmail = TextBox:New {
-		x = 15,
-		width = 600,
-		y = 15 + 520,
-		height = 80,
+		x = pad + formw * 0 ,
+		y = pad + formh * 17 ,
+		width =   formw * 3 ,
+		height =  formh * 1 ,
 		-- caption = i18n("register_long"),
 		text = "Change email address associated with your account. You must be logged in. Enter the new email address you wish to use, then enter the validation code sent to the new email address.",
-		font = Configuration:GetFont(3),
+		font = Configuration:GetFont(1),
 	}
 	recoverChildren[#recoverChildren+1] = self.txtChangeEmail
 
 	self.lblChangeEmailEmail =  Label:New {
-		x = 15,
-		width = 200,
-		y = 15 + 600,
-		height = 35,
+		x = pad + formw * 0 ,
+		y = pad + formh * 20 ,
+		width =   formw * 1 ,
+		height =  formh * 1 ,
 		-- caption = i18n("register_long"),
 		caption = "New email address:",
-		font = Configuration:GetFont(3),
+		font = Configuration:GetFont(1),
 	}
 	recoverChildren[#recoverChildren+1] = self.lblChangeEmailEmail
 
 	self.ebChangeEmailEmail = EditBox:New {
-		x = 15 + 200,
-		width = 200,
-		y = 10 + 600,
-		height = 35,
+		x = pad + formw * 1 ,
+		y = pad + formh * 20 ,
+		width =   formw * 1 ,
+		height =  formh * 1 ,
 		text = "",
-		font = Configuration:GetFont(3),
+		font = Configuration:GetFont(1),
 		tooltip = 'Make sure you enter your new email address',
 		useIME = false,
 	}
 	recoverChildren[#recoverChildren+1] = self.ebChangeEmailEmail
 
 	self.lblChangeEmailVerification =  Label:New {
-		x = 15,
-		width = 200,
-		y = 15 + 640,
-		height = 35,
+		x = pad + formw * 0 ,
+		y = pad + formh * 21 ,
+		width =   formw * 1 ,
+		height =  formh * 1 ,
 		-- caption = i18n("register_long"),
 		caption = "Verification Code:",
-		font = Configuration:GetFont(3),
+		font = Configuration:GetFont(1),
 	}
 	recoverChildren[#recoverChildren+1] = self.lblChangeEmailVerification
 
 	self.ebChangeEmailVerification = EditBox:New {
-		x = 15 + 200,
-		width = 200,
-		y = 10 + 640,
-		height = 35,
+		x = pad + formw * 1 ,
+		y = pad + formh * 21 ,
+		width =   formw * 1 ,
+		height =  formh * 1 ,
 		text = "",
-		font = Configuration:GetFont(3),
+		font = Configuration:GetFont(1),
 		tooltip = 'You will recieve this code via email after submitting your email in the above box',
 		useIME = false,
 	}
 	recoverChildren[#recoverChildren+1] = self.ebChangeEmailVerification
 
 	self.btnChangeEmail = Button:New {
-		right = 15,
-		width = 200,
-		y = 10+600,
-		height = 40,
+		x = pad + formw * 2 ,
+		y = pad + formh * 20 ,
+		width =   formw * 1 ,
+		height =  formh * 1 ,
 		caption = i18n("Submit email"),
-		font = Configuration:GetFont(3),
+		font = Configuration:GetFont(1),
 		classname = "negative_button",
 		OnClick = {
 			function()
@@ -722,12 +725,12 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 	recoverChildren[#recoverChildren+1] = self.btnChangeEmail
 
 	self.btnChangeEmailVerification = Button:New {
-		right = 15,
-		width = 200,
-		y = 10+640,
-		height = 40,
+		x = pad + formw * 2 ,
+		y = pad + formh * 21 ,
+		width =   formw * 1 ,
+		height =  formh * 1 ,
 		caption = i18n("Submit Verification"),
-		font = Configuration:GetFont(3),
+		font = Configuration:GetFont(1),
 		classname = "negative_button",
 		OnClick = {
 			function()
@@ -738,22 +741,21 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 	recoverChildren[#recoverChildren+1] = self.btnChangeEmailVerification
 
 	self.txtErrorChangeEmail = TextBox:New {
-		x = 15,
-		width = 600,
-		y = 15+680,
-		height = 40,
+		x = pad + formw * 0 ,
+		y = pad + formh * 22 ,
+		width =   formw * 3 ,
+		height =  formh * 1 ,
 		text = "This doesnt work yet!",
-		fontsize = Configuration:GetFont(3).size,
+		fontsize = Configuration:GetFont(1).size,
 	}
 	recoverChildren[#recoverChildren+1] = self.txtErrorChangeEmail
 
 	
-		-- Reset Password (requires old email)
-			-- User cant even log in, needs email and then verification code
+
 
 
 	local ww, wh = Spring.GetWindowGeometry()
-	local width = 700
+	local width = 3 * (formw  + 30) --used to be bout tree fiddy
 
 
 	self.tabPanel = Chili.DetachableTabPanel:New {
@@ -902,24 +904,27 @@ function LoginWindow:tryLogin()
 	self.loginAttempts = self.loginAttempts + 1
 end
 
-function isValidUserName(username)
+function isInValidUserName(username)
 	local badwords = {"fuck","cunt","shit","cock","faggot","adolf","hitler","nigger"}
 
 	validUserNameRegex = "^[a-zA-Z%d%[%]_]+$"
 	if string.match(username,validUserNameRegex) and string.len( username) == string.len( string.match(username,validUserNameRegex)) then 
 		--print (username .. " is OK")
 		if string.len(username) >20 then
-			return false
+			return "Username too long, 20 characters max"
+		end
+		if string.len(username) <3 then
+			return "Username too short, at least 3 characters"
 		end
 		for index, badword in ipairs(badwords) do
 			if string.match(string.lower( username),badword) then
-				return false
+				return "Username contains banned word: "..badword
 			end
 		end
-		return true 
+		return false
 	else 
 		--print (username .. " is not OK: " .. ( string.match(username,validUserNameRegex) or "") )
-		return false
+		return "Username may only contain letters, numbers, [] and _"
 	end
 end
   
@@ -930,19 +935,19 @@ function LoginWindow:tryRegister()
 	if username == '' then
 		return
 	end
-
-	if not isValidUserName(username) then 
-		self.txtError:SetText(Configuration:GetErrorColor() .. "Username may only contain letters, numbers, [] and _")
+	local isinValidUserName = isInValidUserName(username)
+	if isinValidUserName then
+		self.txtErrorRegister:SetText(Configuration:GetErrorColor() .. isinValidUserName)
 		return 
 	end
 
 	if self.ebPasswordRegister.text ~= self.ebConfirmPassword.text then
-		self.txtError:SetText(Configuration:GetErrorColor() .. "Passwords do not match.")
+		self.txtErrorRegister:SetText(Configuration:GetErrorColor() .. "Passwords do not match.")
 		return
 	end
 
 	WG.Analytics.SendOnetimeEvent("lobby:try_register")
-	self.txtError:SetText("")
+	self.txtErrorRegister:SetText("")
 
 	local password = (self.ebPasswordRegister.visible and self.ebPasswordRegister.text) or nil
 	local email = (self.emailRequired and self.ebEmail.visible and self.ebEmail.text) or nil
@@ -976,8 +981,9 @@ end
 
 function LoginWindow:tryChangeUserName()
 	local newusername = self.ebChangeUserName.text
-	if not isValidUserName(newusername) then 
-		self.txtErrorChangeUserName:SetText(Configuration:GetErrorColor() .. "Username may only contain letters, numbers, [] and _")
+	local isinValidUserName = isInValidUserName(newusername)
+	if isinValidUserName then 
+		self.txtErrorChangeUserName:SetText(Configuration:GetErrorColor() .. isinValidUserName)
 		return
 	end
 	if lobby.connected then 
