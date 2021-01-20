@@ -985,7 +985,7 @@ local function GetVoidTabControls()
 
 	
 	local function toggleCampaignFunc(newState)
-		WG.Chobby.Configuration.ShowCampaignButton = newState
+		WG.Chobby.Configuration.gameConfig.ShowCampaignButton = newState
 	end
 
 
