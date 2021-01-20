@@ -4,10 +4,9 @@ local items = 	{{
 	control = WG.BattleRoomWindow.GetSingleplayerControl(),
 	entryCheck = WG.BattleRoomWindow.SetSingleplayerGame,
 },}
-
+--Spring.Echo("campaign Error: ",WG.Chobby.Configuration,WG.Chobby.Configuration.debugMode)
 if WG.Chobby.Configuration and
-	WG.Chobby.Configuration.gameConfig and
-	WG.Chobby.Configuration.gameConfig.ShowCampaignButton then
+	WG.Chobby.Configuration.debugMode then
 	items[#items+1] = 	{
 		name = "WiP Campaign", 
 		entryCheck = WG.CampaignSaveWindow.PromptInitialSaveName,
@@ -35,7 +34,12 @@ if WG.Chobby.Configuration and
 		},
 	}
 end
-
+--[[self.btnSteamFriends:SetVisibility(Configuration.canAuthenticateWithSteam)
+local function onConfigurationChange(listener, key, value)
+	if key == "canAuthenticateWithSteam" then
+		self.btnSteamFriends:SetVisibility(value)
+	end
+end]]--
 return items
 
 
