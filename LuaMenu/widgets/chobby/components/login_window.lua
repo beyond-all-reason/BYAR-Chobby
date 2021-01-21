@@ -1141,13 +1141,7 @@ end
 function LoginWindow:tryResetPasswordEmail()
 	Spring.Echo("lobby:GetConnectionStatus()",lobby:GetConnectionStatus())
 	-- https://springrts.com/dl/LobbyProtocol/ProtocolDescription.html#RESETPASSWORDREQUEST:client
-	if  lobby:GetConnectionStatus() ~= "connected" then
-		self.txtErrorResetPassword:SetText(
-			Configuration:GetErrorColor() .. 
-			"Attempting to send a reset request..."
-		)
-		lobby:Connect(Configuration:GetServerAddress(), Configuration:GetServerPort(), nil, nil, 3, nil, GetLobbyName())
-	else 
+	if  lobby:GetConnectionStatus() == "connected" then
 		self.txtErrorResetPassword:SetText("Already connected, why do need to reset your password?")
 		return false
 	end
@@ -1188,13 +1182,22 @@ function LoginWindow:tryResetPasswordEmail()
 	
 	function ResetPasswordRequest()
 		lobby:ResetPasswordRequest(emailaddress)
-		lobby:RemoveListener("OnConnected",ResetPasswordRequest)
+		lobby:RemoveListener("OnConnect",ResetPasswordRequest)
+		--lobby:RemoveListener("OnConnect",)
 	end
 
-	lobby:AddListener("OnConnected",ResetPasswordRequest)
+	lobby:AddListener("OnConnect",ResetPasswordRequest)
 
+	lobby:AddListener("OnDenied",ResetPasswordRequest)
+	
 	WG.Analytics.SendOnetimeEvent("lobby:try_resetpassword")
-	lobby:ResetPasswordRequest(emailaddress)
+
+	self.txtErrorResetPassword:SetText(
+		Configuration:GetErrorColor() .. 
+		"Attempting to send a reset request..."
+	)
+	lobby:Connect(Configuration:GetServerAddress(), Configuration:GetServerPort(), nil, nil, 3, nil, GetLobbyName())
+
 end
 
 
