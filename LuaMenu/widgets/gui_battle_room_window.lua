@@ -2204,6 +2204,8 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		oldLobby:RemoveListener("OnMatchMakerReadyCheck", OnMatchMakerReadyCheck)
 		oldLobby:RemoveListener("OnMatchMakerReadyUpdate", OnMatchMakerReadyUpdate)
 		oldLobby:RemoveListener("OnMatchMakerReadyResult", OnMatchMakerReadyResult)
+		oldLobby:RemoveListener("OnRemoveStartRect", OnRemoveStartRect)
+		oldLobby:RemoveListener("OnAddStartRect", OnAddStartRect) -- or else they pile up XD
 
 		WG.BattleStatusPanel.RemoveBattleTab()
 	end
