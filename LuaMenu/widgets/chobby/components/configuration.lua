@@ -207,6 +207,8 @@ function Configuration:init()
 	self.showPlanetUnlocks = false
 	self.showPlanetEnemyUnits = false
 	self.campaignSpawnDebug = false
+	self.hidePartySystem = true
+	self.showAddFriendBoxOnFriendWindow = true
 	self.editCampaign = false
 	self.activeDebugConsole = false
 	self.onlyShowFeaturedMaps = true
@@ -524,6 +526,8 @@ function Configuration:GetConfigData()
 		showPlanetUnlocks = self.showPlanetUnlocks,
 		showPlanetEnemyUnits = self.showPlanetEnemyUnits,
 		campaignSpawnDebug = self.campaignSpawnDebug,
+		hidePartySystem = self.hidePartySystem,
+		showAddFriendBoxOnFriendWindow = self.showAddFriendBoxOnFriendWindow,
 		editCampaign = self.editCampaign,
 		confirmation_mainMenuFromBattle = self.confirmation_mainMenuFromBattle,
 		confirmation_battleFromBattle = self.confirmation_battleFromBattle,
