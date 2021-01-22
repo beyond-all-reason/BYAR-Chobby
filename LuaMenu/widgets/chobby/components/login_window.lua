@@ -455,7 +455,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		y = pad + formh * 3 ,
 		width =   formw * 3 ,
 		height =  formh * 1 ,
-		text = "This doesnt work yet!",
+		text = "If this doesnt work contact us on Discord",
 		fontsize = Configuration:GetFont(1).size,
 	}
 	recoverChildren[#recoverChildren+1] = self.txtErrorChangeUserName
@@ -557,7 +557,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		y = pad + formh * 9 ,
 		width =   formw * 3 ,
 		height =  formh * 1 ,
-		text = "This doesnt work yet!",
+		text = "If this doesnt work contact us on Discord",
 		fontsize = Configuration:GetFont(1).size,
 	}
 	recoverChildren[#recoverChildren+1] = self.txtErrorResetPassword
@@ -643,7 +643,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		y = pad + formh * 15 ,
 		width =   formw * 3 ,
 		height =  formh * 1 ,
-		text = "This doesnt work yet!",
+		text = "If this doesnt work contact us on Discord",
 		fontsize = Configuration:GetFont(1).size,
 	}
 	recoverChildren[#recoverChildren+1] = self.txtErrorChangePassword
@@ -745,7 +745,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		y = pad + formh * 22 ,
 		width =   formw * 3 ,
 		height =  formh * 1 ,
-		text = "This doesnt work yet!",
+		text = "If this doesnt work contact us on Discord",
 		fontsize = Configuration:GetFont(1).size,
 	}
 	recoverChildren[#recoverChildren+1] = self.txtErrorChangeEmail
@@ -1162,6 +1162,7 @@ function LoginWindow:tryResetPasswordEmail()
 
 	self.onResetPasswordRequestDenied = function(listener,errorMsg)
 		lobby:RemoveListener("OnResetPasswordRequestDenied", self.onResetPasswordRequestDenied)
+		lobby:Disconnect()
 		self.txtErrorResetPassword:SetText(
 				Configuration:GetErrorColor() ..
 				"Password reset request denied: " .. errorMsg
@@ -1173,7 +1174,7 @@ function LoginWindow:tryResetPasswordEmail()
 		lobby:RemoveListener("OnChangeEmailAccepted", self.onChangeEmailAccepted)
 		self.txtErrorResetPassword:SetText(
 				Configuration:GetSuccessColor() .. 
-				"Request Accepted, enter verification code recieved via email"
+				"Request Accepted, enter email and verification code recieved via email"
 			)
 	end
 
@@ -1196,17 +1197,16 @@ function LoginWindow:tryResetPasswordEmail()
 		Configuration:GetErrorColor() .. 
 		"Attempting to send a reset request..."
 	)
+	Configuration.userName = false --nuke username so we dont try to log in unsuccessfully
 	lobby:Connect(Configuration:GetServerAddress(), Configuration:GetServerPort(), nil, nil, 3, nil, GetLobbyName())
 
 end
 
 
 function LoginWindow:tryResetPasswordVerification ()
-	if not lobby.connected then
-		self.txtErrorResetPassword:SetText(
-			Configuration:GetErrorColor() .. 
-			"Must be connected to change email address"
-		)
+	if  lobby:GetConnectionStatus() == "connected" then
+		self.txtErrorResetPassword:SetText("Already connected, why do need to reset your password?")
+		return false
 	end
 
 	local emailaddress = self.ebResetPasswordEmail.text
@@ -1229,6 +1229,7 @@ function LoginWindow:tryResetPasswordVerification ()
 
 	self.onResetPasswordDenied = function(listener,errorMsg)
 		lobby:RemoveListener("OnResetPasswordDenied", self.onResetPasswordDenied)
+		lobby:Disconnect()
 		self.txtErrorResetPassword:SetText(
 				Configuration:GetErrorColor() .. 
 				"Reset Password Denied: " .. errorMsg
@@ -1249,9 +1250,21 @@ function LoginWindow:tryResetPasswordVerification ()
 	)
 	lobby:AddListener("OnResetPasswordDenied", self.onResetPasswordDenied)
 	lobby:AddListener("OnResetPasswordAccepted", self.onResetPasswordAccepted)
+
+	function ResetPassword()
+		lobby:ResetPassword(emailaddress,verificationCode)
+		lobby:RemoveListener("OnConnect",ResetPassword)
+		--lobby:RemoveListener("OnConnect",)
+	end
+
+	lobby:AddListener("OnConnect",ResetPassword)
+
+	lobby:AddListener("OnDenied",ResetPassword)
 	
 	WG.Analytics.SendOnetimeEvent("lobby:try_resetpasswordverification")
-	lobby:ResetPassword(emailaddress, verificationCode)
+	
+	Configuration.userName = false --nuke username so we dont try to log in unsuccessfully
+	lobby:Connect(Configuration:GetServerAddress(), Configuration:GetServerPort(), nil, nil, 3, nil, GetLobbyName())
 end
 
 
