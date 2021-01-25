@@ -30,11 +30,11 @@ function Configuration:init()
 	self.minUiScale = math.min(0.5, realWidth/4000)
 	WG.uiScale = self.uiScale
 
-	self.userListWidth = 205 -- Main user list width. Possibly configurable in the future.
-	self.chatMaxNameLength = 185 -- Pixels
-	self.statusMaxNameLength = 185
-	self.friendMaxNameLength = 230
-	self.notificationMaxNameLength = 230
+	self.userListWidth = 240 -- Main user list width. Possibly configurable in the future.
+	self.chatMaxNameLength = 250 -- Pixels
+	self.statusMaxNameLength = 250
+	self.friendMaxNameLength = 250
+	self.notificationMaxNameLength = 250
 	self.steamOverlayEnablable = (Platform.osFamily ~= "Linux" and Platform.osFamily ~= "FreeBSD")
 
 	self.userName = false
