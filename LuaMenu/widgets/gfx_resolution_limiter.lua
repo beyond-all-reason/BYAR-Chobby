@@ -37,7 +37,7 @@ function checkResolution()
 		vsx,vsy = Spring.Orig.GetViewSizes()
 	end
 	if WG.Chobby and WG.Chobby.Configuration and WG.Chobby.Configuration.uiScale then
-		WG.Chobby.Configuration:SetConfigValue('uiScale', vsx / 1800)
+		WG.Chobby.Configuration:SetConfigValue('uiScale', math.min(1.0,vsx / 1600) )
 	end
 end
 

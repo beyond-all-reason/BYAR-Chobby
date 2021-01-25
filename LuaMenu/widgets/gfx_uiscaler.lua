@@ -22,9 +22,9 @@ function uiScaler()
         if vsx ~= old_vsx or vsy ~= old_vsy or panel_layout ~= WG.Chobby.Configuration.panel_layout then
 			panel_layout = WG.Chobby.Configuration.panel_layout
 			if WG.Chobby.Configuration.panel_layout == 1 then
-				WG.Chobby.Configuration:SetConfigValue('uiScale', vsx / 1920)	-- two panels
+				WG.Chobby.Configuration:SetConfigValue('uiScale', math.min(1.0,vsx / 1600))	-- two panels
 			else
-				WG.Chobby.Configuration:SetConfigValue('uiScale', vsx / 1600)	-- single panel
+				WG.Chobby.Configuration:SetConfigValue('uiScale', math.min(1.0,vsx / 1600))	-- single panel
 			end
         end
 	end
