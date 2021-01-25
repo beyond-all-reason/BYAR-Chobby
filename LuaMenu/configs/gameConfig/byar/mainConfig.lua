@@ -42,7 +42,7 @@ local minimapOverridePath  = LUA_DIRNAME .. "configs/gameConfig/" .. shortname .
 local minimapThumbnailPath = LUA_DIRNAME .. "configs/gameConfig/" .. shortname .. "/minimapThumbnail/"
 
 local sayPrivateSelectAndActivateChatTab = true
-
+local showSinglePlayerIngame = true
 
 
 local function ShortenNameString(instring)
@@ -77,6 +77,7 @@ local externalFuncAndData = {
 	mapStartBoxes          = mapStartBoxes,
 	useDefaultStartBoxes   = useDefaultStartBoxes,
 	welcomePanelItems      = welcomePanelItems,
+	showSinglePlayerIngame = showSinglePlayerIngame,
 	settingsConfig         = settingsConfig,
 	settingsNames          = settingsNames,
 	settingsDefault        = settingsDefault,
