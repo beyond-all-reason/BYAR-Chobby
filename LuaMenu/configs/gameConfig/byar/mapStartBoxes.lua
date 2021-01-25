@@ -50,6 +50,7 @@ end
 -- make a table for each mapname
 local savedBoxesFilename = LUA_DIRNAME .. "configs/gameConfig/byar/savedBoxes.dat" --taken from spads
 local savedBoxesSpads =  VFS.LoadFile(savedBoxesFilename)
+local singleplayerboxes = {}
 
 local savedBoxes = {}
 local numBoxes = 0
@@ -137,38 +138,33 @@ end
 
 -- how about some more helpers?
 local function initCustomBox(mapName)
-  if savedBoxes[mapName] == nil then 
-    savedBoxes[mapName] = {}
-  end
-  if savedBoxes[mapName]["customBoxes"] == nil then
-    savedBoxes[mapName]["customBoxes"] = {}
-  end
+    singleplayerboxes = {}
 end
 
-local function addBox(mapName, left,top, right, bottom, allyTeam) --in spads order
-  initCustomBox(mapName)
-  savedBoxes[mapName]["customBoxes"][allyTeam] = {left,top,right,bottom}
+local function addBox(left,top, right, bottom, allyTeam) --in spads order
+  initCustomBox()
+  singleplayerboxes[allyTeam] = {left,top,right,bottom}
   -- if online then: function Interface:AddStartRect(allyNo, left, top, right, bottom)
 end
 
-local function removeBox(mapName,allyTeam)
-  initCustomBox(mapName)
-  if savedBoxes[mapName]["customBoxes"][allyTeam] then
-    savedBoxes[mapName]["customBoxes"][allyTeam] = nil
+local function removeBox(allyTeam)
+  initCustomBox()
+  if singleplayerboxes[allyTeam] then
+    singleplayerboxes[allyTeam] = nil
   end
 end
 
-local function clearBoxes(mapName)
-  initCustomBox(mapName)
-  savedBoxes[mapName]["customBoxes"] = {}
+local function clearBoxes()
+  initCustomBox()
+  singleplayerboxes = {}
 end
 
-local function getBox(mapName,allyTeam)
+local function getBox(allyTeam)
   if savedBoxes[mapName] == nil then
     initCustomBox(mapName)
   end
-  if savedboxes[mapName]["customBoxes"] then
-    return savedBoxes[mapName]["customBoxes"][allyTeam]
+  if singleplayerboxes then
+    return singleplayerboxes[allyTeam]
   else
     local defaultboxes =  selectStartBoxesForAllyTeamCount(mapName,2)
     if defaultboxes then  
@@ -186,6 +182,7 @@ return {
   clearBoxes = clearBoxes,
   removeBox = removeBox,
   addBox = addBox,
+  singleplayerboxes = singleplayerboxes,
 }
 
 --v2 table layout:
