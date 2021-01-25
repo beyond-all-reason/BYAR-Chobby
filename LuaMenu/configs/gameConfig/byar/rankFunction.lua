@@ -5,7 +5,7 @@ local IMAGE_AUTOHOST     = IMAGE_DIR .. "ranks/robot.png"
 local IMAGE_PLAYER       = IMAGE_DIR .. "ranks/player.png"
 local IMAGE_MODERATOR    = IMAGE_DIR .. "ranks/moderator.png"
 
-local rankPics = {"1", "2", "3", "4", "19", "20", "21","moderator"}
+local rankPics = {"1", "2", "3", "4", "5", "6", "7","8"}
 local rankCount = #rankPics
 
 local function GetImageFunction(icon,level, skill, isBot, isModerator)
@@ -13,11 +13,13 @@ local function GetImageFunction(icon,level, skill, isBot, isModerator)
 	if isBot and isBot == true then
 		return IMAGE_AUTOHOST
 	end
-	if isModerator then
-		return IMAGE_MODERATOR
-	end
+
 	if level and level > 0 then -- for some reason skill contains lobby level
-		return IMAGE_DIR ..'ranks/'.. rankPics[level] .. ".png"
+		local rankImg = IMAGE_DIR ..'ranks/'.. rankPics[level]
+		if isModerator then
+			rankImg = rankImg ..  "M"
+		end
+		return rankImg .. ".png"
 	end
 
 	return IMAGE_PLAYER
