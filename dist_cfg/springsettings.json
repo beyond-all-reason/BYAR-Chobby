@@ -37,7 +37,7 @@
     "LuaShaders": 1,
     "LoadingMT": 0,
     "MaxParticles": 20000,
-    "MaxSounds": 128,
+    "MaxSounds": 256,
     "MaximumTransmissionUnit": 0,
     "MaxTextureAtlasSizeX": 4096,
     "MaxTextureAtlasSizeZ": 4096,
