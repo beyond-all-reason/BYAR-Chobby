@@ -11,8 +11,8 @@
                 "games" : ["byar:test", "chobby:test", "byar-chobby:test"],
                 "resources": [
                     {
-                        "url": "https://github.com/beyond-all-reason/spring/releases/download/spring_bar_%7BBAR%7D104.0.1-1756-g92e453f/spring_bar_.BAR.104.0.1-1756-g92e453f_linux-64-minimal-portable.7z",
-                        "destination": "engine/104.0.1-1756-g92e453f bar",
+                        "url": "https://github.com/beyond-all-reason/spring/releases/download/spring_bar_%7BBAR%7D104.0.1-1714-g321b911/spring_bar_.BAR.104.0.1-1714-g321b911_linux-64-minimal-portable.7z",
+                        "destination": "engine/104.0.1-1714-g321b911 bar",
                         "extract": true
                     },
 
@@ -46,7 +46,7 @@
             "no_start_script" : true,
             "launch": {
                 "start_args" : ["--menu", "rapid://byar-chobby:test"],
-                "engine": "104.0.1-1756-g92e453f bar"
+                "engine": "104.0.1-1714-g321b911 bar"
             }
         },
         {
@@ -59,8 +59,8 @@
                 "games" : ["byar:test", "chobby:test", "byar-chobby:test"],
                 "resources": [
                     {
-                        "url": "https://github.com/beyond-all-reason/spring/releases/download/spring_bar_%7BBAR%7D104.0.1-1756-g92e453f/spring_bar_.BAR.104.0.1-1756-g92e453f_windows-64-minimal-portable.7z",
-                        "destination": "engine/104.0.1-1756-g92e453f bar",
+                        "url": "https://github.com/beyond-all-reason/spring/releases/download/spring_bar_%7BBAR%7D104.0.1-1714-g321b911/spring_bar_.BAR.104.0.1-1714-g321b911_windows-64-minimal-portable.7z",
+                        "destination": "engine/104.0.1-1714-g321b911 bar",
                         "extract": true
                     },
 
@@ -94,7 +94,7 @@
             "no_start_script" : true,
             "launch": {
                 "start_args" : ["--menu", "rapid://byar-chobby:test"],
-				"engine": "104.0.1-1756-g92e453f bar"
+				"engine": "104.0.1-1714-g321b911 bar"
             }
         },
         {
@@ -107,8 +107,8 @@
                 "games" : ["byar:test", "chobby:test", "byar-chobby:test"],
                 "resources": [
                     {
-                        "url": "https://github.com/beyond-all-reason/spring/releases/download/spring_bar_%7BBAR%7D104.0.1-1756-g92e453f/spring_bar_.BAR.104.0.1-1756-g92e453f_linux-64-minimal-portable.7z",
-                        "destination": "engine/104.0.1-1756-g92e453f bar",
+                        "url": "https://github.com/beyond-all-reason/spring/releases/download/spring_bar_%7BBAR%7D104.0.1-1714-g321b911/spring_bar_.BAR.104.0.1-1714-g321b911_linux-64-minimal-portable.7z",
+                        "destination": "engine/104.0.1-1714-g321b911 bar",
                         "extract": true
                     },
 
@@ -457,7 +457,7 @@
             "no_start_script" : true,
             "launch": {
                 "start_args" : ["--menu", "rapid://byar-chobby:test"],
-                "engine": "104.0.1-1756-g92e453f bar"
+                "engine": "104.0.1-1714-g321b911 bar"
             }
         },
         {
@@ -470,8 +470,8 @@
                 "games" : ["byar:test", "chobby:test", "byar-chobby:test"],
                 "resources": [
                     {
-                        "url": "https://github.com/beyond-all-reason/spring/releases/download/spring_bar_%7BBAR%7D104.0.1-1756-g92e453f/spring_bar_.BAR.104.0.1-1756-g92e453f_windows-64-minimal-portable.7z",
-                        "destination": "engine/104.0.1-1756-g92e453f bar",
+                        "url": "https://github.com/beyond-all-reason/spring/releases/download/spring_bar_%7BBAR%7D104.0.1-1714-g321b911/spring_bar_.BAR.104.0.1-1714-g321b911_windows-64-minimal-portable.7z",
+                        "destination": "engine/104.0.1-1714-g321b911 bar",
                         "extract": true
                     },
 
@@ -820,7 +820,7 @@
             "no_start_script" : true,
             "launch": {
                 "start_args" : ["--menu", "rapid://byar-chobby:test"],
-				"engine": "104.0.1-1756-g92e453f bar"
+				"engine": "104.0.1-1714-g321b911 bar"
             }
         },
         {
@@ -832,8 +832,8 @@
             "downloads": {
                 "resources": [
                     {
-                        "url": "https://github.com/beyond-all-reason/spring/releases/download/spring_bar_%7BBAR%7D104.0.1-1756-g92e453f/spring_bar_.BAR.104.0.1-1756-g92e453f_linux-64-minimal-portable.7z",
-                        "destination": "engine/engine/104.0.1-1756-g92e453f bar",
+                        "url": "https://github.com/beyond-all-reason/spring/releases/download/spring_bar_%7BBAR%7D104.0.1-1714-g321b911/spring_bar_.BAR.104.0.1-1714-g321b911_linux-64-minimal-portable.7z",
+                        "destination": "engine/engine/104.0.1-1714-g321b911 bar",
                         "extract": true
                     }
                 ]
@@ -842,7 +842,7 @@
             "no_downloads" : true,
             "launch": {
                 "start_args" : ["--menu", "BYAR Chobby $VERSION"],
-                "engine" : "engine/104.0.1-1756-g92e453f bar"
+                "engine" : "engine/104.0.1-1714-g321b911 bar"
             }
         },
         {
@@ -854,8 +854,8 @@
             "downloads": {
                 "resources": [
                     {
-                        "url": "https://github.com/beyond-all-reason/spring/releases/download/spring_bar_%7BBAR%7D104.0.1-1756-g92e453f/spring_bar_.BAR.104.0.1-1756-g92e453f_windows-64-minimal-portable.7z",
-                        "destination": "engine/104.0.1-1756-g92e453f bar",
+                        "url": "https://github.com/beyond-all-reason/spring/releases/download/spring_bar_%7BBAR%7D104.0.1-1714-g321b911/spring_bar_.BAR.104.0.1-1714-g321b911_windows-64-minimal-portable.7z",
+                        "destination": "engine/104.0.1-1714-g321b911 bar",
                         "extract": true
                     }
                 ]
@@ -864,7 +864,7 @@
             "no_downloads" : true,
             "launch": {
                 "start_args" : ["--menu", "BYAR Chobby $VERSION"],
-                "engine" : "104.0.1-1756-g92e453f bar"
+                "engine" : "104.0.1-1714-g321b911 bar"
             }
         }
     ]
