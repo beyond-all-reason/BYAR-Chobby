@@ -1,9 +1,11 @@
 
-local items = 	{{
-	name = "skirmish",
-	control = WG.BattleRoomWindow.GetSingleplayerControl(),
-	entryCheck = WG.BattleRoomWindow.SetSingleplayerGame,
-},}
+local items = 	{
+	{
+		name = "skirmish",
+		control = WG.BattleRoomWindow.GetSingleplayerControl(),
+		entryCheck = WG.BattleRoomWindow.SetSingleplayerGame,
+	},
+}
 --Spring.Echo("campaign Error: ",WG.Chobby.Configuration,WG.Chobby.Configuration.debugMode)
 if WG.Chobby.Configuration and
 	WG.Chobby.Configuration.debugMode then

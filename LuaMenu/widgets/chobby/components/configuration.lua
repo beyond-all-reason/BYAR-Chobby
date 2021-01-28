@@ -508,7 +508,7 @@ function Configuration:GetConfigData()
 		gameConfigName = self.gameConfigName,
 		language = self.language,
 		game_fullscreen = self.game_fullscreen,
-		panel_layout = self.panel_layout,
+		panel_layout = 1,--self.panel_layout,
 		lobby_fullscreen = self.lobby_fullscreen,
 		manualBorderless = self.manualBorderless,
 		manualFullscreen = self.manualFullscreen,

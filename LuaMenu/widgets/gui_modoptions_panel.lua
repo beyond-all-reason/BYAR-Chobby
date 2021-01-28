@@ -69,9 +69,9 @@ end
 
 local function ProcessListOption(data, index)
 	local label = Label:New {
-		x = 5,
+		x = 320,
 		y = 0,
-		width = 350,
+		width = 1200,
 		height = 30,
 		valign = "center",
 		align = "left",
@@ -97,10 +97,12 @@ local function ProcessListOption(data, index)
 	end
 
 	local list = ComboBox:New {
-		x = 340,
+		x = 5,
 		y = 1,
-		width = 180,
+		width = 300,
 		height = 30,
+		valign = "center",
+		align = "left",
 		items = items,
 		font = WG.Chobby.Configuration:GetFont(2),
 		itemFontSize = WG.Chobby.Configuration:GetFont(2).size,
@@ -118,7 +120,7 @@ local function ProcessListOption(data, index)
 	return Control:New {
 		x = 0,
 		y = index*32,
-		width = 600,
+		width = 1600,
 		height = 32,
 		padding = {0, 0, 0, 0},
     
@@ -131,6 +133,20 @@ local function ProcessListOption(data, index)
 end
 
 local function ProcessBoolOption(data, index)
+	local label = Label:New {
+		x = 320,
+		y = 0,
+		width = 1200,
+		height = 30,
+		valign = "center",
+		align = "left",
+		caption = data.name,
+		font = WG.Chobby.Configuration:GetFont(2),
+		tooltip = data.desc,
+	}
+
+	local oldText = localModoptions[data.key] or modoptionDefaults[data.key]
+
 	local checked = false
 	if localModoptions[data.key] == nil then
 		if modoptionDefaults[data.key] == "1" then
@@ -142,12 +158,12 @@ local function ProcessBoolOption(data, index)
 
 	local checkBox = Checkbox:New {
 		x = 5,
-		y = index*32,
-		width = 355,
-		height = 40,
+		y = 0,
+		width = 300,
+		height = 30,
 		boxalign = "right",
-		boxsize = 20,
-		caption = data.name,
+		boxsize = 25,
+		caption = "",--data.name,
 		checked = checked,
 		font = WG.Chobby.Configuration:GetFont(2),
 		tooltip = data.desc,
@@ -159,16 +175,29 @@ local function ProcessBoolOption(data, index)
 		},
 	}
 	modoptionControlNames[data.key] = checkBox
-
-	return checkBox
+	
+	return Control:New {
+		x = 0,
+		y = index*32,
+		width = 1600,
+		height = 32,
+		padding = {0, 0, 0, 0},
+    tooltip = data.desc,
+		children = {
+			label,
+			checkBox
+		}
+	}
+	
+	--return checkBox
 end
 
 local function ProcessNumberOption(data, index)
 
 	local label = Label:New {
-		x = 5,
+		x = 320,
 		y = 0,
-		width = 350,
+		width = 1200,
 		height = 30,
 		valign = "center",
 		align = "left",
@@ -180,9 +209,9 @@ local function ProcessNumberOption(data, index)
 	local oldText = localModoptions[data.key] or modoptionDefaults[data.key]
 
 	local numberBox = EditBox:New {
-		x = 340,
+		x = 5,
 		y = 1,
-		width = 180,
+		width = 300,
 		height = 30,
 		text   = oldText,
 		useIME = false,
@@ -217,7 +246,7 @@ local function ProcessNumberOption(data, index)
 	return Control:New {
 		x = 0,
 		y = index*32,
-		width = 600,
+		width = 1600,
 		height = 32,
 		padding = {0, 0, 0, 0},
     tooltip = data.desc,
@@ -231,9 +260,9 @@ end
 local function ProcessStringOption(data, index)
 
 	local label = Label:New {
-		x = 5,
+		x = 320,
 		y = 0,
-		width = 350,
+		width = 1200,
 		height = 30,
 		valign = "center",
 		align = "left",
@@ -245,9 +274,9 @@ local function ProcessStringOption(data, index)
 	local oldText = localModoptions[data.key] or modoptionDefaults[data.key]
 
 	local textBox = EditBox:New {
-		x = 340,
+		x = 5,
 		y = 1,
-		width = 180,
+		width = 300,
 		height = 30,
 		text   = oldText,
 		useIME = false,
@@ -314,10 +343,10 @@ local function CreateModoptionWindow()
 		caption = "",
 		name = "modoptionsSelectionWindow",
 		parent = WG.Chobby.lobbyInterfaceHolder,
-		width = 920,
-		height = 500,
-		resizable = false,
-		draggable = false,
+		width = 1600,
+		height = 900,
+		resizable = true,
+		draggable = true,
 		classname = "main_window",
 	}
 
