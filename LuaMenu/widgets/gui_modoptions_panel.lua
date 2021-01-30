@@ -360,7 +360,7 @@ local function CreateModoptionWindow()
 	for key, data in pairs(modoptionStructure.sections) do
 		local caption = modoptionStructure.sectionTitles[data.title] or data.title
 		local fontSize = 2
-		local tooltip = nil
+		local tooltip = data.desc
 		local origCaption = caption
 		caption = StringUtilities.GetTruncatedStringWithDotDot(caption, Font:New(WG.Chobby.Configuration:GetFont(fontSize)), tabWidth)
 		if origCaption ~= caption then
