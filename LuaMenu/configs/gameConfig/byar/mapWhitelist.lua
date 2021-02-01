@@ -146,6 +146,7 @@ return {
 	["Kolmogorov"] = true,
 	["Koom Gorge v1"] = true,
 	["Koom Valley V2"] = true,
+	["KoomValleyBar"] = true,
 	["LLTAComplexV2"] = true,
 	["Lava Highground"] = true,
 	["LoreaGurpila"] = true,
