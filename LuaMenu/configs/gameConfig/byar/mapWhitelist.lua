@@ -98,6 +98,7 @@ return {
 	["FinnsRevengeRV4"] = true,
 	["Flooded Valley v2"] = true,
 	["FolsomDamDeluxeV4"] = true,
+	["FolsomDamR"] = true,
 	["FolsomDamFinal"] = true,
 	["FolsomDamFlooded"] = true,
 	["Four_Lakes_V2"] = true,
