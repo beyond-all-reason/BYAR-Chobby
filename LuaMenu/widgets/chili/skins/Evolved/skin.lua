@@ -151,6 +151,20 @@ skin.positive_button = {
   DrawControl = DrawButton,
 }
 
+skin.battle_default_button = { --Blue
+  TileImageBK = ":cl:tech_button_dark_small_bk.png",
+  TileImageFG = ":cl:tech_button_bright_small_fg.png",
+  tiles = {20, 20, 20, 20}, --// tile widths: left,top,right,bottom
+  padding = {10, 10, 10, 10},
+
+  backgroundColor = {0.10, 0.10, 0.1, 0.65},
+  focusColor  = {1.0, 1.0, 1.0, 0.1}, -- color when focusd
+  borderColor = {0.1, 0.1, 0.1, 0.05},
+
+  DrawControl = DrawButton,
+}
+
+
 skin.combobox = {
 	TileImageBK = ":cl:combobox_ctrl.png",
 	TileImageFG = ":cl:combobox_ctrl_fg.png",

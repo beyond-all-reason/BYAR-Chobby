@@ -311,6 +311,7 @@ function BattleListWindow:MakeWatchBattle(battleID, battle)
 		y = 0,
 		height = self.itemHeight,
 		caption = "",
+		classname = "negative_button",
 		OnClick = {
 			function()
 				if Spring.GetGameName() == "" then
@@ -422,6 +423,7 @@ function BattleListWindow:MakeJoinBattle(battleID, battle)
 		y = 0,
 		height = self.itemHeight,
 		caption = "",
+		classname = "battle_default_button",
 		OnClick = {
 			function()
 				local myBattleID = lobby:GetMyBattleID()
@@ -707,6 +709,51 @@ function BattleListWindow:CompareItems(id1, id2)
 	end
 end
 
+function BattleListWindow:UpdateButtonColor(battleID)
+	
+	local items = self:GetRowItems(battleID)
+	if not items then
+		return
+	end
+	local battle = lobby:GetBattle(battleID)
+	if battle == nil then return end
+
+	local oldbuttonstyle = items.battleButton.backgroundColor
+	local battlebuttonstyle = {0.10, 0.10, 0.95, 0.65} --blue
+	if battle.passworded then
+		battlebuttonstyle =  {0.60, 0.10, 0.85, 0.65} --violet
+	else
+		if battle.locked then
+			battlebuttonstyle =  {0.90, 0.10, 0.10, 0.65} --red
+		else
+			if lobby:GetBattlePlayerCount(battleID) < 1 then
+					battlebuttonstyle = {0.10, 0.10, 0.95, 0.65} --blue
+			else
+				if battle.isRunning then
+					battlebuttonstyle =  {0.70, 0.60, 0.1, 0.65} --yellow
+				else
+					battlebuttonstyle =  {0.10, 0.50, 0.10, 0.65} --green
+				end
+			end
+		end
+	end
+	local colorChanged = false
+	for i, c in ipairs(oldbuttonstyle) do
+		if c ~= battlebuttonstyle[i] then
+			colorChanged = true
+			break
+		end
+	end
+	--Spring.Echo("BattleListWindow:UpdateButtonColor",battleID,battlebuttonstyle, items.battleButton.backgroundColor,battle.isRunning ,battle.passworded, lobby:GetBattlePlayerCount(battleID))
+	
+	if colorChanged then
+		--Spring.Echo("BattleListWindow:UpdateButtonColor",battleID,battlebuttonstyle, items.battleButton.backgroundColor,battle.isRunning ,battle.passworded, lobby:GetBattlePlayerCount(battleID))
+		items.battleButton.backgroundColor = battlebuttonstyle
+		items.battleButton.focusColor = battlebuttonstyle
+		items.battleButton:Invalidate()
+	end
+end
+
 function BattleListWindow:RecalculateOrder(id)
 	if lobby.commandBuffer then
 		return
@@ -766,7 +813,9 @@ function BattleListWindow:_MakeGameCaption(battle)
 	if battle.isRunning then
 		gameCaption = gameCaption .. " - Running for " .. Spring.Utilities.GetTimeToPast(battle.runningSince)
 	end
-	return gameCaption
+	gameCaption = string.gsub(gameCaption,"Beyond All Reason test%-","")
+	gameCaption = string.sub(gameCaption,1,string.find(gameCaption,'%-')-1)
+	return 'BAR-'..gameCaption
 end
 
 function BattleListWindow:JoinedBattle(battleID)
@@ -789,6 +838,8 @@ function BattleListWindow:JoinedBattle(battleID)
 		local playerCount = lobby:GetBattlePlayerCount(battleID)
 		playersOnMapCaption:SetCaption(playerCount .. ((playerCount == 1 and " player on " ) or " players on ") .. battle.mapName:gsub("_", " "))
 	end
+
+	self:UpdateButtonColor(battleID)
 	self:RecalculateOrder(battleID)
 end
 
@@ -812,6 +863,8 @@ function BattleListWindow:LeftBattle(battleID)
 		local playerCount = lobby:GetBattlePlayerCount(battleID)
 		playersOnMapCaption:SetCaption(playerCount .. ((playerCount == 1 and " player on " ) or " players on ") .. battle.mapName:gsub("_", " "))
 	end
+
+	self:UpdateButtonColor(battleID)
 	self:RecalculateOrder(battleID)
 end
 
@@ -849,6 +902,8 @@ function BattleListWindow:OnUpdateBattleInfo(battleID)
 				parent = items.battleButton,
 			}
 		end
+
+
 
 		-- Resets title and truncates.
 		lblTitle.OnResize[1](lblTitle)
@@ -888,6 +943,8 @@ function BattleListWindow:OnUpdateBattleInfo(battleID)
 		local playerCount = lobby:GetBattlePlayerCount(battleID)
 		playersOnMapCaption:SetCaption(playerCount .. ((playerCount == 1 and " player on " ) or " players on ") .. battle.mapName:gsub("_", " "))
 	end
+	
+	self:UpdateButtonColor(battleID)
 	self:RecalculateOrder(battleID)
 end
 
@@ -910,6 +967,8 @@ function BattleListWindow:OnBattleIngameUpdate(battleID, isRunning)
 		runningImage.file = BATTLE_NOT_RUNNING
 	end
 	runningImage:Invalidate()
+	
+	self:UpdateButtonColor(battleID)
 	self:RecalculateOrder(battleID)
 end
 
