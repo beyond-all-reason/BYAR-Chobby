@@ -10,7 +10,7 @@ local welcomePanelItems = {
         Header = "Play with your friends: use our servers!",
         Url = nil,--"https://www.beyondallreason.info/",
         Time = nil,-- "NowTime",
-        Text = "Join any empty room (marked blue) with your friends and type !boss to be able to !lock the game. Hosting your own private battles is under development.",
+        Text = "Join any empty room (marked blue) with your friends and type !boss to be able to !lock the game. Hosting your own private battles is under development, but there are always empty rooms, just use them.",
     },
     {
         Header = "Multiplayer battle room commands",

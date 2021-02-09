@@ -279,7 +279,7 @@ function BattleListWindow:UpdateInfoPanel()
 		-- Must have hidden games
 		self.infoPanel:SetVisibility(true)
 		self.infoPanel:BringToFront()
-		self.infoLabel:SetCaption("Games are hidden, unsure why.")
+		self.infoLabel:SetCaption("No games matching filters. Update your game!")
 		return
 	end
 
@@ -311,7 +311,6 @@ function BattleListWindow:MakeWatchBattle(battleID, battle)
 		y = 0,
 		height = self.itemHeight,
 		caption = "",
-		classname = "negative_button",
 		OnClick = {
 			function()
 				if Spring.GetGameName() == "" then
