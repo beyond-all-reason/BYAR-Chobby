@@ -1,5 +1,5 @@
 return {
 	map = "Quicksilver Remake 1.24",
-	enemyAI = {"DAI","SimpleDefenderAI",},
-	friendlyAI = {"DAI"},
+	enemyAI = {"SimpleAI", "SimpleDefenderAI",},
+	friendlyAI = {"SimpleAI"},
 }
