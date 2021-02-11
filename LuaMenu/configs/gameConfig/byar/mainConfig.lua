@@ -43,7 +43,7 @@ local minimapThumbnailPath = LUA_DIRNAME .. "configs/gameConfig/" .. shortname .
 
 local sayPrivateSelectAndActivateChatTab = true
 local showSinglePlayerIngame = true
-
+local logoutOpensLoginPanel = true
 
 local function ShortenNameString(instring)
 	local shortenNameStrings = {
@@ -158,6 +158,7 @@ local externalFuncAndData = {
 	showHandicap = true,
 	spadsLobbyFeatures = true,
 	filterEmptyRegionalAutohosts = true,
+	logoutOpensLoginPanel = logoutOpensLoginPanel,
 
 	ShortenNameString = ShortenNameString,
 }
