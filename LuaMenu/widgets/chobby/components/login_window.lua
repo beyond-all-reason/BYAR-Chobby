@@ -792,7 +792,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		tabs = {
 			[1] = { name = "login", caption = i18n("login"), children = loginChildren, font = Configuration:GetFont(2)},
 			[2] = { name = "register", caption = i18n("register_verb"), children = registerChildren, font = Configuration:GetFont(2)},
-			[3] = { name = "reset", caption = "Recover", children = recoverChildren, font = Configuration:GetFont(2)},
+			[3] = { name = "reset", caption = "Recover/Change", children = recoverChildren, font = Configuration:GetFont(2)},
 			--[3] = { name = "test", caption = "teset2", children = {self.testbutton}, font = Configuration:GetFont(2)},
 		},
 	}
