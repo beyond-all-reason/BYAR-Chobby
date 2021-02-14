@@ -180,6 +180,7 @@ return {
 	["Porky_Islands"] = true,
 	["Quicksilver 1.1"] = true,
 	["Rage_v1"] = true,
+	["Raghnarok 1"] = true,
 	["Rapids_v1"] = true,
 	["Ravaged_v2"] = true,
 	["Ravaged_v2-mini"] = true,

@@ -45,6 +45,7 @@ return {
 ['Painted Badlands 1.0']={Width=16, Height=16, Is1v1=nil, IsTeam=1, IsFFA=nil, IsCertified=nil, Special=nil, Flat=1, Hills=nil, Water=nil, IsInPool=1, },
 ['Pentos_V1']={Width=20, Height=20, Is1v1=nil, IsTeam=nil, IsFFA=1, IsCertified=1, Special=nil, Flat=1, Hills=nil, Water=1, IsInPool=1, },
 ['Quicksilver Remake 1.24']={Width=12, Height=12, Is1v1=1, IsTeam=nil, IsFFA=nil, IsCertified=1, Special=nil, Flat=1, Hills=nil, Water=1, IsInPool=1, },
+['Raghnarok 1']={Width=20, Height=20, Is1v1=1, IsTeam=1, IsFFA=1, IsCertified=niil, Special=nil, Flat=1, Hills=1, Water=nil, IsInPool=1, },
 ['Red Comet Remake 1.8']={Width=12, Height=8, Is1v1=1, IsTeam=nil, IsFFA=nil, IsCertified=1, Special=nil, Flat=1, Hills=nil, Water=nil, IsInPool=1, },
 ['Riverdale Remake 1.4']={Width=12, Height=16, Is1v1=1, IsTeam=1, IsFFA=nil, IsCertified=1, Special=nil, Flat=1, Hills=1, Water=nil, IsInPool=1, },
 ['SapphireShores_V2.2']={Width=18, Height=8, Is1v1=nil, IsTeam=1, IsFFA=nil, IsCertified=nil, Special=nil, Flat=1, Hills=nil, Water=1, IsInPool=1, },
