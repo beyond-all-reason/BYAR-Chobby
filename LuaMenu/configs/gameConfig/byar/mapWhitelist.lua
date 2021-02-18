@@ -198,7 +198,7 @@ return {
 	["SapphireShores_Duo_V2.1"] = true,
 	["SapphireShores_V2.1"] = true,
 	["ScorpioBattleground"] = true,
-	["Sertaleina"] = true,
+	["Sertaleina_V2"] = true,
 	["ShevaV2"] = true,
 	["Sierra-v2"] = true,
 	["Sima v1"] = true,
