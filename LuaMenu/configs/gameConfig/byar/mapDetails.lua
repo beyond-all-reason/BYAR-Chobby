@@ -51,6 +51,7 @@ return {
 ['Riverdale Remake 1.4']={Width=12, Height=16, Is1v1=1, IsTeam=1, IsFFA=nil, IsCertified=1, Special=nil, Flat=1, Hills=1, Water=nil, IsInPool=1, },
 ['SapphireShores_V2.2']={Width=18, Height=8, Is1v1=nil, IsTeam=1, IsFFA=nil, IsCertified=nil, Special=nil, Flat=1, Hills=nil, Water=1, IsInPool=1, },
 ['Sertaleina_V2']={Width=12, Height=8, Is1v1=1, IsTeam=1, IsFFA=nil, IsCertified=nil, Special=nil, Flat=1, Hills=nil, Water=nil, IsInPool=1, },
+['Sertaleina_V3']={Width=12, Height=8, Is1v1=1, IsTeam=1, IsFFA=nil, IsCertified=nil, Special=nil, Flat=1, Hills=nil, Water=nil, IsInPool=1, },
 ['Seth_s Ravine 3.1']={Width=16, Height=12, Is1v1=nil, IsTeam=1, IsFFA=nil, IsCertified=nil, Special=nil, Flat=1, Hills=nil, Water=nil, IsInPool=1, },
 ['Small_Supreme_Battlefield_V3']={Width=16, Height=16, Is1v1=nil, IsTeam=1, IsFFA=nil, IsCertified=1, Special=nil, Flat=1, Hills=nil, Water=1, IsInPool=1, },
 ['SpeedMetal BAR V2']={Width=26, Height=4, Is1v1=1, IsTeam=1, IsFFA=nil, IsCertified=1, Special='Metal', Flat=nil, Hills=nil, Water=nil, IsInPool=1, },
