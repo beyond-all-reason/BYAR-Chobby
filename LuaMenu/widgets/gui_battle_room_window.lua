@@ -2278,7 +2278,7 @@ function BattleRoomWindow.ShowMultiplayerBattleRoom(battleID)
 
 	WG.BattleStatusPanel.AddBattleTab(multiplayerWrapper)
 
-	UpdateArchiveStatus()
+	UpdateArchiveStatus(true)
 
 	battleLobby:SetBattleStatus({
 		allyNumber = 0,
@@ -2334,7 +2334,7 @@ function BattleRoomWindow.GetSingleplayerControl(setupData)
 
 				obj:AddChild(battleWindow)
 
-				UpdateArchiveStatus()
+				UpdateArchiveStatus(true)
 
 				battleLobby:SetBattleStatus({
 					allyNumber = 0,
