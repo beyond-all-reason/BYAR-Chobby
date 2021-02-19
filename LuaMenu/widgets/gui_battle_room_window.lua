@@ -2170,6 +2170,11 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		infoHandler.AddStartRect(allyNo, left, top, right, bottom)
 	end
 
+	local function OnRing()
+		if DBGTRACE then Spring.Echo("RING") end
+		Spring.PlaySoundFile("sounds/ring.wav", WG.Chobby.Configuration.menuNotificationVolume or 1)
+	end
+
 	battleLobby:AddListener("OnUpdateUserTeamStatus", OnUpdateUserTeamStatus)
 	battleLobby:AddListener("OnBattleIngameUpdate", OnBattleIngameUpdate)
 	battleLobby:AddListener("OnUpdateBattleInfo", OnUpdateBattleInfo)
@@ -2186,6 +2191,8 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	battleLobby:AddListener("OnMatchMakerReadyResult", OnMatchMakerReadyResult)
 	battleLobby:AddListener("OnRemoveStartRect", OnRemoveStartRect)
 	battleLobby:AddListener("OnAddStartRect", OnAddStartRect)
+	battleLobby:AddListener("OnRing", OnRing)
+
 
 	local function OnDisposeFunction()
 		emptyTeamIndex = 0
