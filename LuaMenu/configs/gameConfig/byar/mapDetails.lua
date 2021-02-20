@@ -5,7 +5,7 @@ return {
 ['Altair_Crossing_v3']={Width=8, Height=8, Is1v1=1, IsTeam=nil, IsFFA=nil, IsCertified=nil, Special=nil, Flat=1, Hills=nil, Water=nil, IsInPool=1, },
 ['Altored Divide Bar Remake 1.55']={Width=16, Height=16, Is1v1=nil, IsTeam=1, IsFFA=nil, IsCertified=1, Special=nil, Flat=nil, Hills=1, Water=nil, IsInPool=1, },
 ['Avalanche-v2']={Width=8, Height=8, Is1v1=1, IsTeam=nil, IsFFA=nil, IsCertified=nil, Special=nil, Flat=1, Hills=nil, Water=nil, IsInPool=1, },
-['Barren 2']={Width=8, Height=8, Is1v1=1, IsTeam=nil, IsFFA=nil, IsCertified=nil, Special=nil, Flat=nil, Hills=1, Water=nil, IsInPool=1, },
+--['Barren 2']={Width=8, Height=8, Is1v1=1, IsTeam=nil, IsFFA=nil, IsCertified=nil, Special=nil, Flat=nil, Hills=1, Water=nil, IsInPool=1, },
 ['BarR 1.1']={Width=8, Height=8, Is1v1=1, IsTeam=nil, IsFFA=nil, IsCertified=1, Special=nil, Flat=nil, Hills=1, Water=nil, IsInPool=1, },
 ['BlackStar_v2']={Width=16, Height=16, Is1v1=nil, IsTeam=nil, IsFFA=1, IsCertified=nil, Special=nil, Flat=nil, Hills=1, Water=nil, IsInPool=1, },
 ['Boulder_Beach_V1']={Width=16, Height=16, Is1v1=nil, IsTeam=1, IsFFA=nil, IsCertified=1, Special=nil, Flat=nil, Hills=1, Water=1, IsInPool=1, },
