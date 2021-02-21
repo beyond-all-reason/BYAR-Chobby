@@ -463,6 +463,7 @@ function InterfaceSkirmish:AddAi(aiName, aiLib, allyNumber, version, options)
 		aiVersion = version,
 		aiOptions = options,
 	})
+	self:UpdateAi(aiName,{teamColor = {math.random(),math.random(),math.random()}})
 end
 
 function InterfaceSkirmish:SayBattle(message)
