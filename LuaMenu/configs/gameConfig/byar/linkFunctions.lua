@@ -3,11 +3,11 @@ local function link_homePage()
 end
 
 local function link_replays()
-	return "https://www.beyondallreason.info/replays"
+	return "https://bar-rts.com/replays/"
 end
 
 local function link_maps()
-	return "https://springfiles.com/spring/spring-maps"
+	return "https://springfiles.com/spring/spring-maps?order=count&sort=desc"
 end
 
 return link_homePage, link_replays, link_maps
