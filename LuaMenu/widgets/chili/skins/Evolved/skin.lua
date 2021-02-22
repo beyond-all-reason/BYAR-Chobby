@@ -418,17 +418,17 @@ skin.window = {
 }
 
 skin.startbox_window = {
-  TileImage = ":c:tech_dragwindow.png",
+  TileImage = ":c:tech_startboxwindow.png",
   tiles = {2, 2, 2, 2}, --// tile widths: left,top,right,bottom
-  padding = {13, 13, 13, 13},
+  padding = {4, 4, 4, 4},
   hitpadding = {4, 4, 4, 4},
 
-  captionColor = {1, 1, 1, 0.45},
+  captionColor = {1, 1, 1, 0.9},
 
   backgroundColor = {0.1, 0.1, 0.1, 0.2},
 
   boxes = {
-    resize = {-16, -16, -5, -5},
+    resize = {-16, -16, -1, -1},
     drag = {0, 0, "100%", 10},
   },
 

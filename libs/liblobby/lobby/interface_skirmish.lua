@@ -50,15 +50,15 @@ end
 function InterfaceSkirmish:_StartScript(gameName, mapName, playerName, friendList, friendsReplaceAI, hostPort)
 	local allyTeams = {}
 	local allyTeamCount = 0
-	local teams = {}
+	local teams = {} -- OHO this is teams, not allyteams!
 	local teamCount = 0
-	local players = {}
+	local players = {} -- player can still be a spectator, thus not have a 'team'
 	local playerCount = 0
 	local maxAllyTeamID = -1
 	local ais = {}
 	local aiCount = 0
 
-	friendList = friendList or {}
+	friendList = friendList or {} -- we can safely say for that this will be empty for BAR
 	local friendAllyTeam
 	local aiReplaceCount = 0
 
@@ -77,8 +77,11 @@ function InterfaceSkirmish:_StartScript(gameName, mapName, playerName, friendLis
 	end
 
 	-- Add the player, this is to make the player team 0.
+	-- except that it doesnt actually work, and makes the player in the _last_ allyteam :/ 
+	-- so we will rewrite it to reflect actual chobby single player setup
+	
 	for userName, data in pairs(self.userBattleStatus) do
-		if data.allyNumber and not data.aiLib then
+		if data.allyNumber and not data.aiLib then --every player must have an allynumber!
 			players[playerCount] = {
 				Name = userName,
 				Team = teamCount,
@@ -93,6 +96,7 @@ function InterfaceSkirmish:_StartScript(gameName, mapName, playerName, friendLis
 					AllyTeam = data.allyNumber,
 					RgbColor = getTeamColor(userName),
 					Side = WG.Chobby.Configuration:GetSideById(data.side).name,
+					Handicap = data.handicap or 0,
 				}
 				maxAllyTeamID = math.max(maxAllyTeamID, data.allyNumber)
 				teamCount = teamCount + 1
@@ -104,7 +108,7 @@ function InterfaceSkirmish:_StartScript(gameName, mapName, playerName, friendLis
 
 				players[playerCount] = {
 					Name = friendName,
-					Team = teamCount,
+					Team = data.allyNumber,
 					IsFromDemo = 0,
 					Spectator = (data.isSpectator and 1) or nil,
 					Password = "12345",
@@ -112,11 +116,12 @@ function InterfaceSkirmish:_StartScript(gameName, mapName, playerName, friendLis
 				}
 
 				if not data.isSpectator then
-					teams[teamCount] = {
+					teams[data.allyNumber] = {
 						TeamLeader = playerCount,
 						AllyTeam = data.allyNumber,
 						RgbColor = getTeamColor(userName),
 						Side = WG.Chobby.Configuration:GetSideById(data.side).name,
+						Handicap = data.handicap or 0,
 					}
 					teamCount = teamCount + 1
 					if friendsReplaceAI then
@@ -127,6 +132,8 @@ function InterfaceSkirmish:_StartScript(gameName, mapName, playerName, friendLis
 				playerCount = playerCount + 1
 			end
 		end
+		--Spring.Echo("userName, data in pairs(self.userBattleStatus)", userName, data, Spring.Utilities.TableToString(data))
+		--Spring.Echo("teams:", userName, data.allyNumber, Spring.Utilities.TableToString(teams[data.allyNumber]))
 	end
 
 	-- Check for chicken difficutly modoption. Possibly add an AI due to it.
@@ -147,6 +154,7 @@ function InterfaceSkirmish:_StartScript(gameName, mapName, playerName, friendLis
 					ais[aiCount] = {
 						Name = chickenName,
 						Team = teamCount,
+						--Team = data.allyNumber,
 						IsFromDemo = 0,
 						ShortName = chickenName,
 						Host = 0,
@@ -156,6 +164,7 @@ function InterfaceSkirmish:_StartScript(gameName, mapName, playerName, friendLis
 					ais[aiCount] = {
 						Name = userName,
 						Team = teamCount,
+						--Team = data.allyNumber,
 						IsFromDemo = 0,
 						ShortName = data.aiLib,
 						Version = data.aiVersion,
@@ -169,6 +178,7 @@ function InterfaceSkirmish:_StartScript(gameName, mapName, playerName, friendLis
 					AllyTeam = data.allyNumber,
 					RgbColor = getTeamColor(userName),
 					Side = WG.Chobby.Configuration:GetSideById(data.side).name,
+					Handicap = data.handicap or 0,
 				}
 				maxAllyTeamID = math.max(maxAllyTeamID, data.allyNumber)
 
@@ -203,10 +213,12 @@ function InterfaceSkirmish:_StartScript(gameName, mapName, playerName, friendLis
 	local allyTeamMap = {}
 	for i, teamData in pairs(teams) do
 		if not allyTeamMap[teamData.AllyTeam] then
-			allyTeamMap[teamData.AllyTeam] = allyTeamCount
+			--Spring.Echo(teamData.AllyTeam,"not in allyTeamMap",allyTeamCount)
+			allyTeamMap[teamData.AllyTeam] = teamData.AllyTeam
 			allyTeamCount = allyTeamCount + 1
 		end
 		teamData.AllyTeam = allyTeamMap[teamData.AllyTeam]
+		--Spring.Echo("calc the number of allyTeamCount=",allyTeamCount," teamData.Allyteam=", teamData.AllyTeam )
 	end
 
 	-- time to parse our nice boxen
@@ -219,12 +231,17 @@ function InterfaceSkirmish:_StartScript(gameName, mapName, playerName, friendLis
 
 	if Configuration.gameConfig and
 		Configuration.gameConfig.useDefaultStartBoxes and
-		Configuration.gameConfig.mapStartBoxes and
-		Configuration.gameConfig.mapStartBoxes.savedBoxes and
-		Configuration.gameConfig.mapStartBoxes.savedBoxes[mapName] then
-		startBoxes = Configuration.gameConfig.mapStartBoxes.savedBoxes[mapName]
-		Spring.Echo("Skirmish: Using default startboxes",startBoxes)
-		startBoxes = Configuration.gameConfig.mapStartBoxes.selectStartBoxesForAllyTeamCount(startBoxes,allyTeamCount)
+		Configuration.gameConfig.mapStartBoxes then
+		if Configuration.gameConfig.mapStartBoxes.singleplayerboxes and next(Configuration.gameConfig.mapStartBoxes.singleplayerboxes) ~= nil then
+			startBoxes = Configuration.gameConfig.mapStartBoxes.singleplayerboxes
+			Spring.Echo("Skirmish: Using custom startboxes",startBoxes)
+			--Spring.Echo(Spring.Utilities.TableToString(startBoxes))
+		elseif Configuration.gameConfig.mapStartBoxes.savedBoxes and
+			Configuration.gameConfig.mapStartBoxes.savedBoxes[mapName] then
+			startBoxes = Configuration.gameConfig.mapStartBoxes.savedBoxes[mapName]
+			Spring.Echo("Skirmish: Using default startboxes",startBoxes)
+			startBoxes = Configuration.gameConfig.mapStartBoxes.selectStartBoxesForAllyTeamCount(startBoxes,allyTeamCount)
+		end
 	else
 		Spring.Echo("No map startBoxes found or disabled for map",mapName)
 	end
@@ -463,6 +480,7 @@ function InterfaceSkirmish:AddAi(aiName, aiLib, allyNumber, version, options)
 		aiVersion = version,
 		aiOptions = options,
 	})
+	self:UpdateAi(aiName,{teamColor = {math.random(),math.random(),math.random()}})
 end
 
 function InterfaceSkirmish:SayBattle(message)

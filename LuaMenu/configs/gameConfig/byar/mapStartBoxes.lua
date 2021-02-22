@@ -125,13 +125,25 @@ local function makeAllyTeamBox(startboxes, allyteamindex)
         numallies = 0,
       }
     if startboxes and startboxes[allyteamindex + 1] then
-      allyteamtable = {
-        numallies = 0,
-        startrectleft  = startboxes[allyteamindex + 1][1],
-        startrecttop   = startboxes[allyteamindex + 1][2],
-        startrectright = startboxes[allyteamindex + 1][3],
-        startrectbottom= startboxes[allyteamindex + 1][4],
-      }
+      if startboxes[allyteamindex + 1].spadsSizes then
+       local spadsSizes = startboxes[allyteamindex + 1].spadsSizes
+       Spring.Echo("Skirmish: startbox for team:",allyteamindex, "is", spadsSizes.left, spadsSizes.top, spadsSizes.right, spadsSizes.bottom)
+        allyteamtable = {
+          numallies = 0,
+          startrectleft  = spadsSizes.left/200,
+          startrecttop   = spadsSizes.top/200,
+          startrectright = spadsSizes.right/200,
+          startrectbottom= spadsSizes.bottom/200,
+        }
+      else
+        allyteamtable = {
+          numallies = 0,
+          startrectleft  = startboxes[allyteamindex + 1][1],
+          startrecttop   = startboxes[allyteamindex + 1][2],
+          startrectright = startboxes[allyteamindex + 1][3],
+          startrectbottom= startboxes[allyteamindex + 1][4],
+        }
+      end
     end
     return allyteamtable
 end
@@ -277,7 +289,7 @@ Otago 1.4.smf:2|0 0 60 200;140 0 200 200
 Painted Badlands 1.0.smf:2|0 0 200 80;0 120 200 200
 Pentos_V1.smf:2|0 0 64 200;136 0 200 200
 Quicksilver Remake 1.22.smf:2|0 110 90 200;110 0 200 90
-Quicksilver Remake 1.24.smf:2|0 0 200 70;0 130 200 200
+Quicksilver Remake 1.24.smf:2|0 130 200 200;0 0 200 70
 Red Comet Remake 1.7.smf:2|0 0 40 200;160 0 200 200
 Red Comet Remake 1.8.smf:2|0 0 46 200;154 0 200 200
 Riverdale Remake 1.4.smf:2|0 0 200 40;0 160 200 200
