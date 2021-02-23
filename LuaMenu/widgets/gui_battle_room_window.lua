@@ -99,7 +99,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	local mapLinkWidth = 150
 	currentStartRects = {}
 
-	
+
 	local externalFunctions = {}
 
 	local btnMapLink = Button:New {
@@ -173,7 +173,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		y = 0,
 		right = 0,
 		bottom = 0,
-		keepAspect = false, 
+		keepAspect = false,
 		file = LUA_DIRNAME .. "images/startboxsplit_v.png",
 		parent = btnSplitV,
 		tooltip = btnSplitV.tooltip,
@@ -269,7 +269,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		y = 0,
 		right = 0,
 		bottom = 0,
-		keepAspect = false,		
+		keepAspect = false,
 		file =  LUA_DIRNAME .. "images/startboxsplit_c1.png",
 		parent = btnSplitC1,
 		tooltip = btnSplitC1.tooltip,
@@ -354,7 +354,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 							externalFunctions.AddStartRect(1, 200-integervalue *2, 0, 200, integervalue *2 )
 							externalFunctions.AddStartRect(2, 0, 0, integervalue *2, integervalue * 2)
 							externalFunctions.AddStartRect(3, 200 - integervalue *2, 200 - integervalue *2, 200, 200)
-						else	
+						else
 							battleLobby:SayBattle("!split c "..tostring(integervalue))
 						end
 					end
@@ -374,7 +374,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		tooltip = btnSplitC4.tooltip,
 	}
 
-	
+
 	local btnSplitS4 = Button:New{
 		x = "62.5%",
 		bottom = 0,
@@ -425,7 +425,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		tooltip = btnSplitS4.tooltip,
 	}
 
-	
+
 	local btnAddBox = Button:New{
 		x = "75%",
 		bottom = 0,
@@ -443,7 +443,6 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 					return
 				end
 				if battleLobby.name == "singleplayer" then
-					
 					externalFunctions.AddStartRect(#currentStartRects,66, 66, 133, 133)
 				else
 					battleLobby:SayBattle("!addbox 66 66 133 133")
@@ -612,7 +611,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		checkFileExists = needDownload,
 		parent = minimapPanel,
 		tooltip = "Currently selected map. Green boxes show where each team will start"
-	} 
+	}
 	--[[
 
 	--Obsolete:
@@ -734,26 +733,26 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 			if xSize + minimapBottomClearance < ySize then
 				minimapPanel._relativeBounds.left = 0
 				minimapPanel._relativeBounds.right = 0
-				
+
 				minimapPanel:SetPos(nil, nil, nil, xSize)
 				UpdateStartRectPositionsInMinimap()
 				minimapPanel:UpdateClientArea()
 
 				btnMapLink:SetPos(nil, xSize + 2)
 				startBoxPanel:SetPos(nil,xSize + 24,nil, xSize / 8)
-				
+
 			else
 				local horPadding = ((xSize + minimapBottomClearance) - ySize)/2
 				minimapPanel._relativeBounds.left = horPadding
 				minimapPanel._relativeBounds.right = horPadding
 				minimapPanel:SetPos(nil, nil, nil, ySize - minimapBottomClearance)
-				
+
 				UpdateStartRectPositionsInMinimap()
 				minimapPanel:UpdateClientArea()
 
 				btnMapLink:SetPos(nil, ySize - minimapBottomClearance + 2)
 				startBoxPanel:SetPos(nil,ySize - minimapBottomClearance + 24,nil, xSize / 8)
-				
+
 			end
 		end
 	}
@@ -1032,12 +1031,12 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 						Configuration.gameConfig.useDefaultStartBoxes and
 						Configuration.gameConfig.mapStartBoxes and
 						Configuration.gameConfig.mapStartBoxes.savedBoxes then
-					
+
 					local mapStartBoxes = Configuration.gameConfig.mapStartBoxes
 					-- remove the old one
 					externalFunctions.RemoveStartRect()
 					mapStartBoxes.clearBoxes()
-					
+
 					-- then the next step is if the boxes get changed, add them to custom?
 					startBoxes = mapStartBoxes.savedBoxes[mapName]
 					-- todo on add team then add a box too
@@ -1135,8 +1134,8 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 			oldSizes = {ox,oy,ow,oh}, -- this stores its previous state so we dont spam boxes on no change
 			OnClick = {
 				function(obj)
-					-- Spring.Log("Chobby",LOG.WARNING,"start rect clicked",obj.caption,obj.width, obj.height,obj.x, obj.y) 
-					
+					-- Spring.Log("Chobby",LOG.WARNING,"start rect clicked",obj.caption,obj.width, obj.height,obj.x, obj.y)
+
 					if  math.abs(obj.oldSizes[1] - obj.x) < 1.0 and
 						math.abs(obj.oldSizes[2] - obj.y) < 1.0 and
 						math.abs(obj.oldSizes[3] - obj.width) < 1.0 and
@@ -1160,7 +1159,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 						--Spring.Log("Chobby",LOG.WARNING,"start rect changed:",l,t,r,b)
 						--also do the fact that it should be red on change, and turn back black on successfull modification
 						--try to manage clicking on the startbox not changing it.
-						--TODO: problematic when resizing entire UI :/ 
+						--TODO: problematic when resizing entire UI :/
 
 						obj:Invalidate() --doesnt do much
 						if battleLobby.name == "singleplayer" then
@@ -1173,7 +1172,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 				end
 			},
 			OnResize =  {
-				-- FIXME: the big problem, is that if a start box is dragged outside of the minimap panel, 
+				-- FIXME: the big problem, is that if a start box is dragged outside of the minimap panel,
 				-- and then the mouse is released while it is outside, we get no callbacks
 				-- So then the box is pretty much stuck
 				function (obj, width, height)
@@ -1194,7 +1193,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 			rect:BringToFront()
 		end
 		--Spring.Echo("Start rect table:",newStartRect.classname, newStartRect)
-		
+
 	end
 
 	function externalFunctions.RemoveStartRect(allyNo)
@@ -1212,7 +1211,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 				rect:BringToFront()
 			end
 		end
-		
+
 	end
 
 	function externalFunctions.GetStartRects()
