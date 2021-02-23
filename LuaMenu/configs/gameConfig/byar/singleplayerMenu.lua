@@ -5,12 +5,17 @@ local items = 	{
 		control = WG.BattleRoomWindow.GetSingleplayerControl(),
 		entryCheck = WG.BattleRoomWindow.SetSingleplayerGame,
 	},
+	{
+		name = "scenarios",
+		control = WG.ScenarioHandler.GetControl(),
+		startWithTabOpen = 1,
+	}
 }
 --Spring.Echo("campaign Error: ",WG.Chobby.Configuration,WG.Chobby.Configuration.debugMode)
-if WG.Chobby.Configuration and
-	WG.Chobby.Configuration.debugMode then
+if WG.Chobby.Configuration then --and
+	--WG.Chobby.Configuration.showCampaignButton then
 	items[#items+1] = 	{
-		name = "WiP Campaign", 
+		name = "wip_challenges", 
 		entryCheck = WG.CampaignSaveWindow.PromptInitialSaveName,
 		entryCheckBootMode = true,
 		submenuData = {

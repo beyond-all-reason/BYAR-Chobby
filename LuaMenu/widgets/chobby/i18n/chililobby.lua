@@ -159,7 +159,8 @@ return {
 			other = "%{count} items left to download.",
 		},
 		downloads_completed = "All downloads completed.",
-
+		wip_challenges = "WiP Challenges",
+		scenarios = "Scenarios",
 		-- Settings
 		planetwars_notifications = "Planetwars notifications",
 		ingame_notifcations = "Notifications while ingame",
@@ -170,6 +171,7 @@ return {
 		simplifiedSkirmishSetup = "Simple skirmish setup",
 		debugMode = "Debug mode",
 		animate_lobby = "Lobby animations",
+		account = "Account",
 
 		-- chat_windows.lua
 		server = "Server",
