@@ -1,7 +1,7 @@
-local shortname = "firstscenario" -- no spaces, lowercase
 local scenariodata = {
 	index			= 1, --  integer, sort order, MUST BE EQUAL TO FILENAME NUMBER
-	shortname		= shortname,
+	uniqueid		= "firstscenario001", -- no spaces, lowercase, this will be used to save the score
+    version         = 1, -- increment this to keep the score when changing a mission
 	title			= "Killing Barbarians", -- can be anything
 	imagepath		= "scenario001.jpg", -- placed next to lua file
 	imageflavor		= "Be the murder hobo you always wanted to be", -- This text will be drawn over image
@@ -11,12 +11,15 @@ local scenariodata = {
     Morbi purus turpis, convallis id mauris in, suscipit dignissim tellus. Nulla sit amet sagittis lectus. Nullam congue metus a condimentum placerat. Fusce aliquam ligula placerat, fermentum dui vel, molestie nisl. Etiam at diam blandit, malesuada odio eu, sagittis felis. Mauris augue lacus, congue ac mauris ut, posuere finibus felis. Proin ac nisl pulvinar justo pharetra efficitur at ut eros. Integer in lectus nec purus ullamcorper rhoncus. Maecenas vitae mi in eros vehicula aliquet et vitae elit. Morbi ornare vitae dui in rhoncus.
     
     Phasellus pretium auctor quam, ac efficitur purus euismod et. Etiam eget purus velit. Donec cursus tristique cursus. Duis dictum condimentum massa, sit amet hendrerit augue finibus vel. Quisque hendrerit, metus sit amet ultricies scelerisque, nisl nunc feugiat felis, vitae congue tellus felis id magna. Etiam congue accumsan auctor. Proin lobortis dolor ac dolor condimentum varius. Nunc ac mollis turpis, at elementum orci. Sed eu iaculis enim, ac fringilla felis. Proin varius fringilla suscipit. Donec gravida porttitor lectus eget aliquam. Nullam lorem sapien, aliquet id tincidunt non, accumsan a felis. Nulla ultrices blandit lorem, in mattis ipsum elementum et. Cras tristique eros vel vestibulum aliquam. Morbi cursus magna quis ante porta consectetur. ]],
-	mapfilename		= "Supreme_Crossing_V1", -- the SMF name of the map to be displayed here
+
+	mapfilename		= "Supreme_Crossing_V1", -- the name of the map to be displayed here
 	playerstartx	= "25%", -- X position of where player comm icon should be drawn, from top left of the map
 	playerstarty	= "75%", -- Y position of where player comm icon should be drawn, from top left of the map
 	partime 		= 3000, -- par time in seconds
 	parresources	= 1000000, -- par resource amount
 	difficulty		= 5, -- integer 1-10
+    adjustablediff  = true, -- whether player can change bonus
+    defaultside     = "Armada", --"Armada", Cortex or Random
 	victorycondition= "Kill All Enemy Commanders", -- This is plaintext, but should be reflected in startscript
 	losscondition	= "Death of your commander",  -- This is plaintext, but should be reflected in startscript
     unitlimits   = { -- table of unitdefname : maxnumberoftese units, 0 is disable it
@@ -77,8 +80,8 @@ local scenariodata = {
 
     [team0]
     {
-        Side = Armada;
-        Handicap = %PLAYERBONUS";
+        Side = __PLAYERSIDE__;
+        Handicap = __PLAYERBONUS__;
         RgbColor = 0 0.50999999 0.77999997;
         AllyTeam = 0;
         TeamLeader = 0;
