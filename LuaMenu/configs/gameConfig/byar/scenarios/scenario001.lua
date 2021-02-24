@@ -1,7 +1,7 @@
 local scenariodata = {
 	index			= 1, --  integer, sort order, MUST BE EQUAL TO FILENAME NUMBER
-	uniqueid		= "supcrossingvsbarbs001", -- no spaces, lowercase, this will be used to save the score
-    version         = 1, -- increment this to keep the score when changing a mission
+	scenarioid		= "supcrossingvsbarbs001", -- no spaces, lowercase, this will be used to save the score
+    version         = "1", -- increment this to keep the score when changing a mission
 	title			= "Outsmart the Barbarians", -- can be anything
 	imagepath		= "scenario001.jpg", -- placed next to lua file, should be 3:1 ratio banner style
 	imageflavor		= "Rocks can contain a lot of metal...", -- This text will be drawn over image

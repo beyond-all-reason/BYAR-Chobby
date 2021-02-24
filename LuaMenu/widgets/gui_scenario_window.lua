@@ -14,12 +14,6 @@ function widget:GetInfo()
 end
 
 
--- TODO: Parse scores!
--- TODO: Get Scores!
--- TODO: Store scores locally!
--- TODO: unique ID on updates to mission that could affect scores
--- TODO: refresh button for EZ testing
-
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 -- Local Variables
@@ -36,7 +30,18 @@ local mydifficulty = nil
 local myscores = {time = 0, resources = 0}
 local myside = nil
 
-
+local scoreData = {} -- a table, with keys being scenario uniqueIDs, values being tables of 
+--[[
+{ supcrossingvsbarbs001 = {
+	"1" = {
+		"Easy" = {
+			time = 10000,
+			resources = 10000,
+		}		
+	}
+	}
+}
+--]]
 local unitdefname_to_humanname = {} -- from en.lua
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
@@ -97,11 +102,39 @@ local function LoadScenarios()
 	table.sort(scenarios, SortFunc )
 end
 
-local function EncodeScenarioOptions(luatable)
-	return Spring.Utilities.Base64Encode(Spring.Utilities.json.encode(luatable))
+
+
+local function EncodeScenarioOptions(scenario)
+	scenario.scenariooptions.version = scenario.version
+	scenario.scenariooptions.scenarioid = scenario.scenarioid
+	return Spring.Utilities.Base64Encode(Spring.Utilities.json.encode(scenario.scenariooptions))
 end
 
-local function GetBestScores(scenarioID,scenarioversoin,difficulty)
+local function GetBestScores(scenarioID,scenarioVersion,difficulty)
+	if scoreData[scenarioid] and 
+		scoreData[scenarioID][scenarioVersion] and 
+		scoreData[scenarioID][scenarioVersion][difficulty] then
+			myscores = scoreData[scenarioID][scenarioVersion][difficulty]
+			return myscores
+	else 
+		return  {time = 0, resources = 0}
+	end
+end
+
+local function SetScore(scenarioID,scenarioVersion,difficulty,time,resources)
+	
+	Spring.Echo("Scenario Window SetScore")
+	if scoreData[scenarioID] == nil then
+		scoreData[scenarioID] = {}
+	end 
+	if scoreData[scenarioID][scenarioVersion] == nil then
+		scoreData[scenarioID][scenarioVersion] = {}
+	end 
+	if scoreData[scenarioID][scenarioVersion][difficulty] == nil then
+		scoreData[scenarioID][scenarioVersion][difficulty] = {}
+	end 
+	scoreData[scenarioID][scenarioVersion][difficulty] = {time = time, resources = resources}
+
 end
 
 --------------------------------------------------------------------------------
@@ -110,6 +143,7 @@ end
 
 local function CreateScenarioPanel(shortname, sPanel)
 	local Configuration = WG.Chobby.Configuration
+	
 	
 	sPanel:ClearChildren()
 	
@@ -120,8 +154,23 @@ local function CreateScenarioPanel(shortname, sPanel)
 		end
 	end
 
-
 	MaybeDownloadMap(scen.mapfilename)
+
+		
+	local difficulties = {}
+	local defaultdifficultyindex = 1
+	for i,diff in pairs(scen.difficulties) do
+		difficulties[#difficulties + 1] = diff.name
+		if diff.name == scen.defaultdifficulty then 
+			defaultdifficultyindex = i
+			mydifficulty = diff
+		end
+	end
+	
+	myscores = GetBestScores(scen.scenarioID, scen.version, mydifficulty)
+
+	myside = scen.defaultside
+
 	
 	local titletext = Label:New{
 		x = 0,
@@ -262,20 +311,6 @@ local function CreateScenarioPanel(shortname, sPanel)
 		font = Configuration:GetFont(2),
 		caption =  tostring(math.ceil(scen.parresources/1000)) .. "K metal",
 	}
---[[
-	local function makebonuscaption(intbonus)
-		return "Difficulty modifier " .. tostring(intbonus) .. "%"
-	end
-
-	local bonusText = Label:New{
-		x = 0,
-		y = "45%",
-		width = "50%",
-		height = "5%",
-		parent = sPanel,
-		font = Configuration:GetFont(2),
-		caption = makebonuscaption(mybonus),
-	}]]--
 
 
 	---------------------------------
@@ -414,18 +449,6 @@ local function CreateScenarioPanel(shortname, sPanel)
 		caption = tostring(math.ceil(myscores.resources/1000)) .. "K metal",
 	}
 
-	
-	local difficulties = {}
-	local defaultdifficultyindex = 1
-	for i,diff in pairs(scen.difficulties) do
-		difficulties[#difficulties + 1] = diff.name
-		if diff.name == scen.defaultdifficulty then 
-			defaultdifficultyindex = i
-			mydifficulty = diff
-		end
-	end
-
-	myside = scen.defaultside
 
 	local sidelabel = Label:New{
 		x = "0%",
@@ -543,15 +566,15 @@ local function CreateScenarioPanel(shortname, sPanel)
 		basescript = basescript:gsub("__NUMRESTRICTIONS__",tostring(numrestrictions))
 		basescript = basescript:gsub("__RESTRICTEDUNITS__",restrictionstring)
 		basescript = basescript:gsub("__PLAYERNAME__",myName)
-		basescript = basescript:gsub("__PLAYERBONUS__",tostring(mydifficulty.playerhandicap))
-		basescript = basescript:gsub("__ENEMYBONUS__",tostring(mydifficulty.enemyhandicap))
+		basescript = basescript:gsub("__PLAYERHANDICAP__",tostring(mydifficulty.playerhandicap))
+		basescript = basescript:gsub("__ENEMYHANDICAP__",tostring(mydifficulty.enemyhandicap))
 		basescript = basescript:gsub("__BARVERSION__",tostring(barversion))
 		if scen.adjustablediff then
 			basescript = basescript:gsub("__PLAYERSIDE__",tostring(myside or scen.defaultside))
 		else
 			basescript = basescript:gsub("__PLAYERSIDE__",tostring(scen.defaultside))
 		end
-		basescript = basescript:gsub("__SCENARIOOPTIONS__",tostring(EncodeScenarioOptions(scen.scenariooptions)))
+		basescript = basescript:gsub("__SCENARIOOPTIONS__",tostring(EncodeScenarioOptions(scen)))
 
 	
 		return basescript
@@ -571,7 +594,7 @@ local function CreateScenarioPanel(shortname, sPanel)
 					local scriptTxt = createstartscript()
 					Spring.Echo("Mission Ready")
 					Spring.Echo(scriptTxt)
-					--Spring.Reload(scriptTxt)
+					Spring.Reload(scriptTxt)
 			end
 		},
 		parent = sPanel,
@@ -677,8 +700,40 @@ end
 --------------------------------------------------------------------------------
 -- Widget Interface
 
+local SCENARIO_COMPLETE_STRING = "scenario_complete_"
+
+function widget:RecvLuaMsg(msg)
+	if string.find(msg, SCENARIO_COMPLETE_STRING) then
+		--local missionName = string.sub(msg, string.len(SCENARIO_COMPLETE_STRING) + 1)
+		-- TODO:  Implement parsing of a scenario complete string
+		-- It should return a couple of things, as we theoretically know the scenario ids passed through scenariooptions
+		-- scenario ID
+		-- time to game end in sec
+		-- did player win t/f
+		-- spent metal + E/60 resources value
+
+		Spring.Echo("scenario_complete_", msg)
+	end
+end
+
+function widget:GetConfigData()
+	Spring.Echo("Scenario Window GetConfigData")
+	return {
+		scores = scoreData,
+	}
+end
+
+function widget:SetConfigData(data)
+	
+	Spring.Echo("Scenario Window SetConfigData")
+	scoreData = data.scores or {}
+end
+
+
+
 local function DelayedInitialize()
 	local Configuration = WG.Chobby.Configuration
+	--SetScore("testscores","1.0","Hard",100,10000) seems to work
 end
 
 
@@ -691,8 +746,18 @@ function widget:Initialize()
 	WG.Delay(DelayedInitialize, 1)
 
 	WG.ScenarioHandler = ScenarioHandler
+
+	--test scoring
 end
 
+
+local framenum = 0
+function widget:Update() -- just to check if this still runs, and yes
+	framenum = framenum + 1
+	if math.fmod(framenum,1000)==0 then
+		--Spring.Echo("widget:Update()")
+	end
+end
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 unitdefname_to_humanname  = {
