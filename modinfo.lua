@@ -6,8 +6,9 @@ return {
   mutator = 'Official',
   modtype = 5,
   onlyLocal = true,
-  depend = {
-      'rapid://chobby:test',
-      -- 'Chobby $VERSION',
+  depend = { 
+      -- For developing base chobby, switch out dependency
+      'rapid://chobby:test', --this uses rapid pinned chobby
+      --'Chobby $VERSION', -- this specifies chobby.sdd working path
   },
 }
