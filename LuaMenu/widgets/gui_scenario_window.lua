@@ -13,12 +13,12 @@ function widget:GetInfo()
 	}
 end
 
--- TODO: change sides!
+
 -- TODO: Parse scores!
 -- TODO: Get Scores!
 -- TODO: Store scores locally!
 -- TODO: unique ID on updates to mission that could affect scores
--- TODO: unitname to unitname
+-- TODO: refresh button for EZ testing
 
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
@@ -26,11 +26,16 @@ end
 
 local scenarioWindow
 local scenarios
+local scenariosorter
 local currentscenario
 local mybonus = 0
 local alreadyDownloaded = false
 local barversion = nil
 local myside = nil
+local mydifficulty = nil
+local myscores = {time = 0, resources = 0}
+local myside = nil
+
 
 local unitdefname_to_humanname = {} -- from en.lua
 --------------------------------------------------------------------------------
@@ -51,7 +56,7 @@ local function ShortenGameName(gameName)
 	  gameName = gameName:sub(1, gameName:find("-[^-]*$") -1 )
 	end
 	return gameName
-  end
+end
 
 local function DownloadRequirements()
 	local config = WG.Chobby.Configuration
@@ -64,25 +69,57 @@ local function DownloadRequirements()
 	end
 end
 
-  local function ShortenEngineName(engineName)
+local function ShortenEngineName(engineName)
 	if engineName:find("-[^-]*$") then
-	  engineName = engineName:sub(1, engineName:find("-[^-]*$") -1)
+		engineName = engineName:sub(1, engineName:find("-[^-]*$") -1)
 	end
 	return engineName
-  end
+end
 
-  local function ternary(condition, T, F)
-	  if condition then return T else return F end
-  end
+local function ternary(condition, T, F)
+	if condition then return T else return F end
+end
 
   
+local function LoadScenarios()
+	scenarios = {}
+	local files = VFS.DirList("LuaMenu/configs/gameConfig/byar/scenarios/")
+	for i = 1, #files do
+		if string.find(files[i],".lua") then
+			scenarios[#scenarios+1] = VFS.Include(files[i])
+		end
+	end
+
+	local function SortFunc(a,b)
+		return a.index < b.index
+	end
+
+	table.sort(scenarios, SortFunc )
+end
+
+local function EncodeScenarioOptions(luatable)
+	return Spring.Utilities.Base64Encode(Spring.Utilities.json.encode(luatable))
+end
+
+local function GetBestScores(scenarioID,scenarioversoin,difficulty)
+end
+
+--------------------------------------------------------------------------------
+-- GUI
 
 
 local function CreateScenarioPanel(shortname, sPanel)
 	local Configuration = WG.Chobby.Configuration
-	-- TODO: destroy old config:GetMinimapImage(
+	
+	sPanel:ClearChildren()
+	
+	local scen = scenarios[1]
+	for i, s in pairs(scenarios) do
+		if shortname == s.title then
+			scen = s 
+		end
+	end
 
-	local scen = scenarios
 
 	MaybeDownloadMap(scen.mapfilename)
 	
@@ -100,15 +137,18 @@ local function CreateScenarioPanel(shortname, sPanel)
 		x = 0,
 		y = "5%",
 		width = "48%",
-		height = "19%",
+		height = "14%",
 		parent = sPanel,
 		horizontalScrollbar = true,
 	}
 
 	local summarytext = scen.summary .. "\nUnit Limits:"
-
-	for unitid, count in pairs(scen.unitlimits) do 
-		summarytext = summarytext .. "\n  - "..unitid .. ": " .. tostring(count)
+	if scen.unitlimits == {} or scen.unitlimits == nil then
+		summarytext = summarytext .. " none\n"
+	else
+		for unitid, count in pairs(scen.unitlimits) do 
+			summarytext = summarytext .. "\n  - "..unitid .. ": " .. tostring(count)
+		end
 	end
 
 	local summarytextbox = TextBox:New {
@@ -122,58 +162,107 @@ local function CreateScenarioPanel(shortname, sPanel)
 		parent = summarySP,
 	}
 
-	local victoryText = Label:New{
+	local lblvictoryText = Label:New{
 		x = 0,
-		y = "25%",
+		y = "20%",
 		width = "50%",
 		height = "5%",
 		parent = sPanel,
 		font = Configuration:GetFont(2),
-		caption = "Victory Condition: " .. scen.victorycondition,
-	}
-
-	local lossText = Label:New{
-		x = 0,
-		y = "29%",
-		width = "50%",
-		height = "5%",
-		parent = sPanel,
-		font = Configuration:GetFont(2),
-		caption = "Loss Condition: " .. scen.losscondition,
+		caption = "Victory",
 	}
 
 	
-	local difficultyText = Label:New{
-		x = 0,
-		y = "33%",
+	local victoryText = Label:New{
+		x = "16%",
+		y = "20%",
 		width = "50%",
 		height = "5%",
 		parent = sPanel,
 		font = Configuration:GetFont(2),
-		caption = "Difficulty: " .. tostring(scen.difficulty),
+		caption = scen.victorycondition,
 	}
 
-		
-	local partimeText = Label:New{
+	local lbllossText = Label:New{
 		x = 0,
-		y = "37%",
+		y = "24%",
 		width = "50%",
 		height = "5%",
 		parent = sPanel,
 		font = Configuration:GetFont(2),
-		caption = "Par Time: " .. tostring(math.ceil(scen.partime/60)) .. " minutes",
+		caption = "Loss" ,
+	}
+
+	local lossText = Label:New{
+		x = "16%",
+		y = "24%",
+		width = "50%",
+		height = "5%",
+		parent = sPanel,
+		font = Configuration:GetFont(2),
+		caption = scen.losscondition,
+	}
+
+	local lbldifficultyText = Label:New{
+		x = 0,
+		y = "28%",
+		width = "50%",
+		height = "5%",
+		parent = sPanel,
+		font = Configuration:GetFont(2),
+		caption = "Challenge",
+	}
+	
+	local difficultyText = Label:New{
+		x = "16%",
+		y = "28%",
+		width = "50%",
+		height = "5%",
+		parent = sPanel,
+		font = Configuration:GetFont(2),
+		caption = tostring(scen.difficulty),
+	}
+
+	local lblpartimeText = Label:New{
+		x = 0,
+		y = "32%",
+		width = "50%",
+		height = "5%",
+		parent = sPanel,
+		font = Configuration:GetFont(2),
+		caption = "Par Time",
+	}
+
+	local partimeText = Label:New{
+		x = "16%",
+		y = "32%",
+		width = "50%",
+		height = "5%",
+		parent = sPanel,
+		font = Configuration:GetFont(2),
+		caption = tostring(math.ceil(scen.partime/60)) .. " minutes",
+	}
+
+	local lblparresourcesText = Label:New{
+		x = 0,
+		y = "36%",
+		width = "50%",
+		height = "5%",
+		parent = sPanel,
+		font = Configuration:GetFont(2),
+		caption = "Par Resources" ,
 	}
 
 	local parresourcesText = Label:New{
-		x = 0,
-		y = "41%",
+		x = "16%",
+		y = "36%",
 		width = "50%",
 		height = "5%",
 		parent = sPanel,
 		font = Configuration:GetFont(2),
-		caption = "Par Resource usage: " .. tostring(math.ceil(scen.parresources/1000)) .. "K metal",
+		caption =  tostring(math.ceil(scen.parresources/1000)) .. "K metal",
 	}
-
+--[[
 	local function makebonuscaption(intbonus)
 		return "Difficulty modifier " .. tostring(intbonus) .. "%"
 	end
@@ -186,34 +275,8 @@ local function CreateScenarioPanel(shortname, sPanel)
 		parent = sPanel,
 		font = Configuration:GetFont(2),
 		caption = makebonuscaption(mybonus),
-	}
+	}]]--
 
-	local setbonusbutton = Button:New{
-		x = "25%",
-		y = "44%" ,
-		width = "100",
-		height = "4%",
-		caption = "Set Bonus",
-		classname = "action_button",
-		font = Configuration:GetFont(1),
-		tooltip = "Set difficulty modifier. IF SET, YOUR SCORE WONT BE RECORDED!",
-		OnClick = {
-			function()
-				WG.IntegerSelectorWindow.CreateIntegerSelectorWindow({
-						defaultValue = 0,
-						minValue = -100,
-						maxValue = 100,
-						caption = "Set Bonus",
-						labelCaption = "Give yourself and additional % resource bonus. 100% means that you produce double the normal resource amount. 0% is regular resource production. Negative numbers reduce your resource income by that percentage",
-						OnAccepted = function(bonusAmount)
-							mybonus = bonusAmount
-							bonusText:SetCaption(makebonuscaption(mybonus))
-						end
-				})
-			end
-		},
-		parent = sPanel,
-	}
 
 	---------------------------------
 		
@@ -245,22 +308,22 @@ local function CreateScenarioPanel(shortname, sPanel)
 	local flavorimage = Image:New {
 		x = "0",
 		y = "51%",
-		right = 0,
+		width = "73%",
 		height = "23%",
 		keepAspect = true,
 		file = "LuaMenu/configs/gameConfig/byar/scenarios/" .. scen.imagepath,
 		parent = sPanel,
-		tooltip = scen.mapfilename,
+		--tooltip = scen.mapfilename,
 		padding = {10,10,10,10},
 	}
 	
 	local flavortext = Label:New{
-		x = "25%",
+		x = "12.5%",
 		y = "25%",
-		width = "95%",
+		width = "73%",
 		height = "5%",
 		parent = flavorimage,
-		font = Configuration:GetFont(3),
+		font = Configuration:GetFont(2),
 		caption = scen.imageflavor,
 	}
 
@@ -268,11 +331,12 @@ local function CreateScenarioPanel(shortname, sPanel)
 
 	local briefingtextSP = ScrollPanel:New {
 		x = 0,
-		right = "26%",
 		y = "76%",
+		width = "74%",
 		bottom = 0,
 		parent = sPanel,
 		horizontalScrollbar = true,
+		padding = {10,10,10,10},
 	}
 
 	local briefingtext = TextBox:New {
@@ -284,28 +348,189 @@ local function CreateScenarioPanel(shortname, sPanel)
 		fontsize = Configuration:GetFont(1).size,
 		text = scen.briefing,
 		parent = briefingtextSP,
+		
+		padding = {10,10,10,10},
 	}
 
 	------------------------
-	local mytime = Label:New{
-		x = "75%",
-		y = "80%",
+	local lblpersonal = Label:New{
+		x = "77%",
+		y = "67.5%",
+		width = "20%",
+		height = "5%",
+		parent = sPanel,
+		font = Configuration:GetFont(3),
+		caption = "Personal Records",
+	}
+
+	
+	local lbldifflevelpersonal = Label:New{
+		x = "77%",
+		y = "72.5%",
+		width = "20%",
+		height = "5%",
+		parent = sPanel,
+		font = Configuration:GetFont(2),
+		caption = "Difficulty level: "..tostring(mydifficulty),
+	}
+
+	local lblmytime = Label:New{
+		x = "77%",
+		y = "77.5%",
 		width = "25%",
 		height = "5%",
 		parent = sPanel,
 		font = Configuration:GetFont(2),
-		caption = "My Time: " .. tostring(math.ceil(scen.partime/60)) .. " minutes",
+		caption = "My Best Time: ",
+	}
+	
+	local mytime = Label:New{
+		x = "77%",
+		y = "80.5%",
+		width = "25%",
+		height = "5%",
+		parent = sPanel,
+		font = Configuration:GetFont(2),
+		caption = tostring(math.ceil(myscores.time/60)) .. " minutes",
 	}
 
-	local myresources = Label:New{
-		x = "75%",
+	local lblmyresources = Label:New{
+		x = "77%",
 		y = "85%",
 		width = "25%",
 		height = "5%",
 		parent = sPanel,
 		font = Configuration:GetFont(2),
-		caption = "My Resources " .. tostring(math.ceil(scen.parresources/1000)) .. "K metal",
+		caption = "My Resources ",
 	}
+
+	local myresources = Label:New{
+		x = "77%",
+		y = "89%",
+		width = "25%",
+		height = "5%",
+		parent = sPanel,
+		font = Configuration:GetFont(2),
+		caption = tostring(math.ceil(myscores.resources/1000)) .. "K metal",
+	}
+
+	
+	local difficulties = {}
+	local defaultdifficultyindex = 1
+	for i,diff in pairs(scen.difficulties) do
+		difficulties[#difficulties + 1] = diff.name
+		if diff.name == scen.defaultdifficulty then 
+			defaultdifficultyindex = i
+			mydifficulty = diff
+		end
+	end
+
+	myside = scen.defaultside
+
+	local sidelabel = Label:New{
+		x = "0%",
+		y = "40%" ,
+		width = "100",
+		height = "4%",
+		parent = sPanel,
+		font = Configuration:GetFont(2),
+		caption = "Faction",
+	}
+	--[[
+	local sidechangebutton  = Button:New {
+		x = "25%",
+		y = "50%" ,
+		width = "100",
+		height = "4%",
+		caption = myside,
+		classname = "option_button",
+		font = Configuration:GetFont(2),
+		tooltip = "Start the scenario",
+		OnClick = {
+			function(obj)
+					Spring.Echo("Changing side:")
+					WG.SideChangeWindow.CreateSideChangeWindow({
+						initialSide = myside or 0,
+						OnAccepted = function(sideId)
+								local sidedata = Configuration:GetSideData()
+								Spring.Echo("Chose side:",sideID,sidedata[sideID+1])
+								myside = sidedata[sideID+1]
+								obj:SetCaption(myside)
+							end
+					})
+			end
+		},
+		parent = sPanel,
+	}]]--
+
+	local sideCombo = ComboBox:New{
+		x = "16%",
+		y = "40%" ,
+		width = "33%",
+		height = "4%",
+		itemHeight = 22,
+		valign = "center",
+		align = "left",
+		selectByName = true,
+		--captionHorAlign = -32,
+		text = "HasText",
+		font = Configuration:GetFont(2),
+		items = {"Armada", "Cortex", "Random"}, --{"Coop", "Team", "1v1", "FFA", "Custom"},
+		itemFontSize = Configuration:GetFont(2).size,
+		selected = 1,
+		OnSelectName = {
+			function (obj, selectedName)
+					Spring.Echo("Faction selected:",selectedName)
+					myside = selectedName
+			end
+		},
+		parent = sPanel,
+	}
+	
+
+	local difflabel = Label:New{
+		x = "0%",
+		y = "44%" ,
+		width = "100",
+		height = "4%",
+		parent = sPanel,
+		font = Configuration:GetFont(2),
+		caption = "Difficulty",
+	}
+
+	local function UpdateDifficulty(newdifficulty)
+		for i, diff in pairs(scen.difficulties) do 
+			if diff.name == newdifficulty then mydifficulty = diff end
+		end
+		mydifficulty = newdifficulty
+		lbldifflevelpersonal:SetCaption("Difficulty level: "..tostring(mydifficulty))
+	end
+
+	local difficultCombo = ComboBox:New{
+		x = "16%",
+		y = "44%" ,
+		width = "33%",
+		height = "4%",
+		itemHeight = 22,
+		valign = "left",
+		align = "left",
+		selectByName = true,
+		--captionHorAlign = -32,
+		text = "HasText",
+		font = Configuration:GetFont(2),
+		items = difficulties, --{"Coop", "Team", "1v1", "FFA", "Custom"},
+		itemFontSize = Configuration:GetFont(2).size,
+		selected = 3,
+		OnSelectName = {
+			function (obj, selectedName)
+				Spring.Echo("Difficulty selected:",selectedName)
+				UpdateDifficulty(selectedName,scenarioPanel)
+			end
+		},
+		parent = sPanel,
+	}
+
+
 	local function createstartscript()
 		local basescript = scen.startscript
 		local numrestrictions = 0
@@ -314,25 +539,27 @@ local function CreateScenarioPanel(shortname, sPanel)
 			restrictionstring = restrictionstring .. "Unit"..tostring(numrestrictions).."="..unitid..";\nLimit"..tostring(numrestrictions).."="..tostring(count)..";\n"
 			numrestrictions = numrestrictions + 1
 		end
-
 		local myName = WG.Chobby.Configuration:GetPlayerName()
 		basescript = basescript:gsub("__NUMRESTRICTIONS__",tostring(numrestrictions))
 		basescript = basescript:gsub("__RESTRICTEDUNITS__",restrictionstring)
 		basescript = basescript:gsub("__PLAYERNAME__",myName)
-		basescript = basescript:gsub("__PLAYERBONUS__",tostring(mybonus))
+		basescript = basescript:gsub("__PLAYERBONUS__",tostring(mydifficulty.playerhandicap))
+		basescript = basescript:gsub("__ENEMYBONUS__",tostring(mydifficulty.enemyhandicap))
 		basescript = basescript:gsub("__BARVERSION__",tostring(barversion))
 		if scen.adjustablediff then
 			basescript = basescript:gsub("__PLAYERSIDE__",tostring(myside or scen.defaultside))
 		else
 			basescript = basescript:gsub("__PLAYERSIDE__",tostring(scen.defaultside))
 		end
+		basescript = basescript:gsub("__SCENARIOOPTIONS__",tostring(EncodeScenarioOptions(scen.scenariooptions)))
+
 	
 		return basescript
 	end
 
 	local startmissionbutton = Button:New {
-		x = "75%",
-		bottom = 0,
+		x = "76%",
+		y = "52%",
 		right = 0,
 		height = "10%",
 		caption = "Start Scenario",
@@ -344,13 +571,14 @@ local function CreateScenarioPanel(shortname, sPanel)
 					local scriptTxt = createstartscript()
 					Spring.Echo("Mission Ready")
 					Spring.Echo(scriptTxt)
-					Spring.Reload(scriptTxt)
+					--Spring.Reload(scriptTxt)
 			end
 		},
 		parent = sPanel,
 	}
 
 end
+
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 -- Controls
@@ -375,27 +603,35 @@ local function InitializeControls(parentControl)
 		y = 46,
 		width = '100%',
 		bottom = '0%',
-		padding = {10,10,10,10},
+		padding = {20,20,20,20},
 		parent = parentControl,
 	}
 
+	local cbitemlist = {}
+	for i, scen in ipairs(scenarios) do 
+		cbitemlist[#cbitemlist+1] = scen.title
+	end
+
 	local scenarioSelectorCombo = ComboBox:New{
 		x = 180,
-		right = "1%",
+		right = "3%",
 		y = 12,
 		height = 35,
-		itemHeight = 22,
+		itemHeight = 35,
 		selectByName = true,
-		captionHorAlign = -32,
+		
+		valign = "left",
+		align = "left",
+		--captionHorAlign = -32,
 		text = "HasText",
 		font = Configuration:GetFont(3),
-		items = {"Coop", "Team", "1v1", "FFA", "Custom"},
+		items = cbitemlist, --{"Coop", "Team", "1v1", "FFA", "Custom"},
 		itemFontSize = Configuration:GetFont(3).size,
 		selected = 1,
 		OnSelectName = {
 			function (obj, selectedName)
 				Spring.Echo(selectedName)
-				CreateScenarioPanel(1,scenarioPanel)
+				CreateScenarioPanel(selectedName,scenarioPanel)
 			end
 		},
 		parent = parentControl,
@@ -404,17 +640,9 @@ local function InitializeControls(parentControl)
 
 	CreateScenarioPanel(1,scenarioPanel)
 	
-
-	local replayList
-	
-
 	local externalFunctions = {}
 
-	function externalFunctions.AddReplay(replayPath, engine, game, map, script)
-		local control, sortData = CreateReplayEntry(replayPath, engine, game, map)
-		if control then
-			replayList:AddItem(replayPath, control, sortData)
-		end
+	function externalFunctions.Example(none)
 	end
 
 	return externalFunctions
@@ -445,34 +673,20 @@ function ScenarioHandler.GetControl()
 	return window
 end
 
-function ScenarioHandler.ReadReplayInfoDone(path, engine, game, map, script)
-	if not scenarioWindow then
-		return
-	end
-	scenarioWindow.AddReplay(path, engine, game, map, script)
-end
-
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 -- Widget Interface
 
 local function DelayedInitialize()
 	local Configuration = WG.Chobby.Configuration
-	battleStartDisplay = Configuration.game_fullscree
 end
+
 
 function widget:Initialize()
 	CHOBBY_DIR = LUA_DIRNAME .. "widgets/chobby/"
 	VFS.Include(LUA_DIRNAME .. "widgets/chobby/headers/exports.lua", nil, VFS.RAW_FIRST)
 
-	scenarios = {}
-	local files = VFS.DirList("LuaMenu/configs/gameConfig/byar/scenarios/")
-	for i = 1, #files do
-		if string.find(files[i],".lua") then
-			scenarios[#scenarios+1] = VFS.Include(files[i])
-		end
-	end
-
+	LoadScenarios()
 
 	WG.Delay(DelayedInitialize, 1)
 

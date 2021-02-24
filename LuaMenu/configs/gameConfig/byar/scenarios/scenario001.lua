@@ -1,35 +1,44 @@
 local scenariodata = {
 	index			= 1, --  integer, sort order, MUST BE EQUAL TO FILENAME NUMBER
-	uniqueid		= "firstscenario001", -- no spaces, lowercase, this will be used to save the score
+	uniqueid		= "supcrossingvsbarbs001", -- no spaces, lowercase, this will be used to save the score
     version         = 1, -- increment this to keep the score when changing a mission
-	title			= "Killing Barbarians", -- can be anything
-	imagepath		= "scenario001.jpg", -- placed next to lua file
-	imageflavor		= "Be the murder hobo you always wanted to be", -- This text will be drawn over image
-    summary         = [[Kill all 3 nasty barbarians in the top right ]],
-	briefing 		= [[    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec massa ligula, scelerisque ac nulla id, efficitur convallis nisi. Nunc tellus neque, laoreet in porttitor ac, congue sit amet leo. Nulla dignissim lorem sit amet pharetra imperdiet. Mauris rhoncus porta tincidunt. Cras facilisis vel nunc sed congue. Praesent efficitur metus ac lectus pretium lacinia. Donec erat velit, aliquet non volutpat interdum, tincidunt non justo. Nullam volutpat urna vestibulum, rhoncus nisl nec, porttitor urna. Morbi lobortis elit at ex malesuada, id viverra ex sodales. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Donec imperdiet, dolor et fringilla congue, enim nisi feugiat libero, aliquet maximus felis justo ultrices tortor. Ut viverra elit sit amet justo porta bibendum. Suspendisse mattis lacinia massa id lacinia. Nunc sed dolor sed turpis tincidunt egestas nec vel magna. Nam ornare scelerisque lorem, quis congue tellus tempus eu. Donec et molestie tortor.
-
-    Morbi purus turpis, convallis id mauris in, suscipit dignissim tellus. Nulla sit amet sagittis lectus. Nullam congue metus a condimentum placerat. Fusce aliquam ligula placerat, fermentum dui vel, molestie nisl. Etiam at diam blandit, malesuada odio eu, sagittis felis. Mauris augue lacus, congue ac mauris ut, posuere finibus felis. Proin ac nisl pulvinar justo pharetra efficitur at ut eros. Integer in lectus nec purus ullamcorper rhoncus. Maecenas vitae mi in eros vehicula aliquet et vitae elit. Morbi ornare vitae dui in rhoncus.
+	title			= "Outsmart the Barbarians", -- can be anything
+	imagepath		= "scenario001.jpg", -- placed next to lua file, should be 3:1 ratio banner style
+	imageflavor		= "Rocks can contain a lot of metal...", -- This text will be drawn over image
+    summary         = [[Three aggressive barbarians have landed in the top right corner of the map. Neutralize them.]],
+	briefing 		= [[Supreme Crossing is focused around the central shallows passage between the two archipelagos. Every single unit can pass there, with the notable exception of Fleas, as they cannot operate even in shallow water. This should give you some safety from the earliest of raids. The seas, accessible from most areas of the map are thus connected, and control over the vast amount of metal they hold is key to victory. Fortify your side of the crossing as soon as possible, before the hordes start moving across. There are rocks stashed around the map, containing a sizeable amount of metal for a quick transition to higher tech tiers. 
     
-    Phasellus pretium auctor quam, ac efficitur purus euismod et. Etiam eget purus velit. Donec cursus tristique cursus. Duis dictum condimentum massa, sit amet hendrerit augue finibus vel. Quisque hendrerit, metus sit amet ultricies scelerisque, nisl nunc feugiat felis, vitae congue tellus felis id magna. Etiam congue accumsan auctor. Proin lobortis dolor ac dolor condimentum varius. Nunc ac mollis turpis, at elementum orci. Sed eu iaculis enim, ac fringilla felis. Proin varius fringilla suscipit. Donec gravida porttitor lectus eget aliquam. Nullam lorem sapien, aliquet id tincidunt non, accumsan a felis. Nulla ultrices blandit lorem, in mattis ipsum elementum et. Cras tristique eros vel vestibulum aliquam. Morbi cursus magna quis ante porta consectetur. ]],
+Your progress will judged by:
+    1. Speed: destroying the enemy Commanders as fast as possible.
+    2. Efficiency: using the least amount of total resources to destroy the enemy Commanders.
+    ]],
 
 	mapfilename		= "Supreme_Crossing_V1", -- the name of the map to be displayed here
 	playerstartx	= "25%", -- X position of where player comm icon should be drawn, from top left of the map
 	playerstarty	= "75%", -- Y position of where player comm icon should be drawn, from top left of the map
 	partime 		= 3000, -- par time in seconds
 	parresources	= 1000000, -- par resource amount
-	difficulty		= 5, -- integer 1-10
+	difficulty		= 5, -- Percieved difficulty at 'normal' level: integer 1-10
     adjustablediff  = true, -- whether player can change bonus
+    defaultdifficulty = "Normal", -- an entry of the difficulty table
+    difficulties    = { -- Array for sortedness, Keys are text that appears in selector (as well as in scoring!), values are handicap levels
+        {name = "Beginner", playerhandicap = 150, enemyhandicap=100},
+        {name = "Novice"  , playerhandicap = 125, enemyhandicap=100},
+        {name = "Normal"  , playerhandicap = 100, enemyhandicap=100},
+        {name = "Hard"    , playerhandicap = 100,  enemyhandicap=125},
+        {name = "Brutal" , playerhandicap = 100,  enemyhandicap=150},
+    },
     defaultside     = "Armada", --"Armada", Cortex or Random
-	victorycondition= "Kill All Enemy Commanders", -- This is plaintext, but should be reflected in startscript
-	losscondition	= "Death of your commander",  -- This is plaintext, but should be reflected in startscript
+	victorycondition= "Kill all enemy Commanders", -- This is plaintext, but should be reflected in startscript
+	losscondition	= "Death of your Commander",  -- This is plaintext, but should be reflected in startscript
     unitlimits   = { -- table of unitdefname : maxnumberoftese units, 0 is disable it
         armavp = 0,
         coravp = 0,
     } ,
 
-    scenariomodoptions = { -- this will get lua->json->base64 and passed to scenariooptions in game
+    scenariooptions = { -- this will get lua->json->base64 and passed to scenariooptions in game
         myoption = "dostuff",
-
+        scenarioid = "supcrossingvsbarbs001",
     },
     -- https://github.com/spring/spring/blob/105.0/doc/StartScriptFormat.txt
 	startscript		= [[[Game]
@@ -55,7 +64,7 @@ local scenariodata = {
 
     [team1]
     {
-        Handicap = 0;
+        Handicap = __ENEMYHANDICAP__;
         RgbColor = 0.89999998 0.1 0.28999999;
         AllyTeam = 1;
         TeamLeader = 0;
@@ -72,7 +81,7 @@ local scenariodata = {
 
     [team3]
     {
-        Handicap = 0;
+        Handicap = __ENEMYHANDICAP__;
         RgbColor = 0.95999998 0.50999999 0.19;
         AllyTeam = 1;
         TeamLeader = 0;
@@ -81,7 +90,7 @@ local scenariodata = {
     [team0]
     {
         Side = __PLAYERSIDE__;
-        Handicap = __PLAYERBONUS__;
+        Handicap = __PLAYERHANDICAP__;
         RgbColor = 0 0.50999999 0.77999997;
         AllyTeam = 0;
         TeamLeader = 0;
@@ -89,7 +98,7 @@ local scenariodata = {
 
     [team2]
     {
-        Handicap = 0;
+        Handicap = __ENEMYHANDICAP__;
         RgbColor = 1 0.88 0.1;
         AllyTeam = 1;
         TeamLeader = 0;
