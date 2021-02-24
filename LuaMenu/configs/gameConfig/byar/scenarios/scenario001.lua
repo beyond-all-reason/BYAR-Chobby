@@ -6,11 +6,14 @@ local scenariodata = {
 	imagepath		= "scenario001.jpg", -- placed next to lua file, should be 3:1 ratio banner style
 	imageflavor		= "Rocks can contain a lot of metal...", -- This text will be drawn over image
     summary         = [[Three aggressive barbarians have landed in the top right corner of the map. Neutralize them.]],
-	briefing 		= [[Supreme Crossing is focused around the central shallows passage between the two archipelagos. Every single unit can pass there, with the notable exception of Fleas, as they cannot operate even in shallow water. This should give you some safety from the earliest of raids. The seas, accessible from most areas of the map are thus connected, and control over the vast amount of metal they hold is key to victory. Fortify your side of the crossing as soon as possible, before the hordes start moving across. There are rocks stashed around the map, containing a sizeable amount of metal for a quick transition to higher tech tiers. 
+	briefing 		= [[Fortify your side of the crossing as soon as possible, before the hordes start moving across. All units can pass through the central shallow isthmus, with the notable exception of Fleas. The shallow water connects the two seas, and control over the vast amount of metal they hold is key to victory.
+
+    Score:
+        1. Speed: destroy the enemy Commanders as fast as possible.
+        2. Efficiency: minimize the amount of metal and energy used.
     
-Your progress will judged by:
-    1. Speed: destroying the enemy Commanders as fast as possible.
-    2. Efficiency: using the least amount of total resources to destroy the enemy Commanders.
+    Tips:
+        1. The map contains many rocks, reclaim them for metal to quickly progress.
     ]],
 
 	mapfilename		= "Supreme_Crossing_V1", -- the name of the map to be displayed here
