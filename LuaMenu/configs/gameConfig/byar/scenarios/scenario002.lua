@@ -2,41 +2,36 @@ local scenariodata = {
 	index			= 999, --  integer, sort order, MUST BE EQUAL TO FILENAME NUMBER
 	scenarioid		= "dguntestscenario", -- no spaces, lowercase, this will be used to save the score
     version         = "1.0", -- increment this to keep the score when changing a mission
-	title			= "Dgun The Enemy Commander", -- can be anything
+	title			= "DGunning the enemy Commander", -- can be anything
 	imagepath		= "scenario002.jpg", -- placed next to lua file, should be 3:1 ratio banner style
-	imageflavor		= "This is a test mission to test the interface", -- This text will be drawn over image
-    summary         = [[Just dgun the enemy comm to test score saving.]],
-	briefing 		= [[Your progress will judged by:
-    1. Speed: destroying the enemy Commanders as fast as possible.
-    2. Efficiency: using the least amount of total resources to destroy the enemy Commanders.
+	imageflavor		= "In a 1v1 situation, the first to DGun dies.", -- This text will be drawn over image
+    summary         = [[How Does DGunning enemy Commander work? Try it here.]],
+	briefing 		= [[In order to preven unfair situations in multiplayer games when the victory conditions are to destroy all enemy Commanders, DGunning the last standing enemy Commander is forbidden. If the last enemy Commander is dgunned, the team who DGunned the last Commander loses, instead of the team who got DGunned.
+
+    You will have to resort to other methods of killing the last commands. 
     ]],
 
-	mapfilename		= "TitanDuel 2.2", -- the name of the map to be displayed here
+	mapfilename		= "BarR 1.1", -- the name of the map to be displayed here
 	playerstartx	= "50%", -- X position of where player comm icon should be drawn, from top left of the map
 	playerstarty	= "50%", -- Y position of where player comm icon should be drawn, from top left of the map
-	partime 		= 3000, -- par time in seconds
-	parresources	= 1000000, -- par resource amount
-	difficulty		= 5, -- Percieved difficulty at 'normal' level: integer 1-10
-    adjustablediff  = true, -- whether player can change bonus
+	partime 		= 300, -- par time in seconds
+	parresources	= 10000, -- par resource amount
+	difficulty		= 1, -- Percieved difficulty at 'normal' level: integer 1-10
     defaultdifficulty = "Normal", -- an entry of the difficulty table
     difficulties    = { -- Array for sortedness, Keys are text that appears in selector (as well as in scoring!), values are handicap levels
-        {name = "Beginner", playerhandicap = 150, enemyhandicap=100},
-        {name = "Novice"  , playerhandicap = 125, enemyhandicap=100},
-        {name = "Normal"  , playerhandicap = 100, enemyhandicap=100},
-        {name = "Hard"    , playerhandicap = 100,  enemyhandicap=125},
-        {name = "Brutal" , playerhandicap = 100,  enemyhandicap=150},
+        {name = "Normal"  , playerhandicap = 0, enemyhandicap=0},
     },
     defaultside     = "Armada", --"Armada", Cortex or Random
 	victorycondition= "Kill all enemy Commanders", -- This is plaintext, but should be reflected in startscript
 	losscondition	= "Death of your Commander",  -- This is plaintext, but should be reflected in startscript
     unitlimits   = { -- table of unitdefname : maxnumberoftese units, 0 is disable it
-        armavp = 0,
-        coravp = 0,
+        --armavp = 0,
+        --coravp = 0,
     } ,
 
     scenariooptions = { -- this will get lua->json->base64 and passed to scenariooptions in game
         myoption = "dostuff",
-        scenarioid = "supcrossingvsbarbs001",
+        scenarioid = "dguntestscenario",
     },
     -- https://github.com/spring/spring/blob/105.0/doc/StartScriptFormat.txt
 	startscript		= [[ [Game]
@@ -103,7 +98,7 @@ local scenariodata = {
 	hostport = 0;
 	numplayers = 1;
 	startpostype = 2;
-	mapname = TitanDuel 2.2;
+	mapname = __MAPNAME__;
 	ishost = 1;
 	numusers = 2;
 	gametype = __BARVERSION__;

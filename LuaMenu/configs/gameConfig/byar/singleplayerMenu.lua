@@ -12,7 +12,7 @@ local items = 	{
 	}
 }
 --Spring.Echo("campaign Error: ",WG.Chobby.Configuration,WG.Chobby.Configuration.debugMode)
-if WG.Chobby.Configuration then --and
+if WG.Chobby.Configuration and false then --and
 	--WG.Chobby.Configuration.showCampaignButton then
 	items[#items+1] = 	{
 		name = "wip_challenges", 

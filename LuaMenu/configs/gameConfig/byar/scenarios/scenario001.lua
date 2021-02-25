@@ -16,25 +16,25 @@ local scenariodata = {
         1. The map contains many rocks, reclaim them for metal to quickly progress.
     ]],
 
-	mapfilename		= "Supreme_Crossing_V1", -- the name of the map to be displayed here
+	mapfilename		= "Supreme_Crossing_V1", -- the name of the map to be displayed here, and which to play on, no .smf ending needed
 	playerstartx	= "25%", -- X position of where player comm icon should be drawn, from top left of the map
 	playerstarty	= "75%", -- Y position of where player comm icon should be drawn, from top left of the map
 	partime 		= 3000, -- par time in seconds
 	parresources	= 1000000, -- par resource amount
 	difficulty		= 5, -- Percieved difficulty at 'normal' level: integer 1-10
-    adjustablediff  = true, -- whether player can change bonus
     defaultdifficulty = "Normal", -- an entry of the difficulty table
     difficulties    = { -- Array for sortedness, Keys are text that appears in selector (as well as in scoring!), values are handicap levels
-        {name = "Beginner", playerhandicap = 150, enemyhandicap=100},
-        {name = "Novice"  , playerhandicap = 125, enemyhandicap=100},
-        {name = "Normal"  , playerhandicap = 100, enemyhandicap=100},
-        {name = "Hard"    , playerhandicap = 100,  enemyhandicap=125},
-        {name = "Brutal" , playerhandicap = 100,  enemyhandicap=150},
+    -- handicap values range [-100 - +100], with 0 being regular resources
+        {name = "Beginner", playerhandicap = 50, enemyhandicap=0},
+        {name = "Novice"  , playerhandicap = 25, enemyhandicap=0},
+        {name = "Normal"  , playerhandicap = 0, enemyhandicap=0},
+        {name = "Hard"    , playerhandicap = 0,  enemyhandicap=25},
+        {name = "Brutal" , playerhandicap = 0,  enemyhandicap=50},
     },
     defaultside     = "Armada", --"Armada", Cortex or Random
 	victorycondition= "Kill all enemy Commanders", -- This is plaintext, but should be reflected in startscript
 	losscondition	= "Death of your Commander",  -- This is plaintext, but should be reflected in startscript
-    unitlimits   = { -- table of unitdefname : maxnumberoftese units, 0 is disable it
+    unitlimits   = { -- table of unitdefname : maxnumberoftese units, 0 means disable it
         armavp = 0,
         coravp = 0,
     } ,
@@ -44,6 +44,21 @@ local scenariodata = {
         scenarioid = "supcrossingvsbarbs001",
     },
     -- https://github.com/spring/spring/blob/105.0/doc/StartScriptFormat.txt
+    
+    -- HOW TO MAKE THE START SCRIPT: Use Chobby's single player mode to set up your start script. When you launch a single player game, the start script is dumped into infolog.txt
+    -- The following keys MUST be present in startscript below 
+    --  __SCENARIOOPTIONS__
+    -- __PLAYERNAME__
+    -- __BARVERSION__
+    -- __MAPNAME__
+
+    -- Optional keys: 
+    -- __ENEMYHANDICAP__
+    -- __PLAYERSIDE__
+    -- __PLAYERHANDICAP__
+    -- __NUMRESTRICTIONS__
+    -- __RESTRICTEDUNITS__
+
 	startscript		= [[[Game]
 {
     [allyTeam0]
@@ -144,7 +159,7 @@ local scenariodata = {
     hostport = 0;
     numplayers = 1;
     startpostype = 2;
-    mapname = Supreme_Crossing_V1;
+    mapname = __MAPNAME__;
     ishost = 1;
     numusers = 4;
     gametype = __BARVERSION__;
