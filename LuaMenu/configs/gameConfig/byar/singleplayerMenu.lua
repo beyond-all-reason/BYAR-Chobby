@@ -9,7 +9,12 @@ local items = 	{
 		name = "scenarios",
 		control = WG.ScenarioHandler.GetControl(),
 		startWithTabOpen = 1,
-	}
+	},
+	{
+		name = "load",
+		control = WG.LoadGameWindow.GetControl(),
+		entryCheck = WG.BattleRoomWindow.SetSingleplayerGame,
+	},
 }
 --Spring.Echo("campaign Error: ",WG.Chobby.Configuration,WG.Chobby.Configuration.debugMode)
 if WG.Chobby.Configuration and false then --and
