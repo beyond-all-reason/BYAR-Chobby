@@ -195,7 +195,7 @@ local function CreateScenarioPanel(shortname, sPanel)
 	local summarySP = ScrollPanel:New {
 		x = 0,
 		y = "5%",
-		width = "48%",
+		width = "49%",
 		height = "14%",
 		parent = sPanel,
 		horizontalScrollbar = true,
@@ -332,15 +332,15 @@ local function CreateScenarioPanel(shortname, sPanel)
 	---------------------------------
 		
 	local mapImage = Image:New {
-		x = "50%",
-		y = 0,
-		right = 0,
-		bottom = "50%",
+		y = "0%",
+		right = "0%",
+		height = "47%",
+		width = "47%",
 		keepAspect = true,
 		file =Configuration:GetMinimapImage(scen.mapfilename),
 		parent = sPanel,
 		tooltip = scen.mapfilename,
-		padding = {10,10,10,10},
+		padding = {0,0,0,0},
 	}
 
 	local commstartimg = Image:New { --LuaMenu/images/ranks/player.png
@@ -359,7 +359,7 @@ local function CreateScenarioPanel(shortname, sPanel)
 	local flavorimage = Image:New {
 		x = "0",
 		y = "51%",
-		width = "73%",
+		width = "74%",
 		height = "23%",
 		keepAspect = true,
 		file = "LuaMenu/configs/gameConfig/byar/scenarios/" .. scen.imagepath,
@@ -387,7 +387,7 @@ local function CreateScenarioPanel(shortname, sPanel)
 		bottom = 0,
 		parent = sPanel,
 		horizontalScrollbar = true,
-		padding = {10,10,10,10},
+		--padding = {10,10,10,10},
 	}
 
 	local briefingtext = TextBox:New {
@@ -405,7 +405,7 @@ local function CreateScenarioPanel(shortname, sPanel)
 
 	------------------------
 	local lblpersonal = Label:New{
-		x = "77%",
+		x = "76%",
 		y = "67.5%",
 		width = "20%",
 		height = "5%",
@@ -416,17 +416,17 @@ local function CreateScenarioPanel(shortname, sPanel)
 
 	
 	local lbldifflevelpersonal = Label:New{
-		x = "77%",
+		x = "76%",
 		y = "72.5%",
 		width = "20%",
 		height = "5%",
 		parent = sPanel,
 		font = Configuration:GetFont(2),
-		caption = "Difficulty level: "..tostring(mydifficulty.name),
+		caption = "Difficulty: "..tostring(mydifficulty.name),
 	}
 
 	local lblmytime = Label:New{
-		x = "77%",
+		x = "76%",
 		y = "77.5%",
 		width = "25%",
 		height = "5%",
@@ -436,7 +436,7 @@ local function CreateScenarioPanel(shortname, sPanel)
 	}
 	
 	local mytime = Label:New{
-		x = "77%",
+		x = "76%",
 		y = "80.5%",
 		width = "25%",
 		height = "5%",
@@ -446,7 +446,7 @@ local function CreateScenarioPanel(shortname, sPanel)
 	}
 
 	local lblmyresources = Label:New{
-		x = "77%",
+		x = "76%",
 		y = "85%",
 		width = "25%",
 		height = "5%",
@@ -456,7 +456,7 @@ local function CreateScenarioPanel(shortname, sPanel)
 	}
 
 	local myresources = Label:New{
-		x = "77%",
+		x = "76%",
 		y = "89%",
 		width = "25%",
 		height = "5%",
@@ -627,21 +627,22 @@ local function InitializeControls(parentControl)
 	DownloadRequirements()
 
 	Label:New {
-		x = 15,
-		y = 11,
+		x = "2%",
+		y = 14,
 		width = 180,
-		height = 30,
+		--height = 30,
 		parent = parentControl,
 		font = Configuration:GetFont(3),
 		caption = "Scenario",
 	}
 
 	local scenarioPanel = Control:New{
-		x = 0,
-		y = 46,
-		width = '100%',
-		bottom = '0%',
-		padding = {20,20,20,20},
+		x = "2%",
+		y = 55,
+		right = "2%",
+		bottom = '2%',
+
+		padding = {0,0,0,0},
 		parent = parentControl,
 	}
 
@@ -652,13 +653,13 @@ local function InitializeControls(parentControl)
 
 	local scenarioSelectorCombo = ComboBox:New{
 		x = 180,
-		right = "3%",
-		y = 12,
+		right = "2%",
+		y = "16",
 		height = 35,
 		itemHeight = 35,
 		selectByName = true,
 		
-		valign = "left",
+		valign = "top",
 		align = "left",
 		--captionHorAlign = -32,
 		text = "HasText",
