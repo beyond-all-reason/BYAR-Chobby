@@ -102,7 +102,7 @@ local scenariodata = {
 	ishost = 1;
 	numusers = 2;
 	gametype = __BARVERSION__;
-	GameStartDelay = 5;
+	GameStartDelay = 3;
 	myplayername = __PLAYERNAME__;
 	nohelperais = 0;
 

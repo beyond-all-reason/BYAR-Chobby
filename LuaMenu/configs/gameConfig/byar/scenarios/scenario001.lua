@@ -44,7 +44,7 @@ local scenariodata = {
         scenarioid = "supcrossingvsbarbs001",
     },
     -- https://github.com/spring/spring/blob/105.0/doc/StartScriptFormat.txt
-    
+
     -- HOW TO MAKE THE START SCRIPT: Use Chobby's single player mode to set up your start script. When you launch a single player game, the start script is dumped into infolog.txt
     -- The following keys MUST be present in startscript below 
     --  __SCENARIOOPTIONS__
@@ -163,7 +163,7 @@ local scenariodata = {
     ishost = 1;
     numusers = 4;
     gametype = __BARVERSION__;
-    GameStartDelay = 10;
+    GameStartDelay = 3;
     myplayername = __PLAYERNAME__;
     nohelperais = 0;
 
