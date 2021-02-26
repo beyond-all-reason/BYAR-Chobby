@@ -361,7 +361,8 @@ local function CreateScenarioPanel(shortname, sPanel)
 		y = "51%",
 		width = "74%",
 		height = "23%",
-		keepAspect = true,
+		keepAspect = false,
+		crop = true,
 		file = "LuaMenu/configs/gameConfig/byar/scenarios/" .. scen.imagepath,
 		parent = sPanel,
 		--tooltip = scen.mapfilename,
@@ -594,7 +595,7 @@ local function CreateScenarioPanel(shortname, sPanel)
 
 	local startmissionbutton = Button:New {
 		x = "76%",
-		y = "52%",
+		y = "51%",
 		right = 0,
 		height = "10%",
 		caption = "Start Scenario",
