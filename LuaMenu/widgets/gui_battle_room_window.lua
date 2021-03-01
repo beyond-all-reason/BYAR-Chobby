@@ -1102,7 +1102,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	end
 
 	function externalFunctions.AddStartRect(allyNo, left, top, right, bottom)
-		Spring.Log("Chobby AddStartRect",LOG.WARNING,"AddStartRect", allyNo, left, top, right, bottom,minimapPanel.width,minimapPanel.height)
+		-- Spring.Log("Chobby AddStartRect",LOG.WARNING,"AddStartRect", allyNo, left, top, right, bottom,minimapPanel.width,minimapPanel.height)
 		-- FIXME: minimap.width is sometimes only 10 at this point :/
 		-- it doesnt even know how big it is right nowhere
 
