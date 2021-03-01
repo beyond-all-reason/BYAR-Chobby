@@ -236,7 +236,7 @@ local function CreateScenarioPanel(shortname, sPanel)
 		font = Configuration:GetFont(2),
 		caption = "Victory",
 	}
-
+	lblvictoryText.font.color = {0.7, 0.7, 0.7, 1.0}
 	
 	local victoryText = Label:New{
 		x = "16%",
@@ -257,6 +257,7 @@ local function CreateScenarioPanel(shortname, sPanel)
 		font = Configuration:GetFont(2),
 		caption = "Loss" ,
 	}
+	lbllossText.font.color = {0.7, 0.7, 0.7, 1.0}
 
 	local lossText = Label:New{
 		x = "16%",
@@ -277,6 +278,8 @@ local function CreateScenarioPanel(shortname, sPanel)
 		font = Configuration:GetFont(2),
 		caption = "Challenge",
 	}
+	lbldifficultyText.font.color = {0.7, 0.7, 0.7, 1.0}
+
 	
 	local difficultyText = Label:New{
 		x = "16%",
@@ -297,6 +300,8 @@ local function CreateScenarioPanel(shortname, sPanel)
 		font = Configuration:GetFont(2),
 		caption = "Par Time",
 	}
+	lblpartimeText.font.color = {0.7, 0.7, 0.7, 1.0}
+
 
 	local partimeText = Label:New{
 		x = "16%",
@@ -317,6 +322,8 @@ local function CreateScenarioPanel(shortname, sPanel)
 		font = Configuration:GetFont(2),
 		caption = "Par Resources" ,
 	}
+	lblparresourcesText.font.color = {0.7, 0.7, 0.7, 1.0}
+
 
 	local parresourcesText = Label:New{
 		x = "16%",
@@ -435,6 +442,7 @@ local function CreateScenarioPanel(shortname, sPanel)
 		font = Configuration:GetFont(2),
 		caption = "My Best Time: ",
 	}
+	lblmytime.font.color = {0.7, 0.7, 0.7, 1.0}
 	
 	local mytime = Label:New{
 		x = "76%",
@@ -455,6 +463,7 @@ local function CreateScenarioPanel(shortname, sPanel)
 		font = Configuration:GetFont(2),
 		caption = "My Resources ",
 	}
+	lblmyresources.font.color = {0.7, 0.7, 0.7, 1.0}
 
 	local myresources = Label:New{
 		x = "76%",
@@ -476,6 +485,8 @@ local function CreateScenarioPanel(shortname, sPanel)
 		font = Configuration:GetFont(2),
 		caption = "Faction",
 	}
+	sidelabel.font.color = {0.7, 0.7, 0.7, 1.0}
+
 	--[[
 	local sidechangebutton  = Button:New {
 		x = "25%",
@@ -537,6 +548,8 @@ local function CreateScenarioPanel(shortname, sPanel)
 		font = Configuration:GetFont(2),
 		caption = "Difficulty",
 	}
+	difflabel.font.color = {0.7, 0.7, 0.7, 1.0}
+
 
 	local function UpdateDifficulty(newdifficultyname)
 		for i, diff in pairs(scen.difficulties) do 
