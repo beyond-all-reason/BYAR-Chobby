@@ -204,6 +204,7 @@ function Configuration:init()
 	self.debugMode = false
 	self.devMode = (VFS.FileExists("devmode.txt") and true) or false
 	self.enableProfiler = false
+	self.showCampaignButton = false
 	self.showPlanetUnlocks = false
 	self.showPlanetEnemyUnits = false
 	self.campaignSpawnDebug = false
@@ -523,6 +524,7 @@ function Configuration:GetConfigData()
 		debugMode = self.debugMode,
 		debugAutoWin = self.debugAutoWin,
 		enableProfiler = self.enableProfiler,
+		showCampaignButton = self.showCampaignButton,
 		showPlanetUnlocks = self.showPlanetUnlocks,
 		showPlanetEnemyUnits = self.showPlanetEnemyUnits,
 		campaignSpawnDebug = self.campaignSpawnDebug,
@@ -732,12 +734,12 @@ function Configuration:GetMinimapSmallImage(mapName)
 	mapName = string.gsub(mapName, " ", "_")
 	local filePath = self.gameConfig.minimapThumbnailPath .. mapName .. ".png"
 	if not VFS.FileExists(filePath) then
-		filePath = "LuaMenu/Images/MinimapThumbnails/" .. mapName .. ".jpg"
+		filePath = "LuaMenu/Images/Minimaps/" .. mapName .. ".jpg"
 	end
-  if not VFS.FileExists(filePath) then
-    Spring.Log("Chobby", LOG.WARNING,"GetMinimapSmallImage not found for",mapName)
-		filePath = "LuaMenu/Images/minimapNotFound.png"
-	end
+	-- if not VFS.FileExists(filePath) then
+	-- 	Spring.Log("Chobby", LOG.WARNING,"GetMinimapSmallImage not found for",mapName)
+	-- 	filePath = "LuaMenu/Images/minimapNotFound.png"
+	-- end
 	if WG.WrapperLoopback and WG.WrapperLoopback.DownloadImage and (not VFS.FileExists(filePath)) then
 		if not self.minimapThumbDownloads[mapName] then
 			Spring.CreateDir("LuaMenu/Images/MinimapThumbnails")
@@ -746,7 +748,7 @@ function Configuration:GetMinimapSmallImage(mapName)
 		end
 		return filePath, true
 	end
-	return filePath
+	return filePath, not VFS.FileExists(filePath)
 end
 
 function Configuration:GetMinimapImage(mapName)
@@ -758,10 +760,10 @@ function Configuration:GetMinimapImage(mapName)
 	if not VFS.FileExists(filePath) then
 		filePath = "LuaMenu/Images/Minimaps/" .. mapName .. ".jpg"
 	end
-	if not VFS.FileExists(filePath) then
-    Spring.Log("Chobby", LOG.WARNING,"GetMinimapImage not found for",mapName)
-		filePath = "LuaMenu/Images/minimapNotFound.png"
-	end
+	-- if not VFS.FileExists(filePath) then
+	-- 	Spring.Log("Chobby", LOG.WARNING,"GetMinimapImage not found for",mapName)
+	-- 	filePath = "LuaMenu/Images/minimapNotFound.png"
+	-- end
 	if WG.WrapperLoopback and WG.WrapperLoopback.DownloadImage and (not VFS.FileExists(filePath)) then
 		if not self.minimapDownloads[mapName] then
 			Spring.CreateDir("LuaMenu/Images/Minimaps")
@@ -770,7 +772,7 @@ function Configuration:GetMinimapImage(mapName)
 		end
 		return filePath, true
 	end
-	return filePath
+	return filePath, not VFS.FileExists(filePath)
 end
 
 function Configuration:GetLoadingImage(size)

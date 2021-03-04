@@ -213,16 +213,13 @@ local function SetLobbyFullscreenMode(mode, borderOverride)
 		end
 		currentManualBorderless = Spring.Utilities.CopyTable(borders)
 
-		Spring.SetConfigInt("Fullscreen", (mode == 4 and 1) or 0)
-
 		Spring.SetConfigInt("XResolutionWindowed", borders.width or (screenX - FUDGE*2), false)
 		Spring.SetConfigInt("YResolutionWindowed", borders.height or (screenY - FUDGE*2), false)
 		Spring.SetConfigInt("WindowPosX", borders.x or FUDGE, false)
 		Spring.SetConfigInt("WindowPosY", borders.y or FUDGE, false)
 
 		Spring.SetConfigInt("WindowBorderless", (mode == 4 and 1) or 0, false)
-
-		Spring.SetConfigInt("Fullscreen", 0, false)
+		Spring.SetConfigInt("Fullscreen", (mode == 4 and 1) or 0)
 	elseif mode == 5 then -- Manual Fullscreen
 		local resolution
 		if inLobby then
@@ -985,7 +982,8 @@ local function GetVoidTabControls()
 
 	
 	local function toggleCampaignFunc(newState)
-		WG.Chobby.Configuration.gameConfig.ShowCampaignButton = newState
+		Spring.Echo("Enabling Campaign", newState)
+		WG.Chobby.Configuration.showCampaignButton = newState
 	end
 
 
@@ -993,7 +991,7 @@ local function GetVoidTabControls()
 	children[#children + 1], offset = AddCheckboxSetting(offset, "Debug Auto Win", "debugAutoWin", false)
 	children[#children + 1], offset = AddCheckboxSetting(offset, "Enable Profiler", "enableProfiler", false, EnableProfilerFunc)
 	children[#children + 1], offset = AddCheckboxSetting(offset, "Enable Inspector", "enableInspector", false, EnableInspectorFunc)
-	children[#children + 1], offset = AddCheckboxSetting(offset, "Show Campaign button", "toggleCampaign", false, toggleCampaignFunc)
+	children[#children + 1], offset = AddCheckboxSetting(offset, "Show Campaign button", "showCampaignButton", false, toggleCampaignFunc)
 	children[#children + 1], offset = AddCheckboxSetting(offset, "Show Planet Unlocks", "showPlanetUnlocks", false)
 	children[#children + 1], offset = AddCheckboxSetting(offset, "Show Planet Enemy Units", "showPlanetEnemyUnits", false)
 	children[#children + 1], offset = AddCheckboxSetting(offset, "Campaign Spawn Debug", "campaignSpawnDebug", false)

@@ -421,7 +421,7 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 
 	local rightPanelTabs = {}
 	if not WG.Chobby.Configuration.gameConfig.disableCommunityWindow then
-		rightPanelTabs[#rightPanelTabs + 1] = {name = "Welcome", control = WG.CommunityWindow.GetControl()}
+		rightPanelTabs[#rightPanelTabs + 1] = {name = "welcome", control = WG.CommunityWindow.GetControl()}
 	end
 	rightPanelTabs[#rightPanelTabs + 1] = {name = "chat", control = chatWindows.window}
 	rightPanelTabs[#rightPanelTabs + 1] = {name = "friends", control = WG.FriendWindow.GetControl()}

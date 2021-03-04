@@ -4,6 +4,7 @@ return {
 	["Aberdeen3v3v3"] = true,
 	["Aberdeen6v6_Fix"] = true,
 	["Absolution 2"] = true,
+	["AcidicQuarry"] = true,
 	["Adamantine_Mountian-V1"] = true,
 	["Akilon Wastelands - v18"] = true,
 	["Albion_v1"] = true,
