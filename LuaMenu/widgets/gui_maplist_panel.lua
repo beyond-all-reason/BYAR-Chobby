@@ -69,14 +69,14 @@ local function GetTerrainTypeBar(special, flat, hills, water)
     end
     terrainTypeString = terrainTypeString .. "Flat"
   end
-  
+
   if hills then
     if terrainTypeString ~= "" then
       terrainTypeString = terrainTypeString .. ", "
     end
     terrainTypeString = terrainTypeString .. "Hills"
   end
-  
+
   if water then
     if terrainTypeString ~= "" then
       terrainTypeString = terrainTypeString .. ", "
@@ -86,7 +86,7 @@ local function GetTerrainTypeBar(special, flat, hills, water)
   return terrainTypeString
 end
 
-local function GetCertifiedLevelBar(isCertified,isClassic) 
+local function GetCertifiedLevelBar(isCertified,isClassic)
   if isCertified then return "Certified" end
   if isClassic then return "Classic" end
   return "Unofficial"
@@ -205,7 +205,7 @@ local function CreateMapEntry(mapName, mapData, CloseFunc)--{"ResourceID":7098,"
 			parent = mapButton,
 		}
 
-  
+
 		local mapType = GetMapTypeBar(mapData.Is1v1, mapData.IsTeam, mapData.IsFFA)
 		TextBox:New {
 			x = 356,
@@ -229,7 +229,7 @@ local function CreateMapEntry(mapName, mapData, CloseFunc)--{"ResourceID":7098,"
 			text = terrainType,
 			parent = mapButton,
 		}
-    
+
 
 
 		sortData = {mapName, (mapData.Width or 0)*100 + (mapData.Height or 0), mapType, terrainType, (haveMap and 1) or 0, certificationLevel}
@@ -323,17 +323,17 @@ local function InitializeControls()
 		{name = "Type", tooltip = "Each map is designed with a specific gameplay setup in mind, but can be played as you desire.", x = 354, width = 110},
 		{name = "Terrain", tooltip = "Water maps have underwater resources, and feature naval combat. KBots perform better than vehicles on Hilly maps.", x = 466, width = 142},
 		{name = "", tooltip = "Downloaded", x = 610, width = 40, image = "LuaMenu/images/download.png"},
-		{name = "Certified", tooltip = "Certified maps guarantee the best experience, Classic maps offer a great variety of gameplay, and third party maps are markes as Unofficial", x = 653, width = 100},
+		{name = "Certified", tooltip = "Certified maps guarantee the best experience, Classic maps offer a great variety of gameplay, and third party maps are marked as Unofficial", x = 653, width = 100},
 	}
 
 	local featuredMapList = WG.CommunityWindow.LoadStaticCommunityData().MapItems or {}
-  
+
   local tempmaplist = {}
   tempmaplist["Akilon"] = nil
 	local mapFuncs = {}
 
 	local mapList = WG.Chobby.SortableList(listHolder, headings, 60)
-  
+
 
 	local control, sortData
 	for i = 1, #featuredMapList do
@@ -351,9 +351,9 @@ local function InitializeControls()
 				mapList:AddItem(info.name, control, sortData)
 			end
 		end
-    
 
-    
+
+
 	--end
 
 	-------------------------
