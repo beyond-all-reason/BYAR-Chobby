@@ -855,7 +855,7 @@ local function InitializeControls(parentControl)
 
 	--CreateScenarioPanel(1,scenarioPanel)
 	
-	local externalFunctions = {}
+	local externalFunctions = {parent = parent}
 
 	function externalFunctions.Example(none)
 	end
@@ -896,18 +896,25 @@ local SCENARIO_COMPLETE_STRING = "ScenarioGameEnd"
 
 function widget:RecvLuaMsg(msg)
 	-- prepare for: {"unitsReceived":0,"energyExcess":250,"energyProduced":250,"metalExcess":15,"scenariooptions":{"scenariooptions":"eyJkaWZmaWN1bHR5IjoiTm9ybWFsIiwic2NlbmFyaW9pZCI6ImRndW50ZXN0c2NlbmFyaW8iLCJ2ZXJzaW9uIjoiMS4wIiwibXlvcHRpb24iOiJkb3N0dWZmIn0="},"unitsSent":0,"time":10,"energySent":0,"endtime":10.0666666,"won":false,"metalReceived":0,"winners":1,"unitsDied":0,"unitsKilled":0,"metalProduced":15,"metalUsed":0,"energyUsed":0,"unitsCaptured":0,"energyReceived":0,"metalSent":0,"unitsProduced":1,"damageDealt":524.39447,"frame":302,"unitsOutCaptured":0,"damageReceived":420.846344}
+	Spring.Echo("scenario_complete_", msg)
 
 	if string.find(msg, SCENARIO_COMPLETE_STRING) then
-		--local missionName = string.sub(msg, string.len(SCENARIO_COMPLETE_STRING) + 1)
-		-- TODO:  Implement parsing of a scenario complete string
-		-- It should return a couple of things, as we theoretically know the scenario ids passed through scenariooptions
-		-- scenario ID
-		-- time to game end in sec
-		-- did player win t/f
-		-- spent metal + E/60 resources value
+		msg = string.sub(msg, 16)
+		local stats = Spring.Utilities.json.decode(msg)
+	
+		local decodedscenopts = Spring.Utilities.json.decode(Spring.Utilities.
+		Base64Decode(stats.scenariooptions))
 		
+		Spring.Echo(decodedscenopts.scenarioid,decodedscenopts.version,stats.endtime,stats.metalUsed + stats.energyUsed/60.0,stats.won)
+	
+		if stats.won and stats.cheated ~= true then
+			SetScore(decodedscenopts.scenarioid,decodedscenopts.version,stats.endtime,stats.metalUsed + stats.energyUsed/60.0,stats.won)
+			-- we should now display the players score!
+			local reparent  = scenarioWindow.parent
+			scenarioWindow = InitializeControls(reparent)
+		end
+			
 		WG.Analytics.SendRepeatEvent("game_start:singleplayer:scenario_complete_" .. msg)
-		Spring.Echo("scenario_complete_", msg)
 	end
 end
 
@@ -924,7 +931,7 @@ function widget:SetConfigData(data)
 	scoreData = data.scores or {}
 end
 
-
+--[[
 function ScenarioGameEnd(stats)
 	-- lets hope this arrives
 	Spring.Echo("ScenarioGameEnd called", stats)
@@ -936,7 +943,7 @@ function ScenarioGameEnd(stats)
 	if stats.won and stats.cheated == false then
 		SetScore(decodedscenopts.scenarioid,decodedscenopts.version,stats.endtime,stats.metalUsed + stats.energyUsed/60.0,stats.won)
 	end
-end
+end]]--
 
 
 local function DelayedInitialize()
@@ -945,7 +952,7 @@ local function DelayedInitialize()
 end
 
 function widget:Initialize()
-	widgetHandler:RegisterGlobal('ScenarioGameEnd', ScenarioGameEnd)
+
 	CHOBBY_DIR = LUA_DIRNAME .. "widgets/chobby/"
 	VFS.Include(LUA_DIRNAME .. "widgets/chobby/headers/exports.lua", nil, VFS.RAW_FIRST)
 
@@ -963,18 +970,14 @@ function widget:Shutdown()
 end
 
 
-
+--[[
 local framenum = 0
 function widget:Update() -- just to check if this still runs, and yes
 	framenum = framenum + 1
 	if math.fmod(framenum,1000)==0 then   
-	  if Script.LuaUI("ScenarioGameEnd") then
-		Spring.Echo("has ScenarioGameEnd")
-	  else
-		Spring.Echo("no ScenarioGameEnd")
-	  end
 	end
 end
+]]--
 
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
