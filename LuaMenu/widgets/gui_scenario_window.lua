@@ -73,6 +73,7 @@ local function DownloadRequirements()
 	local config = WG.Chobby.Configuration
 	local gameName = config:GetDefaultGameName()
 	barversion = gameName
+	--barversion = "Beyond All Reason $VERSION" --TESTING ONLY
 	if gameName ~= nil and not alreadyDownloaded then
 		Spring.Echo("Scenario:", "Downloading game", gameName)
 		WG.DownloadHandler.MaybeDownloadArchive(gameName, "game", 1)
@@ -113,6 +114,7 @@ end
 local function EncodeScenarioOptions(scenario)
 	scenario.scenariooptions.version = scenario.version
 	scenario.scenariooptions.scenarioid = scenario.scenarioid
+	scenario.scenariooptions.difficulty = mydifficulty.name
 	return Spring.Utilities.Base64Encode(Spring.Utilities.json.encode(scenario.scenariooptions))
 end
 
@@ -123,7 +125,7 @@ local function GetBestScores(scenarioID,scenarioVersion,difficulty)
 			myscores = scoreData[scenarioID][scenarioVersion][difficulty]
 			return myscores
 	else 
-		return  {time = 0, resources = 0}
+		return nil
 	end
 end
 
@@ -178,7 +180,9 @@ local function CreateScenarioPanel(shortname, sPanel)
 	end
 	
 	myscores = GetBestScores(scen.scenarioID, scen.version, mydifficulty.name)
-
+	if myscores == nil then
+		myscores = {time = "0", resources = "0"}
+	end
 	myside = scen.defaultside
 
 	
@@ -650,6 +654,24 @@ local function InitializeControls(parentControl)
 		caption = "Scenario",
 	}
 
+	local scenarioSelectorPanel = Control:New{
+		x = "2%",
+		y = 55,
+		right = "2%",
+		bottom = '2%',
+
+		padding = {0,0,0,0},
+		parent = parentControl,
+	}
+	local scenarioScrollPanel = ScrollPanel:New {
+		x = 0,
+		right = 0,
+		y = 0,
+		bottom = 0,
+		parent = scenarioSelectorPanel,
+		horizontalScrollbar = false,
+	}
+
 	local scenarioPanel = Control:New{
 		x = "2%",
 		y = 55,
@@ -660,6 +682,143 @@ local function InitializeControls(parentControl)
 		parent = parentControl,
 	}
 
+	local backbutton = Button:New {
+		x = "90%",
+		y = 14,
+		right = "2%",
+		height = 35,
+		caption = "Back",
+		classname = "action_button",
+		font = Configuration:GetFont(2),
+		tooltip = "Back to the list of scenarios",
+		OnClick = {
+			function()
+				scenarioPanel:SetVisibility(false)
+				scenarioSelectorPanel:SetVisibility(true)
+			end
+		},
+		parent = parentControl,
+	}
+
+	local spitemlist = {}
+	for i, scen in ipairs(scenarios) do 
+		spitemlist[#spitemlist+1] = scen.title
+		local scenorderindex = i
+		local scenSelectorButton = Button:New {
+			x = "2%",
+			y = 105 * (#spitemlist -1),
+			right = "2%",
+			height = 100,
+			caption = "",
+			classname = "battle_default_button",
+			font = Configuration:GetFont(2),
+			tooltip = "Start the scenario",
+			OnClick = {
+				function()
+					scenarioPanel:SetVisibility(true)
+					scenarioSelectorPanel:SetVisibility(false)
+					CreateScenarioPanel(scen.title,scenarioPanel)
+				end
+			},
+			parent = scenarioScrollPanel,
+		}
+
+		local spMinimapImg = Image:New {
+			y = "1%",
+			x = "1%",
+			bottom = "1%",
+			--width = "47%",
+			keepAspect = true,
+			file =Configuration:GetMinimapImage(scen.mapfilename),
+			parent = scenSelectorButton,
+			tooltip = scen.mapfilename,
+			padding = {0,0,0,0},
+		}
+
+		local spTitleLbl = 	Label:New {
+			x = 100,
+			y = 10,
+			width = 300,
+			--height = 30,
+			parent = scenSelectorButton,
+			font = Configuration:GetFont(3),
+			caption = string.format( "%03d. %s",scen.index, scen.title ),
+		}
+
+		
+		local spChallengeLbl = 	Label:New {
+			right = "1%",
+			y = 10,
+			width = 100,
+			--height = 30,
+			parent = scenSelectorButton,
+			font = Configuration:GetFont(3),
+			caption = string.format( "Challenge: % 2d",scen.difficulty ),
+		}
+
+		local mybestscore = GetBestScores()
+		local mybestdiff = nil
+		local mybestrank = nil
+
+		for j, diff in pairs(scen.difficulties) do
+			local s =  GetBestScores(scen.scenarioid, scen.version,diff.name) 
+			if s then
+				mybestscore = s
+				mybestdiff = diff.name
+				mybestrank = j
+			end
+		end
+		if mybestdiff ~= nil then
+			local spScoreRankImg = Image:New{
+				y = "60%",
+				x = 70,
+				bottom = "1%",
+				--width = "47%",
+				keepAspect = true,
+				file =Configuration.gameConfig.rankFunction(mybestrank),
+				parent = scenSelectorButton,
+				tooltip = scen.mapfilename,
+				padding = {0,0,0,0},
+			}
+
+			local spMyScoreLbl = Label:New {
+				x = 100,
+				y = "60%",
+				width = 500,
+				--height = 30,
+				parent = scenSelectorButton,
+				font = Configuration:GetFont(2),
+				caption = string.format( "Completed On: %s   Time: %d  Resources: %d",mybestdiff, mybestscore.time, mybestscore.resources ),
+			}
+		else
+			local spMyScoreLbl = Label:New {
+				x = 100,
+				y = "60%",
+				width = 500,
+				--height = 30,
+				parent = scenSelectorButton,
+				font = Configuration:GetFont(2),
+				caption = "Not completed yet",
+			}
+		end
+		local spMinimapImg = Image:New {
+			y = "2%",
+			x = "2%",
+			bottom = "2%",
+			--width = "47%",
+			keepAspect = true,
+			file =Configuration:GetMinimapImage(scen.mapfilename),
+			parent = scenSelectorButton,
+			tooltip = scen.mapfilename,
+			padding = {0,0,0,0},
+		}
+
+		
+
+	end
+
+
+
 	local cbitemlist = {}
 	for i, scen in ipairs(scenarios) do 
 		cbitemlist[#cbitemlist+1] = scen.title
@@ -667,7 +826,7 @@ local function InitializeControls(parentControl)
 
 	local scenarioSelectorCombo = ComboBox:New{
 		x = 180,
-		right = "2%",
+		right = "15%",
 		y = "16",
 		height = 35,
 		itemHeight = 35,
@@ -684,6 +843,9 @@ local function InitializeControls(parentControl)
 		OnSelectName = {
 			function (obj, selectedName)
 				Spring.Echo(selectedName)
+				
+				scenarioPanel:SetVisibility(true)
+				scenarioSelectorPanel:SetVisibility(false)
 				CreateScenarioPanel(selectedName,scenarioPanel)
 			end
 		},
@@ -691,7 +853,7 @@ local function InitializeControls(parentControl)
 
 	}
 
-	CreateScenarioPanel(1,scenarioPanel)
+	--CreateScenarioPanel(1,scenarioPanel)
 	
 	local externalFunctions = {}
 
@@ -730,9 +892,11 @@ end
 --------------------------------------------------------------------------------
 -- Widget Interface
 
-local SCENARIO_COMPLETE_STRING = "scenario_complete_"
+local SCENARIO_COMPLETE_STRING = "ScenarioGameEnd"
 
 function widget:RecvLuaMsg(msg)
+	-- prepare for: {"unitsReceived":0,"energyExcess":250,"energyProduced":250,"metalExcess":15,"scenariooptions":{"scenariooptions":"eyJkaWZmaWN1bHR5IjoiTm9ybWFsIiwic2NlbmFyaW9pZCI6ImRndW50ZXN0c2NlbmFyaW8iLCJ2ZXJzaW9uIjoiMS4wIiwibXlvcHRpb24iOiJkb3N0dWZmIn0="},"unitsSent":0,"time":10,"energySent":0,"endtime":10.0666666,"won":false,"metalReceived":0,"winners":1,"unitsDied":0,"unitsKilled":0,"metalProduced":15,"metalUsed":0,"energyUsed":0,"unitsCaptured":0,"energyReceived":0,"metalSent":0,"unitsProduced":1,"damageDealt":524.39447,"frame":302,"unitsOutCaptured":0,"damageReceived":420.846344}
+
 	if string.find(msg, SCENARIO_COMPLETE_STRING) then
 		--local missionName = string.sub(msg, string.len(SCENARIO_COMPLETE_STRING) + 1)
 		-- TODO:  Implement parsing of a scenario complete string
@@ -761,14 +925,27 @@ function widget:SetConfigData(data)
 end
 
 
+function ScenarioGameEnd(stats)
+	-- lets hope this arrives
+	Spring.Echo("ScenarioGameEnd called", stats)
+	
+	local decodedscenopts = Spring.Utilities.json.decode(Spring.Utilities.Base64Decode(stats.scenariooptions))
+	
+	Spring.Echo(decodedscenopts.scenarioid,decodedscenopts.version,stats.endtime,stats.metalUsed + stats.energyUsed/60.0,stats.won)
+	
+	if stats.won and stats.cheated == false then
+		SetScore(decodedscenopts.scenarioid,decodedscenopts.version,stats.endtime,stats.metalUsed + stats.energyUsed/60.0,stats.won)
+	end
+end
+
 
 local function DelayedInitialize()
 	local Configuration = WG.Chobby.Configuration
 	SetScore("testscores","1.0","Hard",100,9999) -- seems to work
 end
 
-
 function widget:Initialize()
+	widgetHandler:RegisterGlobal('ScenarioGameEnd', ScenarioGameEnd)
 	CHOBBY_DIR = LUA_DIRNAME .. "widgets/chobby/"
 	VFS.Include(LUA_DIRNAME .. "widgets/chobby/headers/exports.lua", nil, VFS.RAW_FIRST)
 
@@ -781,14 +958,24 @@ function widget:Initialize()
 	--test scoring
 end
 
+function widget:Shutdown()
+	widgetHandler:DeregisterGlobal('ScenarioGameEnd')
+end
+
+
 
 local framenum = 0
 function widget:Update() -- just to check if this still runs, and yes
 	framenum = framenum + 1
-	if math.fmod(framenum,1000)==0 then
-		--Spring.Echo("widget:Update()")
+	if math.fmod(framenum,1000)==0 then   
+	  if Script.LuaUI("ScenarioGameEnd") then
+		Spring.Echo("has ScenarioGameEnd")
+	  else
+		Spring.Echo("no ScenarioGameEnd")
+	  end
 	end
 end
+
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 unitdefname_to_humanname  = {
