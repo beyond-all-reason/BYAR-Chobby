@@ -801,7 +801,7 @@ local function InitializeControls(parentControl)
 				caption = "Not completed yet",
 			}
 		end
-		local spMinimapImg = Image:New {
+		--[[local spMinimapImg = Image:New {
 			y = "2%",
 			x = "2%",
 			bottom = "2%",
@@ -811,7 +811,7 @@ local function InitializeControls(parentControl)
 			parent = scenSelectorButton,
 			tooltip = scen.mapfilename,
 			padding = {0,0,0,0},
-		}
+		}]]--
 
 		
 
