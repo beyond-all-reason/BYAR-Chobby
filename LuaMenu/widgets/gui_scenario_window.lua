@@ -27,6 +27,7 @@ end
 local scenarioWindow
 local scenarios
 local scenariosorter
+local scenarioSelectorCombo
 local currentscenario
 local mybonus = 0
 local alreadyDownloaded = false
@@ -119,10 +120,12 @@ local function EncodeScenarioOptions(scenario)
 end
 
 local function GetBestScores(scenarioID,scenarioVersion,difficulty)
-	if scoreData[scenarioid] and 
+	--Spring.Echo("GetBestScores",scenarioID,scenarioVersion,difficulty)
+	if scoreData[scenarioID] and 
 		scoreData[scenarioID][scenarioVersion] and 
 		scoreData[scenarioID][scenarioVersion][difficulty] then
 			myscores = scoreData[scenarioID][scenarioVersion][difficulty]
+			Spring.Echo(myscores)
 			return myscores
 	else 
 		return nil
@@ -131,7 +134,7 @@ end
 
 local function SetScore(scenarioID,scenarioVersion,difficulty,time,resources,gamewon)
 	
-	Spring.Echo("Scenario Window SetScore")
+	Spring.Echo("Scenario Window SetScore",scenarioID,scenarioVersion,difficulty,time,resources,gamewon)
 	if scoreData[scenarioID] == nil then
 		scoreData[scenarioID] = {}
 	end 
@@ -179,11 +182,11 @@ local function CreateScenarioPanel(shortname, sPanel)
 		end
 	end
 	
-	myscores = GetBestScores(scen.scenarioID, scen.version, mydifficulty.name)
+	myscores = GetBestScores(scen.scenarioid, scen.version, mydifficulty.name)
 	if myscores == nil then
 		myscores = {time = "0", resources = "0"}
 	end
-	myside = scen.defaultside
+	myside = (scen.allowedsides and scen.allowedsides[1]) or "Armada"
 
 	
 	local titletext = Label:New{
@@ -280,7 +283,7 @@ local function CreateScenarioPanel(shortname, sPanel)
 		height = "5%",
 		parent = sPanel,
 		font = Configuration:GetFont(2),
-		caption = "Challenge",
+		caption = "Difficulty",
 	}
 	lbldifficultyText.font.color = {0.7, 0.7, 0.7, 1.0}
 
@@ -292,7 +295,7 @@ local function CreateScenarioPanel(shortname, sPanel)
 		height = "5%",
 		parent = sPanel,
 		font = Configuration:GetFont(2),
-		caption = tostring(scen.difficulty),
+		caption = tostring(scen.difficulty) .. "/10",
 	}
 
 	local lblpartimeText = Label:New{
@@ -455,7 +458,7 @@ local function CreateScenarioPanel(shortname, sPanel)
 		height = "5%",
 		parent = sPanel,
 		font = Configuration:GetFont(2),
-		caption = tostring(math.ceil(myscores.time/60)) .. " minutes",
+		caption = string.format( "%.2f minutes",myscores.time/60.0),
 	}
 
 	local lblmyresources = Label:New{
@@ -476,7 +479,7 @@ local function CreateScenarioPanel(shortname, sPanel)
 		height = "5%",
 		parent = sPanel,
 		font = Configuration:GetFont(2),
-		caption = tostring(math.ceil(myscores.resources/1000)) .. "K metal",
+		caption =  string.format( "%.2fK metal",myscores.resources/1000.0),
 	}
 
 
@@ -530,7 +533,7 @@ local function CreateScenarioPanel(shortname, sPanel)
 		--captionHorAlign = -32,
 		text = "HasText",
 		font = Configuration:GetFont(2),
-		items = {"Armada", "Cortex", "Random"}, --{"Coop", "Team", "1v1", "FFA", "Custom"},
+		items = scen.allowedsides or {"Armada"}, --{"Coop", "Team", "1v1", "FFA", "Custom"},
 		itemFontSize = Configuration:GetFont(2).size,
 		selected = 1,
 		OnSelectName = {
@@ -603,7 +606,7 @@ local function CreateScenarioPanel(shortname, sPanel)
 		basescript = basescript:gsub("__ENEMYHANDICAP__",tostring(mydifficulty.enemyhandicap))
 		basescript = basescript:gsub("__BARVERSION__",tostring(barversion))
 		basescript = basescript:gsub("__MAPNAME__",tostring(scen.mapfilename))
-		basescript = basescript:gsub("__PLAYERSIDE__",tostring(myside or scen.defaultside))
+		basescript = basescript:gsub("__PLAYERSIDE__",tostring(myside or scen.allowedsides[1]))
 		basescript = basescript:gsub("__SCENARIOOPTIONS__",tostring(EncodeScenarioOptions(scen)))
 	
 	
@@ -703,6 +706,20 @@ local function InitializeControls(parentControl)
 	local spitemlist = {}
 	for i, scen in ipairs(scenarios) do 
 		spitemlist[#spitemlist+1] = scen.title
+
+		local mybestscore = nil
+		local mybestdiff = nil
+		local mybestrank = nil
+
+		for j, diff in pairs(scen.difficulties) do
+			local s =  GetBestScores(scen.scenarioid, scen.version,diff.name) 
+			if s then
+				mybestscore = s
+				mybestdiff = diff.name
+				mybestrank = j
+			end
+		end
+
 		local scenorderindex = i
 		local scenSelectorButton = Button:New {
 			x = "2%",
@@ -717,6 +734,7 @@ local function InitializeControls(parentControl)
 				function()
 					scenarioPanel:SetVisibility(true)
 					scenarioSelectorPanel:SetVisibility(false)
+					scenarioSelectorCombo:Select(scen.title)
 					CreateScenarioPanel(scen.title,scenarioPanel)
 				end
 			},
@@ -753,46 +771,35 @@ local function InitializeControls(parentControl)
 			--height = 30,
 			parent = scenSelectorButton,
 			font = Configuration:GetFont(3),
-			caption = string.format( "Challenge: % 2d",scen.difficulty ),
+			caption = string.format( "Difficulty: % 2d/10",scen.difficulty ),
 		}
 
-		local mybestscore = GetBestScores()
-		local mybestdiff = nil
-		local mybestrank = nil
 
-		for j, diff in pairs(scen.difficulties) do
-			local s =  GetBestScores(scen.scenarioid, scen.version,diff.name) 
-			if s then
-				mybestscore = s
-				mybestdiff = diff.name
-				mybestrank = j
-			end
-		end
 		if mybestdiff ~= nil then
 			local spScoreRankImg = Image:New{
-				y = "60%",
-				x = 70,
-				bottom = "1%",
-				--width = "47%",
+				y = "10%",
+				x = "10%",
+				bottom = "10%",
+				right = "10%",
 				keepAspect = true,
-				file =Configuration.gameConfig.rankFunction(mybestrank),
-				parent = scenSelectorButton,
+				file =Configuration.gameConfig.rankFunction(nil, mybestrank, nil, nil,nil ),
+				parent = spMinimapImg,
 				tooltip = scen.mapfilename,
 				padding = {0,0,0,0},
 			}
 
 			local spMyScoreLbl = Label:New {
-				x = 100,
+				x = 150,
 				y = "60%",
 				width = 500,
 				--height = 30,
 				parent = scenSelectorButton,
 				font = Configuration:GetFont(2),
-				caption = string.format( "Completed On: %s   Time: %d  Resources: %d",mybestdiff, mybestscore.time, mybestscore.resources ),
+				caption = string.format( "Completed On: %s   Time: %.2fmin  Resources: %.2fK metal",mybestdiff, mybestscore.time/60.0, mybestscore.resources/1000.0 ),
 			}
 		else
 			local spMyScoreLbl = Label:New {
-				x = 100,
+				x = 150,
 				y = "60%",
 				width = 500,
 				--height = 30,
@@ -824,7 +831,7 @@ local function InitializeControls(parentControl)
 		cbitemlist[#cbitemlist+1] = scen.title
 	end
 
-	local scenarioSelectorCombo = ComboBox:New{
+	scenarioSelectorCombo = ComboBox:New{
 		x = 180,
 		right = "15%",
 		y = "16",
@@ -834,7 +841,8 @@ local function InitializeControls(parentControl)
 		
 		valign = "top",
 		align = "left",
-		--captionHorAlign = -32,
+		--captionAlign  = 0, -- these dont work
+		--captionHorAlign = 10,
 		text = "HasText",
 		font = Configuration:GetFont(3),
 		items = cbitemlist, --{"Coop", "Team", "1v1", "FFA", "Custom"},
@@ -908,8 +916,7 @@ function widget:RecvLuaMsg(msg)
 		Spring.Echo(decodedscenopts.scenarioid,decodedscenopts.version,stats.endtime,stats.metalUsed + stats.energyUsed/60.0,stats.won)
 	
 		if stats.won and stats.cheated ~= true then
-			SetScore(decodedscenopts.scenarioid,decodedscenopts.version,stats.endtime,stats.metalUsed + stats.energyUsed/60.0,stats.won)
-			-- we should now display the players score!
+			SetScore(decodedscenopts.scenarioid,decodedscenopts.version,decodedscenopts.difficulty, stats.endtime,stats.metalUsed + stats.energyUsed/60.0,stats.won)
 			local reparent  = scenarioWindow.parent
 			scenarioWindow = InitializeControls(reparent)
 		end
