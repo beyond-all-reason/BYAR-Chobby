@@ -36,10 +36,10 @@ Tips:
         {name = "Hard"    , playerhandicap = 0,  enemyhandicap=25},
         {name = "Brutal" , playerhandicap = 0,  enemyhandicap=50},
     },
-    defaultside     = "Armada", --"Armada", Cortex or Random
+    allowedsides     = {"Armada","Cortex","Random"}, --these are the permitted factions for this mission
 	victorycondition= "Kill all enemy Commanders", -- This is plaintext, but should be reflected in startscript
 	losscondition	= "Death of your Commander",  -- This is plaintext, but should be reflected in startscript
-    unitlimits   = { -- table of unitdefname : maxnumberoftese units, 0 means disable it
+    unitlimits   = { -- table of unitdefname : maxnumberoftese units, 0 means disable it        -- dont use the one in startscript, put the disabled stuff here so we can show it in scenario window!
         --armavp = 0,
         --coravp = 0,
     } ,
@@ -47,6 +47,7 @@ Tips:
     scenariooptions = { -- this will get lua->json->base64 and passed to scenariooptions in game
         myoption = "dostuff",
         scenarioid = "tma20ffabarbs",
+		disablefactionpicker = true, -- this is needed to prevent faction picking outside of the allowedsides 
     },
     -- https://github.com/spring/spring/blob/105.0/doc/StartScriptFormat.txt
 
@@ -312,11 +313,6 @@ Tips:
 
 	[RESTRICT]
 	{
-		//Unit0=armah;
-		//Limit0=0;       // use 0 for all units that should be completely disabled
-		//Unit1=corvp;
-		//Limit1=50;      // >0 can be used for limiting, like build restrictions in TA
-		//...
         __RESTRICTEDUNITS__
 	}
 }    
