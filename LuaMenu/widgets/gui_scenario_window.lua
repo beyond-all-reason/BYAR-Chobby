@@ -23,11 +23,14 @@ end
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 -- Local Variables
-
+local reloadcount = 0
 local scenarioWindow
 local scenarios
 local scenariosorter
 local scenarioSelectorCombo
+local scenarioScrollPanel
+local scenarioPanel
+local scenarioSelectorPanel
 local currentscenario
 local mybonus = 0
 local alreadyDownloaded = false
@@ -36,6 +39,7 @@ local myside = nil
 local mydifficulty = {name = "Normal", playerhandicap = 100, enemyhandicap = 100}
 local myscores = {time = 0, resources = 0}
 local myside = nil
+
 
 local scoreData = {} -- a table, with keys being scenario uniqueIDs, e.g.:
 --[[
@@ -54,6 +58,17 @@ local unitdefname_to_humanname = {} -- from en.lua, attached at the end of the f
 --------------------------------------------------------------------------------
 -- Utilities
 
+local function SecondsToTimeString(s)
+	local hours = math.floor(s/3600)
+	s = math.fmod(s, 3600 )
+	local minutes = math.floor(s/60)
+	s = math.fmod(s,60)
+	result = ""
+	if hours>0 then
+		result = string.format("%d:",hours)
+	end
+	return result .. string.format("%d:%02d",minutes,s)
+end
 
 local function MaybeDownloadMap(mapName)
 	Spring.Echo("Scenario:", "Downloading map", mapName)
@@ -213,7 +228,12 @@ local function CreateScenarioPanel(shortname, sPanel)
 	local numdisabledunits = 0
 	if scen.unitlimits then
 		for unitid, count in pairs(scen.unitlimits) do 
-			additionalText = additionalText .. "\n  - " .. unitdefname_to_humanname[unitid] .. " (" ..unitid .. "): " .. tostring(count)
+			additionalText = additionalText .. "\n  - " .. unitdefname_to_humanname[unitid] .. " (" ..unitid .. "): "
+			if count == 0 then
+				additionalText = additionalText .. "Disabled"
+			else
+				additionalText = additionalText .. tostring(count)
+			end
 			numdisabledunits = numdisabledunits + 1
 		end
 	end
@@ -418,7 +438,7 @@ local function CreateScenarioPanel(shortname, sPanel)
 		padding = {10,10,10,10},
 	}
 
-	------------------------
+	------------------------------------My Scores----------------------------
 	local lblpersonal = Label:New{
 		x = "76%",
 		y = "67.5%",
@@ -458,7 +478,7 @@ local function CreateScenarioPanel(shortname, sPanel)
 		height = "5%",
 		parent = sPanel,
 		font = Configuration:GetFont(2),
-		caption = string.format( "%.2f minutes",myscores.time/60.0),
+		caption = SecondsToTimeString(myscores.time),
 	}
 
 	local lblmyresources = Label:New{
@@ -482,6 +502,7 @@ local function CreateScenarioPanel(shortname, sPanel)
 		caption =  string.format( "%.2fK metal",myscores.resources/1000.0),
 	}
 
+    ------------------------------------------------------------------
 
 	local sidelabel = Label:New{
 		x = "0%",
@@ -642,66 +663,14 @@ end
 --------------------------------------------------------------------------------
 -- Controls
 
-local function InitializeControls(parentControl)
+local function MakeScenarioScrollPanelChildren()
+	reloadcount = reloadcount + 1
+
 	local Configuration = WG.Chobby.Configuration
 
-	DownloadRequirements()
-
-	Label:New {
-		x = "2%",
-		y = 14,
-		width = 180,
-		--height = 30,
-		parent = parentControl,
-		font = Configuration:GetFont(3),
-		caption = "Scenario",
-	}
-
-	local scenarioSelectorPanel = Control:New{
-		x = "2%",
-		y = 55,
-		right = "2%",
-		bottom = '2%',
-
-		padding = {0,0,0,0},
-		parent = parentControl,
-	}
-	local scenarioScrollPanel = ScrollPanel:New {
-		x = 0,
-		right = 0,
-		y = 0,
-		bottom = 0,
-		parent = scenarioSelectorPanel,
-		horizontalScrollbar = false,
-	}
-
-	local scenarioPanel = Control:New{
-		x = "2%",
-		y = 55,
-		right = "2%",
-		bottom = '2%',
-
-		padding = {0,0,0,0},
-		parent = parentControl,
-	}
-
-	local backbutton = Button:New {
-		x = "90%",
-		y = 14,
-		right = "2%",
-		height = 35,
-		caption = "Back",
-		classname = "action_button",
-		font = Configuration:GetFont(2),
-		tooltip = "Back to the list of scenarios",
-		OnClick = {
-			function()
-				scenarioPanel:SetVisibility(false)
-				scenarioSelectorPanel:SetVisibility(true)
-			end
-		},
-		parent = parentControl,
-	}
+	for i = #scenarioScrollPanel.children, 1, -1 do
+		scenarioScrollPanel:RemoveChild(scenarioScrollPanel.children[i])
+	end
 
 	local spitemlist = {}
 	for i, scen in ipairs(scenarios) do 
@@ -722,6 +691,7 @@ local function InitializeControls(parentControl)
 
 		local scenorderindex = i
 		local scenSelectorButton = Button:New {
+			name = scen.scenarioid .. "button",
 			x = "2%",
 			y = 105 * (#spitemlist -1),
 			right = "2%",
@@ -760,7 +730,7 @@ local function InitializeControls(parentControl)
 			--height = 30,
 			parent = scenSelectorButton,
 			font = Configuration:GetFont(3),
-			caption = string.format( "%03d. %s",scen.index, scen.title ),
+			caption = string.format( "%03d. %s",scen.index+reloadcount, scen.title ),
 		}
 
 		
@@ -795,7 +765,7 @@ local function InitializeControls(parentControl)
 				--height = 30,
 				parent = scenSelectorButton,
 				font = Configuration:GetFont(2),
-				caption = string.format( "Completed On: %s   Time: %.2fmin  Resources: %.2fK metal",mybestdiff, mybestscore.time/60.0, mybestscore.resources/1000.0 ),
+				caption = string.format( "Completed On: %s   Time: %s  Resources: %.2fK metal",mybestdiff, SecondsToTimeString(mybestscore.time), mybestscore.resources/1000.0 ),
 			}
 		else
 			local spMyScoreLbl = Label:New {
@@ -823,8 +793,88 @@ local function InitializeControls(parentControl)
 		
 
 	end
+end
 
+local function InitializeControls(parentControl)
+	local Configuration = WG.Chobby.Configuration
 
+	DownloadRequirements()
+
+	Label:New {
+		x = "2%",
+		y = 14,
+		width = 180,
+		--height = 30,
+		parent = parentControl,
+		font = Configuration:GetFont(3),
+		caption = "Scenario",
+	}
+
+	scenarioSelectorPanel = Control:New{
+		x = "2%",
+		y = 55,
+		right = "2%",
+		bottom = '2%',
+
+		padding = {0,0,0,0},
+		parent = parentControl,
+	}
+	scenarioScrollPanel = ScrollPanel:New {
+		x = 0,
+		right = 0,
+		y = 0,
+		bottom = 0,
+		parent = scenarioSelectorPanel,
+		horizontalScrollbar = false,
+	}
+
+	scenarioPanel = Control:New{
+		x = "2%",
+		y = 55,
+		right = "2%",
+		bottom = '2%',
+
+		padding = {0,0,0,0},
+		parent = parentControl,
+	}
+
+	local backbutton = Button:New {
+		x = "90%",
+		y = 14,
+		right = "2%",
+		height = 35,
+		caption = "Back",
+		classname = "action_button",
+		font = Configuration:GetFont(2),
+		tooltip = "Back to the list of scenarios",
+		OnClick = {
+			function()
+				scenarioPanel:SetVisibility(false)
+				scenarioSelectorPanel:SetVisibility(true)
+			end
+		},
+		parent = parentControl,
+	}
+--[[
+	local refreshbutton = Button:New {
+		x = "86%",
+		y = 14,
+		right = "10%",
+		height = 35,
+		caption = "R",
+		classname = "action_button",
+		font = Configuration:GetFont(2),
+		tooltip = "Back to the list of scenarios",
+		OnClick = {
+			function()
+				MakeScenarioScrollPanelChildren()
+			end
+		},
+		parent = parentControl,
+	}
+]]--
+	-- make scenario scrollpanel children
+	MakeScenarioScrollPanelChildren()
 
 	local cbitemlist = {}
 	for i, scen in ipairs(scenarios) do 
@@ -902,6 +952,7 @@ end
 
 local SCENARIO_COMPLETE_STRING = "ScenarioGameEnd"
 
+
 function widget:RecvLuaMsg(msg)
 	-- prepare for: {"unitsReceived":0,"energyExcess":250,"energyProduced":250,"metalExcess":15,"scenariooptions":{"scenariooptions":"eyJkaWZmaWN1bHR5IjoiTm9ybWFsIiwic2NlbmFyaW9pZCI6ImRndW50ZXN0c2NlbmFyaW8iLCJ2ZXJzaW9uIjoiMS4wIiwibXlvcHRpb24iOiJkb3N0dWZmIn0="},"unitsSent":0,"time":10,"energySent":0,"endtime":10.0666666,"won":false,"metalReceived":0,"winners":1,"unitsDied":0,"unitsKilled":0,"metalProduced":15,"metalUsed":0,"energyUsed":0,"unitsCaptured":0,"energyReceived":0,"metalSent":0,"unitsProduced":1,"damageDealt":524.39447,"frame":302,"unitsOutCaptured":0,"damageReceived":420.846344}
 	Spring.Echo("scenario_complete_", msg)
@@ -917,8 +968,6 @@ function widget:RecvLuaMsg(msg)
 	
 		if stats.won and stats.cheated ~= true then
 			SetScore(decodedscenopts.scenarioid,decodedscenopts.version,decodedscenopts.difficulty, stats.endtime,stats.metalUsed + stats.energyUsed/60.0,stats.won)
-			local reparent  = scenarioWindow.parent
-			scenarioWindow = InitializeControls(reparent)
 		end
 			
 		WG.Analytics.SendRepeatEvent("game_start:singleplayer:scenario_complete_" .. msg)
@@ -937,21 +986,6 @@ function widget:SetConfigData(data)
 	Spring.Echo("Scenario Window SetConfigData")
 	scoreData = data.scores or {}
 end
-
---[[
-function ScenarioGameEnd(stats)
-	-- lets hope this arrives
-	Spring.Echo("ScenarioGameEnd called", stats)
-	
-	local decodedscenopts = Spring.Utilities.json.decode(Spring.Utilities.Base64Decode(stats.scenariooptions))
-	
-	Spring.Echo(decodedscenopts.scenarioid,decodedscenopts.version,stats.endtime,stats.metalUsed + stats.energyUsed/60.0,stats.won)
-	
-	if stats.won and stats.cheated == false then
-		SetScore(decodedscenopts.scenarioid,decodedscenopts.version,stats.endtime,stats.metalUsed + stats.energyUsed/60.0,stats.won)
-	end
-end]]--
-
 
 local function DelayedInitialize()
 	local Configuration = WG.Chobby.Configuration
