@@ -2717,6 +2717,12 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		Spring.PlaySoundFile("sounds/ring.wav", WG.Chobby.Configuration.menuNotificationVolume or 1)
 	end
 
+	local function OnEnableAllUnits(listener)
+	end
+
+	local function OnDisableUnits(listener,unitNames)
+	end
+
 	battleLobby:AddListener("OnUpdateUserTeamStatus", OnUpdateUserTeamStatus)
 	battleLobby:AddListener("OnBattleIngameUpdate", OnBattleIngameUpdate)
 	battleLobby:AddListener("OnUpdateBattleInfo", OnUpdateBattleInfo)
@@ -2734,7 +2740,8 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	battleLobby:AddListener("OnRemoveStartRect", OnRemoveStartRect)
 	battleLobby:AddListener("OnAddStartRect", OnAddStartRect)
 	battleLobby:AddListener("OnRing", OnRing)
-
+	battleLobby:AddListener("OnEnableAllUnits", OnEnableAllUnits)
+	battleLobby:AddListener("OnDisableUnits", OnDisableUnits)
 
 	local function OnDisposeFunction()
 		emptyTeamIndex = 0
