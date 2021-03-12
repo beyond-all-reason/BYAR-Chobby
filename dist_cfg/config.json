@@ -100,7 +100,7 @@
         {
             "package": {
                 "id": "complete-linux",
-                "display": "Alpha (Complete)",
+                "display": "Alpha + Map Pack",
                 "platform": "linux"
             },
             "downloads": {
@@ -463,7 +463,7 @@
         {
             "package": {
                 "id": "complete-win",
-                "display": "Alpha (Complete)",
+                "display": "Alpha + Map Pack",
                 "platform": "win32"
             },
             "downloads": {
