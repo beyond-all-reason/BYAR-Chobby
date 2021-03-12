@@ -77,6 +77,7 @@ return {
 ['Trefoil Remake 2.20']={Width=16, Height=16, Is1v1=nil, IsTeam=nil, IsFFA=1, IsCertified=nil, Special=nil, Flat=1, Hills=nil, Water=1, IsInPool=1, },
 ['Tropical-v2']={Width=16, Height=16, Is1v1=nil, IsTeam=1, IsFFA=nil, IsCertified=nil, Special=nil, Flat=1, Hills=nil, Water=1, IsInPool=1, },
 ['Tumult']={Width=14, Height=14, Is1v1=nil, IsTeam=1, IsFFA=nil, IsCertified=nil, Special=nil, Flat=1, Hills=nil, Water=nil, IsInPool=1, },
+['Tundra_V2']={Width=16, Height=16, Is1v1=1, IsTeam=1, IsFFA=nil, IsCertified=1, Special=nil, Flat=1, Hills=nil, Water=nil, IsInPool=1, },
 ['Twin Lakes Park 1']={Width=24, Height=20, Is1v1=nil, IsTeam=1, IsFFA=nil, IsCertified=nil, Special=nil, Flat=1, Hills=1, Water=nil, IsInPool=1, },
 ['Valles_Marineris_v2']={Width=16, Height=12, Is1v1=nil, IsTeam=1, IsFFA=nil, IsCertified=nil, Special=nil, Flat=1, Hills=nil, Water=nil, IsInPool=1, },
 ['Vantage v1.1']={Width=12, Height=12, Is1v1=nil, IsTeam=nil, IsFFA=nil, IsCertified=nil, Special=nil, Flat=nil, Hills=nil, Water=nil, IsInPool=1, },
