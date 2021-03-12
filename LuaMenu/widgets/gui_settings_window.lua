@@ -213,16 +213,13 @@ local function SetLobbyFullscreenMode(mode, borderOverride)
 		end
 		currentManualBorderless = Spring.Utilities.CopyTable(borders)
 
-		Spring.SetConfigInt("Fullscreen", (mode == 4 and 1) or 0)
-
 		Spring.SetConfigInt("XResolutionWindowed", borders.width or (screenX - FUDGE*2), false)
 		Spring.SetConfigInt("YResolutionWindowed", borders.height or (screenY - FUDGE*2), false)
 		Spring.SetConfigInt("WindowPosX", borders.x or FUDGE, false)
 		Spring.SetConfigInt("WindowPosY", borders.y or FUDGE, false)
 
 		Spring.SetConfigInt("WindowBorderless", (mode == 4 and 1) or 0, false)
-
-		Spring.SetConfigInt("Fullscreen", 0, false)
+		Spring.SetConfigInt("Fullscreen", (mode == 4 and 1) or 0)
 	elseif mode == 5 then -- Manual Fullscreen
 		local resolution
 		if inLobby then

@@ -78,6 +78,8 @@ return {
 		login = "Login",
 		login_to_chat = "Login required for chat",
 		welcome = "Welcome",
+		player = "Player",
+		spectator = "Spectator",
 		singleplayer = "Singleplayer",
 		multiplayer = "Multiplayer\n   & Coop",
 		singleplayercoop = "Singleplayer",

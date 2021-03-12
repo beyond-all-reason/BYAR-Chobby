@@ -21,17 +21,19 @@ local scenariodata = {
     difficulties    = { -- Array for sortedness, Keys are text that appears in selector (as well as in scoring!), values are handicap levels
         {name = "Normal"  , playerhandicap = 0, enemyhandicap=0},
     },
-    defaultside     = "Armada", --"Armada", Cortex or Random
+    allowedsides     = {"Armada","Cortex","Random"}, --these are the permitted factions for this mission
 	victorycondition= "Kill all enemy Commanders", -- This is plaintext, but should be reflected in startscript
 	losscondition	= "Death of your Commander",  -- This is plaintext, but should be reflected in startscript
     unitlimits   = { -- table of unitdefname : maxnumberoftese units, 0 is disable it
-        --armavp = 0,
-        --coravp = 0,
+	-- dont use the one in startscript, put it here!
+        armavp = 0,
+        coravp = 0,
     } ,
 
     scenariooptions = { -- this will get lua->json->base64 and passed to scenariooptions in game
         myoption = "dostuff",
-        scenarioid = "dguntestscenario",
+        scenarioid = "dguntestscenario", --must be present for scores
+		disablefactionpicker = true, -- this is needed to prevent faction picking outside of the allowedsides 
     },
     -- https://github.com/spring/spring/blob/105.0/doc/StartScriptFormat.txt
 	startscript		= [[ [Game]
@@ -102,7 +104,7 @@ local scenariodata = {
 	ishost = 1;
 	numusers = 2;
 	gametype = __BARVERSION__;
-	GameStartDelay = 5;
+	GameStartDelay = 3;
 	myplayername = __PLAYERNAME__;
 	nohelperais = 0;
 
@@ -110,11 +112,6 @@ local scenariodata = {
 
 	[RESTRICT]
 	{
-		//Unit0=armah;
-		//Limit0=0;       // use 0 for all units that should be completely disabled
-		//Unit1=corvp;
-		//Limit1=50;      // >0 can be used for limiting, like build restrictions in TA
-		//...
         __RESTRICTEDUNITS__
 	}
 }

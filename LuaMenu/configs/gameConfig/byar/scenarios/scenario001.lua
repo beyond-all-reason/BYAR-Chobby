@@ -31,20 +31,22 @@ local scenariodata = {
         {name = "Hard"    , playerhandicap = 0,  enemyhandicap=25},
         {name = "Brutal" , playerhandicap = 0,  enemyhandicap=50},
     },
-    defaultside     = "Armada", --"Armada", Cortex or Random
+    allowedsides     = {"Armada","Cortex","Random"}, --these are the permitted factions for this mission
 	victorycondition= "Kill all enemy Commanders", -- This is plaintext, but should be reflected in startscript
 	losscondition	= "Death of your Commander",  -- This is plaintext, but should be reflected in startscript
     unitlimits   = { -- table of unitdefname : maxnumberoftese units, 0 means disable it
-        armavp = 0,
-        coravp = 0,
+        -- dont use the one in startscript, put the disabled stuff here so we can show it in scenario window!
+        --armavp = 0,
+        --coravp = 0,
     } ,
 
     scenariooptions = { -- this will get lua->json->base64 and passed to scenariooptions in game
         myoption = "dostuff",
         scenarioid = "supcrossingvsbarbs001",
+		disablefactionpicker = true, -- this is needed to prevent faction picking outside of the allowedsides 
     },
     -- https://github.com/spring/spring/blob/105.0/doc/StartScriptFormat.txt
-    
+
     -- HOW TO MAKE THE START SCRIPT: Use Chobby's single player mode to set up your start script. When you launch a single player game, the start script is dumped into infolog.txt
     -- The following keys MUST be present in startscript below 
     --  __SCENARIOOPTIONS__
@@ -163,7 +165,7 @@ local scenariodata = {
     ishost = 1;
     numusers = 4;
     gametype = __BARVERSION__;
-    GameStartDelay = 10;
+    GameStartDelay = 3;
     myplayername = __PLAYERNAME__;
     nohelperais = 0;
 
@@ -172,11 +174,6 @@ local scenariodata = {
 
 	[RESTRICT]
 	{
-		//Unit0=armah;
-		//Limit0=0;       // use 0 for all units that should be completely disabled
-		//Unit1=corvp;
-		//Limit1=50;      // >0 can be used for limiting, like build restrictions in TA
-		//...
         __RESTRICTEDUNITS__
 	}
 }
