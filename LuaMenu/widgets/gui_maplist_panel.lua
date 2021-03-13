@@ -9,6 +9,14 @@ function widget:GetInfo()
 		enabled = true,
 	}
 end
+-- TODO: 
+-- X Widen map list
+-- X make unofficial not be selectable in multiplayer
+-- X On clicking on non-dowloaded map, make it download
+-- make a typeable filter 
+-- X make window just a bit less than full thing tall
+-- X dynamically resize if parent is resized		
+-- X sort downloaded first then name by default
 
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
@@ -118,6 +126,23 @@ end
 
 local function CreateMapEntry(mapName, mapData, CloseFunc)--{"ResourceID":7098,"Name":"2_Mountains_Battlefield","SupportLevel":2,"Width":16,"Height":16,"IsAssymetrical":false,"Hills":2,"WaterLevel":1,"Is1v1":false,"IsTeams":true,"IsFFA":false,"IsChickens":false,"FFAMaxTeams":null,"RatingCount":3,"RatingSum":10,"IsSpecial":false},
 	local Configuration = WG.Chobby.Configuration
+	-- Spring.Echo("CreateMapEntry(mapName, mapData, CloseFunc)",mapName, mapData, CloseFunc, lobby.name)
+	
+	local haveMap = VFS.HasArchive(mapName)
+
+	local mapButtonCaption = nil
+	if lobby.name == "singleplayer" then
+		if not haveMap and (mapData and mapData.IsInPool) then
+			mapButtonCaption = "Click to Download this map"
+		end
+	else
+		if not haveMap and (mapData and mapData.IsInPool) then
+			mapButtonCaption = "Click to Download this map"
+		end
+		if not (mapData and mapData.IsInPool) then
+			mapButtonCaption = "Unofficial maps are not available in online play"
+		end
+	end
 
 	local mapButton = Button:New {
 		x = 0,
@@ -127,10 +152,13 @@ local function CreateMapEntry(mapName, mapData, CloseFunc)--{"ResourceID":7098,"
 		resizable = false,
 		draggable = false,
 		padding = {0, 0, 0, 0},
+		tooltip = mapButtonCaption,
 		OnClick = {
 			function()
-				lobby:SelectMap(mapName)
-				CloseFunc()
+				if mapData and mapData.IsInPool then
+					lobby:SelectMap(mapName)
+					CloseFunc()
+				end
 			end
 		},
 	}
@@ -170,7 +198,6 @@ local function CreateMapEntry(mapName, mapData, CloseFunc)--{"ResourceID":7098,"
 		parent = mapButton,
 	}
 
-	local haveMap = VFS.HasArchive(mapName)
 	local imHaveGame = Image:New {
 		x = 612,
 		y = 12,
@@ -178,6 +205,7 @@ local function CreateMapEntry(mapName, mapData, CloseFunc)--{"ResourceID":7098,"
 		height = 20,
 		file = (haveMap and IMG_READY) or IMG_UNREADY,
 		parent = mapButton,
+		-- tooltip = (haveMap and "") or "Click to Download this map",
 	}
 
   local certificationLevel = GetCertifiedLevelBar( mapData and mapData.IsCertified, mapData and mapData.IsInPool)
@@ -232,9 +260,9 @@ local function CreateMapEntry(mapName, mapData, CloseFunc)--{"ResourceID":7098,"
 
 
 
-		sortData = {mapName, (mapData.Width or 0)*100 + (mapData.Height or 0), mapType, terrainType, (haveMap and 1) or 0, certificationLevel}
+		sortData = {mapName, (mapData.Width or 0)*100 + (mapData.Height or 0), mapType, terrainType, (haveMap and 1) or 0, certificationLevel, (haveMap and ' '..mapName) or mapName}
 	else
-		sortData = {mapName, 0, "", "", (haveMap and 1) or 0,certificationLevel}
+		sortData = {mapName, 0, "", "", (haveMap and 1) or 0,certificationLevel,(haveMap and ' '..mapName) or mapName}
 	end
 
 	local externalFunctions = {}
@@ -242,6 +270,8 @@ local function CreateMapEntry(mapName, mapData, CloseFunc)--{"ResourceID":7098,"
 	function externalFunctions.UpdateHaveMap()
 		haveMap = VFS.HasArchive(mapName)
 		imHaveGame.file = (haveMap and IMG_READY) or IMG_UNREADY
+		mapButton.tooltip = (not haveMap and "Click to Download this map") or nil
+		mapButton:Invalidate()
 		imHaveGame:Invalidate()
 		sortData[5] = (haveMap and 1) or 0 -- This line is pretty evil.
 	end
@@ -255,17 +285,35 @@ end
 
 local function InitializeControls()
 	local Configuration = WG.Chobby.Configuration
-
+	local vsx, vsy = Spring.GetViewSizes()
 	local mapListWindow = Window:New {
 		classname = "main_window",
 		parent = WG.Chobby.lobbyInterfaceHolder,
-		height = 700,
+		height = math.max(700, WG.Chobby.lobbyInterfaceHolder.height -100),
 		width = 810,
 		resizable = false,
 		draggable = false,
 		padding = {0, 0, 0, 0},
 	}
 
+	WG.Chobby.lobbyInterfaceHolder.OnResize = WG.Chobby.lobbyInterfaceHolder.OnResize or {}
+	WG.Chobby.lobbyInterfaceHolder.OnResize[#WG.Chobby.lobbyInterfaceHolder.OnResize +1] = function()
+		-- Spring.Echo("Resized parent of mapListWindow")
+		--mapListWindow.height =  math.max(700, WG.Chobby.lobbyInterfaceHolder.height -100)
+		local newh = math.max(WG.Chobby.lobbyInterfaceHolder.height -100)
+		local newy = math.max(0,(WG.Chobby.lobbyInterfaceHolder.height-newh)/2)
+		mapListWindow:SetPos(
+			nil,
+			newy,
+			nil,
+			newh)
+	end
+
+	local maincaption = "Select a Map. Certified maps are recommended."
+	if 	lobby.name ~= "singleplayer" then
+		maincaption = "Select a Map. Only Certified and Classic in Online."
+		
+	end
 	Label:New {
 		x = 20,
 		right = 5,
@@ -273,8 +321,8 @@ local function InitializeControls()
 		height = 20,
 		parent = mapListWindow,
 		font = Configuration:GetFont(3),
-		caption = "Select a Map. Choose a Certified map for the best experience!",
-		caption = "Select a Map. Certified maps are recommended.",
+		--caption = "Select a Map. Choose a Certified map for the best experience!",
+		caption = maincaption,
 	}
 
 	local function CloseFunc()
@@ -320,17 +368,16 @@ local function InitializeControls()
 	local headings = {
 		{name = "Name", x = 62, width = 208},
 		{name = "Size", tooltip = "Choose larger maps for longer games.",x = 272, width = 80},
-		{name = "Type", tooltip = "Each map is designed with a specific gameplay setup in mind, but can be played as you desire.", x = 354, width = 110},
-		{name = "Terrain", tooltip = "Water maps have underwater resources, and feature naval combat. KBots perform better than vehicles on Hilly maps.", x = 466, width = 142},
+		{name = "Type", tooltip = "Each map is designed with a specific gameplay setup in mind, but can be played as you desire.\n- 1v1: Designed for small, competitive games\n- Teams: Has resources for multiple players\n- FFA: Free-for-all games", x = 354, width = 110},
+		{name = "Terrain", tooltip = "Water maps have underwater resources, and feature naval combat. Bots perform better than vehicles on Hilly maps. Metal maps have unlimited Metal resources.", x = 466, width = 142},
 		{name = "", tooltip = "Downloaded", x = 610, width = 40, image = "LuaMenu/images/download.png"},
 		{name = "Certified", tooltip = "Certified maps guarantee the best experience, Classic maps offer a great variety of gameplay, and third party maps are marked as Unofficial", x = 653, width = 100},
+		{name = "", tooltip = "Certified maps guarantee the best experience, Classic maps offer a great variety of gameplay, and third party maps are marked as Unofficial", x = 753, width = 10},
 	}
 
 	local featuredMapList = WG.CommunityWindow.LoadStaticCommunityData().MapItems or {}
 
-  local tempmaplist = {}
-  tempmaplist["Akilon"] = nil
-	local mapFuncs = {}
+  	local mapFuncs = {}
 
 	local mapList = WG.Chobby.SortableList(listHolder, headings, 60)
 
@@ -343,18 +390,23 @@ local function InitializeControls()
 	end
 
 	--if not Configuration.onlyShowFeaturedMaps then
-		for i, archive in pairs(VFS.GetAllArchives()) do
-			local info = VFS.GetArchiveInfo(archive)
-			if info and info.modtype == 3 and not mapFuncs[info.name] then
-        --Spring.Echo("Map name debug list", info.name)
-				control, sortData, mapFuncs[info.name] = CreateMapEntry(info.name, Configuration.gameConfig.mapDetails[info.name] , CloseFunc)
-				mapList:AddItem(info.name, control, sortData)
-			end
+	for i, archive in pairs(VFS.GetAllArchives()) do
+		local info = VFS.GetArchiveInfo(archive)
+		if info and info.modtype == 3 and not mapFuncs[info.name] then
+			-- Spring.Echo("Map name debug list", info.name)
+			control, sortData, mapFuncs[info.name] = CreateMapEntry(info.name, Configuration.gameConfig.mapDetails[info.name] , CloseFunc)
+			mapList:AddItem(info.name, control, sortData)
 		end
+	end
+	-- Spring.Echo("Configuration.gameConfig.mapDetails",Configuration.gameConfig.mapDetails)
+	for mapname, mapdetails in pairs(Configuration.gameConfig.mapDetails) do
+		-- Spring.Echo(mapname)
+		control, sortData, mapFuncs[mapname] = CreateMapEntry(mapname, mapdetails , CloseFunc)
+		mapList:AddItem(mapname, control, sortData)
+	end
 
-
-
-	--end
+	mapList.sortBy = 7
+	mapList:UpdateOrder()
 
 	-------------------------
 	-- Buttons
@@ -411,6 +463,10 @@ local function InitializeControls()
 		end
 	end
 
+	function externalFunctions.Dispose()
+		mapListWindow:Dispose()
+	end
+
 	return externalFunctions
 end
 
@@ -421,7 +477,17 @@ end
 local MapListPanel = {}
 
 function MapListPanel.Show(newLobby, zoomToMap)
+	local redraw = false
+	if lobby == nil or ((lobby.name == "singleplayer" and newLobby.name ~= "singleplayer" ) or (
+		lobby.name ~= "singleplayer" and newLobby.name == "singleplayer" )) then
+		redraw = true
+	end
 	lobby = newLobby
+	if redraw and mapListWindow then
+		-- Spring.Echo("Remaking mapListWindow")
+		mapListWindow:Dispose()
+		mapListWindow = InitializeControls()
+	end
 	if not mapListWindow then
 		mapListWindow = InitializeControls()
 	end
