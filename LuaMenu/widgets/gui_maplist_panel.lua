@@ -155,7 +155,7 @@ local function CreateMapEntry(mapName, mapData, CloseFunc)--{"ResourceID":7098,"
 		tooltip = mapButtonCaption,
 		OnClick = {
 			function()
-				if mapData and mapData.IsInPool then
+				if (lobby.name == "singleplayer") or (mapData and mapData.IsInPool) then
 					lobby:SelectMap(mapName)
 					CloseFunc()
 				end
