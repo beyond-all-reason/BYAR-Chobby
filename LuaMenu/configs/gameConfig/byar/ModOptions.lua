@@ -165,6 +165,55 @@ local options={
 		def    = true,
 		section= "restrictions",
 	},
+
+	{
+		key    		= 'unit_restrictions_notech2',
+		name   		= 'Disable Tech 2',
+		desc   		= 'Disable Tech 2',
+		type   		= "bool",
+		section		= 'restrictions',
+		def    		= false,
+	},
+	{
+		key    		= 'unit_restrictions_notech3',
+		name   		= 'Disable Tech 3',
+		desc   		= 'Disable Tech 3',
+		type   		= "bool",
+		section		= 'restrictions',
+		def    		= false,
+	},
+	{
+		key    		= 'unit_restrictions_noair',
+		name   		= 'Disable Air Units',
+		desc   		= 'Disable Air Units',
+		type   		= "bool",
+		section		= 'restrictions',
+		def    		= false,
+	},
+	{
+		key    		= 'unit_restrictions_noconverters',
+		name   		= 'Disable Energy Converters',
+		desc   		= 'Disable Energy Converters',
+		type   		= "bool",
+		section		= 'restrictions',
+		def    		= false,
+	},
+	{
+		key    		= 'unit_restrictions_nonukes',
+		name   		= 'Disable Nuclear Missiles',
+		desc   		= 'Disable Nuclear Missiles',
+		type   		= "bool",
+		section		= 'restrictions',
+		def    		= false,
+	},
+	{
+		key    		= 'unit_restrictions_notacnukes',
+		name   		= 'Disable Tactical Nukes and EMPs',
+		desc   		= 'Disable Tactical Nukes and EMPs',
+		type   		= "bool",
+		section		= 'restrictions',
+		def    		= false,
+	},
 	---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 	---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 	-- Scavengers
@@ -917,6 +966,19 @@ local options={
 		max    = 10,
 		step   = 0.1,
 	},
+
+	{
+		key    = 'experimentalxpsystem',
+		name   = 'New XP System',
+		desc   = 'New XP System',
+		type   = 'list',
+		section = 'options_experimental',
+		def  = "disabled",
+		items={
+			{key="disabled", name="Disabled", desc="Using old XP system"},
+			{key="enabled", name="Enabled", desc="Using new XP system"},
+		}
+	},
 	--[[
 	{
 		key    = 'experimentalbuildrange',
@@ -966,6 +1028,19 @@ local options={
 		step   = 0.1,
 	},
 
+	{
+		key    = 'experimentalscavuniqueunits',
+		name   = 'Scavenger Units Buildable by Players',
+		desc   = 'Scavenger Units Buildable by Players',
+		type   = 'list',
+		section = 'options_experimental',
+		def  = "disabled",
+		items={
+			{key="disabled", name="Disabled", desc="Disabled"},
+			{key="enabled", name="Enabled", desc="Enabled"},
+		}
+	},
+	
 
 	---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 	---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

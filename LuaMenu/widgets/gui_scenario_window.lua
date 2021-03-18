@@ -23,10 +23,14 @@ end
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 -- Local Variables
-
+local reloadcount = 0
 local scenarioWindow
 local scenarios
 local scenariosorter
+local scenarioSelectorCombo
+local scenarioScrollPanel
+local scenarioPanel
+local scenarioSelectorPanel
 local currentscenario
 local mybonus = 0
 local alreadyDownloaded = false
@@ -35,6 +39,7 @@ local myside = nil
 local mydifficulty = {name = "Normal", playerhandicap = 100, enemyhandicap = 100}
 local myscores = {time = 0, resources = 0}
 local myside = nil
+
 
 local scoreData = {} -- a table, with keys being scenario uniqueIDs, e.g.:
 --[[
@@ -53,6 +58,17 @@ local unitdefname_to_humanname = {} -- from en.lua, attached at the end of the f
 --------------------------------------------------------------------------------
 -- Utilities
 
+local function SecondsToTimeString(s)
+	local hours = math.floor(s/3600)
+	s = math.fmod(s, 3600 )
+	local minutes = math.floor(s/60)
+	s = math.fmod(s,60)
+	result = ""
+	if hours>0 then
+		result = string.format("%d:",hours)
+	end
+	return result .. string.format("%d:%02d",minutes,s)
+end
 
 local function MaybeDownloadMap(mapName)
 	Spring.Echo("Scenario:", "Downloading map", mapName)
@@ -73,6 +89,7 @@ local function DownloadRequirements()
 	local config = WG.Chobby.Configuration
 	local gameName = config:GetDefaultGameName()
 	barversion = gameName
+	--barversion = "Beyond All Reason $VERSION" --TESTING ONLY
 	if gameName ~= nil and not alreadyDownloaded then
 		Spring.Echo("Scenario:", "Downloading game", gameName)
 		WG.DownloadHandler.MaybeDownloadArchive(gameName, "game", 1)
@@ -113,23 +130,26 @@ end
 local function EncodeScenarioOptions(scenario)
 	scenario.scenariooptions.version = scenario.version
 	scenario.scenariooptions.scenarioid = scenario.scenarioid
+	scenario.scenariooptions.difficulty = mydifficulty.name
 	return Spring.Utilities.Base64Encode(Spring.Utilities.json.encode(scenario.scenariooptions))
 end
 
 local function GetBestScores(scenarioID,scenarioVersion,difficulty)
-	if scoreData[scenarioid] and 
+	--Spring.Echo("GetBestScores",scenarioID,scenarioVersion,difficulty)
+	if scoreData[scenarioID] and 
 		scoreData[scenarioID][scenarioVersion] and 
 		scoreData[scenarioID][scenarioVersion][difficulty] then
 			myscores = scoreData[scenarioID][scenarioVersion][difficulty]
+			Spring.Echo(myscores)
 			return myscores
 	else 
-		return  {time = 0, resources = 0}
+		return nil
 	end
 end
 
 local function SetScore(scenarioID,scenarioVersion,difficulty,time,resources,gamewon)
 	
-	Spring.Echo("Scenario Window SetScore")
+	Spring.Echo("Scenario Window SetScore",scenarioID,scenarioVersion,difficulty,time,resources,gamewon)
 	if scoreData[scenarioID] == nil then
 		scoreData[scenarioID] = {}
 	end 
@@ -177,9 +197,11 @@ local function CreateScenarioPanel(shortname, sPanel)
 		end
 	end
 	
-	myscores = GetBestScores(scen.scenarioID, scen.version, mydifficulty.name)
-
-	myside = scen.defaultside
+	myscores = GetBestScores(scen.scenarioid, scen.version, mydifficulty.name)
+	if myscores == nil then
+		myscores = {time = "0", resources = "0"}
+	end
+	myside = (scen.allowedsides and scen.allowedsides[1]) or "Armada"
 
 	
 	local titletext = Label:New{
@@ -206,7 +228,12 @@ local function CreateScenarioPanel(shortname, sPanel)
 	local numdisabledunits = 0
 	if scen.unitlimits then
 		for unitid, count in pairs(scen.unitlimits) do 
-			additionalText = additionalText .. "\n  - " .. unitdefname_to_humanname[unitid] .. " (" ..unitid .. "): " .. tostring(count)
+			additionalText = additionalText .. "\n  - " .. unitdefname_to_humanname[unitid] .. " (" ..unitid .. "): "
+			if count == 0 then
+				additionalText = additionalText .. "Disabled"
+			else
+				additionalText = additionalText .. tostring(count)
+			end
 			numdisabledunits = numdisabledunits + 1
 		end
 	end
@@ -236,7 +263,7 @@ local function CreateScenarioPanel(shortname, sPanel)
 		font = Configuration:GetFont(2),
 		caption = "Victory",
 	}
-
+	lblvictoryText.font.color = {0.7, 0.7, 0.7, 1.0}
 	
 	local victoryText = Label:New{
 		x = "16%",
@@ -257,6 +284,7 @@ local function CreateScenarioPanel(shortname, sPanel)
 		font = Configuration:GetFont(2),
 		caption = "Loss" ,
 	}
+	lbllossText.font.color = {0.7, 0.7, 0.7, 1.0}
 
 	local lossText = Label:New{
 		x = "16%",
@@ -275,8 +303,10 @@ local function CreateScenarioPanel(shortname, sPanel)
 		height = "5%",
 		parent = sPanel,
 		font = Configuration:GetFont(2),
-		caption = "Challenge",
+		caption = "Difficulty",
 	}
+	lbldifficultyText.font.color = {0.7, 0.7, 0.7, 1.0}
+
 	
 	local difficultyText = Label:New{
 		x = "16%",
@@ -285,7 +315,7 @@ local function CreateScenarioPanel(shortname, sPanel)
 		height = "5%",
 		parent = sPanel,
 		font = Configuration:GetFont(2),
-		caption = tostring(scen.difficulty),
+		caption = tostring(scen.difficulty) .. "/10",
 	}
 
 	local lblpartimeText = Label:New{
@@ -297,6 +327,8 @@ local function CreateScenarioPanel(shortname, sPanel)
 		font = Configuration:GetFont(2),
 		caption = "Par Time",
 	}
+	lblpartimeText.font.color = {0.7, 0.7, 0.7, 1.0}
+
 
 	local partimeText = Label:New{
 		x = "16%",
@@ -317,6 +349,8 @@ local function CreateScenarioPanel(shortname, sPanel)
 		font = Configuration:GetFont(2),
 		caption = "Par Resources" ,
 	}
+	lblparresourcesText.font.color = {0.7, 0.7, 0.7, 1.0}
+
 
 	local parresourcesText = Label:New{
 		x = "16%",
@@ -404,7 +438,7 @@ local function CreateScenarioPanel(shortname, sPanel)
 		padding = {10,10,10,10},
 	}
 
-	------------------------
+	------------------------------------My Scores----------------------------
 	local lblpersonal = Label:New{
 		x = "76%",
 		y = "67.5%",
@@ -435,6 +469,7 @@ local function CreateScenarioPanel(shortname, sPanel)
 		font = Configuration:GetFont(2),
 		caption = "My Best Time: ",
 	}
+	lblmytime.font.color = {0.7, 0.7, 0.7, 1.0}
 	
 	local mytime = Label:New{
 		x = "76%",
@@ -443,7 +478,7 @@ local function CreateScenarioPanel(shortname, sPanel)
 		height = "5%",
 		parent = sPanel,
 		font = Configuration:GetFont(2),
-		caption = tostring(math.ceil(myscores.time/60)) .. " minutes",
+		caption = SecondsToTimeString(myscores.time),
 	}
 
 	local lblmyresources = Label:New{
@@ -455,6 +490,7 @@ local function CreateScenarioPanel(shortname, sPanel)
 		font = Configuration:GetFont(2),
 		caption = "My Resources ",
 	}
+	lblmyresources.font.color = {0.7, 0.7, 0.7, 1.0}
 
 	local myresources = Label:New{
 		x = "76%",
@@ -463,9 +499,10 @@ local function CreateScenarioPanel(shortname, sPanel)
 		height = "5%",
 		parent = sPanel,
 		font = Configuration:GetFont(2),
-		caption = tostring(math.ceil(myscores.resources/1000)) .. "K metal",
+		caption =  string.format( "%.2fK metal",myscores.resources/1000.0),
 	}
 
+    ------------------------------------------------------------------
 
 	local sidelabel = Label:New{
 		x = "0%",
@@ -476,6 +513,8 @@ local function CreateScenarioPanel(shortname, sPanel)
 		font = Configuration:GetFont(2),
 		caption = "Faction",
 	}
+	sidelabel.font.color = {0.7, 0.7, 0.7, 1.0}
+
 	--[[
 	local sidechangebutton  = Button:New {
 		x = "25%",
@@ -515,7 +554,7 @@ local function CreateScenarioPanel(shortname, sPanel)
 		--captionHorAlign = -32,
 		text = "HasText",
 		font = Configuration:GetFont(2),
-		items = {"Armada", "Cortex", "Random"}, --{"Coop", "Team", "1v1", "FFA", "Custom"},
+		items = scen.allowedsides or {"Armada"}, --{"Coop", "Team", "1v1", "FFA", "Custom"},
 		itemFontSize = Configuration:GetFont(2).size,
 		selected = 1,
 		OnSelectName = {
@@ -537,6 +576,8 @@ local function CreateScenarioPanel(shortname, sPanel)
 		font = Configuration:GetFont(2),
 		caption = "Difficulty",
 	}
+	difflabel.font.color = {0.7, 0.7, 0.7, 1.0}
+
 
 	local function UpdateDifficulty(newdifficultyname)
 		for i, diff in pairs(scen.difficulties) do 
@@ -586,7 +627,7 @@ local function CreateScenarioPanel(shortname, sPanel)
 		basescript = basescript:gsub("__ENEMYHANDICAP__",tostring(mydifficulty.enemyhandicap))
 		basescript = basescript:gsub("__BARVERSION__",tostring(barversion))
 		basescript = basescript:gsub("__MAPNAME__",tostring(scen.mapfilename))
-		basescript = basescript:gsub("__PLAYERSIDE__",tostring(myside or scen.defaultside))
+		basescript = basescript:gsub("__PLAYERSIDE__",tostring(myside or scen.allowedsides[1]))
 		basescript = basescript:gsub("__SCENARIOOPTIONS__",tostring(EncodeScenarioOptions(scen)))
 	
 	
@@ -622,6 +663,138 @@ end
 --------------------------------------------------------------------------------
 -- Controls
 
+local function MakeScenarioScrollPanelChildren()
+	reloadcount = reloadcount + 1
+
+	local Configuration = WG.Chobby.Configuration
+
+	for i = #scenarioScrollPanel.children, 1, -1 do
+		scenarioScrollPanel:RemoveChild(scenarioScrollPanel.children[i])
+	end
+
+	local spitemlist = {}
+	for i, scen in ipairs(scenarios) do 
+		spitemlist[#spitemlist+1] = scen.title
+
+		local mybestscore = nil
+		local mybestdiff = nil
+		local mybestrank = nil
+
+		for j, diff in pairs(scen.difficulties) do
+			local s =  GetBestScores(scen.scenarioid, scen.version,diff.name) 
+			if s then
+				mybestscore = s
+				mybestdiff = diff.name
+				mybestrank = j
+			end
+		end
+
+		local scenorderindex = i
+		local scenSelectorButton = Button:New {
+			name = scen.scenarioid .. "button",
+			x = "2%",
+			y = 105 * (#spitemlist -1),
+			right = "2%",
+			height = 100,
+			caption = "",
+			classname = "battle_default_button",
+			font = Configuration:GetFont(2),
+			tooltip = "Start the scenario",
+			OnClick = {
+				function()
+					scenarioPanel:SetVisibility(true)
+					scenarioSelectorPanel:SetVisibility(false)
+					scenarioSelectorCombo:Select(scen.title)
+					CreateScenarioPanel(scen.title,scenarioPanel)
+				end
+			},
+			parent = scenarioScrollPanel,
+		}
+
+		local spMinimapImg = Image:New {
+			y = "1%",
+			x = "1%",
+			bottom = "1%",
+			--width = "47%",
+			keepAspect = true,
+			file =Configuration:GetMinimapImage(scen.mapfilename),
+			parent = scenSelectorButton,
+			tooltip = scen.mapfilename,
+			padding = {0,0,0,0},
+		}
+
+		local spTitleLbl = 	Label:New {
+			x = 100,
+			y = 10,
+			width = 300,
+			--height = 30,
+			parent = scenSelectorButton,
+			font = Configuration:GetFont(3),
+			caption = string.format( "%03d. %s",scen.index+reloadcount, scen.title ),
+		}
+
+		
+		local spChallengeLbl = 	Label:New {
+			right = "1%",
+			y = 10,
+			width = 100,
+			--height = 30,
+			parent = scenSelectorButton,
+			font = Configuration:GetFont(3),
+			caption = string.format( "Difficulty: % 2d/10",scen.difficulty ),
+		}
+
+
+		if mybestdiff ~= nil then
+			local spScoreRankImg = Image:New{
+				y = "10%",
+				x = "10%",
+				bottom = "10%",
+				right = "10%",
+				keepAspect = true,
+				file =Configuration.gameConfig.rankFunction(nil, mybestrank, nil, nil,nil ),
+				parent = spMinimapImg,
+				tooltip = scen.mapfilename,
+				padding = {0,0,0,0},
+			}
+
+			local spMyScoreLbl = Label:New {
+				x = 150,
+				y = "60%",
+				width = 500,
+				--height = 30,
+				parent = scenSelectorButton,
+				font = Configuration:GetFont(2),
+				caption = string.format( "Completed On: %s   Time: %s  Resources: %.2fK metal",mybestdiff, SecondsToTimeString(mybestscore.time), mybestscore.resources/1000.0 ),
+			}
+		else
+			local spMyScoreLbl = Label:New {
+				x = 150,
+				y = "60%",
+				width = 500,
+				--height = 30,
+				parent = scenSelectorButton,
+				font = Configuration:GetFont(2),
+				caption = "Not completed yet",
+			}
+		end
+		--[[local spMinimapImg = Image:New {
+			y = "2%",
+			x = "2%",
+			bottom = "2%",
+			--width = "47%",
+			keepAspect = true,
+			file =Configuration:GetMinimapImage(scen.mapfilename),
+			parent = scenSelectorButton,
+			tooltip = scen.mapfilename,
+			padding = {0,0,0,0},
+		}]]--
+
+		
+
+	end
+end
+
 local function InitializeControls(parentControl)
 	local Configuration = WG.Chobby.Configuration
 
@@ -637,7 +810,25 @@ local function InitializeControls(parentControl)
 		caption = "Scenario",
 	}
 
-	local scenarioPanel = Control:New{
+	scenarioSelectorPanel = Control:New{
+		x = "2%",
+		y = 55,
+		right = "2%",
+		bottom = '2%',
+
+		padding = {0,0,0,0},
+		parent = parentControl,
+	}
+	scenarioScrollPanel = ScrollPanel:New {
+		x = 0,
+		right = 0,
+		y = 0,
+		bottom = 0,
+		parent = scenarioSelectorPanel,
+		horizontalScrollbar = false,
+	}
+
+	scenarioPanel = Control:New{
 		x = "2%",
 		y = 55,
 		right = "2%",
@@ -647,14 +838,52 @@ local function InitializeControls(parentControl)
 		parent = parentControl,
 	}
 
+	local backbutton = Button:New {
+		x = "90%",
+		y = 14,
+		right = "2%",
+		height = 35,
+		caption = "Back",
+		classname = "action_button",
+		font = Configuration:GetFont(2),
+		tooltip = "Back to the list of scenarios",
+		OnClick = {
+			function()
+				scenarioPanel:SetVisibility(false)
+				scenarioSelectorPanel:SetVisibility(true)
+			end
+		},
+		parent = parentControl,
+	}
+--[[
+	local refreshbutton = Button:New {
+		x = "86%",
+		y = 14,
+		right = "10%",
+		height = 35,
+		caption = "R",
+		classname = "action_button",
+		font = Configuration:GetFont(2),
+		tooltip = "Back to the list of scenarios",
+		OnClick = {
+			function()
+				MakeScenarioScrollPanelChildren()
+			end
+		},
+		parent = parentControl,
+	}
+]]--
+	-- make scenario scrollpanel children
+	MakeScenarioScrollPanelChildren()
+
 	local cbitemlist = {}
 	for i, scen in ipairs(scenarios) do 
 		cbitemlist[#cbitemlist+1] = scen.title
 	end
 
-	local scenarioSelectorCombo = ComboBox:New{
+	scenarioSelectorCombo = ComboBox:New{
 		x = 180,
-		right = "2%",
+		right = "15%",
 		y = "16",
 		height = 35,
 		itemHeight = 35,
@@ -662,7 +891,8 @@ local function InitializeControls(parentControl)
 		
 		valign = "top",
 		align = "left",
-		--captionHorAlign = -32,
+		--captionAlign  = 0, -- these dont work
+		--captionHorAlign = 10,
 		text = "HasText",
 		font = Configuration:GetFont(3),
 		items = cbitemlist, --{"Coop", "Team", "1v1", "FFA", "Custom"},
@@ -671,6 +901,9 @@ local function InitializeControls(parentControl)
 		OnSelectName = {
 			function (obj, selectedName)
 				Spring.Echo(selectedName)
+				
+				scenarioPanel:SetVisibility(true)
+				scenarioSelectorPanel:SetVisibility(false)
 				CreateScenarioPanel(selectedName,scenarioPanel)
 			end
 		},
@@ -678,9 +911,9 @@ local function InitializeControls(parentControl)
 
 	}
 
-	CreateScenarioPanel(1,scenarioPanel)
+	--CreateScenarioPanel(1,scenarioPanel)
 	
-	local externalFunctions = {}
+	local externalFunctions = {parent = parent}
 
 	function externalFunctions.Example(none)
 	end
@@ -717,20 +950,27 @@ end
 --------------------------------------------------------------------------------
 -- Widget Interface
 
-local SCENARIO_COMPLETE_STRING = "scenario_complete_"
+local SCENARIO_COMPLETE_STRING = "ScenarioGameEnd"
+
 
 function widget:RecvLuaMsg(msg)
+	-- prepare for: {"unitsReceived":0,"energyExcess":250,"energyProduced":250,"metalExcess":15,"scenariooptions":{"scenariooptions":"eyJkaWZmaWN1bHR5IjoiTm9ybWFsIiwic2NlbmFyaW9pZCI6ImRndW50ZXN0c2NlbmFyaW8iLCJ2ZXJzaW9uIjoiMS4wIiwibXlvcHRpb24iOiJkb3N0dWZmIn0="},"unitsSent":0,"time":10,"energySent":0,"endtime":10.0666666,"won":false,"metalReceived":0,"winners":1,"unitsDied":0,"unitsKilled":0,"metalProduced":15,"metalUsed":0,"energyUsed":0,"unitsCaptured":0,"energyReceived":0,"metalSent":0,"unitsProduced":1,"damageDealt":524.39447,"frame":302,"unitsOutCaptured":0,"damageReceived":420.846344}
+	Spring.Echo("scenario_complete_", msg)
+
 	if string.find(msg, SCENARIO_COMPLETE_STRING) then
-		--local missionName = string.sub(msg, string.len(SCENARIO_COMPLETE_STRING) + 1)
-		-- TODO:  Implement parsing of a scenario complete string
-		-- It should return a couple of things, as we theoretically know the scenario ids passed through scenariooptions
-		-- scenario ID
-		-- time to game end in sec
-		-- did player win t/f
-		-- spent metal + E/60 resources value
+		msg = string.sub(msg, 16)
+		local stats = Spring.Utilities.json.decode(msg)
+	
+		local decodedscenopts = Spring.Utilities.json.decode(Spring.Utilities.
+		Base64Decode(stats.scenariooptions))
 		
+		Spring.Echo(decodedscenopts.scenarioid,decodedscenopts.version,stats.endtime,stats.metalUsed + stats.energyUsed/60.0,stats.won)
+	
+		if stats.won and stats.cheated ~= true then
+			SetScore(decodedscenopts.scenarioid,decodedscenopts.version,decodedscenopts.difficulty, stats.endtime,stats.metalUsed + stats.energyUsed/60.0,stats.won)
+		end
+			
 		WG.Analytics.SendRepeatEvent("game_start:singleplayer:scenario_complete_" .. msg)
-		Spring.Echo("scenario_complete_", msg)
 	end
 end
 
@@ -747,15 +987,13 @@ function widget:SetConfigData(data)
 	scoreData = data.scores or {}
 end
 
-
-
 local function DelayedInitialize()
 	local Configuration = WG.Chobby.Configuration
 	SetScore("testscores","1.0","Hard",100,9999) -- seems to work
 end
 
-
 function widget:Initialize()
+
 	CHOBBY_DIR = LUA_DIRNAME .. "widgets/chobby/"
 	VFS.Include(LUA_DIRNAME .. "widgets/chobby/headers/exports.lua", nil, VFS.RAW_FIRST)
 
@@ -768,14 +1006,20 @@ function widget:Initialize()
 	--test scoring
 end
 
+function widget:Shutdown()
+	widgetHandler:DeregisterGlobal('ScenarioGameEnd')
+end
 
+
+--[[
 local framenum = 0
 function widget:Update() -- just to check if this still runs, and yes
 	framenum = framenum + 1
-	if math.fmod(framenum,1000)==0 then
-		--Spring.Echo("widget:Update()")
+	if math.fmod(framenum,1000)==0 then   
 	end
 end
+]]--
+
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 unitdefname_to_humanname  = {
