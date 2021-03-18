@@ -27,6 +27,7 @@ return {
 --['FolsomDamDeluxeV4']={Width=16, Height=12, Is1v1=nil, IsTeam=1, IsFFA=nil, IsCertified=nil, Special=nil, Flat=nil, Hills=1, Water=nil, IsInPool=1, },
 ['Fallendell_V3']={Width=12, Height=10, Is1v1=1, IsTeam=1, IsFFA=nil, IsCertified=1, Special=nil, Flat=nil, Hills=1, Water=nil, IsInPool=1, },
 ['Fallendell_V4']={Width=12, Height=10, Is1v1=1, IsTeam=1, IsFFA=nil, IsCertified=1, Special=nil, Flat=nil, Hills=1, Water=nil, IsInPool=1, },
+['Flooded_Valley_V4']={Width=10, Height=10, Is1v1=1, IsTeam=nil, IsFFA=nil, IsCertified=nil, Special=nil, Flat=nil, Hills=1, Water=1, IsInPool=1, },
 ['FolsomdamR 1.16']={Width=20, Height=14, Is1v1=nil, IsTeam=1, IsFFA=nil, IsCertified=1, Special=nil, Flat=nil, Hills=1, Water=nil, IsInPool=1, },
 ['FolsomDam_V2']={Width=20, Height=14, Is1v1=nil, IsTeam=1, IsFFA=nil, IsCertified=nil, Special=nil, Flat=nil, Hills=1, Water=1, IsInPool=1, },
 ['Gecko Isle 1.1']={Width=16, Height=16, Is1v1=nil, IsTeam=1, IsFFA=nil, IsCertified=nil, Special=nil, Flat=1, Hills=nil, Water=nil, IsInPool=1, },
