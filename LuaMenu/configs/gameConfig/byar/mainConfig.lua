@@ -87,11 +87,12 @@ local externalFuncAndData = {
 	sidedata               = sidedata,
 
 	simpleAiOrder = {
-		['BARbarIAn stable'] = 1,
-		['SimpleAI'] = 2,
-		['SimpleCheaterAI'] = 3,
-		['SimpleDefenderAI'] = 4,
-		['STAI'] = 5,
+		['BARb stable'] = 1,
+		['BARbarIAn stable'] = 2,
+		['SimpleAI'] = 3,
+		['SimpleCheaterAI'] = 4,
+		['SimpleDefenderAI'] = 5,
+		['STAI'] = 6,
 		--['BARbarIAn 0.57'] = 6,
 		--['BARbarIAn 0.58'] = 7,
 		--['BARbarIAn 0.59'] = 8,
