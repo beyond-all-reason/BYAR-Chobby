@@ -91,7 +91,7 @@ Tips:
 		Host = 0;
 		IsFromDemo = 0;
 		Name = BARbarIAnstable(2);
-		ShortName = BARbarIAn;
+		ShortName = BARb;
 		Team = 5;
 		Version = stable;
 	}
@@ -101,7 +101,7 @@ Tips:
 		Host = 0;
 		IsFromDemo = 0;
 		Name = BARbarIAnstable(7);
-		ShortName = BARbarIAn;
+		ShortName = BARb;
 		Team = 2;
 		Version = stable;
 	}
@@ -120,7 +120,7 @@ Tips:
 		Host = 0;
 		IsFromDemo = 0;
 		Name = BARbarIAnstable(6);
-		ShortName = BARbarIAn;
+		ShortName = BARb;
 		Team = 3;
 		Version = stable;
 	}
@@ -130,7 +130,7 @@ Tips:
 		Host = 0;
 		IsFromDemo = 0;
 		Name = BARbarIAnstable(3);
-		ShortName = BARbarIAn;
+		ShortName = BARb;
 		Team = 6;
 		Version = stable;
 	}
@@ -149,7 +149,7 @@ Tips:
 		Host = 0;
 		IsFromDemo = 0;
 		Name = BARbarIAnstable(4);
-		ShortName = BARbarIAn;
+		ShortName = BARb;
 		Team = 7;
 		Version = stable;
 	}
@@ -159,7 +159,7 @@ Tips:
 		Host = 0;
 		IsFromDemo = 0;
 		Name = BARbarIAnstable(5);
-		ShortName = BARbarIAn;
+		ShortName = BARb;
 		Team = 4;
 		Version = stable;
 	}
@@ -283,7 +283,7 @@ Tips:
 		Host = 0;
 		IsFromDemo = 0;
 		Name = BARbarIAnstable(1);
-		ShortName = BARbarIAn;
+		ShortName = BARb;
 		Team = 1;
 		Version = stable;
 	}

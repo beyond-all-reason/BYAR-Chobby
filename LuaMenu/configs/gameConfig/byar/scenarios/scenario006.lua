@@ -88,7 +88,7 @@ local scenariodata = {
         Host = 0;
         IsFromDemo = 0;
         Name = BARbarIAnstable(2);
-        ShortName = BARbarIAn;
+        ShortName = BARb;
         Team = 2;
         Version = stable;
     }
@@ -133,7 +133,7 @@ local scenariodata = {
         Host = 0;
         IsFromDemo = 0;
         Name = BARbarIAnstable(1);
-        ShortName = BARbarIAn;
+        ShortName = BARb;
         Team = 1;
         Version = stable;
     }

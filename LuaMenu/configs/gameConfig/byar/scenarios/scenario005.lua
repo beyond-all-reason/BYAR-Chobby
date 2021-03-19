@@ -121,7 +121,7 @@ Tips:
         Host = 0;
         IsFromDemo = 0;
         Name = BARbarIAnstable(1);
-        ShortName = BARbarIAn;
+        ShortName = BARb;
         Team = 1;
         Version = stable;
     }
