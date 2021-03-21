@@ -37,7 +37,7 @@ Scoring:
     allowedsides     = {"Armada"}, --these are the permitted factions for this mission, ch0ose from {"Armada", "Cortex", "Random"}
 	victorycondition= "Kill all enemy units", -- This is plaintext, but should be reflected in startscript
 	losscondition	= "Loss of all your units",  -- This is plaintext, but should be reflected in startscript
-    unitlimits   = { -- table of unitdefname : maxnumberoftese units, 0 means disable it
+    unitlimits   = { -- table of unitdefname : maxnumberofthese units, 0 means disable it
         -- dont use the one in startscript, put the disabled stuff here so we can show it in scenario window!
         --armavp = 0,
         --coravp = 0,
@@ -112,7 +112,7 @@ Scoring:
             {name = 'armpw', x = 1396, y = 154, z = 699, rot = -17280 , team = 0},
             {name = 'armwin', x = 1352, y = 208, z = 216, rot = 16384 , team = 0},
             {name = 'armllt', x = 2368, y = 52, z = 2336, rot = 16384 , team = 0},
-            {name = 'cordl', x = 5280, y = 70, z = 2016, rot = -16384 , team = 1},
+            {name = 'corhlt', x = 5280, y = 70, z = 2016, rot = -16384 , team = 1},
             {name = 'armmex', x = 392, y = 5, z = 2088, rot = 16384 , team = 0},
             {name = 'cormex', x = 5112, y = 101, z = 1544, rot = 0 , team = 1},
             {name = 'armwin', x = 1304, y = 208, z = 216, rot = 16384 , team = 0},
@@ -150,9 +150,10 @@ Scoring:
 		featureloadout = {
 			-- Similarly to units, but these can also be resurrectable!
             -- You can /give corcom_dead with cheats when making your scenario, but it might not contain the 'resurrectas' tag, so be careful to add it if needed
-			 {name = 'corcom_dead', x = 1125,y = 237, z = 734, rot = "0" , scale = 1.0, resurrectas = "corcom"},
+			 -- {name = 'corcom_dead', x = 1125,y = 237, z = 734, rot = "0" , scale = 1.0, resurrectas = "corcom"}, -- there is no need for this dead comm here, just an example
 		}
     },
+    -- Full Documentation for start script here: 
     -- https://github.com/spring/spring/blob/105.0/doc/StartScriptFormat.txt
 
     -- HOW TO MAKE THE START SCRIPT: Use Chobby's single player mode to set up your start script. When you launch a single player game, the start script is dumped into infolog.txt
@@ -175,11 +176,7 @@ Scoring:
 {
 	[allyTeam0]
 	{
-		startrectright = 0.19;
-		startrectbottom = 1;
-		startrectleft = 0;
 		numallies = 0;
-		startrecttop = 0;
 	}
 
 	[team1]
@@ -189,6 +186,8 @@ Scoring:
 		RgbColor = 0.63758504 0.35682863 0.61179775;
 		AllyTeam = 1;
 		TeamLeader = 0;
+        StartPosX = 5000;
+        StartPosZ = 1400;
 	}
 
 	[team0]
@@ -198,6 +197,8 @@ Scoring:
 		RgbColor = 0.59311622 0.61523652 0.54604363;
 		AllyTeam = 0;
 		TeamLeader = 0;
+        StartPosX = 1200;
+        StartPosZ = 800;
 	}
 
 	[modoptions]
@@ -208,11 +209,7 @@ Scoring:
 
 	[allyTeam1]
 	{
-		startrectright = 1;
-		startrectbottom = 1;
-		startrectleft = 0.81;
 		numallies = 0;
-		startrecttop = 0;
 	}
 
 	[ai0]
@@ -242,12 +239,12 @@ Scoring:
 	hostip = 127.0.0.1;
 	hostport = 0;
 	numplayers = 1;
-	startpostype = 2;
+	startpostype = 3; // 0 fixed, 1 random, 2 choose in game, 3 choose before game (see StartPosX)
     mapname = __MAPNAME__;
 	ishost = 1;
 	numusers = 2;
     gametype = __BARVERSION__;
-    GameStartDelay = 3;
+    GameStartDelay = 5;  // seconds before game starts after loading/placement
     myplayername = __PLAYERNAME__;
 	nohelperais = 0;
 }
