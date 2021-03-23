@@ -202,15 +202,16 @@ local function GetUserComboBoxOptions(userName, isInBattle, userControl, showTea
 		if userInfo.accountID and Configuration.gameConfig.link_reportPlayer ~= nil then
 			comboOptions[#comboOptions + 1] = "Report"
 		end
-
+		
 		if userInfo.isIgnored then
-			comboOptions[#comboOptions + 1] = "Unignore"
+			-- comboOptions[#comboOptions + 1] = "Unignore" --remove ignore for now
 		elseif not userInfo.isAdmin then
 			if (Configuration.gameConfig.spadsLobbyFeatures ~= true ) or
 				(Configuration.gameConfig.spadsLobbyFeatures == true and not userInfo.isBot) then
 				comboOptions[#comboOptions + 1] = "Ignore"
 			end
 		end
+
 
 		if userInfo.isFriend then
 			comboOptions[#comboOptions + 1] = "Unfriend"
@@ -233,23 +234,11 @@ local function GetUserComboBoxOptions(userName, isInBattle, userControl, showTea
 			comboOptions[#comboOptions + 1] = "Change Color"
 		end
 		if showSide then
-			comboOptions[#comboOptions + 1] = "Change Side"
+			comboOptions[#comboOptions + 1] = "Change Faction"
 		end
 	end
 
-	-- userControl.lobby:GetMyIsAdmin()
-	-- Let everyone start kick votes, but dont let they try to kick spads lobby bottomSpacing
-	if Configuration.gameConfig.spadsLobbyFeatures then
-		if userName ~= myUserName and not userInfo.isBot and
-			(isInBattle or (userBattleInfo.aiLib and userBattleInfo.owner == myUserName)) then
-			comboOptions[#comboOptions + 1] = "Kick"
-		end
-	else
-		if userName ~= myUserName and
-			(isInBattle or (userBattleInfo.aiLib and userBattleInfo.owner == myUserName)) then
-			comboOptions[#comboOptions + 1] = "Kick"
-		end
-	end
+
 	-- Change team of anyone with !force
 	if  Configuration.gameConfig.spadsLobbyFeatures and not userBattleInfo.isSpectator and (isInBattle or userBattleInfo.aiLib) then
 		comboOptions[#comboOptions + 1] = "Change Team"
@@ -277,6 +266,19 @@ local function GetUserComboBoxOptions(userName, isInBattle, userControl, showTea
 		comboOptions[#comboOptions + 1] = "Make Boss"
 	end
 
+	-- userControl.lobby:GetMyIsAdmin()
+	-- Let everyone start kick votes, but dont let they try to kick spads lobby bottomSpacing
+	if Configuration.gameConfig.spadsLobbyFeatures then
+		if userName ~= myUserName and not userInfo.isBot and
+			(isInBattle or (userBattleInfo.aiLib and userBattleInfo.owner == myUserName)) then
+			comboOptions[#comboOptions + 1] = "Kick"
+		end
+	else
+		if userName ~= myUserName and
+			(isInBattle or (userBattleInfo.aiLib and userBattleInfo.owner == myUserName)) then
+			comboOptions[#comboOptions + 1] = "Kick"
+		end
+	end
 
 	local whitelist = userControl.dropdownWhitelist
 	if whitelist then
