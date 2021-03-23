@@ -204,11 +204,11 @@ local function GetUserComboBoxOptions(userName, isInBattle, userControl, showTea
 		end
 		
 		if userInfo.isIgnored then
-			-- comboOptions[#comboOptions + 1] = "Unignore" --remove ignore for now
+			comboOptions[#comboOptions + 1] = "Unignore" 
 		elseif not userInfo.isAdmin then
 			if (Configuration.gameConfig.spadsLobbyFeatures ~= true ) or
 				(Configuration.gameConfig.spadsLobbyFeatures == true and not userInfo.isBot) then
-				comboOptions[#comboOptions + 1] = "Ignore"
+				-- comboOptions[#comboOptions + 1] = "Ignore" --remove ignore for now
 			end
 		end
 
