@@ -729,7 +729,7 @@ local function GetUserControls(userName, opts)
 								end
 							end
 						})
-					elseif selectedName == "Change Side" then
+					elseif selectedName == "Change Faction" then
 						local battleStatus = userControls.lobby:GetUserBattleStatus(userName) or {}
 						if battleStatus.isSpectator then
 							return
