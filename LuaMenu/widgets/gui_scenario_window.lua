@@ -134,7 +134,7 @@ local function LoadScenarios()
 	end
 
 	local function SortFunc(a,b)
-		return a.index < b.index
+		return a.difficulty < b.difficulty
 	end
 
 	table.sort(scenarios, SortFunc )
@@ -773,7 +773,7 @@ local function MakeScenarioScrollPanelChildren()
 				--height = 30,
 				parent = scenSelectorButton,
 				font = Configuration:GetFont(3),
-				caption = string.format( "%03d. %s",scen.index+reloadcount, scen.title ),
+				caption = string.format( "%03d. %s",i+reloadcount, scen.title ),
 			}
 
 			
