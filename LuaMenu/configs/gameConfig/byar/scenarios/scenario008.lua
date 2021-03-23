@@ -3,16 +3,18 @@ local scenariodata = {
 	scenarioid		= "Fallendellheadstart008", -- no spaces, lowercase, this will be used to save the score and can be used gadget side
     version         = "1", -- increment this to reset the score when changing a mission, as scores are keyed by (scenarioid,version,difficulty)
 	title			= "A Head Start", -- can be anything
+	author			= "Beherith", -- your name here
 	imagepath		= "scenario008.jpg", -- placed next to lua file, should be 3:1 ratio banner style
 	imageflavor		= "Your starting base", -- This text will be drawn over image
     summary         = [[An enemy Commander has set up operations on Fallendell, where you already have a strong presence. Prevent him from taking further territory]],
 	briefing 		= [[You will start with a small base of operations, and a considerable amount of resources. Use your initial scouting units to locate the enemy commander and liquidate him before he gains a foothold. 
+ 
 Tips: 
  - Nano Turrets will assist in the construction of any unit or building within their build radius. 
  - The enemy Commander will try to expand to get more resources, stop him as soon as you feel ready for it
  - Your starting base is quite well equipped with energy producing buildings, continue building a farm of Wind Generators on the hill where they can be easily protected
  - Build attacking units immediately or use your advantage to build a Tier 2 Bot Lab for advanced units
-
+ 
 Scoring: 
  - Time taken to complete the scenario
  - Resources spent to get a confirmed kill on all enemy units.

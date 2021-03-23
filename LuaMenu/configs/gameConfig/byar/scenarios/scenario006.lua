@@ -6,19 +6,21 @@ local scenariodata = {
     scenarioid      = "twobarbspwakonly006", -- no spaces, lowercase, this will be used to save the score
     version         = "1", -- increment this to keep the score when changing a mission
     title           = "Infantry Simulator", -- can be anything
+	author			= "Zow", -- your name here
     imagepath       = "scenario006.jpg", -- placed next to lua file, should be 3:1 ratio banner style
     imageflavor     = "You can resurrect your fallen infantry units", -- This text will be drawn over image
     summary         = [[Defeat two hostile but primitive Barbarians with nothing but your own primitive infantry.]],
     briefing        = [[Both you and your enemy may only make infantry units. Since you're up against a larger enemy, be sure to expand quickly and reclaim/resurrect effectively to maintain an advantage. Don't forget to raid the enemy!
-    Score:
-        1. Speed: destroy the enemy Commanders as fast as possible.
-        2. Efficiency: minimize the amount of metal and energy used.
-    
-    Tips:
-        1. Light laser towers are incredibly effective against small amounts of infantry.
-        2. Resurrecting a fallen infantry unit will immediately add it to your army. Use this to stage epic comebacks.
-        3. Infantry can be very effective at finding and killing enemy commanders. Be sure to take control of the wreck after killing the first one.
-        4. AKs have more range than Peewees, but less damage for their cost. Both have their strengths and weaknesses!
+ 
+Score:
+    1. Speed: destroy the enemy Commanders as fast as possible.
+    2. Efficiency: minimize the amount of metal and energy used.
+ 
+Tips:
+    1. Light laser towers are incredibly effective against small amounts of infantry.
+    2. Resurrecting a fallen infantry unit will immediately add it to your army. Use this to stage epic comebacks.
+    3. Infantry can be very effective at finding and killing enemy commanders. Be sure to take control of the wreck after killing the first one.
+    4. AKs have more range than Peewees, but less damage for their cost. Both have their strengths and weaknesses!
     ]],
 
     mapfilename     = "Red Comet Remake 1.8", -- the name of the map to be displayed here
@@ -155,57 +157,12 @@ local scenariodata = {
     GameStartDelay = 5;
     myplayername = __PLAYERNAME__;
     nohelperais = 0;
-    NumRestrictions=22;
-    
+
+    // do not touch these, chobby will generate these from the unitlimits table
+    NumRestrictions=__NUMRESTRICTIONS__;
     [RESTRICT]
     {
-        Unit0=armaap;
-        Limit0=0;
-        Unit1=armalab;
-        Limit1=0;
-        Unit2=armap;
-        Limit2=0;
-        Unit3=armavp;
-        Limit3=0;
-        Unit4=armhp;
-        Limit4=0;
-        Unit5=armshltx;
-        Limit5=0;
-        Unit6=armvp;
-        Limit6=0;
-
-        Unit7=coraap;
-        Limit7=0;
-        Unit8=coralab;
-        Limit8=0;
-        Unit9=corap;
-        Limit9=0;
-        Unit10=coravp;
-        Limit10=0;
-        Unit11=corhp;
-        Limit11=0;
-        Unit12=corgant;
-        Limit12=0;
-        Unit13=corvp;
-        Limit13=0;
-
-        Unit14=armflea;
-        Limit14=0;
-        Unit15=armham;
-        Limit15=0;
-        Unit16=armjeth;
-        Limit16=0;
-        Unit17=armrock;
-        Limit17=0;
-        Unit18=armwar;
-        Limit18=0;
-
-        Unit19=corcrash;
-        Limit19=0;
-        Unit20=corstorm;
-        Limit20=0;
-        Unit21=corthud;
-        Limit21=0;
+        __RESTRICTEDUNITS__
     }
 }
     ]],

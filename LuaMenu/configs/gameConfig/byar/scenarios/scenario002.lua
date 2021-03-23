@@ -3,6 +3,7 @@ local scenariodata = {
 	scenarioid		= "dguntestscenario", -- no spaces, lowercase, this will be used to save the score
     version         = "1.0", -- increment this to keep the score when changing a mission
 	title			= "DGunning the enemy Commander", -- can be anything
+	author			= "Beherith", -- your name here
 	imagepath		= "scenario002.jpg", -- placed next to lua file, should be 3:1 ratio banner style
 	imageflavor		= "In a 1v1 situation, the first to DGun dies.", -- This text will be drawn over image
     summary         = [[How Does DGunning enemy Commander work? Try it here.]],
@@ -119,4 +120,4 @@ local scenariodata = {
 	
 }
 
-return scenariodata
+return nil -- scenariodata

@@ -3,6 +3,7 @@ local scenariodata = {
 	scenarioid		= "tma20ffabarbs", -- no spaces, lowercase, this will be used to save the score
     version         = "1", -- increment this to keep the score when changing a mission
 	title			= "One by One", -- can be anything
+	author			= "Beherith", -- your name here
 	imagepath		= "scenario004.jpg", -- placed next to lua file, should be 3:1 ratio banner style
 	imageflavor		= "You can hide behind radar jammers.", -- This text will be drawn over image
     summary         = [[Competition for resources has never been this intense. Eliminate all 7 of your enemies in a free-for-all battle.]],

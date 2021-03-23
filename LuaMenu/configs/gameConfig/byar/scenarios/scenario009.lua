@@ -3,6 +3,7 @@ local scenariodata = {
 	scenarioid		= "Tundrabackfromthedead009", -- no spaces, lowercase, this will be used to save the score and can be used gadget side
     version         = "1", -- increment this to reset the score when changing a mission, as scores are keyed by (scenarioid,version,difficulty)
 	title			= "Back from the Dead", -- can be anything
+	author			= "Beherith", -- your name here
 	imagepath		= "scenario009.jpg", -- placed next to lua file, should be 3:1 ratio banner style
 	imageflavor		= "All is not lost", -- This text will be drawn over image
     summary         = [[After a ferocious battle, you are left with only a handful of Rezzer's, tasked to resurrect your army. Beware though, it seems that you might not be alone with this goal]],
@@ -15,7 +16,9 @@ Tips:
  - Wrecks of units contain about 60% of their original metal cost, so resurrecting them will be more cost effective, but also slower.
  - Reclaiming is much faster than resurrecting, and can also help you fund your economy very rapidly
  - Resurrect Construction Units and a Factory as soon as possible!
-
+ - There can also be neutral units among the wreckage, these will only return fire if attacked. 
+ - You can capture neutral (or enemy) units and structures with Commanders and Decoy Commanders
+ 
 Scoring: 
  - Time taken to complete the scenario
  - Resources spent to get a confirmed kill on all enemy units.

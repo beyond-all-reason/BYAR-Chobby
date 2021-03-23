@@ -3,20 +3,20 @@ local scenariodata = {
 	scenarioid		= "strongholdkilltraitor010", -- no spaces, lowercase, this will be used to save the score and can be used gadget side
     version         = "1", -- increment this to reset the score when changing a mission, as scores are keyed by (scenarioid,version,difficulty)
 	title			= "Keep your secrets", -- can be anything
+	
+	author			= "Beherith", -- your name here
 	imagepath		= "scenario010.jpg", -- placed next to lua file, should be 3:1 ratio banner style
 	imageflavor		= "The captured Cortex Commander", -- This text will be drawn over image
     summary         = [[Armada have captured and taken a Cortex Commander hostage, and intend to steal Cortex technology and infiltrate your ranks. Foil their plans by any means necessary to neutralize this threat]],
 	briefing 		= [[
 Your intelligence reports state that the captured commander is still being held, but his programming has been compromised. To minimize the risk of our technology being stolen. A small forward position has been established on the map, which is hidden with radar jammers for now. You do not have much time before the enemy discovers your presence, so you must liquidate the captured Commander as fast as possible.
-
-
+ 
 Tips: 
  - If this scenario seems difficult, try it at a lower difficulty override
  - The enemy will expand rapidly, and the map is particularly resource rich
  - The enemy might send early aircraft raids, so your forward base has been equipped with anti-air turrets
  - The enemy base is very heavily defended with both Tier 2 ground defences and and anti-air. 
-
- 
+  
 Scoring: 
  - Time taken to complete the scenario
  - Resources spent to get a confirmed kill on the captured commander.

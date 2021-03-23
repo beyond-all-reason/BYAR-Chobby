@@ -3,10 +3,12 @@ local scenariodata = {
 	scenarioid		= "threebarbscomet", -- no spaces, lowercase, this will be used to save the score
     version         = "1.0", -- increment this to keep the score when changing a mission
 	title			= "Catch those rare Comets", -- can be anything
+	author			= "Beherith", -- your name here
 	imagepath		= "scenario003.jpg", -- placed next to lua file, should be 3:1 ratio banner style
 	imageflavor		= "", -- This text will be drawn over image
     summary         = [[Destroy three Barbarian AI's on large, metal rich flat map.]],
 	briefing 		= [[This scenario is a true test of a players skill, only the very few top players can handle three Barbarian AI players on such a metal-rich map. If you win this scenario on at least Normal difficulty, dont forget to post your replay on our Discord server for bragging rights. 
+ 
 Tips: 
 - One of the three AI's will likely start with an Aircraft plant
 - AI's expand very quickly, and you must prevent them from getting too much metal early on before they overwhelm you

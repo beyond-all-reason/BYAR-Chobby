@@ -6,14 +6,16 @@ local scenariodata = {
 	scenarioid		= "stealtech005", -- no spaces, lowercase, this will be used to save the score
     version         = "1", -- increment this to keep the score when changing a mission
 	title			= "Steal Cortex's Tech!", -- can be anything
+	author			= "Zow", -- your name here
 	imagepath		= "scenario005.jpg", -- placed next to lua file, should be 3:1 ratio banner style
 	imageflavor		= "", -- This text will be drawn over image
     summary         = [[Your Armada commander lost the blueprints to most factories and units. Oops! But perhaps your Cortex enemy has a solution for you...]],
 	briefing 		= [[In this challenge, most Armada combat units and factories are disabled. Use your Commander and static defenses to hold your frontline and your expansions. Find and resurrect an enemy constructor to build combat units. Resurrection Bots (Cortex Necro and Armada Rezzer) can resurrect and repair units, but cannot build structures. They are also stealthy, so they dont show up on the enemy's radar. Use your commander's d-gun wisely, as it completely destroys units, including their wrecks. Use terrain to your advantage when playing defensively.
+ 
 Score:
 	1. Speed: destroy the enemy Commander as fast as possible.
 	2. Efficiency: minimize the amount of metal and energy used.
-
+ 
 Tips:
 	1. Light laser towers can be effective as a low cost option to hold a front line and expansions before you steal enemy tech.
 	2. Send constructors to the front line to build turrets and other defensive structures!
@@ -144,41 +146,11 @@ Tips:
     myplayername = __PLAYERNAME__;
     nohelperais = 0;
     
-	NumRestrictions=13;
+    // do not touch these, chobby will generate these from the unitlimits table
+	NumRestrictions=__NUMRESTRICTIONS__;
 	[RESTRICT]
 	{
-		//Unit0=armah;
-		//Limit0=0;       // use 0 for all units that should be completely disabled
-		//Unit1=corvp;
-		//Limit1=50;      // >0 can be used for limiting, like build restrictions in TA
-		//...
-        Unit0=armaap;
-        Limit0=0;
-        Unit1=armalab;
-        Limit1=0;
-        Unit2=armap;
-        Limit2=0;
-        Unit3=armavp;
-        Limit3=0;
-        Unit4=armhp;
-        Limit4=0;
-        Unit5=armshltx;
-        Limit5=0;
-        Unit6=armvp;
-        Limit6=0;
-
-        Unit7=armflea;
-        Limit7=0;
-        Unit8=armham;
-        Limit8=0;
-        Unit9=armjeth;
-        Limit9=0;
-        Unit10=armpw;
-        Limit10=0;
-        Unit11=armrock;
-        Limit11=0;
-        Unit12=armwar;
-        Limit12=0;
+        __RESTRICTEDUNITS__
 	}
 }
 	]],
