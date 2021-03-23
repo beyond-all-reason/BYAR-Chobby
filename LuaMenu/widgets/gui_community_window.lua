@@ -975,16 +975,16 @@ function widget:ActivateGame()
 end
 
 local function DelayedInitialize()
-	if WG.Chobby.Configuration.firstBattleStarted then
-		WG.Chobby.interfaceRoot.OpenRightPanelTab("Welcome")
-	end
+	--if WG.Chobby.Configuration.firstBattleStarted then -- Always show welcome panel
+		WG.Chobby.interfaceRoot.OpenRightPanelTab("welcome")
+	--end
 end
 
 function widget:Initialize()
 	CHOBBY_DIR = LUA_DIRNAME .. "widgets/chobby/"
 	VFS.Include(LUA_DIRNAME .. "widgets/chobby/headers/exports.lua", nil, VFS.RAW_FIRST)
 
-	WG.Delay(DelayedInitialize, 0.2) -- After user handler
+	WG.Delay(DelayedInitialize, 1.0) -- After user handler
 
 	WG.CommunityWindow = CommunityWindow
 end
