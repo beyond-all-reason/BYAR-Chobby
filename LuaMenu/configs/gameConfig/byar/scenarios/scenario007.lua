@@ -1,38 +1,31 @@
 local scenariodata = {
-	index			= 3, --  integer, sort order, MUST BE EQUAL TO FILENAME NUMBER
+	index			= 7, --  integer, sort order, MUST BE EQUAL TO FILENAME NUMBER
 	scenarioid		= "acidicquarrybarbs", -- no spaces, lowercase, this will be used to save the score
     version         = "1", -- increment this to keep the score when changing a mission
-	title			= "Judge jury and executioner", -- can be anything
+	title			= "The Sky is the Limit", -- can be anything
+	author			= "BasiC",
 	imagepath		= "scenario007.jpg", -- placed next to lua file, should be 3:1 ratio banner style
-	imageflavor		= "aviation module inspection of subject #", -- This text will be drawn over image
-    summary         = [[Judge over aviation module of test subject #subsequent_number.]],
-	briefing 		= [[******
-	A]z­³(׃פ„½ֵןlO"-‚Z!אAא³ֿ)¸(׳sֶזmרrµ™†<ֻg WVםGצ–ֿzט₪j÷(`6_~—…N+2J‰…×<	¶}«ת
-	„˜X9ןֲn±אֱIoךZE‏o״¯"O5$…›,ִ~צק`¢0פN¡‎w=VKGױ¢A?Hֿםׂp¹2÷ף.–\\ק¶{_‎}qd~®ִDׁ$(%²{ld~2†ל’3ֳ3ˆ
-	...High order intelligence data link request detected.
-	/dumping #current_number test subejct..
-	/test subject dissolved.
-	Initiating data connection with galactic subsector #A245-q.
-	Sending reply packet.
-	Connection established in..
-	3
-	2
-	1
-	Connection established with Selector #1-45737.
-	Selector #1-45737, these are the results of training procedure, #501, of test subject's, #subsequent_number, aviation module and general competence.
-	subject, #subsequent_number, was tested versus rudimentary #0 level intelligences.
-	Awaiting Selector #1-45737's output.... 
-	
-	Recommended areas of attention:
-		1.Speed: Time interval between activation of subject, #subsequent_number, and annihilation of opposing #0 level entities.
-		2.Efficiency: Resoruces used between activiation of subject, #subsequent_number, and annihialtion of opposing #0 level entities.
+	imageflavor		= "Acidic water damages any unit coming into contact with it", -- This text will be drawn over image
+    summary         = [[Acidic rains prevent any land or sea units, so you must take to the skies to defeat two enemy Commanders. The acidic environment also prevent use of the usual anti-air defensive turrets. Bomb your way to victory.]],
+	briefing 		= [[
+The environmental conditions prevent the use of your mainstay army options, so plan your aircraft raids on the enemy platforms wisely. 
  
-	Recommended Guidelines:
-		1.Examine ratio and timing of assembly of subject ,#subsequent_number's, energy structures versus aviation drone assembly and usage on opposing #0 level entities.
-		2.Examine time and speed of subject, #subsequent_number's, expansion to nearby platform.
-		3.Examine subject, #subsequent_number's, aviation assault algorithms, including bomber drone movement patterns and fighter drone control.
-    ]],
 
+Tips:
+ - Fighters are your only defense against enemy aircraft, and you will need them quickly.
+ - Wind Generators are more vulnerable when built close together, as they damage adjacent units and structures when destroyed. Space them well [Hotkeys Z and X while building a grid of them]
+ - Aircraft in general cost a lot of energy to build
+ - The energy output of wind generators fluctuate, so it is recommended to build at least one Energy Storage building to smooth out the intermittent supply. 
+ - You can build Air Transports to ferry your Commander between the rocky pillars, but do so only when safe, as enemy fighters can easily shoot down a vulnerable Air Transport, instantly killing any transported unit 
+ - You can also transport Nano Turrets in Air Transports
+ - Armada has access to Banshees, which are excellent early gunship aircraft
+ - Armada can build Twilights, which are cloakable and stealthy metal extractors. These will be much more difficult to raid for the enemy, but when you run out of energy, their cloaking fields may fail until you restore your energy supplies 
+
+ 
+Scoring:
+	1. Speed: destroy the enemy Commanders as fast as possible.
+	2. Efficiency: minimize the amount of metal and energy used.
+]],
 	mapfilename		= "AcidicQuarry 5.16", -- the name of the map to be displayed here, and which to play on, no .smf ending needed
 	playerstartx	= "15%", -- X position of where player comm icon should be drawn, from top left of the map
 	playerstarty	= "75%", -- Y position of where player comm icon should be drawn, from top left of the map
@@ -76,7 +69,6 @@ local scenariodata = {
 		corhp = 0,
 		corlab = 0,
 		corvp = 0,
-		
     } ,
 
     scenariooptions = { -- this will get lua->json->base64 and passed to scenariooptions in game
@@ -153,7 +145,8 @@ local scenariodata = {
 
 	[team2]
 	{
-		Handicap = 0;
+	    Side = Random;
+        Handicap = __ENEMYHANDICAP__;
 		RgbColor = 0.23227084 0.54822761 0.46437711;
 		AllyTeam = 0;
 		TeamLeader = 0;
@@ -189,54 +182,11 @@ local scenariodata = {
     myplayername = __PLAYERNAME__;
 	nohelperais = 0;
 
-	NumRestrictions=13;
+    // do not touch these, chobby will generate these from the unitlimits table
+	NumRestrictions=__NUMRESTRICTIONS__;
 	[RESTRICT]
 	{
-        Unit0=armcir;
-        Limit0=0;
-        Unit2=armferret;
-        Limit0=0;
-        Unit3=armflak;
-        Limit0=0;
-        Unit4=armmercury;
-        Limit0=0;
-        Unit5=armrl;
-        Limit0=0;
-        Unit6=armalab;
-        Limit0=0;
-		Unit7=armavp;
-        Limit0=0;
-		Unit8=armhp;
-        Limit0=0;
-		Unit9=armlab;
-        Limit0=0;
-		Unit10=armshltx;
-        Limit0=0;
-		Unit11=armvp;
-        Limit0=0;
-		
-		Unit12=corerad;
-        Limit0=0;
-		Unit13=corflak;
-        Limit0=0;
-		Unit14=cormadsam;
-        Limit0=0;
-		Unit15=corrl;
-        Limit0=0;
-		Unit16=corscreamer;
-        Limit0=0;
-		Unit17=coralab;
-        Limit0=0;
-		Unit18=coravp;
-        Limit0=0;
-		Unit19=corgant;
-        Limit0=0;
-		Unit20=corhp;
-        Limit0=0;
-		Unit21=corlab;
-        Limit0=0;
-		Unit22=corvp;
-        Limit0=0;
+		__RESTRICTEDUNITS__
 	}
 }    
 	]],
