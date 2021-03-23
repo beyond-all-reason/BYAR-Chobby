@@ -113,8 +113,23 @@ local function LoadScenarios()
 	scenarios = {}
 	local files = VFS.DirList("LuaMenu/configs/gameConfig/byar/scenarios/")
 	for i = 1, #files do
-		if string.find(files[i],".lua") then
-			scenarios[#scenarios+1] = VFS.Include(files[i])
+		if string.find(files[i],".lua") and string.find (files[i], "scenario") then
+			local success, error = pcall ( function()
+				local newscen = VFS.Include(files[i])
+				scenarios[#scenarios+1] = newscen
+			end)
+			
+			if not success then
+				Spring.Echo("Error: loading scenario ",files[i], error)
+				newscen = {title = "Error " ..files[i] ,
+							scenarioid = "failed to load",
+							index = -1,
+							difficulty = -1,
+							mapfilename = "",
+							error = files[i] .. '\n' .. error,
+				}
+				scenarios[#scenarios+1] = newscen
+			end
 		end
 	end
 
@@ -325,7 +340,7 @@ local function CreateScenarioPanel(shortname, sPanel)
 		height = "5%",
 		parent = sPanel,
 		font = Configuration:GetFont(2),
-		caption = "Par Time",
+		caption = "Est. Time",
 	}
 	lblpartimeText.font.color = {0.7, 0.7, 0.7, 1.0}
 
@@ -347,7 +362,7 @@ local function CreateScenarioPanel(shortname, sPanel)
 		height = "5%",
 		parent = sPanel,
 		font = Configuration:GetFont(2),
-		caption = "Par Resources" ,
+		caption = "Est. Resources" ,
 	}
 	lblparresourcesText.font.color = {0.7, 0.7, 0.7, 1.0}
 
@@ -494,13 +509,28 @@ local function CreateScenarioPanel(shortname, sPanel)
 
 	local myresources = Label:New{
 		x = "76%",
-		y = "89%",
+		y = "88%",
 		width = "25%",
 		height = "5%",
 		parent = sPanel,
 		font = Configuration:GetFont(2),
 		caption =  string.format( "%.2fK metal",myscores.resources/1000.0),
 	}
+
+	if scen.author then
+		local lblauthor = Label:New{
+			right = "1%",
+			bottom = "1%",
+			--width = "25%",
+			--height = "5%",
+			parent = sPanel,
+			font = Configuration:GetFont(2),
+			caption =  "Author: ".. scen.author,
+		}
+		
+		lblauthor.font.color = {0.7, 0.7, 0.7, 1.0}
+	end
+	
 
     ------------------------------------------------------------------
 
@@ -664,7 +694,7 @@ end
 -- Controls
 
 local function MakeScenarioScrollPanelChildren()
-	reloadcount = reloadcount + 1
+	-- reloadcount = reloadcount + 1
 
 	local Configuration = WG.Chobby.Configuration
 
@@ -679,8 +709,7 @@ local function MakeScenarioScrollPanelChildren()
 		local mybestscore = nil
 		local mybestdiff = nil
 		local mybestrank = nil
-
-		for j, diff in pairs(scen.difficulties) do
+		for j, diff in pairs(scen.difficulties or {}) do
 			local s =  GetBestScores(scen.scenarioid, scen.version,diff.name) 
 			if s then
 				mybestscore = s
@@ -699,84 +728,99 @@ local function MakeScenarioScrollPanelChildren()
 			caption = "",
 			classname = "battle_default_button",
 			font = Configuration:GetFont(2),
-			tooltip = "Start the scenario",
+			--tooltip = "",
 			OnClick = {
 				function()
-					scenarioPanel:SetVisibility(true)
-					scenarioSelectorPanel:SetVisibility(false)
-					scenarioSelectorCombo:Select(scen.title)
-					CreateScenarioPanel(scen.title,scenarioPanel)
+					if scen.error == nil then 
+						scenarioPanel:SetVisibility(true)
+						scenarioSelectorPanel:SetVisibility(false)
+						scenarioSelectorCombo:Select(scen.title)
+						CreateScenarioPanel(scen.title,scenarioPanel)
+					end
 				end
 			},
 			parent = scenarioScrollPanel,
 		}
+		if scen.error then
+			local errormessage = TextBox:New{
+				parent = scenSelectorButton,
+				font = Configuration:GetFont(1),
+				x = 0,
+				y = 0,
+				width = "100%",
+				height = "100%",
+				valign = 'top',
+				text = scen.error,
+			}
+		else
 
-		local spMinimapImg = Image:New {
-			y = "1%",
-			x = "1%",
-			bottom = "1%",
-			--width = "47%",
-			keepAspect = true,
-			file =Configuration:GetMinimapImage(scen.mapfilename),
-			parent = scenSelectorButton,
-			tooltip = scen.mapfilename,
-			padding = {0,0,0,0},
-		}
-
-		local spTitleLbl = 	Label:New {
-			x = 100,
-			y = 10,
-			width = 300,
-			--height = 30,
-			parent = scenSelectorButton,
-			font = Configuration:GetFont(3),
-			caption = string.format( "%03d. %s",scen.index+reloadcount, scen.title ),
-		}
-
-		
-		local spChallengeLbl = 	Label:New {
-			right = "1%",
-			y = 10,
-			width = 100,
-			--height = 30,
-			parent = scenSelectorButton,
-			font = Configuration:GetFont(3),
-			caption = string.format( "Difficulty: % 2d/10",scen.difficulty ),
-		}
-
-
-		if mybestdiff ~= nil then
-			local spScoreRankImg = Image:New{
-				y = "10%",
-				x = "10%",
-				bottom = "10%",
-				right = "10%",
+			local spMinimapImg = Image:New {
+				y = "1%",
+				x = "1%",
+				bottom = "1%",
+				--width = "47%",
 				keepAspect = true,
-				file =Configuration.gameConfig.rankFunction(nil, mybestrank, nil, nil,nil ),
-				parent = spMinimapImg,
+				file =Configuration:GetMinimapImage(scen.mapfilename),
+				parent = scenSelectorButton,
 				tooltip = scen.mapfilename,
 				padding = {0,0,0,0},
 			}
 
-			local spMyScoreLbl = Label:New {
-				x = 150,
-				y = "60%",
-				width = 500,
+			local spTitleLbl = 	Label:New {
+				x = 100,
+				y = 10,
+				width = 300,
 				--height = 30,
 				parent = scenSelectorButton,
-				font = Configuration:GetFont(2),
-				caption = string.format( "Completed On: %s   Time: %s  Resources: %.2fK metal",mybestdiff, SecondsToTimeString(mybestscore.time), mybestscore.resources/1000.0 ),
+				font = Configuration:GetFont(3),
+				caption = string.format( "%03d. %s",scen.index+reloadcount, scen.title ),
 			}
-		else
-			local spMyScoreLbl = Label:New {
-				x = 150,
-				y = "60%",
-				width = 500,
+
+			
+			local spChallengeLbl = 	Label:New {
+				right = "1%",
+				y = 10,
+				width = 100,
 				--height = 30,
 				parent = scenSelectorButton,
-				font = Configuration:GetFont(2),
-				caption = "Not completed yet",
+				font = Configuration:GetFont(3),
+				caption = string.format( "Difficulty: % 2d/10",scen.difficulty ),
 			}
+
+
+			if mybestdiff ~= nil then
+				local spScoreRankImg = Image:New{
+					y = "10%",
+					x = "10%",
+					bottom = "10%",
+					right = "10%",
+					keepAspect = true,
+					file =Configuration.gameConfig.rankFunction(nil, mybestrank, nil, nil,nil ),
+					parent = spMinimapImg,
+					tooltip = scen.mapfilename,
+					padding = {0,0,0,0},
+				}
+
+				local spMyScoreLbl = Label:New {
+					x = 150,
+					y = "60%",
+					width = 500,
+					--height = 30,
+					parent = scenSelectorButton,
+					font = Configuration:GetFont(2),
+					caption = string.format( "Completed On: %s   Time: %s  Resources: %.2fK metal",mybestdiff, SecondsToTimeString(mybestscore.time), mybestscore.resources/1000.0 ),
+				}
+			else
+				local spMyScoreLbl = Label:New {
+					x = 150,
+					y = "60%",
+					width = 500,
+					--height = 30,
+					parent = scenSelectorButton,
+					font = Configuration:GetFont(2),
+					caption = "Not completed yet",
+				}
+			end
 		end
 		--[[local spMinimapImg = Image:New {
 			y = "2%",
