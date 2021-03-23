@@ -34,6 +34,7 @@
     "LODScaleRefraction": 1.000,
     "LODScaleShadow": 1.000,
     "LuaGarbageCollectionMemLoadMult": 2.0,
+    "LogFlushLevel": 0,
     "LuaShaders": 1,
     "LoadingMT": 0,
     "MaxParticles": 20000,
