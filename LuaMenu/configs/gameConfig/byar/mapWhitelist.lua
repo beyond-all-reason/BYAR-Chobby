@@ -78,6 +78,7 @@ return {
 	["Downs_of_Destruction_Fix"] = true,
 	["Drab"] = true,
 	["DryRiverV10"] = true,
+	["DSDR"] = true,
 	["Dual Icy Run v3"] = true,
 	["Dune"] = true,
 	["DunePatrol_wip_v03"] = true,
