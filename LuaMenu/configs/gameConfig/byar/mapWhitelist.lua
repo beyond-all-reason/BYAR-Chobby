@@ -23,7 +23,7 @@ return {
 	["Atuminoa"] = true,
 	["Aum_1.1"] = true,
 	["Avalanche-v2"] = true,
-	["Avalancher"] = true,
+	["Avalanche"] = true,
 	["Azure Rampart"] = true,
 	["Badlands"] = true,
 	["BananaValley"] = true,
