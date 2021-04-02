@@ -875,7 +875,7 @@
         {
             "package": {
                 "id": "nextgen-win",
-                "display": "Alpha",
+                "display": "Experimental",
                 "platform": "win32"
             },
             "downloads": {
