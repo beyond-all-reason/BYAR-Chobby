@@ -830,7 +830,6 @@
                 "platform": "linux"
             },
             "downloads": {
-                "games" : ["byar:test"],
                 "resources": [
                     {
                         "url": "https://github.com/beyond-all-reason/spring/releases/download/spring_bar_%7BBAR%7D104.0.1-1828-g1f481b7/spring_bar_.BAR.104.0.1-1828-g1f481b7_linux-64-minimal-portable.7z",
@@ -864,7 +863,7 @@
                         "extract": false
                     }
                 ],
-                "nextgen": ["Spring-Chobby/Chobby", "beyond-all-reason/BYAR-Chobby"]
+                "nextgen": ["beyond-all-reason/Beyond-All-Reason", "Spring-Chobby/Chobby", "beyond-all-reason/BYAR-Chobby"]
             },
             "no_start_script" : true,
             "launch": {
@@ -879,7 +878,6 @@
                 "platform": "win32"
             },
             "downloads": {
-                "games" : ["byar:test"],
                 "resources": [
                     {
                         "url": "https://github.com/beyond-all-reason/spring/releases/download/spring_bar_%7BBAR%7D104.0.1-1828-g1f481b7/spring_bar_.BAR.104.0.1-1828-g1f481b7_windows-64-minimal-portable.7z",
@@ -913,7 +911,7 @@
                         "extract": false
                     }
                 ],
-                "nextgen": ["Spring-Chobby/Chobby", "beyond-all-reason/BYAR-Chobby"]
+                "nextgen": ["beyond-all-reason/Beyond-All-Reason", "Spring-Chobby/Chobby", "beyond-all-reason/BYAR-Chobby"]
             },
             "no_start_script" : true,
             "launch": {
