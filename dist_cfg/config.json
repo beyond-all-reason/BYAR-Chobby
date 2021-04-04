@@ -929,7 +929,7 @@
                 "resources": [
                     {
                         "url": "https://github.com/beyond-all-reason/spring/releases/download/spring_bar_%7BBAR%7D104.0.1-1828-g1f481b7/spring_bar_.BAR.104.0.1-1828-g1f481b7_linux-64-minimal-portable.7z",
-                        "destination": "engine/engine/104.0.1-1828-g1f481b7 bar",
+                        "destination": "engine/104.0.1-1828-g1f481b7 bar",
                         "extract": true
                     }
                 ]
@@ -938,7 +938,7 @@
             "no_downloads" : true,
             "launch": {
                 "start_args" : ["--menu", "BYAR Chobby $VERSION"],
-                "engine" : "engine/104.0.1-1828-g1f481b7 bar"
+                "engine" : "104.0.1-1828-g1f481b7 bar"
             }
         },
         {
