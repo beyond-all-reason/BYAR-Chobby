@@ -199,7 +199,7 @@
                     },
                     {
                         "https://content.spring-launcher.com/maps/barr_1.1.sd7",
-                        "destination": "maps/barr_1.1.sd7",
+			"destination": "maps/barr_1.1.sd7",
                         "extract": false
                     },
                     {
