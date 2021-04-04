@@ -198,11 +198,6 @@
                         "extract": false
                     },
                     {
-                        "https://content.spring-launcher.com/maps/barr_1.1.sd7",
-			"destination": "maps/barr_1.1.sd7",
-                        "extract": false
-                    },
-                    {
                         "url": "https://content.spring-launcher.com/maps/blackstar_V2.sd7",
                         "destination": "maps/blackstar_V2.sd7",
                         "extract": false
