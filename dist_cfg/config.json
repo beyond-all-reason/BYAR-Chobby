@@ -111,12 +111,6 @@
                         "destination": "engine/104.0.1-1828-g1f481b7 bar",
                         "extract": true
                     },
-
-                    {
-                        "url": "https://content.spring-launcher.com/maps/FolsomdamR.sd7",
-                        "destination": "maps/FolsomdamR.sd7",
-                        "extract": false
-                    },
                     {
                         "url": "https://content.spring-launcher.com/maps/AlphaSiegeDry.sd7",
                         "destination": "maps/AlphaSiegeDry.sd7",
@@ -278,13 +272,8 @@
                         "extract": false
                     },
                     {
-                        "url": "https://content.spring-launcher.com/maps/folsomdam_v2_0.sd7",
-                        "destination": "maps/folsomdam_v2_0.sd7",
-                        "extract": false
-                    },
-                    {
-                        "url": "https://content.spring-launcher.com/maps/folsomdamdeluxev4.sd7",
-                        "destination": "maps/folsomdamdeluxev4.sd7",
+                        "url": "https://content.spring-launcher.com/maps/FolsomdamR_1.16.sd7",
+                        "destination": "maps/FolsomdamR_1.16.sd7",
                         "extract": false
                     },
                     {
@@ -499,12 +488,6 @@
                         "destination": "engine/104.0.1-1828-g1f481b7 bar",
                         "extract": true
                     },
-
-                    {
-                        "url": "https://content.spring-launcher.com/maps/FolsomdamR.sd7",
-                        "destination": "maps/FolsomdamR.sd7",
-                        "extract": false
-                    },
                     {
                         "url": "https://content.spring-launcher.com/maps/AlphaSiegeDry.sd7",
                         "destination": "maps/AlphaSiegeDry.sd7",
@@ -666,13 +649,8 @@
                         "extract": false
                     },
                     {
-                        "url": "https://content.spring-launcher.com/maps/folsomdam_v2_0.sd7",
-                        "destination": "maps/folsomdam_v2_0.sd7",
-                        "extract": false
-                    },
-                    {
-                        "url": "https://content.spring-launcher.com/maps/folsomdamdeluxev4.sd7",
-                        "destination": "maps/folsomdamdeluxev4.sd7",
+                        "url": "https://content.spring-launcher.com/maps/FolsomdamR_1.16.sd7",
+                        "destination": "maps/FolsomdamR_1.16.sd7",
                         "extract": false
                     },
                     {
