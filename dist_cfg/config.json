@@ -188,8 +188,8 @@
                         "extract": false
                     },
                     {
-                        "url": "https://content.spring-launcher.com/maps/altair_crossing_v3.sd7",
-                        "destination": "maps/altair_crossing_v3.sd7",
+                        "url": "https://content.spring-launcher.com/maps/altair_crossing_V4.sd7",
+                        "destination": "maps/altair_crossing_V4.sd7",
                         "extract": false
                     },
                     {
@@ -273,6 +273,11 @@
                         "extract": false
                     },
                     {
+                        "url": "https://content.spring-launcher.com/maps/Fallendell_v4.sd7",
+                        "destination": "maps/Fallendell_v4.sd7",
+                        "extract": false
+                    },
+                    {
                         "url": "https://content.spring-launcher.com/maps/folsomdam_v2_0.sd7",
                         "destination": "maps/folsomdam_v2_0.sd7",
                         "extract": false
@@ -280,6 +285,11 @@
                     {
                         "url": "https://content.spring-launcher.com/maps/folsomdamdeluxev4.sd7",
                         "destination": "maps/folsomdamdeluxev4.sd7",
+                        "extract": false
+                    },
+                    {
+                        "url": "https://content.spring-launcher.com/maps/flooded_valley_v5.sd7",
+                        "destination": "maps/flooded_valley_v5.sd7",
                         "extract": false
                     },
                     {
@@ -348,8 +358,8 @@
                         "extract": false
                     },
                     {
-                        "url": "https://content.spring-launcher.com/maps/nuclear_winter_v3.sd7",
-                        "destination": "maps/nuclear_winter_v3.sd7",
+                        "url": "https://content.spring-launcher.com/maps/nuclear_winter_bar_1.1.sd7",
+                        "destination": "maps/nuclear_winter_bar_1.1.sd7",
                         "extract": false
                     },
                     {
@@ -368,6 +378,11 @@
                         "extract": false
                     },
                     {
+                        "url": "https://content.spring-launcher.com/maps/ravaged_v2.sd7",
+                        "destination": "maps/ravaged_v2.sd7",
+                        "extract": false
+                    },
+                    {
                         "url": "https://content.spring-launcher.com/maps/red_comet_remake_1.8.sd7",
                         "destination": "maps/red_comet_remake_1.8.sd7",
                         "extract": false
@@ -383,8 +398,13 @@
                         "extract": false
                     },
                     {
-                        "url": "https://content.spring-launcher.com/maps/seth_s_ravine_3.1.sd7",
-                        "destination": "maps/seth_s_ravine_3.1.sd7",
+                        "url": "https://content.spring-launcher.com/maps/sertaleina_v8.sd7",
+                        "destination": "maps/sertaleina_v8.sd7",
+                        "extract": false
+                    },
+                    {
+                        "url": "https://content.spring-launcher.com/maps/Seths_Ravine_V4.sd7",
+                        "destination": "maps/Seths_Ravine_V4.sd7",
                         "extract": false
                     },
                     {
@@ -413,8 +433,8 @@
                         "extract": false
                     },
                     {
-                        "url": "https://content.spring-launcher.com/maps/titanduel_2.2.sd7",
-                        "destination": "maps/titanduel_2.2.sd7",
+                        "url": "https://content.spring-launcher.com/maps/TitanDuel_V3.sd7",
+                        "destination": "maps/TitanDuel_V3.sd7",
                         "extract": false
                     },
                     {
@@ -435,6 +455,11 @@
                     {
                         "url": "https://content.spring-launcher.com/maps/tumult.sd7",
                         "destination": "maps/tumult.sd7",
+                        "extract": false
+                    },
+                    {
+                        "url": "https://content.spring-launcher.com/maps/Tundra_V2.sd7",
+                        "destination": "maps/Tundra_V2.sd7",
                         "extract": false
                     },
                     {
@@ -551,8 +576,8 @@
                         "extract": false
                     },
                     {
-                        "url": "https://content.spring-launcher.com/maps/altair_crossing_v3.sd7",
-                        "destination": "maps/altair_crossing_v3.sd7",
+                        "url": "https://content.spring-launcher.com/maps/altair_crossing_V4.sd7",
+                        "destination": "maps/altair_crossing_V4.sd7",
                         "extract": false
                     },
                     {
@@ -636,6 +661,11 @@
                         "extract": false
                     },
                     {
+                        "url": "https://content.spring-launcher.com/maps/Fallendell_v4.sd7",
+                        "destination": "maps/Fallendell_v4.sd7",
+                        "extract": false
+                    },
+                    {
                         "url": "https://content.spring-launcher.com/maps/folsomdam_v2_0.sd7",
                         "destination": "maps/folsomdam_v2_0.sd7",
                         "extract": false
@@ -643,6 +673,11 @@
                     {
                         "url": "https://content.spring-launcher.com/maps/folsomdamdeluxev4.sd7",
                         "destination": "maps/folsomdamdeluxev4.sd7",
+                        "extract": false
+                    },
+                    {
+                        "url": "https://content.spring-launcher.com/maps/flooded_valley_v5.sd7",
+                        "destination": "maps/flooded_valley_v5.sd7",
                         "extract": false
                     },
                     {
@@ -711,8 +746,8 @@
                         "extract": false
                     },
                     {
-                        "url": "https://content.spring-launcher.com/maps/nuclear_winter_v3.sd7",
-                        "destination": "maps/nuclear_winter_v3.sd7",
+                        "https://content.spring-launcher.com/maps/nuclear_winter_bar_1.1.sd7",
+                        "destination": "maps/nuclear_winter_bar_1.1.sd7",
                         "extract": false
                     },
                     {
@@ -731,6 +766,11 @@
                         "extract": false
                     },
                     {
+                        "url": "https://content.spring-launcher.com/maps/ravaged_v2.sd7",
+                        "destination": "maps/ravaged_v2.sd7",
+                        "extract": false
+                    },
+                    {
                         "url": "https://content.spring-launcher.com/maps/red_comet_remake_1.8.sd7",
                         "destination": "maps/red_comet_remake_1.8.sd7",
                         "extract": false
@@ -746,8 +786,13 @@
                         "extract": false
                     },
                     {
-                        "url": "https://content.spring-launcher.com/maps/seth_s_ravine_3.1.sd7",
-                        "destination": "maps/seth_s_ravine_3.1.sd7",
+                        "url": "https://content.spring-launcher.com/maps/sertaleina_v8.sd7",
+                        "destination": "maps/sertaleina_v8.sd7",
+                        "extract": false
+                    },
+                    {
+                        "url": "https://content.spring-launcher.com/maps/Seths_Ravine_V4.sd7",
+                        "destination": "maps/Seths_Ravine_V4.sd7",
                         "extract": false
                     },
                     {
@@ -776,8 +821,8 @@
                         "extract": false
                     },
                     {
-                        "url": "https://content.spring-launcher.com/maps/titanduel_2.2.sd7",
-                        "destination": "maps/titanduel_2.2.sd7",
+                        "url": "https://content.spring-launcher.com/maps/TitanDuel_V3.sd7",
+                        "destination": "maps/TitanDuel_V3.sd7",
                         "extract": false
                     },
                     {
@@ -798,6 +843,11 @@
                     {
                         "url": "https://content.spring-launcher.com/maps/tumult.sd7",
                         "destination": "maps/tumult.sd7",
+                        "extract": false
+                    },
+                    {
+                        "url": "https://content.spring-launcher.com/maps/Tundra_V2.sd7",
+                        "destination": "maps/Tundra_V2.sd7",
                         "extract": false
                     },
                     {
