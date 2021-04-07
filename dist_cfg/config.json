@@ -111,24 +111,15 @@
                         "destination": "engine/104.0.1-1828-g1f481b7 bar",
                         "extract": true
                     },
+			
                     {
                         "url": "https://content.spring-launcher.com/maps/AlphaSiegeDry.sd7",
                         "destination": "maps/AlphaSiegeDry.sd7",
                         "extract": false
                     },
                     {
-                        "url": "https://content.spring-launcher.com/maps/avalanche_3.4.sd7",
-                        "destination": "maps/avalanche_3.4.sd7",
-                        "extract": false
-                    },
-                    {
                         "url": "https://content.spring-launcher.com/maps/DesertTriad.sd7",
                         "destination": "maps/DesertTriad.sd7",
-                        "extract": false
-                    },
-                    {
-                        "url": "https://content.spring-launcher.com/maps/Pentos_v1.sd7",
-                        "destination": "maps/Pentos_v1.sd7",
                         "extract": false
                     },
                     {
@@ -167,11 +158,6 @@
                         "extract": false
                     },
                     {
-                        "url": "https://content.spring-launcher.com/maps/Valles_Marineris_v2.sd7",
-                        "destination": "maps/Valles_Marineris_v2.sd7",
-                        "extract": false
-                    },
-                    {
                         "url": "https://content.spring-launcher.com/maps/aberdeen3v3v3.sd7",
                         "destination": "maps/aberdeen3v3v3.sd7",
                         "extract": false
@@ -189,6 +175,11 @@
                     {
                         "url": "https://content.spring-launcher.com/maps/altored_divide_bar_remake_1.55.sd7",
                         "destination": "maps/altored_divide_bar_remake_1.55.sd7",
+                        "extract": false
+                    },
+                    {
+                        "url": "https://content.spring-launcher.com/maps/avalanche_3.4.sd7",
+                        "destination": "maps/avalanche_3.4.sd7",
                         "extract": false
                     },
                     {
@@ -362,6 +353,11 @@
                         "extract": false
                     },
                     {
+                        "url": "https://content.spring-launcher.com/maps/Pentos_v1.sd7",
+                        "destination": "maps/Pentos_v1.sd7",
+                        "extract": false
+                    },
+                    {
                         "url": "https://content.spring-launcher.com/maps/quicksilver_remake_1.24.sd7",
                         "destination": "maps/quicksilver_remake_1.24.sd7",
                         "extract": false
@@ -454,6 +450,11 @@
                     {
                         "url": "https://content.spring-launcher.com/maps/twin_lakes_park_1.sd7",
                         "destination": "maps/twin_lakes_park_1.sd7",
+                        "extract": false
+                    },
+                    {
+                        "url": "https://content.spring-launcher.com/maps/Valles_Marineris_v2.sd7",
+                        "destination": "maps/Valles_Marineris_v2.sd7",
                         "extract": false
                     },
                     {
@@ -488,24 +489,15 @@
                         "destination": "engine/104.0.1-1828-g1f481b7 bar",
                         "extract": true
                     },
+			
                     {
                         "url": "https://content.spring-launcher.com/maps/AlphaSiegeDry.sd7",
                         "destination": "maps/AlphaSiegeDry.sd7",
                         "extract": false
                     },
                     {
-                        "url": "https://content.spring-launcher.com/maps/avalanche_3.4.sd7",
-                        "destination": "maps/avalanche_3.4.sd7",
-                        "extract": false
-                    },
-                    {
                         "url": "https://content.spring-launcher.com/maps/DesertTriad.sd7",
                         "destination": "maps/DesertTriad.sd7",
-                        "extract": false
-                    },
-                    {
-                        "url": "https://content.spring-launcher.com/maps/Pentos_v1.sd7",
-                        "destination": "maps/Pentos_v1.sd7",
                         "extract": false
                     },
                     {
@@ -544,11 +536,6 @@
                         "extract": false
                     },
                     {
-                        "url": "https://content.spring-launcher.com/maps/Valles_Marineris_v2.sd7",
-                        "destination": "maps/Valles_Marineris_v2.sd7",
-                        "extract": false
-                    },
-                    {
                         "url": "https://content.spring-launcher.com/maps/aberdeen3v3v3.sd7",
                         "destination": "maps/aberdeen3v3v3.sd7",
                         "extract": false
@@ -566,6 +553,11 @@
                     {
                         "url": "https://content.spring-launcher.com/maps/altored_divide_bar_remake_1.55.sd7",
                         "destination": "maps/altored_divide_bar_remake_1.55.sd7",
+                        "extract": false
+                    },
+                    {
+                        "url": "https://content.spring-launcher.com/maps/avalanche_3.4.sd7",
+                        "destination": "maps/avalanche_3.4.sd7",
                         "extract": false
                     },
                     {
@@ -739,6 +731,11 @@
                         "extract": false
                     },
                     {
+                        "url": "https://content.spring-launcher.com/maps/Pentos_v1.sd7",
+                        "destination": "maps/Pentos_v1.sd7",
+                        "extract": false
+                    },
+                    {
                         "url": "https://content.spring-launcher.com/maps/quicksilver_remake_1.24.sd7",
                         "destination": "maps/quicksilver_remake_1.24.sd7",
                         "extract": false
@@ -831,6 +828,11 @@
                     {
                         "url": "https://content.spring-launcher.com/maps/twin_lakes_park_1.sd7",
                         "destination": "maps/twin_lakes_park_1.sd7",
+                        "extract": false
+                    },
+                    {
+                        "url": "https://content.spring-launcher.com/maps/Valles_Marineris_v2.sd7",
+                        "destination": "maps/Valles_Marineris_v2.sd7",
                         "extract": false
                     },
                     {
