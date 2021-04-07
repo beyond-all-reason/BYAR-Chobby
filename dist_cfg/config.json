@@ -118,31 +118,6 @@
                         "extract": false
                     },
                     {
-                        "url": "https://content.spring-launcher.com/maps/DesertTriad.sd7",
-                        "destination": "maps/DesertTriad.sd7",
-                        "extract": false
-                    },
-                    {
-                        "url": "https://content.spring-launcher.com/maps/Small_Supreme_Battlefield_v3.sd7",
-                        "destination": "maps/Small_Supreme_Battlefield_v3.sd7",
-                        "extract": false
-                    },
-                    {
-                        "url": "https://content.spring-launcher.com/maps/SpeedMetal_BAR_V2.sd7",
-                        "destination": "maps/SpeedMetal_BAR_V2.sd7",
-                        "extract": false
-                    },
-                    {
-                        "url": "https://content.spring-launcher.com/maps/Stronghold_v4.sd7",
-                        "destination": "maps/Stronghold_v4.sd7",
-                        "extract": false
-                    },
-                    {
-                        "url": "https://content.spring-launcher.com/maps/Supreme_Crossing_V1.sd7",
-                        "destination": "maps/Supreme_Crossing_V1.sd7",
-                        "extract": false
-                    },
-                    {
                         "url": "https://content.spring-launcher.com/maps/Talus_v2.sd7",
                         "destination": "maps/Talus_v2.sd7",
                         "extract": false
@@ -230,6 +205,11 @@
                     {
                         "url": "https://content.spring-launcher.com/maps/desert_3.25.sd7",
                         "destination": "maps/desert_3.25.sd7",
+                        "extract": false
+                    },
+                    {
+                        "url": "https://content.spring-launcher.com/maps/DesertTriad.sd7",
+                        "destination": "maps/DesertTriad.sd7",
                         "extract": false
                     },
                     {
@@ -390,6 +370,26 @@
                     {
                         "url": "https://content.spring-launcher.com/maps/Seths_Ravine_V4.sd7",
                         "destination": "maps/Seths_Ravine_V4.sd7",
+                        "extract": false
+                    },
+                    {
+                        "url": "https://content.spring-launcher.com/maps/Small_Supreme_Battlefield_v3.sd7",
+                        "destination": "maps/Small_Supreme_Battlefield_v3.sd7",
+                        "extract": false
+                    },
+                    {
+                        "url": "https://content.spring-launcher.com/maps/SpeedMetal_BAR_V2.sd7",
+                        "destination": "maps/SpeedMetal_BAR_V2.sd7",
+                        "extract": false
+                    },
+                    {
+                        "url": "https://content.spring-launcher.com/maps/Stronghold_v4.sd7",
+                        "destination": "maps/Stronghold_v4.sd7",
+                        "extract": false
+                    },
+                    {
+                        "url": "https://content.spring-launcher.com/maps/Supreme_Crossing_V1.sd7",
+                        "destination": "maps/Supreme_Crossing_V1.sd7",
                         "extract": false
                     },
                     {
@@ -496,31 +496,6 @@
                         "extract": false
                     },
                     {
-                        "url": "https://content.spring-launcher.com/maps/DesertTriad.sd7",
-                        "destination": "maps/DesertTriad.sd7",
-                        "extract": false
-                    },
-                    {
-                        "url": "https://content.spring-launcher.com/maps/Small_Supreme_Battlefield_v3.sd7",
-                        "destination": "maps/Small_Supreme_Battlefield_v3.sd7",
-                        "extract": false
-                    },
-                    {
-                        "url": "https://content.spring-launcher.com/maps/SpeedMetal_BAR_V2.sd7",
-                        "destination": "maps/SpeedMetal_BAR_V2.sd7",
-                        "extract": false
-                    },
-                    {
-                        "url": "https://content.spring-launcher.com/maps/Stronghold_v4.sd7",
-                        "destination": "maps/Stronghold_v4.sd7",
-                        "extract": false
-                    },
-                    {
-                        "url": "https://content.spring-launcher.com/maps/Supreme_Crossing_V1.sd7",
-                        "destination": "maps/Supreme_Crossing_V1.sd7",
-                        "extract": false
-                    },
-                    {
                         "url": "https://content.spring-launcher.com/maps/Talus_v2.sd7",
                         "destination": "maps/Talus_v2.sd7",
                         "extract": false
@@ -608,6 +583,11 @@
                     {
                         "url": "https://content.spring-launcher.com/maps/desert_3.25.sd7",
                         "destination": "maps/desert_3.25.sd7",
+                        "extract": false
+                    },
+                    {
+                        "url": "https://content.spring-launcher.com/maps/DesertTriad.sd7",
+                        "destination": "maps/DesertTriad.sd7",
                         "extract": false
                     },
                     {
@@ -768,6 +748,26 @@
                     {
                         "url": "https://content.spring-launcher.com/maps/Seths_Ravine_V4.sd7",
                         "destination": "maps/Seths_Ravine_V4.sd7",
+                        "extract": false
+                    },
+                    {
+                        "url": "https://content.spring-launcher.com/maps/Small_Supreme_Battlefield_v3.sd7",
+                        "destination": "maps/Small_Supreme_Battlefield_v3.sd7",
+                        "extract": false
+                    },
+                    {
+                        "url": "https://content.spring-launcher.com/maps/SpeedMetal_BAR_V2.sd7",
+                        "destination": "maps/SpeedMetal_BAR_V2.sd7",
+                        "extract": false
+                    },
+                    {
+                        "url": "https://content.spring-launcher.com/maps/Stronghold_v4.sd7",
+                        "destination": "maps/Stronghold_v4.sd7",
+                        "extract": false
+                    },
+                    {
+                        "url": "https://content.spring-launcher.com/maps/Supreme_Crossing_V1.sd7",
+                        "destination": "maps/Supreme_Crossing_V1.sd7",
                         "extract": false
                     },
                     {
