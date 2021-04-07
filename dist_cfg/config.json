@@ -746,7 +746,7 @@
                         "extract": false
                     },
                     {
-                        "https://content.spring-launcher.com/maps/nuclear_winter_bar_1.1.sd7",
+                        "url": "https://content.spring-launcher.com/maps/nuclear_winter_bar_1.1.sd7",
                         "destination": "maps/nuclear_winter_bar_1.1.sd7",
                         "extract": false
                     },
