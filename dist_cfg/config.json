@@ -113,26 +113,6 @@
                     },
 			
                     {
-                        "url": "https://content.spring-launcher.com/maps/AlphaSiegeDry.sd7",
-                        "destination": "maps/AlphaSiegeDry.sd7",
-                        "extract": false
-                    },
-                    {
-                        "url": "https://content.spring-launcher.com/maps/Talus_v2.sd7",
-                        "destination": "maps/Talus_v2.sd7",
-                        "extract": false
-                    },
-                    {
-                        "url": "https://content.spring-launcher.com/maps/Tempest.sd7",
-                        "destination": "maps/Tempest.sd7",
-                        "extract": false
-                    },
-                    {
-                        "url": "https://content.spring-launcher.com/maps/Tetrad_v2.sd7",
-                        "destination": "maps/Tetrad_v2.sd7",
-                        "extract": false
-                    },
-                    {
                         "url": "https://content.spring-launcher.com/maps/aberdeen3v3v3.sd7",
                         "destination": "maps/aberdeen3v3v3.sd7",
                         "extract": false
@@ -140,6 +120,11 @@
                     {
                         "url": "https://content.spring-launcher.com/maps/akilon_wastelands_-_v18.sd7",
                         "destination": "maps/akilon_wastelands_-_v18.sd7",
+                        "extract": false
+                    },
+                    {
+                        "url": "https://content.spring-launcher.com/maps/AlphaSiegeDry.sd7",
+                        "destination": "maps/AlphaSiegeDry.sd7",
                         "extract": false
                     },
                     {
@@ -403,8 +388,23 @@
                         "extract": false
                     },
                     {
+                        "url": "https://content.spring-launcher.com/maps/Talus_v2.sd7",
+                        "destination": "maps/Talus_v2.sd7",
+                        "extract": false
+                    },
+                    {
                         "url": "https://content.spring-launcher.com/maps/talus-wet-v3.sd7",
                         "destination": "maps/talus-wet-v3.sd7",
+                        "extract": false
+                    },
+                    {
+                        "url": "https://content.spring-launcher.com/maps/Tempest.sd7",
+                        "destination": "maps/Tempest.sd7",
+                        "extract": false
+                    },
+                    {
+                        "url": "https://content.spring-launcher.com/maps/Tetrad_v2.sd7",
+                        "destination": "maps/Tetrad_v2.sd7",
                         "extract": false
                     },
                     {
@@ -491,26 +491,6 @@
                     },
 			
                     {
-                        "url": "https://content.spring-launcher.com/maps/AlphaSiegeDry.sd7",
-                        "destination": "maps/AlphaSiegeDry.sd7",
-                        "extract": false
-                    },
-                    {
-                        "url": "https://content.spring-launcher.com/maps/Talus_v2.sd7",
-                        "destination": "maps/Talus_v2.sd7",
-                        "extract": false
-                    },
-                    {
-                        "url": "https://content.spring-launcher.com/maps/Tempest.sd7",
-                        "destination": "maps/Tempest.sd7",
-                        "extract": false
-                    },
-                    {
-                        "url": "https://content.spring-launcher.com/maps/Tetrad_v2.sd7",
-                        "destination": "maps/Tetrad_v2.sd7",
-                        "extract": false
-                    },
-                    {
                         "url": "https://content.spring-launcher.com/maps/aberdeen3v3v3.sd7",
                         "destination": "maps/aberdeen3v3v3.sd7",
                         "extract": false
@@ -518,6 +498,11 @@
                     {
                         "url": "https://content.spring-launcher.com/maps/akilon_wastelands_-_v18.sd7",
                         "destination": "maps/akilon_wastelands_-_v18.sd7",
+                        "extract": false
+                    },
+                    {
+                        "url": "https://content.spring-launcher.com/maps/AlphaSiegeDry.sd7",
+                        "destination": "maps/AlphaSiegeDry.sd7",
                         "extract": false
                     },
                     {
@@ -781,8 +766,23 @@
                         "extract": false
                     },
                     {
+                        "url": "https://content.spring-launcher.com/maps/Talus_v2.sd7",
+                        "destination": "maps/Talus_v2.sd7",
+                        "extract": false
+                    },
+                    {
                         "url": "https://content.spring-launcher.com/maps/talus-wet-v3.sd7",
                         "destination": "maps/talus-wet-v3.sd7",
+                        "extract": false
+                    },
+                    {
+                        "url": "https://content.spring-launcher.com/maps/Tempest.sd7",
+                        "destination": "maps/Tempest.sd7",
+                        "extract": false
+                    },
+                    {
+                        "url": "https://content.spring-launcher.com/maps/Tetrad_v2.sd7",
+                        "destination": "maps/Tetrad_v2.sd7",
                         "extract": false
                     },
                     {
