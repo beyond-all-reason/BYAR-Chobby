@@ -111,72 +111,7 @@
                         "destination": "engine/104.0.1-1828-g1f481b7 bar",
                         "extract": true
                     },
-
-                    {
-                        "url": "https://content.spring-launcher.com/maps/FolsomdamR.sd7",
-                        "destination": "maps/FolsomdamR.sd7",
-                        "extract": false
-                    },
-                    {
-                        "url": "https://content.spring-launcher.com/maps/AlphaSiegeDry.sd7",
-                        "destination": "maps/AlphaSiegeDry.sd7",
-                        "extract": false
-                    },
-                    {
-                        "url": "https://content.spring-launcher.com/maps/avalanche_3.4.sd7",
-                        "destination": "maps/avalanche_3.4.sd7",
-                        "extract": false
-                    },
-                    {
-                        "url": "https://content.spring-launcher.com/maps/DesertTriad.sd7",
-                        "destination": "maps/DesertTriad.sd7",
-                        "extract": false
-                    },
-                    {
-                        "url": "https://content.spring-launcher.com/maps/Pentos_v1.sd7",
-                        "destination": "maps/Pentos_v1.sd7",
-                        "extract": false
-                    },
-                    {
-                        "url": "https://content.spring-launcher.com/maps/Small_Supreme_Battlefield_v3.sd7",
-                        "destination": "maps/Small_Supreme_Battlefield_v3.sd7",
-                        "extract": false
-                    },
-                    {
-                        "url": "https://content.spring-launcher.com/maps/SpeedMetal_BAR_V2.sd7",
-                        "destination": "maps/SpeedMetal_BAR_V2.sd7",
-                        "extract": false
-                    },
-                    {
-                        "url": "https://content.spring-launcher.com/maps/Stronghold_v4.sd7",
-                        "destination": "maps/Stronghold_v4.sd7",
-                        "extract": false
-                    },
-                    {
-                        "url": "https://content.spring-launcher.com/maps/Supreme_Crossing_V1.sd7",
-                        "destination": "maps/Supreme_Crossing_V1.sd7",
-                        "extract": false
-                    },
-                    {
-                        "url": "https://content.spring-launcher.com/maps/Talus_v2.sd7",
-                        "destination": "maps/Talus_v2.sd7",
-                        "extract": false
-                    },
-                    {
-                        "url": "https://content.spring-launcher.com/maps/Tempest.sd7",
-                        "destination": "maps/Tempest.sd7",
-                        "extract": false
-                    },
-                    {
-                        "url": "https://content.spring-launcher.com/maps/Tetrad_v2.sd7",
-                        "destination": "maps/Tetrad_v2.sd7",
-                        "extract": false
-                    },
-                    {
-                        "url": "https://content.spring-launcher.com/maps/Valles_Marineris_v2.sd7",
-                        "destination": "maps/Valles_Marineris_v2.sd7",
-                        "extract": false
-                    },
+			
                     {
                         "url": "https://content.spring-launcher.com/maps/aberdeen3v3v3.sd7",
                         "destination": "maps/aberdeen3v3v3.sd7",
@@ -188,6 +123,11 @@
                         "extract": false
                     },
                     {
+                        "url": "https://content.spring-launcher.com/maps/AlphaSiegeDry.sd7",
+                        "destination": "maps/AlphaSiegeDry.sd7",
+                        "extract": false
+                    },
+                    {
                         "url": "https://content.spring-launcher.com/maps/altair_crossing_V4.sd7",
                         "destination": "maps/altair_crossing_V4.sd7",
                         "extract": false
@@ -195,6 +135,11 @@
                     {
                         "url": "https://content.spring-launcher.com/maps/altored_divide_bar_remake_1.55.sd7",
                         "destination": "maps/altored_divide_bar_remake_1.55.sd7",
+                        "extract": false
+                    },
+                    {
+                        "url": "https://content.spring-launcher.com/maps/avalanche_3.4.sd7",
+                        "destination": "maps/avalanche_3.4.sd7",
                         "extract": false
                     },
                     {
@@ -248,6 +193,11 @@
                         "extract": false
                     },
                     {
+                        "url": "https://content.spring-launcher.com/maps/DesertTriad.sd7",
+                        "destination": "maps/DesertTriad.sd7",
+                        "extract": false
+                    },
+                    {
                         "url": "https://content.spring-launcher.com/maps/downs_of_destruction_fix.sd7",
                         "destination": "maps/downs_of_destruction_fix.sd7",
                         "extract": false
@@ -278,13 +228,8 @@
                         "extract": false
                     },
                     {
-                        "url": "https://content.spring-launcher.com/maps/folsomdam_v2_0.sd7",
-                        "destination": "maps/folsomdam_v2_0.sd7",
-                        "extract": false
-                    },
-                    {
-                        "url": "https://content.spring-launcher.com/maps/folsomdamdeluxev4.sd7",
-                        "destination": "maps/folsomdamdeluxev4.sd7",
+                        "url": "https://content.spring-launcher.com/maps/FolsomdamR_1.16.sd7",
+                        "destination": "maps/FolsomdamR_1.16.sd7",
                         "extract": false
                     },
                     {
@@ -373,6 +318,11 @@
                         "extract": false
                     },
                     {
+                        "url": "https://content.spring-launcher.com/maps/Pentos_v1.sd7",
+                        "destination": "maps/Pentos_v1.sd7",
+                        "extract": false
+                    },
+                    {
                         "url": "https://content.spring-launcher.com/maps/quicksilver_remake_1.24.sd7",
                         "destination": "maps/quicksilver_remake_1.24.sd7",
                         "extract": false
@@ -408,6 +358,26 @@
                         "extract": false
                     },
                     {
+                        "url": "https://content.spring-launcher.com/maps/Small_Supreme_Battlefield_v3.sd7",
+                        "destination": "maps/Small_Supreme_Battlefield_v3.sd7",
+                        "extract": false
+                    },
+                    {
+                        "url": "https://content.spring-launcher.com/maps/SpeedMetal_BAR_V2.sd7",
+                        "destination": "maps/SpeedMetal_BAR_V2.sd7",
+                        "extract": false
+                    },
+                    {
+                        "url": "https://content.spring-launcher.com/maps/Stronghold_v4.sd7",
+                        "destination": "maps/Stronghold_v4.sd7",
+                        "extract": false
+                    },
+                    {
+                        "url": "https://content.spring-launcher.com/maps/Supreme_Crossing_V1.sd7",
+                        "destination": "maps/Supreme_Crossing_V1.sd7",
+                        "extract": false
+                    },
+                    {
                         "url": "https://content.spring-launcher.com/maps/tabula-v4.sd7",
                         "destination": "maps/tabula-v4.sd7",
                         "extract": false
@@ -418,8 +388,23 @@
                         "extract": false
                     },
                     {
+                        "url": "https://content.spring-launcher.com/maps/Talus_v2.sd7",
+                        "destination": "maps/Talus_v2.sd7",
+                        "extract": false
+                    },
+                    {
                         "url": "https://content.spring-launcher.com/maps/talus-wet-v3.sd7",
                         "destination": "maps/talus-wet-v3.sd7",
+                        "extract": false
+                    },
+                    {
+                        "url": "https://content.spring-launcher.com/maps/Tempest.sd7",
+                        "destination": "maps/Tempest.sd7",
+                        "extract": false
+                    },
+                    {
+                        "url": "https://content.spring-launcher.com/maps/Tetrad_v2.sd7",
+                        "destination": "maps/Tetrad_v2.sd7",
                         "extract": false
                     },
                     {
@@ -465,6 +450,11 @@
                     {
                         "url": "https://content.spring-launcher.com/maps/twin_lakes_park_1.sd7",
                         "destination": "maps/twin_lakes_park_1.sd7",
+                        "extract": false
+                    },
+                    {
+                        "url": "https://content.spring-launcher.com/maps/Valles_Marineris_v2.sd7",
+                        "destination": "maps/Valles_Marineris_v2.sd7",
                         "extract": false
                     },
                     {
@@ -499,72 +489,7 @@
                         "destination": "engine/104.0.1-1828-g1f481b7 bar",
                         "extract": true
                     },
-
-                    {
-                        "url": "https://content.spring-launcher.com/maps/FolsomdamR.sd7",
-                        "destination": "maps/FolsomdamR.sd7",
-                        "extract": false
-                    },
-                    {
-                        "url": "https://content.spring-launcher.com/maps/AlphaSiegeDry.sd7",
-                        "destination": "maps/AlphaSiegeDry.sd7",
-                        "extract": false
-                    },
-                    {
-                        "url": "https://content.spring-launcher.com/maps/avalanche_3.4.sd7",
-                        "destination": "maps/avalanche_3.4.sd7",
-                        "extract": false
-                    },
-                    {
-                        "url": "https://content.spring-launcher.com/maps/DesertTriad.sd7",
-                        "destination": "maps/DesertTriad.sd7",
-                        "extract": false
-                    },
-                    {
-                        "url": "https://content.spring-launcher.com/maps/Pentos_v1.sd7",
-                        "destination": "maps/Pentos_v1.sd7",
-                        "extract": false
-                    },
-                    {
-                        "url": "https://content.spring-launcher.com/maps/Small_Supreme_Battlefield_v3.sd7",
-                        "destination": "maps/Small_Supreme_Battlefield_v3.sd7",
-                        "extract": false
-                    },
-                    {
-                        "url": "https://content.spring-launcher.com/maps/SpeedMetal_BAR_V2.sd7",
-                        "destination": "maps/SpeedMetal_BAR_V2.sd7",
-                        "extract": false
-                    },
-                    {
-                        "url": "https://content.spring-launcher.com/maps/Stronghold_v4.sd7",
-                        "destination": "maps/Stronghold_v4.sd7",
-                        "extract": false
-                    },
-                    {
-                        "url": "https://content.spring-launcher.com/maps/Supreme_Crossing_V1.sd7",
-                        "destination": "maps/Supreme_Crossing_V1.sd7",
-                        "extract": false
-                    },
-                    {
-                        "url": "https://content.spring-launcher.com/maps/Talus_v2.sd7",
-                        "destination": "maps/Talus_v2.sd7",
-                        "extract": false
-                    },
-                    {
-                        "url": "https://content.spring-launcher.com/maps/Tempest.sd7",
-                        "destination": "maps/Tempest.sd7",
-                        "extract": false
-                    },
-                    {
-                        "url": "https://content.spring-launcher.com/maps/Tetrad_v2.sd7",
-                        "destination": "maps/Tetrad_v2.sd7",
-                        "extract": false
-                    },
-                    {
-                        "url": "https://content.spring-launcher.com/maps/Valles_Marineris_v2.sd7",
-                        "destination": "maps/Valles_Marineris_v2.sd7",
-                        "extract": false
-                    },
+			
                     {
                         "url": "https://content.spring-launcher.com/maps/aberdeen3v3v3.sd7",
                         "destination": "maps/aberdeen3v3v3.sd7",
@@ -576,6 +501,11 @@
                         "extract": false
                     },
                     {
+                        "url": "https://content.spring-launcher.com/maps/AlphaSiegeDry.sd7",
+                        "destination": "maps/AlphaSiegeDry.sd7",
+                        "extract": false
+                    },
+                    {
                         "url": "https://content.spring-launcher.com/maps/altair_crossing_V4.sd7",
                         "destination": "maps/altair_crossing_V4.sd7",
                         "extract": false
@@ -583,6 +513,11 @@
                     {
                         "url": "https://content.spring-launcher.com/maps/altored_divide_bar_remake_1.55.sd7",
                         "destination": "maps/altored_divide_bar_remake_1.55.sd7",
+                        "extract": false
+                    },
+                    {
+                        "url": "https://content.spring-launcher.com/maps/avalanche_3.4.sd7",
+                        "destination": "maps/avalanche_3.4.sd7",
                         "extract": false
                     },
                     {
@@ -636,6 +571,11 @@
                         "extract": false
                     },
                     {
+                        "url": "https://content.spring-launcher.com/maps/DesertTriad.sd7",
+                        "destination": "maps/DesertTriad.sd7",
+                        "extract": false
+                    },
+                    {
                         "url": "https://content.spring-launcher.com/maps/downs_of_destruction_fix.sd7",
                         "destination": "maps/downs_of_destruction_fix.sd7",
                         "extract": false
@@ -666,13 +606,8 @@
                         "extract": false
                     },
                     {
-                        "url": "https://content.spring-launcher.com/maps/folsomdam_v2_0.sd7",
-                        "destination": "maps/folsomdam_v2_0.sd7",
-                        "extract": false
-                    },
-                    {
-                        "url": "https://content.spring-launcher.com/maps/folsomdamdeluxev4.sd7",
-                        "destination": "maps/folsomdamdeluxev4.sd7",
+                        "url": "https://content.spring-launcher.com/maps/FolsomdamR_1.16.sd7",
+                        "destination": "maps/FolsomdamR_1.16.sd7",
                         "extract": false
                     },
                     {
@@ -761,6 +696,11 @@
                         "extract": false
                     },
                     {
+                        "url": "https://content.spring-launcher.com/maps/Pentos_v1.sd7",
+                        "destination": "maps/Pentos_v1.sd7",
+                        "extract": false
+                    },
+                    {
                         "url": "https://content.spring-launcher.com/maps/quicksilver_remake_1.24.sd7",
                         "destination": "maps/quicksilver_remake_1.24.sd7",
                         "extract": false
@@ -796,6 +736,26 @@
                         "extract": false
                     },
                     {
+                        "url": "https://content.spring-launcher.com/maps/Small_Supreme_Battlefield_v3.sd7",
+                        "destination": "maps/Small_Supreme_Battlefield_v3.sd7",
+                        "extract": false
+                    },
+                    {
+                        "url": "https://content.spring-launcher.com/maps/SpeedMetal_BAR_V2.sd7",
+                        "destination": "maps/SpeedMetal_BAR_V2.sd7",
+                        "extract": false
+                    },
+                    {
+                        "url": "https://content.spring-launcher.com/maps/Stronghold_v4.sd7",
+                        "destination": "maps/Stronghold_v4.sd7",
+                        "extract": false
+                    },
+                    {
+                        "url": "https://content.spring-launcher.com/maps/Supreme_Crossing_V1.sd7",
+                        "destination": "maps/Supreme_Crossing_V1.sd7",
+                        "extract": false
+                    },
+                    {
                         "url": "https://content.spring-launcher.com/maps/tabula-v4.sd7",
                         "destination": "maps/tabula-v4.sd7",
                         "extract": false
@@ -806,8 +766,23 @@
                         "extract": false
                     },
                     {
+                        "url": "https://content.spring-launcher.com/maps/Talus_v2.sd7",
+                        "destination": "maps/Talus_v2.sd7",
+                        "extract": false
+                    },
+                    {
                         "url": "https://content.spring-launcher.com/maps/talus-wet-v3.sd7",
                         "destination": "maps/talus-wet-v3.sd7",
+                        "extract": false
+                    },
+                    {
+                        "url": "https://content.spring-launcher.com/maps/Tempest.sd7",
+                        "destination": "maps/Tempest.sd7",
+                        "extract": false
+                    },
+                    {
+                        "url": "https://content.spring-launcher.com/maps/Tetrad_v2.sd7",
+                        "destination": "maps/Tetrad_v2.sd7",
                         "extract": false
                     },
                     {
@@ -853,6 +828,11 @@
                     {
                         "url": "https://content.spring-launcher.com/maps/twin_lakes_park_1.sd7",
                         "destination": "maps/twin_lakes_park_1.sd7",
+                        "extract": false
+                    },
+                    {
+                        "url": "https://content.spring-launcher.com/maps/Valles_Marineris_v2.sd7",
+                        "destination": "maps/Valles_Marineris_v2.sd7",
                         "extract": false
                     },
                     {
