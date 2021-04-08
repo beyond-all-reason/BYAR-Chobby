@@ -41,7 +41,7 @@ return {
 ['Mescaline_V2']={Width=20, Height=12, Is1v1=nil, IsTeam=1, IsFFA=nil, IsCertified=1, Special=nil, Flat=1, Hills=1, Water=nil, IsInPool=1, },
 ['MoonQ20XR2 2.5']={Width=20, Height=10, Is1v1=nil, IsTeam=1, IsFFA=nil, IsCertified=1, Special='Craters', Flat=1, Hills=1, Water=nil, IsInPool=1, },
 ['Neurope_a7_v3']={Width=32, Height=16, Is1v1=nil, IsTeam=nil, IsFFA=1, IsCertified=1, Special=nil, Flat=1, Hills=nil, Water=1, IsInPool=1, },
-['Nuclear Winter Bar 1.1']={Width=20, Height=10, Is1v1=nil, IsTeam=1, IsFFA=nil, IsCertified=1, Special=nil, Flat=1, Hills=nil, Water=nil, IsInPool=1, },
+['Nuclear Winter Bar 1.2']={Width=20, Height=10, Is1v1=nil, IsTeam=1, IsFFA=nil, IsCertified=1, Special=nil, Flat=1, Hills=nil, Water=nil, IsInPool=1, },
 ['Otago 1.4']={Width=16, Height=16, Is1v1=nil, IsTeam=1, IsFFA=nil, IsCertified=nil, Special=nil, Flat=nil, Hills=1, Water=nil, IsInPool=1, },
 ['Painted Badlands 1.0']={Width=16, Height=16, Is1v1=nil, IsTeam=1, IsFFA=nil, IsCertified=nil, Special=nil, Flat=1, Hills=nil, Water=nil, IsInPool=1, },
 ['Paradise_Lost_V4']={Width=20, Height=10, Is1v1=nil, IsTeam=1, IsFFA=nil, IsCertified=1, Special=nil, Flat=nil, Hills=nil, Water=1, IsInPool=1, },
