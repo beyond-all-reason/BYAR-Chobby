@@ -1,6 +1,7 @@
 local shortname = "byar"
 
 local sidedata           = VFS.Include(LUA_DIRNAME .. "configs/gameConfig/" .. shortname .. "/sidedata.lua")
+local aiBlacklist        = VFS.Include(LUA_DIRNAME .. "configs/gameConfig/" .. shortname .. "/aiBlacklist.lua")
 local singleplayerConfig = VFS.Include(LUA_DIRNAME .. "configs/gameConfig/" .. shortname .. "/singleplayerMenu.lua")
 local helpSubmenuConfig  = VFS.Include(LUA_DIRNAME .. "configs/gameConfig/" .. shortname .. "/helpSubmenuConfig.lua")
 local skirmishDefault    = VFS.Include(LUA_DIRNAME .. "configs/gameConfig/" .. shortname .. "/skirmishDefault.lua")
@@ -69,6 +70,7 @@ local externalFuncAndData = {
 	--editor                 = "SpringBoard BYAR $VERSION",
 	defaultChatChannels    = {"main", "newbies"},
 	sayPrivateSelectAndActivateChatTab = sayPrivateSelectAndActivateChatTab,
+	aiBlacklist            = aiBlacklist,
 	mapDetails             = mapDetails,
 	mapStartBoxes          = mapStartBoxes,
 	useDefaultStartBoxes   = useDefaultStartBoxes,
