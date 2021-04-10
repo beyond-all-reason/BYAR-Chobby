@@ -150,8 +150,8 @@ local externalFuncAndData = {
 	link_maps               = link_maps,
 	openTrack = "LuaMenu/configs/gameConfig/byar/lobbyMusic/Ryan Krause - Friend Or Foe.ogg",	-- dont leave empty
 	randomTrackList = {
-		"LuaMenu/configs/gameConfig/byar/lobbyMusic/ProfessorKliq-TensionGrowl.ogg",
-		"LuaMenu/configs/gameConfig/byar/lobbyMusic/RobRichert-AliasZero.ogg",
+		"LuaMenu/configs/gameConfig/byar/lobbyMusic/Ryan Krause - Confined Chaos.ogg",
+		"LuaMenu/configs/gameConfig/byar/lobbyMusic/Ryan Krause - Friend Or Foe.ogg",
 	},
 	disableColorChoosing = false,
 	showHandicap = true,
@@ -161,6 +161,13 @@ local externalFuncAndData = {
 
 	ShortenNameString = ShortenNameString,
 }
+if Spring.GetConfigInt('soundtrack', 2) == 3 then
+	externalFuncAndData.openTrack = "LuaMenu/configs/gameConfig/byar/lobbyMusic/ProfessorKliq-TensionGrowl.ogg"
+	externalFuncAndData.randomTrackList = {
+		"LuaMenu/configs/gameConfig/byar/lobbyMusic/ProfessorKliq-TensionGrowl.ogg",
+		"LuaMenu/configs/gameConfig/byar/lobbyMusic/RobRichert-AliasZero.ogg",
+	}
+end
 
 function externalFuncAndData.CheckAvailability()
 	return true
