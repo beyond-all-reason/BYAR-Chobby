@@ -859,6 +859,7 @@
                 "display": "Experimental",
                 "platform": "linux"
             },
+            "route_prd_to_nextgen": true,
             "downloads": {
                 "resources": [
                     {
@@ -907,6 +908,7 @@
                 "display": "Experimental",
                 "platform": "win32"
             },
+            "route_prd_to_nextgen": true,
             "downloads": {
                 "resources": [
                     {
