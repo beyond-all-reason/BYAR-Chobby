@@ -111,7 +111,7 @@
                         "destination": "engine/104.0.1-1828-g1f481b7 bar",
                         "extract": true
                     },
-			
+
                     {
                         "url": "https://content.spring-launcher.com/maps/aberdeen3v3v3.sd7",
                         "destination": "maps/aberdeen3v3v3.sd7",
@@ -489,7 +489,7 @@
                         "destination": "engine/104.0.1-1828-g1f481b7 bar",
                         "extract": true
                     },
-			
+
                     {
                         "url": "https://content.spring-launcher.com/maps/aberdeen3v3v3.sd7",
                         "destination": "maps/aberdeen3v3v3.sd7",
@@ -859,6 +859,7 @@
                 "display": "Experimental",
                 "platform": "linux"
             },
+            "route_prd_to_nextgen": true,
             "downloads": {
                 "resources": [
                     {
@@ -907,6 +908,7 @@
                 "display": "Experimental",
                 "platform": "win32"
             },
+            "route_prd_to_nextgen": true,
             "downloads": {
                 "resources": [
                     {
@@ -994,6 +996,5 @@
             }
         }
     ]
-
 
 }
