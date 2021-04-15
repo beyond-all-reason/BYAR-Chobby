@@ -6,6 +6,12 @@ local welcomePanelItems = {
         Text = "Welcome Commander! We hope you are ready for epic single player and multiplayer battles!\n",
     },
     {
+        Header = "Server Moving Soon",
+        Url = nil, --"https://www.beyondallreason.info/",
+        Time = nil,-- "NowTime",
+        Text = "We will begin moving the multiplayer lobby server from road-flag.bnr.la:8200 to bar.teifion.co.uk:8200 in the coming days. We hope games will continue to be uninterrupted, report any connectivity issues to us on Discord!\n" ,
+    },
+    {
         Header = "New single player scenarios",
         Url = nil, --"https://www.beyondallreason.info/",
         Time = nil,-- "NowTime",
