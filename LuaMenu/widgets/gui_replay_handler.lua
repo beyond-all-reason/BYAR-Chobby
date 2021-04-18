@@ -47,15 +47,15 @@ local function ShortenGameName(gameName)
 	  if condition then return T else return F end
   end
 
--- Returns whether the allyTeams structure of the replay request corresponds
+-- Returns whether the players structure of the replay request corresponds
 -- to an FFA game ot not.
-local function is_ffa(allyTeams)
-	if #allyTeams <= 2	then
+local function is_ffa(teams)
+	if #teams <= 2	then
 		return false
 	end
 
-	for i, v in pairs(allyTeams) do
-		if #v.teams > 1 then
+	for i, team in pairs(teams) do
+		if #team > 1 then
 			return false
 		end
 	end
@@ -63,17 +63,34 @@ local function is_ffa(allyTeams)
 end
 
 -- Returns the battle type as a string. (1v1 / FFA / 8v8 / etc)
-local function battleType(allyTeams)
-	if is_ffa(allyTeams) then
+local function battleType(teams)
+	if is_ffa(teams) then
 		return "FFA"
 	end
 
-	local teams = {}
-	for i, v in pairs(allyTeams) do
-		table.insert(teams, #v.teams)
+	local teams_lengths = {}
+	for i, team in pairs(teams) do
+		table.insert(teams_lengths, #team)
 	end
 
-	return table.concat(teams, "v")
+	return table.concat(teams_lengths, "v")
+end
+
+
+--	From the flat array of players, build an array of teams
+local function buildTeams(players)
+	teams = {}
+	for i, player in pairs(players) do
+		local team
+		if teams[player.allyTeamId] == nil then
+			team = {}
+			teams[player.allyTeamId] = team
+		else
+			team = teams[player.allyTeamId]
+		end
+		table.insert(team, player)
+	end
+	return teams
 end
 
 local function playerWidget(playerInfo)
@@ -115,7 +132,7 @@ local function playerWidget(playerInfo)
 end
 
 local function CreateReplayEntry(
-	replayPath, engineName, gameName, mapName, allyTeams, time
+	replayPath, engineName, gameName, mapName, players, time
 )
 
 	local Configuration = WG.Chobby.Configuration
@@ -123,6 +140,8 @@ local function CreateReplayEntry(
 	if string.sub(fileName, 0, 4) == "hide" then
 		return
 	end
+
+	local teams = buildTeams(players)
 
 	fileName = string.gsub(string.gsub(fileName, " maintenance", ""), " develop", "")
 	fileName = string.gsub(fileName, "%.sdfz", "")
@@ -158,6 +177,7 @@ local function CreateReplayEntry(
 		padding = {0, 0, 0, 0},
 	}
 
+
 	local mapImageFile, needDownload = Configuration:GetMinimapImage(mapName)
 
 	local minimap = Panel:New {
@@ -185,7 +205,7 @@ local function CreateReplayEntry(
 		right = 0, height = 20,
 		valign = 'center',
 		fontsize = Configuration:GetFont(2).size,
-		text = battleType(allyTeams),
+		text = battleType(teams),
 		parent = replayPanel,
 	}
 
@@ -231,8 +251,8 @@ local function CreateReplayEntry(
 	local xOffset = 0
 	local yOffset = 0
 
-	-- Iterate over the allyTeams structure
-	for i, v in pairs(allyTeams) do
+	-- Iterate over the teams structure
+	for i, team in pairs(teams) do
 		if i > 1 then
 			yOffset = yOffset + 10
 		end
@@ -240,7 +260,7 @@ local function CreateReplayEntry(
 		-- If we're computing a new team, and we can see that it will overflow
 		-- the list item's height, create a new column.
 		if yOffset > 0
-			and yOffset + (#v.teams * PLAYER_HEIGHT) + PLAYER_HEIGHT >= REPLAY_LIST_ENTRY_HEIGHT
+			and yOffset + (#team * PLAYER_HEIGHT) + PLAYER_HEIGHT + 10 >= REPLAY_LIST_ENTRY_HEIGHT
 		then
 			yOffset = 0
 			xOffset = xOffset + REPLAY_LIST_ENTRY_HEIGHT
@@ -256,8 +276,8 @@ local function CreateReplayEntry(
 		}
 		yOffset = yOffset + PLAYER_HEIGHT
 
-		--  Then add each player on a subsequent line
-		for i, t in pairs(v.teams) do
+		--	Then add each player on a subsequent line
+		for i, player in pairs(team) do
 
 			--	If there are too many players to display on one line, just add
 			--	an ellipsis and skip subsequent players for the team.
@@ -273,7 +293,7 @@ local function CreateReplayEntry(
 			end
 
 			-- Else, display the player's info
-			local playerControl = playerWidget(t.players[1])
+			local playerControl = playerWidget(player)
 			userList:AddChild(playerControl)
 			playerControl:SetPos(xOffset, yOffset)
 			playerControl._relativeBounds.right = 0
@@ -360,7 +380,9 @@ local function InitializeControls(parentControl)
 
 	local headings = {}
 
-	local replayList = WG.Chobby.SortableList(listHolder, headings, 120, nil, false)
+	local replayList = WG.Chobby.SortableList(
+		listHolder, headings, REPLAY_LIST_ENTRY_HEIGHT, nil, false
+	)
 
 	local PartialAddReplays, moreButton
 
@@ -473,8 +495,8 @@ local function InitializeControls(parentControl)
 
 	local externalFunctions = {}
 
-	function externalFunctions.AddReplay(replayPath, engine, game, map, allyTeams, time)
-		local control, sortData = CreateReplayEntry(replayPath, engine, game, map, allyTeams, time)
+	function externalFunctions.AddReplay(replayPath, engine, game, map, players, time)
+		local control, sortData = CreateReplayEntry(replayPath, engine, game, map, players, time)
 		if control then
 			replayList:AddItem(replayPath, control, sortData)
 		end
@@ -508,12 +530,12 @@ function ReplayHandler.GetControl()
 	return window
 end
 
-function ReplayHandler.ReadReplayInfoDone(path, engine, game, map, allyTeams, time)
+function ReplayHandler.ReadReplayInfoDone(path, engine, game, map, players, time)
 	if not replayListWindow then
 		return
 	end
 
-	replayListWindow.AddReplay(path, engine, game, map, allyTeams, time)
+	replayListWindow.AddReplay(path, engine, game, map, players, time)
 end
 
 --------------------------------------------------------------------------------
