@@ -34,8 +34,8 @@ local colors = {
 	{{ 1.00, 0.84, 0.71 }, "Apricot"},
 	{{ 0.00, 0.00, 0.50 }, "Navy"},
 	{{ 0.50, 0.50, 0.50 }, "Grey"},
-	{{ 1.00, 1.00, 1.00 }, "White"},
-	{{ 0.00, 0.00, 0.00 }, "Black"}
+	--{{ 1.00, 1.00, 1.00 }, "White"},
+	--{{ 0.00, 0.00, 0.00 }, "Black"}
 }
 
 local colorMap = {}
@@ -49,6 +49,8 @@ local function CreateColorChangeWindow(opts)
 	opts = opts or {}
 	local selectedColor = opts.initialColor
 
+	local imTeamColor
+
 	local Configuration = WG.Chobby.Configuration
 
 	local colorChangeWindow = Window:New {
@@ -56,7 +58,7 @@ local function CreateColorChangeWindow(opts)
 		name = "colorChangeWindow",
 		parent = screen0,
 		width = 280,
-		height = 330,
+		height = 380,
 		resizable = false,
 		draggable = false,
 		classname = "main_window",
@@ -107,10 +109,9 @@ local function CreateColorChangeWindow(opts)
 		parent = colorChangeWindow,
 	}
 
-	local imTeamColor
 	local cmbColors = ComboBox:New {
 		x = colorChangeWindow.width * 0.05,
-		y = 150,
+		y = 200,
 		width = colorChangeWindow.width * 0.5,
 		height = 40,
 		items = colorNames,
@@ -135,7 +136,7 @@ local function CreateColorChangeWindow(opts)
 	imTeamColor = Image:New {
 		name = "imTeamColor",
 		x = cmbColors.x + cmbColors.width + 20,
-		y = 150,
+		y = 200,
 		width = 40,
 		height = 40,
 		parent = colorChangeWindow,
@@ -143,6 +144,42 @@ local function CreateColorChangeWindow(opts)
 		file = "LuaMenu/widgets/chili/skins/Evolved/glassBk.png",
 		color = selectedColor,
 	}
+
+	
+	for i, c in ipairs({"Red","Green","Blue"}) do
+		local lblRed = Label:New{
+			x = "5%",
+			width = "20%",
+			y = 50+8 + 30*i,
+			align = "left",
+			font = Configuration:GetFont(2),
+			caption = c,
+			parent = colorChangeWindow,
+		}
+
+		local tbRed = Trackbar:New {
+			x = "25%",
+			right  = "5%",
+			height = 30,
+			y = 50 + 30*i,
+
+			value  = (selectedColor[i] or 0)*255,
+			min    = 0,
+			max    = 255,
+			step   = 1,
+			parent = colorChangeWindow,
+			OnChange = {
+				function(obj, value)
+					-- because selectedColor is passed by object reference! -3 hours of my life
+					selectedColor = {selectedColor[1], selectedColor[2],selectedColor[3]}
+					selectedColor[i] = value /255.0
+					imTeamColor.color = selectedColor
+					imTeamColor:Invalidate()
+
+				end
+			}
+		}
+	end
 
 	WG.Chobby.PriorityPopup(colorChangeWindow, CloseFunction, CloseFunction, screen0)
 end

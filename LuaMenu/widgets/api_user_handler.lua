@@ -719,6 +719,7 @@ local function GetUserControls(userName, opts)
 							initialColor = battleStatus.teamColor,
 							OnAccepted = function(color)
 								if userName == userControls.lobby:GetMyUserName() then
+									userControls.lobby._requestedBattleStatus = true -- fake the request to ensure it gets sent
 									userControls.lobby:SetBattleStatus({
 										teamColor = color
 									})
