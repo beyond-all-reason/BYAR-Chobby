@@ -894,7 +894,7 @@ local function GetLobbyTabControls()
 		text = Configuration.serverAddress,
 		font = Configuration:GetFont(2),
 		useIME = false,
-		tooltip = "Requires a lobby restart for changes to take effect",
+		tooltip = "Requires a lobby restart for changes to take effect. Old Server is road-flag.bnr.la, new will be bar.teifion.co.uk",
 		OnFocusUpdate = {
 			function (obj)
 				if obj.focused then
