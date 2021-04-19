@@ -3,12 +3,12 @@
 
 function widget:GetInfo()
 	return {
-		name	  = "Replays window",
-		desc	  = "Handles local replays.",
-		author	  = "GoogleFrog",
-		date	  = "20 October 2016",
+		name      = "Replays window",
+		desc      = "Handles local replays.",
+		author    = "GoogleFrog",
+		date      = "20 October 2016",
 		license   = "GNU LGPL, v2.1 or later",
-		layer	  = -100000,
+		layer     = -100000,
 		enabled   = true  --  loaded by default?
 	}
 end
@@ -18,10 +18,6 @@ end
 -- Local Variables
 
 local replayListWindow
-
--- Size constants for the replay window
-local PLAYER_HEIGHT = 18
-local REPLAY_LIST_ENTRY_HEIGHT = 120
 
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
@@ -47,78 +43,9 @@ local function ShortenGameName(gameName)
 	  if condition then return T else return F end
   end
 
--- Returns whether the allyTeams structure of the replay request corresponds
--- to an FFA game ot not.
-local function is_ffa(allyTeams)
-	if #allyTeams <= 2	then
-		return false
-	end
-
-	for i, v in pairs(allyTeams) do
-		if #v.teams > 1 then
-			return false
-		end
-	end
-	return true
-end
-
--- Returns the battle type as a string. (1v1 / FFA / 8v8 / etc)
-local function battleType(allyTeams)
-	if is_ffa(allyTeams) then
-		return "FFA"
-	end
-
-	local teams = {}
-	for i, v in pairs(allyTeams) do
-		table.insert(teams, #v.teams)
-	end
-
-	return table.concat(teams, "v")
-end
-
-local function playerWidget(playerInfo)
+local function CreateReplayEntry(replayPath, engineName, gameName, mapName)
 	local Configuration = WG.Chobby.Configuration
-	userName = playerInfo.name
 
-	-- Create a control widget to encapsulate the player's information
-	local ret = Chili.Control:New {
-		x = 0, y = 0, right = 0,
-		height=PLAYER_HEIGHT, bottom = 0, padding = {0, 0, 0, 0},
-	}
-
-	-- Get the rank image for the player
-	local imageRank = Image:New {
-		name = "imRank",
-		x = 0,
-		y = 0,
-		width = 13,
-		height = 13,
-		parent = ret,
-		keepAspect = false,
-		file = Configuration.gameConfig.rankFunction(
-			nil, tonumber(playerInfo.rank), 0, false, false
-		)
-	}
-
-	-- Textbox with the user's name
-	local userName = TextBox:New {
-		name = "userName",
-		x = 21, y = 0, right = 0, height = PLAYER_HEIGHT,
-		valign = "top",
-		fontsize = Configuration:GetFont(1).size,
-		text = userName,
-		parent = ret,
-	}
-
-	-- TODO: We could definitely add some more stuff (flag? TS value?) here.
-	return ret
-end
-
-local function CreateReplayEntry(
-	replayPath, engineName, gameName, mapName, allyTeams, time
-)
-
-	local Configuration = WG.Chobby.Configuration
 	local fileName = string.sub(replayPath, 7)
 	if string.sub(fileName, 0, 4) == "hide" then
 		return
@@ -127,27 +54,8 @@ local function CreateReplayEntry(
 	fileName = string.gsub(string.gsub(fileName, " maintenance", ""), " develop", "")
 	fileName = string.gsub(fileName, "%.sdfz", "")
 
-	-- Extract replay time from the filename
-	local replayDateString = string.format(
-		"%s-%s-%s %s:%s",
-		string.match(fileName, "(%d%d%d%d)(%d%d)(%d%d)_(%d%d)(%d%d)")
-	)
-
-	-- Compute the time of the replay
-	local hours, minutes = math.floor(time / 3600), math.floor(time / 60) % 60
-	local replayTimeString = ""
-
-	-- Filter out replays that are less than a minute long
-	-- TODO: Do we want an option for that eventually ? Maybe some people want
-	-- to see all replays.
-	if minutes == 0 then
-		return
-	else
-		replayTimeString = minutes .. " minutes"
-		if hours > 0 then
-			replayTimeString = hours .. " hour " .. replayTimeString
-		end
-	end
+	local replayTime = string.sub(fileName, 0, 15)
+	replayTime = string.sub(fileName, 0, 4) .. "-" .. string.sub(fileName, 5, 6) .. "-" .. string.sub(fileName, 7, 8) .. " " .. string.sub(fileName, 10, 11) .. ":" .. string.sub(fileName, 12, 13)
 
 	local replayPanel = Panel:New {
 		x = 0,
@@ -158,135 +66,11 @@ local function CreateReplayEntry(
 		padding = {0, 0, 0, 0},
 	}
 
-	local mapImageFile, needDownload = Configuration:GetMinimapImage(mapName)
-
-	local minimap = Panel:New {
-		name = "minimap",
-		x = 3, y = 3,
-		width = 112, height = 112,
-		padding = {1,1,1,1},
-		parent = replayPanel,
-	}
-
-	local imMinimap = Image:New {
-		x = 0, y = 0,
-		right = 0,
-		bottom = 0,
-		file = mapImageFile,
-		fallbackFile = Configuration:GetLoadingImage(3),
-		checkFileExists = needDownload,
-		parent = minimap,
-		tooltip = "prout"
-	}
-
-	local replayBattleType = TextBox:New {
-		name = "replayBattleType",
-		x = 135, y = 22,
-		right = 0, height = 20,
-		valign = 'center',
-		fontsize = Configuration:GetFont(2).size,
-		text = battleType(allyTeams),
-		parent = replayPanel,
-	}
-
-	local replayDate = TextBox:New {
-		name = "replayDate",
-		x = 135, y = 65,
-		right = 0, height = 20,
-		valign = 'center',
-		fontsize = Configuration:GetFont(1).size,
-		text = replayDateString,
-		parent = replayPanel,
-	}
-
-	local replayTime = TextBox:New {
-		name = "replayTime",
-		x = 135, y = 82,
-		right = 0, height = 20,
-		valign = 'center',
-		fontsize = Configuration:GetFont(1).size,
-		text = replayTimeString,
-		parent = replayPanel,
-	}
-
-	local replayMap = TextBox:New {
-		name = "replayMap",
-		x = 135, y = 42,
-		right = 0, height = 20,
-		valign = 'center',
-		fontsize = Configuration:GetFont(2).size,
-		text = mapName,
-		parent = replayPanel,
-	}
-
-	-- Compute the teams/players lists
-
-	local userList = Chili.Control:New {
-		x = 415, y = 10,
-		right = 0, bottom = 0,
-		padding = {0, 0, 0, 0},
-		parent = replayPanel,
-	}
-
-	local xOffset = 0
-	local yOffset = 0
-
-	-- Iterate over the allyTeams structure
-	for i, v in pairs(allyTeams) do
-		if i > 1 then
-			yOffset = yOffset + 10
-		end
-
-		-- If we're computing a new team, and we can see that it will overflow
-		-- the list item's height, create a new column.
-		if yOffset > 0
-			and yOffset + (#v.teams * PLAYER_HEIGHT) + PLAYER_HEIGHT >= REPLAY_LIST_ENTRY_HEIGHT
-		then
-			yOffset = 0
-			xOffset = xOffset + REPLAY_LIST_ENTRY_HEIGHT
-		end
-
-		-- Show a "Team n" label on the first line for each team
-		local teamId = TextBox:New {
-			x = xOffset, y = yOffset, right = 0, height = 10,
-			valign = 'center',
-			fontsize = Configuration:GetFont(1).size,
-			text = "Team " .. i,
-			parent = userList,
-		}
-		yOffset = yOffset + PLAYER_HEIGHT
-
-		--  Then add each player on a subsequent line
-		for i, t in pairs(v.teams) do
-
-			--	If there are too many players to display on one line, just add
-			--	an ellipsis and skip subsequent players for the team.
-			if yOffset + PLAYER_HEIGHT * 2 >= REPLAY_LIST_ENTRY_HEIGHT then
-				local ellipsis = TextBox:New {
-					x = xOffset, y = YOffset, text = "..."
-				}
-				userList:AddChild(ellipsis)
-				ellipsis:SetPos(xOffset, yOffset)
-				ellipsis._relativeBounds.right = 0
-				ellipsis:UpdateClientArea()
-				break
-			end
-
-			-- Else, display the player's info
-			local playerControl = playerWidget(t.players[1])
-			userList:AddChild(playerControl)
-			playerControl:SetPos(xOffset, yOffset)
-			playerControl._relativeBounds.right = 0
-			playerControl:UpdateClientArea()
-			yOffset = yOffset + PLAYER_HEIGHT
-		 end
-	end
-
 	local startButton = Button:New {
-		x = "90%",
+		x = 3,
 		y = 3,
 		bottom = 3,
-		width = "8%",
+		width = 65,
 		caption = i18n("start"),
 		classname = ternary(WG.Chobby.Configuration:IsValidEngineVersion(engineName),"action_button",option_button),
 		font = WG.Chobby.Configuration:GetFont(2),
@@ -302,8 +86,53 @@ local function CreateReplayEntry(
 		parent = replayPanel,
 	}
 
+	local replayDate = TextBox:New {
+		name = "replayDate",
+		x = 85,
+		y = 12,
+		right = 0,
+		height = 20,
+		valign = 'center',
+		fontsize = Configuration:GetFont(1).size,
+		text = replayTime,
+		parent = replayPanel,
+	}
+	local replayMap = TextBox:New {
+		name = "replayMap",
+		x = 250,
+		y = 12,
+		right = 0,
+		height = 20,
+		valign = 'center',
+		fontsize = Configuration:GetFont(1).size,
+		text = mapName,
+		parent = replayPanel,
+	}
+	local replayVersion = TextBox:New {
+		name = "replayVersion",
+		x = 425,
+		y = 12,
+		width = 400,
+		height = 20,
+		valign = 'center',
+		fontsize = Configuration:GetFont(1).size,
+		text = ShortenGameName(gameName),
+		parent = replayPanel,
+	}
 
-	return replayPanel, {replayDateString, string.lower(mapName), gameName}
+	local replayEngine = TextBox:New {
+		name = "replayEngine",
+		x = 530,
+		y = 12,
+		width = 200,
+		height = 20,
+		valign = 'center',
+		fontsize = Configuration:GetFont(1).size,
+		text = ShortenEngineName(engineName),
+		parent = replayPanel,
+	}
+
+	return replayPanel, {replayTime, string.lower(mapName), gameName}
 end
 
 --------------------------------------------------------------------------------
@@ -312,6 +141,7 @@ end
 
 local function InitializeControls(parentControl)
 	local Configuration = WG.Chobby.Configuration
+
 	Label:New {
 		x = 15,
 		y = 11,
@@ -358,9 +188,14 @@ local function InitializeControls(parentControl)
 		padding = {0, 0, 0, 0},
 	}
 
-	local headings = {}
+	local headings = {
+		{name = "Time", x = 88, width = 100},
+		{name = "Map", x = 200, width = 200},
+		{name = "Game", x = 420, width = 100},
+		{name = "Engine", x = 530, right = 5},
+	}
 
-	local replayList = WG.Chobby.SortableList(listHolder, headings, 120, nil, false)
+	local replayList = WG.Chobby.SortableList(listHolder, headings, nil, nil, false)
 
 	local PartialAddReplays, moreButton
 
@@ -473,8 +308,8 @@ local function InitializeControls(parentControl)
 
 	local externalFunctions = {}
 
-	function externalFunctions.AddReplay(replayPath, engine, game, map, allyTeams, time)
-		local control, sortData = CreateReplayEntry(replayPath, engine, game, map, allyTeams, time)
+	function externalFunctions.AddReplay(replayPath, engine, game, map, script)
+		local control, sortData = CreateReplayEntry(replayPath, engine, game, map)
 		if control then
 			replayList:AddItem(replayPath, control, sortData)
 		end
@@ -508,12 +343,11 @@ function ReplayHandler.GetControl()
 	return window
 end
 
-function ReplayHandler.ReadReplayInfoDone(path, engine, game, map, allyTeams, time)
+function ReplayHandler.ReadReplayInfoDone(path, engine, game, map, script)
 	if not replayListWindow then
 		return
 	end
-
-	replayListWindow.AddReplay(path, engine, game, map, allyTeams, time)
+	replayListWindow.AddReplay(path, engine, game, map, script)
 end
 
 --------------------------------------------------------------------------------
