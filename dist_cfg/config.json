@@ -263,11 +263,6 @@
                         "extract": false
                     },
                     {
-                        "url": "https://content.spring-launcher.com/maps/ibex_v1.sd7",
-                        "destination": "maps/ibex_v1.sd7",
-                        "extract": false
-                    },
-                    {
                         "url": "https://content.spring-launcher.com/maps/incandescence_2.2.sd7",
                         "destination": "maps/incandescence_2.2.sd7",
                         "extract": false
@@ -638,11 +633,6 @@
                     {
                         "url": "https://content.spring-launcher.com/maps/hotstepper.sdz",
                         "destination": "maps/hotstepper.sdz",
-                        "extract": false
-                    },
-                    {
-                        "url": "https://content.spring-launcher.com/maps/ibex_v1.sd7",
-                        "destination": "maps/ibex_v1.sd7",
                         "extract": false
                     },
                     {
