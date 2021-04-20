@@ -298,11 +298,6 @@
                         "extract": false
                     },
                     {
-                        "url": "https://content.spring-launcher.com/maps/nuclear_winter_bar_1.1.sd7",
-                        "destination": "maps/nuclear_winter_bar_1.1.sd7",
-                        "extract": false
-                    },
-                    {
                         "url": "https://content.spring-launcher.com/maps/otago_1.4.sd7",
                         "destination": "maps/otago_1.4.sd7",
                         "extract": false
@@ -668,11 +663,6 @@
                     {
                         "url": "https://content.spring-launcher.com/maps/neurope_a7_v3.sd7",
                         "destination": "maps/neurope_a7_v3.sd7",
-                        "extract": false
-                    },
-                    {
-                        "url": "https://content.spring-launcher.com/maps/nuclear_winter_bar_1.1.sd7",
-                        "destination": "maps/nuclear_winter_bar_1.1.sd7",
                         "extract": false
                     },
                     {
