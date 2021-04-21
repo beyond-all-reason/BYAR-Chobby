@@ -32,7 +32,6 @@ return {
 ['Green_Fields_fix']={Width=16, Height=16, Is1v1=nil, IsTeam=1, IsFFA=nil, IsCertified=nil, Special='No Metal', Flat=1, Hills=nil, Water=nil, IsInPool=1, },
 ['Hotlips_Redux_V2']={Width=22, Height=18, Is1v1=nil, IsTeam=1, IsFFA=nil, IsCertified=nil, Special=nil, Flat=1, Hills=1, Water=nil, IsInPool=1, },
 ['Hotstepper']={Width=8, Height=8, Is1v1=nil, IsTeam=nil, IsFFA=1, IsCertified=nil, Special='Lava', Flat=nil, Hills=nil, Water=nil, IsInPool=1, },
-['Ibex v1']={Width=16, Height=61, Is1v1=nil, IsTeam=1, IsFFA=nil, IsCertified=nil, Special=nil, Flat=1, Hills=nil, Water=nil, IsInPool=nil, },
 ['Incandescence 2.2']={Width=16, Height=16, Is1v1=nil, IsTeam=1, IsFFA=nil, IsCertified=nil, Special=nil, Flat=1, Hills=nil, Water=nil, IsInPool=1, },
 ['KnockoutR 1.5']={Width=18, Height=18, Is1v1=nil, IsTeam=1, IsFFA=1, IsCertified=1, Special=nil, Flat=nil, Hills=1, Water=nil, IsInPool=1, },
 ['Kolmogorov']={Width=20, Height=20, Is1v1=nil, IsTeam=1, IsFFA=1, IsCertified=nil, Special=nil, Flat=nil, Hills=1, Water=nil, IsInPool=1, },
