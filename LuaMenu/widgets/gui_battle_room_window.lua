@@ -2723,6 +2723,18 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	local function OnDisableUnits(listener,unitNames)
 	end
 
+	local function OnRequestBattleStatus(listener)
+		-- if the server is requesting our battle status, that means we have free reign over teamcolor
+		battleLobby:SetBattleStatus({
+			teamColor = {
+				math.random() * 0.7 + 0.1,
+				math.random() * 0.7 + 0.1,
+				math.random() * 0.7 + 0.1,
+			},
+		})
+	end
+
+	
 	battleLobby:AddListener("OnUpdateUserTeamStatus", OnUpdateUserTeamStatus)
 	battleLobby:AddListener("OnBattleIngameUpdate", OnBattleIngameUpdate)
 	battleLobby:AddListener("OnUpdateBattleInfo", OnUpdateBattleInfo)
@@ -2742,6 +2754,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	battleLobby:AddListener("OnRing", OnRing)
 	battleLobby:AddListener("OnEnableAllUnits", OnEnableAllUnits)
 	battleLobby:AddListener("OnDisableUnits", OnDisableUnits)
+	battleLobby:AddListener("OnRequestBattleStatus", OnRequestBattleStatus)
 
 	local function OnDisposeFunction()
 		emptyTeamIndex = 0
@@ -2761,7 +2774,11 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		oldLobby:RemoveListener("OnMatchMakerReadyUpdate", OnMatchMakerReadyUpdate)
 		oldLobby:RemoveListener("OnMatchMakerReadyResult", OnMatchMakerReadyResult)
 		oldLobby:RemoveListener("OnRemoveStartRect", OnRemoveStartRect)
-		oldLobby:RemoveListener("OnAddStartRect", OnAddStartRect) -- or else they pile up XD
+		oldLobby:RemoveListener("OnAddStartRect", OnAddStartRect) -- or else they pile up XD 
+		oldLobby:RemoveListener("OnRing", OnRing)
+		oldLobby:RemoveListener("OnEnableAllUnits", OnEnableAllUnits)
+		oldLobby:RemoveListener("OnDisableUnits", OnDisableUnits)
+		oldLobby:RemoveListener("OnRequestBattleStatus", OnRequestBattleStatus)
 
 		WG.BattleStatusPanel.RemoveBattleTab()
 	end

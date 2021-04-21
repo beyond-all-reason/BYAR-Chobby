@@ -9,7 +9,7 @@ local welcomePanelItems = {
         Header = "Server Moving Soon",
         Url = nil, --"https://www.beyondallreason.info/",
         Time = nil,-- "NowTime",
-        Text = "We will begin moving the multiplayer lobby server from road-flag.bnr.la:8200 to bar.teifion.co.uk:8200 in the coming days. We hope games will continue to be uninterrupted, report any connectivity issues to us on Discord!\n" ,
+        Text = "We will begin moving the multiplayer lobby server from road-flag.bnr.la:8200 to bar.teifion.co.uk:8200 in the coming days. We hope games will continue to be uninterrupted, report any connectivity issues to us on Discord!\n If you have very recently created your account, then you might need to re-register on the new server if you cannot log in." ,
     },
     {
         Header = "New single player scenarios",
