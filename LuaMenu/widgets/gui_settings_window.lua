@@ -808,36 +808,6 @@ local function GetLobbyTabControls()
 	}
 	offset = offset + ITEM_OFFSET
 
-	children[#children + 1] = Label:New {
-		x = 20,
-		y = offset + TEXT_OFFSET,
-		width = 90,
-		height = 40,
-		valign = "top",
-		align = "left",
-		font = Configuration:GetFont(2),
-		caption = "Coop Connection Delay",
-		tooltip = "Hosts with poor internet may require their clients to add a delay in order to connect.",
-	}
-	children[#children + 1] = Trackbar:New {
-		x = COMBO_X,
-		y = offset,
-		width  = COMBO_WIDTH,
-		height = 30,
-		value  = Configuration.coopConnectDelay or 0,
-		min    = 0,
-		max    = 100,
-		step   = 1,
-		OnChange = {
-			function(obj, value)
-				if freezeSettings then
-					return
-				end
-				Configuration:SetConfigValue("coopConnectDelay", value)
-			end
-		}
-	}
-	offset = offset + ITEM_OFFSET
 
 	local autoLogin = Checkbox:New {
 		x = 20,
@@ -874,6 +844,7 @@ local function GetLobbyTabControls()
 	children[#children + 1], offset = AddCheckboxSetting(offset, i18n("simple_ai_list"), "simpleAiList", true)
 	children[#children + 1], offset = AddCheckboxSetting(offset, i18n("animate_lobby"), "animate_lobby", true)
 	children[#children + 1], offset = AddCheckboxSetting(offset, i18n("drawFullSpeed"), "drawAtFullSpeed", false)
+	children[#children + 1], offset = AddCheckboxSetting(offset, "Show channel bots", "displayBots", false)
 	--children[#children + 1], offset = AddCheckboxSetting(offset, i18n("keep_queues"), "rememberQueuesOnStart", false, nil, "Stay in matchmaker queues when a battle is launched.")
 
 
@@ -1270,6 +1241,38 @@ local function GetVoidTabControls()
 				Configuration:SetConfigValue("campaignConfigName", Configuration.campaignConfigOptions[obj.selected])
 			end
 		},
+	}
+	offset = offset + ITEM_OFFSET
+
+	
+	children[#children + 1] = Label:New {
+		x = 20,
+		y = offset + TEXT_OFFSET,
+		width = 90,
+		height = 40,
+		valign = "top",
+		align = "left",
+		font = Configuration:GetFont(2),
+		caption = "Coop Connection Delay",
+		tooltip = "Hosts with poor internet may require their clients to add a delay in order to connect. This is not used by BAR",
+	}
+	children[#children + 1] = Trackbar:New {
+		x = COMBO_X,
+		y = offset,
+		width  = COMBO_WIDTH,
+		height = 30,
+		value  = Configuration.coopConnectDelay or 0,
+		min    = 0,
+		max    = 100,
+		step   = 1,
+		OnChange = {
+			function(obj, value)
+				if freezeSettings then
+					return
+				end
+				Configuration:SetConfigValue("coopConnectDelay", value)
+			end
+		}
 	}
 	offset = offset + ITEM_OFFSET
 
