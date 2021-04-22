@@ -82,11 +82,11 @@ local function buildTeams(players)
 	teams = {}
 	for i, player in pairs(players) do
 		local team
-		if teams[player.allyTeamId] == nil then
+		if teams[player.allyTeamId + 1] == nil then
 			team = {}
-			teams[player.allyTeamId] = team
+			teams[player.allyTeamId + 1] = team
 		else
-			team = teams[player.allyTeamId]
+			team = teams[player.allyTeamId + 1]
 		end
 		table.insert(team, player)
 	end
