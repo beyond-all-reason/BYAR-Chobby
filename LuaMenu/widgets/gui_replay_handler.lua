@@ -156,11 +156,18 @@ local function CreateReplayEntry(
 	local hours, minutes = math.floor(time / 3600), math.floor(time / 60) % 60
 	local replayTimeString = ""
 
-	-- Filter out replays that are less than a minute long
-	-- TODO: Do we want an option for that eventually ? Maybe some people want
-	-- to see all replays.
-	if minutes == 0 then
-		return
+	-- Filter out replays that are less than a minute long, but where the
+	-- absolute time is not 0
+	if hours + minutes == 0 then
+		if time == 0 then
+			--	In that case, sdzf-demo-parser returned 0, which very likely
+			--	means it couldn't parse the time of the replay because the file
+			--	is incomplete. In those case we still want to show the replay
+			--	but with a time of "unknown".
+			replayTimeString = "time unknown"
+		else
+			return
+		end
 	else
 		replayTimeString = minutes .. " minutes"
 		if hours > 0 then
