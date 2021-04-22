@@ -503,10 +503,21 @@ local function InitializeControls(parentControl)
 	local externalFunctions = {}
 
 	function externalFunctions.AddReplay(replayPath, engine, game, map, players, time)
-		local control, sortData = CreateReplayEntry(replayPath, engine, game, map, players, time)
-		if control then
-			replayList:AddItem(replayPath, control, sortData)
-		end
+		--	Try to add the replay, show the stack trace in case of error
+		xpcall(
+            function ()
+                local control, sortData = CreateReplayEntry(replayPath, engine, game, map, players, time)
+
+                if control then
+                    replayList:AddItem(replayPath, control, sortData)
+                end
+            end,
+
+            function (err)
+                Spring.Log("AddReplay", LOG.ERROR, "Couldn't add replay", replayPath)
+                Spring.Log("AddReplay", LOG.ERROR, debug.traceback(err))
+            end
+        )
 	end
 
 	return externalFunctions
