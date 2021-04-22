@@ -29,6 +29,7 @@ return {
 ['FolsomdamR 1.16']={Width=20, Height=14, Is1v1=nil, IsTeam=1, IsFFA=nil, IsCertified=1, Special=nil, Flat=nil, Hills=1, Water=nil, IsInPool=1, },
 ['Gecko Isle 1.1']={Width=16, Height=16, Is1v1=nil, IsTeam=1, IsFFA=nil, IsCertified=nil, Special=nil, Flat=1, Hills=nil, Water=nil, IsInPool=1, },
 ['Gehenna Rising 3']={Width=16, Height=16, Is1v1=nil, IsTeam=1, IsFFA=1, IsCertified=nil, Special=nil, Flat=1, Hills=1, Water=nil, IsInPool=1, },
+['Glacier Pass 1.2']={Width=8, Height=8, Is1v1=1, IsTeam=1, IsFFA=nil, IsCertified=1, Special=nil, Flat=nil, Hills=1, Water=nil, IsInPool=1, },
 ['Green_Fields_fix']={Width=16, Height=16, Is1v1=nil, IsTeam=1, IsFFA=nil, IsCertified=nil, Special='No Metal', Flat=1, Hills=nil, Water=nil, IsInPool=1, },
 ['Hotlips_Redux_V2']={Width=22, Height=18, Is1v1=nil, IsTeam=1, IsFFA=nil, IsCertified=nil, Special=nil, Flat=1, Hills=1, Water=nil, IsInPool=1, },
 ['Hotstepper']={Width=8, Height=8, Is1v1=nil, IsTeam=nil, IsFFA=1, IsCertified=nil, Special='Lava', Flat=nil, Hills=nil, Water=nil, IsInPool=1, },
