@@ -876,6 +876,7 @@ local function GetLobbyTabControls()
 	children[#children + 1], offset = AddCheckboxSetting(offset, i18n("drawFullSpeed"), "drawAtFullSpeed", false)
 	--children[#children + 1], offset = AddCheckboxSetting(offset, i18n("keep_queues"), "rememberQueuesOnStart", false, nil, "Stay in matchmaker queues when a battle is launched.")
 
+
 	children[#children + 1] = Label:New {
 		x = 20,
 		y = offset + TEXT_OFFSET,
@@ -884,28 +885,46 @@ local function GetLobbyTabControls()
 		valign = "top",
 		align = "left",
 		font = Configuration:GetFont(2),
-		caption = "Server Address",
-	}
-	children[#children + 1] = EditBox:New {
+		caption = "Choose Server:",
+		tooltip = "Old Server is road-flag.bnr.la, new is bar.teifion.co.uk. Changing this will log you out of current server, click Login in top right to reconnect to new one",
+	}	
+
+	local barservers = {"bar.teifion.co.uk","road-flag.bnr.la"}
+
+	children[#children + 1] = ComboBox:New {
+		--name = data.name .. "_combo",
 		x = COMBO_X,
 		y = offset,
 		width = COMBO_WIDTH,
 		height = 30,
-		text = Configuration.serverAddress,
+		items = barservers,
 		font = Configuration:GetFont(2),
-		useIME = false,
-		tooltip = "Requires a lobby restart for changes to take effect. Old Server is road-flag.bnr.la, new will be bar.teifion.co.uk",
-		OnFocusUpdate = {
-			function (obj)
-				if obj.focused then
+		itemFontSize = Configuration:GetFont(2).size,
+		selected = Configuration:GetServerAddress(),
+		tooltip = "Old Server is road-flag.bnr.la, new is bar.teifion.co.uk. Changing this will log you out of current server, click Login in top right to reconnect to new one",
+		OnSelect = {
+			function (obj, num)
+				if freezeSettings then -- so that it doesnt run when started, fucking yay
 					return
 				end
+				local oldserveraddress = Configuration:GetServerAddress()
+				local newserveraddress = barservers[num]
+				
+				Spring.Echo("Choosing a server in settings:",obj,num, oldserveraddress,newserveraddress)
 
-				Configuration.serverAddress = obj.text
-				obj:SetText(Configuration.serverAddress)
+				if oldserveraddress ~= newserveraddress then
+					Configuration.serverAddress = newserveraddress
+					
+					if WG.LibLobby.lobby then -- force set the new one so that lobby:safeupdate doesnt fuck up
+						--Spring.Echo("FORCE SET",obj,num, barservers[num])
+						WG.LibLobby.lobby.host = newserveraddress
+						WG.LibLobby.lobby:Disconnect()
+					end
+				end
 			end
 		}
 	}
+	
 	offset = offset + ITEM_OFFSET
 
 	children[#children + 1] = Label:New {
@@ -1099,6 +1118,36 @@ local function GetVoidTabControls()
 	}
 	offset = offset + ITEM_OFFSET
 
+	children[#children + 1] = Label:New {
+		x = 20,
+		y = offset + TEXT_OFFSET,
+		width = 90,
+		height = 40,
+		valign = "top",
+		align = "left",
+		font = Configuration:GetFont(2),
+		caption = "Server Address",
+	}
+	children[#children + 1] = EditBox:New {
+		x = COMBO_X,
+		y = offset,
+		width = COMBO_WIDTH,
+		height = 30,
+		text = Configuration:GetServerAddress(),
+		font = Configuration:GetFont(2),
+		useIME = false,
+		tooltip = "Requires a lobby restart for changes to take effect. Old Server is road-flag.bnr.la, new will be bar.teifion.co.uk",
+		OnFocusUpdate = {
+			function (obj)
+				if obj.focused then
+					return
+				end
+				Configuration.serverAddress = obj.text
+				obj:SetText(Configuration:GetServerAddress())
+			end
+		}
+	}
+	offset = offset + ITEM_OFFSET
 
 	children[#children + 1] = Label:New {
 		x = 20,
