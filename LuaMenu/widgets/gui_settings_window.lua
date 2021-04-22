@@ -890,6 +890,9 @@ local function GetLobbyTabControls()
 						--Spring.Echo("FORCE SET",obj,num, barservers[num])
 						WG.LibLobby.lobby.host = newserveraddress
 						WG.LibLobby.lobby:Disconnect()
+						if WG.LoginWindowHandler then 
+							WG.LoginWindowHandler.TryLogin()
+						end
 					end
 				end
 			end
