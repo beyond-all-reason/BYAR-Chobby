@@ -93,6 +93,7 @@ local function buildTeams(players)
 	return teams
 end
 
+--  Return a widget containing a player's information
 local function playerWidget(playerInfo)
 	local Configuration = WG.Chobby.Configuration
 	userName = playerInfo.name
@@ -103,6 +104,15 @@ local function playerWidget(playerInfo)
 		height=PLAYER_HEIGHT, bottom = 0, padding = {0, 0, 0, 0},
 	}
 
+    local image_file
+    if playerInfo.aiId then
+        image_file = Configuration.gameConfig.rankFunction(nil, 0, 0, true, false)
+    else
+        image_file = Configuration.gameConfig.rankFunction(
+			nil, tonumber(playerInfo.rank), 0, false, false
+		)
+    end
+
 	-- Get the rank image for the player
 	local imageRank = Image:New {
 		name = "imRank",
@@ -112,15 +122,13 @@ local function playerWidget(playerInfo)
 		height = 13,
 		parent = ret,
 		keepAspect = false,
-		file = Configuration.gameConfig.rankFunction(
-			nil, tonumber(playerInfo.rank), 0, false, false
-		)
+		file = image_file
 	}
 
 	-- Textbox with the user's name
 	local userName = TextBox:New {
 		name = "userName",
-		x = 21, y = 0, right = 0, height = PLAYER_HEIGHT,
+		x = 18, y = 0, right = 0, height = PLAYER_HEIGHT,
 		valign = "top",
 		fontsize = Configuration:GetFont(1).size,
 		text = userName,
