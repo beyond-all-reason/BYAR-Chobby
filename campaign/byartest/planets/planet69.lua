@@ -42,7 +42,7 @@ local function GetPlanet(planetUtilities, planetID)
 		},
 		gameConfig = {
 			gameName = "Quick Rocket Tutorial",
-			mapName = "FolsomDamDeluxeV4",
+--			mapName = "FolsomDamDeluxeV4",
 			playerConfig = {
 				startX = 300,
 				startZ = 3800,
