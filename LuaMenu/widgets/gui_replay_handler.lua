@@ -93,7 +93,7 @@ local function buildTeams(players)
 	return teams
 end
 
---  Return a widget containing a player's information
+--	Return a widget containing a player's information
 local function playerWidget(playerInfo)
 	local Configuration = WG.Chobby.Configuration
 	userName = playerInfo.name
@@ -104,14 +104,14 @@ local function playerWidget(playerInfo)
 		height=PLAYER_HEIGHT, bottom = 0, padding = {0, 0, 0, 0},
 	}
 
-    local image_file
-    if playerInfo.aiId then
-        image_file = Configuration.gameConfig.rankFunction(nil, 0, 0, true, false)
-    else
-        image_file = Configuration.gameConfig.rankFunction(
+	local image_file
+	if playerInfo.aiId then
+		image_file = Configuration.gameConfig.rankFunction(nil, 0, 0, true, false)
+	else
+		image_file = Configuration.gameConfig.rankFunction(
 			nil, tonumber(playerInfo.rank), 0, false, false
 		)
-    end
+	end
 
 	-- Get the rank image for the player
 	local imageRank = Image:New {
@@ -323,7 +323,11 @@ local function CreateReplayEntry(
 		bottom = 3,
 		width = "8%",
 		caption = i18n("start"),
-		classname = ternary(WG.Chobby.Configuration:IsValidEngineVersion(engineName),"action_button",option_button),
+		classname = ternary(
+			WG.Chobby.Configuration:IsValidEngineVersion(engineName),
+			"action_button",
+			option_button
+		),
 		font = WG.Chobby.Configuration:GetFont(2),
 		OnClick = {
 			function()
@@ -331,7 +335,10 @@ local function CreateReplayEntry(
 					return
 				end
 				local offEngine = not WG.Chobby.Configuration:IsValidEngineVersion(engineName)
-				WG.SteamCoopHandler.AttemptGameStart("replay", gameName, mapName, nil, nil, replayPath, offEngine and engineName)
+				WG.SteamCoopHandler.AttemptGameStart(
+					"replay", gameName,
+					mapName, nil, nil, replayPath, offEngine and engineName
+				)
 			end
 		},
 		parent = replayPanel,
@@ -513,19 +520,19 @@ local function InitializeControls(parentControl)
 	function externalFunctions.AddReplay(replayPath, engine, game, map, players, time)
 		--	Try to add the replay, show the stack trace in case of error
 		xpcall(
-            function ()
-                local control, sortData = CreateReplayEntry(replayPath, engine, game, map, players, time)
+			function ()
+				local control, sortData = CreateReplayEntry(replayPath, engine, game, map, players, time)
 
-                if control then
-                    replayList:AddItem(replayPath, control, sortData)
-                end
-            end,
+				if control then
+					replayList:AddItem(replayPath, control, sortData)
+				end
+			end,
 
-            function (err)
-                Spring.Log("AddReplay", LOG.ERROR, "Couldn't add replay", replayPath)
-                Spring.Log("AddReplay", LOG.ERROR, debug.traceback(err))
-            end
-        )
+			function (err)
+				Spring.Log("AddReplay", LOG.ERROR, "Couldn't add replay", replayPath)
+				Spring.Log("AddReplay", LOG.ERROR, debug.traceback(err))
+			end
+		)
 	end
 
 	return externalFunctions
