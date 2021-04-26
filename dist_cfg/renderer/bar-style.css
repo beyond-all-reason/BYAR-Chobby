@@ -33,7 +33,7 @@
 	opacity: 0.2;
   }
   #config-select__div:hover {
-	opacity: 0.75;
+	opacity: 1;
 	transition: opacity 0.5s;
   }
 
