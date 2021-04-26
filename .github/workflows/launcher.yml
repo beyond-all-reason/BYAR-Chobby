@@ -2,9 +2,8 @@ name: Launcher
 
 on:
   push:
-  # push:
-  #   paths:
-  #   - 'dist_cfg/**'
+    paths:
+    - 'dist_cfg/**'
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -34,6 +33,6 @@ jobs:
         run: cd spring-launcher-backend && npm ci
 
       - name: Launcher
-        run: cd spring-launcher-backend && node src/builder/run_build.js beyond-all-reason/BYAR-Chobby --no-generic-backend
+        run: cd spring-launcher-backend && node src/builder/run_build.js $GITHUB_REPOSITORY --no-generic-backend
         env:
           GH_TOKEN: ${{ secrets.github_token }}
