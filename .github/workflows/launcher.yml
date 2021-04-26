@@ -1,0 +1,38 @@
+name: Launcher
+
+on:
+  push:
+    paths:
+    - 'dist_cfg/**'
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup NodeJs
+        uses: actions/setup-node@v1
+        with:
+          node-version: '12.x'
+
+      - name: Setup Wine
+        run: |
+          sudo dpkg --add-architecture i386
+          sudo apt-get update
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install wine32 -y
+
+      - name: Clone parent directory
+        run: git clone https://github.com/gajop/spring-launcher-backend
+
+      - name: Install builder dependencies
+        run: cd spring-launcher-backend && npm ci
+
+      - name: Launcher
+        run: cd spring-launcher-backend && node src/builder/run_build.js $GITHUB_REPOSITORY --no-generic-backend
+        env:
+          GH_TOKEN: ${{ secrets.github_token }}
