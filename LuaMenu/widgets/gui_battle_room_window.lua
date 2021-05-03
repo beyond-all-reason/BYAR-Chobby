@@ -1951,6 +1951,119 @@ local function SetupVotePanel(votePanel, battle, battleID)
 	return externalFunctions
 end
 
+local function SetupSpadsStatusPanel(spadsStatusPanel,battle, battleID)
+	spadsSettingsTable = {
+		autoLock = { -- key is spads setting name
+			current = "off",
+			allowed = {"off","on","advanced"},
+			caption = "Autolock",
+			tooltip = "If the battle must be locked when the target number of players are reached",
+			spadscommand = "!autolock",
+		},
+		autoStart = { 
+			current = "off",
+			allowed = {"off","on","advanced"},
+			caption = "Autostart",
+			tooltip = "Start game automatically if target number of players is reached",
+			spadscommand = "!autostart",
+		},
+		autoBalance = { 
+			current = "off",
+			allowed = {"off","on","advanced"},
+			caption = "Autobalance",
+			tooltip = "Balance teams automatically",
+			spadscommand = "!autobalance",
+		},
+		autoFixColors = { 
+			current = "off",
+			allowed = {"off","on","advanced"},
+			caption = "Autofixcolors",
+			tooltip = "Automatically choose colors based on number of players",
+			spadscommand = "!autofixcolors",
+		},
+		nbTeams = { 
+			current = "2",
+			allowed = {"1","2","3","4","5","6","7","8"},
+			caption = "#Teams",
+			tooltip = "How many teams should SPADS make",
+			spadscommand = "!nbTeams",
+		},
+		balanceMode = { 
+			current = "clan;skill",
+			allowed = {"random","clan;skill","skill","clan;random"},
+			caption = "Balance",
+			tooltip = "Which method to use when autobalancing",
+			spadscommand = "!balanceMode",
+		},
+		clanMode = { 
+			current = "off",
+			allowed = {"off","on","advanced"},
+			caption = "clanMode",
+			tooltip = "Do not touch",
+			spadscommand = "!clanMode",
+		},
+		locked = { 
+			current = "off",
+			allowed = {"off","on","advanced"},
+			caption = "Autostart",
+			tooltip = "Is the game locked?",
+			spadscommand = "!lock",
+		},
+		preset = { 
+			current = "team",
+			allowed = {"team","coop","duel","tourney"},
+			caption = "Preset",
+			tooltip = "What kind of game is this",
+			spadscommand = "!preset",
+		},
+	}
+
+	local rows = 3
+	local cols = 3
+	local i = 0
+	for k, sts in pairs(spadsSettingsTable) do
+		local xpos = tostring(math.fmod(i,cols) * 100/cols) ..'%'
+		local stslabel = Label:New {
+			x = tostring(math.fmod(i,cols) * 100/cols + 1) ..'%',
+			y = tostring(math.floor(i/cols) * 100/rows + 1) ..'%',
+			width = tostring(100.0/cols -2 ) ..'%',
+			height = tostring(100.0/rows -2) ..'%',
+			font = WG.Chobby.Configuration:GetFont(1),
+			align = "left",
+			valign = "center",
+			parent = spadsStatusPanel,
+			caption = sts.caption,
+			tooltip = sts.tooltip
+		}
+		
+		local stsCBdefault = sts.current
+		local stsCB = ComboBox:New{
+			x = tostring(50/cols + math.fmod(i,cols) * 100/cols + 1 ) ..'%',
+			y = tostring(math.floor(i/cols) * 100/rows + 1) ..'%',
+			width = tostring(50.0/cols - 2) ..'%',
+			height = tostring(100.0/rows - 2) ..'%',
+			itemHeight = 22,
+			selectByName = true,
+			captionHorAlign = -1,
+			text = "winkydink",
+			font = WG.Chobby.Configuration:GetFont(1),
+			items = sts.allowed,
+			align = "right",
+			valign = "center",
+			--itemFontSize = Configuration:GetFont(1).size,
+			selected = stsCBdefault,
+			OnSelectName = {
+				function (obj, selectedName)
+					Spring.Echo(sts.spadscommand .." "..selectedName)
+				end
+			},
+			parent = spadsStatusPanel,
+			tooltip = sts.tooltip,
+		}
+		i = i+1
+	end
+end
+
 local function InitializeSetupPage(subPanel, screenHeight, pageConfig, nextPage, prevPage, selectedOptions, ApplyFunction)
 	local Configuration = WG.Chobby.Configuration
 
@@ -2240,6 +2353,18 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 
 	local playerHandler = SetupPlayerPanel(playerPanel, spectatorPanel, battle, battleID)
 
+
+	local spadsStatusPanel = Control:New{
+		x = 0,
+		right = "33%",
+		bottom = 0,
+		height = BOTTOM_SPACING,
+		padding = {EXTERNAL_PAD_HOR, INTERNAL_PAD, 1, INTERNAL_PAD},
+		parent = topPanel,
+	}
+
+	--local spadsStatusPanel = SetupSpadsStatusPanel(spadsStatusPanel) -- git stash for scumbags
+
 	local votePanel = Control:New {
 		x = 0,
 		right = "33%",
@@ -2248,6 +2373,8 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		padding = {EXTERNAL_PAD_HOR, INTERNAL_PAD, 1, INTERNAL_PAD},
 		parent = topPanel,
 	}
+
+
 
 	local votePanel = SetupVotePanel(votePanel)
 
