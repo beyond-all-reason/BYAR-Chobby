@@ -90,6 +90,7 @@ function Configuration:init()
 
 	self.loadLocalWidgets = false
 	self.displayBots = false
+	self.filterbattleroom = true
 	self.displayBadEngines2 = false
 	self.allEnginesRunnable = true
 	self.doNotSetAnySpringSettings = false
@@ -549,6 +550,7 @@ function Configuration:GetConfigData()
 		coopConnectDelay = self.coopConnectDelay,
 		useSpringRestart = self.useSpringRestart,
 		displayBots = self.displayBots,
+		filterbattleroom = self.filterbattleroom,
 		displayBadEngines2 = self.displayBadEngines2,
 		useWrongEngine = self.useWrongEngine,
 		multiplayerLaunchNewSpring = self.multiplayerLaunchNewSpring,

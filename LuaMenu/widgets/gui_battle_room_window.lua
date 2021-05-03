@@ -39,6 +39,8 @@ local IMG_LINK     = LUA_DIRNAME .. "images/link.png"
 
 local MINIMUM_QUICKPLAY_PLAYERS = 4 -- Hax until the server tells me a number.
 
+local lastUserToChangeStartBoxes = ''
+
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 -- Download management
@@ -1130,7 +1132,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 			borderColor = {0.1, 0.9, 0.1,0.5},
 			focusColor = {0.0, 0.9, 0.1, 1.0},
 			padding = {0,0,0,0},
-			tooltip = "Drag box to move, drag corner to resize",
+			tooltip = "Drag box to move, drag corner to resize\nLast changed by "..lastUserToChangeStartBoxes,
 			oldSizes = {ox,oy,ow,oh}, -- this stores its previous state so we dont spam boxes on no change
 			OnClick = {
 				function(obj)
@@ -1728,14 +1730,6 @@ local function SetupVotePanel(votePanel, battle, battleID)
 		padding = {0, 0, 0, 0},
 		parent = votePanel,
 	}
-	local multiVotePanel = Control:New {
-		x = 0,
-		y = 0,
-		right = 0,
-		bottom = 0,
-		padding = {0, 0, 0, 0},
-		parent = votePanel,
-	}
 
 	local buttonNo
 	local buttonYes = Button:New {
@@ -1819,7 +1813,7 @@ local function SetupVotePanel(votePanel, battle, battleID)
 
 	local voteProgress = Progressbar:New {
 		x = offset,
-		y = height * 0.5,
+		y = height * 0.75,
 		right = 55,
 		bottom = 0,
 		value = 0,
@@ -1839,63 +1833,11 @@ local function SetupVotePanel(votePanel, battle, battleID)
 		tooltip = "How many votes have been cast (#yes / #needed)",
 	}
 
-	local MULTI_POLL_MAX = 4
-	local multiPollOpt = {}
 
-	local function SetSelectedMultOpt(index)
-		for i = 1, MULTI_POLL_MAX do
-			if i == index then
-				ButtonUtilities.SetButtonSelected(multiPollOpt[i].button)
-			else
-				ButtonUtilities.SetButtonDeselected(multiPollOpt[i].button)
-			end
-		end
-	end
 
 	local function ResetButtons()
 		ButtonUtilities.SetButtonDeselected(buttonYes)
 		ButtonUtilities.SetButtonDeselected(buttonNo)
-		SetSelectedMultOpt()
-	end
-
-	for i = 1, MULTI_POLL_MAX do
-		local opt = {}
-		opt.id = i
-		opt.button = Button:New {
-			x = tostring(math.floor(100*(i - 1)/MULTI_POLL_MAX)) .. "%",
-			y = 0,
-			bottom = 0,
-			width = tostring(math.floor(100/MULTI_POLL_MAX)) .. "%",
-			caption = "",
-			classname = "option_button",
-			OnClick = {
-				function (obj)
-					SetSelectedMultOpt(i)
-					battleLobby:VoteOption(opt.id)
-				end
-			},
-			padding = {5,5,5,5},
-			parent = multiVotePanel,
-		}
-		opt.countLabel = Label:New {
-			right = 5,
-			y = 7,
-			width = 50,
-			bottom = 0,
-			align = "left",
-			font = config:GetFont(3),
-			caption = "20/50",
-			parent = opt.button,
-		}
-		opt.imMinimap = Image:New {
-			x = 0,
-			y = 0,
-			bottom = 0,
-			width = height,
-			keepAspect = true,
-			parent = opt.button,
-		}
-		multiPollOpt[i] = opt
 	end
 
 	local voteResultLabel = Label:New {
@@ -1910,7 +1852,6 @@ local function SetupVotePanel(votePanel, battle, battleID)
 	}
 
 	activePanel:SetVisibility(false)
-	multiVotePanel:SetVisibility(false)
 	minimapPanel:SetVisibility(false)
 	voteResultLabel:SetVisibility(false)
 
@@ -1929,70 +1870,55 @@ local function SetupVotePanel(votePanel, battle, battleID)
 		end
 		oldPollType, oldMapPoll, oldPollUrl = pollType, mapPoll, pollUrl
 
-		if pollType ~= "multi" then
-			if mapPoll then
-				minimapPanel:SetVisibility(true)
-				activePanel:SetPos(height + 2)
-				activePanel._relativeBounds.right = 0
-				activePanel:UpdateClientArea()
-				if pollUrl then
-					imMinimap.file, imMinimap.checkFileExists = config:GetMinimapSmallImage(pollUrl)
-					imMinimap:Invalidate()
-					currentMapName = pollUrl
-				end
-			else
-				minimapPanel:SetVisibility(false)
-				activePanel:SetPos(0)
-				activePanel._relativeBounds.right = 0
-				activePanel:UpdateClientArea()
+		if mapPoll then
+			minimapPanel:SetVisibility(true)
+			activePanel:SetPos(height + 2)
+			activePanel._relativeBounds.right = 0
+			activePanel:UpdateClientArea()
+			if pollUrl then
+				imMinimap.file, imMinimap.checkFileExists = config:GetMinimapSmallImage(pollUrl)
+				imMinimap:Invalidate()
+				currentMapName = pollUrl
 			end
-		end
-	end
-
-	local function SetMultiPollCandidates(candidates)
-		for i = 1, MULTI_POLL_MAX do
-			if candidates[i] then
-				multiPollOpt[i].imMinimap.file, multiPollOpt[i].imMinimap.checkFileExists = config:GetMinimapSmallImage(candidates[i].name)
-				multiPollOpt[i].imMinimap:Invalidate()
-				multiPollOpt[i].button.tooltip = "Vote for " .. candidates[i].name
-			end
-		end
-	end
-
-	function externalFunctions.VoteUpdate(voteMessage, pollType, mapPoll, candidates, votesNeeded, pollUrl)
-		UpdatePollType(pollType, mapPoll, pollUrl)
-		-- Update votes
-		if pollType == "multi" then
-			SetMultiPollCandidates(candidates)
-			for i = 1, MULTI_POLL_MAX do
-				if candidates[i] then
-					multiPollOpt[i].countLabel:SetCaption(candidates[i].votes .. "/" .. votesNeeded)
-					multiPollOpt[i].button:SetVisibility(true)
-					multiPollOpt[i].id = candidates[i].id
-				else
-					multiPollOpt[i].button:SetVisibility(false)
-				end
-			end
-			activePanel:SetVisibility(false)
-			multiVotePanel:SetVisibility(true)
 		else
-			buttonYesClickOverride = candidates[1].clickFunc
-			buttonNoClickOverride = candidates[2].clickFunc
-			voteName:SetCaption(voteMessage)
-			voteCountLabel:SetCaption(candidates[1].votes .. "/" .. votesNeeded)
-			voteProgress:SetValue(100 * candidates[1].votes / votesNeeded)
-			activePanel:SetVisibility(true)
-			multiVotePanel:SetVisibility(false)
+			minimapPanel:SetVisibility(false)
+			activePanel:SetPos(0)
+			activePanel._relativeBounds.right = 0
+			activePanel:UpdateClientArea()
 		end
+	end
+
+	local oldVoteInitiator = ""
+	local oldTitle = ""
+	
+	function externalFunctions.VoteUpdate(voteMessage, pollType, mapPoll, candidates, votesNeeded, pollUrl, voteInitiator)
+		UpdatePollType(pollType, mapPoll, pollUrl)
+
+		if voteInitiator then oldVoteInitiator = voteInitiator end
+		-- Update votes
+
+		buttonYesClickOverride = candidates[1].clickFunc
+		buttonNoClickOverride = candidates[2].clickFunc
+		timeleft = ''
+		if candidates[1].timeleft then
+			timeleft = ' ('..timeleft..'s)'
+		end
+		oldTitle = oldVoteInitiator.. " called for vote \n"..voteMessage..timeleft
+
+		voteName:SetCaption(oldTitle)
+		voteCountLabel:SetCaption(candidates[1].votes .. "/" .. votesNeeded)
+		voteProgress:SetValue(100 * candidates[1].votes / votesNeeded)
+		activePanel:SetVisibility(true)
+
 		matchmakerModeEnabled = (pollType == "quickplay")
 		HideVoteResult()
 	end
 
 	function externalFunctions.VoteEnd(message, success)
 		activePanel:SetVisibility(false)
-		multiVotePanel:SetVisibility(false)
 		minimapPanel:SetVisibility(false)
-		local text = ((success and WG.Chobby.Configuration:GetSuccessColor()) or WG.Chobby.Configuration:GetErrorColor()) .. message .. ((success and " Passed.") or " Failed.")
+		if message then oldTitle = message end
+		local text = ((success and WG.Chobby.Configuration:GetSuccessColor()) or WG.Chobby.Configuration:GetErrorColor()) .. oldTitle .. ((success and " Passed.") or " Failed.")
 		voteResultLabel:SetCaption(text)
 		if not voteResultLabel.visible then
 			voteResultLabel:Show()
@@ -2000,12 +1926,11 @@ local function SetupVotePanel(votePanel, battle, battleID)
 
 		matchmakerModeEnabled = false
 		ResetButtons()
-		WG.Delay(HideVoteResult, 5)
+		WG.Delay(HideVoteResult, 3)
 	end
 
 	function externalFunctions.ImmediateVoteEnd()
 		activePanel:SetVisibility(false)
-		multiVotePanel:SetVisibility(false)
 		minimapPanel:SetVisibility(false)
 
 		matchmakerModeEnabled = false
@@ -2252,7 +2177,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	local EXTERNAL_PAD_HOR = 12
 	local INTERNAL_PAD = 2
 
-	local BOTTOM_SPACING = 50
+	local BOTTOM_SPACING = 100
 
 	mainWindow = Control:New {
 		x = 0,
@@ -2553,6 +2478,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 
 	local function OnJoinedBattle(listener, joinedBattleId, userName)
 		infoHandler.JoinedBattle(joinedBattleId, userName)
+		lastUserToChangeStartBoxes = battleLobby:GetBattle(joinedBattleId).founder
 	end
 
 	local function OnRemoveAi(listener, botName)
@@ -2632,27 +2558,89 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
   end
   -- whoever wrote lua string parser needs to get rammed by a horse
 
+  local function initBattleStatusPanel(bs)
+  end
+
+  local function dontshowvote()
+  end
+
+  local function ParseSpadsMessage(userName, message) -- return hidemessage bool
+	-- should only be called on messages from founder (host)
+	local myUserName = battleLobby:GetMyUserName()
+	local iAmMentioned = (string.match(message,myUserName) ~= nil)
+
+	--Spring.Echo("Parsing", userName, message, myUserName,iAmMentioned)
+
+	-- filter some basic things that are 'private' to me
+
+	if string.match(message,  "you cannot vote currently, there is no vote in progress.$") and string.match(message,'^'..myUserName) == nil then return true end
+
+	if string.match(message, ", there is already a vote in progress, please wait for it to finish before calling another one.$") and not iAmMentioned then return true end
+
+	if string.match(message, ", please wait .* more second.s. before calling another vote .vote flood protection..$") and not iAmMentioned then return true end
+
+
+
+	if string.match(message, ". Hi .*! Current battle type is .*.$") and string.match(message, myUserName) == nil then return true end
+
+	if string.match(message, ". BattleStatus = .*") then
+		initBattleStatusPanel(pyPartition(message,'"', true))
+		return true
+	end
+	
+	if string.match(message, "Player .* has already been added in game") and iAmMentioned == false then	return true	end
+
+
+	return false -- false if it should be displayed to user, true if not
+  end
+
+  local function ParseUserMessage(userName,message) -- returns hidemessage bool
+		local mine = userName == battleLobby:GetMyUserName() 
+
+		if string.match(message, "^!split ") or string.match(message, "^!addbox ")then 
+			lastUserToChangeStartBoxes = userName 
+			if not mine then return true end
+		end
+		
+		if mine then return false end -- alway show own messages from here:
+
+		if message == '!vote y' or message == '!vote n' or message == '!vote b' then 
+			--return true --not yet
+		end
+
+		if string.match(message, "^!joinas spec$") then return true	end
+
+		if string.match(message, "^!cv .*") then return true end
+		
+		if string.match(message, "^!ring .*") then return true	end
+
+		if string.match(message, "^!endvote$") then return true	end
+  end
+
 
   local function ParseForVotingSaidBattle(userName,message)
     -- https://github.com/beyond-all-reason/Beyond-All-Reason/blob/master/luaui/Widgets_BAR/gui_vote_interface.lua#L193
 
-    --* [teh]host * Vote in progress: "set map Quicksilver Remake 1.24" [y:2/3, n:0/2] (42s remaining)
-    ----Vote in progress: "set map Throne Acidic" [y:1/3, n:1/2] (41s remaining)
-    -- [teh]BaNa called a vote for command "forcestart" [!vote y, !vote n, !vote b]
-    if string.find(message, " called a vote ", nil, true) or string.find(message, " Vote in progress:", nil, true) then
-        local title = string.sub(message, string.find(message, ' "',nil,true) + 2, string.find(message, '" ', nil, true) - 1) .. '?'
-        title = title:sub(1, 1):upper() .. title:sub(2)
-        --local userwhocalledvote = message:sub(1,string:find(message, " called a vote ", nil, true)) -- not for vote in progress
-        local votesNeeded = 2
+	-- New vote:
+	if string.match(message, "called a vote for command .* .!vote y, !vote n, !vote b.")  or  string.match(message,"* Vote in progress: ")  then -- [teh]BaNa called a vote for command "forcestart" [!vote y, !vote n, !vote b]
+		local newlycalledvote = string.match(message, "called a vote for command .* .!vote y, !vote n, !vote b.")
+
+		local userwhocalledvote = nil
+		local ismapppoll = false
+		local mapnam = ''
+		local votesNeeded = 2
         local yesvotes = 1
         local novotes = 0
-        if string.find(message, " Vote in progress:", nil, true) then
+		local timeleft = nil
+
+        if newlycalledvote ~= nil then
           local startOfVoteResults = pyPartition(message," [y:",false)
           yesvotes = tonumber(pyPartition(startOfVoteResults,"/",true)) or 0
           votesNeeded =  tonumber(pyPartition(pyPartition(startOfVoteResults,"/",false), ",",true)) or 0
           novotes = tonumber(pyPartition(pyPartition(startOfVoteResults," n:",false),'/',true)) or 0
           print (yesvotes,neededvotes,novotes)
         end
+
         local candidates = {}
         candidates[1] = {
           id = nil,
@@ -2664,26 +2652,52 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
           votes = novotes,
           url = "",
         }
-        votePanel.VoteUpdate(title,nil, "", candidates, votesNeeded, "")
 
-    elseif string.find(message, " Vote for command ", nil, true) then --votestart
-      --[21:13:58] * [teh]host * Vote for command "bSet coop 1" passed. --voteend
-        local passed = string.find(message, "passed", nil, true)
-        local failed = string.find(message, "failed", nil, true)
-        if passed or failed then
-          local title = string.sub(message, string.find(message, ' "') + 2, string.find(message, '" ', nil, true) - 1)
-          title = title:sub(1, 1):upper() .. title:sub(2)
-          votePanel.VoteEnd(title, passed)
-        end
+		if newlycalledvote then 
+			userwhocalledvote = pyPartition(pyPartition(message," called a vote for command",true),"* ",false)
+		end 
 
-    elseif string.find(message, " Vote cancelled by ", nil, true) then --votecancel
+		local ismapppoll = false
+		local mapname = ''
+		--[teh]Behe_Chobby3 called a vote for command "set map Tetrad_V2" [!vote y, !vote n, !vote b]
+		if string.find(message, ' "set map ', nil, true) then 
+			if newlycalledvote then 
+				mapname = pyPartition(message,'called a vote for command "set map ',false)
+				mapname = pyPartition(mapname,'"',true)
+				ismapppoll = true
+			else
+				mapname = pyPartition(message,'Vote in progress: "set map ',false)
+				mapname = pyPartition(mapname,'"',true)
+				ismapppoll = true
+			end 
+		end
+
+		if string.match(message,"..s remaining.$") then
+			timeleft = pyPartition(pyPartition(message,"] (",false),"s remaining",true)
+			candidates[1].timeleft = timeleft
+			candidates[2].timeleft = timeleft
+		end
+
+		local title = string.sub(message, string.find(message, ' "',nil,true) + 2, string.find(message, '" ', nil, true) - 1) .. '?'
+        title = title:sub(1, 1):upper() .. title:sub(2) 
+		votePanel.VoteUpdate(title,nil, ismapppoll, candidates, votesNeeded, mapname, userwhocalledvote)
+		return true
+    elseif string.match(message, "^* Vote for command .* passed" ) then  --[21:13:58] * [teh]host * Vote for command "bSet coop 1" passed. --voteend
+        votePanel.VoteEnd(nil, true)
+		return true
+    elseif string.match(message, "^* Vote for command .* failed" )then  --[21:13:58] * [teh]host * Vote for command "bSet coop 1" passed. --voteend
+		votePanel.VoteEnd(nil, false)
+		return true
+    elseif string.find(message, "^* Vote cancelled by ", nil, true) then --votecancel
       --[14:42:53] * [teh]host * Vote cancelled by [teh]BaNa
       votePanel.ImmediateVoteEnd()
-
+		return true
     elseif string.find(message, "command executed directly by ", nil, true) and string.find(string.lower(message), " cancelling ", nil, true)  then --votecancel
       --[14:43:19] * [teh]host * Cancelling "set map Throne Acidic" vote (command executed directly by [teh]Beherith)
       votePanel.ImmediateVoteEnd()
+	  	return true
     end
+	return false
   end
 
 
@@ -2692,11 +2706,26 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		local myUserName = battleLobby:GetMyUserName()
 		local iAmMentioned = myUserName and userName ~= myUserName and string.find(message, myUserName)
 		local chatColour = (iAmMentioned and CHAT_MENTION) or nil
+		local hidemessage = ParseUserMessage(userName,message)
+		if Configuration.filterbattleroom and hidemessage and not iAmMentioned then return end
 		battleRoomConsole:AddMessage(message, userName, false, chatColour, false)
 	end
 
 	local function OnSaidBattleEx(listener, userName, message)
-    ParseForVotingSaidBattle(userName,message)
+		local battle = battleLobby:GetBattle(battleID)
+		local hidemessage = false
+
+		if userName == battle.founder  then -- todo dont do this for self-hosted
+			hidemessage = ParseSpadsMessage(userName,message)
+			hidemessage = hidemessage or ParseForVotingSaidBattle(userName,message)
+		end
+
+		hidemessage = hidemessage
+
+		if Configuration.filterbattleroom then -- displayBots
+			--Spring.Echo("Hiding message|"..message)
+			return 
+		end
 		local myUserName = battleLobby:GetMyUserName()
 		local iAmMentioned = myUserName and userName ~= myUserName and string.find(message, myUserName)
 		local chatColour = (iAmMentioned and CHAT_MENTION) or CHAT_ME
@@ -2827,7 +2856,7 @@ function BattleRoomWindow.ShowMultiplayerBattleRoom(battleID)
 				if obj:IsEmpty() then
 					wrapperControl = obj
 
-					local battleWindow, functions = InitializeControls(battleID, battleLobby, 55)
+					local battleWindow, functions = InitializeControls(battleID, battleLobby, 65)
 					mainWindowFunctions = functions
 					if battleWindow then
 						obj:AddChild(battleWindow)
