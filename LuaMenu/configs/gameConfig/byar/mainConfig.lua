@@ -46,13 +46,13 @@ local logoutOpensLoginPanel = true
 
 local function ShortenNameString(instring)
 	local shortenNameStrings = {
-		['Beyond All Reason test'] = "BAR",
-		['Beyond all Reason test'] = "BAR",
-		['Beyond All Reason'] = "BAR",
-		['Beyond all Reason'] = "BAR",
+		'Beyond All Reason test',
+		'Beyond all Reason test',
+		'Beyond All Reason',
+		'Beyond all Reason'
 	}
-	for longstring, shortstring in pairs(shortenNameStrings) do
-		instring = instring:gsub(longstring, shortstring)
+	for i,  longstring in ipairs(shortenNameStrings) do
+		instring = instring:gsub(longstring, "BAR")
 	end
 	return instring
 end

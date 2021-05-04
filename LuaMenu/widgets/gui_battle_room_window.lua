@@ -841,7 +841,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	local lblGame = Label:New {
 		x = 8,
 		y = leftOffset,
-		caption = battle.gameName,
+		caption = WG.Chobby.Configuration.gameConfig.ShortenNameString(battle.gameName),
 		font = config:GetFont(1),
 		parent = leftInfo,
 	}
@@ -1813,7 +1813,7 @@ local function SetupVotePanel(votePanel, battle, battleID)
 
 	local voteProgress = Progressbar:New {
 		x = offset,
-		y = height * 0.75,
+		y = height * 0.85,
 		right = 55,
 		bottom = 0,
 		value = 0,
@@ -1892,6 +1892,7 @@ local function SetupVotePanel(votePanel, battle, battleID)
 	local oldTitle = ""
 	
 	function externalFunctions.VoteUpdate(voteMessage, pollType, mapPoll, candidates, votesNeeded, pollUrl, voteInitiator)
+		--Spring.Echo("externalFunctions.VoteUpdate(voteMessage, pollType, mapPoll, candidates, votesNeeded, pollUrl, voteInitiator)",voteMessage, pollType, mapPoll, candidates, votesNeeded, pollUrl, voteInitiator)
 		UpdatePollType(pollType, mapPoll, pollUrl)
 
 		if voteInitiator then oldVoteInitiator = voteInitiator end
@@ -1903,7 +1904,7 @@ local function SetupVotePanel(votePanel, battle, battleID)
 		if candidates[1].timeleft then
 			timeleft = ' ('..timeleft..'s)'
 		end
-		oldTitle = oldVoteInitiator.. " called for vote \n"..voteMessage..timeleft
+		oldTitle = oldVoteInitiator.. " called a vote for:\n"..voteMessage..timeleft
 
 		voteName:SetCaption(oldTitle)
 		voteCountLabel:SetCaption(candidates[1].votes .. "/" .. votesNeeded)
@@ -2291,6 +2292,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	local INTERNAL_PAD = 2
 
 	local BOTTOM_SPACING = 100
+	if isSingleplayer then BOTTOM_SPACING = 5 end
 
 	mainWindow = Control:New {
 		x = 0,
@@ -2694,29 +2696,26 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
   local function ParseSpadsMessage(userName, message) -- return hidemessage bool
 	-- should only be called on messages from founder (host)
 	local myUserName = battleLobby:GetMyUserName()
-	local iAmMentioned = (string.match(message,myUserName) ~= nil)
-
+	local iAmMentioned = (string.find(message,myUserName,nil,true) ~= nil)
 	--Spring.Echo("Parsing", userName, message, myUserName,iAmMentioned)
 
+	if iAmMentioned then return false end
+
 	-- filter some basic things that are 'private' to me
+	if string.match(message,  "you cannot vote currently, there is no vote in progress.$") then return true end
 
-	if string.match(message,  "you cannot vote currently, there is no vote in progress.$") and string.match(message,'^'..myUserName) == nil then return true end
+	if string.match(message, ", there is already a vote in progress, please wait for it to finish before calling another one.$")  then return true end
 
-	if string.match(message, ", there is already a vote in progress, please wait for it to finish before calling another one.$") and not iAmMentioned then return true end
+	if string.match(message, ", please wait .* more second.s. before calling another vote .vote flood protection..$")  then return true end
 
-	if string.match(message, ", please wait .* more second.s. before calling another vote .vote flood protection..$") and not iAmMentioned then return true end
-
-
-
-	if string.match(message, ". Hi .*! Current battle type is .*.$") and string.match(message, myUserName) == nil then return true end
+	if string.match(message, ". Hi .*! Current battle type is .*.$")  then return true end
 
 	if string.match(message, ". BattleStatus = .*") then
 		initBattleStatusPanel(pyPartition(message,'"', true))
 		return true
 	end
 	
-	if string.match(message, "Player .* has already been added in game") and iAmMentioned == false then	return true	end
-
+	if string.match(message, "Player .* has already been added in game")  then	return true	end
 
 	return false -- false if it should be displayed to user, true if not
   end
@@ -2750,7 +2749,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 
 	-- New vote:
 	if string.match(message, "called a vote for command .* .!vote y, !vote n, !vote b.")  or  string.match(message,"* Vote in progress: ")  then -- [teh]BaNa called a vote for command "forcestart" [!vote y, !vote n, !vote b]
-		local newlycalledvote = string.match(message, "called a vote for command .* .!vote y, !vote n, !vote b.")
+		local newlycalledvote = string.match(message, " called a vote for command .*")
 
 		local userwhocalledvote = nil
 		local ismapppoll = false
@@ -2760,12 +2759,12 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
         local novotes = 0
 		local timeleft = nil
 
-        if newlycalledvote ~= nil then
+        if newlycalledvote == nil then -- [teh]cluster1[00], * Vote in progress: "set map DSDR 4.0" [y:1/2, n:0/1(2)] (25s remaining),
           local startOfVoteResults = pyPartition(message," [y:",false)
           yesvotes = tonumber(pyPartition(startOfVoteResults,"/",true)) or 0
           votesNeeded =  tonumber(pyPartition(pyPartition(startOfVoteResults,"/",false), ",",true)) or 0
           novotes = tonumber(pyPartition(pyPartition(startOfVoteResults," n:",false),'/',true)) or 0
-          print (yesvotes,neededvotes,novotes)
+          --Spring.Echo("votes",yesvotes,neededvotes,novotes)
         end
 
         local candidates = {}
@@ -2805,17 +2804,17 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 			candidates[2].timeleft = timeleft
 		end
 
-		local title = string.sub(message, string.find(message, ' "',nil,true) + 2, string.find(message, '" ', nil, true) - 1) .. '?'
+		local title = string.sub(message, string.find(message, ' "',nil,true) + 2, string.find(message, '" ', nil, true) - 1) 
         title = title:sub(1, 1):upper() .. title:sub(2) 
 		votePanel.VoteUpdate(title,nil, ismapppoll, candidates, votesNeeded, mapname, userwhocalledvote)
 		return true
-    elseif string.match(message, "^* Vote for command .* passed" ) then  --[21:13:58] * [teh]host * Vote for command "bSet coop 1" passed. --voteend
+    elseif string.match(message, "^. Vote for command .* passed" ) then  --[21:13:58] * [teh]host * Vote for command "bSet coop 1" passed. --voteend
         votePanel.VoteEnd(nil, true)
 		return true
-    elseif string.match(message, "^* Vote for command .* failed" )then  --[21:13:58] * [teh]host * Vote for command "bSet coop 1" passed. --voteend
+    elseif string.match(message, "^. Vote for command .* failed" )then  --[21:13:58] * [teh]host * Vote for command "bSet coop 1" passed. --voteend
 		votePanel.VoteEnd(nil, false)
 		return true
-    elseif string.find(message, "^* Vote cancelled by ", nil, true) then --votecancel
+    elseif string.find(message, "^. Vote cancelled by ", nil, true) then --votecancel
       --[14:42:53] * [teh]host * Vote cancelled by [teh]BaNa
       votePanel.ImmediateVoteEnd()
 		return true
@@ -2831,7 +2830,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	local function OnSaidBattle(listener, userName, message)
     --ParseForVotingSaidBattle(userName,message) --only on EX?
 		local myUserName = battleLobby:GetMyUserName()
-		local iAmMentioned = myUserName and userName ~= myUserName and string.find(message, myUserName)
+		local iAmMentioned = myUserName and userName ~= myUserName and string.find(message, myUserName, nil, true)
 		local chatColour = (iAmMentioned and CHAT_MENTION) or nil
 		local hidemessage = ParseUserMessage(userName,message)
 		if Configuration.filterbattleroom and hidemessage and not iAmMentioned then return end
@@ -2843,13 +2842,18 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		local hidemessage = false
 
 		if userName == battle.founder  then -- todo dont do this for self-hosted
-			hidemessage = ParseSpadsMessage(userName,message)
-			hidemessage = hidemessage or ParseForVotingSaidBattle(userName,message)
+			local hidespads = ParseSpadsMessage(userName,message)
+			local hidevote = ParseForVotingSaidBattle(userName,message)
+			if hidevote or hidespads then
+				hidemessage = true
+				--Spring.Echo("Hiding",message,hidevote, hidespads)
+			end
+
 		end
 
 		hidemessage = hidemessage
 
-		if Configuration.filterbattleroom then -- displayBots
+		if Configuration.filterbattleroom and hidemessage then -- displayBots
 			--Spring.Echo("Hiding message|"..message)
 			return 
 		end
