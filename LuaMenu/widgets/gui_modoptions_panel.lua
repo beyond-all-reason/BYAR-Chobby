@@ -123,7 +123,7 @@ local function ProcessListOption(data, index)
 		width = 1600,
 		height = 32,
 		padding = {0, 0, 0, 0},
-    
+
     tooltip = data.desc,
 		children = {
 			label,
@@ -175,7 +175,7 @@ local function ProcessBoolOption(data, index)
 		},
 	}
 	modoptionControlNames[data.key] = checkBox
-	
+
 	return Control:New {
 		x = 0,
 		y = index*32,
@@ -188,7 +188,7 @@ local function ProcessBoolOption(data, index)
 			checkBox
 		}
 	}
-	
+
 	--return checkBox
 end
 

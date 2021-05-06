@@ -7,15 +7,15 @@ local scenariodata = {
 	imagepath		= "scenario008.jpg", -- placed next to lua file, should be 3:1 ratio banner style
 	imageflavor		= "Your starting base", -- This text will be drawn over image
     summary         = [[An enemy Commander has set up operations on Fallendell, where you already have a strong presence. Prevent him from taking further territory]],
-	briefing 		= [[You will start with a small base of operations, and a considerable amount of resources. Use your initial scouting units to locate the enemy commander and liquidate him before he gains a foothold. 
- 
-Tips: 
- - Nano Turrets will assist in the construction of any unit or building within their build radius. 
+	briefing 		= [[You will start with a small base of operations, and a considerable amount of resources. Use your initial scouting units to locate the enemy commander and liquidate him before he gains a foothold.
+
+Tips:
+ - Nano Turrets will assist in the construction of any unit or building within their build radius.
  - The enemy Commander will try to expand to get more resources, stop him as soon as you feel ready for it
  - Your starting base is quite well equipped with energy producing buildings, continue building a farm of Wind Generators on the hill where they can be easily protected
  - Build attacking units immediately or use your advantage to build a Tier 2 Bot Lab for advanced units
- 
-Scoring: 
+
+Scoring:
  - Time taken to complete the scenario
  - Resources spent to get a confirmed kill on all enemy units.
  ]],
@@ -50,11 +50,11 @@ Scoring:
         scenarioid = "Fallendellheadstart008", -- this MUST be present and identical to the one defined at start
 		disablefactionpicker = true, -- this is needed to prevent faction picking outside of the allowedsides
 
-        unitloadout = { 
+        unitloadout = {
 			-- You can specify units that you wish to spawn here, they only show up once game starts,
 			-- You can create these lists easily using the feature/unit dumper by using dbg_feature_dumper.lua widget pinned to the #challenges channel on discord
 			-- Set up a skirmish like your scenario, so the team ID's will be correct
-			-- Then using /globallos and cheats, add as many units as you wish 
+			-- Then using /globallos and cheats, add as many units as you wish
 			-- The type /luaui dumpunits
 			-- Fish out the dumped units from your infolog.txt and add them here
 			-- Note: If you have ANY units in loadout, then there will be no initial units spawned for anyone, so you have to take care of that
@@ -146,8 +146,8 @@ Scoring:
             {name = 'corthud', x = 5744, y = 52, z = 1790, rot = -32739 , team = 1},
             {name = 'armmex', x = 3480, y = 52, z = 776, rot = 16384 , team = 0},
             {name = 'corrad', x = 5296, y = 53, z = 2368, rot = 0 , team = 1},
-            {name = 'corak', x = 5698, y = 52, z = 1998, rot = 32767 , team = 1},           
-			
+            {name = 'corak', x = 5698, y = 52, z = 1998, rot = 32767 , team = 1},
+
 		},
 		featureloadout = {
 			-- Similarly to units, but these can also be resurrectable!
@@ -155,19 +155,19 @@ Scoring:
 			 -- {name = 'corcom_dead', x = 1125,y = 237, z = 734, rot = "0" , scale = 1.0, resurrectas = "corcom"}, -- there is no need for this dead comm here, just an example
 		}
     },
-    -- Full Documentation for start script here: 
+    -- Full Documentation for start script here:
     -- https://github.com/spring/spring/blob/105.0/doc/StartScriptFormat.txt
 
     -- HOW TO MAKE THE START SCRIPT: Use Chobby's single player mode to set up your start script. When you launch a single player game, the start script is dumped into infolog.txt
     -- ModOptions: You can also set modoptions in chobby, and they will get dumped into the infolog's start script too, or just set then in chobby and copy paste them into the [modoptions] tag. as below
-    -- The following keys MUST be present in startscript below 
-    --  scenariooptions = __SCENARIOOPTIONS__; 
+    -- The following keys MUST be present in startscript below
+    --  scenariooptions = __SCENARIOOPTIONS__;
     -- Name = __PLAYERNAME__;
     -- myplayername = __PLAYERNAME__;
     -- gametype = __BARVERSION__;
     -- mapname =__MAPNAME__;
 
-    -- Optional keys: 
+    -- Optional keys:
     -- __ENEMYHANDICAP__
     -- __PLAYERSIDE__
     -- __PLAYERHANDICAP__
@@ -251,7 +251,7 @@ Scoring:
 	nohelperais = 0;
 }
 	]],
-	
+
 }
 
 return scenariodata

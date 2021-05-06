@@ -56,7 +56,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 	local recoverChildren = {}
 
 	local loginChildren = {}
-		
+
 
 	self.ResetText = function()
 		if self.txtError then
@@ -148,7 +148,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 	}
 	loginChildren[#loginChildren+1] = self.ebPassword
 
-	
+
 	self.txtUsernameRegister = TextBox:New {
 		x = 15,
 		width = 170,
@@ -270,7 +270,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		}
 		registerChildren[#registerChildren + 1] = self.ebEmail
 	end
-  
+
   self.lblRegistrationMultiplayer = Label:New {
 		x = 15,
 		width = 170,
@@ -322,7 +322,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		fontsize = Configuration:GetFont(3).size,
 	}
 	loginChildren[#loginChildren+1] = self.txtError
-	
+
 	self.txtErrorRegister = TextBox:New {
 		x = 15,
 		right = 15,
@@ -393,12 +393,12 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		-- Change password
 			-- must be logged in
 
-	-- row grid goes by 40 pixels plus 10 
+	-- row grid goes by 40 pixels plus 10
 	-- col grid is 6 pieces 125 pixels plus 10
 	local formw = 150
 	local formh = 20
 	local pad = 15
-	
+
 -----------------------CHANGE USERNAME-------------------------------
 	self.txtChangeUserName = TextBox:New {
 		x = pad + formw * 0 ,
@@ -933,7 +933,7 @@ function isInValidUserName(username)
 	local badwords = {"fuck","cunt","shit","cock","faggot","adolf","hitler","nigger"}
 
 	validUserNameRegex = "^[a-zA-Z%d%[%]_]+$"
-	if string.match(username,validUserNameRegex) and string.len( username) == string.len( string.match(username,validUserNameRegex)) then 
+	if string.match(username,validUserNameRegex) and string.len( username) == string.len( string.match(username,validUserNameRegex)) then
 		--print (username .. " is OK")
 		if string.len(username) >20 then
 			return "Username too long, 20 characters max"
@@ -947,12 +947,12 @@ function isInValidUserName(username)
 			end
 		end
 		return false
-	else 
+	else
 		--print (username .. " is not OK: " .. ( string.match(username,validUserNameRegex) or "") )
 		return "Username may only contain letters, numbers, [] and _"
 	end
 end
-  
+
 
 function LoginWindow:tryRegister()
 	local username = self.ebUsernameRegister.text
@@ -963,7 +963,7 @@ function LoginWindow:tryRegister()
 	local isinValidUserName = isInValidUserName(username)
 	if isinValidUserName then
 		self.txtErrorRegister:SetText(Configuration:GetErrorColor() .. isinValidUserName)
-		return 
+		return
 	end
 
 	if self.ebPasswordRegister.text ~= self.ebConfirmPassword.text then
@@ -1008,7 +1008,7 @@ function LoginWindow:tryChangeUserName()
 	Spring.Echo("lobby:GetConnectionStatus()",lobby:GetConnectionStatus())
 	local newusername = self.ebChangeUserName.text
 	local isinValidUserName = isInValidUserName(newusername)
-	if isinValidUserName then 
+	if isinValidUserName then
 		self.txtErrorChangeUserName:SetText(Configuration:GetErrorColor() .. isinValidUserName)
 		return
 	end
@@ -1031,9 +1031,9 @@ function LoginWindow:tryChangeEmail()
 	-- step 1, send a CHANGEEMAILREQUEST packet, which either returns CHANGEEMAILREQUESTDENIED or CHANGEEMAILREQUESTACCEPTED
 
 	local newemail = self.ebChangeEmailEmail.text
-	if string.len(newemail) < 5 then 
+	if string.len(newemail) < 5 then
 		self.txtErrorChangeEmail:SetText(
-		Configuration:GetErrorColor() .. 
+		Configuration:GetErrorColor() ..
 		"Enter a valid email address, not " .. newemail
 		)
 		return false
@@ -1041,31 +1041,31 @@ function LoginWindow:tryChangeEmail()
 
 	if  lobby:GetConnectionStatus() ~= "connected" then
 		self.txtErrorChangeEmail:SetText(
-			Configuration:GetErrorColor() .. 
+			Configuration:GetErrorColor() ..
 			"Must be logged in to change email address"
 		)
 		return false
 	end
 
 	self.txtErrorChangeEmail:SetText(
-		Configuration:GetWarningColor() .. 
+		Configuration:GetWarningColor() ..
 		"Sending Request for: " .. newemail
 	)
-	
+
 	WG.Analytics.SendOnetimeEvent("lobby:try_changeemail")
 
 	self.onChangeEmailRequestDenied = function(listener, errorMsg)
 		lobby:RemoveListener("OnChangeEmailRequestDenied", self.onChangeEmailRequestDenied)
 		self.txtErrorChangeEmail:SetText(
-				Configuration:GetErrorColor() .. 
+				Configuration:GetErrorColor() ..
 				"Change Email Request Denied: " .. errorMsg
 			)
 	end
-	
+
 	self.onChangeEmailRequestAccepted = function(listener)
 		lobby:RemoveListener("OnChangeEmailRequestAccepted", self.onChangeEmailRequestAccepted)
 		self.txtErrorChangeEmail:SetText(
-				Configuration:GetSuccessColor() .. 
+				Configuration:GetSuccessColor() ..
 				"Request Accepted, enter verification code recieved via email"
 			)
 	end
@@ -1081,16 +1081,16 @@ end
 function LoginWindow:tryChangeEmailVerification ()
 	if  lobby:GetConnectionStatus() ~= "connected" then
 		self.txtErrorChangeEmail:SetText(
-			Configuration:GetErrorColor() .. 
+			Configuration:GetErrorColor() ..
 			"Must be logged in to verify change email address"
 		)
 		return false
 	end
 
 	local newemail = self.ebChangeEmailEmail.text
-	if string.len(newemail) < 5 then 
+	if string.len(newemail) < 5 then
 		self.txtErrorChangeEmail:SetText(
-		Configuration:GetErrorColor() .. 
+		Configuration:GetErrorColor() ..
 		"Enter a valid email address, not" .. newemail
 		)
 		return false
@@ -1100,36 +1100,36 @@ function LoginWindow:tryChangeEmailVerification ()
 
 	if string.len(verificationCode) < 3 then
 		self.txtErrorChangeEmail:SetText(
-			Configuration:GetErrorColor() .. 
+			Configuration:GetErrorColor() ..
 			"Verification code too short: " .. verificationCode
 			)
 		return false
 	end
 
 	self.txtErrorChangeEmail:SetText(
-		Configuration:GetWarningColor() .. 
+		Configuration:GetWarningColor() ..
 		"Sending Verification Code: " .. verificationCode .. " for ".. newemail
 	)
-	
-	self.onChangeEmailDenied = function (listener, errorMsg)		
+
+	self.onChangeEmailDenied = function (listener, errorMsg)
 		lobby:RemoveListener("OnChangeEmailDenied", self.onChangeEmailDenied)
 		self.txtErrorChangeEmail:SetText(
-				Configuration:GetErrorColor() .. 
+				Configuration:GetErrorColor() ..
 				"Change Email Denied: " .. errorMsg
 			)
 	end
-	
+
 	self.onChangeEmailReqestAccepted = function (listener)
 		lobby:RemoveListener("OnChangeEmailAccepted", self.onChangeEmailAccepted)
 		self.txtErrorChangeEmail:SetText(
-				Configuration:GetSuccessColor() .. 
+				Configuration:GetSuccessColor() ..
 				"Email changed successfully to " .. self.ebChangeEmailEmail.text
 			)
 	end
 
 	lobby:AddListener("OnChangeEmailDenied", self.onChangeEmailDenied)
 	lobby:AddListener("OnChangeEmailAccepted", self.onChangeEmailAccepted)
-	
+
 	WG.Analytics.SendOnetimeEvent("lobby:try_changeemailverification")
 	lobby:ChangeEmail(newemail, verificationCode)
 end
@@ -1168,19 +1168,19 @@ function LoginWindow:tryResetPasswordEmail()
 				"Password reset request denied: " .. errorMsg
 			)
 	end
-	
+
 	self.onResetPasswordRequestAccepted = function(listener)
 		lobby:RemoveListener("OnResetPasswordRequestAccepted", self.onResetPasswordRequestAccepted)
 		lobby:RemoveListener("OnChangeEmailAccepted", self.onChangeEmailAccepted)
 		self.txtErrorResetPassword:SetText(
-				Configuration:GetSuccessColor() .. 
+				Configuration:GetSuccessColor() ..
 				"Request Accepted, enter email and verification code recieved via email"
 			)
 	end
 
 	lobby:AddListener("OnResetPasswordRequestDenied", self.onResetPasswordRequestDenied)
 	lobby:AddListener("OnResetPasswordRequestAccepted", self.onResetPasswordRequestAccepted)
-	
+
 	function ResetPasswordRequest()
 		lobby:ResetPasswordRequest(emailaddress)
 		lobby:RemoveListener("OnConnect",ResetPasswordRequest)
@@ -1190,11 +1190,11 @@ function LoginWindow:tryResetPasswordEmail()
 	lobby:AddListener("OnConnect",ResetPasswordRequest)
 
 	lobby:AddListener("OnDenied",ResetPasswordRequest)
-	
+
 	WG.Analytics.SendOnetimeEvent("lobby:try_resetpassword")
 
 	self.txtErrorResetPassword:SetText(
-		Configuration:GetErrorColor() .. 
+		Configuration:GetErrorColor() ..
 		"Attempting to send a reset request..."
 	)
 	Configuration.userName = false --nuke username so we dont try to log in unsuccessfully
@@ -1210,9 +1210,9 @@ function LoginWindow:tryResetPasswordVerification ()
 	end
 
 	local emailaddress = self.ebResetPasswordEmail.text
-	if string.len(emailaddress) < 5 then 
+	if string.len(emailaddress) < 5 then
 		self.txtErrorResetPassword:SetText(
-		Configuration:GetErrorColor() .. 
+		Configuration:GetErrorColor() ..
 		"Enter a valid email address, not " .. emailaddress
 		)
 		return false
@@ -1221,7 +1221,7 @@ function LoginWindow:tryResetPasswordVerification ()
 	local verificationCode = self.ebResetPasswordVerification.text
 	if string.len(verificationCode) < 3 then
 		self.txtErrorResetPassword:SetText(
-			Configuration:GetErrorColor() .. 
+			Configuration:GetErrorColor() ..
 			"Verification code too short: " .. verificationCode
 			)
 		return false
@@ -1231,21 +1231,21 @@ function LoginWindow:tryResetPasswordVerification ()
 		lobby:RemoveListener("OnResetPasswordDenied", self.onResetPasswordDenied)
 		lobby:Disconnect()
 		self.txtErrorResetPassword:SetText(
-				Configuration:GetErrorColor() .. 
+				Configuration:GetErrorColor() ..
 				"Reset Password Denied: " .. errorMsg
 			)
 	end
-	
+
 	self.onResetPasswordAccepted = function(listener)
 		lobby:RemoveListener("OnResetPasswordAccepted", self.onResetPasswordAccepted)
 		self.txtErrorResetPassword:SetText(
-				Configuration:GetSuccessColor() .. 
+				Configuration:GetSuccessColor() ..
 				"Password successfully reset for " .. self.ebResetPasswordEmail.text
 			)
 	end
 
 	self.txtErrorResetPassword:SetText(
-		Configuration:GetWarningColor() .. 
+		Configuration:GetWarningColor() ..
 		"Sending Verification Code: " .. verificationCode .. " for ".. emailaddress
 	)
 	lobby:AddListener("OnResetPasswordDenied", self.onResetPasswordDenied)
@@ -1260,9 +1260,9 @@ function LoginWindow:tryResetPasswordVerification ()
 	lobby:AddListener("OnConnect",ResetPassword)
 
 	lobby:AddListener("OnDenied",ResetPassword)
-	
+
 	WG.Analytics.SendOnetimeEvent("lobby:try_resetpasswordverification")
-	
+
 	Configuration.userName = false --nuke username so we dont try to log in unsuccessfully
 	lobby:Connect(Configuration:GetServerAddress(), Configuration:GetServerPort(), nil, nil, 3, nil, GetLobbyName())
 end
@@ -1274,7 +1274,7 @@ function LoginWindow:tryChangePassword()
 	Spring.Echo("lobby:GetConnectionStatus()",lobby:GetConnectionStatus())
 	if lobby:GetConnectionStatus() ~= "connected" then
 		self.txtErrorChangePassword:SetText(
-			Configuration:GetErrorColor() .. 
+			Configuration:GetErrorColor() ..
 			"Must be connected to change password!"
 		)
 		return
@@ -1285,16 +1285,16 @@ function LoginWindow:tryChangePassword()
 
 	if oldPassword == nil or newPassword == nil then
 		self.txtErrorChangePassword:SetText(
-			Configuration:GetErrorColor() .. 
+			Configuration:GetErrorColor() ..
 			"At least one password is invalid!"
 		)
 	end
-	
+
 	WG.Analytics.SendOnetimeEvent("lobby:try_changepassword")
 	lobby:ChangePassword(oldPassword, newPassword)
 
 	self.txtErrorChangePassword:SetText(
-		Configuration:GetWarningColor() .. 
+		Configuration:GetWarningColor() ..
 		"Password change request sent, you will be logged out if it succeeds"
 	)
 end

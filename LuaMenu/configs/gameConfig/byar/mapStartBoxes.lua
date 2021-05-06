@@ -1,12 +1,12 @@
 local function pyPartition(s,p,left)
   if string.find(s,p,nil,true) then
-    local startfind, endfind =  string.find(s,p,nil,true) 
+    local startfind, endfind =  string.find(s,p,nil,true)
     if left then
       return string.sub(s,1,startfind-1)
     else
       return string.sub(s,endfind+1)
     end
-  else 
+  else
     return s
   end
 end
@@ -63,15 +63,15 @@ if savedBoxesSpads then
         numBoxes = numBoxes + 1
         if savedBoxes[mapname] then
           savedBoxes[mapname][playercount] = boxes
-          
+
           --Spring.Echo("updated existing",#savedBoxes,#boxes,playercount)
-          
+
           --table.insert(savedBoxes[mapname],boxes,playercount)
         else
           --table.insert(savedBoxes,{playercount = boxes},mapname)
           savedBoxes[mapname] = {}
           savedBoxes[mapname][playercount] = boxes
-          
+
           --Spring.Echo("added new entry",#savedBoxes,#boxes,playercount)
         end
     end
@@ -81,23 +81,23 @@ end
 
 Spring.Log("mapStartBoxes",LOG.INFO,"Parsed ",numBoxes, " start boxes from",savedBoxesFilename)
 
-  
+
 -- rules for boxes selection:
 -- if there is a box set of the number of allyteams, use that
 -- if there is no box set for the number of allyteams, but there is one that is larger, then use that
 -- if there is no box set for the number of allyteams, but there is one that is smaller, then use that and blank the rest
-  
-local function selectStartBoxesForAllyTeamCount(startboxes, allyteamcount) 
+
+local function selectStartBoxesForAllyTeamCount(startboxes, allyteamcount)
   if startboxes == nil then return nil end
   local mystartboxes = nil
   local closestlarger = 10000
   local closestsmaller = 0
   for i, boxset in pairs(startboxes) do
-    if i == allyteamcount then 
+    if i == allyteamcount then
       Spring.Log("mapStartBoxes",LOG.INFO,"Found exact boxset for allyteamcount ",allyteamcount)
-      return boxset 
+      return boxset
     end
-    if i > allyteamcount and i < closestlarger then 
+    if i > allyteamcount and i < closestlarger then
       closestlarger = i
     end
     if i < allyteamcount and i > closestsmaller then
@@ -115,7 +115,7 @@ local function selectStartBoxesForAllyTeamCount(startboxes, allyteamcount)
   return nil
 end
 
-local function makeAllyTeamBox(startboxes, allyteamindex) 
+local function makeAllyTeamBox(startboxes, allyteamindex)
     -- -- spads style boxen: 	!addBox <left> <top> <right> <bottom> [<teamNumber>] - adds a new start box (0,0 is top left corner, 200,200 is bottom right corner)
     --  startrectbottom=1;
     --  startrectleft=0;
@@ -179,7 +179,7 @@ local function getBox(allyTeam)
     return singleplayerboxes[allyTeam]
   else
     local defaultboxes =  selectStartBoxesForAllyTeamCount(mapName,2)
-    if defaultboxes then  
+    if defaultboxes then
       return defaultboxes[allyTeam]
     end
   end

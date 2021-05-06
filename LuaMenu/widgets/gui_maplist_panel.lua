@@ -1,21 +1,21 @@
 function widget:GetInfo()
 	return {
-		name    = 'Maplist Panel',
-		desc    = 'Implements the map panel.',
-		author  = 'GoogleFrog',
-		date    = '29 July 2016',
+		name	= 'Maplist Panel',
+		desc	= 'Implements the map panel.',
+		author	= 'GoogleFrog',
+		date	= '29 July 2016',
 		license = 'GNU GPL v2',
-		layer   = 0,
+		layer	= 0,
 		enabled = true,
 	}
 end
--- TODO: 
+-- TODO:
 -- X Widen map list
 -- X make unofficial not be selectable in multiplayer
 -- X On clicking on non-dowloaded map, make it download
--- make a typeable filter 
+-- make a typeable filter
 -- X make window just a bit less than full thing tall
--- X dynamically resize if parent is resized		
+-- X dynamically resize if parent is resized
 -- X sort downloaded first then name by default
 
 --------------------------------------------------------------------------------
@@ -49,19 +49,19 @@ end
 local function GetMapTypeBar(is1v1, isTeam, isFFA)
   local mapTypeString = ""
 	if is1v1 then
-    mapTypeString = "1v1"
+	mapTypeString = "1v1"
   end
   if isTeam then
-    if mapTypeString ~= "" then
-      mapTypeString = mapTypeString .. ", "
-    end
-    mapTypeString = mapTypeString .. "Team"
+	if mapTypeString ~= "" then
+	  mapTypeString = mapTypeString .. ", "
+	end
+	mapTypeString = mapTypeString .. "Team"
   end
 	if isFFA then
-    if mapTypeString ~= "" then
-      mapTypeString = mapTypeString .. ", "
-    end
-    mapTypeString = mapTypeString .. "FFA"
+	if mapTypeString ~= "" then
+	  mapTypeString = mapTypeString .. ", "
+	end
+	mapTypeString = mapTypeString .. "FFA"
   end
   return mapTypeString
 end
@@ -69,27 +69,27 @@ end
 local function GetTerrainTypeBar(special, flat, hills, water)
   local terrainTypeString = ""
   if special then
-    terrainTypeString = terrainTypeString .. special
+	terrainTypeString = terrainTypeString .. special
   end
   if flat then
-    if terrainTypeString ~= "" then
-      terrainTypeString = terrainTypeString .. ", "
-    end
-    terrainTypeString = terrainTypeString .. "Flat"
+	if terrainTypeString ~= "" then
+	  terrainTypeString = terrainTypeString .. ", "
+	end
+	terrainTypeString = terrainTypeString .. "Flat"
   end
 
   if hills then
-    if terrainTypeString ~= "" then
-      terrainTypeString = terrainTypeString .. ", "
-    end
-    terrainTypeString = terrainTypeString .. "Hills"
+	if terrainTypeString ~= "" then
+	  terrainTypeString = terrainTypeString .. ", "
+	end
+	terrainTypeString = terrainTypeString .. "Hills"
   end
 
   if water then
-    if terrainTypeString ~= "" then
-      terrainTypeString = terrainTypeString .. ", "
-    end
-    terrainTypeString = terrainTypeString .. "Water"
+	if terrainTypeString ~= "" then
+	  terrainTypeString = terrainTypeString .. ", "
+	end
+	terrainTypeString = terrainTypeString .. "Water"
   end
   return terrainTypeString
 end
@@ -127,7 +127,7 @@ end
 local function CreateMapEntry(mapName, mapData, CloseFunc)--{"ResourceID":7098,"Name":"2_Mountains_Battlefield","SupportLevel":2,"Width":16,"Height":16,"IsAssymetrical":false,"Hills":2,"WaterLevel":1,"Is1v1":false,"IsTeams":true,"IsFFA":false,"IsChickens":false,"FFAMaxTeams":null,"RatingCount":3,"RatingSum":10,"IsSpecial":false},
 	local Configuration = WG.Chobby.Configuration
 	-- Spring.Echo("CreateMapEntry(mapName, mapData, CloseFunc)",mapName, mapData, CloseFunc, lobby.name)
-	
+
 	local haveMap = VFS.HasArchive(mapName)
 
 	local mapButtonCaption = nil
@@ -209,7 +209,7 @@ local function CreateMapEntry(mapName, mapData, CloseFunc)--{"ResourceID":7098,"
 	}
 
   local certificationLevel = GetCertifiedLevelBar( mapData and mapData.IsCertified, mapData and mapData.IsInPool)
-    TextBox:New {
+	TextBox:New {
 			x = 655,
 			y = 12,
 			width = 160,
@@ -310,9 +310,9 @@ local function InitializeControls()
 	end
 
 	local maincaption = "Select a Map. Certified maps are recommended."
-	if 	lobby.name ~= "singleplayer" then
+	if	lobby.name ~= "singleplayer" then
 		maincaption = "Select a Map. Only Certified and Classic in Online."
-		
+
 	end
 	Label:New {
 		x = 20,
@@ -377,7 +377,7 @@ local function InitializeControls()
 
 	local featuredMapList = WG.CommunityWindow.LoadStaticCommunityData().MapItems or {}
 
-  	local mapFuncs = {}
+	local mapFuncs = {}
 
 	local mapList = WG.Chobby.SortableList(listHolder, headings, 60)
 

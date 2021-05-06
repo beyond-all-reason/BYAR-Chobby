@@ -8,18 +8,18 @@ local scenariodata = {
 	imageflavor		= "You can hide behind radar jammers.", -- This text will be drawn over image
     summary         = [[Competition for resources has never been this intense. Eliminate all 7 of your enemies in a free-for-all battle.]],
 	briefing 		= [[The Tycho Magnetic Anomaly 20 asteroid is very rich in resources, and has attracted the attention of your competition. There are a total of 7 enemy commanders on this map, all hell bent on destroying any opposition. Even cloaked Commanders emit a radar signature, but radar jammers can hide that as well. Armada's Sneaky Pete (Cloakable Radar Jammer Tower) can ensure that you dont fall victim to any surprise attacks.
- 
+
 Score:
     1. Speed: destroy all enemy Commanders as fast as possible.
     2. Efficiency: minimize the amount of metal and energy used.
- 
+
 Tips:
     1. Your enemies will also fight each other, goad them into doing your dirty work
     2. There are a large amount of resources in the center, but being too greedy might attract unwanted attention.
     3. Use radar jammers to cover your tracks and hide secretive mining outposts.
     4. Whenever an enemy gets eliminated, swoop in quickly to secure the spoils.
-    5. Protect your commander at all costs, and keep an eye on which of your opponents seem the strongest 
-    6. Sieze any opportunity to score a kill on an enemy Commander, and try to kill at least one Commander before advancing your tech tree. Use the metal from the spoils to quickly tech up. 
+    5. Protect your commander at all costs, and keep an eye on which of your opponents seem the strongest
+    6. Sieze any opportunity to score a kill on an enemy Commander, and try to kill at least one Commander before advancing your tech tree. Use the metal from the spoils to quickly tech up.
     ]],
 
 	mapfilename		= "TMA20X 1.8", -- the name of the map to be displayed here, and which to play on, no .smf ending needed
@@ -48,18 +48,18 @@ Tips:
     scenariooptions = { -- this will get lua->json->base64 and passed to scenariooptions in game
         myoption = "dostuff",
         scenarioid = "tma20ffabarbs",
-		disablefactionpicker = true, -- this is needed to prevent faction picking outside of the allowedsides 
+		disablefactionpicker = true, -- this is needed to prevent faction picking outside of the allowedsides
     },
     -- https://github.com/spring/spring/blob/105.0/doc/StartScriptFormat.txt
 
     -- HOW TO MAKE THE START SCRIPT: Use Chobby's single player mode to set up your start script. When you launch a single player game, the start script is dumped into infolog.txt
-    -- The following keys MUST be present in startscript below 
+    -- The following keys MUST be present in startscript below
     --  __SCENARIOOPTIONS__
     -- __PLAYERNAME__
     -- __BARVERSION__
     -- __MAPNAME__
 
-    -- Optional keys: 
+    -- Optional keys:
     -- __ENEMYHANDICAP__
     -- __PLAYERSIDE__
     -- __PLAYERHANDICAP__
@@ -316,7 +316,7 @@ Tips:
 	{
         __RESTRICTEDUNITS__
 	}
-}    
+}
 	]],
 }
 

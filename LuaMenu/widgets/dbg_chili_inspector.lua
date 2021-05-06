@@ -98,7 +98,7 @@ function widget:Initialize()
 				y=0, bottom=-25,
 				align = "right", valign = "bottom",
 				caption = "Lua MemUsage: 0MB",
-				
+
 			},
 			Chili.Button:New{
 				right = 0, width = 50,

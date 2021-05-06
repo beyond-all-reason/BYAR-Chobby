@@ -9,7 +9,7 @@ local scenariodata = {
     summary         = [[How Does DGunning enemy Commander work? Try it here.]],
 	briefing 		= [[In order to preven unfair situations in multiplayer games when the victory conditions are to destroy all enemy Commanders, DGunning the last standing enemy Commander is forbidden. If the last enemy Commander is dgunned, the team who DGunned the last Commander loses, instead of the team who got DGunned.
 
-    You will have to resort to other methods of killing the last commands. 
+    You will have to resort to other methods of killing the last commands.
     ]],
 
 	mapfilename		= "BarR 1.1", -- the name of the map to be displayed here
@@ -34,7 +34,7 @@ local scenariodata = {
     scenariooptions = { -- this will get lua->json->base64 and passed to scenariooptions in game
         myoption = "dostuff",
         scenarioid = "dguntestscenario", --must be present for scores
-		disablefactionpicker = true, -- this is needed to prevent faction picking outside of the allowedsides 
+		disablefactionpicker = true, -- this is needed to prevent faction picking outside of the allowedsides
     },
     -- https://github.com/spring/spring/blob/105.0/doc/StartScriptFormat.txt
 	startscript		= [[ [Game]
@@ -117,7 +117,7 @@ local scenariodata = {
 	}
 }
 	]],
-	
+
 }
 
 return nil -- scenariodata

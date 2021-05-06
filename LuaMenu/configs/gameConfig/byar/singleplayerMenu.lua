@@ -20,7 +20,7 @@ local items = 	{
 if WG.Chobby.Configuration and false then --and
 	--WG.Chobby.Configuration.showCampaignButton then
 	items[#items+1] = 	{
-		name = "wip_challenges", 
+		name = "wip_challenges",
 		entryCheck = WG.CampaignSaveWindow.PromptInitialSaveName,
 		entryCheckBootMode = true,
 		submenuData = {
