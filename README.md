@@ -25,7 +25,7 @@ This should result in the following directory being present: `/path/to/install/d
 
 4. Choose the `Dev Lobby` config from the launcher's top right dropdown menu which will run the lobby version on your PC. You can now develop and test any BYAR specific lobby functionality.
 
-5. If you want to develop Chobby itself, clone it in the `games` directory similar to step 3: 
+5. If you want to develop Chobby itself, clone it in the `games` directory similar to step 3:
 
 ```
 git clone https://github.com/Spring-Chobby/Chobby.git Chobby.sdd
@@ -39,7 +39,7 @@ To enable debugmode, make an empty `devmode.txt` in the already used game instal
 
 1. Make sure you've first finished setting up the lobby development environment (previous section)
 
-2. Open the install directory, and inside the `games` directory clone the BAR *game* repository: 
+2. Open the install directory, and inside the `games` directory clone the BAR *game* repository:
 
 ```
 git clone https://github.com/beyond-all-reason/Beyond-All-Reason.git BAR.sdd
@@ -55,3 +55,9 @@ git clone https://github.com/beyond-all-reason/Beyond-All-Reason.git BAR.sdd
 2. This allows you to ctrl+shift+f to find any text in all of chobby, useful
 3. Do NOT try to edit anything in Chobby.sdd! If you want to edit something in Chobby.sdd that is not overwritten by the mutator BYAR-Chobby (e.g. does not exist in BYAR-Chobby.sdd), then copy it over to BYAR-Chobby.sdd first and commit it (so we have a baseline).
 4. Open infolog.txt in notepad++ or anything to grep for errors.
+
+## How to make new launcher releases:
+
+1. Modify a file in the `dist_cfg` folder (https://github.com/beyond-all-reason/BYAR-Chobby/tree/master/dist_cfg) on the `master` branch to trigger a launcher build. It should start a new action here: https://github.com/beyond-all-reason/BYAR-Chobby/actions
+2. Wait until the build **completely** finishes (the action should be green and have a check), otherwise you might create an incomplete release.
+3. Make a release by finding the latest Draft here https://github.com/beyond-all-reason/BYAR-Chobby/releases , open it, click `Edit draft` and then `Publish Release`
