@@ -3068,7 +3068,7 @@ function BattleRoomWindow.GetSingleplayerControl(setupData)
 					sync = (haveMapAndGame and 1) or 2, -- 0 = unknown, 1 = synced, 2 = unsynced
 
 					side = 0, -- Our default side is Armada
-					teamColor = {0,.52,.89},
+					teamColor = {0,.32,1},
 				})
 
 				if not (setupData and WG.Chobby.Configuration.simplifiedSkirmishSetup) and singleplayerDefault then
@@ -3079,7 +3079,7 @@ function BattleRoomWindow.GetSingleplayerControl(setupData)
 						battleLobby:AddAi(aiFullName, aiName, 0)
 						battleLobby:UpdateAi(aiFullName, {
 							side = 0, -- Default side for friendly AI is Armada
-							teamColor = {.76,0,.85},
+							teamColor = {.45,0,.68},
 						})
 
 						totalAIcount = totalAIcount + 1
@@ -3105,11 +3105,11 @@ function BattleRoomWindow.GetSingleplayerControl(setupData)
 end
 
 function GetStarterEnemyAIColorAssignment(i)
-    local orange = {1,.55,0};
-    local yellow = {.85,.99,0};
+    local red = {1,.07,.02};
+    local orange = {.96,.42,0};
 
-    if (i==1) then return orange
-    elseif(i==2) then return yellow
+    if (i==1) then return red
+    elseif(i==2) then return orange
     end
 
 end
