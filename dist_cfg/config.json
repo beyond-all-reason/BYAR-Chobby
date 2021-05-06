@@ -118,6 +118,11 @@
                         "extract": false
                     },
                     {
+                        "url": "https://github.com/beyond-all-reason/Maps/releases/download/1.0/acidicquarry_5.16.sd7",
+                        "destination": "maps/acidicquarry_5.16.sd7",
+                        "extract": false
+                    },
+                    {
                         "url": "https://github.com/beyond-all-reason/Maps/releases/download/1.0/akilon_wastelands_-_v18.sd7",
                         "destination": "maps/akilon_wastelands_-_v18.sd7",
                         "extract": false
@@ -178,6 +183,11 @@
                         "extract": false
                     },
                     {
+                        "url": "https://github.com/beyond-all-reason/Maps/releases/download/1.0/coastlines_dry_v2.sd7",
+                        "destination": "maps/coastlines_dry_v2.sd7",
+                        "extract": false
+                    },
+                    {
                         "url": "https://github.com/beyond-all-reason/Maps/releases/download/1.0/colorado_v1.sd7",
                         "destination": "maps/colorado_v1.sd7",
                         "extract": false
@@ -228,13 +238,13 @@
                         "extract": false
                     },
                     {
-                        "url": "https://github.com/beyond-all-reason/Maps/releases/download/1.0/FolsomdamR_1.16.sd7",
-                        "destination": "maps/FolsomdamR_1.16.sd7",
+                        "url": "https://github.com/beyond-all-reason/Maps/releases/download/1.0/flooded_valley_v5.sd7",
+                        "destination": "maps/flooded_valley_v5.sd7",
                         "extract": false
                     },
                     {
-                        "url": "https://github.com/beyond-all-reason/Maps/releases/download/1.0/flooded_valley_v5.sd7",
-                        "destination": "maps/flooded_valley_v5.sd7",
+                        "url": "https://github.com/beyond-all-reason/Maps/releases/download/1.0/FolsomdamR_1.16.sd7",
+                        "destination": "maps/FolsomdamR_1.16.sd7",
                         "extract": false
                     },
                     {
@@ -245,6 +255,11 @@
                     {
                         "url": "https://github.com/beyond-all-reason/Maps/releases/download/1.0/gehenna_rising_3.sd7",
                         "destination": "maps/gehenna_rising_3.sd7",
+                        "extract": false
+                    },
+                    {
+                        "url": "https://github.com/beyond-all-reason/Maps/releases/download/1.0/glacier_pass_1.2.sd7",
+                        "destination": "maps/glacier_pass_1.2.sd7",
                         "extract": false
                     },
                     {
@@ -298,6 +313,11 @@
                         "extract": false
                     },
                     {
+                        "url": "https://github.com/beyond-all-reason/Maps/releases/download/1.0/nuclear_winter_bar_1.2.sd7",
+                        "destination": "maps/nuclear_winter_bar_1.2.sd7",
+                        "extract": false
+                    },
+                    {
                         "url": "https://github.com/beyond-all-reason/Maps/releases/download/1.0/otago_1.4.sd7",
                         "destination": "maps/otago_1.4.sd7",
                         "extract": false
@@ -308,13 +328,43 @@
                         "extract": false
                     },
                     {
+                        "url": "https://github.com/beyond-all-reason/Maps/releases/download/1.0/paradise_lost_v4.sd7",
+                        "destination": "maps/paradise_lost_v4.sd7",
+                        "extract": false
+                    },
+                    {
                         "url": "https://github.com/beyond-all-reason/Maps/releases/download/1.0/Pentos_v1.sd7",
                         "destination": "maps/Pentos_v1.sd7",
                         "extract": false
                     },
                     {
+                        "url": "https://github.com/beyond-all-reason/Maps/releases/download/1.0/pillar_of_doom_v1.sd7",
+                        "destination": "maps/pillar_of_doom_v1.sd7",
+                        "extract": false
+                    },
+                    {
+                        "url": "https://github.com/beyond-all-reason/Maps/releases/download/1.0/pinewood_derby_v1.sd7",
+                        "destination": "maps/pinewood_derby_v1.sd7",
+                        "extract": false
+                    },
+                    {
+                        "url": "https://github.com/beyond-all-reason/Maps/releases/download/1.0/Plethora_of_Ponds_V1.sd7",
+                        "destination": "maps/Plethora_of_Ponds_V1.sd7",
+                        "extract": false
+                    },
+                    {
+                        "url": "https://github.com/beyond-all-reason/Maps/releases/download/1.0/quarry_v1.sd7",
+                        "destination": "maps/quarry_v1.sd7",
+                        "extract": false
+                    },
+                    {
                         "url": "https://github.com/beyond-all-reason/Maps/releases/download/1.0/quicksilver_remake_1.24.sd7",
                         "destination": "maps/quicksilver_remake_1.24.sd7",
+                        "extract": false
+                    },
+                    {
+                        "url": "https://github.com/beyond-all-reason/Maps/releases/download/1.0/raghnarok_1.sd7",
+                        "destination": "maps/raghnarok_1.sd7",
                         "extract": false
                     },
                     {
@@ -328,6 +378,11 @@
                         "extract": false
                     },
                     {
+                        "url": "https://github.com/beyond-all-reason/Maps/releases/download/1.0/rifted_v2.sd7",
+                        "destination": "maps/rifted_v2.sd7",
+                        "extract": false
+                    },
+                    {
                         "url": "https://github.com/beyond-all-reason/Maps/releases/download/1.0/riverdale_remake_1.4.sd7",
                         "destination": "maps/riverdale_remake_1.4.sd7",
                         "extract": false
@@ -338,6 +393,11 @@
                         "extract": false
                     },
                     {
+                        "url": "https://github.com/beyond-all-reason/Maps/releases/download/1.0/sertagatta_v5.sd7",
+                        "destination": "maps/sertagatta_v5.sd7",
+                        "extract": false
+                    },
+                    {
                         "url": "https://github.com/beyond-all-reason/Maps/releases/download/1.0/sertaleina_v8.sd7",
                         "destination": "maps/sertaleina_v8.sd7",
                         "extract": false
@@ -345,6 +405,11 @@
                     {
                         "url": "https://github.com/beyond-all-reason/Maps/releases/download/1.0/Seths_Ravine_V4.sd7",
                         "destination": "maps/Seths_Ravine_V4.sd7",
+                        "extract": false
+                    },
+                    {
+                        "url": "https://github.com/beyond-all-reason/Maps/releases/download/1.0/shore_to_shore_v3.sd7",
+                        "destination": "maps/shore_to_shore_v3.sd7",
                         "extract": false
                     },
                     {
@@ -378,6 +443,11 @@
                         "extract": false
                     },
                     {
+                        "url": "https://github.com/beyond-all-reason/Maps/releases/download/1.0/taldarim_v3.sd7",
+                        "destination": "maps/taldarim_v3.sd7",
+                        "extract": false
+                    },
+                    {
                         "url": "https://github.com/beyond-all-reason/Maps/releases/download/1.0/Talus_v2.sd7",
                         "destination": "maps/Talus_v2.sd7",
                         "extract": false
@@ -393,8 +463,18 @@
                         "extract": false
                     },
                     {
+                        "url": "https://github.com/beyond-all-reason/Maps/releases/download/1.0/tempest_dry.sd7",
+                        "destination": "maps/tempest_dry.sd7",
+                        "extract": false
+                    },
+                    {
                         "url": "https://github.com/beyond-all-reason/Maps/releases/download/1.0/Tetrad_v2.sd7",
                         "destination": "maps/Tetrad_v2.sd7",
+                        "extract": false
+                    },
+                    {
+                        "url": "https://github.com/beyond-all-reason/Maps/releases/download/1.0/therock_v3.sd7",
+                        "destination": "maps/therock_v3.sd7",
                         "extract": false
                     },
                     {
@@ -486,6 +566,11 @@
                         "extract": false
                     },
                     {
+                        "url": "https://github.com/beyond-all-reason/Maps/releases/download/1.0/acidicquarry_5.16.sd7",
+                        "destination": "maps/acidicquarry_5.16.sd7",
+                        "extract": false
+                    },
+                    {
                         "url": "https://github.com/beyond-all-reason/Maps/releases/download/1.0/akilon_wastelands_-_v18.sd7",
                         "destination": "maps/akilon_wastelands_-_v18.sd7",
                         "extract": false
@@ -546,6 +631,11 @@
                         "extract": false
                     },
                     {
+                        "url": "https://github.com/beyond-all-reason/Maps/releases/download/1.0/coastlines_dry_v2.sd7",
+                        "destination": "maps/coastlines_dry_v2.sd7",
+                        "extract": false
+                    },
+                    {
                         "url": "https://github.com/beyond-all-reason/Maps/releases/download/1.0/colorado_v1.sd7",
                         "destination": "maps/colorado_v1.sd7",
                         "extract": false
@@ -596,13 +686,13 @@
                         "extract": false
                     },
                     {
-                        "url": "https://github.com/beyond-all-reason/Maps/releases/download/1.0/FolsomdamR_1.16.sd7",
-                        "destination": "maps/FolsomdamR_1.16.sd7",
+                        "url": "https://github.com/beyond-all-reason/Maps/releases/download/1.0/flooded_valley_v5.sd7",
+                        "destination": "maps/flooded_valley_v5.sd7",
                         "extract": false
                     },
                     {
-                        "url": "https://github.com/beyond-all-reason/Maps/releases/download/1.0/flooded_valley_v5.sd7",
-                        "destination": "maps/flooded_valley_v5.sd7",
+                        "url": "https://github.com/beyond-all-reason/Maps/releases/download/1.0/FolsomdamR_1.16.sd7",
+                        "destination": "maps/FolsomdamR_1.16.sd7",
                         "extract": false
                     },
                     {
@@ -613,6 +703,11 @@
                     {
                         "url": "https://github.com/beyond-all-reason/Maps/releases/download/1.0/gehenna_rising_3.sd7",
                         "destination": "maps/gehenna_rising_3.sd7",
+                        "extract": false
+                    },
+                    {
+                        "url": "https://github.com/beyond-all-reason/Maps/releases/download/1.0/glacier_pass_1.2.sd7",
+                        "destination": "maps/glacier_pass_1.2.sd7",
                         "extract": false
                     },
                     {
@@ -666,6 +761,11 @@
                         "extract": false
                     },
                     {
+                        "url": "https://github.com/beyond-all-reason/Maps/releases/download/1.0/nuclear_winter_bar_1.2.sd7",
+                        "destination": "maps/nuclear_winter_bar_1.2.sd7",
+                        "extract": false
+                    },
+                    {
                         "url": "https://github.com/beyond-all-reason/Maps/releases/download/1.0/otago_1.4.sd7",
                         "destination": "maps/otago_1.4.sd7",
                         "extract": false
@@ -676,13 +776,43 @@
                         "extract": false
                     },
                     {
+                        "url": "https://github.com/beyond-all-reason/Maps/releases/download/1.0/paradise_lost_v4.sd7",
+                        "destination": "maps/paradise_lost_v4.sd7",
+                        "extract": false
+                    },
+                    {
                         "url": "https://github.com/beyond-all-reason/Maps/releases/download/1.0/Pentos_v1.sd7",
                         "destination": "maps/Pentos_v1.sd7",
                         "extract": false
                     },
                     {
+                        "url": "https://github.com/beyond-all-reason/Maps/releases/download/1.0/pillar_of_doom_v1.sd7",
+                        "destination": "maps/pillar_of_doom_v1.sd7",
+                        "extract": false
+                    },
+                    {
+                        "url": "https://github.com/beyond-all-reason/Maps/releases/download/1.0/pinewood_derby_v1.sd7",
+                        "destination": "maps/pinewood_derby_v1.sd7",
+                        "extract": false
+                    },
+                    {
+                        "url": "https://github.com/beyond-all-reason/Maps/releases/download/1.0/Plethora_of_Ponds_V1.sd7",
+                        "destination": "maps/Plethora_of_Ponds_V1.sd7",
+                        "extract": false
+                    },
+                    {
+                        "url": "https://github.com/beyond-all-reason/Maps/releases/download/1.0/quarry_v1.sd7",
+                        "destination": "maps/quarry_v1.sd7",
+                        "extract": false
+                    },
+                    {
                         "url": "https://github.com/beyond-all-reason/Maps/releases/download/1.0/quicksilver_remake_1.24.sd7",
                         "destination": "maps/quicksilver_remake_1.24.sd7",
+                        "extract": false
+                    },
+                    {
+                        "url": "https://github.com/beyond-all-reason/Maps/releases/download/1.0/raghnarok_1.sd7",
+                        "destination": "maps/raghnarok_1.sd7",
                         "extract": false
                     },
                     {
@@ -696,6 +826,11 @@
                         "extract": false
                     },
                     {
+                        "url": "https://github.com/beyond-all-reason/Maps/releases/download/1.0/rifted_v2.sd7",
+                        "destination": "maps/rifted_v2.sd7",
+                        "extract": false
+                    },
+                    {
                         "url": "https://github.com/beyond-all-reason/Maps/releases/download/1.0/riverdale_remake_1.4.sd7",
                         "destination": "maps/riverdale_remake_1.4.sd7",
                         "extract": false
@@ -706,6 +841,11 @@
                         "extract": false
                     },
                     {
+                        "url": "https://github.com/beyond-all-reason/Maps/releases/download/1.0/sertagatta_v5.sd7",
+                        "destination": "maps/sertagatta_v5.sd7",
+                        "extract": false
+                    },
+                    {
                         "url": "https://github.com/beyond-all-reason/Maps/releases/download/1.0/sertaleina_v8.sd7",
                         "destination": "maps/sertaleina_v8.sd7",
                         "extract": false
@@ -713,6 +853,11 @@
                     {
                         "url": "https://github.com/beyond-all-reason/Maps/releases/download/1.0/Seths_Ravine_V4.sd7",
                         "destination": "maps/Seths_Ravine_V4.sd7",
+                        "extract": false
+                    },
+                    {
+                        "url": "https://github.com/beyond-all-reason/Maps/releases/download/1.0/shore_to_shore_v3.sd7",
+                        "destination": "maps/shore_to_shore_v3.sd7",
                         "extract": false
                     },
                     {
@@ -746,6 +891,11 @@
                         "extract": false
                     },
                     {
+                        "url": "https://github.com/beyond-all-reason/Maps/releases/download/1.0/taldarim_v3.sd7",
+                        "destination": "maps/taldarim_v3.sd7",
+                        "extract": false
+                    },
+                    {
                         "url": "https://github.com/beyond-all-reason/Maps/releases/download/1.0/Talus_v2.sd7",
                         "destination": "maps/Talus_v2.sd7",
                         "extract": false
@@ -761,8 +911,18 @@
                         "extract": false
                     },
                     {
+                        "url": "https://github.com/beyond-all-reason/Maps/releases/download/1.0/tempest_dry.sd7",
+                        "destination": "maps/tempest_dry.sd7",
+                        "extract": false
+                    },
+                    {
                         "url": "https://github.com/beyond-all-reason/Maps/releases/download/1.0/Tetrad_v2.sd7",
                         "destination": "maps/Tetrad_v2.sd7",
+                        "extract": false
+                    },
+                    {
+                        "url": "https://github.com/beyond-all-reason/Maps/releases/download/1.0/therock_v3.sd7",
+                        "destination": "maps/therock_v3.sd7",
                         "extract": false
                     },
                     {
