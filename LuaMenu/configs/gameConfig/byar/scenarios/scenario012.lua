@@ -3,23 +3,23 @@ local scenariodata = {
 	scenarioid		= "avalanchemines012", -- no spaces, lowercase, this will be used to save the score and can be used gadget side
     version         = "1", -- increment this to reset the score when changing a mission, as scores are keyed by (scenarioid,version,difficulty)
 	title			= "Mines, all mine!", -- can be anything
-	
+
 	author			= "Beherith", -- your name here
 	imagepath		= "scenario012.jpg", -- placed next to lua file, should be 3:1 ratio banner style
 	imageflavor		= "Mines explode on the slightest touch", -- This text will be drawn over image
     summary         = [[The Armada are amassing reinforcements	 at a rally point near one of your stealthy outputs. You do not have any technology except for minelayers and scouts. Lay mines around the area, and then you must distract and draw these forces onto minefields, without allowing Armada to detect and destroy your base of operations.]],
 	briefing 		= [[
 Tips:
- - Mines automatically detonate if an enemy gets within range of it, or if it is destroyed. 
+ - Mines automatically detonate if an enemy gets within range of it, or if it is destroyed.
  - Mines can be manually detonated immediately by self-destructing them (Ctrl + D).
- - Use scout vehicles to lure enemy units onto minefields. 
+ - Use scout vehicles to lure enemy units onto minefields.
  - Minelayers are stealthy, thus do not show up on the enemy radar. They also have a short range radar jammer, to hide any mines under construction.
  - Mines are also stealthy, and automatically cloak once built, becoming undetectable by the enemy.
  - Keeping mines cloaked costs energy, and running out of energy can result in them losing their cloaks temporarily.
- - Minelayers have a large area-of-effect mine-clearing weapon, which they can activate by force-firing at the ground. 
+ - Minelayers have a large area-of-effect mine-clearing weapon, which they can activate by force-firing at the ground.
  - All cloaked units (even mines) will lose their cloaking if they get too close to an enemy unit.
  - You can build walls of Dragon’s Teeth to funnel enemy units onto minefields.
- 
+
 Scoring:
  - Lure and destroy the enemy forces as quickly as you can
  - Be efficient by using the least amount of resources to dispatch the enemy forces
@@ -50,7 +50,7 @@ Scoring:
         --armavp = 0,
         --coravp = 0,
 		corcv = 0,
-		corgator = 0, 
+		corgator = 0,
 		corraid = 0,
 		cormist = 0,
 		corwolv = 0,
@@ -64,11 +64,11 @@ Scoring:
         scenarioid = "avalanchemines012", -- this MUST be present and identical to the one defined at start
 		disablefactionpicker = true, -- this is needed to prevent faction picking outside of the allowedsides
 
-        unitloadout = { 
+        unitloadout = {
 			-- You can specify units that you wish to spawn here, they only show up once game starts,
 			-- You can create these lists easily using the feature/unit dumper by using dbg_feature_dumper.lua widget pinned to the #challenges channel on discord
 			-- Set up a skirmish like your scenario, so the team ID's will be correct
-			-- Then using /globallos and cheats, add as many units as you wish 
+			-- Then using /globallos and cheats, add as many units as you wish
 			-- The type /luaui dumpunits
 			-- Fish out the dumped units from your infolog.txt and add them here
 			-- Note: If you have ANY units in loadout, then there will be no initial units spawned for anyone, so you have to take care of that
@@ -315,7 +315,7 @@ Scoring:
 {name = 'armflash', x = 3310, y = 593, z = 583, rot = 0 , team = 1},
 {name = 'armflash', x = 3342, y = 593, z = 583, rot = 0 , team = 1},
 {name = 'cornanotc', x = 3771, y = 321, z = 3614, rot = 0 , team = 0},
-			
+
 		},
 		featureloadout = {
 			-- Similarly to units, but these can also be resurrectable!
@@ -325,19 +325,19 @@ Scoring:
 
 		}
     },
-    -- Full Documentation for start script here: 
+    -- Full Documentation for start script here:
     -- https://github.com/spring/spring/blob/105.0/doc/StartScriptFormat.txt
 
     -- HOW TO MAKE THE START SCRIPT: Use Chobby's single player mode to set up your start script. When you launch a single player game, the start script is dumped into infolog.txt
     -- ModOptions: You can also set modoptions in chobby, and they will get dumped into the infolog's start script too, or just set then in chobby and copy paste them into the [modoptions] tag. as below
-    -- The following keys MUST be present in startscript below 
-    --  scenariooptions = __SCENARIOOPTIONS__; 
+    -- The following keys MUST be present in startscript below
+    --  scenariooptions = __SCENARIOOPTIONS__;
     -- Name = __PLAYERNAME__;
     -- myplayername = __PLAYERNAME__;
     -- gametype = __BARVERSION__;
     -- mapname =__MAPNAME__;
 
-    -- Optional keys: 
+    -- Optional keys:
     -- __ENEMYHANDICAP__
     -- __PLAYERSIDE__
     -- __PLAYERHANDICAP__
@@ -428,7 +428,7 @@ Scoring:
 }
 
 	]],
-	
+
 }
 
 return scenariodata

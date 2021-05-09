@@ -3,21 +3,21 @@ local scenariodata = {
 	scenarioid		= "strongholdkilltraitor010", -- no spaces, lowercase, this will be used to save the score and can be used gadget side
     version         = "1", -- increment this to reset the score when changing a mission, as scores are keyed by (scenarioid,version,difficulty)
 	title			= "Keep your secrets", -- can be anything
-	
+
 	author			= "Beherith", -- your name here
 	imagepath		= "scenario010.jpg", -- placed next to lua file, should be 3:1 ratio banner style
 	imageflavor		= "The captured Cortex Commander", -- This text will be drawn over image
     summary         = [[Armada have captured and taken a Cortex Commander hostage, and intend to steal Cortex technology and infiltrate your ranks. Foil their plans by any means necessary to neutralize this threat]],
 	briefing 		= [[
 Your intelligence reports state that the captured commander is still being held, but his programming has been compromised. To minimize the risk of our technology being stolen. A small forward position has been established on the map, which is hidden with radar jammers for now. You do not have much time before the enemy discovers your presence, so you must liquidate the captured Commander as fast as possible.
- 
-Tips: 
+
+Tips:
  - If this scenario seems difficult, try it at a lower difficulty override
  - The enemy will expand rapidly, and the map is particularly resource rich
  - The enemy might send early aircraft raids, so your forward base has been equipped with anti-air turrets
- - The enemy base is very heavily defended with both Tier 2 ground defences and and anti-air. 
-  
-Scoring: 
+ - The enemy base is very heavily defended with both Tier 2 ground defences and and anti-air.
+
+Scoring:
  - Time taken to complete the scenario
  - Resources spent to get a confirmed kill on the captured commander.
  ]],
@@ -52,17 +52,17 @@ Scoring:
         scenarioid = "strongholdkilltraitor010", -- this MUST be present and identical to the one defined at start
 		disablefactionpicker = true, -- this is needed to prevent faction picking outside of the allowedsides
 
-        unitloadout = { 
+        unitloadout = {
 			-- You can specify units that you wish to spawn here, they only show up once game starts,
 			-- You can create these lists easily using the feature/unit dumper by using dbg_feature_dumper.lua widget pinned to the #challenges channel on discord
 			-- Set up a skirmish like your scenario, so the team ID's will be correct
-			-- Then using /globallos and cheats, add as many units as you wish 
+			-- Then using /globallos and cheats, add as many units as you wish
 			-- The type /luaui dumpunits
 			-- Fish out the dumped units from your infolog.txt and add them here
 			-- Note: If you have ANY units in loadout, then there will be no initial units spawned for anyone, so you have to take care of that
 			-- so you must spawn the initial commanders then!
 
-			
+
 			{name = 'corcom', x = 6930, y = 534, z = 7623, rot = -7963 , team = 0},
 			{name = 'corsolar', x = 7080, y = 534, z = 7512, rot = -16384 , team = 0},
 			{name = 'corsolar', x = 7080, y = 534, z = 7592, rot = -16384 , team = 0},
@@ -280,7 +280,7 @@ Scoring:
 			{name = 'cormaw', x = 6512, y = 534, z = 7504, rot = 0 , team = 0},
 			{name = 'armpb', x = 1272, y = 534, z = 1400, rot = 0 , team = 1},
 			{name = 'corcom', x = 735, y = 534, z = 513, rot = 8469 , team = 1},
-			
+
 		},
 		featureloadout = {
 			-- Similarly to units, but these can also be resurrectable!
@@ -290,19 +290,19 @@ Scoring:
 
 		}
     },
-    -- Full Documentation for start script here: 
+    -- Full Documentation for start script here:
     -- https://github.com/spring/spring/blob/105.0/doc/StartScriptFormat.txt
 
     -- HOW TO MAKE THE START SCRIPT: Use Chobby's single player mode to set up your start script. When you launch a single player game, the start script is dumped into infolog.txt
     -- ModOptions: You can also set modoptions in chobby, and they will get dumped into the infolog's start script too, or just set then in chobby and copy paste them into the [modoptions] tag. as below
-    -- The following keys MUST be present in startscript below 
-    --  scenariooptions = __SCENARIOOPTIONS__; 
+    -- The following keys MUST be present in startscript below
+    --  scenariooptions = __SCENARIOOPTIONS__;
     -- Name = __PLAYERNAME__;
     -- myplayername = __PLAYERNAME__;
     -- gametype = __BARVERSION__;
     -- mapname =__MAPNAME__;
 
-    -- Optional keys: 
+    -- Optional keys:
     -- __ENEMYHANDICAP__
     -- __PLAYERSIDE__
     -- __PLAYERHANDICAP__
@@ -379,7 +379,7 @@ Scoring:
 	numplayers = 1;
 	startpostype = 3; // 0 fixed, 1 random, 2 choose in game, 3 choose before game (see StartPosX)
 	mapname = Stronghold V4;
-	ishost = 1; // 
+	ishost = 1; //
 	//numusers = 2;
     gametype = __BARVERSION__;
     GameStartDelay = 10;  // seconds before game starts after loading/placement
@@ -387,7 +387,7 @@ Scoring:
 	nohelperais = 0;
 }
 	]],
-	
+
 }
 
 return scenariodata

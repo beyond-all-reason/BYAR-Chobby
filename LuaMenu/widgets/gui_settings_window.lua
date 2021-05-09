@@ -859,7 +859,7 @@ local function GetLobbyTabControls()
 		font = Configuration:GetFont(2),
 		caption = "Choose Server:",
 		tooltip = "Old Server is road-flag.bnr.la, new is bar.teifion.co.uk. Changing this will log you out of current server, click Login in top right to reconnect to new one",
-	}	
+	}
 
 	local barservers = {"bar.teifion.co.uk","road-flag.bnr.la"}
 
@@ -881,17 +881,17 @@ local function GetLobbyTabControls()
 				end
 				local oldserveraddress = Configuration:GetServerAddress()
 				local newserveraddress = barservers[num]
-				
+
 				Spring.Echo("Choosing a server in settings:",obj,num, oldserveraddress,newserveraddress)
 
 				if oldserveraddress ~= newserveraddress then
 					Configuration.serverAddress = newserveraddress
-					
+
 					if WG.LibLobby.lobby then -- force set the new one so that lobby:safeupdate doesnt fuck up
 						--Spring.Echo("FORCE SET",obj,num, barservers[num])
 						WG.LibLobby.lobby.host = newserveraddress
 						WG.LibLobby.lobby:Disconnect()
-						if WG.LoginWindowHandler then 
+						if WG.LoginWindowHandler then
 							WG.LoginWindowHandler.TryLogin()
 						end
 					end
@@ -899,7 +899,7 @@ local function GetLobbyTabControls()
 			end
 		}
 	}
-	
+
 	offset = offset + ITEM_OFFSET
 
 	children[#children + 1] = Label:New {
@@ -1006,7 +1006,7 @@ local function GetVoidTabControls()
 		widgetHandler:ToggleWidget("ChiliInspector")
 	end
 
-	
+
 	local function toggleCampaignFunc(newState)
 		Spring.Echo("Enabling Campaign", newState)
 		WG.Chobby.Configuration.showCampaignButton = newState
@@ -1248,7 +1248,7 @@ local function GetVoidTabControls()
 	}
 	offset = offset + ITEM_OFFSET
 
-	
+
 	children[#children + 1] = Label:New {
 		x = 20,
 		y = offset + TEXT_OFFSET,

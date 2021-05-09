@@ -11,11 +11,11 @@ local scenariodata = {
     imageflavor     = "You can resurrect your fallen infantry units", -- This text will be drawn over image
     summary         = [[Defeat two hostile but primitive Barbarians with nothing but your own primitive infantry.]],
     briefing        = [[Both you and your enemy may only make infantry units. Since you're up against a larger enemy, be sure to expand quickly and reclaim/resurrect effectively to maintain an advantage. Don't forget to raid the enemy!
- 
+
 Score:
     1. Speed: destroy the enemy Commanders as fast as possible.
     2. Efficiency: minimize the amount of metal and energy used.
- 
+
 Tips:
     1. Light laser towers are incredibly effective against small amounts of infantry.
     2. Resurrecting a fallen infantry unit will immediately add it to your army. Use this to stage epic comebacks.
@@ -71,10 +71,10 @@ Tips:
     scenariooptions = { -- this will get lua->json->base64 and passed to scenariooptions in game
         myoption = "dostuff",
         scenarioid = "twobarbspwakonly006",
-        disablefactionpicker = true, -- this is needed to prevent faction picking outside of the allowedsides 
+        disablefactionpicker = true, -- this is needed to prevent faction picking outside of the allowedsides
     },
     -- https://github.com/spring/spring/blob/105.0/doc/StartScriptFormat.txt
-    startscript     = [[ 
+    startscript     = [[
 [Game]
 {
     [allyTeam0]

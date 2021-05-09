@@ -11,11 +11,11 @@ local scenariodata = {
 	imageflavor		= "", -- This text will be drawn over image
     summary         = [[Your Armada commander lost the blueprints to most factories and units. Oops! But perhaps your Cortex enemy has a solution for you...]],
 	briefing 		= [[In this challenge, most Armada combat units and factories are disabled. Use your Commander and static defenses to hold your frontline and your expansions. Find and resurrect an enemy constructor to build combat units. Resurrection Bots (Cortex Necro and Armada Rezzer) can resurrect and repair units, but cannot build structures. They are also stealthy, so they dont show up on the enemy's radar. Use your commander's d-gun wisely, as it completely destroys units, including their wrecks. Use terrain to your advantage when playing defensively.
- 
+
 Score:
 	1. Speed: destroy the enemy Commander as fast as possible.
 	2. Efficiency: minimize the amount of metal and energy used.
- 
+
 Tips:
 	1. Light laser towers can be effective as a low cost option to hold a front line and expansions before you steal enemy tech.
 	2. Send constructors to the front line to build turrets and other defensive structures!
@@ -62,18 +62,18 @@ Tips:
     scenariooptions = { -- this will get lua->json->base64 and passed to scenariooptions in game
         myoption = "dostuff",
         scenarioid = "stealtech005",
-        disablefactionpicker = true, -- this is needed to prevent faction picking outside of the allowedsides 
+        disablefactionpicker = true, -- this is needed to prevent faction picking outside of the allowedsides
     },
     -- https://github.com/spring/spring/blob/105.0/doc/StartScriptFormat.txt
 
     -- HOW TO MAKE THE START SCRIPT: Use Chobby's single player mode to set up your start script. When you launch a single player game, the start script is dumped into infolog.txt
-    -- The following keys MUST be present in startscript below 
+    -- The following keys MUST be present in startscript below
     --  __SCENARIOOPTIONS__
     -- __PLAYERNAME__
     -- __BARVERSION__
     -- __MAPNAME__
 
-    -- Optional keys: 
+    -- Optional keys:
     -- __ENEMYHANDICAP__
     -- __PLAYERSIDE__
     -- __PLAYERHANDICAP__
@@ -145,7 +145,7 @@ Tips:
     GameStartDelay = 3;
     myplayername = __PLAYERNAME__;
     nohelperais = 0;
-    
+
     // do not touch these, chobby will generate these from the unitlimits table
 	NumRestrictions=__NUMRESTRICTIONS__;
 	[RESTRICT]
@@ -154,7 +154,7 @@ Tips:
 	}
 }
 	]],
-	
+
 }
 
 return scenariodata

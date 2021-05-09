@@ -881,12 +881,12 @@ local function InitializeControls(window)
 	if welcomePanelItems then
 		newsHandler.ReplaceNews(welcomePanelItems)
 	end
-	
+
 	local function OnNewsList(_, welcomePanelItems)
 		newsHandler.ReplaceNews(welcomePanelItems)
 	end
 	lobby:AddListener("OnNewsList", OnNewsList)
-	
+
 	-- Forum Handler
 	--[[
 	local forumHandler = GetNewsHandler(midCenter, 2, true, "Recent Posts", true)

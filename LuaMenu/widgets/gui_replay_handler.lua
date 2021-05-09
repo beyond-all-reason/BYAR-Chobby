@@ -27,25 +27,9 @@ local REPLAY_LIST_ENTRY_HEIGHT = 120
 --------------------------------------------------------------------------------
 -- Utilities
 
-local function ShortenGameName(gameName)
-	gameName = gameName:gsub("Beyond All Reason","BAR")
-	gameName = gameName:gsub("test","")
-	if gameName:find("-[^-]*$") then
-	  gameName = gameName:sub(1, gameName:find("-[^-]*$") -1 )
-	end
-	return gameName
-  end
-
-  local function ShortenEngineName(engineName)
-	if engineName:find("-[^-]*$") then
-	  engineName = engineName:sub(1, engineName:find("-[^-]*$") -1)
-	end
-	return engineName
-  end
-
-  local function ternary(condition, T, F)
-	  if condition then return T else return F end
-  end
+local function ternary(condition, T, F)
+  if condition then return T else return F end
+end
 
 -- Returns whether the players structure of the replay request corresponds
 -- to an FFA game ot not.
@@ -54,7 +38,7 @@ local function is_ffa(teams)
 		return false
 	end
 
-	for i, team in pairs(teams) do
+	for _, team in pairs(teams) do
 		if #team > 1 then
 			return false
 		end
@@ -69,7 +53,7 @@ local function battleType(teams)
 	end
 
 	local teams_lengths = {}
-	for i, team in pairs(teams) do
+	for _, team in pairs(teams) do
 		table.insert(teams_lengths, #team)
 	end
 
@@ -79,8 +63,8 @@ end
 
 --	From the flat array of players, build an array of teams
 local function buildTeams(players)
-	teams = {}
-	for i, player in pairs(players) do
+	local teams = {}
+	for _, player in pairs(players) do
 		local team
 		if teams[player.allyTeamId + 1] == nil then
 			team = {}
@@ -93,10 +77,10 @@ local function buildTeams(players)
 	return teams
 end
 
---  Return a widget containing a player's information
+--	Return a widget containing a player's information
 local function playerWidget(playerInfo)
 	local Configuration = WG.Chobby.Configuration
-	userName = playerInfo.name
+	local userName = playerInfo.name
 
 	-- Create a control widget to encapsulate the player's information
 	local ret = Chili.Control:New {
@@ -104,17 +88,17 @@ local function playerWidget(playerInfo)
 		height=PLAYER_HEIGHT, bottom = 0, padding = {0, 0, 0, 0},
 	}
 
-    local image_file
-    if playerInfo.aiId then
-        image_file = Configuration.gameConfig.rankFunction(nil, 0, 0, true, false)
-    else
-        image_file = Configuration.gameConfig.rankFunction(
+	local image_file
+	if playerInfo.aiId then
+		image_file = Configuration.gameConfig.rankFunction(nil, 0, 0, true, false)
+	else
+		image_file = Configuration.gameConfig.rankFunction(
 			nil, tonumber(playerInfo.rank), 0, false, false
 		)
-    end
+	end
 
 	-- Get the rank image for the player
-	local imageRank = Image:New {
+	Image:New {
 		name = "imRank",
 		x = 0,
 		y = 0,
@@ -126,7 +110,7 @@ local function playerWidget(playerInfo)
 	}
 
 	-- Textbox with the user's name
-	local userName = TextBox:New {
+	TextBox:New {
 		name = "userName",
 		x = 18, y = 0, right = 0, height = PLAYER_HEIGHT,
 		valign = "top",
@@ -162,7 +146,7 @@ local function CreateReplayEntry(
 
 	-- Compute the time of the replay
 	local hours, minutes = math.floor(time / 3600), math.floor(time / 60) % 60
-	local replayTimeString = ""
+	local replayTimeString
 
 	-- Filter out replays that are less than a minute long, but where the
 	-- absolute time is not 0
@@ -203,7 +187,7 @@ local function CreateReplayEntry(
 		parent = replayPanel,
 	}
 
-	local imMinimap = Image:New {
+	Image:New {
 		x = 0, y = 0,
 		right = 0,
 		bottom = 0,
@@ -214,7 +198,7 @@ local function CreateReplayEntry(
 		tooltip = "prout"
 	}
 
-	local replayBattleType = TextBox:New {
+	TextBox:New {
 		name = "replayBattleType",
 		x = 135, y = 22,
 		right = 0, height = 20,
@@ -224,7 +208,7 @@ local function CreateReplayEntry(
 		parent = replayPanel,
 	}
 
-	local replayDate = TextBox:New {
+	TextBox:New {
 		name = "replayDate",
 		x = 135, y = 65,
 		right = 0, height = 20,
@@ -234,7 +218,7 @@ local function CreateReplayEntry(
 		parent = replayPanel,
 	}
 
-	local replayTime = TextBox:New {
+	TextBox:New {
 		name = "replayTime",
 		x = 135, y = 82,
 		right = 0, height = 20,
@@ -244,7 +228,7 @@ local function CreateReplayEntry(
 		parent = replayPanel,
 	}
 
-	local replayMap = TextBox:New {
+	TextBox:New {
 		name = "replayMap",
 		x = 135, y = 42,
 		right = 0, height = 20,
@@ -282,7 +266,7 @@ local function CreateReplayEntry(
 		end
 
 		-- Show a "Team n" label on the first line for each team
-		local teamId = TextBox:New {
+		TextBox:New {
 			x = xOffset, y = yOffset, right = 0, height = 10,
 			valign = 'center',
 			fontsize = Configuration:GetFont(1).size,
@@ -292,13 +276,13 @@ local function CreateReplayEntry(
 		yOffset = yOffset + PLAYER_HEIGHT
 
 		--	Then add each player on a subsequent line
-		for i, player in pairs(team) do
+		for _, player in pairs(team) do
 
 			--	If there are too many players to display on one line, just add
 			--	an ellipsis and skip subsequent players for the team.
 			if yOffset + PLAYER_HEIGHT * 2 >= REPLAY_LIST_ENTRY_HEIGHT then
 				local ellipsis = TextBox:New {
-					x = xOffset, y = YOffset, text = "..."
+					x = xOffset, y = yOffset, text = "..."
 				}
 				userList:AddChild(ellipsis)
 				ellipsis:SetPos(xOffset, yOffset)
@@ -317,13 +301,17 @@ local function CreateReplayEntry(
 		 end
 	end
 
-	local startButton = Button:New {
+	Button:New {
 		x = "90%",
 		y = 3,
 		bottom = 3,
 		width = "8%",
 		caption = i18n("start"),
-		classname = ternary(WG.Chobby.Configuration:IsValidEngineVersion(engineName),"action_button",option_button),
+		classname = ternary(
+			WG.Chobby.Configuration:IsValidEngineVersion(engineName),
+			"action_button",
+			"option_button"
+		),
 		font = WG.Chobby.Configuration:GetFont(2),
 		OnClick = {
 			function()
@@ -331,7 +319,10 @@ local function CreateReplayEntry(
 					return
 				end
 				local offEngine = not WG.Chobby.Configuration:IsValidEngineVersion(engineName)
-				WG.SteamCoopHandler.AttemptGameStart("replay", gameName, mapName, nil, nil, replayPath, offEngine and engineName)
+				WG.SteamCoopHandler.AttemptGameStart(
+					"replay", gameName,
+					mapName, nil, nil, replayPath, offEngine and engineName
+				)
 			end
 		},
 		parent = replayPanel,
@@ -366,7 +357,7 @@ local function InitializeControls(parentControl)
 		parent = parentControl,
 	}
 
-	local loadingLabel = Label:New {
+	Label:New {
 		x = "5%",
 		y = "5%",
 		width = "90%",
@@ -402,8 +393,42 @@ local function InitializeControls(parentControl)
 	local PartialAddReplays, moreButton
 
 	local function AddReplays()
-		local replays = VFS.DirList("demos")
-		--Spring.Utilities.TableEcho(replays, "replaysList")
+
+		local replays = VFS.DirList("demos", "*.sdfz")
+		local index = #replays
+
+        --  Add one replay to the replay list
+		local function AddOneReplay()
+			if index < 1 then
+				if moreButton then
+					moreButton:SetVisibility(false)
+				end
+				loadingPanel:SetVisibility(false)
+				return
+			end
+			local replayPath = replays[index]
+			WG.WrapperLoopback.ReadReplayInfo(replayPath)
+			index = index - 1
+		end
+
+        --  Add replays to the replays list
+		PartialAddReplays = function()
+			local remaining = 50
+
+			local function QueueOneReplay()
+				AddOneReplay()
+				remaining = remaining - 1
+				if remaining > 0 then
+					WG.Delay(QueueOneReplay, 0.005)
+				else
+					loadingPanel:SetVisibility(false)
+				end
+			end
+
+			loadingPanel:SetVisibility(true)
+			loadingPanel:BringToFront()
+			QueueOneReplay()
+		end
 
 		replayList:Clear()
 
@@ -411,31 +436,19 @@ local function InitializeControls(parentControl)
 			moreButton:SetVisibility(true)
 		end
 
-		local index = #replays
-		PartialAddReplays = function()
-			loadingPanel:SetVisibility(true)
-			loadingPanel:BringToFront()
-			local items = {}
-			for i = 1, 20 do
-				if index < 1 then
-					if moreButton then
-						moreButton:SetVisibility(false)
-					end
-					loadingPanel:SetVisibility(false)
-					return
-				end
-				local replayPath = replays[index]
-				WG.WrapperLoopback.ReadReplayInfo(replayPath)
-				index = index - 1
-			end
-
-			loadingPanel:SetVisibility(false)
+        -- We add 9 replays instantly to the replay list. This is so that it
+        -- feels "filled" when you open the window (9 fills the window on an HD
+        -- screen). We don't add more because adding replays is still quite
+        -- slow Chobby wise, so we'll add the following ones asynchronously.
+		for _ = 1, 9 do
+			AddOneReplay()
 		end
-
 		PartialAddReplays()
 	end
 
+	listHolder:Hide()
 	AddReplays()
+	WG.Delay(function () listHolder:Show() end, 0.05)
 
 	-------------------------
 	-- Buttons
@@ -450,11 +463,7 @@ local function InitializeControls(parentControl)
 		font = Configuration:GetFont(3),
 		classname = "option_button",
 		parent = parentControl,
-		OnClick = {
-			function ()
-				AddReplays()
-			end
-		},
+		OnClick = {AddReplays},
 	}
 
 	moreButton = Button:New {
@@ -474,21 +483,6 @@ local function InitializeControls(parentControl)
 			end
 		},
 	}
-	--local btnClose = Button:New {
-	--	right = 11,
-	--	y = 7,
-	--	width = 80,
-	--	height = 45,
-	--	caption = i18n("close"),
-	--	font = Configuration:GetFont(3),
-	--	classname = "negative_button",
-	--	OnClick = {
-	--		function()
-	--			parentControl:Hide()
-	--		end
-	--	},
-	--	parent = parentControl
-	--}
 
 	if WG.BrowserHandler and Configuration.gameConfig.link_replays ~= nil then
 		Button:New {
@@ -513,19 +507,19 @@ local function InitializeControls(parentControl)
 	function externalFunctions.AddReplay(replayPath, engine, game, map, players, time)
 		--	Try to add the replay, show the stack trace in case of error
 		xpcall(
-            function ()
-                local control, sortData = CreateReplayEntry(replayPath, engine, game, map, players, time)
+			function ()
+				local control, sortData = CreateReplayEntry(replayPath, engine, game, map, players, time)
 
-                if control then
-                    replayList:AddItem(replayPath, control, sortData)
-                end
-            end,
+				if control then
+					replayList:AddItem(replayPath, control, sortData)
+				end
+			end,
 
-            function (err)
-                Spring.Log("AddReplay", LOG.ERROR, "Couldn't add replay", replayPath)
-                Spring.Log("AddReplay", LOG.ERROR, debug.traceback(err))
-            end
-        )
+			function (err)
+				Spring.Log("AddReplay", LOG.ERROR, "Couldn't add replay", replayPath)
+				Spring.Log("AddReplay", LOG.ERROR, debug.traceback(err))
+			end
+		)
 	end
 
 	return externalFunctions
@@ -569,16 +563,11 @@ end
 -- Widget Interface
 
 local function DelayedInitialize()
-	local Configuration = WG.Chobby.Configuration
-	battleStartDisplay = Configuration.game_fullscree
 end
 
 function widget:Initialize()
-	CHOBBY_DIR = LUA_DIRNAME .. "widgets/chobby/"
 	VFS.Include(LUA_DIRNAME .. "widgets/chobby/headers/exports.lua", nil, VFS.RAW_FIRST)
-
 	WG.Delay(DelayedInitialize, 1)
-
 	WG.ReplayHandler = ReplayHandler
 end
 

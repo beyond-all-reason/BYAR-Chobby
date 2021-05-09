@@ -2894,7 +2894,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		})
 	end
 
-	
+
 	battleLobby:AddListener("OnUpdateUserTeamStatus", OnUpdateUserTeamStatus)
 	battleLobby:AddListener("OnBattleIngameUpdate", OnBattleIngameUpdate)
 	battleLobby:AddListener("OnUpdateBattleInfo", OnUpdateBattleInfo)
@@ -2934,7 +2934,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		oldLobby:RemoveListener("OnMatchMakerReadyUpdate", OnMatchMakerReadyUpdate)
 		oldLobby:RemoveListener("OnMatchMakerReadyResult", OnMatchMakerReadyResult)
 		oldLobby:RemoveListener("OnRemoveStartRect", OnRemoveStartRect)
-		oldLobby:RemoveListener("OnAddStartRect", OnAddStartRect) -- or else they pile up XD 
+		oldLobby:RemoveListener("OnAddStartRect", OnAddStartRect) -- or else they pile up XD
 		oldLobby:RemoveListener("OnRing", OnRing)
 		oldLobby:RemoveListener("OnEnableAllUnits", OnEnableAllUnits)
 		oldLobby:RemoveListener("OnDisableUnits", OnDisableUnits)

@@ -475,7 +475,7 @@ function Configuration:SetConfigData(data)
 	--if self.serverAddress == "road-flag.bnr.la" then
 	--	self.serverAddress = "bar.teifion.co.uk"
 	--end
-	
+
 
 	local newSpringsettings, onlyIfMissingSettings = VFS.Include(LUA_DIRNAME .. "configs/springsettings/springsettingsChanges.lua")
 	for key, value in pairs(newSpringsettings) do

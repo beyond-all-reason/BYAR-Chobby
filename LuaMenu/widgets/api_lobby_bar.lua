@@ -34,7 +34,7 @@ function widget:Initialize()
 		return self
 	end
 
-	lobby.SetIngameStatus = function(self, ingame, away) 
+	lobby.SetIngameStatus = function(self, ingame, away)
 		-- this still isnt perfect; if away status is ever reported, then ingame status wont be returned by server when playing skirmish
 		if ingame ~= nil then lobby.MyStatusIngame = ingame end
 
@@ -46,7 +46,7 @@ function widget:Initialize()
 		else
 			if lobby.MyStatusAway then newstatus =  2 end
 		end
-		
+
 		--Spring.Echo("widget:api_lobby_bar.lua:","Interface:SetIngameStatus(ingame, away)",ingame, away, newstatus)
 		if lobby.MyStatus ~= newstatus then -- dont spam clientstatus
 			if newstatus == 1 and lobby.MyStatus == 2 then

@@ -77,9 +77,9 @@ function InterfaceSkirmish:_StartScript(gameName, mapName, playerName, friendLis
 	end
 
 	-- Add the player, this is to make the player team 0.
-	-- except that it doesnt actually work, and makes the player in the _last_ allyteam :/ 
+	-- except that it doesnt actually work, and makes the player in the _last_ allyteam :/
 	-- so we will rewrite it to reflect actual chobby single player setup
-	
+
 	for userName, data in pairs(self.userBattleStatus) do
 		if data.allyNumber and not data.aiLib then --every player must have an allynumber!
 			players[playerCount] = {

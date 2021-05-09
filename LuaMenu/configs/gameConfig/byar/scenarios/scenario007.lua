@@ -8,20 +8,20 @@ local scenariodata = {
 	imageflavor		= "Acidic water damages any unit coming into contact with it", -- This text will be drawn over image
     summary         = [[Acidic rains prevent any land or sea units, so you must take to the skies to defeat two enemy Commanders. The acidic environment also prevent use of the usual anti-air defensive turrets. Bomb your way to victory.]],
 	briefing 		= [[
-The environmental conditions prevent the use of your mainstay army options, so plan your aircraft raids on the enemy platforms wisely. 
- 
+The environmental conditions prevent the use of your mainstay army options, so plan your aircraft raids on the enemy platforms wisely.
+
 
 Tips:
  - Fighters are your only defense against enemy aircraft, and you will need them quickly.
  - Wind Generators are more vulnerable when built close together, as they damage adjacent units and structures when destroyed. Space them well [Hotkeys Z and X while building a grid of them]
  - Aircraft in general cost a lot of energy to build
- - The energy output of wind generators fluctuate, so it is recommended to build at least one Energy Storage building to smooth out the intermittent supply. 
- - You can build Air Transports to ferry your Commander between the rocky pillars, but do so only when safe, as enemy fighters can easily shoot down a vulnerable Air Transport, instantly killing any transported unit 
+ - The energy output of wind generators fluctuate, so it is recommended to build at least one Energy Storage building to smooth out the intermittent supply.
+ - You can build Air Transports to ferry your Commander between the rocky pillars, but do so only when safe, as enemy fighters can easily shoot down a vulnerable Air Transport, instantly killing any transported unit
  - You can also transport Nano Turrets in Air Transports
  - Armada has access to Banshees, which are excellent early gunship aircraft
- - Armada can build Twilights, which are cloakable and stealthy metal extractors. These will be much more difficult to raid for the enemy, but when you run out of energy, their cloaking fields may fail until you restore your energy supplies 
+ - Armada can build Twilights, which are cloakable and stealthy metal extractors. These will be much more difficult to raid for the enemy, but when you run out of energy, their cloaking fields may fail until you restore your energy supplies
 
- 
+
 Scoring:
 	1. Speed: destroy the enemy Commanders as fast as possible.
 	2. Efficiency: minimize the amount of metal and energy used.
@@ -74,18 +74,18 @@ Scoring:
     scenariooptions = { -- this will get lua->json->base64 and passed to scenariooptions in game
         myoption = "dostuff",
         scenarioid = "acidicquarrybarbs",
-		disablefactionpicker = true, -- this is needed to prevent faction picking outside of the allowedsides 
+		disablefactionpicker = true, -- this is needed to prevent faction picking outside of the allowedsides
     },
     -- https://github.com/spring/spring/blob/105.0/doc/StartScriptFormat.txt
 
     -- HOW TO MAKE THE START SCRIPT: Use Chobby's single player mode to set up your start script. When you launch a single player game, the start script is dumped into infolog.txt
-    -- The following keys MUST be present in startscript below 
+    -- The following keys MUST be present in startscript below
     --  __SCENARIOOPTIONS__
     -- __PLAYERNAME__
     -- __BARVERSION__
     -- __MAPNAME__
 
-    -- Optional keys: 
+    -- Optional keys:
     -- __ENEMYHANDICAP__
     -- __PLAYERSIDE__
     -- __PLAYERHANDICAP__
@@ -188,7 +188,7 @@ Scoring:
 	{
 		__RESTRICTEDUNITS__
 	}
-}    
+}
 	]],
 }
 

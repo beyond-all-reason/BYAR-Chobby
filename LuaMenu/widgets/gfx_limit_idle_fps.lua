@@ -106,7 +106,7 @@ function widget:Update()
 		else
 			isIdle = false
         end
-        
+
         if lastUserInputTime < os.clock() - awayTime then
             isAway = true
         else
@@ -120,7 +120,7 @@ function widget:Update()
 			end
 			Spring.SetConfigInt("VSync", (isIdle and vsyncValueIdle or vsyncValueActive))
         end
-        
+
         if isAway ~= prevIsAway then
             local lobby = WG.LibLobby.lobby
 			if lobby.SetIngameStatus then

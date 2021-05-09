@@ -7,19 +7,19 @@ local scenariodata = {
 	imagepath		= "scenario014.jpg", -- placed next to lua file, should be 3:1 ratio banner style
 	imageflavor		= "Build a shipyard from the shores.", -- This text will be drawn over image
     summary         = [[An enemy Commander has landed on the southeast corner of the map, neutralize it and destroy every last unit to claim all the resources of this world.]],
-	briefing 		= [[The map is split in two by a river, which is passable on both sides by hovercraft and amphibious units. The central bridge can be easily defended from the outcrops on the top. Make sure to set up some light defences on your end of the bridge as soon as possible. The mountain ranges will provide adequate cover against long-range plasma cannons. 
-	
+	briefing 		= [[The map is split in two by a river, which is passable on both sides by hovercraft and amphibious units. The central bridge can be easily defended from the outcrops on the top. Make sure to set up some light defences on your end of the bridge as soon as possible. The mountain ranges will provide adequate cover against long-range plasma cannons.
+
 Tips:
  - Start by building the initial 3 Metal Extractors, then 2 Solar Generators, and a Bot Lab
  - Make sure to send a few attack units early on to secure the bridge
  - Watch out for amphibous units or hovercraft making their way across the river
- - After securing the bridge and claiming the metal on the western side of the river, you should have sufficient resources to advance your technology to Tier 2. 
+ - After securing the bridge and claiming the metal on the western side of the river, you should have sufficient resources to advance your technology to Tier 2.
  - The map doesnt contain very much contested resources, so you should be free
- 
+
 Scoring:
  - Time taken to complete the scenario
  - Resources spent to destroy all enemy units.
- 
+
 The difficulty modifier will change the amount of resources you and the enemy can use:
  - Beginner: You +50%, enemy -50%
  - Novice: You +25%, enemy -25%
@@ -54,11 +54,11 @@ The difficulty modifier will change the amount of resources you and the enemy ca
     scenariooptions = { -- this will get lua->json->base64 and passed to scenariooptions in game
         myoption = "dostuff",
         scenarioid = "pinewoodvsbarb014", --must be present for scores
-		disablefactionpicker = true, -- this is needed to prevent faction picking outside of the allowedsides 
+		disablefactionpicker = true, -- this is needed to prevent faction picking outside of the allowedsides
     },
     -- https://github.com/spring/spring/blob/105.0/doc/StartScriptFormat.txt
-	startscript		= [[ 
-	
+	startscript		= [[
+
 [Game]
 {
 	[allyTeam0]
@@ -121,7 +121,7 @@ The difficulty modifier will change the amount of resources you and the enemy ca
 		Team = 0;
 		rank = 0;
 	}
-	
+
 	NumRestrictions=__NUMRESTRICTIONS__;
 
 	[RESTRICT]
@@ -142,7 +142,7 @@ The difficulty modifier will change the amount of resources you and the enemy ca
 	nohelperais = 0;
 }
 	]],
-	
+
 }
 
 return scenariodata -- scenariodata

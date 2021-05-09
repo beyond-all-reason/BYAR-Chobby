@@ -202,14 +202,14 @@ local function GetUserComboBoxOptions(userName, isInBattle, userControl, showTea
 		if userInfo.accountID and Configuration.gameConfig.link_reportPlayer ~= nil then
 			comboOptions[#comboOptions + 1] = "Report"
 		end
-		
+
 		if userInfo.isIgnored then
-			comboOptions[#comboOptions + 1] = "Unignore" 
-		elseif not userInfo.isAdmin then
-			if (Configuration.gameConfig.spadsLobbyFeatures ~= true ) or
-				(Configuration.gameConfig.spadsLobbyFeatures == true and not userInfo.isBot) then
-				-- comboOptions[#comboOptions + 1] = "Ignore" --remove ignore for now
-			end
+			comboOptions[#comboOptions + 1] = "Unignore"
+		-- elseif not userInfo.isAdmin then
+		-- 	if (not Configuration.gameConfig.spadsLobbyFeatures) or
+		-- 		(Configuration.gameConfig.spadsLobbyFeatures and not userInfo.isBot) then
+		-- 		-- comboOptions[#comboOptions + 1] = "Ignore" --remove ignore for now
+		-- 	end
 		end
 
 
@@ -260,7 +260,7 @@ local function GetUserComboBoxOptions(userName, isInBattle, userControl, showTea
 		comboOptions[#comboOptions + 1] = "Force Spectator"
 	end
 
-	-- Spec: in same battle, is not AI and is not spec: 
+	-- Spec: in same battle, is not AI and is not spec:
 	if Configuration.gameConfig.spadsLobbyFeatures and
 		isInBattle and not userBattleInfo.isSpectator and not userBattleInfo.aiLib then
 		comboOptions[#comboOptions + 1] = "Make Boss"
@@ -536,7 +536,7 @@ local function UpdateUserBattleStatus(listener, userName)
 				if handicap ~= nil then
 					local handicaptxt = ''
 					if battleStatus.handicap == 0 then
-						
+
 						data.lblHandicap:SetVisibility(false)
 					else
 						if battleStatus.handicap > 0 then
@@ -784,8 +784,8 @@ local function GetUserControls(userName, opts)
 							return
 						end
 						local minbonus = 0
-						if isSingleplayer then 
-							minbonus = -99 
+						if isSingleplayer then
+							minbonus = -99
 						end
 						WG.IntegerSelectorWindow.CreateIntegerSelectorWindow({
 							defaultValue = 0,

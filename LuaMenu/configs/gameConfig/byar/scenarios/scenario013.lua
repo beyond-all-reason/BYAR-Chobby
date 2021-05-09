@@ -8,18 +8,18 @@ local scenariodata = {
 	imageflavor		= "Shipyards can be assisted by all constructors", -- This text will be drawn over image
     summary         = [[Test your skill in naval and aircraft warfare on one of the widest maps. You must defeat a single enemy, who like you, is still quite new to naval combat..]],
 	briefing 		= [[Naval battles in BAR are focused on the interaction between ships, submarines, hovercraft, aircraft and occasionally, amphibious units.
-	
-Tips:
- - The Cortex Gimp (Tier 2 Bot) amphibous bot armed with a short-range laser, and a torpedo launcher. It is the only amphibous unit capable of firing while underwater. 
- - The Armada Pelican (Tier 2 Bot) has a short range laser, and an Anti-Aircraft missile, and can provide excellent raiding and support while swimming above the water. 
- - Some Experimental Gantry (Tier 3) units are amphibious, and some stand tall enough to fire their weapons at surfact targets while in water. 
- - Large maps provide great incentives to use Nuclear Missiles, so take care to defend yourself with either: Land nuclear missile defence or a mobile form of it. 
- - Aircraft carriers can repair aircraft while at sea, and even have an anti-nuclear missile. 
- - Flagships offer the highest concentration of ranged firepower possible. 
- - Torpedo bombers can quickly dispose of any fleet without sufficient anti-air cover. 
 
- 
-Scoring: 
+Tips:
+ - The Cortex Gimp (Tier 2 Bot) amphibous bot armed with a short-range laser, and a torpedo launcher. It is the only amphibous unit capable of firing while underwater.
+ - The Armada Pelican (Tier 2 Bot) has a short range laser, and an Anti-Aircraft missile, and can provide excellent raiding and support while swimming above the water.
+ - Some Experimental Gantry (Tier 3) units are amphibious, and some stand tall enough to fire their weapons at surfact targets while in water.
+ - Large maps provide great incentives to use Nuclear Missiles, so take care to defend yourself with either: Land nuclear missile defence or a mobile form of it.
+ - Aircraft carriers can repair aircraft while at sea, and even have an anti-nuclear missile.
+ - Flagships offer the highest concentration of ranged firepower possible.
+ - Torpedo bombers can quickly dispose of any fleet without sufficient anti-air cover.
+
+
+Scoring:
  - Time taken to destroy all enemy units
  - Resources spent to kill the enemy commander
 
@@ -51,11 +51,11 @@ Scoring:
     scenariooptions = { -- this will get lua->json->base64 and passed to scenariooptions in game
         myoption = "dostuff",
         scenarioid = "shoretoshorevsbarb013", --must be present for scores
-		disablefactionpicker = true, -- this is needed to prevent faction picking outside of the allowedsides 
+		disablefactionpicker = true, -- this is needed to prevent faction picking outside of the allowedsides
     },
     -- https://github.com/spring/spring/blob/105.0/doc/StartScriptFormat.txt
-	startscript		= [[ 
-	
+	startscript		= [[
+
 [Game]
 {
 	[allyTeam0]
@@ -118,7 +118,7 @@ Scoring:
 		Team = 0;
 		rank = 0;
 	}
-	
+
 	NumRestrictions=__NUMRESTRICTIONS__;
 	[RESTRICT]
 	{
@@ -138,7 +138,7 @@ Scoring:
 	nohelperais = 0;
 }
 	]],
-	
+
 }
 
 return scenariodata

@@ -8,15 +8,15 @@ local scenariodata = {
 	imageflavor		= "Enemy Juggernauts", -- This text will be drawn over image
     summary         = [[On the metal-rich Speed Metal road, you find yourself face to face with an enemy Cortex commander and its four pet Juggernauts.]],
 	briefing 		= [[You've been tasked to defeat an enemy who is rumored to have four of the tankiest units in the game: the Cortex Juggernaut. While they are slow, they spell almost certain doom for your base should they reach it. Your intelligence team has snuck dragon eyes into the enemy base and along the long Speed Metal road to report on the position of these beasts, but are otherwise defenseless against them. Perhaps you must snipe the enemy commander to demoralize their army...
- 
-Tips: 
+
+Tips:
  - On Speed Metal, metal extractors can be built anywhere and have a rather high output. Wind generators are by far the best energy source here, being consistently set to the maximum possible wind (25 e/s).
  - You start with a dozen dragon eyes and enough energy to keep them cloaked. Use this to tell how much time you have before the enemy Juggernauts reach your base.
  - Since most land options will likely be blocked by the garguantuan Juggernauts, consider using air options to infiltrate. Armada has two main air assault options: the Banshee, a more mobile light gunship with a machine gun weapon, and the Thunder, a traditional bomber that drops 5 bombs in a line. If you choose to make bombers, be sure to send air scouts before them to scout out the enemy.
  - The Atlas air transport may be used to drop units to the enemy base, but be careful as the enemy has light anti-air turrets that will shoot mediocre drop attempts down.
  - As a last ditch attempt, the commander may attempt to D-gun the Juggernauts, which will one tap them. Be wary that if your commander dies, you lose!
- 
-Scoring: 
+
+Scoring:
  - Time taken to complete the scenario
  - Resources spent to kill the enemy commander
  ]],
@@ -51,11 +51,11 @@ Scoring:
         scenarioid = "SpeedMetalSnipe011", -- this MUST be present and identical to the one defined at start
 		disablefactionpicker = true, -- this is needed to prevent faction picking outside of the allowedsides
 
-        unitloadout = { 
+        unitloadout = {
 			-- You can specify units that you wish to spawn here, they only show up once game starts,
 			-- You can create these lists easily using the feature/unit dumper by using dbg_feature_dumper.lua widget pinned to the #challenges channel on discord
 			-- Set up a skirmish like your scenario, so the team ID's will be correct
-			-- Then using /globallos and cheats, add as many units as you wish 
+			-- Then using /globallos and cheats, add as many units as you wish
 			-- The type /luaui dumpunits
 			-- Fish out the dumped units from your infolog.txt and add them here
 			-- Note: If you have ANY units in loadout, then there will be no initial units spawned for anyone, so you have to take care of that
@@ -108,19 +108,19 @@ Scoring:
 			 -- {name = 'corcom_dead', x = 1125,y = 237, z = 734, rot = "0" , scale = 1.0, resurrectas = "corcom"}, -- there is no need for this dead comm here, just an example
 		}
     },
-    -- Full Documentation for start script here: 
+    -- Full Documentation for start script here:
     -- https://github.com/spring/spring/blob/105.0/doc/StartScriptFormat.txt
 
     -- HOW TO MAKE THE START SCRIPT: Use Chobby's single player mode to set up your start script. When you launch a single player game, the start script is dumped into infolog.txt
     -- ModOptions: You can also set modoptions in chobby, and they will get dumped into the infolog's start script too, or just set then in chobby and copy paste them into the [modoptions] tag. as below
-    -- The following keys MUST be present in startscript below 
-    --  scenariooptions = __SCENARIOOPTIONS__; 
+    -- The following keys MUST be present in startscript below
+    --  scenariooptions = __SCENARIOOPTIONS__;
     -- Name = __PLAYERNAME__;
     -- myplayername = __PLAYERNAME__;
     -- gametype = __BARVERSION__;
     -- mapname =__MAPNAME__;
 
-    -- Optional keys: 
+    -- Optional keys:
     -- __ENEMYHANDICAP__
     -- __PLAYERSIDE__
     -- __PLAYERHANDICAP__
@@ -194,7 +194,7 @@ Scoring:
 	nohelperais = 0;
 }
 	]],
-	
+
 }
 
 return scenariodata

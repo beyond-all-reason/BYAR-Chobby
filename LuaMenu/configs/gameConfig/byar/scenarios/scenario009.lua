@@ -7,19 +7,19 @@ local scenariodata = {
 	imagepath		= "scenario009.jpg", -- placed next to lua file, should be 3:1 ratio banner style
 	imageflavor		= "All is not lost", -- This text will be drawn over image
     summary         = [[After a ferocious battle, you are left with only a handful of Rezzer's, tasked to resurrect your army. Beware though, it seems that you might not be alone with this goal]],
-	briefing 		= [[You will start with some Necros (Resurrection and Repair Bots), that can resurrect units from their wrecks, though they are unable to resurrect units that have been destroyed beyond repair into just heaps of metal. While Necros cannot build any units on their own, your only hope is to find the wrecks of some construction bots and rebuild everything anew. Units that are resurrected, become active with 0 health, but Necros will continue to repair them back to full health. Necros can also reclaim wrecks from the battlefield for their metal very rapidly, if needed. 
-    
-Tips: 
+	briefing 		= [[You will start with some Necros (Resurrection and Repair Bots), that can resurrect units from their wrecks, though they are unable to resurrect units that have been destroyed beyond repair into just heaps of metal. While Necros cannot build any units on their own, your only hope is to find the wrecks of some construction bots and rebuild everything anew. Units that are resurrected, become active with 0 health, but Necros will continue to repair them back to full health. Necros can also reclaim wrecks from the battlefield for their metal very rapidly, if needed.
+
+Tips:
  - Resurrection bots will use Energy to resurrect units, at a flat cost of 75e per second while resurrecting.
  - You can issue Area-Resurrect and Area-Reclaim commands by right-click dragging
  - Repairing units does not cost any resources.
  - Wrecks of units contain about 60% of their original metal cost, so resurrecting them will be more cost effective, but also slower.
  - Reclaiming is much faster than resurrecting, and can also help you fund your economy very rapidly
  - Resurrect Construction Units and a Factory as soon as possible!
- - There can also be neutral units among the wreckage, these will only return fire if attacked. 
+ - There can also be neutral units among the wreckage, these will only return fire if attacked.
  - You can capture neutral (or enemy) units and structures with Commanders and Decoy Commanders
- 
-Scoring: 
+
+Scoring:
  - Time taken to complete the scenario
  - Resources spent to get a confirmed kill on all enemy units.
  ]],
@@ -54,11 +54,11 @@ Scoring:
         scenarioid = "Tundrabackfromthedead009", -- this MUST be present and identical to the one defined at start
 		disablefactionpicker = true, -- this is needed to prevent faction picking outside of the allowedsides
 
-        unitloadout = { 
+        unitloadout = {
 			-- You can specify units that you wish to spawn here, they only show up once game starts,
 			-- You can create these lists easily using the feature/unit dumper by using dbg_feature_dumper.lua widget pinned to the #challenges channel on discord
 			-- Set up a skirmish like your scenario, so the team ID's will be correct
-			-- Then using /globallos and cheats, add as many units as you wish 
+			-- Then using /globallos and cheats, add as many units as you wish
 			-- The type /luaui dumpunits
 			-- Fish out the dumped units from your infolog.txt and add them here
 			-- Note: If you have ANY units in loadout, then there will be no initial units spawned for anyone, so you have to take care of that
@@ -69,12 +69,12 @@ Scoring:
             {name = 'armadvsol', x = 6704, y = 90, z = 7248, rot = -16384 , team = 1},
             {name = 'armadvsol', x = 6704, y = 90, z = 7312, rot = -16384 , team = 1},
             {name = 'armadvsol', x = 6704, y = 90, z = 7376, rot = -16384 , team = 1},
-            {name = 'armadvsol', x = 6768, y = 90, z = 7184, rot = -16384 , team = 1},  
+            {name = 'armadvsol', x = 6768, y = 90, z = 7184, rot = -16384 , team = 1},
             {name = 'armrectr', x = 6338, y = 91, z = 7203, rot = -28093 , team = 1},
             {name = 'armrectr', x = 6396, y = 90, z = 7203, rot = -24876 , team = 1},
             {name = 'armrectr', x = 6449, y = 90, z = 7203, rot = 32287 , team = 1},
             {name = 'armrectr', x = 6511, y = 90, z = 7185, rot = -27573 , team = 1},
-            {name = 'armrectr', x = 6511, y = 90, z = 7209, rot = -29780 , team = 1},  
+            {name = 'armrectr', x = 6511, y = 90, z = 7209, rot = -29780 , team = 1},
             {name = 'coradvsol', x = 1312, y = 90, z = 944, rot = -16384 , team = 0},
             {name = 'coradvsol', x = 1376, y = 89, z = 816, rot = -16384 , team = 0},
             {name = 'coradvsol', x = 1376, y = 90, z = 1008, rot = -16384 , team = 0},
@@ -86,7 +86,7 @@ Scoring:
             {name = 'cornecro', x = 1670, y = 90, z = 1246, rot = -14935 , team = 0},
             {name = 'cornecro', x = 1770, y = 90, z = 1226, rot = 13024 , team = 0},
             {name = 'cornecro', x = 1903, y = 93, z = 1203, rot = 15314 , team = 0},
-			
+
 		},
 		featureloadout = {
 			-- Similarly to units, but these can also be resurrectable!
@@ -176,19 +176,19 @@ Scoring:
 
 		}
     },
-    -- Full Documentation for start script here: 
+    -- Full Documentation for start script here:
     -- https://github.com/spring/spring/blob/105.0/doc/StartScriptFormat.txt
 
     -- HOW TO MAKE THE START SCRIPT: Use Chobby's single player mode to set up your start script. When you launch a single player game, the start script is dumped into infolog.txt
     -- ModOptions: You can also set modoptions in chobby, and they will get dumped into the infolog's start script too, or just set then in chobby and copy paste them into the [modoptions] tag. as below
-    -- The following keys MUST be present in startscript below 
-    --  scenariooptions = __SCENARIOOPTIONS__; 
+    -- The following keys MUST be present in startscript below
+    --  scenariooptions = __SCENARIOOPTIONS__;
     -- Name = __PLAYERNAME__;
     -- myplayername = __PLAYERNAME__;
     -- gametype = __BARVERSION__;
     -- mapname =__MAPNAME__;
 
-    -- Optional keys: 
+    -- Optional keys:
     -- __ENEMYHANDICAP__
     -- __PLAYERSIDE__
     -- __PLAYERHANDICAP__
@@ -274,7 +274,7 @@ Scoring:
 	nohelperais = 0;
 }
 	]],
-	
+
 }
 
 return scenariodata

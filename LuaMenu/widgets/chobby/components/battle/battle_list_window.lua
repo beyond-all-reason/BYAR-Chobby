@@ -709,7 +709,7 @@ function BattleListWindow:CompareItems(id1, id2)
 end
 
 function BattleListWindow:UpdateButtonColor(battleID)
-	
+
 	local items = self:GetRowItems(battleID)
 	if not items then
 		return
@@ -744,7 +744,7 @@ function BattleListWindow:UpdateButtonColor(battleID)
 		end
 	end
 	--Spring.Echo("BattleListWindow:UpdateButtonColor",battleID,battlebuttonstyle, items.battleButton.backgroundColor,battle.isRunning ,battle.passworded, lobby:GetBattlePlayerCount(battleID))
-	
+
 	if colorChanged then
 		--Spring.Echo("BattleListWindow:UpdateButtonColor",battleID,battlebuttonstyle, items.battleButton.backgroundColor,battle.isRunning ,battle.passworded, lobby:GetBattlePlayerCount(battleID))
 		items.battleButton.backgroundColor = battlebuttonstyle
@@ -942,7 +942,7 @@ function BattleListWindow:OnUpdateBattleInfo(battleID)
 		local playerCount = lobby:GetBattlePlayerCount(battleID)
 		playersOnMapCaption:SetCaption(playerCount .. ((playerCount == 1 and " player on " ) or " players on ") .. battle.mapName:gsub("_", " "))
 	end
-	
+
 	self:UpdateButtonColor(battleID)
 	self:RecalculateOrder(battleID)
 end
@@ -966,7 +966,7 @@ function BattleListWindow:OnBattleIngameUpdate(battleID, isRunning)
 		runningImage.file = BATTLE_NOT_RUNNING
 	end
 	runningImage:Invalidate()
-	
+
 	self:UpdateButtonColor(battleID)
 	self:RecalculateOrder(battleID)
 end

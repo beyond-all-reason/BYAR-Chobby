@@ -8,11 +8,11 @@ local scenariodata = {
 	imageflavor		= "Rocks can contain a lot of metal...", -- This text will be drawn over image
     summary         = [[Three aggressive barbarians have landed in the top right corner of the map. Neutralize them.]],
 briefing 		= [[Fortify your side of the crossing as soon as possible, before the hordes start moving across. All units can pass through the central shallow isthmus, with the notable exception of Fleas. The shallow water connects the two seas, and control over the vast amount of metal they hold is key to victory.
- 
+
 Score:
     1. Speed: destroy the enemy Commanders as fast as possible.
     2. Efficiency: minimize the amount of metal and energy used.
- 
+
 Tips:
     1. The map contains many rocks, reclaim them for metal to quickly progress.
     ]],
@@ -44,18 +44,18 @@ Tips:
     scenariooptions = { -- this will get lua->json->base64 and passed to scenariooptions in game
         myoption = "dostuff",
         scenarioid = "supcrossingvsbarbs001",
-		disablefactionpicker = true, -- this is needed to prevent faction picking outside of the allowedsides 
+		disablefactionpicker = true, -- this is needed to prevent faction picking outside of the allowedsides
     },
     -- https://github.com/spring/spring/blob/105.0/doc/StartScriptFormat.txt
 
     -- HOW TO MAKE THE START SCRIPT: Use Chobby's single player mode to set up your start script. When you launch a single player game, the start script is dumped into infolog.txt
-    -- The following keys MUST be present in startscript below 
+    -- The following keys MUST be present in startscript below
     --  __SCENARIOOPTIONS__
     -- __PLAYERNAME__
     -- __BARVERSION__
     -- __MAPNAME__
 
-    -- Optional keys: 
+    -- Optional keys:
     -- __ENEMYHANDICAP__
     -- __PLAYERSIDE__
     -- __PLAYERHANDICAP__
@@ -170,7 +170,7 @@ Tips:
     myplayername = __PLAYERNAME__;
     nohelperais = 0;
 
-    
+
 	NumRestrictions=__NUMRESTRICTIONS__;
 
 	[RESTRICT]
@@ -179,7 +179,7 @@ Tips:
 	}
 }
 	]],
-	
+
 }
 
 return scenariodata

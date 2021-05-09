@@ -145,7 +145,7 @@ local function CreateColorChangeWindow(opts)
 		color = selectedColor,
 	}
 
-	
+
 	for i, c in ipairs({"Red","Green","Blue"}) do
 		local lblRed = Label:New{
 			x = "5%",
