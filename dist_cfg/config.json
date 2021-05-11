@@ -183,8 +183,8 @@
                         "extract": false
                     },
                     {
-                        "url": "https://github.com/beyond-all-reason/Maps/releases/download/1.0/coastlines_dry_v2.sd7",
-                        "destination": "maps/coastlines_dry_v2.sd7",
+                        "url": "https://github.com/beyond-all-reason/Maps/releases/download/1.0/coastlines_dry_v2.1.sd7",
+                        "destination": "maps/coastlines_dry_v2.1.sd7",
                         "extract": false
                     },
                     {
@@ -631,8 +631,8 @@
                         "extract": false
                     },
                     {
-                        "url": "https://github.com/beyond-all-reason/Maps/releases/download/1.0/coastlines_dry_v2.sd7",
-                        "destination": "maps/coastlines_dry_v2.sd7",
+                        "url": "https://github.com/beyond-all-reason/Maps/releases/download/1.0/coastlines_dry_v2.1.sd7",
+                        "destination": "maps/coastlines_dry_v2.1.sd7",
                         "extract": false
                     },
                     {
