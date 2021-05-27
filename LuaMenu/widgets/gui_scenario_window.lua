@@ -681,7 +681,12 @@ local function CreateScenarioPanel(shortname, sPanel)
 					if WG.Analytics and WG.Analytics.SendRepeatEvent then
 						WG.Analytics.SendRepeatEvent("game_start:singleplayer:scenario_start_" .. scen.scenarioid)
 					end
-					Spring.Reload(scriptTxt)
+					if WG and WG.Chobby and WG.Chobby.localLobby then 
+						--Spring.Echo("Stop the music")
+						WG.LibLobby.localLobby:StartGameFromString(scriptTxt, "scenario")
+					else
+						Spring.Reload(scriptTxt)
+					end
 			end
 		},
 		parent = sPanel,
