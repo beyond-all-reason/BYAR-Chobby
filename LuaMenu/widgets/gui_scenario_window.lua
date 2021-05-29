@@ -792,6 +792,19 @@ local function MakeScenarioScrollPanelChildren()
 				caption = string.format( "Difficulty: % 2d/10",scen.difficulty ),
 			}
 
+			if scen.isnew then
+				local spChallengeLbl = 	Label:New {
+					right = "1%",
+					bottom = 10,
+					width = 100,
+					--height = 30,
+					parent = scenSelectorButton,
+					font = Configuration:GetFont(3),
+					caption = string.format( "New!"),
+				}
+			end
+
+
 
 			if mybestdiff ~= nil then
 				local spScoreRankImg = Image:New{
