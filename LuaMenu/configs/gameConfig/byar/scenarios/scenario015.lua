@@ -4,6 +4,7 @@ local scenariodata = {
     version         = "1.0", -- increment this to keep the score when changing a mission
 	title			= "King of the Hill", -- can be anything
 	author			= "Beherith", -- your name here
+	isnew = true,
 	imagepath		= "scenario015.jpg", -- placed next to lua file, should be 3:1 ratio banner style
 	imageflavor		= "Its cold and lonely up here", -- This text will be drawn over image
     summary         = [[7 enemy Commanders are allied against you, at the top of Throne. Destroy all of them to keep your crown.]],
@@ -49,6 +50,7 @@ The difficulty modifier will change the amount of resources you and the enemy ca
         --armavp = 0,
         --coravp = 0,
     } ,
+	
 
     scenariooptions = { -- this will get lua->json->base64 and passed to scenariooptions in game
         myoption = "dostuff",
