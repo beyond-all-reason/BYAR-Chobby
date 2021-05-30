@@ -198,7 +198,7 @@ local function CreateScenarioPanel(shortname, sPanel)
 			scen = s
 		end
 	end
-
+	
 	MaybeDownloadMap(scen.mapfilename)
 
 
@@ -681,6 +681,17 @@ local function CreateScenarioPanel(shortname, sPanel)
 					if WG.Analytics and WG.Analytics.SendRepeatEvent then
 						WG.Analytics.SendRepeatEvent("game_start:singleplayer:scenario_start_" .. scen.scenarioid)
 					end
+
+					if not VFS.HasArchive(barversion) then
+						WG.Chobby.InformationPopup("You do no have the the latest game version, check your downloads tab or update the game.", {caption = "OK"})
+						return
+					end 	
+						
+					if not VFS.HasArchive(scen.mapfilename) then
+						WG.Chobby.InformationPopup("You do not have the map for this scenario, check your downloads tab to see the download progress.", {caption = "OK"})
+						return
+					end
+
 					if WG and WG.Chobby and WG.Chobby.localLobby then 
 						--Spring.Echo("Stop the music")
 						WG.LibLobby.localLobby:StartGameFromString(scriptTxt, "scenario")
