@@ -4,8 +4,7 @@ BYAR mutator for Chobby
 
 # Download links
 
-- [Linux](https://content.spring-launcher.com/beyond-all-reason/BYAR-Chobby/Beyond%20All%20Reason.AppImage)
-- [Windows](https://content.spring-launcher.com/beyond-all-reason/BYAR-Chobby/Beyond%20All%20Reason.exe)
+- [Windows] and [Linux] https://github.com/beyond-all-reason/BYAR-Chobby/releases
 
 # Developing the Lobby
 
