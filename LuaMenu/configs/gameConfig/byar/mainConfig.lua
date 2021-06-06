@@ -2,6 +2,7 @@ local shortname = "byar"
 
 local sidedata           = VFS.Include(LUA_DIRNAME .. "configs/gameConfig/" .. shortname .. "/sidedata.lua")
 local aiBlacklist        = VFS.Include(LUA_DIRNAME .. "configs/gameConfig/" .. shortname .. "/aiBlacklist.lua")
+local aiSimpleNames      = VFS.Include(LUA_DIRNAME .. "configs/gameConfig/" .. shortname .. "/aiSimpleName.lua")
 local singleplayerConfig = VFS.Include(LUA_DIRNAME .. "configs/gameConfig/" .. shortname .. "/singleplayerMenu.lua")
 local helpSubmenuConfig  = VFS.Include(LUA_DIRNAME .. "configs/gameConfig/" .. shortname .. "/helpSubmenuConfig.lua")
 local skirmishDefault    = VFS.Include(LUA_DIRNAME .. "configs/gameConfig/" .. shortname .. "/skirmishDefault.lua")
@@ -71,6 +72,9 @@ local externalFuncAndData = {
 	defaultChatChannels    = {"main", "newbies"},
 	sayPrivateSelectAndActivateChatTab = sayPrivateSelectAndActivateChatTab,
 	aiBlacklist            = aiBlacklist,
+	GetAiSimpleName        = aiSimpleNames.GetAiSimpleName,
+	simpleAiOrder          = aiSimpleNames.simpleAiOrder,
+	aiTooltip              = aiSimpleNames.aiTooltip,
 	mapDetails             = mapDetails,
 	mapStartBoxes          = mapStartBoxes,
 	useDefaultStartBoxes   = useDefaultStartBoxes,
@@ -83,48 +87,6 @@ local externalFuncAndData = {
 	helpSubmenuConfig      = helpSubmenuConfig,
 	skirmishDefault        = skirmishDefault,
 	sidedata               = sidedata,
-
-	simpleAiOrder = {
-		['BARb stable'] = 1,
-		['BARbarIAn stable'] = 2,
-		['SimpleAI'] = 3,
-		['SimpleCheaterAI'] = 4,
-		['SimpleDefenderAI'] = 5,
-		['STAI'] = 6,
-		--['BARbarIAn 0.57'] = 6,
-		--['BARbarIAn 0.58'] = 7,
-		--['BARbarIAn 0.59'] = 8,
-		['ScavengersAI'] = 6,
-		['Chicken: Very Easy'] = 9,
-		['Chicken: Easy'] = 10,
-		['Chicken: Normal'] = 11,
-		['Chicken: Hard'] = 12,
-		['Chicken: Very Hard'] = 13,
-		['Chicken: Epic!'] = 14,
-		['Chicken: Survival'] = 15,
-		['NullAI 0.1'] = 16,
-	},
-
-	aiTooltip = {
-		['SimpleAI'] = "A simple, easy playing beginner AI (Great for your first game!)",
-		['SimpleCheaterAI'] = "A moderately difficult AI, cheats!",
-		['SimpleDefenderAI'] = "An easy AI, mostly defends and doesnt attack much",
-		['ScavengersAI'] = "This is a PvE game mode, with an increasing difficulty waves of Scavenger AI controlled units attacking the players. Only add 1 per game.",
-		['STAI'] = "A medium to hard difficulty, experimental, non cheating AI.",
-		['NullAI 0.1'] = "A game-testing AI. Literally does nothing.",
-		--['BARbarIAn 0.57'] = "A hard difficulty non-cheating AI, add more for extra difficulty.",
-		--['BARbarIAn 0.58'] = "A hard difficulty non-cheating AI, add more for extra difficulty.",
-		--['BARbarIAn 0.59'] = "A hard difficulty non-cheating AI, add more for extra difficulty.",
-		['BARbarIAn stable'] = "The recommended excellent performance, adjustable difficulty, non-cheating AI. Add as many as you wish!",
-		['Chicken: Very Easy'] = "A moderate difficulty PvE AI, where hordes of alien creatures attack the players. Only add 1 per game.",
-		['Chicken: Easy'] = "An intermediate difficulty PvE AI, where hordes of alien creatures attack the players. Only add 1 per game.",
-		['Chicken: Normal'] = "A hard difficulty PvE AI, where hordes of alien creatures attack the players. Only add 1 per game.",
-		['Chicken: Hard'] = "A hard difficulty PvE AI, where hordes of alien creatures attack the players. Only add 1 per game.",
-		['Chicken: Very Hard'] = "A very hard difficulty PvE AI, where hordes of alien creatures attack the players. Only add 1 per game.",
-		['Chicken: Epic!'] = "An extreme difficulty PvE AI, where hordes of alien creatures attack the players. Only add 1 per game.",
-		['Chicken: Survival'] = "An extreme difficulty PvE AI, where ENDLESS hordes of alien creatures attack the players. Only add 1 per game.",
-	},
-
 	defaultModoptions      = defaultModoptions,
 	rankFunction           = rankFunction,
 	--springSettingsPath     = springSettingsPath,

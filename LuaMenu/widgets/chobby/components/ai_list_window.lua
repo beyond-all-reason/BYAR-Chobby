@@ -26,9 +26,9 @@ end
 function AiListWindow:CompareItems(id1, id2)
 	local order = Configuration.simpleAiList and Configuration.gameConfig.simpleAiOrder
 	if order then
-		local pos1 = order[id1]
-		local pos2 = order[id2]
-		return pos1 and pos2 and pos1 < pos2
+		local pos1 = order[id1] or math.huge
+		local pos2 = order[id2] or math.huge
+		return pos1 < pos2
 	end
 	return true
 end
@@ -45,9 +45,9 @@ function AiListWindow:AddAiToList(ai, blackList, oldAiVersions, isRunning64Bit, 
 	end
 
 
-	local version = " " .. ai.version
-	if version == " <not-versioned>" then
-		version = ""
+	local version = ""
+	if ai.version ~= "<not-versioned>" then
+		version = " " .. ai.version
 	end
 	local aiName = shortName .. version
 
@@ -71,7 +71,7 @@ function AiListWindow:AddAiToList(ai, blackList, oldAiVersions, isRunning64Bit, 
 
 	local tooltip = nil
 	if Configuration.gameConfig.aiTooltip then
-		tooltip = Configuration.gameConfig.aiTooltip[displayName]
+		tooltip = Configuration.gameConfig.aiTooltip[aiName]
 	end
 
 	local buttonList = {}
@@ -84,7 +84,7 @@ function AiListWindow:AddAiToList(ai, blackList, oldAiVersions, isRunning64Bit, 
 		end
 	end
 	buttonList[#buttonList + 1] = self:MakeAiButton(btnWidth, displayName, tooltip, shortName, ai.version)
-	self:AddRow(buttonList, displayName)
+	self:AddRow(buttonList, aiName)
 end
 
 function AiListWindow:MakeAiOptionsButton(displayName, tooltip, shortName, version, path)
