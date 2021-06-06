@@ -3073,28 +3073,49 @@ function BattleRoomWindow.GetSingleplayerControl(setupData)
 
 				if not (setupData and WG.Chobby.Configuration.simplifiedSkirmishSetup) and singleplayerDefault then
 					local totalAIcount = 1
+					local function AddAI(counter, shortName, version, allyTeam, side, color)
+						if not shortName then
+							return counter
+						end
 
-					for i, aiName in ipairs(singleplayerDefault.friendlyAI or {}) do
-						local aiFullName = aiName .. "  (".. totalAIcount ..")"
-						battleLobby:AddAi(aiFullName, aiName, 0)
-						battleLobby:UpdateAi(aiFullName, {
-							side = 0, -- Default side for friendly AI is Armada
-							teamColor = {.45,0,.68},
+						local fullName = shortName
+						if version then
+							fullName = fullName .. " " .. version
+						end
+
+						if WG.Chobby.Configuration.simpleAiList and WG.Chobby.Configuration.gameConfig.GetAiSimpleName then
+							fullName = WG.Chobby.Configuration.gameConfig.GetAiSimpleName(fullName)
+							if not fullName then
+								return counter
+							end
+						end
+						
+						fullName = fullName .. " (".. counter ..")"
+						-- Ubserver AI names cannot include whitespace
+						-- Not required for singleplayer, but breaks counter otherwise
+						if WG.Server.protocol == "spring" then
+							fullName = fullName:gsub(" ", "")
+						end
+
+						battleLobby:AddAi(fullName, shortName, allyTeam, version)
+						battleLobby:UpdateAi(fullName, {
+							side = side,
+							teamColor = color,
 						})
 
-						totalAIcount = totalAIcount + 1
+						return counter + 1
 					end
 
-					for i, aiName in ipairs(singleplayerDefault.enemyAI or {}) do
-						local aiFullName = aiName .. "  (".. totalAIcount ..")"
-						Spring.Echo("singleplayerDefault.enemyAI", aiName)
-						battleLobby:AddAi(aiFullName, aiName, 1)
-						battleLobby:UpdateAi(aiFullName, {
-							side = 1, -- Default side for enemy AI is Cortex
-							teamColor = GetStarterEnemyAIColorAssignment(i)
-						})
+					for i, ai in ipairs(singleplayerDefault.friendlyAI or {}) do
+						totalAIcount = AddAI(totalAIcount, ai.shortName, ai.version, 0,
+							0,  -- Default side for friendly AI is Armada
+							{.45,0,.68})
+					end
 
-						totalAIcount = totalAIcount + 1
+					for i, ai in ipairs(singleplayerDefault.enemyAI or {}) do
+						totalAIcount = AddAI(totalAIcount, ai.shortName, ai.version, 1,
+							1,  -- Default side for enemy AI is Cortex
+							GetStarterEnemyAIColorAssignment(i))
 					end
 				end
 			end
