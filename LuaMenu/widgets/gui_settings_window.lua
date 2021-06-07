@@ -863,6 +863,10 @@ local function GetLobbyTabControls()
 
 	local barservers = {"bar.teifion.co.uk","road-flag.bnr.la"}
 
+	if WG.Chobby.Configuration.devMode then
+		barservers[#barservers + 1] = "localhost"
+	end
+
 	children[#children + 1] = ComboBox:New {
 		--name = data.name .. "_combo",
 		x = COMBO_X,

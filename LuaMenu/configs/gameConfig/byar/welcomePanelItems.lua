@@ -6,10 +6,10 @@ local welcomePanelItems = {
         Text = "Welcome Commander! We hope you are ready for epic single player and multiplayer battles!\n",
     },
     {
-        Header = "Server Moving Soon",
+        Header = "Server Moved",
         Url = nil, --"https://www.beyondallreason.info/",
         Time = nil,-- "NowTime",
-        Text = "We will begin moving the multiplayer lobby server from road-flag.bnr.la:8200 to bar.teifion.co.uk:8200 in the coming days. We hope games will continue to be uninterrupted, report any connectivity issues to us on Discord!\n If you have very recently created your account, then you might need to re-register on the new server if you cannot log in." ,
+        Text = "We have moved the multiplayer lobby server from road-flag.bnr.la:8200 to bar.teifion.co.uk:8200. We hope games will continue to be uninterrupted, report any connectivity issues to us on Discord!\n Please update your game to automatically switch over, and if you need to manually switch servers, you can do so in Settings->Lobby->Choose Server" ,
     },
     {
         Header = "New single player scenarios",

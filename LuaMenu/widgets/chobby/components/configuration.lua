@@ -471,10 +471,10 @@ function Configuration:SetConfigData(data)
 		self.serverAddress = "zero-k.info"
 	end
 
-	-- THIS IS FOR WHEN WE PULL THE PLUG
-	--if self.serverAddress == "road-flag.bnr.la" then
-	--	self.serverAddress = "bar.teifion.co.uk"
-	--end
+	--THIS IS FOR WHEN WE PULL THE PLUG, AUTOMATICALLY SWITCH OVER TO TEISERVER
+	if self.serverAddress == "road-flag.bnr.la" then
+		self.serverAddress = "bar.teifion.co.uk"
+	end
 
 
 	local newSpringsettings, onlyIfMissingSettings = VFS.Include(LUA_DIRNAME .. "configs/springsettings/springsettingsChanges.lua")
