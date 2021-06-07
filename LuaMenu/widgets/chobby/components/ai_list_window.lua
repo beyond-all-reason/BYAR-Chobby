@@ -153,8 +153,10 @@ function AiListWindow:AddAi(displayName, shortName, version, options)
 		end
 		counter = counter + 1
 	end
-	self.lobby:AddAi(aiName, shortName, self.allyTeam, version, options)
-	self.lobby:UpdateAi(aiName, {side = math.random(0,1), teamColor = {math.random(),math.random(),math.random()},})
+	
+	battleStatusOptions = {side = math.random(0,1), teamColor = {math.random(),math.random(),math.random()},}
+	
+	self.lobby:AddAi(aiName, shortName, self.allyTeam, version, options, battleStatusOptions)
 	Configuration:SetConfigValue("lastAddedAiName", shortName)
 end
 

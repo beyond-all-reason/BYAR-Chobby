@@ -471,16 +471,17 @@ end
 -- BEGIN Client commands
 -------------------------------------------------
 
-function InterfaceSkirmish:AddAi(aiName, aiLib, allyNumber, version, options)
-	self:super("AddAi", aiName, aiLib, allyNumber, version, options)
+function InterfaceSkirmish:AddAi(aiName, aiLib, allyNumber, version, aiOptions, battleStatusOptions)
+	self:super("AddAi", aiName, aiLib, allyNumber, version, options, battleStatusOptions)
 	self:_OnAddAi(self:GetMyBattleID(), aiName, {
 		aiLib = aiLib,
 		allyNumber = allyNumber,
 		owner = self:GetMyUserName(),
 		aiVersion = version,
 		aiOptions = options,
+		teamColor = battleStatusOptions and battleStatusOptions.teamColor,
+		side = battleStatusOptions and battleStatusOptions.side,
 	})
-	self:UpdateAi(aiName,{teamColor = {math.random(),math.random(),math.random()}})
 end
 
 function InterfaceSkirmish:SayBattle(message)
