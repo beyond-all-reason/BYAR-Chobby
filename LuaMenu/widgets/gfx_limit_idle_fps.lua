@@ -13,6 +13,8 @@ end
 
 local idleTime = 3		-- when mouse is offscreen its counted as idle as well
 local idleFps = 1
+local activeFps = 40	-- max lobby fps
+local activeFullspeedFps = 72	-- max fullspeed lobby fps
 local awayTime = 60
 
 local vsyncValueActive = Spring.GetConfigInt("VSync",1)
@@ -66,28 +68,25 @@ function widget:Update()
 		Spring.SetConfigInt("VSync", vsyncValueActive)
 	end
 	if enabled then
+		local clock = os.clock()
 		local mouseX, mouseY, lmb, mmb, rmb, mouseOffscreen  = Spring.GetMouseState()
 		if mouseX ~= lastMouseX or mouseY ~= lastMouseY or lmb or mmb or rmb  then
 			lastMouseX, lastMouseY = mouseX, mouseY
-			lastUserInputTime = os.clock()
+			lastUserInputTime = clock
 		end
 		if mouseOffscreen then
-			lastUserInputTime = os.clock() - idleTime-1
+			lastUserInputTime = clock - idleTime-1
 		end
+
+		drawAtFullspeed = WG.Chobby.Configuration.drawAtFullSpeed
 
 		local prevIsIdle = isIdle
 		local prevIsAway = isAway
-		isIdle = (lastUserInputTime < os.clock() - idleTime)
-		isAway = (lastUserInputTime < os.clock() - awayTime)
-
+		isIdle = (lastUserInputTime < clock - idleTime)
+		isAway = (lastUserInputTime < clock - awayTime)
 		if isIdle ~= prevIsIdle then
-			if WG.Chobby and WG.Chobby.Configuration then
-				-- when we set vsync to 6 while drawAtFullSpeed=false -> cpu usage goes up instead of down, enabling drawAtFullSpeed prevents this
-				WG.Chobby.Configuration.drawAtFullSpeed = isIdle and isIdle or drawAtFullspeed
-			end
 			Spring.SetConfigInt("VSync", (isIdle and vsyncValueIdle or vsyncValueActive))
         end
-
         if isAway ~= prevIsAway then
             local lobby = WG.LibLobby.lobby
 			if lobby.SetIngameStatus then
@@ -110,15 +109,18 @@ function widget:KeyPress()
 end
 
 function widget:AllowDraw()
-	if isIdle then
-		if os.clock() > lastFrameClock + (1/idleFps) then
+	if not enabled then
+		return true
+	else
+		if isIdle then
+			if os.clock() > lastFrameClock + (1/idleFps) then
+				lastFrameClock = os.clock()
+				return true
+			end
+		elseif os.clock() > lastFrameClock + (1/(drawAtFullspeed and activeFullspeedFps or activeFps)) then
 			lastFrameClock = os.clock()
 			return true
-		else
-			return false
 		end
-	else
-		lastFrameClock = os.clock()
-		return true
+		return false
 	end
 end
