@@ -90,28 +90,19 @@ function widget:Update()
 		Spring.SetConfigInt("VSync", vsyncValueActive)
 	end
 	if enabled then
-        local prevIsIdle = isIdle
-        local prevIsAway = isAway
-
 		local mouseX, mouseY, lmb, mmb, rmb, mouseOffscreen  = Spring.GetMouseState()
 		if mouseX ~= lastMouseX or mouseY ~= lastMouseY or lmb or mmb or rmb  then
 			lastMouseX, lastMouseY = mouseX, mouseY
 			lastUserInputTime = os.clock()
 		end
-		if mouseOffScreen then
+		if mouseOffscreen then
 			lastUserInputTime = os.clock() - idleTime-1
 		end
-		if lastUserInputTime < os.clock() - idleTime then
-			isIdle = true
-		else
-			isIdle = false
-        end
 
-        if lastUserInputTime < os.clock() - awayTime then
-            isAway = true
-        else
-			isAway = false
-		end
+		local prevIsIdle = isIdle
+		local prevIsAway = isAway
+		isIdle = (lastUserInputTime < os.clock() - idleTime)
+		isAway = (lastUserInputTime < os.clock() - awayTime)
 
 		if isIdle ~= prevIsIdle then
 			if WG.Chobby and WG.Chobby.Configuration then
