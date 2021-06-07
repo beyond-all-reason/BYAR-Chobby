@@ -11,7 +11,8 @@ function widget:GetInfo()
 	}
 end
 
-local idleTime = 3
+local idleTime = 3		-- when mouse is offscreen its counted as idle as well
+local idleFps = 1
 local awayTime = 60
 
 local vsyncValueActive = Spring.GetConfigInt("VSync",1)
@@ -20,48 +21,23 @@ if vsyncValueActive > 1 then
 end
 local vsyncValueIdle = 4    -- sometimes somehow vsync 6 results in higher fps than 4
 
--- disabled code below because it did work on my separate 144hz monitor, not on my laptop 144hz monitor somehow (then 6 results in more fps than even 4)
---
--- detect display frequency > 60 and set vsyncValueIdle to 6
---local infolog = VFS.LoadFile("infolog.txt")
---if infolog then
---	function lines(str)
---		local t = {}
---		local function helper(line) table.insert(t, line) return "" end
---		helper((str:gsub("(.-)\r?\n", helper)))
---		return t
---	end
---
---	-- store changelog into table
---	local fileLines = lines(infolog)
---
---	for i, line in ipairs(fileLines) do
---		if string.sub(line, 1, 3) == '[F='  then
---			break
---		end
---
---		if line:find('(display%-mode set to )') then
---			local s_displaymode = line:sub( line:find('(display%-mode set to )') + 20)
---			if s_displaymode:find('%@') then
---				local frequency = s_displaymode:sub(s_displaymode:find('%@')+1, s_displaymode:find('Hz ')-1)
---				if tonumber(frequency) > 60 then
---					vsyncValueIdle = 6
---				end
---			end
---		end
---	end
---end
-
 local isIdle = false
 local isAway = false
 local lastUserInputTime = os.clock()
 local lastMouseX, lastMouseY = Spring.GetMouseState()
 local drawAtFullspeed = true
 local enabled = true
+local lastFrameClock = os.clock()
 
 function widget:Initialize()
 	if WG.Chobby and WG.Chobby.Configuration then
 		drawAtFullspeed = WG.Chobby.Configuration.drawAtFullSpeed
+	end
+	WG.isIdle = function()
+		return isIdle
+	end
+	WG.isAway = function()
+		return isAway
 	end
 end
 
@@ -131,4 +107,18 @@ end
 
 function widget:KeyPress()
 	lastUserInputTime = os.clock()
+end
+
+function widget:AllowDraw()
+	if isIdle then
+		if os.clock() > lastFrameClock + (1/idleFps) then
+			lastFrameClock = os.clock()
+			return true
+		else
+			return false
+		end
+	else
+		lastFrameClock = os.clock()
+		return true
+	end
 end
