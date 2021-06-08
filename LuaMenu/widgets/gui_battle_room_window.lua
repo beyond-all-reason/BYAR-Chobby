@@ -1865,13 +1865,16 @@ local function SetupVotePanel(votePanel, battle, battleID)
 
 	local oldPollType, oldMapPoll, oldPollUrl
 	local function UpdatePollType(pollType, mapPoll, pollUrl)
+		--Spring.Echo("UpdatePollType(pollType, mapPoll, pollUrl)", pollType, mapPoll, pollUrl)
+		if mapPoll then
+			minimapPanel:SetVisibility(true)
+		end
 		if oldPollType == pollType and oldMapPoll == mapPoll and oldPollUrl == pollUrl then
 			return
 		end
 		oldPollType, oldMapPoll, oldPollUrl = pollType, mapPoll, pollUrl
 
 		if mapPoll then
-			minimapPanel:SetVisibility(true)
 			activePanel:SetPos(height + 2)
 			activePanel._relativeBounds.right = 0
 			activePanel:UpdateClientArea()
@@ -1891,7 +1894,7 @@ local function SetupVotePanel(votePanel, battle, battleID)
 	local oldVoteInitiator = ""
 	local oldTitle = ""
 	
-	function externalFunctions.VoteUpdate(voteMessage, pollType, mapPoll, candidates, votesNeeded, pollUrl, voteInitiator)
+	function externalFunctions.VoteUpdate(voteMessage, pollType, mapPoll, candidates, votesNeeded, pollUrl, voteInitiator, resetButtons)
 		--Spring.Echo("externalFunctions.VoteUpdate(voteMessage, pollType, mapPoll, candidates, votesNeeded, pollUrl, voteInitiator)",voteMessage, pollType, mapPoll, candidates, votesNeeded, pollUrl, voteInitiator)
 		UpdatePollType(pollType, mapPoll, pollUrl)
 
@@ -1910,12 +1913,16 @@ local function SetupVotePanel(votePanel, battle, battleID)
 		voteCountLabel:SetCaption(candidates[1].votes .. "/" .. votesNeeded)
 		voteProgress:SetValue(100 * candidates[1].votes / votesNeeded)
 		activePanel:SetVisibility(true)
-
+		if resetButtons then
+			ResetButtons()
+			externalFunctions.VoteButtonVisible(true)
+		end
 		matchmakerModeEnabled = (pollType == "quickplay")
 		HideVoteResult()
 	end
 
 	function externalFunctions.VoteEnd(message, success)
+		--Spring.Echo("VoteEnd(message, success)", message, success)
 		activePanel:SetVisibility(false)
 		minimapPanel:SetVisibility(false)
 		if message then oldTitle = message end
@@ -1931,6 +1938,7 @@ local function SetupVotePanel(votePanel, battle, battleID)
 	end
 
 	function externalFunctions.ImmediateVoteEnd()
+		--Spring.Echo("ImmediateVoteEnd()")
 		activePanel:SetVisibility(false)
 		minimapPanel:SetVisibility(false)
 
@@ -1940,6 +1948,7 @@ local function SetupVotePanel(votePanel, battle, battleID)
 	end
 
 	function externalFunctions.VoteButtonVisible(visible)
+		--Spring.Echo("VoteButtonVisible(visible)",visible)
 		buttonNo:SetVisibility(visible)
 		buttonYes:SetVisibility(visible)
 	end
@@ -2663,16 +2672,6 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		votePanel.VoteEnd((isBattleStarting and "Match starting") or "Not enough players", isBattleStarting)
 	end
 
-  --[[
-
-	function externalFunctions.VoteUpdate(voteMessage, pollType, mapPoll, candidates, votesNeeded, pollUrl)
-
-	function externalFunctions.VoteEnd(message, success)
-
-	function externalFunctions.ImmediateVoteEnd()
-  ]]--
-
-  --externalFunctions.VoteUpdate(voteMessage, pollType, mapPoll, candidates, votesNeeded, pollUrl)
   local function pyPartition(s,p,left)
     if string.find(s,p,nil,true) then
       local startfind, endfind =  string.find(s,p,nil,true)
@@ -2708,7 +2707,13 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 
 	if string.match(message, ", please wait .* more second.s. before calling another vote .vote flood protection..$")  then return true end
 
-	if string.match(message, ". Hi .*! Current battle type is .*.$")  then return true end
+	if string.match(message, ".* you have already voted for current vote.$")  then return true end
+
+	if string.match(message, ". Away vote mode for .*$")  then return true end
+
+	-- TODO: prepare for BarManager
+	-- i can still multi-vote!
+	if string.match(message, ". Hi .*! Current battle type is .*.$")  then return false end
 
 	if string.match(message, ". BattleStatus = .*") then
 		initBattleStatusPanel(pyPartition(message,'"', true))
@@ -2806,7 +2811,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 
 		local title = string.sub(message, string.find(message, ' "',nil,true) + 2, string.find(message, '" ', nil, true) - 1) 
         title = title:sub(1, 1):upper() .. title:sub(2) 
-		votePanel.VoteUpdate(title,nil, ismapppoll, candidates, votesNeeded, mapname, userwhocalledvote)
+		votePanel.VoteUpdate(title,nil, ismapppoll, candidates, votesNeeded, mapname, userwhocalledvote, newlycalledvote)
 		return true
     elseif string.match(message, "^. Vote for command .* passed" ) then  --[21:13:58] * [teh]host * Vote for command "bSet coop 1" passed. --voteend
         votePanel.VoteEnd(nil, true)
@@ -2814,7 +2819,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
     elseif string.match(message, "^. Vote for command .* failed" )then  --[21:13:58] * [teh]host * Vote for command "bSet coop 1" passed. --voteend
 		votePanel.VoteEnd(nil, false)
 		return true
-    elseif string.find(message, "^. Vote cancelled by ", nil, true) then --votecancel
+    elseif string.find(message, "* Vote cancelled by ", nil, true) then --votecancel
       --[14:42:53] * [teh]host * Vote cancelled by [teh]BaNa
       votePanel.ImmediateVoteEnd()
 		return true
@@ -3097,11 +3102,10 @@ function BattleRoomWindow.GetSingleplayerControl(setupData)
 							fullName = fullName:gsub(" ", "")
 						end
 
-						battleLobby:AddAi(fullName, shortName, allyTeam, version)
-						battleLobby:UpdateAi(fullName, {
-							side = side,
-							teamColor = color,
-						})
+						battleLobby:AddAi(fullName, shortName, allyTeam, version, nil, {
+								side = side,
+								teamColor = color,
+							})
 
 						return counter + 1
 					end
