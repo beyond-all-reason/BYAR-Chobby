@@ -18,6 +18,7 @@ local activeFps = 40	-- max lobby fps
 local activeFullspeedFps = 72	-- max fullspeed lobby fps
 local awayTime = 60
 
+local doVsyncTrick = false	-- creates rendering actifacts for some
 local vsyncValueActive = Spring.GetConfigInt("VSync",1)
 if vsyncValueActive > 1 then
 	vsyncValueActive = 1
@@ -50,7 +51,7 @@ function widget:Shutdown()
 	if WG.Chobby and WG.Chobby.Configuration then
 		WG.Chobby.Configuration.drawAtFullSpeed = drawAtFullspeed
 	end
-	if enabled then
+	if enabled and doVsyncTrick then
 		Spring.SetConfigInt("VSync", vsyncValueActive)
 	end
 end
@@ -67,7 +68,7 @@ function widget:Update()
 	if WG.Chobby and WG.Chobby.interfaceRoot then
 		enabled = WG.Chobby.interfaceRoot.GetLobbyInterfaceHolder().visible
 	end
-	if prevEnabled ~= enabled and not enabled then
+	if doVsyncTrick and prevEnabled ~= enabled and not enabled then
 		Spring.SetConfigInt("VSync", vsyncValueActive)
 	end
 	if enabled then
@@ -95,7 +96,7 @@ function widget:Update()
 		if isIdle ~= prevIsIdle then
 			toggledIsIdleClock = os.clock()
         end
-		if isOffscreen ~= prevIsOffscreen then
+		if doVsyncTrick and isOffscreen ~= prevIsOffscreen then
 			Spring.SetConfigInt("VSync", (isIdle and vsyncValueIdle or vsyncValueActive))
 		end
         if isAway ~= prevIsAway then

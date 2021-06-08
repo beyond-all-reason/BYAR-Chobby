@@ -1028,7 +1028,7 @@ local SCENARIO_COMPLETE_STRING = "ScenarioGameEnd"
 
 function widget:RecvLuaMsg(msg)
 	-- prepare for: {"unitsReceived":0,"energyExcess":250,"energyProduced":250,"metalExcess":15,"scenariooptions":{"scenariooptions":"eyJkaWZmaWN1bHR5IjoiTm9ybWFsIiwic2NlbmFyaW9pZCI6ImRndW50ZXN0c2NlbmFyaW8iLCJ2ZXJzaW9uIjoiMS4wIiwibXlvcHRpb24iOiJkb3N0dWZmIn0="},"unitsSent":0,"time":10,"energySent":0,"endtime":10.0666666,"won":false,"metalReceived":0,"winners":1,"unitsDied":0,"unitsKilled":0,"metalProduced":15,"metalUsed":0,"energyUsed":0,"unitsCaptured":0,"energyReceived":0,"metalSent":0,"unitsProduced":1,"damageDealt":524.39447,"frame":302,"unitsOutCaptured":0,"damageReceived":420.846344}
-	Spring.Echo("scenario_complete_", msg)
+	--Spring.Echo("scenario_complete_", msg)
 
 	if string.find(msg, SCENARIO_COMPLETE_STRING) then
 		msg = string.sub(msg, 16)
