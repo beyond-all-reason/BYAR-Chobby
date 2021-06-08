@@ -36,7 +36,8 @@ skin.icons = {
 skin.button = {
   TileImageBK = ":cl:tech_button_small_bk.png",
   TileImageFG = ":cl:tech_button_small_fg.png",
-  tiles = {40, 40, 40, 40}, --// tile widths: left,top,right,bottom
+  tiles = {20, 20, 20, 20}, --// tile widths: left,top,right,bottom
+  --tiles = {4, 4, 4, 4}, --// tile widths: left,top,right,bottom
   padding = {10, 10, 10, 10},
 
   backgroundColor = {0, 0, 0, 0.7},
@@ -49,7 +50,7 @@ skin.button = {
 skin.button_large = {
   TileImageBK = ":cl:tech_button_bk.png",
   TileImageFG = ":cl:tech_button_fg.png",
-  tiles = {120, 120, 120, 120}, --// tile widths: left,top,right,bottom
+  tiles = {64, 64, 64, 64}, --// tile widths: left,top,right,bottom
   padding = {10, 10, 10, 10},
 
   backgroundColor = {0, 0, 0, 0.7},
@@ -62,7 +63,7 @@ skin.button_large = {
 skin.button_highlight = {
   TileImageBK = ":cl:tech_button_bright_small_bk.png",
   TileImageFG = ":cl:tech_button_bright_small_fg.png",
-  tiles = {40, 40, 40, 40}, --// tile widths: left,top,right,bottom
+  tiles = {32, 32, 32, 32}, --// tile widths: left,top,right,bottom
   padding = {20, 20, 20, 20},
 
   backgroundColor = {0.2, 0.2, 0.2, 0.7},
@@ -115,7 +116,7 @@ skin.action_button = {
 skin.option_button = {
   TileImageBK = ":cl:tech_button_bright_small_bk.png",
   TileImageFG = ":cl:tech_button_bright_small_fg.png",
-  tiles = {40, 40, 40, 40}, --// tile widths: left,top,right,bottom
+  tiles = {20, 20, 20, 20}, --// tile widths: left,top,right,bottom
   padding = {10, 10, 10, 10},
 
   backgroundColor = {0.70, 0.70, 0.75, 0.65},
@@ -128,7 +129,7 @@ skin.option_button = {
 skin.negative_button = {
   TileImageBK = ":cl:tech_button_bright_small_bk.png",
   TileImageFG = ":cl:tech_button_bright_small_fg.png",
-  tiles = {40, 40, 40, 40}, --// tile widths: left,top,right,bottom
+  tiles = {20, 20, 20, 20}, --// tile widths: left,top,right,bottom
   padding = {10, 10, 10, 10},
 
   backgroundColor = {0.85, 0.05, 0.25, 0.65},
