@@ -11,36 +11,36 @@ function widget:GetInfo()
 	}
 end
 
-local idleTime = 4
-local idleFps = 2
+local idleTime = 0.07	-- not actual idle, just threshold when to decrease fps quickly
+local idleFps = 7		-- not instant, slowly lowering to this fps
+local idleFrameTimeDelay = 0.033 -- slowing fps increasingly by this much
+local sleepTime = 2
+local sleepFps = 3
+local hibernateTime = 10
+local hibernateFps = 1
 local offscreenFps = 1
-local activeFps = 40	-- max lobby fps
-local activeFullspeedFps = 72	-- max fullspeed lobby fps
+
+local activeFps = 45
+local activeFullspeedFps = 100
 local awayTime = 60
 
-local doVsyncTrick = false	-- creates rendering actifacts for some
-local vsyncValueActive = Spring.GetConfigInt("VSync",1)
-if vsyncValueActive > 1 then
-	vsyncValueActive = 1
-end
-local vsyncValueIdle = 4    -- sometimes somehow vsync 6 results in higher fps than 4
-
 local isIdle = false
+local isSleep = false
+local isHibernate = false
 local isAway = false
 local lastUserInputTime = os.clock()
 local lastMouseX, lastMouseY = Spring.GetMouseState()
 local drawAtFullspeed = true
-local enabled = true
-local lastFrameClock = os.clock()
-local toggledIsIdleClock = 0
 local isOffscreen = false
+local nextFrameTime = os.clock()
+local frameDelayTime = 0
 
 function widget:Initialize()
 	if WG.Chobby and WG.Chobby.Configuration then
 		drawAtFullspeed = WG.Chobby.Configuration.drawAtFullSpeed
 	end
-	WG.isIdle = function()
-		return isIdle
+	WG.keepawake = function()
+		lastUserInputTime = os.clock()
 	end
 	WG.isAway = function()
 		return isAway
@@ -51,60 +51,42 @@ function widget:Shutdown()
 	if WG.Chobby and WG.Chobby.Configuration then
 		WG.Chobby.Configuration.drawAtFullSpeed = drawAtFullspeed
 	end
-	if enabled and doVsyncTrick then
-		Spring.SetConfigInt("VSync", vsyncValueActive)
-	end
 end
 
 function widget:Update()
-
-	-- detect change by user
-	local curVsync = Spring.GetConfigInt("VSync",1)
-	if curVsync ~= vsyncValueIdle and curVsync ~= vsyncValueActive then
-		vsyncValueActive = curVsync
+	local clock = os.clock()
+	local prevIsOffscreen = isOffscreen
+	local mouseX, mouseY, lmb, mmb, rmb, mouseOffscreen  = Spring.GetMouseState()
+	isOffscreen = mouseOffscreen
+	if Spring.GetKeyState(8) then -- backspace pressed
+		lastUserInputTime = clock
+	end
+	if mouseX ~= lastMouseX or mouseY ~= lastMouseY or lmb or mmb or rmb  then
+		lastMouseX, lastMouseY = mouseX, mouseY
+		lastUserInputTime = clock
+	end
+	if mouseOffscreen then
+		lastUserInputTime = clock - idleTime-1.5
 	end
 
-	local prevEnabled = enabled
-	if WG.Chobby and WG.Chobby.interfaceRoot then
-		enabled = WG.Chobby.interfaceRoot.GetLobbyInterfaceHolder().visible
-	end
-	if doVsyncTrick and prevEnabled ~= enabled and not enabled then
-		Spring.SetConfigInt("VSync", vsyncValueActive)
-	end
-	if enabled then
-		local clock = os.clock()
-		local prevIsOffscreen = isOffscreen
-		local mouseX, mouseY, lmb, mmb, rmb, mouseOffscreen  = Spring.GetMouseState()
-		isOffscreen = mouseOffscreen
-		if Spring.GetKeyState(8) then -- backspace pressed
-			lastUserInputTime = clock
-		end
-		if mouseX ~= lastMouseX or mouseY ~= lastMouseY or lmb or mmb or rmb  then
-			lastMouseX, lastMouseY = mouseX, mouseY
-			lastUserInputTime = clock
-		end
-		if mouseOffscreen then
-			lastUserInputTime = clock - idleTime-1.5
-		end
+	drawAtFullspeed = WG.Chobby.Configuration.drawAtFullSpeed
 
-		drawAtFullspeed = WG.Chobby.Configuration.drawAtFullSpeed
-
-		local prevIsIdle = isIdle
-		local prevIsAway = isAway
+	local prevIsAway = isAway
+	local prevIsIdle = isIdle
+	if clock > 10 then	-- startup graceperiod
 		isIdle = (lastUserInputTime < clock - idleTime)
-		isAway = (lastUserInputTime < clock - awayTime)
-		if isIdle ~= prevIsIdle then
-			toggledIsIdleClock = os.clock()
-        end
-		if doVsyncTrick and isOffscreen ~= prevIsOffscreen then
-			Spring.SetConfigInt("VSync", (isIdle and vsyncValueIdle or vsyncValueActive))
+	end
+	if isIdle ~= prevIsIdle then
+		nextFrameTime = clock-1
+	end
+	isSleep = (lastUserInputTime < clock - sleepTime)
+	isHibernate = (lastUserInputTime < clock - hibernateTime)
+	isAway = (lastUserInputTime < clock - awayTime)
+	if isAway ~= prevIsAway then
+		local lobby = WG.LibLobby.lobby
+		if lobby.SetIngameStatus then
+			lobby:SetIngameStatus(nil,isAway)
 		end
-        if isAway ~= prevIsAway then
-            local lobby = WG.LibLobby.lobby
-			if lobby.SetIngameStatus then
-				lobby:SetIngameStatus(nil,isAway)
-            end
-        end
 	end
 end
 
@@ -134,18 +116,22 @@ function widget:TextEditing()
 end
 
 function widget:AllowDraw()
-	if not enabled then
-		return true
-	else
-		if isIdle then
-			if os.clock() > lastFrameClock + (1/(isOffscreen and offscreenFps or idleFps)) then
-				lastFrameClock = os.clock()
-				return true
+	if isIdle then
+		if os.clock() > nextFrameTime then
+			if isHibernate then
+				frameDelayTime = 1/hibernateFps
+			elseif isSleep then
+				frameDelayTime = 1/sleepFps
+			else
+				frameDelayTime = math.max(1/idleFps, frameDelayTime + idleFrameTimeDelay)
 			end
-		elseif os.clock() > lastFrameClock + (1/(drawAtFullspeed and activeFullspeedFps or activeFps)) then
-			lastFrameClock = os.clock()
+			nextFrameTime = os.clock()+frameDelayTime
 			return true
 		end
-		return false
+	elseif os.clock() > nextFrameTime then
+		nextFrameTime = os.clock() + (1/(drawAtFullspeed and activeFullspeedFps or activeFps))
+		frameDelayTime = 0.025	-- reset
+		return true
 	end
+	return false
 end
