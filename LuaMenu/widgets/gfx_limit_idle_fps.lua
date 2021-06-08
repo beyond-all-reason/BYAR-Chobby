@@ -24,43 +24,6 @@ if vsyncValueActive > 1 then
 end
 local vsyncValueIdle = 4    -- sometimes somehow vsync 6 results in higher fps than 4
 
--- disabled code below because it did work on my separate 144hz monitor, not on my laptop 144hz monitor somehow (then 6 results in more fps than even 4)
---
--- detect display frequency > 60 and set vsyncValueIdle to 6
---local tryVsyncSix = true
---local triedVsyncSix = false
---local infolog = VFS.LoadFile("infolog.txt")
---local monitorFrequency = 60
---if infolog then
---	function lines(str)
---		local t = {}
---		local function helper(line) table.insert(t, line) return "" end
---		helper((str:gsub("(.-)\r?\n", helper)))
---		return t
---	end
---
---	-- store changelog into table
---	local fileLines = lines(infolog)
---
---	for i, line in ipairs(fileLines) do
---		if string.sub(line, 1, 3) == '[F='  then
---			break
---		end
---
---		if line:find('(display%-mode set to )') then
---			local s_displaymode = line:sub( line:find('(display%-mode set to )') + 20)
---			if s_displaymode:find('%@') then
---				monitorFrequency = tonumber(s_displaymode:sub(s_displaymode:find('%@')+1, s_displaymode:find('Hz ')-1))
---				if monitorFrequency > 60 then
---					--vsyncValueIdle = 6
---					tryVsyncSix = true
---					break
---				end
---			end
---		end
---	end
---end
-
 local isIdle = false
 local isAway = false
 local lastUserInputTime = os.clock()
@@ -69,9 +32,6 @@ local drawAtFullspeed = true
 local enabled = true
 local lastFrameClock = os.clock()
 local toggledIsIdleClock = 0
-local nextSecFps = 0
-local nextFps = 0
-local currentFps = 0
 local isOffscreen = false
 
 function widget:Initialize()
@@ -112,6 +72,7 @@ function widget:Update()
 	end
 	if enabled then
 		local clock = os.clock()
+		local prevIsOffscreen = isOffscreen
 		local mouseX, mouseY, lmb, mmb, rmb, mouseOffscreen  = Spring.GetMouseState()
 		isOffscreen = mouseOffscreen
 		if Spring.GetKeyState(8) then -- backspace pressed
@@ -133,36 +94,21 @@ function widget:Update()
 		isAway = (lastUserInputTime < clock - awayTime)
 		if isIdle ~= prevIsIdle then
 			toggledIsIdleClock = os.clock()
-			Spring.SetConfigInt("VSync", (isIdle and vsyncValueIdle or vsyncValueActive))
-			--if isIdle and tryVsyncSix and triedVsyncSix then
-			--	triedVsyncSix = os.clock()
-			--end
         end
+		if isOffscreen ~= prevIsOffscreen then
+			Spring.SetConfigInt("VSync", (isIdle and vsyncValueIdle or vsyncValueActive))
+		end
         if isAway ~= prevIsAway then
             local lobby = WG.LibLobby.lobby
 			if lobby.SetIngameStatus then
 				lobby:SetIngameStatus(nil,isAway)
             end
         end
-		--if isIdle and tryVsyncSix then
-		--	if not triedVsyncSix then
-		--		triedVsyncSix = os.clock()
-		--		vsyncValueActive = 6
-		--		Spring.SetConfigInt("VSync", vsyncValueActive)
-		--	elseif triedVsyncSix+2.5 > os.clock() then
-		--		-- check if fps is lower, else revert to vsync 4
-		--		if currentFps > monitorFrequency / 5 then
-		--			vsyncValueActive = 4
-		--			Spring.SetConfigInt("VSync", vsyncValueActive)
-		--		end
-		--		tryVsyncSix = false
-		--	end
-		--end
 	end
 end
 
--- dont get called
-function widget:MousePress()
+
+function widget:MousePress()	-- doesnt get called
 	lastUserInputTime = os.clock()
 end
 
@@ -185,18 +131,6 @@ end
 function widget:TextEditing()
 	lastUserInputTime = os.clock()
 end
-
--- calc fps cause Spring.GetFPS doesnt exist here
---function widget:DrawScreen()
---	local clock = os.clock()
---	if nextSecFps ~= math.floor(clock) then
---		nextSecFps = math.floor(clock)
---		currentFps = nextFps
---		nextFps = 1
---	else
---		nextFps = nextFps + 1
---	end
---end
 
 function widget:AllowDraw()
 	if not enabled then
