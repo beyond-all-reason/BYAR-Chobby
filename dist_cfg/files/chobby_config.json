@@ -1,6 +1,6 @@
 {
     "server" : {
-        "address"    : "road-flag.bnr.la",
+        "address"    : "bar.teifion.co.uk",
         "port"       : 8200,
         "protocol"   : "spring",
         "serverName" : "BAR"
