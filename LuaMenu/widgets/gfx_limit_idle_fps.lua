@@ -18,7 +18,7 @@ local idleFps = 6		-- (not instant) lowering to this fps quickly
 local idleFrameTimeDelay = 0.04 -- slowing fps increasingly by this much
 local sleepTime = 1
 local sleepFps = 3
-local hibernateTime = 6
+local hibernateTime = 5
 local hibernateFps = 1
 local offscreenFps = 1
 
@@ -40,6 +40,7 @@ local enabled = true
 
 local vsyncValueGame = Spring.GetConfigInt("VSync",1)
 local vsyncValueLobby = 1
+local vsyncValueHibernate = 4
 local vsyncValueOffscreen = 6    -- sometimes somehow vsync 6 results in higher fps than 4
 
 -- detect display frequency > 60 and set vsyncValueIdle to 6
@@ -124,6 +125,7 @@ function widget:Update()
 	if enabled then
 		local clock = os.clock()
 		local prevIsOffscreen = isOffscreen
+		local prevIsHibernate = isHibernate
 		local mouseX, mouseY, lmb, mmb, rmb, mouseOffscreen  = Spring.GetMouseState()
 		isOffscreen = mouseOffscreen
 		if Spring.GetKeyState(8) then -- backspace pressed
@@ -153,6 +155,11 @@ function widget:Update()
 		isSleep = (lastUserInputTime < clock - sleepTime)
 		isHibernate = (lastUserInputTime < clock - hibernateTime)
 		isAway = (lastUserInputTime < clock - awayTime)
+
+		if not isOffscreen and  isHibernate ~= prevIsHibernate then
+			Spring.SetConfigInt("VSync", (isHibernate and vsyncValueHibernate or vsyncValueLobby))
+		end
+
 		if isAway ~= prevIsAway then
 			local lobby = WG.LibLobby.lobby
 			if lobby.SetIngameStatus then
