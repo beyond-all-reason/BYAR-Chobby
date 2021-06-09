@@ -109,8 +109,8 @@ function widget:DrawScreen()
 	gl.Color(1,1,1,1)
 
 	if loadFade then
-		if WG.limitFps and WG.limitFps.ForceRedrawPeriod then
-			WG.limitFps.ForceRedrawPeriod()
+		if WG.LimitFps and WG.LimitFps.ForceRedrawPeriod then
+			WG.LimitFps.ForceRedrawPeriod()
 		end
 
 		local vsx,vsy = gl.GetViewSizes()
