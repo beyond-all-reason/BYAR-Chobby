@@ -1,8 +1,9 @@
 ConfirmationPopup = LCS.class{}
 
 function ConfirmationPopup:init(successFunction, question, doNotAskAgainKey, width, height, yesText, noText, failureFunction, disableAcceptHotkey, failureTimeout)
-	if WG.keepawake then
-		WG.keepawake(0.3)
+
+	if WG.LimitFps and WG.LimitFps.ForceRedrawPeriod then
+		WG.LimitFps.ForceRedrawPeriod(0.3)
 	end
 
 	local mainWindow = Window:New {

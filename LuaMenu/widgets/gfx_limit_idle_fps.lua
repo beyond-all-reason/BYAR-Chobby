@@ -7,21 +7,23 @@ function widget:GetInfo()
 		date = "2020",
 		license = "",
 		layer = -math.huge,
-		enabled = true
+		--handler   = true,
+		--api       = true, -- Makes KeyPress occur before chili (but also fails with WG.LimitFps)
+		enabled   = true,
 	}
 end
 
 local idleTime = 0.06	-- not actual idle, just threshold when to decrease fps quickly
-local idleFps = 6		-- not instant, slowly lowering to this fps
-local idleFrameTimeDelay = 0.033 -- slowing fps increasingly by this much
-local sleepTime = 1.5
+local idleFps = 6		-- (not instant) lowering to this fps quickly
+local idleFrameTimeDelay = 0.04 -- slowing fps increasingly by this much
+local sleepTime = 1
 local sleepFps = 3
-local hibernateTime = 10
+local hibernateTime = 6
 local hibernateFps = 1
 local offscreenFps = 1
 
 local activeFps = 45
-local activeFullspeedFps = 100
+local activeFullspeedFps = 90
 local awayTime = 60
 
 local isIdle = false
@@ -36,8 +38,9 @@ local nextFrameTime = os.clock()
 local frameDelayTime = 0
 
 local function logUserInput()
-	if os.clock() > lastUserInputTime then
-		lastUserInputTime = os.clock()
+	local clock = os.clock()
+	if clock > lastUserInputTime then
+		lastUserInputTime = clock
 	end
 end
 
@@ -45,12 +48,16 @@ function widget:Initialize()
 	if WG.Chobby and WG.Chobby.Configuration then
 		drawAtFullspeed = WG.Chobby.Configuration.drawAtFullSpeed
 	end
-	WG.keepawake = function(time)	-- optional time for duration of prolonged wakeness
+
+	WG.LimitFps = {}
+	WG.LimitFps.ForceRedrawPeriod = function(time)	-- optional time for duration of prolonged wakeness
 		lastUserInputTime = os.clock() + (time or 0)
 		if nextFrameTime > os.clock() + (1/(drawAtFullspeed and activeFullspeedFps or activeFps)) then
 			nextFrameTime = os.clock()
 		end
 	end
+	WG.LimitFps.ForceRedraw = WG.LimitFps.ForceRedrawPeriod
+
 	WG.isAway = function()
 		return isAway
 	end

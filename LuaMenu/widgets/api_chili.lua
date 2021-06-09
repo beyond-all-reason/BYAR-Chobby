@@ -109,8 +109,8 @@ function widget:DrawScreen()
 	gl.Color(1,1,1,1)
 
 	if loadFade then
-		if WG.keepawake then
-			WG.keepawake()
+		if WG.limitFps and WG.limitFps.ForceRedrawPeriod then
+			WG.limitFps.ForceRedrawPeriod()
 		end
 
 		local vsx,vsy = gl.GetViewSizes()
@@ -245,9 +245,6 @@ end
 
 
 function widget:MouseWheel(up,value)
-	if WG.keepawake then
-		WG.keepawake()
-	end
 
 	if Spring.IsGUIHidden() or totalHideInterface then
 		return false
