@@ -109,6 +109,10 @@ function widget:DrawScreen()
 	gl.Color(1,1,1,1)
 
 	if loadFade then
+		if WG.keepawake then
+			WG.keepawake()
+		end
+
 		local vsx,vsy = gl.GetViewSizes()
 
 		gl.Color(1,1,1,loadFade)
@@ -241,6 +245,10 @@ end
 
 
 function widget:MouseWheel(up,value)
+	if WG.keepawake then
+		WG.keepawake()
+	end
+
 	if Spring.IsGUIHidden() or totalHideInterface then
 		return false
 	end

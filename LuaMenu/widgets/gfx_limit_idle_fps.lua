@@ -11,10 +11,10 @@ function widget:GetInfo()
 	}
 end
 
-local idleTime = 0.07	-- not actual idle, just threshold when to decrease fps quickly
-local idleFps = 7		-- not instant, slowly lowering to this fps
+local idleTime = 0.06	-- not actual idle, just threshold when to decrease fps quickly
+local idleFps = 6		-- not instant, slowly lowering to this fps
 local idleFrameTimeDelay = 0.033 -- slowing fps increasingly by this much
-local sleepTime = 2
+local sleepTime = 1.5
 local sleepFps = 3
 local hibernateTime = 10
 local hibernateFps = 1
@@ -35,12 +35,21 @@ local isOffscreen = false
 local nextFrameTime = os.clock()
 local frameDelayTime = 0
 
+local function logUserInput()
+	if os.clock() > lastUserInputTime then
+		lastUserInputTime = os.clock()
+	end
+end
+
 function widget:Initialize()
 	if WG.Chobby and WG.Chobby.Configuration then
 		drawAtFullspeed = WG.Chobby.Configuration.drawAtFullSpeed
 	end
-	WG.keepawake = function()
-		lastUserInputTime = os.clock()
+	WG.keepawake = function(time)	-- optional time for duration of prolonged wakeness
+		lastUserInputTime = os.clock() + (time or 0)
+		if nextFrameTime > os.clock() + (1/(drawAtFullspeed and activeFullspeedFps or activeFps)) then
+			nextFrameTime = os.clock()
+		end
 	end
 	WG.isAway = function()
 		return isAway
@@ -59,23 +68,22 @@ function widget:Update()
 	local mouseX, mouseY, lmb, mmb, rmb, mouseOffscreen  = Spring.GetMouseState()
 	isOffscreen = mouseOffscreen
 	if Spring.GetKeyState(8) then -- backspace pressed
-		lastUserInputTime = clock
+		logUserInput()
 	end
 	if mouseX ~= lastMouseX or mouseY ~= lastMouseY or lmb or mmb or rmb  then
 		lastMouseX, lastMouseY = mouseX, mouseY
-		lastUserInputTime = clock
+		logUserInput()
 	end
 	if mouseOffscreen then
-		lastUserInputTime = clock - idleTime-1.5
+		lastUserInputTime = clock - idleTime
 	end
 
 	drawAtFullspeed = WG.Chobby.Configuration.drawAtFullSpeed
 
 	local prevIsAway = isAway
 	local prevIsIdle = isIdle
-	if clock > 10 then	-- startup graceperiod
-		isIdle = (lastUserInputTime < clock - idleTime)
-	end
+	isIdle = (lastUserInputTime < clock - idleTime)
+
 	if isIdle ~= prevIsIdle then
 		nextFrameTime = clock-1
 	end
@@ -90,29 +98,28 @@ function widget:Update()
 	end
 end
 
-
 function widget:MousePress()	-- doesnt get called
-	lastUserInputTime = os.clock()
+	logUserInput()
 end
 
 function widget:MouseWheel()
-	lastUserInputTime = os.clock()
+	logUserInput()
 end
 
 function widget:KeyPress()
-	lastUserInputTime = os.clock()
+	logUserInput()
 end
 
 function widget:KeyRelease()
-	lastUserInputTime = os.clock()
+	logUserInput()
 end
 
 function widget:TextInput()
-	lastUserInputTime = os.clock()
+	logUserInput()
 end
 
 function widget:TextEditing()
-	lastUserInputTime = os.clock()
+	logUserInput()
 end
 
 function widget:AllowDraw()
