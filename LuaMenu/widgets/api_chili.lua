@@ -245,6 +245,9 @@ end
 
 
 function widget:MouseWheel(up,value)
+	if WG.LimitFps and WG.LimitFps.ForceRedrawPeriod then
+		WG.LimitFps.ForceRedrawPeriod()
+	end
 
 	if Spring.IsGUIHidden() or totalHideInterface then
 		return false
