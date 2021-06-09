@@ -15,15 +15,15 @@ end
 
 local idleTime = 0.03	-- not actual idle, just threshold when to decrease fps quickly
 local idleFps = 3		-- (not instant) lowering to this fps quickly
-local idleFrameTimeDelay = 0.2 -- slowing fps increasingly by this much
-local sleepTime = 0.2
+local idleFrameTimeDelay = 0.16 -- slowing fps increasingly by this much
+local sleepTime = 0.33
 local sleepFps = 2
-local hibernateTime = 0.25
+local hibernateTime = 1
 local hibernateFps = 1
 local offscreenFps = 1
 
 local activeFps = 40
-local activeFullspeedFps = 70
+local activeFullspeedFps = 70	-- reset in init()
 local awayTime = 60
 
 local isIdle = false
@@ -40,7 +40,8 @@ local enabled = false
 
 local vsyncValueGame = Spring.GetConfigInt("VSync",1)
 local vsyncValueLobby = 1
-local vsyncValueHibernate = 4
+local vsyncValueSleep = vsyncValueLobby + 2
+local vsyncValueHibernate = 6
 local vsyncValueOffscreen = 6    -- sometimes somehow vsync 6 results in higher fps than 4
 
 -- detect display frequency > 60 and set vsyncValueIdle to 6
@@ -75,7 +76,7 @@ if infolog then
 end
 
 local function init()
-	if monitorFrequency >= 100 then
+	if monitorFrequency >= 110 then
 		vsyncValueLobby = 2
 	elseif monitorFrequency >= 200 then
 		vsyncValueLobby = 3
@@ -84,6 +85,14 @@ local function init()
 	end
 	if not drawAtFullspeed then
 		vsyncValueLobby = vsyncValueLobby + 1
+	end
+	vsyncValueSleep = vsyncValueLobby + 2
+
+	activeFullspeedFps = math.ceil(monitorFrequency/vsyncValueLobby)
+	if activeFullspeedFps < 60 then
+		activeFullspeedFps = 60
+	elseif activeFullspeedFps > 80 then
+		activeFullspeedFps = 80
 	end
 end
 
@@ -138,6 +147,7 @@ function widget:Update()
 		local clock = os.clock()
 		local prevIsOffscreen = isOffscreen
 		local prevIsHibernate = isHibernate
+		local prevIsSleep = isSleep
 		local mouseX, mouseY, lmb, mmb, rmb, mouseOffscreen  = Spring.GetMouseState()
 		isOffscreen = mouseOffscreen
 		if Spring.GetKeyState(8) then -- backspace pressed
@@ -168,14 +178,19 @@ function widget:Update()
 		if isIdle ~= prevIsIdle then
 			nextFrameTime = clock-1
 		end
-		isSleep = (lastUserInputTime < clock - sleepTime)
-		isHibernate = (lastUserInputTime < clock - hibernateTime)
-		isAway = (lastUserInputTime < clock - awayTime)
 
-		if not isOffscreen and  isHibernate ~= prevIsHibernate then
+
+		isSleep = (lastUserInputTime < clock - sleepTime)
+		if not isOffscreen and isSleep ~= prevIsSleep then
+			Spring.SetConfigInt("VSync", (isSleep and vsyncValueSleep or vsyncValueLobby))
+		end
+
+		isHibernate = (lastUserInputTime < clock - hibernateTime)
+		if not isOffscreen and isHibernate ~= prevIsHibernate then
 			Spring.SetConfigInt("VSync", (isHibernate and vsyncValueHibernate or vsyncValueLobby))
 		end
 
+		isAway = (lastUserInputTime < clock - awayTime)
 		if isAway ~= prevIsAway then
 			local lobby = WG.LibLobby.lobby
 			if lobby.SetIngameStatus then
