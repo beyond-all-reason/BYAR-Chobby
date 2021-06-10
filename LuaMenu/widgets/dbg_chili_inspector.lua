@@ -64,7 +64,27 @@ local function tracePerWidget(node)
 			local caption = ("%s"):format(w.whInfo.name)
 			local nodec = node:Add(caption)
 			for i,obj in pairs(t) do
-				local caption = ("%s: %s (redrawn: %i)"):format(obj.classname, obj.name, obj._redrawCounter or 0)
+
+				local fontinfo = ""
+				if obj.font then
+					--local fontname = string.match(obj.font.font or "", "(%d+)/?$") -- remove all before trailing slash
+					local fontname = string.sub(obj.font.font or "", -10) -- remove all before trailing slash
+
+					fontinfo = ("Font:(%s[%i])"):format(fontname, obj.font.size or "0")
+				end
+
+				local positioninfo = ""
+				if obj.x and obj.y then
+					positioninfo = ("Pos(%i:%i)"):format(obj.x  or 0, obj.y or 0)
+				end 
+
+				local caption = ("%s: %s; \"%s\" %s %s"):format(
+					obj.classname,
+					obj.name,
+					obj.caption or "",
+					fontinfo,
+					positioninfo
+				)
 				local nodec2 = nodec:Add(caption)
 			end
 		end
@@ -159,14 +179,10 @@ function widget:Shutdown()
 	end
 end
 
-local next = -math.huge
+local updatecount = 0
 function widget:Update()
-	if (os.clock() <= next) then
-		return
-	end
-	next = os.clock() + 3
-
+	updatecount = updatecount + 1
 	local curUsage, gcLimit = gcinfo()
-	local caption = ("Lua MemUsage: %.2fMB"):format(curUsage / 1024)
+	local caption = ("Frame:%i Lua MemUsage: %.2fMB"):format(updatecount, curUsage / 1024)
 	label0:SetCaption(caption)
 end
