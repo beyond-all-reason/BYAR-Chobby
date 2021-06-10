@@ -13,10 +13,9 @@ function widget:GetInfo()
 	}
 end
 
-local idleTime = 0.03	-- not actual idle, just threshold when to decrease fps quickly
-local idleFps = 3		-- (not instant) lowering to this fps quickly
-local idleFrameTimeDelay = 0.16 -- slowing fps increasingly by this much
-local sleepTime = 0.33
+local idleTime = 0.1
+local idleFps = 5	-- lower numbers will result in more severe flicker on intel gfx
+local sleepTime = 0.2
 local sleepFps = 2
 local hibernateTime = 1
 local hibernateFps = 1
@@ -41,8 +40,22 @@ local enabled = false
 local vsyncValueGame = Spring.GetConfigInt("VSync",1)
 local vsyncValueLobby = 1
 local vsyncValueSleep = vsyncValueLobby + 2
-local vsyncValueHibernate = 6
-local vsyncValueOffscreen = 6    -- sometimes somehow vsync 6 results in higher fps than 4
+local maxVsync = 6
+local vsyncValueHibernate = maxVsync
+local vsyncValueOffscreen = maxVsync
+
+local isIntel = (Platform ~= nil and Platform.gpuVendor == 'Intel')
+if isIntel then
+	maxVsync = 4	-- intel seems to no support vsync above 4 (but haven't tested the new intel XE)
+	vsyncValueHibernate = maxVsync
+	vsyncValueOffscreen = maxVsync
+	idleTime = 0.25
+	idleFps = 30	-- lower numbers will result in more severe flicker on intel gfx
+	sleepTime = 1
+	sleepFps = 15
+	hibernateTime = 2
+	hibernateFps = 2
+end
 
 -- detect display frequency > 60 and set vsyncValueIdle to 6
 local infolog = VFS.LoadFile("infolog.txt")
@@ -87,6 +100,7 @@ local function init()
 		vsyncValueLobby = vsyncValueLobby + 1
 	end
 	vsyncValueSleep = vsyncValueLobby + 2
+	if vsyncValueSleep > maxVsync then vsyncValueSleep = maxVsync end
 
 	activeFullspeedFps = math.ceil(monitorFrequency/vsyncValueLobby)
 	if activeFullspeedFps < 60 then
@@ -104,7 +118,7 @@ local function logUserInput()
 end
 
 function widget:Initialize()
-	--Spring.SetConfigInt("VSync", vsyncValueLobby)
+	Spring.SetConfigInt("VSync", vsyncValueLobby)
 
 	if WG.Chobby and WG.Chobby.Configuration then
 		drawAtFullspeed = WG.Chobby.Configuration.drawAtFullSpeed
@@ -134,6 +148,10 @@ function widget:Shutdown()
 	end
 end
 
+function widget:ViewResize(vsx, vsy)
+	WG.LimitFps.ForceRedrawPeriod(0.5)
+end
+
 function widget:Update()
 
 	local prevEnabled = enabled
@@ -144,15 +162,16 @@ function widget:Update()
 		Spring.SetConfigInt("VSync", (enabled and vsyncValueLobby or vsyncValueGame))
 	end
 	if enabled then
-		local clock = os.clock()
-		local prevIsOffscreen = isOffscreen
-		local prevIsHibernate = isHibernate
-		local prevIsSleep = isSleep
-		local mouseX, mouseY, lmb, mmb, rmb, mouseOffscreen  = Spring.GetMouseState()
-		isOffscreen = mouseOffscreen
 		if Spring.GetKeyState(8) then -- backspace pressed
 			logUserInput()
 		end
+		local mouseX, mouseY, lmb, mmb, rmb, mouseOffscreen  = Spring.GetMouseState()
+		local clock = os.clock()
+		local prevIsSleep = isSleep
+		local prevIsHibernate = isHibernate
+		local prevIsOffscreen = isOffscreen
+		isOffscreen = mouseOffscreen
+
 		if mouseX ~= lastMouseX or mouseY ~= lastMouseY or lmb or mmb or rmb  then
 			lastMouseX, lastMouseY = mouseX, mouseY
 			logUserInput()
@@ -227,12 +246,14 @@ end
 function widget:AllowDraw()
 	if isIdle then
 		if os.clock() > nextFrameTime then
-			if isHibernate then
+			if isOffscreen then
+				frameDelayTime = 1/offscreenFps
+			elseif isHibernate then
 				frameDelayTime = 1/hibernateFps
 			elseif isSleep then
 				frameDelayTime = 1/sleepFps
 			else
-				frameDelayTime = math.max(1/idleFps, frameDelayTime + idleFrameTimeDelay)
+				frameDelayTime = 1/idleFps
 			end
 			nextFrameTime = os.clock()+frameDelayTime
 			return true
