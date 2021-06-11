@@ -239,8 +239,11 @@ local function SetLobbyFullscreenMode(mode, borderOverride)
 		delayedModeSet = mode
 		delayedBorderOverride = borderOverride
 		currentMode = 2
-		Spring.SetConfigInt("WindowBorderless", 0, false)
-		Spring.SetConfigInt("Fullscreen", 0)
+
+		-- not sure why this is needed, disabled the switching cause else borderless is like windowed, without the border, but not fullscreen
+		--Spring.SetConfigInt("WindowBorderless", 0, false)
+		--Spring.SetConfigInt("Fullscreen", 0)
+
 		WG.Delay(SetLobbyFullscreenMode, 0.8)
 	end
 end
