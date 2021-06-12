@@ -134,6 +134,30 @@ function AiListWindow:MakeAiButton(btnWidth, displayName, tooltip, shortName, ve
 	}
 end
 
+
+local function PickRandomColor()
+	local colorOptions = {
+		{math.random(50,255),	0,						0					},
+		{0,						math.random(50,255),	0					},
+		{0,						0,						math.random(50,255)},
+		
+		{math.random(50,255),	math.random(0,255),		0					},
+		{math.random(50,255),	0,						math.random(0,255)	},
+		{math.random(50,255),	math.random(0,200),		math.random(0,200)	},
+
+		{math.random(0,255),	math.random(50,255),	0					},
+		{0,						math.random(50,255),	math.random(0,255)	},
+		{math.random(0,200),	math.random(50,255),	math.random(0,200)	},
+
+		{math.random(0,255),	0,						math.random(50,255)},
+		{0,						math.random(0,255),		math.random(50,255)},
+		{math.random(0,200),	math.random(0,200),		math.random(50,255)},
+	}	
+	
+	local r = math.random(1,#colorOptions)
+	return {colorOptions[r][1]/255, colorOptions[r][2]/255, colorOptions[r][3]/255,}
+end
+
 function AiListWindow:AddAi(displayName, shortName, version, options)
 	local aiName
 	local counter = 1
@@ -154,7 +178,7 @@ function AiListWindow:AddAi(displayName, shortName, version, options)
 		counter = counter + 1
 	end
 	
-	battleStatusOptions = {side = math.random(0,1), teamColor = {math.random(),math.random(),math.random()},}
+	battleStatusOptions = {side = math.random(0,1), teamColor = PickRandomColor(),}
 	
 	self.lobby:AddAi(aiName, shortName, self.allyTeam, version, options, battleStatusOptions)
 	Configuration:SetConfigValue("lastAddedAiName", shortName)

@@ -2888,14 +2888,39 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	local function OnDisableUnits(listener,unitNames)
 	end
 
+	local function PickRandomColor()
+		local colorOptions = {
+			{math.random(50,255),	0,						0					},
+			{0,						math.random(50,255),	0					},
+			{0,						0,						math.random(50,255)},
+			
+			{math.random(50,255),	math.random(0,255),		0					},
+			{math.random(50,255),	0,						math.random(0,255)	},
+			{math.random(50,255),	math.random(0,200),		math.random(0,200)	},
+
+			{math.random(0,255),	math.random(50,255),	0					},
+			{0,						math.random(50,255),	math.random(0,255)	},
+			{math.random(0,200),	math.random(50,255),	math.random(0,200)	},
+
+			{math.random(0,255),	0,						math.random(50,255)},
+			{0,						math.random(0,255),		math.random(50,255)},
+			{math.random(0,200),	math.random(0,200),		math.random(50,255)},
+		}	
+		
+		local r = math.random(1,#colorOptions)
+		return {colorOptions[r][1]/255, colorOptions[r][2]/255, colorOptions[r][3]/255,}
+	end
+
+
 	local function OnRequestBattleStatus(listener)
 		-- if the server is requesting our battle status, that means we have free reign over teamcolor
 		battleLobby:SetBattleStatus({
-			teamColor = {
-				math.random() * 0.7 + 0.1,
-				math.random() * 0.7 + 0.1,
-				math.random() * 0.7 + 0.1,
-			},
+			tamColor = PickRandomColor()
+			-- teamColor = {
+			-- 	math.random() * 0.7 + 0.1,
+			-- 	math.random() * 0.7 + 0.1,
+			-- 	math.random() * 0.7 + 0.1,
+			-- },
 		})
 	end
 
