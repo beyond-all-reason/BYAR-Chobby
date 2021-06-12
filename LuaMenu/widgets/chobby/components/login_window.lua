@@ -980,6 +980,13 @@ function LoginWindow:tryRegister()
 		return
 	end
 
+	self.onRegistrationDenied = function (listener, err, accountAlreadyExists)
+		self.txtErrorRegister:SetText(Configuration:GetErrorColor() .. "Registration error:" .. err)
+		lobby:RemoveListener("OnRegistrationDenied", self.onRegistrationDenied)
+	end
+	
+	lobby:AddListener("OnRegistrationDenied", self.onRegistrationDenied)
+
 	if not lobby.connected or self.loginAttempts >= 3 then
 		self.loginAttempts = 0
 		self:RemoveListeners()
