@@ -472,13 +472,13 @@ end
 -------------------------------------------------
 
 function InterfaceSkirmish:AddAi(aiName, aiLib, allyNumber, version, aiOptions, battleStatusOptions)
-	self:super("AddAi", aiName, aiLib, allyNumber, version, options, battleStatusOptions)
+	self:super("AddAi", aiName, aiLib, allyNumber, version, aiOptions, battleStatusOptions)
 	self:_OnAddAi(self:GetMyBattleID(), aiName, {
 		aiLib = aiLib,
 		allyNumber = allyNumber,
 		owner = self:GetMyUserName(),
 		aiVersion = version,
-		aiOptions = options,
+		aiOptions = aiOptions,
 		teamColor = battleStatusOptions and battleStatusOptions.teamColor,
 		side = battleStatusOptions and battleStatusOptions.side,
 	})
