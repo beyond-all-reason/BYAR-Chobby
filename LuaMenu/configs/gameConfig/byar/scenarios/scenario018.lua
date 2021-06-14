@@ -370,7 +370,7 @@ The difficulty modifier will change the amount of resources you and the enemy re
 		},
 			
 		featureloadout = {
-			{name = 'cormlv_dead', x = 170, y = 75, z = 199, rot = 0 , scale = 1.0, resurrectas = "cormlv"},
+			{name = 'cormlv_dead', x = 274, y = 199, z = 140, rot = 0 , scale = 1.0, resurrectas = "cormlv"},
 		}
     },
     -- https://github.com/spring/spring/blob/105.0/doc/StartScriptFormat.txt
