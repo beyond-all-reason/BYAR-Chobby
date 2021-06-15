@@ -8,7 +8,7 @@ local scenariodata = {
 	imagepath		= "scenario018.jpg", -- placed next to lua file, should be 3:1 ratio banner style
 	imageflavor		= "Mavericks heal and gain experience quickly.", -- This text will be drawn over image
     summary         = [[You are left with a rogue force of a handful of units, and no base to take on the dreadful Cortex. Fatboy, Maverick, Zeus and a minor foray of supporting units are your last hope.]],
-	briefing 		= [[After a lost battle, your base is left crippled, and you only have a few units remaining to take out the Cortex stronghold. Destroy the Cortex Commander with what you have left, while trying to keep all of your units alive. 
+	briefing 		= [[After a lost battle, your base is left crippled beyond repair, and you only have a few units remaining to take out the Cortex stronghold. Destroy the Cortex Commander with what you have left, while trying to keep all of your units alive. 
  
 You start the game with Fatboy, Maverick, Zeus, a Marky radar bot, some Parasite spies, and two rector resurrections bots, and just enough energy to keep the spies cloaked, and the radar in working condition. 
  
