@@ -198,9 +198,9 @@ function widget:Update()
 			nextFrameTime = clock-1
 		end
 
-		-- launch grade period
-		if os.clock() < 10 and os.clock() - lastUserInputTime > sleepTime+0.01 then
-			lastUserInputTime = clock - sleepTime+0.01
+		-- launch grace period
+		if os.clock() < 30 and os.clock() - lastUserInputTime > sleepTime+0.01 then
+			lastUserInputTime = clock - (sleepTime+0.01)
 		end
 
 		isSleep = (lastUserInputTime < clock - sleepTime)
