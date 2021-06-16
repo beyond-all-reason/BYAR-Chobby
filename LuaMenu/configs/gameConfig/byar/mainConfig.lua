@@ -115,7 +115,7 @@ local externalFuncAndData = {
 		"LuaMenu/configs/gameConfig/byar/lobbyMusic/Ryan Krause - Confined Chaos.ogg",
 		"LuaMenu/configs/gameConfig/byar/lobbyMusic/Ryan Krause - Friend Or Foe.ogg",
 	},
-	disableColorChoosing = false,
+	disableColorChoosing = true,
 	showHandicap = true,
 	spadsLobbyFeatures = true,
 	filterEmptyRegionalAutohosts = true,
