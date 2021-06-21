@@ -528,7 +528,11 @@ local function UpdateUserBattleStatus(listener, userName)
 				end
 				data.imSide:SetVisibility(imageVisible and sideSelected)
 				if imageVisible then
-					data.imTeamColor:Invalidate()
+					if data.imTeamColor == nil then
+						Spring.Echo("Warning: UpdateUserBattleStatus(): data.imTeamColor is nil for ", userName, battleStatus.isSpectator, battleStatus)
+					else
+						data.imTeamColor:Invalidate()
+					end
 				end
 			end
 			if data.lblHandicap then
