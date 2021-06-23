@@ -187,7 +187,7 @@ local function CreateReplayEntry(
 		parent = replayPanel,
 	}
 
-	Image:New {
+	local mapImage = Image:New {
 		x = 0, y = 0,
 		right = 0,
 		bottom = 0,
@@ -301,10 +301,42 @@ local function CreateReplayEntry(
 		 end
 	end
 
+	local function CheckReplayFileExists()
+		if not VFS.FileExists(replayPath) then
+			WG.Chobby.InformationPopup(i18n("replay_not_found"), {width = 315, height = 200})
+			return false
+		else
+			return true
+		end
+	end
+
+	local function DeleteReplay()
+		-- There's no Lua wrapper for FileSystem::Remove() function, available in Spring (/rts/System/FileSystem/FileSystem.cpp)
+		os.remove(replayPath)
+		-- Also removing a cache file (using a wildcard file mask is dangerous)
+		os.remove(replayPath .. ".cache")
+
+		-- Hiding the current map image
+		mapImage:SetVisibility(false)
+		-- Setting an empty map image for deleted replays
+		local emptyMapImageFile, emptyMapNeedDownload = Configuration:GetMinimapImage("")
+
+		Image:New {
+			x = 0, y = 0,
+			right = 0,
+			bottom = 0,
+			file = emptyMapImageFile,
+			fallbackFile = Configuration:GetLoadingImage(3),
+			checkFileExists = emptyMapNeedDownload,
+			parent = minimap,
+			tooltip = "prout"
+		}
+	end
+
 	Button:New {
 		x = "90%",
-		y = 3,
-		bottom = 3,
+		y = "10%",
+		bottom = "55%",
 		width = "8%",
 		caption = i18n("start"),
 		classname = ternary(
@@ -315,7 +347,7 @@ local function CreateReplayEntry(
 		font = WG.Chobby.Configuration:GetFont(2),
 		OnClick = {
 			function()
-				if not replayPath then
+				if not replayPath or not CheckReplayFileExists() then
 					return
 				end
 				local offEngine = not WG.Chobby.Configuration:IsValidEngineVersion(engineName)
@@ -323,6 +355,29 @@ local function CreateReplayEntry(
 					"replay", gameName,
 					mapName, nil, nil, replayPath, offEngine and engineName
 				)
+			end
+		},
+		parent = replayPanel,
+	}
+
+	Button:New {
+		x = "90%",
+		y = "55%",
+		bottom = "10%",
+		width = "8%",
+		caption = i18n("delete_replay"),
+		classname = ternary(
+			WG.Chobby.Configuration:IsValidEngineVersion(engineName),
+			"negative_button",
+			"option_button"
+		),
+		font = WG.Chobby.Configuration:GetFont(2),
+		OnClick = {
+			function()
+				if not replayPath or not CheckReplayFileExists() then
+					return
+				end
+				WG.Chobby.ConfirmationPopup(DeleteReplay, i18n("delete_replay_confirm"), nil, 315, 200, i18n("yes"), i18n("no"))
 			end
 		},
 		parent = replayPanel,
