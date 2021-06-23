@@ -18,6 +18,7 @@ end
 -- Local Variables
 
 local replayListWindow
+local replayList
 
 -- Size constants for the replay window
 local PLAYER_HEIGHT = 18
@@ -315,22 +316,7 @@ local function CreateReplayEntry(
 		os.remove(replayPath)
 		-- Also removing a cache file (using a wildcard file mask is dangerous)
 		os.remove(replayPath .. ".cache")
-
-		-- Hiding the current map image
-		mapImage:SetVisibility(false)
-		-- Setting an empty map image for deleted replays
-		local emptyMapImageFile, emptyMapNeedDownload = Configuration:GetMinimapImage("")
-
-		Image:New {
-			x = 0, y = 0,
-			right = 0,
-			bottom = 0,
-			file = emptyMapImageFile,
-			fallbackFile = Configuration:GetLoadingImage(3),
-			checkFileExists = emptyMapNeedDownload,
-			parent = minimap,
-			tooltip = "prout"
-		}
+		replayList:RemoveItem(replayPath)
 	end
 
 	Button:New {
@@ -441,7 +427,7 @@ local function InitializeControls(parentControl)
 
 	local headings = {}
 
-	local replayList = WG.Chobby.SortableList(
+	replayList = WG.Chobby.SortableList(
 		listHolder, headings, REPLAY_LIST_ENTRY_HEIGHT, nil, false
 	)
 
