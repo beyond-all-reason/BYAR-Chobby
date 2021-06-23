@@ -248,6 +248,7 @@ function widget:TextEditing()
 end
 
 function widget:AllowDraw()
+	if drawAtFullspeed or isIntel then return true end
 	if isIdle then
 		if os.clock() > nextFrameTime then
 			if isOffscreen then
