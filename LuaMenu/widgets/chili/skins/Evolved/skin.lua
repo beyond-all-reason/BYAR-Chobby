@@ -129,7 +129,7 @@ skin.option_button = {
 skin.negative_button = {
   TileImageBK = ":cl:tech_button_bright_small_bk.png",
   TileImageFG = ":cl:tech_button_bright_small_fg.png",
-  tiles = {20, 20, 20, 20}, --// tile widths: left,top,right,bottom
+  tiles = {40, 40, 40, 40}, --// tile widths: left,top,right,bottom: updated to match skin.action_button
   padding = {10, 10, 10, 10},
 
   backgroundColor = {0.85, 0.05, 0.25, 0.65},
