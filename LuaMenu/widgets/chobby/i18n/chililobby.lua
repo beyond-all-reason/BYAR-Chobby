@@ -49,6 +49,9 @@ return {
 		refresh = "Refresh",
 		rescan_files = "Rescan Files",
 		more = "More",
+		delete_replay = "Delete",
+		delete_replay_confirm = "Are you sure you want to delete this replay?",
+		replay_not_found = "Replay file not found, refresh the list!",
 		--
 		start_download = 'Start download',
 		download_noun = 'Download',
@@ -303,6 +306,9 @@ return {
 		refresh = "Neu laden",
 		rescan_files = "Dateien neu scannen",
 		more = "Mehr",
+		delete_replay = "Löschen",
+		delete_replay_confirm = "Dieses Replay geht verloren. Trotzdem löschen?",
+		replay_not_found = "Replay Datei nicht gefunden, die Liste neu laden!",
 		--
 		start_download = 'Download starten',
 		download_noun = 'Download',
