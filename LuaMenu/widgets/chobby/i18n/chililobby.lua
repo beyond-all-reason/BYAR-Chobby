@@ -52,6 +52,7 @@ return {
 		delete_replay = "Delete",
 		delete_replay_confirm = "Are you sure you want to delete this replay?",
 		replay_not_found = "Replay file not found, refresh the list!",
+		replay_different_version = "This replay requires a different engine version (will be downloaded automatically if necessary)",
 		--
 		start_download = 'Start download',
 		download_noun = 'Download',
@@ -309,6 +310,7 @@ return {
 		delete_replay = "Löschen",
 		delete_replay_confirm = "Dieses Replay geht verloren. Trotzdem löschen?",
 		replay_not_found = "Replay Datei nicht gefunden, die Liste neu laden!",
+		replay_different_version = "Dieses Replay erfordert eine andere Engine-Version (wird bei Bedarf automatisch heruntergeladen)",
 		--
 		start_download = 'Download starten',
 		download_noun = 'Download',

@@ -325,6 +325,11 @@ local function CreateReplayEntry(
 		bottom = "55%",
 		width = "8%",
 		caption = i18n("start"),
+		tooltip = ternary(
+			WG.Chobby.Configuration:IsValidEngineVersion(engineName),
+			nil,
+			i18n("replay_different_version")
+		),
 		classname = ternary(
 			WG.Chobby.Configuration:IsValidEngineVersion(engineName),
 			"action_button",
@@ -352,11 +357,7 @@ local function CreateReplayEntry(
 		bottom = "10%",
 		width = "8%",
 		caption = i18n("delete_replay"),
-		classname = ternary(
-			WG.Chobby.Configuration:IsValidEngineVersion(engineName),
-			"negative_button",
-			"option_button"
-		),
+		classname = "negative_button",
 		font = WG.Chobby.Configuration:GetFont(2),
 		OnClick = {
 			function()
