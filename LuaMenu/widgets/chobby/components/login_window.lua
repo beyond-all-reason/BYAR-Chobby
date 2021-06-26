@@ -778,6 +778,25 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 
 	recoverChildren[#recoverChildren+1] = self.btnLogOut
 
+	self.btnTeiserver = Button:New {
+		x = 2,
+		y = self.windowHeight - 143,
+		width = 207,
+		height = 70,
+		caption = "Server Website",
+		font = Configuration:GetFont(3),
+		classname = "option_button",
+		OnClick = {
+			function ()
+				WG.BrowserHandler.OpenUrl("https://teifion.co.uk/")
+			end
+		},
+		tooltip = "Visit the server's website for all your account and clan management needs at https://teifion.co.uk/. You can also recover your account/password from there.",
+	}
+
+	
+	recoverChildren[#recoverChildren+1] = self.btnTeiserver
+
 	local ww, wh = Spring.GetWindowGeometry()
 	local width = 3 * (formw  + 30) --used to be bout tree fiddy
 
