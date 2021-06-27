@@ -250,7 +250,7 @@ function widget:TextEditing()
 end
 
 function widget:AllowDraw()
-	if isIntel then return true end
+	if isIntel or isLinux then return true end
 	if isIdle then
 		if os.clock() > nextFrameTime then
 			if isOffscreen then
