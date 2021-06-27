@@ -13,12 +13,12 @@ function widget:GetInfo()
 	}
 end
 
-local idleTime = 0.1
-local idleFps = 5	-- lower numbers will result in more severe flicker on intel gfx
-local sleepTime = 0.2
-local sleepFps = 2
+local idleTime = 0.166
+local idleFps = 6	-- lower numbers will result in more severe flicker on intel gfx
+local sleepTime = 0.5
+local sleepFps = 4
 local hibernateTime = 1
-local hibernateFps = 1
+local hibernateFps = 2
 local offscreenFps = 1
 
 local activeFps = 40
@@ -44,8 +44,10 @@ local maxVsync = 6
 local vsyncValueHibernate = maxVsync
 local vsyncValueOffscreen = maxVsync
 
+local isLinux = string.find(Platform.osName:lower(), 'linux')	-- not sure what exact implications linux has, but someone reported flickering
+
 local isIntel = (Platform ~= nil and Platform.gpuVendor == 'Intel')
-if isIntel then
+if isIntel or isLinux then
 	maxVsync = 4	-- intel seems to no support vsync above 4 (but haven't tested the new intel XE)
 	vsyncValueHibernate = maxVsync
 	vsyncValueOffscreen = maxVsync
