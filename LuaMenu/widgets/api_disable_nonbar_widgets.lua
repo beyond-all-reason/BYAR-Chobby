@@ -42,15 +42,20 @@ local unusedwidgets = {
 function widget:Initialize()
 end
 
+local removedwidgets = {}
+
 function widget:Update()
 	for i, widgetname in ipairs(unusedwidgets) do 
 		
 		local wijjit = widgetHandler:FindByName(widgetname)
 		if wijjit then
-			Spring.Echo("Disable NonBar Widgets:", widgetname)
+			--Spring.Echo("Disable NonBar Widgets:", widgetname)
+			removedwidgets[#removedwidgets+1] = widgetname
 			widgetHandler:RemoveWidget(wijjit)
 		end
 	end
+	Spring.Echo("Disabled NonBar Widgets:", table.concat(removedwidgets, ","))
+	
 	widgetHandler:RemoveWidget(widgetHandler:FindByName("Disable NonBar Widgets"))
 end
 
