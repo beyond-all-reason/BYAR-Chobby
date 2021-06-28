@@ -476,6 +476,10 @@ function Configuration:SetConfigData(data)
 		self.serverAddress = "bar.teifion.co.uk"
 	end
 
+	if self.serverAddress ~= "bar.teifion.co.uk" then
+		self.serverAddress = "bar.teifion.co.uk"
+	end
+
 
 	local newSpringsettings, onlyIfMissingSettings = VFS.Include(LUA_DIRNAME .. "configs/springsettings/springsettingsChanges.lua")
 	for key, value in pairs(newSpringsettings) do
