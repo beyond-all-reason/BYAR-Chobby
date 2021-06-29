@@ -424,6 +424,7 @@ return scenariodata
 
 	[modoptions]
 	{
+		startenergy = 7000;
 	}
 
 	[allyTeam1]

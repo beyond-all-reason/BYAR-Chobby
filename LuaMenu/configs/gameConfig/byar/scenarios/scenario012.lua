@@ -379,6 +379,7 @@ Scoring:
     {
         deathmode = killall;
         scenariooptions = __SCENARIOOPTIONS__;
+        startenergy = 7000;
     }
 
     [allyTeam1]

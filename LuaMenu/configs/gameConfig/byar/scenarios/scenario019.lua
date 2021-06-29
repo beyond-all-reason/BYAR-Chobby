@@ -542,6 +542,7 @@ The difficulty modifier will change the amount of resources you and the enemy re
 	[modoptions]
 	{
 		scenariooptions = __SCENARIOOPTIONS__;
+		startenergy = 7000;
 	}
 
 
