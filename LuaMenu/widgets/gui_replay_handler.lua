@@ -320,10 +320,10 @@ local function CreateReplayEntry(
 	end
 
 	Button:New {
-		x = "90%",
+		x = "89%",
 		y = "10%",
 		bottom = "55%",
-		width = "8%",
+		width = "10%",
 		caption = i18n("start"),
 		tooltip = ternary(
 			WG.Chobby.Configuration:IsValidEngineVersion(engineName),
@@ -352,13 +352,14 @@ local function CreateReplayEntry(
 	}
 
 	Button:New {
-		x = "90%",
+		x = "89%",
 		y = "55%",
 		bottom = "10%",
-		width = "8%",
+		width = "10%",
 		caption = i18n("delete_replay"),
 		classname = "negative_button",
 		font = WG.Chobby.Configuration:GetFont(2),
+		tooltip = "Delete the replay from your hard drive",
 		OnClick = {
 			function()
 				if not replayPath or not CheckReplayFileExists() then
@@ -382,7 +383,7 @@ local function InitializeControls(parentControl)
 	local Configuration = WG.Chobby.Configuration
 	Label:New {
 		x = 15,
-		y = 11,
+		y = 17,
 		width = 180,
 		height = 30,
 		parent = parentControl,
@@ -418,7 +419,7 @@ local function InitializeControls(parentControl)
 	local listHolder = Control:New {
 		x = 12,
 		right = 15,
-		y = 60,
+		y = 15,
 		bottom = 15,
 		parent = parentControl,
 		resizable = false,
@@ -497,26 +498,28 @@ local function InitializeControls(parentControl)
 	-------------------------
 
 	Button:New {
-		x = 100,
+		right = 15,
 		y = 7,
-		width = 110,
+		width = 120,
 		height = 45,
 		caption = i18n("refresh"),
 		font = Configuration:GetFont(3),
 		classname = "option_button",
+		tooltip = "Refresh the list of replays",
 		parent = parentControl,
 		OnClick = {AddReplays},
 	}
 
 	moreButton = Button:New {
-		x = 340,
+		right = 15 + 130,
 		y = 7,
-		width = 110,
+		width = 120,
 		height = 45,
 		caption = i18n("more"),
 		font = Configuration:GetFont(3),
 		classname = "option_button",
 		parent = parentControl,
+		tooltip = "Load more, older replays",
 		OnClick = {
 			function ()
 				if PartialAddReplays then
@@ -528,14 +531,15 @@ local function InitializeControls(parentControl)
 
 	if WG.BrowserHandler and Configuration.gameConfig.link_replays ~= nil then
 		Button:New {
-			x = 220,
+			right = 15 + 260,
 			y = 7,
-			width = 110,
+			width = 120,
 			height = 45,
 			caption = i18n("download"),
 			font = Configuration:GetFont(3),
 			classname = "option_button",
 			parent = parentControl,
+			tooltip = "Get more replays from our website, and download the .sdfz files into your data/demos folder.",
 			OnClick = {
 				function ()
 					WG.BrowserHandler.OpenUrl(Configuration.gameConfig.link_replays())
