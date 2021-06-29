@@ -50,7 +50,7 @@ end
 --------------------------------------------------------------------------------
 -- Controls
 
-local function GetScroll(window, x, right, y, bottom, verticalScrollbar)
+local function GetScroll(window, x, right, y, bottom, verticalScrollbar, borderColor)
 	local holder = Control:New {
 		x = x,
 		y = y,
@@ -67,7 +67,7 @@ local function GetScroll(window, x, right, y, bottom, verticalScrollbar)
 		horizontalScrollbar = false,
 		verticalScrollbar = verticalScrollbar,
 		padding = {4, 4, 4, 4},
-		--borderColor = hideBorder and {0,0,0,0},
+		borderColor = borderColor,
 		--OnResize = {
 		--	function()
 		--	end
@@ -848,7 +848,7 @@ local function InitializeControls(window)
 	local staticCommunityData = LoadStaticCommunityData()
 
 	local topWide     = GetScroll(window, 0, 0, 0, "30%", true) -- GetScroll(window, x, right, y, bottom, verticalScrollbar)
-	local leftCenter  = GetScroll(window, 0, 0, "70%", "0%", false)
+	local leftCenter  = GetScroll(window, 0, 0, "70%", "0%", false, {0,0,0,0})
 	--local midCenter   = GetScroll(window, "33.4%", "33.4%", "40%", "1%", true)
 	--local rightCenter = GetScroll(window, "66.6%", 0, "40%", "1%", true)
 	--local lowerWide   = GetScroll(window, 0, 0, "69%", 0, true)
