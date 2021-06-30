@@ -32,7 +32,7 @@ local ANALYTICS_EVENT = "analyticsEvent_"
 local ANALYTICS_EVENT_ERROR = "analyticsEventError_"
 
 -- Do not send analytics for dev versions as they will likely be nonsense.
-local ACTIVE = false -- not VFS.HasArchive("Zero-K $VERSION")
+local ACTIVE = true -- not VFS.HasArchive("Zero-K $VERSION")
 local VERSION = "events20210625:"
 
 ------------------------ Connection ---------------------
