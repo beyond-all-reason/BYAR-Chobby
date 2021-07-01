@@ -404,7 +404,9 @@ function SteamCoopHandler.AttemptGameStart(gameType, gameName, mapName, scriptTa
 			end
 
 			if startReplayFile then
-				WG.Analytics.SendRepeatEvent("game_start:singleplayer:lone_replay", 1)
+				WG.Analytics.SendRepeatEvent("game_start:singleplayer:lone_replay", {
+					replayfilename = startReplayFile
+				})
 				WG.Chobby.localLobby:StartReplay(startReplayFile, myName)
 			elseif scriptTable then
 				local planetID = (scriptTable.modoptions or {}).singleplayercampaignbattleid
@@ -415,7 +417,7 @@ function SteamCoopHandler.AttemptGameStart(gameType, gameName, mapName, scriptTa
 				end
 				WG.LibLobby.localLobby:StartGameFromLuaScript(gameType, scriptTable)
 			else
-				WG.Analytics.SendRepeatEvent("game_start:singleplayer:lone_other_" .. (gameType or "skirmish"), 1)
+				WG.Analytics.SendRepeatEvent("game_start:singleplayer:lone_other_" .. (gameType or "skirmish"), {map = lastStart.mapName})
 				WG.LibLobby.localLobby:StartBattle(gameType, myName)
 			end
 			return
