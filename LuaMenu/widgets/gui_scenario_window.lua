@@ -226,6 +226,7 @@ local function CreateScenarioPanel(shortname, sPanel)
 		height = "5%",
 		parent = sPanel,
 		font = Configuration:GetFont(3),
+		--objectOverrideFont = Configuration:GetOverrideFont(3),
 		caption = scen.title,
 	}
 
@@ -653,8 +654,15 @@ local function CreateScenarioPanel(shortname, sPanel)
 		basescript = basescript:gsub("__NUMRESTRICTIONS__",tostring(numrestrictions))
 		basescript = basescript:gsub("__RESTRICTEDUNITS__",restrictionstring)
 		basescript = basescript:gsub("__PLAYERNAME__",myName)
-		basescript = basescript:gsub("__PLAYERHANDICAP__",tostring(mydifficulty.playerhandicap))
-		basescript = basescript:gsub("__ENEMYHANDICAP__",tostring(mydifficulty.enemyhandicap))
+
+		for diffkey,diffvalue in pairs(mydifficulty) do
+			if diffkey ~= "name" then
+				basescript = basescript:gsub("__" .. string.upper(diffkey) .. "__", tostring(diffvalue))
+			end
+
+		end
+		--basescript = basescript:gsub("__PLAYERHANDICAP__",tostring(mydifficulty.playerhandicap))
+		--basescript = basescript:gsub("__ENEMYHANDICAP__",tostring(mydifficulty.enemyhandicap))
 		basescript = basescript:gsub("__BARVERSION__",tostring(barversion))
 		basescript = basescript:gsub("__MAPNAME__",tostring(scen.mapfilename))
 		basescript = basescript:gsub("__PLAYERSIDE__",tostring(myside or scen.allowedsides[1]))
@@ -679,7 +687,7 @@ local function CreateScenarioPanel(shortname, sPanel)
 					Spring.Echo("Mission Ready")
 					Spring.Echo(scriptTxt)
 					if WG.Analytics and WG.Analytics.SendRepeatEvent then
-						WG.Analytics.SendRepeatEvent("game_start:singleplayer:scenario_start_" .. scen.scenarioid)
+						WG.Analytics.SendRepeatEvent("game_start:singleplayer:scenario_start", {scenarioid = scen.scenarioid, difficulty = mydifficulty.name})
 					end
 
 					if not VFS.HasArchive(barversion) then
@@ -1038,12 +1046,16 @@ function widget:RecvLuaMsg(msg)
 		Base64Decode(stats.scenariooptions))
 
 		Spring.Echo(decodedscenopts.scenarioid,decodedscenopts.version,stats.endtime,stats.metalUsed + stats.energyUsed/60.0,stats.won)
-
-		if stats.won and stats.cheated ~= true then
-			SetScore(decodedscenopts.scenarioid,decodedscenopts.version,decodedscenopts.difficulty, stats.endtime,stats.metalUsed + stats.energyUsed/60.0,stats.won)
+		local won = (stats.won and stats.cheated ~= true ) or false
+		local resourcesused = (stats.metalUsed + stats.energyUsed/60.0) or 0 
+		if WG.Analytics and WG.Analytics.SendRepeatEvent then
+			WG.Analytics.SendRepeatEvent("game_start:singleplayer:scenario_end", {scenarioid = scen.scenarioid, difficulty = decodedscenopts.difficulty, won = won, endtime = stats.endtime, resources = resourcesused })
 		end
 
-		WG.Analytics.SendRepeatEvent("game_start:singleplayer:scenario_complete_" .. msg)
+		if won then
+			SetScore(decodedscenopts.scenarioid,decodedscenopts.version,decodedscenopts.difficulty, stats.endtime,resourcesused,won)
+		end
+
 	end
 end
 
