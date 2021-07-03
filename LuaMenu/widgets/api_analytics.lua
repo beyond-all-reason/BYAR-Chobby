@@ -98,15 +98,23 @@ local buffer = ""
 local commands = {} -- table with possible commands
 
 local PRINT_DEBUG = false
+function JSONBase64ifyMessage(args)
+	if args == nil then
+		return Spring.Utilities.Base64Encode('{}')
+	end
+	if type(args) == "table" then
+		return Spring.Utilities.Base64Encode(Spring.Utilities.json.encode(args))
+	end
+	return Spring.Utilities.Base64Encode(tostring(args))
+end
 
 function SendClientProperty(cmdName, args) -- cannot send table!
 	if client == nil then 
 		if PRINT_DEBUG then Spring.Echo("Analytics not connected") end
 		return
 	end
-	if args == nil then args = {} end
-	args = Spring.Utilities.Base64Encode(Spring.Utilities.json.encode(args))
-	local message = "c.telemetry.update_client_property " .. cmdName .. " " ..args.." ".. machineHash .. "\n"
+	local json64 = JSONBase64ifyMessage(args)
+	local message = "c.telemetry.update_client_property " .. cmdName .. " " ..json64.." ".. machineHash .. "\n"
 	client:send(message)
 	if PRINT_DEBUG then
 		Spring.Echo("Analytics SendCommand", message)
@@ -118,9 +126,8 @@ function SendClientEvent(cmdName, args)
 		if PRINT_DEBUG then Spring.Echo("Analytics not connected") end
 		return
 	end
-	if args == nil then args = {} end
-	args = Spring.Utilities.Base64Encode(Spring.Utilities.json.encode(args))
-	local message = "c.telemetry.log_client_event " .. cmdName .. " " ..args.." ".. machineHash .. "\n"
+	local json64 = JSONBase64ifyMessage(args)
+	local message = "c.telemetry.log_client_event " .. cmdName .. " " ..json64.." ".. machineHash .. "\n"
 	client:send(message)
 	if PRINT_DEBUG then
 		Spring.Echo("Analytics SendCommand", message)
@@ -132,9 +139,8 @@ function SendBattleEvent(cmdName, args)
 		if PRINT_DEBUG then Spring.Echo("Analytics not connected") end
 		return
 	end
-	if args == nil then args = {} end
-	args = Spring.Utilities.Base64Encode(Spring.Utilities.json.encode(args))
-	local message = "c.telemetry.log_battle_event  " .. cmdName .. " " ..args.." ".. machineHash .. "\n"
+	local json64 = JSONBase64ifyMessage(args)
+	local message = "c.telemetry.log_battle_event  " .. cmdName .. " " ..json64.." ".. machineHash .. "\n"
 	client:send(message)
 	if PRINT_DEBUG then
 		Spring.Echo("Analytics SendCommand", message)
