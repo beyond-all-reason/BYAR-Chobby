@@ -211,6 +211,7 @@ return {
 
 		-- friend_list_window.lua
 		friend_request = "Friend request",
+		decline = "Decline",
 
 		-- campaign handler
 		campaign = "Campaign",
