@@ -2879,8 +2879,19 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		infoHandler.AddStartRect(allyNo, left, top, right, bottom)
 	end
 
-	local function OnRing()
+	local function OnRing(listener, userName) -- userName is who rang you
 		Spring.PlaySoundFile("sounds/ring.wav", WG.Chobby.Configuration.menuNotificationVolume or 1)
+		
+		local userInfo = lobby:TryGetUser(userName)
+		if userInfo then
+			local userControl = WG.UserHandler.GetNotificationUser(userName)
+			userControl:SetPos(30, 30, 250, 20)
+			Chotify:Post({
+				title = i18n("User Rang You"),
+				body  = userControl,
+			})
+
+		end
 	end
 
 	local function OnEnableAllUnits(listener)
