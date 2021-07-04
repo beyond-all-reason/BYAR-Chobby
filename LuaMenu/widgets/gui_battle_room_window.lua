@@ -1099,8 +1099,53 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	end
 
 	function externalFunctions.JoinedBattle(joinedBattleId, userName)
-		if battleID ~= joinedBattleId then
+		if battleID ~= joinedBattleId or userName == battleLobby:GetMyUserName() then
 			return
+		else
+			--Spring.Echo('JoinedBattle(joinedBattleId, userName)',joinedBattleId, userName)
+
+			local iAmFirstPlayer = true
+			local playersthatarentme = 0
+			local mynewbestfriend = ""
+			local myUserName = battleLobby:GetMyUserName()
+			local lobby = WG.LibLobby.lobby
+
+			for name, data in pairs(battleLobby.userBattleStatus) do
+				local lobbyuserinfo = lobby:TryGetUser(name)
+				--Spring.Echo("userBattleStatus:",name)
+				--Spring.Utilities.TableEcho(data)
+				--Spring.Utilities.TableEcho(lobbyuserinfo)
+				if data.aiLib == nil and lobbyuserinfo.isBot ~= true then
+					if name ~= myUserName then
+						playersthatarentme  = playersthatarentme + 1
+						if playersthatarentme == 1 then
+							mynewbestfriend = name
+						end
+						iAmFirstPlayer = false
+					end
+				end
+			end
+			--Spring.Echo("YAY A BUDDY!", iAmFirstPlayer, playersthatarentme, mynewbestfriend)
+
+			if playersthatarentme == 0 then -- cause the first time someone joines, they dont yet have a userbattlestatus
+				playersthatarentme = 1
+				mynewbestfriend = userName
+			end
+
+			if playersthatarentme == 1 and mynewbestfriend ~= "" then
+				local userInfo = lobby:TryGetUser(mynewbestfriend)
+				if userInfo then
+					Spring.PlaySoundFile("sounds/ring.wav", WG.Chobby.Configuration.menuNotificationVolume or 1) -- RING SOUND
+
+					local userControl = WG.UserHandler.GetNotificationUser(mynewbestfriend)
+					userControl:SetPos(30, 30, 250, 20)
+					Chotify:Post({
+						title = i18n("A Player Joined You"),
+						body  = userControl,
+					})
+				end
+			end
+
 		end
 	end
 
