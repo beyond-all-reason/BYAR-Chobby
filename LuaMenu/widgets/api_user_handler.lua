@@ -743,6 +743,7 @@ local function GetUserControls(userName, opts)
 							initialSide = battleStatus.side or 0,
 							OnAccepted = function(sideId)
 								if userName == userControls.lobby:GetMyUserName() then
+									Configuration:SetConfigValue("lastFactionChoice", sideId)
 									userControls.lobby:SetBattleStatus({
 										side = sideId
 									})

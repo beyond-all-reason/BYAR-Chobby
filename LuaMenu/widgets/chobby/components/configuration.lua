@@ -227,6 +227,7 @@ function Configuration:init()
 	self.showOldAiVersions = false
 	self.showAiOptions = true
 	self.drawAtFullSpeed = false
+	self.lastFactionChoice = 0
 	self.lobbyIdleSleep = false
 	self.rememberQueuesOnStart = false
 	self.channels = {}
@@ -545,6 +546,7 @@ function Configuration:GetConfigData()
 		confirmation_mainMenuFromBattle = self.confirmation_mainMenuFromBattle,
 		confirmation_battleFromBattle = self.confirmation_battleFromBattle,
 		drawAtFullSpeed = self.drawAtFullSpeed,
+		lastFactionChoice = self.lastFactionChoice,
 		lobbyIdleSleep = self.lobbyIdleSleep,
 		rememberQueuesOnStart = self.rememberQueuesOnStart,
 		loadLocalWidgets = self.loadLocalWidgets,

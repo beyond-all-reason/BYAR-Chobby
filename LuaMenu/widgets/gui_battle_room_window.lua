@@ -719,7 +719,8 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		tooltip = "Become a player in this game",
 		OnClick = {
 			function(obj)
-				battleLobby:SetBattleStatus({isSpectator = false})
+				battleLobby:SetBattleStatus({isSpectator = false,
+					side = (WG.Chobby.Configuration.lastFactionChoice or 0) })
 				ButtonUtilities.SetButtonDeselected(btnSpectate)
 				ButtonUtilities.SetCaption(btnSpectate, i18n("spectate"))
 				ButtonUtilities.SetButtonSelected(obj)
