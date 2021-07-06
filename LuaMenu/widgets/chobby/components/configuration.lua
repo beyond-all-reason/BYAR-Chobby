@@ -201,7 +201,7 @@ function Configuration:init()
 	self.nonFriendNotifications = true -- Party, chat
 	self.friendActivityNotification = true
 	self.addFriendWindowButton = true
-	self.simplifiedSkirmishSetup = true
+	self.simplifiedSkirmishSetup = false
 	self.debugMode = false
 	self.devMode = (VFS.FileExists("devmode.txt") and true) or false
 	self.enableProfiler = false

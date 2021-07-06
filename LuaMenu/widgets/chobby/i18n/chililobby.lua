@@ -42,6 +42,7 @@ return {
 		playing_game_status = "Playing",
 		only_featured_maps = "Only featured maps",
 		simple_ai_list = "Simplified AI list",
+		simple_ai_list_tooltip = "Hides some developer-only AIs from the list",
 		login_with_steam = "Login with Steam",
 		use_steam_browser = "Use Steam browser",
 		download_maps = "Download Maps",
@@ -170,16 +171,25 @@ return {
 		-- Settings
 		planetwars_notifications = "Planetwars notifications",
 		ingame_notifcations = "Notifications while ingame",
+		ingame_notifcations_tooltip = "Allows chat from friends and other important notifications to be shown while you are playing",
 		non_friend_notifications = "Non-friend notifications",
+		non_friend_notifications_tooltip = "Allow notifications from other private messages and events that are not from your people on your friends list",
 		notifyForAllChat = "Notify for all chat",
 		drawFullSpeed = "Full speed draw updates",
+		drawFullSpeed_tooltip = "Enabling this makes the lobby be drawn at your maximum FPS, which can cause excess CPU and GPU load, but can help if you are having issues with VSync",
 		fixFlicker = "Fix the lobby flickering",
 		fixFlicker_tooltip = "Enable this if you experience flickering in the lobby, costs some GPU load in the lobby to keep the screen refreshed correctly",
 		keep_queues = "Stay in MM queues on launch",
 		simplifiedSkirmishSetup = "Simple skirmish setup",
 		debugMode = "Debug mode",
 		animate_lobby = "Lobby animations",
+		animate_lobby_tooltip = "Toggles lobby animations, it doesnt do very much, best to ignore this unless you are experiencing issues",
 		account = "Account",
+		displayBots = "Show channel bots",
+		displayBots_tooltip = "Shows various bots (TS ranking bot SLDB, battleroom host bots, user account management bots) in the chat channels if you need to interacti with them (you dont, unless you are developing)",
+		filterbattleroom = "Filter bot chatter",
+		filterbattleroom_tooltip = "Battleroom management bots are quite verbose, enable this if you want to see every debug message that the bots do (for SPADS)",
+
 
 		-- chat_windows.lua
 		server = "Server",
