@@ -173,6 +173,8 @@ return {
 		non_friend_notifications = "Non-friend notifications",
 		notifyForAllChat = "Notify for all chat",
 		drawFullSpeed = "Full speed draw updates",
+		fixFlicker = "Fix the lobby flickering",
+		fixFlicker_tooltip = "Enable this if you experience flickering in the lobby, costs some GPU load in the lobby to keep the screen refreshed correctly",
 		keep_queues = "Stay in MM queues on launch",
 		simplifiedSkirmishSetup = "Simple skirmish setup",
 		debugMode = "Debug mode",

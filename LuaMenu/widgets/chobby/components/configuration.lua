@@ -227,6 +227,7 @@ function Configuration:init()
 	self.showOldAiVersions = false
 	self.showAiOptions = true
 	self.drawAtFullSpeed = false
+	self.fixFlicker = true
 	self.lastFactionChoice = 0
 	self.lobbyIdleSleep = false
 	self.rememberQueuesOnStart = false

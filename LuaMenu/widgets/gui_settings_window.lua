@@ -849,6 +849,7 @@ local function GetLobbyTabControls()
 	children[#children + 1], offset = AddCheckboxSetting(offset, i18n("drawFullSpeed"), "drawAtFullSpeed", false)
 	children[#children + 1], offset = AddCheckboxSetting(offset, "Show channel bots", "displayBots", false)
 	children[#children + 1], offset = AddCheckboxSetting(offset, "Filter battleroom", "filterbattleroom", true)
+	children[#children + 1], offset = AddCheckboxSetting(offset, i18n("fixFlicker"), "fixFlicker", true, nil, i18n("fixFlicker_tooltip"))
 	--children[#children + 1], offset = AddCheckboxSetting(offset, i18n("keep_queues"), "rememberQueuesOnStart", false, nil, "Stay in matchmaker queues when a battle is launched.")
 
 
