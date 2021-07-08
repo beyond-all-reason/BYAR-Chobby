@@ -13,11 +13,11 @@ function widget:GetInfo()
 	}
 end
 
-local idleTime = 0.166
-local idleFps = 6	-- lower numbers will result in more severe flicker on intel gfx
-local sleepTime = 0.5
-local sleepFps = 4
-local hibernateTime = 1
+local idleTime = 0.5
+local idleFps = 10	-- lower numbers will result in more severe flicker on some card/driver settings
+local sleepTime = 1
+local sleepFps = 5
+local hibernateTime = 2
 local hibernateFps = 2
 local offscreenFps = 1
 
@@ -250,7 +250,7 @@ function widget:TextEditing()
 end
 
 function widget:AllowDraw()
-	if isIntel or isLinux then return true end
+	if not isOffscreen and (isIntel or isLinux or WG.Chobby.Configuration.fixFlicker) then return true end
 	if isIdle then
 		if os.clock() > nextFrameTime then
 			if isOffscreen then
