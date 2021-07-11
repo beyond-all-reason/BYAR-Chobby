@@ -34,9 +34,9 @@ function BattleListWindow:init(parent)
 	self.infoPanel = Panel:New {
 		classname = "overlay_window",
 		x = "15%",
-		y = "45%",
+		y = "40%",
 		right = "15%",
-		bottom = "45%",
+		bottom = "40%",
 		parent = self.window,
 	}
 	self.infoLabel = Label:New {
@@ -263,7 +263,7 @@ function BattleListWindow:UpdateInfoPanel()
 	if noBattles then
 		self.infoPanel:SetVisibility(true)
 		self.infoPanel:BringToFront()
-		self.infoLabel:SetCaption("No games, check your connection.")
+		self.infoLabel:SetCaption("No battle rooms found, report this to us on Discord!\nIf the server was just restarted\nwait a few minutes.")
 		return
 	end
 
@@ -272,14 +272,14 @@ function BattleListWindow:UpdateInfoPanel()
 		if not firstPanel.inFilter then
 			self.infoPanel:SetVisibility(true)
 			self.infoPanel:BringToFront()
-			self.infoLabel:SetCaption("No games in filter")
+			self.infoLabel:SetCaption("No games matching filter criteria.")
 			return
 		end
 	else
 		-- Must have hidden games
 		self.infoPanel:SetVisibility(true)
 		self.infoPanel:BringToFront()
-		self.infoLabel:SetCaption("No games matching filters. Update your game!")
+		self.infoLabel:SetCaption("No games matching default filters.\nYou need to update your game!")
 		return
 	end
 
