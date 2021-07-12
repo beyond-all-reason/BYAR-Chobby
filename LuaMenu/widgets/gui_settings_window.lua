@@ -747,7 +747,16 @@ local function GetLobbyTabControls()
 				end
 				Configuration:SetConfigValue("menuNotificationVolume", value)
 			end
+		},
+		OnMouseUp = {
+			function(obj, value)
+				if freezeSettings then
+					return
+				end
+				Spring.PlaySoundFile("sounds/ring.wav", WG.Chobby.Configuration.menuNotificationVolume or 1) -- RING SOUND
+			end
 		}
+
 	}
 	offset = offset + ITEM_OFFSET
 
