@@ -223,6 +223,9 @@ local function GetUserComboBoxOptions(userName, isInBattle, userControl, showTea
 		end
 	end
 
+
+
+
 	if userName == myUserName and userInfo.accountID and Configuration.gameConfig.link_userPage ~= nil then
 		-- Only add for myself since the same thing is added in the previous block
 		comboOptions[#comboOptions + 1] = "User Page"
@@ -278,6 +281,10 @@ local function GetUserComboBoxOptions(userName, isInBattle, userControl, showTea
 			(isInBattle or (userBattleInfo.aiLib and userBattleInfo.owner == myUserName)) then
 			comboOptions[#comboOptions + 1] = "Kick"
 		end
+	end
+
+	if userName ~= myUserName and not userInfo.isBot and not userBattleInfo.aiLib then
+		comboOptions[#comboOptions + 1] = "Report User"
 	end
 
 	local whitelist = userControl.dropdownWhitelist
@@ -835,7 +842,25 @@ local function GetUserControls(userName, opts)
 						userControls.lobby:Unignore(userName)
 					elseif selectedName == "Ignore" then
 						userControls.lobby:Ignore(userName)
+					elseif selectedName == "Report User" then
+						WG.TextEntryWindow.CreateTextEntryWindow({
+							defaultValue = "",
+							caption = "Report "..userName,
+							labelCaption = "Report ".. userName .." for abusive behaviour or violation of the terms of service. Click \"Report\" to send the report, escape or enter to cancel.",
+							width = 360,
+							--ebheight = 120,
+							oklabel = "Report",
+							OnAccepted = function(reportreason)
+								if isSingleplayer then
+									-- hell no
+								else
+									lobby:ReportPlayer(userName,"lobby","nil",reportreason)
+								end
+							end
+
+						})
 					end
+				
 				end
 			}
 		}

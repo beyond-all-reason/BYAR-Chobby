@@ -74,4 +74,16 @@ function widget:Initialize()
 		return self
 	end
 
+	--TODO:
+	lobby.ChangeBattleTitle = function(self, newtitle)
+		self:_SendCommand("CHANGEBATTLETITLE "..tostring(newtitle))
+	end
+	
+	lobby.ReportPlayer = function(self, userName, locationtype, locationID, reason)
+		if locationtype == nil then locationtype = "nil" end
+		if locationID == nil then locationID = "nil" end
+		if reason == nil then return end
+		self:_SendCommand("c.moderation.report_user "..tostring(userName) .. "\t" .. tostring(locationtype) .. "\t" .. tostring(locationID) .. "\t" .. tostring(reason))
+	end
+
 end
