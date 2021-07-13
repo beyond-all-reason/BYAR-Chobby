@@ -961,6 +961,7 @@ local function InitializeControls(parentControl)
 			function()
 				scenarioPanel:SetVisibility(false)
 				scenarioSelectorPanel:SetVisibility(true)
+				--widget:Initialize()
 			end
 		},
 		parent = parentControl,
@@ -1078,11 +1079,12 @@ function widget:RecvLuaMsg(msg)
 		local won = (stats.won and stats.cheated ~= true ) or false
 		local resourcesused = (stats.metalUsed + stats.energyUsed/60.0) or 0 
 		if WG.Analytics and WG.Analytics.SendRepeatEvent then
-			WG.Analytics.SendRepeatEvent("game_start:singleplayer:scenario_end", {scenarioid = scen.scenarioid, difficulty = decodedscenopts.difficulty, won = won, endtime = stats.endtime, resources = resourcesused })
+			WG.Analytics.SendRepeatEvent("game_start:singleplayer:scenario_end", {scenarioid = decodedscenopts.scenarioid, difficulty = decodedscenopts.difficulty, won = won, endtime = stats.endtime, resources = resourcesused })
 		end
 
 		if won then
 			SetScore(decodedscenopts.scenarioid,decodedscenopts.version,decodedscenopts.difficulty, stats.endtime,resourcesused,won)
+			widget:Initialize()
 		end
 
 	end
@@ -1103,7 +1105,7 @@ end
 
 local function DelayedInitialize()
 	local Configuration = WG.Chobby.Configuration
-	SetScore("testscores","1.0","Hard",100,9999) -- seems to work
+	--SetScore("testscores","1.0","Hard",100,9999) -- seems to work
 end
 
 function widget:Initialize()
