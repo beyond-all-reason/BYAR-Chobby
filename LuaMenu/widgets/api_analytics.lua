@@ -32,15 +32,15 @@ local ANALYTICS_EVENT = "analyticsEvent_"
 local ANALYTICS_EVENT_ERROR = "analyticsEventError_"
 
 -- Do not send analytics for dev versions as they will likely be nonsense.
-local ACTIVE = true -- not VFS.HasArchive("Zero-K $VERSION")
-local VERSION = "events20210625:"
+local ACTIVE = true -- means that we either have an unauthed or an authed connection to server.
 
+local lobby = nil
+local isConnected = false
+local PRINT_DEBUG = false
 ------------------------ Connection ---------------------
--- TODO: 
--- Add machine hash
-	-- installation path is a good one?
-	-- 	 
+
 local machineHash = "DEADBEEF"
+
 
 local function MachineHash()
 	--Spring.Echo("DEADBEEF", debug.getinfo(1).short_src, debug.getinfo(1).source, VFS.GetFileAbsolutePath("infolog.txt"))
@@ -72,21 +72,18 @@ local function MachineHash()
 			end
 
 			if string.find(line:lower(), 'hardware config:') then
-				 local s,e = string.find(line:lower(), 'hardware config:')
+				local s,e = string.find(line:lower(), 'hardware config:')
 				cpustr = string.sub(line, e+2)
 				break
 			end
 		end
 	end
-
 	hashstr = hashstr .."|" ..cpustr
 
 	machineHash = Spring.Utilities.Base64Encode(VFS.CalculateHash(hashstr,0))
 
-	--Spring.Echo("This machine's analytics hash is:", hashstr, machineHash)
+	if PRINT_DEBUG then Spring.Echo("This machine's analytics hash is:", hashstr, machineHash) end
 end
-
-
 
 
 local socket = socket
@@ -97,64 +94,36 @@ local port = 8200
 local buffer = ""
 local commands = {} -- table with possible commands
 
-local PRINT_DEBUG = false
 
-function JSONBase64ifyMessage(args)
-	if args == nil then
-		return Spring.Utilities.Base64Encode('{}')
-	end
-	if type(args) == "table" then
-		return Spring.Utilities.Base64Encode(Spring.Utilities.json.encode(args))
-	end
-	return Spring.Utilities.Base64Encode(tostring(args))
-end
 
-function SendClientProperty(cmdName, args) -- cannot send table!
-	if client == nil then 
-		if PRINT_DEBUG then Spring.Echo("Analytics not connected") end
+function SendBARAnalytics(cmdName,args,isEvent)
+	if PRINT_DEBUG then Spring.Echo("Analytics Event", cmdName, args, isEvent, client, "C/A",isConnected, ACTIVE) end
+
+	if client == nil then
 		return
 	end
-	args = JSONBase64ifyMessage(args)
-	local message = "c.telemetry.update_client_property " .. cmdName .. " " ..args.." ".. machineHash .. "\n"
-	client:send(message)
-	if PRINT_DEBUG then
-		Spring.Echo("Analytics SendCommand", message)
+	-- events are always tables, properties always just string
+	local message
+	if isEvent then
+		if type(args) ~= "table" then args = {value = args or "{}"} end
+		args = Spring.Utilities.Base64Encode(Spring.Utilities.json.encode(args))
+		message = "c.telemetry.log_client_event  " .. cmdName .. " " ..args.." ".. machineHash .. "\n"
+	else
+		args = Spring.Utilities.Base64Encode(tostring(args or "nil"))
+		message = "c.telemetry.update_client_property  " .. cmdName .. " " ..args.." ".. machineHash .. "\n"
 	end
+	if PRINT_DEBUG then Spring.Echo("Message:",message) end
+	if isConnected then
+		lobby:_SendCommand(message)
+	else
+		if ACTIVE then
+			client:send(message)
+		end
+	end
+
 end
 
-function SendClientEvent(cmdName, args)
-	if client == nil then 
-		if PRINT_DEBUG then Spring.Echo("Analytics not connected") end
-		return
-	end
-	args = JSONBase64ifyMessage(args)
-	local message = "c.telemetry.log_client_event " .. cmdName .. " " ..args.." ".. machineHash .. "\n"
-	client:send(message)
-	if PRINT_DEBUG then
-		Spring.Echo("Analytics SendCommand", message)
-	end
-end
 
-function SendBattleEvent(cmdName, args)
-	if client == nil then 
-		if PRINT_DEBUG then Spring.Echo("Analytics not connected") end
-		return
-	end
-	args = JSONBase64ifyMessage(args)
-	local message = "c.telemetry.log_battle_event  " .. cmdName .. " " ..args.." ".. machineHash .. "\n"
-	client:send(message)
-	if PRINT_DEBUG then
-		Spring.Echo("Analytics SendCommand", message)
-	end
-end
-
---[[
-Spring.Echo( "Json tests")
-Spring.Echo( Spring.Utilities.json.encode({}))
-Spring.Echo( Spring.Utilities.json.encode(nil))
-Spring.Echo( Spring.Utilities.json.encode("1"))
-Spring.Echo( Spring.Utilities.json.encode({k=1}))
-]]--
 
 local function SocketConnect(host, port)
 	client=socket.tcp()
@@ -176,56 +145,30 @@ local Analytics = {}
 
 function Analytics.SendOnetimeEvent(eventName, value)
 	if PRINT_DEBUG then Spring.Echo("BAR Analytics.SendOnetimeEvent(eventName, value)", eventName, value) end
-	--eventName = VERSION .. eventName
 	if onetimeEvents[eventName] then
 		return
 	end
 	onetimeEvents[eventName] = true
-	if ACTIVE then
-		SendClientProperty(eventName, value)
-	else
-		Spring.Echo("DesignEvent", eventName, value)
-	end
+	
+	SendBARAnalytics(eventName, value, false)
 end
 
 function Analytics.SendIndexedRepeatEvent(eventName, value, suffix)
 	if PRINT_DEBUG then Spring.Echo("BAR Analytics.SendIndexedRepeatEvent(eventName, value)", eventName, value,  suffix) end
-	eventName = VERSION .. eventName
 	indexedRepeatEvents[eventName] = (indexedRepeatEvents[eventName] or 0) + 1
-
 	eventName = eventName .. "_" .. indexedRepeatEvents[eventName]
-	if suffix then
-		eventName = eventName .. suffix
-	end
-	if ACTIVE then
-		SendClientEvent(eventName, value)
-	else
-		Spring.Echo("DesignEvent", eventName, value)
-	end
+
+	SendBARAnalytics(eventName, value, true)
 end
 
 function Analytics.SendRepeatEvent(eventName, value)
 	if PRINT_DEBUG then Spring.Echo("BAR Analytics.SendIndexedRepeatEvent(eventName, value)", eventName, value) end
-	eventName = VERSION .. eventName
-	if ACTIVE  then
-		SendClientEvent(eventName, value)
-	else
-		Spring.Echo("DesignEvent", eventName, value)
-	end
+
+	SendBARAnalytics(eventName, value, true)
 end
 
 function Analytics.SendErrorEvent(eventName, severity)
-	if PRINT_DEBUG then Spring.Echo("BAR Analytics.SendErrorEvent(eventName, value)", eventName, value)  end 
-	eventName = VERSION .. eventName
-	if onetimeEvents[eventName] then
-		return
-	end
-	severity = severity or "Info"
-	if ACTIVE then
-		SendClientEvent(eventName, severity)
-	else
-		Spring.Echo("ErrorEvent", eventName, severity)
-	end
+	SendBARAnalytics(eventName, severity, true)
 end
 
 --------------------------------------------------------------------------------
@@ -281,12 +224,11 @@ end
 
 function DelayedInitialize()
 	local port = 8200
-	Spring.Log("Analytics", LOG.NOTICE, "Using wrapper port: ", port)
+	Spring.Log("Analytics", LOG.NOTICE, "Using port: ", port)
 	MachineHash()
 	if ACTIVE then 
 		ACTIVE = SocketConnect("bar.teifion.co.uk", port)
-	else
-		return
+		if not ACTIVE then return end
 	end
 
 	local function OnBattleStartSingleplayer()
@@ -295,7 +237,7 @@ function DelayedInitialize()
 	end
 	local function OnBattleStartMultiplayer(_, battleType)
 		Analytics.SendOnetimeEvent("lobby:multiplayer:game_loading")
-		Analytics.SendRepeatEvent("game_start:multiplayer:connecting_" .. (battleType or "unknown"))
+		Analytics.SendRepeatEvent("game_start:multiplayer:connecting_" , (battleType or "unknown"))
 	end
 
 	WG.LibLobby.localLobby:AddListener("OnBattleAboutToStart", OnBattleStartSingleplayer)
@@ -303,13 +245,13 @@ function DelayedInitialize()
 
 	Analytics.SendOnetimeEvent("lobby:started")
 	if Platform and Platform.glVersionShort and type(Platform.glVersionShort) == "string" then
-		Analytics.SendOnetimeEvent("graphics:openglVersion:" .. Platform.glVersionShort)
+		Analytics.SendOnetimeEvent("graphics:openglVersion", Platform.glVersionShort)
 	else
-		Analytics.SendOnetimeEvent("graphics:openglVersion:notFound")
+		Analytics.SendOnetimeEvent("graphics:openglVersion","notFound")
 	end
 
-	Analytics.SendOnetimeEvent("graphics:gpu:" .. ProcessString(tostring((Platform and Platform.gpu) or "unknown") or "unknown"))
-	Analytics.SendOnetimeEvent("graphics:glRenderer:" .. ProcessString(tostring((Platform and Platform.glRenderer) or "unknown") or "unknown"))
+	Analytics.SendOnetimeEvent("graphics:gpu", ProcessString(tostring((Platform and Platform.gpu) or "unknown") or "unknown"))
+	Analytics.SendOnetimeEvent("graphics:glRenderer", ProcessString(tostring((Platform and Platform.glRenderer) or "unknown") or "unknown"))
 	Analytics.SendOnetimeEvent("graphics:tesselation", ((IsTesselationShaderSupported() and 1) or 0))
 end
 
@@ -325,6 +267,25 @@ end
 
 function widget:Initialize()
 	WG.Analytics = Analytics
+
+	local function OnConnected()
+		--Spring.Echo("Analytics OnConnected")
+		isConnected = true
+		client:close()
+		ACTIVE = false
+		-- disconnect
+	end
+	
+	local function OnDisconnected()
+		--Spring.Echo("Analytics OnDisconnected")
+		isConnected = false
+		ACTIVE = false
+	end
+
+	lobby = WG.LibLobby.lobby
+	lobby:AddListener("OnConnect", OnConnected)
+	lobby:AddListener("OnDisconnected", OnDisconnected)
+
 	WG.Delay(DelayedInitialize, 1)
 end
 
