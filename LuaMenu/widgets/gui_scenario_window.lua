@@ -532,6 +532,35 @@ local function CreateScenarioPanel(shortname, sPanel)
 		lblauthor.font.color = {0.7, 0.7, 0.7, 1.0}
 	end
 
+	if math.floor(myscores.time) > 0 then
+		local btnrating = Button:New {
+			right = "0%",
+			bottom = "4%",
+			width = "24%",
+			height = "4%",
+			caption = "Submit Rating",
+			classname = "option_button",
+			font = Configuration:GetFont(2),
+			tooltip = "Submit a rating to this scenario",
+			OnClick = {
+				function(obj)
+					WG.IntegerSelectorWindow.CreateIntegerSelectorWindow({
+						defaultValue = 5,
+						minValue = 0,
+						maxValue = 10,
+						caption = "Rate this scenario",
+						labelCaption = "How much did you enjoy this scenario?",
+						OnAccepted = function(ratingvalue)
+							if WG.Analytics and WG.Analytics.SendRepeatEvent then
+								WG.Analytics.SendRepeatEvent("scenario:rating", {scenarioid = scen.scenarioid, rating = ratingvalue})
+							end
+						end
+					})
+				end
+			},
+			parent = sPanel,
+		}
+	end
 
     ------------------------------------------------------------------
 
