@@ -105,7 +105,7 @@ function SendBARAnalytics(cmdName,args,isEvent)
 	-- events are always tables, properties always just string
 	local message
 	if isEvent then
-		if type(args) ~= "table" then args = {value = args or "{}"} end
+		if type(args) ~= "table" then args = {value = args or 0} end
 		args = Spring.Utilities.Base64Encode(Spring.Utilities.json.encode(args))
 		message = "c.telemetry.log_client_event  " .. cmdName .. " " ..args.." ".. machineHash .. "\n"
 	else
@@ -168,7 +168,7 @@ function Analytics.SendRepeatEvent(eventName, value)
 end
 
 function Analytics.SendErrorEvent(eventName, severity)
-	SendBARAnalytics(eventName, severity, true)
+	SendBARAnalytics("login:error", eventName, true)
 end
 
 --------------------------------------------------------------------------------
@@ -237,7 +237,13 @@ function DelayedInitialize()
 	end
 	local function OnBattleStartMultiplayer(_, battleType)
 		Analytics.SendOnetimeEvent("lobby:multiplayer:game_loading")
-		Analytics.SendRepeatEvent("game_start:multiplayer:connecting_" , (battleType or "unknown"))
+		-- get the name of the server, and the number of human players in it
+		local myBattleID = lobby:GetMyBattleID()
+		local myBattle = {}
+		if myBattleID then
+			myBattle = lobby:GetBattle(myBattleID) or {}
+		end
+		Analytics.SendRepeatEvent("game_start:multiplayer:connecting" , {title = myBattle.title, mapName = myBattle.mapName, users 	= # myBattle.users, battleID = myBattle.battleID})
 	end
 
 	WG.LibLobby.localLobby:AddListener("OnBattleAboutToStart", OnBattleStartSingleplayer)
