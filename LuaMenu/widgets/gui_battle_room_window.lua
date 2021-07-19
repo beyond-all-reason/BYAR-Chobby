@@ -2463,15 +2463,16 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		font = Configuration:GetFont(3),
 		caption = (isSingleplayer and i18n("close")) or i18n("leave"),
 		classname = "negative_button",
-		tooltip = "Leave the battleroom",
+		tooltip = (isSingleplayer and "Close the battleroom") or "Leave the multiplayer battleroom",
 		OnClick = {
 			function()
 				battleLobby:LeaveBattle()
-				local multiplayerSubmenu = WG.Chobby and WG.Chobby.interfaceRoot and WG.Chobby.interfaceRoot.OpenMultiplayerTabByName
-				if multiplayerSubmenu then
-					multiplayerSubmenu("battle_list")
+				if not isSingleplayer then -- Avoid jumping from Singleplayer Skirmish to a Multiplayer Battles list window
+					local multiplayerSubmenu = WG.Chobby and WG.Chobby.interfaceRoot and WG.Chobby.interfaceRoot.OpenMultiplayerTabByName
+					if multiplayerSubmenu then
+						multiplayerSubmenu("battle_list")
+					end
 				end
-
 			end
 		},
 		parent = mainWindow,
