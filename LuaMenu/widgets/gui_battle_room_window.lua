@@ -155,7 +155,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 					maxValue = 50,
 					caption = "Change start boxes",
 					labelCaption = "Split the map start boxes vertically, with X percent of the map going to left and right start boxes.",
-					imageFile =  LUA_DIRNAME .. "images/startboxsplit_v.png",
+					imageFile = LUA_DIRNAME .. "images/startboxsplit_v.png",
 					OnAccepted = function(integervalue)
 						if battleLobby.name == "singleplayer" then
 							externalFunctions.RemoveStartRect()
@@ -203,7 +203,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 					maxValue = 50,
 					caption = "Change start boxes",
 					labelCaption = "Split the map start boxes horizontally, with X percent of the map going to top and bottom start boxes.",
-					imageFile =  LUA_DIRNAME .. "images/startboxsplit_h.png",
+					imageFile = LUA_DIRNAME .. "images/startboxsplit_h.png",
 					OnAccepted = function(integervalue)
 						if battleLobby.name == "singleplayer" then
 							externalFunctions.RemoveStartRect()
@@ -251,7 +251,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 					maxValue = 50,
 					caption = "Change start boxes",
 					labelCaption = "Split the map start boxes along the corners, with X percent of the map going to top left and bottom right start boxes.",
-					imageFile =  LUA_DIRNAME .. "images/startboxsplit_c1.png",
+					imageFile = LUA_DIRNAME .. "images/startboxsplit_c1.png",
 					OnAccepted = function(integervalue)
 						if battleLobby.name == "singleplayer" then
 							externalFunctions.RemoveStartRect()
@@ -272,7 +272,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		right = 0,
 		bottom = 0,
 		keepAspect = false,
-		file =  LUA_DIRNAME .. "images/startboxsplit_c1.png",
+		file = LUA_DIRNAME .. "images/startboxsplit_c1.png",
 		parent = btnSplitC1,
 		tooltip = btnSplitC1.tooltip,
 	}
@@ -299,7 +299,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 					maxValue = 50,
 					caption = "Change start boxes",
 					labelCaption = "Split the map start boxes along the corners, with X percent of the map going to bottom left and top right start boxes.",
-					imageFile =  LUA_DIRNAME .. "images/startboxsplit_c2.png",
+					imageFile = LUA_DIRNAME .. "images/startboxsplit_c2.png",
 					OnAccepted = function(integervalue)
 						if battleLobby.name == "singleplayer" then
 							externalFunctions.RemoveStartRect()
@@ -320,7 +320,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		right = 0,
 		bottom = 0,
 		keepAspect = false,
-		file =  LUA_DIRNAME .. "images/startboxsplit_c2.png",
+		file = LUA_DIRNAME .. "images/startboxsplit_c2.png",
 		parent = btnSplitC2,
 		tooltip = btnSplitC2.tooltip,
 	}
@@ -403,8 +403,8 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 					OnAccepted = function(integervalue)
 						if battleLobby.name == "singleplayer" then
 							externalFunctions.RemoveStartRect()
-							externalFunctions.AddStartRect(0, 0, 100 - integervalue , integervalue *2, 100 + integervalue )
-							externalFunctions.AddStartRect(1, 200-integervalue *2, 100-integervalue, 200, 100 + integervalue  )
+							externalFunctions.AddStartRect(0, 0, 100 - integervalue , integervalue *2, 100 + integervalue)
+							externalFunctions.AddStartRect(1, 200-integervalue *2, 100-integervalue, 200, 100 + integervalue)
 							externalFunctions.AddStartRect(2, 100 - integervalue , 0, 100 + integervalue, integervalue * 2)
 							externalFunctions.AddStartRect(3, 100 - integervalue , 200 - integervalue *2, 100+ integervalue, 200)
 						else
@@ -508,7 +508,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		for i, rect in pairs(currentStartRects) do
 			-- FIXME: THIS IS IMPORTANt
 			--Spring.Log("Chobby",LOG.WARNING,"start rect resized",width, height,obj.x, obj.y) --this works!
-			--obj.x = math.max(0, math.min(obj.parent.width  - obj.minWidth,  obj.x))
+			--obj.x = math.max(0, math.min(obj.parent.width - obj.minWidth,	obj.x))
 			--obj.y = math.max(0, math.min(obj.parent.height - obj.minHeight, obj.y))
 
 			--obj.width = math.max(obj.minWidth ,math.min(obj.parent.width - obj.x, obj.width))
@@ -617,28 +617,28 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	--[[
 
 	--Obsolete:
-  if showDefaultStartCheckbox then
-    local cbUseDefaultStartBoxes = Checkbox:New {
-      x = 0,
-      bottom = 130,
-      boxalign = "left",
-      boxsize = 15,
-      caption = "Use Start Boxes",
-      checked = true,
-      tooltip = "All teams start together in pre-specified areas",
-      font = config:GetFont(2),
-      parent = rightInfo,
-      OnClick = {function (obj)
-        config.gameConfig.useDefaultStartBoxes =  obj.checked
-      end},
+	if showDefaultStartCheckbox then
+		local cbUseDefaultStartBoxes = Checkbox:New {
+			x = 0,
+			bottom = 130,
+			boxalign = "left",
+			boxsize = 15,
+			caption = "Use Start Boxes",
+			checked = true,
+			tooltip = "All teams start together in pre-specified areas",
+			font = config:GetFont(2),
+			parent = rightInfo,
+			OnClick = {function (obj)
+				config.gameConfig.useDefaultStartBoxes = obj.checked
+			end},
 
-    }
-  end
-  ]]--
+		}
+	end
+	]]--
 
 
 	local function RejoinBattleFunc()
-    --Spring.Echo("\LuaMenu\widgets\chobby\components\battle\battle_watch_list_window.lua","RejoinBattleFunc()","") -- Beherith Debug
+		--Spring.Echo("\LuaMenu\widgets\chobby\components\battle\battle_watch_list_window.lua","RejoinBattleFunc()","") -- Beherith Debug
 		battleLobby:RejoinBattle(battleID)
 		WG.Analytics.SendOnetimeEvent("lobby:multiplayer:custom:rejoin")
 	end
@@ -692,8 +692,8 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		bottom = 51,
 		height = 48,
 		classname = "button_highlight",
-		caption = "\255\66\138\201" .. i18n("spectator") ..  "\b",
-		font =  config:GetFont(3),
+		caption = "\255\66\138\201" .. i18n("spectator") .. "\b",
+		font = config:GetFont(3),
 		tooltip = "Watch the game as a spectator",
 		OnClick = {
 			function(obj)
@@ -714,8 +714,8 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		bottom = 51,
 		height = 48,
 		classname = "button_highlight",
-		caption = "\255\66\138\201" .. i18n("player") ..  "\b",
-		font =  config:GetFont(3),
+		caption = "\255\66\138\201" .. i18n("player") .. "\b",
+		font = config:GetFont(3),
 		tooltip = "Become a player in this game",
 		OnClick = {
 			function(obj)
@@ -768,7 +768,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		height = 35,
 		right = 5,
 		classname = "option_button",
-		caption = i18n("add_team") ..  "\b",
+		caption = i18n("add_team") .. "\b",
 		font = config:GetFont(2),
 		tooltip = "Add another team for players or AI to join into",
 		OnClick = {
@@ -808,8 +808,8 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		height = 35,
 		right = 5,
 		classname = "option_button",
-		caption = i18n("pick_map") ..  "\b",
-		font =  config:GetFont(2),
+		caption = i18n("pick_map") .. "\b",
+		font = config:GetFont(2),
 		tooltip = "Select a map from the maps you have downloaded",
 		OnClick = {
 			function()
@@ -827,8 +827,8 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		height = 35,
 		right = 5,
 		classname = "option_button",
-		caption = "Adv Options" ..  "\b",
-		font =  config:GetFont(2),
+		caption = "Adv Options" .. "\b",
+		font = config:GetFont(2),
 		tooltip = "Configure custom gameplay options",
 		OnClick = {
 			function()
@@ -1019,7 +1019,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 
 		if battleInfo.mapName then
 			SetMapName(battleInfo.mapName, mapLinkWidth)
-			imMinimap.file, imMinimap.checkFileExists  = config:GetMinimapImage(battleInfo.mapName)
+			imMinimap.file, imMinimap.checkFileExists = config:GetMinimapImage(battleInfo.mapName)
 			imMinimap:Invalidate()
 
 			local isSingleplayer = (battleLobby.name == "singleplayer")
@@ -1117,7 +1117,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 				--Spring.Utilities.TableEcho(lobbyuserinfo)
 				if data.aiLib == nil and lobbyuserinfo.isBot ~= true then
 					if name ~= myUserName then
-						playersthatarentme  = playersthatarentme + 1
+						playersthatarentme = playersthatarentme + 1
 						if playersthatarentme == 1 then
 							mynewbestfriend = name
 						end
@@ -1141,7 +1141,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 					userControl:SetPos(30, 30, 250, 20)
 					Chotify:Post({
 						title = i18n("A Player Joined You"),
-						body  = userControl,
+						body = userControl,
 					})
 				end
 			end
@@ -1155,9 +1155,9 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		-- it doesnt even know how big it is right nowhere
 
 		local minimapPanelMaxSize = math.max(minimapPanel.width,minimapPanel.height) -1
-		local ox = math.floor(left * minimapPanelMaxSize  / 200)
-		local oy = math.floor(top  * minimapPanelMaxSize / 200)
-		local ow = math.floor((right-left) * minimapPanelMaxSize  / 200)
+		local ox = math.floor(left * minimapPanelMaxSize / 200)
+		local oy = math.floor(top * minimapPanelMaxSize / 200)
+		local ow = math.floor((right-left) * minimapPanelMaxSize / 200)
 		local oh = math.floor((bottom-top) * minimapPanelMaxSize / 200)
 		if currentStartRects[allyNo+1] then externalFunctions.RemoveStartRect(allyNo) end
 		local newStartRect = Window:New {
@@ -1167,7 +1167,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 			y = oy,
 			width = ow,
 			height = oh,
-			minWidth  = 15,
+			minWidth = 15,
 			minHeight = 15,
 			font = WG.Chobby.Configuration:GetFont(2),
 			caption = tostring(allyNo + 1),
@@ -1184,15 +1184,15 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 				function(obj)
 					-- Spring.Log("Chobby",LOG.WARNING,"start rect clicked",obj.caption,obj.width, obj.height,obj.x, obj.y)
 
-					if  math.abs(obj.oldSizes[1] - obj.x) < 1.0 and
+					if math.abs(obj.oldSizes[1] - obj.x) < 1.0 and
 						math.abs(obj.oldSizes[2] - obj.y) < 1.0 and
 						math.abs(obj.oldSizes[3] - obj.width) < 1.0 and
-						math.abs(obj.oldSizes[4] - obj.height) < 1.0  then
+						math.abs(obj.oldSizes[4] - obj.height) < 1.0 then
 						--Spring.Echo("no change in boxes")
 					else
 						local pw = obj.parent.width - 1
 						local ph = obj.parent.height - 1
-						obj.x = math.max(0, math.min(pw  - obj.minWidth,  obj.x))
+						obj.x = math.max(0, math.min(pw - obj.minWidth, obj.x))
 						obj.y = math.max(0, math.min(ph - obj.minHeight, obj.y))
 
 						obj.width = math.max(obj.minWidth ,math.min(pw - obj.x, obj.width))
@@ -1219,13 +1219,13 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 					end
 				end
 			},
-			OnResize =  {
+			OnResize = {
 				-- FIXME: the big problem, is that if a start box is dragged outside of the minimap panel,
 				-- and then the mouse is released while it is outside, we get no callbacks
 				-- So then the box is pretty much stuck
 				function (obj, width, height)
 					--Spring.Log("Chobby",LOG.WARNING,"start rect resized",width, height,obj.x, obj.y) --this works!
-					obj.x = math.max(0, math.min(obj.parent.width  - obj.minWidth,  obj.x))
+					obj.x = math.max(0, math.min(obj.parent.width - obj.minWidth, obj.x))
 					obj.y = math.max(0, math.min(obj.parent.height - obj.minHeight, obj.y))
 
 					obj.width = math.max(obj.minWidth ,math.min(obj.parent.width - obj.x -1, obj.width ))
@@ -2339,7 +2339,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	end
 
 	local isSingleplayer = (battleLobby.name == "singleplayer")
-    showDefaultStartCheckbox = isSingleplayer
+	showDefaultStartCheckbox = isSingleplayer
 	local isHost = (not isSingleplayer) and (battleLobby:GetMyUserName() == battle.founder)
 
 	local EXTERNAL_PAD_VERT = 9
@@ -2463,15 +2463,16 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		font = Configuration:GetFont(3),
 		caption = (isSingleplayer and i18n("close")) or i18n("leave"),
 		classname = "negative_button",
-		tooltip = "Leave the battleroom",
+		tooltip = (isSingleplayer and "Close the battleroom") or "Leave the multiplayer battleroom",
 		OnClick = {
 			function()
 				battleLobby:LeaveBattle()
-				local multiplayerSubmenu = WG.Chobby and WG.Chobby.interfaceRoot and WG.Chobby.interfaceRoot.OpenMultiplayerTabByName
-				if multiplayerSubmenu then
-					multiplayerSubmenu("battle_list")
+				if not isSingleplayer then -- Avoid jumping from Singleplayer Skirmish to a Multiplayer Battles list window
+					local multiplayerSubmenu = WG.Chobby and WG.Chobby.interfaceRoot and WG.Chobby.interfaceRoot.OpenMultiplayerTabByName
+					if multiplayerSubmenu then
+						multiplayerSubmenu("battle_list")
+					end
 				end
-
 			end
 		},
 		parent = mainWindow,
@@ -2718,27 +2719,27 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		votePanel.VoteEnd((isBattleStarting and "Match starting") or "Not enough players", isBattleStarting)
 	end
 
-  local function pyPartition(s,p,left)
-    if string.find(s,p,nil,true) then
-      local startfind, endfind =  string.find(s,p,nil,true)
-      if left then
-        return string.sub(s,1,startfind-1)
-      else
-        return string.sub(s,endfind+1)
-      end
-    else
-      return s
-    end
-  end
-  -- whoever wrote lua string parser needs to get rammed by a horse
+	local function pyPartition(s,p,left)
+		if string.find(s,p,nil,true) then
+			local startfind, endfind = string.find(s,p,nil,true)
+			if left then
+				return string.sub(s,1,startfind-1)
+			else
+				return string.sub(s,endfind+1)
+			end
+		else
+			return s
+		end
+	end
+	-- whoever wrote lua string parser needs to get rammed by a horse
 
-  local function initBattleStatusPanel(bs)
-  end
+	local function initBattleStatusPanel(bs)
+	end
 
-  local function dontshowvote()
-  end
+	local function dontshowvote()
+	end
 
-  local function ParseSpadsMessage(userName, message) -- return hidemessage bool
+	local function ParseSpadsMessage(userName, message) -- return hidemessage bool
 	-- should only be called on messages from founder (host)
 	local myUserName = battleLobby:GetMyUserName()
 	local iAmMentioned = (string.find(message,myUserName,nil,true) ~= nil)
@@ -2747,139 +2748,145 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	if iAmMentioned then return false end
 
 	-- filter some basic things that are 'private' to me
-	if string.match(message,  "you cannot vote currently, there is no vote in progress.$") then return true end
+	if string.match(message, "you cannot vote currently, there is no vote in progress.$") then return true end
 
-	if string.match(message, ", there is already a vote in progress, please wait for it to finish before calling another one.$")  then return true end
+	if string.match(message, ", there is already a vote in progress, please wait for it to finish before calling another one.$") then return true end
 
-	if string.match(message, ", please wait .* more second.s. before calling another vote .vote flood protection..$")  then return true end
+	if string.match(message, ", please wait .* more second.s. before calling another vote .vote flood protection..$") then return true end
 
-	if string.match(message, ".* you have already voted for current vote.$")  then return true end
+	if string.match(message, ".* you have already voted for current vote.$") then return true end
 
-	if string.match(message, ". Away vote mode for .*$")  then return true end
+	if string.match(message, ". Away vote mode for .*$") then return true end
 
 	-- TODO: prepare for BarManager
 	-- i can still multi-vote!
-	if string.match(message, ". Hi .*! Current battle type is .*.$")  then return false end
+	if string.match(message, ". Hi .*! Current battle type is .*.$") then return false end
 
 	if string.match(message, ". BattleStatus = .*") then
 		initBattleStatusPanel(pyPartition(message,'"', true))
 		return true
 	end
 	
-	if string.match(message, "Player .* has already been added in game")  then	return true	end
+	if string.match(message, "Player .* has already been added in game") then return true end
 
 	return false -- false if it should be displayed to user, true if not
-  end
+	end
 
-  local function ParseUserMessage(userName,message) -- returns hidemessage bool
+	local function ParseUserMessage(userName,message) -- returns hidemessage bool
 		local mine = userName == battleLobby:GetMyUserName() 
 
-		if string.match(message, "^!split ") or string.match(message, "^!addbox ")then 
+		if string.match(message, "^!split ") or string.match(message, "^!addbox ") then
 			lastUserToChangeStartBoxes = userName 
 			if not mine then return true end
 		end
 		
 		if mine then return false end -- alway show own messages from here:
 
-		if message == '!vote y' or message == '!vote n' or message == '!vote b' then 
+		if message == '!vote y' or message == '!vote n' or message == '!vote b' then
 			--return true --not yet
 		end
 
-		if string.match(message, "^!joinas spec$") then return true	end
+		if string.match(message, "^!joinas spec$") then return true end
 
 		if string.match(message, "^!cv .*") then return true end
 		
-		if string.match(message, "^!ring .*") then return true	end
+		if string.match(message, "^!ring .*") then return true end
 
-		if string.match(message, "^!endvote$") then return true	end
-  end
+		if string.match(message, "^!endvote$") then return true end
+	end
 
 
-  local function ParseForVotingSaidBattle(userName,message)
-    -- https://github.com/beyond-all-reason/Beyond-All-Reason/blob/master/luaui/Widgets_BAR/gui_vote_interface.lua#L193
+	local function ParseForVotingSaidBattle(userName,message)
+		-- https://github.com/beyond-all-reason/Beyond-All-Reason/blob/master/luaui/Widgets_BAR/gui_vote_interface.lua#L193
 
-	-- New vote:
-	if string.match(message, "called a vote for command .* .!vote y, !vote n, !vote b.")  or  string.match(message,"* Vote in progress: ")  then -- [teh]BaNa called a vote for command "forcestart" [!vote y, !vote n, !vote b]
-		local newlycalledvote = string.match(message, " called a vote for command .*")
+		-- New vote:
+		if string.match(message, "called a vote for command .* .!vote y, !vote n, !vote b.") or string.match(message,"* Vote in progress: ") then -- [teh]BaNa called a vote for command "forcestart" [!vote y, !vote n, !vote b]
+			local newlycalledvote = string.match(message, " called a vote for command .*")
 
-		local userwhocalledvote = nil
-		local ismapppoll = false
-		local mapnam = ''
-		local votesNeeded = 2
-        local yesvotes = 1
-        local novotes = 0
-		local timeleft = nil
+			local userwhocalledvote = nil
+			local ismapppoll = false
+			local mapnam = ''
+			local votesNeeded = 2
+			local yesvotes = 1
+			local novotes = 0
+			local timeleft = nil
 
-        if newlycalledvote == nil then -- [teh]cluster1[00], * Vote in progress: "set map DSDR 4.0" [y:1/2, n:0/1(2)] (25s remaining),
-          local startOfVoteResults = pyPartition(message," [y:",false)
-          yesvotes = tonumber(pyPartition(startOfVoteResults,"/",true)) or 0
-          votesNeeded =  tonumber(pyPartition(pyPartition(startOfVoteResults,"/",false), ",",true)) or 0
-          novotes = tonumber(pyPartition(pyPartition(startOfVoteResults," n:",false),'/',true)) or 0
-          --Spring.Echo("votes",yesvotes,neededvotes,novotes)
-        end
+			if newlycalledvote == nil then -- [teh]cluster1[00], * Vote in progress: "set map DSDR 4.0" [y:1/2, n:0/1(2)] (25s remaining),
+				local startOfVoteResults = pyPartition(message," [y:",false)
+				yesvotes = tonumber(pyPartition(startOfVoteResults,"/",true)) or 0
+				votesNeeded = tonumber(pyPartition(pyPartition(startOfVoteResults,"/",false), ",",true)) or 0
+				novotes = tonumber(pyPartition(pyPartition(startOfVoteResults," n:",false),'/',true)) or 0
+				--Spring.Echo("votes",yesvotes,neededvotes,novotes)
+			end
 
-        local candidates = {}
-        candidates[1] = {
-          id = nil,
-          votes = yesvotes,
-          url = "",
-        }
-        candidates[2] = {
-          id = nil,
-          votes = novotes,
-          url = "",
-        }
+			local candidates = {}
+			candidates[1] = {
+				id = nil,
+				votes = yesvotes,
+				url = "",
+			}
+			candidates[2] = {
+				id = nil,
+				votes = novotes,
+				url = "",
+			}
 
-		if newlycalledvote then 
-			userwhocalledvote = pyPartition(pyPartition(message," called a vote for command",true),"* ",false)
-		end 
-
-		local ismapppoll = false
-		local mapname = ''
-		--[teh]Behe_Chobby3 called a vote for command "set map Tetrad_V2" [!vote y, !vote n, !vote b]
-		if string.find(message, ' "set map ', nil, true) then 
-			if newlycalledvote then 
-				mapname = pyPartition(message,'called a vote for command "set map ',false)
-				mapname = pyPartition(mapname,'"',true)
-				ismapppoll = true
-			else
-				mapname = pyPartition(message,'Vote in progress: "set map ',false)
-				mapname = pyPartition(mapname,'"',true)
-				ismapppoll = true
+			if newlycalledvote then
+				userwhocalledvote = pyPartition(pyPartition(message," called a vote for command",true),"* ",false)
 			end 
+
+			local ismapppoll = false
+			local mapname = ''
+			--[teh]Behe_Chobby3 called a vote for command "set map Tetrad_V2" [!vote y, !vote n, !vote b]
+			if string.find(message, ' "set map ', nil, true) then
+				if newlycalledvote then
+					mapname = pyPartition(message,'called a vote for command "set map ',false)
+					mapname = pyPartition(mapname,'"',true)
+					ismapppoll = true
+				else
+					mapname = pyPartition(message,'Vote in progress: "set map ',false)
+					mapname = pyPartition(mapname,'"',true)
+					ismapppoll = true
+				end
+			end
+
+			if string.match(message,"..s remaining.$") then
+				timeleft = pyPartition(pyPartition(message,"] (",false),"s remaining",true)
+				candidates[1].timeleft = timeleft
+				candidates[2].timeleft = timeleft
+			end
+
+			local title = string.sub(message, string.find(message, ' "',nil,true) + 2, string.find(message, '" ', nil, true) - 1)
+			title = title:sub(1, 1):upper() .. title:sub(2)
+			votePanel.VoteUpdate(title,nil, ismapppoll, candidates, votesNeeded, mapname, userwhocalledvote, newlycalledvote)
+			return true
+
+		elseif string.match(message, "^. Vote for command .* passed" ) then	--[21:13:58] * [teh]host * Vote for command "bSet coop 1" passed. --voteend
+			votePanel.VoteEnd(nil, true)
+			return true
+
+		elseif string.match(message, "^. Vote for command .* failed" )then	--[21:13:58] * [teh]host * Vote for command "bSet coop 1" passed. --voteend
+			votePanel.VoteEnd(nil, false)
+			return true
+
+		elseif string.find(message, "* Vote cancelled by ", nil, true) then --votecancel
+			--[14:42:53] * [teh]host * Vote cancelled by [teh]BaNa
+			votePanel.ImmediateVoteEnd()
+			return true
+
+		elseif string.find(message, "command executed directly by ", nil, true) and string.find(string.lower(message), " cancelling ", nil, true) then --votecancel
+			--[14:43:19] * [teh]host * Cancelling "set map Throne Acidic" vote (command executed directly by [teh]Beherith)
+			votePanel.ImmediateVoteEnd()
+			return true
+
 		end
 
-		if string.match(message,"..s remaining.$") then
-			timeleft = pyPartition(pyPartition(message,"] (",false),"s remaining",true)
-			candidates[1].timeleft = timeleft
-			candidates[2].timeleft = timeleft
-		end
-
-		local title = string.sub(message, string.find(message, ' "',nil,true) + 2, string.find(message, '" ', nil, true) - 1) 
-        title = title:sub(1, 1):upper() .. title:sub(2) 
-		votePanel.VoteUpdate(title,nil, ismapppoll, candidates, votesNeeded, mapname, userwhocalledvote, newlycalledvote)
-		return true
-    elseif string.match(message, "^. Vote for command .* passed" ) then  --[21:13:58] * [teh]host * Vote for command "bSet coop 1" passed. --voteend
-        votePanel.VoteEnd(nil, true)
-		return true
-    elseif string.match(message, "^. Vote for command .* failed" )then  --[21:13:58] * [teh]host * Vote for command "bSet coop 1" passed. --voteend
-		votePanel.VoteEnd(nil, false)
-		return true
-    elseif string.find(message, "* Vote cancelled by ", nil, true) then --votecancel
-      --[14:42:53] * [teh]host * Vote cancelled by [teh]BaNa
-      votePanel.ImmediateVoteEnd()
-		return true
-    elseif string.find(message, "command executed directly by ", nil, true) and string.find(string.lower(message), " cancelling ", nil, true)  then --votecancel
-      --[14:43:19] * [teh]host * Cancelling "set map Throne Acidic" vote (command executed directly by [teh]Beherith)
-      votePanel.ImmediateVoteEnd()
-	  	return true
-    end
-	return false
-  end
+		return false
+	end
 
 
 	local function OnSaidBattle(listener, userName, message)
-    --ParseForVotingSaidBattle(userName,message) --only on EX?
+		--ParseForVotingSaidBattle(userName,message) --only on EX?
 		local myUserName = battleLobby:GetMyUserName()
 		local iAmMentioned = myUserName and userName ~= myUserName and string.find(message, myUserName, nil, true)
 		local chatColour = (iAmMentioned and CHAT_MENTION) or nil
@@ -2892,7 +2899,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		local battle = battleLobby:GetBattle(battleID)
 		local hidemessage = false
 
-		if userName == battle.founder  then -- todo dont do this for self-hosted
+		if userName == battle.founder then -- todo dont do this for self-hosted
 			local hidespads = ParseSpadsMessage(userName,message)
 			local hidevote = ParseForVotingSaidBattle(userName,message)
 			if hidevote or hidespads then
@@ -2933,7 +2940,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 			userControl:SetPos(30, 30, 250, 20)
 			Chotify:Post({
 				title = i18n("User Rang You"),
-				body  = userControl,
+				body = userControl,
 			})
 
 		end
@@ -3194,13 +3201,13 @@ function BattleRoomWindow.GetSingleplayerControl(setupData)
 
 					for i, ai in ipairs(singleplayerDefault.friendlyAI or {}) do
 						totalAIcount = AddAI(totalAIcount, ai.shortName, ai.version, 0,
-							0,  -- Default side for friendly AI is Armada
+							0, -- Default side for friendly AI is Armada
 							{.45,0,.68})
 					end
 
 					for i, ai in ipairs(singleplayerDefault.enemyAI or {}) do
 						totalAIcount = AddAI(totalAIcount, ai.shortName, ai.version, 1,
-							1,  -- Default side for enemy AI is Cortex
+							1, -- Default side for enemy AI is Cortex
 							GetStarterEnemyAIColorAssignment(i))
 					end
 				end
@@ -3212,17 +3219,15 @@ function BattleRoomWindow.GetSingleplayerControl(setupData)
 end
 
 function GetStarterEnemyAIColorAssignment(i)
-    local red = {1,.07,.02};
-    local orange = {.96,.42,0};
+	local red = {1,.07,.02};
+	local orange = {.96,.42,0};
 
-    if (i==1) then return red
-    elseif(i==2) then return orange
-    end
-
+	if (i==1) then return red
+	elseif (i==2) then return orange
+	end
 end
 
 function BattleRoomWindow.SetSingleplayerGame(ToggleShowFunc, battleroomObj, tabData)
-
 	local function SetGameFail()
 		WG.LibLobby.localLobby:LeaveBattle()
 	end
@@ -3271,6 +3276,7 @@ function BattleRoomWindow.ClearChatHistory()
 		mainWindowFunctions.ClearChatHistory()
 	end
 end
+
 local function DelayedInitialize()
 	local function onConfigurationChange(listener, key, value)
 		if mainWindowFunctions and key == "canAuthenticateWithSteam" then
