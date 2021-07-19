@@ -986,6 +986,7 @@ function widget:Initialize()
 	VFS.Include(LUA_DIRNAME .. "widgets/chobby/headers/exports.lua", nil, VFS.RAW_FIRST)
 
 	WG.Delay(DelayedInitialize, 5.0) -- After user handler
+	WG.Delay(DelayedInitialize, 10.0) -- After user handler
 
 	WG.CommunityWindow = CommunityWindow
 end
