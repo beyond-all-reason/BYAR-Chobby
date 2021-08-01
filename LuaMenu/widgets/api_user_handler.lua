@@ -520,11 +520,11 @@ local function UpdateUserBattleStatus(listener, userName)
 				data.imSyncStatus:Invalidate()
 			end
 			local battleStatus = data.lobby:GetUserBattleStatus(userName) or {}
-			local imageVisible = not battleStatus.isSpectator
+			local isPlaying = not battleStatus.isSpectator
 			if data.imTeamColor then
 				data.imTeamColor.color = battleStatus.teamColor
-				data.imTeamColor:SetVisibility(imageVisible)
-				if imageVisible then
+				data.imTeamColor:SetVisibility(isPlaying)
+				if isPlaying then
 					data.imTeamColor:Invalidate()
 				end
 			end
@@ -533,8 +533,8 @@ local function UpdateUserBattleStatus(listener, userName)
 				if sideSelected then
 					data.imSide.file = WG.Chobby.Configuration:GetSideById(battleStatus.side).logo
 				end
-				data.imSide:SetVisibility(imageVisible and sideSelected)
-				if imageVisible then
+				data.imSide:SetVisibility(isPlaying and sideSelected)
+				if isPlaying then
 					if data.imTeamColor == nil then
 						Spring.Echo("Warning: UpdateUserBattleStatus(): data.imTeamColor is nil for ", userName, battleStatus.isSpectator, battleStatus)
 					else
@@ -547,7 +547,6 @@ local function UpdateUserBattleStatus(listener, userName)
 				if handicap ~= nil then
 					local handicaptxt = ''
 					if battleStatus.handicap == 0 then
-
 						data.lblHandicap:SetVisibility(false)
 					else
 						if battleStatus.handicap > 0 then
@@ -559,9 +558,8 @@ local function UpdateUserBattleStatus(listener, userName)
 						data.lblHandicap:SetVisibility(true)
 					end
 				end
-				if imageVisible then
-					data.lblHandicap:SetVisibility(true)
-				else
+				if not isPlaying then
+					-- If the player is spectating, don't show handicap label regardless of its value.
 					data.lblHandicap:SetVisibility(false)
 				end
 				data.lblHandicap:Invalidate()
