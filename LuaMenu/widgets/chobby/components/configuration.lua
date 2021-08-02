@@ -105,6 +105,18 @@ function Configuration:init()
 		settingsMenuValues = true,
 	}
 
+	-- TODO Are these values valid? When I execute the "!list presets" command, I get an output
+	-- like the following:
+	--
+	--     ********** AutoHost global presets **********
+	--     [ ] coop (Coop PvE Game Global Settings)
+	--     [*] duel (Duel 1v1 Game Global Settings)
+	--     [ ] ffa (FFA Game Global Settings)
+	--     [ ] team (Team Game Global Settings) *** DEFAULT ***
+	--     [ ] tourney (Tournament 1v1 Game Global Settings)
+	--     --> Use "!preset <presetName>" to change current global
+	--
+	-- which doesn't match the options below.
 	self.battleTypeToName = {
 		[5] = "cooperative",
 		[6] = "team",
@@ -112,6 +124,7 @@ function Configuration:init()
 		[4] = "freeForAll",
 		[0] = "custom",
 	}
+	-- TODO Similarly here, are these values valid?
 	self.battleTypeToHumanName = {
 		[5] = "Coop",
 		[6] = "Team",

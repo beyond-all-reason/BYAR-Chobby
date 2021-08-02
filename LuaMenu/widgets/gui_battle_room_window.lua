@@ -837,6 +837,35 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		},
 		parent = leftInfo,
 	}
+
+	-- If the user is in a server, show the "Battle Type" combo.
+	local cmbBattleType
+	local isSingleplayer = (battleLobby.name == "singleplayer")
+	if not isSingleplayer then
+		leftOffset = leftOffset + 38
+
+		cmbBattleType = ComboBox:New {
+			x = 5,
+			y = leftOffset,
+			height = 35,
+			right = 5,
+			classname = "option_button",
+			caption = i18n("battle_type") .. "\b",
+			font = config:GetFont(2),
+			tooltip = "Change battle mode: Coop, Team, Duel, FFA, or Tourney.",
+			ignoreItemCaption = true,
+			items = {"Coop", "Team", "Duel", "FFA", "Tourney"},
+			selectByName = true,
+			OnSelectName = {
+				function (obj, selectedName)
+					-- The !preset command expects the argument to be in lower case.
+					battleLobby:SayBattle("!preset " .. string.lower(selectedName))
+				end
+			},
+			parent = leftInfo,
+		}
+	end
+
 	leftOffset = leftOffset + 40
 
 	local lblGame = Label:New {
@@ -944,6 +973,10 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		btnPickMap:SetPos(nil, offset)
 		offset = offset + 38
 		btnModoptions:SetPos(nil, offset)
+		if cmbBattleType then
+			offset = offset + 38
+			cmbBattleType:SetPos(nil, offset)
+		end
 		offset = offset + 40
 		lblGame:SetPos(nil, offset)
 		offset = offset + 26
@@ -2511,6 +2544,14 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		}
 	}
 
+	-- TODO Is this needed? There are two issues with it:
+	--
+	-- 1. It only shows when isHost is set to true, i.e. only for the  user who is hosting the game,
+	--    which is pretty useless currently since the games are hosted by bots.
+	-- 2. The function battleLobby:SetBattleType() function uses the "!type" command which doesn't
+	--    work in BAR.
+	--
+	-- I wonder whether it is a left-over or outdated code.
 	local battleTypeCombo
 	if isHost then
 		battleTypeCombo = ComboBox:New {
