@@ -2388,7 +2388,8 @@ a.box:active {
     line-height:1.25
 }
 .checkbox input,.radio input {
-    cursor:pointer
+    cursor:pointer;
+    margin-right: 6px;
 }
 .checkbox:hover,.radio:hover {
     color:#8c9b9d

@@ -29,7 +29,7 @@ left: 0;
 background-image: url(./images/borders.png);
 background-position: center;
   background-repeat: no-repeat;
-  background-size: cover;
+  background-size: contain;
 }
 .config { grid-area: config; }
 .control-buttons { grid-area: controls; }
@@ -70,9 +70,9 @@ body::-webkit-scrollbar {
   font-size: 200%;
   font-family: poppins;
   font-weight: 600;
-  letter-spacing: -0.7px;
-  padding-left: 100px;
-  padding-top: 31px;
+  letter-spacing: -0.6px;
+  padding-left: 110px;
+  padding-top: 26px;
 }
 
 .button {
