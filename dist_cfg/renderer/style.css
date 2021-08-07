@@ -1,0 +1,179 @@
+body {
+  text-shadow: 1px 1px 0px #000;
+  position: relative;
+  overflow-x: hidden;
+}
+
+#main-content {
+  padding-top: 20px;
+  padding-right: 30px;
+  padding-bottom: 0px;
+  padding-left: 30px;
+
+  background-image: url(./images/background.png);
+  /* background-attachment: fixed; */
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  height: 388px;
+}
+
+.header { grid-area: header; }
+.borders {
+position: absolute;
+left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    /* height: 100%; */
+background-image: url(./images/borders.png);
+background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+.config { grid-area: config; }
+.control-buttons { grid-area: controls; }
+.status {
+  grid-area: status;
+  align-self: end;
+}
+.mainbtn { grid-area: mainbtn; }
+#lbl-check-for-updates {
+  grid-area: checkupdates;
+  align-self: end;
+}
+.progress-area {
+  grid-area: prog;
+  align-self: end;
+}
+
+.grid-container {
+  display: grid;
+  grid-template-areas:
+    'header header config'
+    'controls controls mainbtn'
+    'status status mainbtn'
+    'prog prog mainbtn'
+    'prog prog checkupdates';
+  grid-template-columns: 1fr 4fr 1fr;
+  grid-template-rows: 10fr 1fr 1fr 1fr 1fr 5fr;
+  column-gap: 30px;
+  row-gap: 20px;
+}
+
+body::-webkit-scrollbar {
+  display: none;
+}
+
+#title {
+  text-shadow: 2px 2px 5px #000;
+  font-size: 200%;
+  font-family: poppins;
+  font-weight: 600;
+  letter-spacing: -0.7px;
+  padding-left: 100px;
+  padding-top: 31px;
+}
+
+.button {
+  text-shadow: 1px 1px 5px #000
+}
+
+#btn-progress {
+  animation: radial-pulse 2s infinite;
+  min-height: 100px;
+  max-height: 100px;
+  min-width: 150px;
+  max-width: 150px;
+  /* font-size: 100%; */
+  white-space: normal;
+}
+
+#btn-progress:disabled {
+  animation: none
+}
+
+p.error {
+  color: red;
+}
+
+label.error {
+  color: red;
+}
+
+p.warn {
+  color: orange;
+}
+
+#current_config {
+  text-align: center;
+  font-size: 80%;
+}
+
+.infobox {
+  overflow: scroll;
+  display: none;
+  width: 100%;
+  padding-right: 10px;
+  padding-bottom: 0px;
+  height: 335px;
+}
+
+.infobox p {
+  white-space: pre;
+}
+
+.open {
+  display: block;
+}
+
+.status {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  word-break: break-all;
+  line-height: 1.0;
+}
+
+.progress-label {
+  font-size: 80%;
+}
+
+.progress {
+  box-shadow: 2px 2px 5px #000;
+}
+
+/* Add radial Pulse ability */
+@keyframes radial-pulse {
+  0% {
+    box-shadow: 0 0 0 0px rgba(0, 0, 0, 1);
+  }
+  100% {
+    box-shadow: 0 0 0 10px rgba(0, 0, 0, 0);
+  }
+}
+
+
+/**
+ *   MAKE ELECTRON APP FEEL MORE NATIVE
+ *
+ *   * Prevent dragging all HTML elements, specially:
+ *   	- images
+ *   	- links (anchors)
+ *
+ *   * Prevent text selection
+ */
+
+
+*, *::after, *::before {
+	-webkit-user-select: none;
+	-webkit-user-drag: none;
+	-webkit-app-region: no-drag;
+	cursor: default;
+}
+
+/* But enable text selection for the log */
+#note-content > p {
+	-webkit-user-select: text;
+}
