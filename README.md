@@ -60,3 +60,4 @@ git clone https://github.com/beyond-all-reason/Beyond-All-Reason.git BAR.sdd
 1. Modify a file in the `dist_cfg` folder (https://github.com/beyond-all-reason/BYAR-Chobby/tree/master/dist_cfg) on the `master` branch to trigger a launcher build. It should start a new action here: https://github.com/beyond-all-reason/BYAR-Chobby/actions
 2. Wait until the build **completely** finishes (the action should be green and have a check), otherwise you might create an incomplete release.
 3. Make a release by finding the latest Draft here https://github.com/beyond-all-reason/BYAR-Chobby/releases , open it, click `Edit draft` and then `Publish Release`
+4. Send new download links to .exe and .AppImage to BAR discord #website so download links on website can be updated.
