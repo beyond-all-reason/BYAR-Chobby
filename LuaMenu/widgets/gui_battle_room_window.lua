@@ -2939,7 +2939,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 			local userControl = WG.UserHandler.GetNotificationUser(userName)
 			userControl:SetPos(30, 30, 250, 20)
 			Chotify:Post({
-				title = i18n("User Rang You"),
+				title = "User Rang You", --i18n("User Rang You"),
 				body = userControl,
 			})
 
