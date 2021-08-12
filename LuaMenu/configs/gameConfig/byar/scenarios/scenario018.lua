@@ -19,10 +19,11 @@ Our intelligence reports that Cortex have laid a minefield along the bridge, so 
 Tips:
  - Parasites are cloakable, stealthy spies, that can be self-destructed for a large EMP blast to stun groups of units.
  - Fatboy has a very large range, and a huge area of effect, but a is slow and hard to maneuver. Use Maverick to keep any smaller Tier 1 units away from him. 
- - Maverick will hill himself quickly after taking damage, and will gain extra HP and a faster reload time with experience gained from damaging enemy units. 
+ - Maverick will heal himself quickly after taking damage, and will gain extra HP and a faster reload time with experience gained from damaging enemy units. 
  - Zeus is quite tanky, and can be used to absorb damage from any defenses. 
  - Marky has a very long line-of-sight, but is extremely fragile.
  - Rectors can resurrect wrecked units, however, wrecks can be reduced to useless heaps by area-of-effect damage.
+ - All mobile units can be ordered to Hold Position, to prevent them from moving to engage targets in their vision.
  - There may be useful wrecks on different areas of the map, that may assist you in your mission.
  
 Scoring:
