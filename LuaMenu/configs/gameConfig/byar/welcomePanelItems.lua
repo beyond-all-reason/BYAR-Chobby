@@ -5,12 +5,20 @@ local welcomePanelItems = {
         Time = nil,-- "NowTime",
         Text = "Welcome Commander! We hope you are ready for epic single player and multiplayer battles!\n",
     },
+
+    {
+        Header = "Map Download Issues",
+        Url = "https://drive.google.com/drive/folders/16eBcMpkgMTV9mlKxYmNda64X_dmCFdkk",
+        Time = nil,-- "NowTime",
+        Text = "We are experiencing some issues with automatic map downloads. You can download all of the maps from the google drive link in the title and just put them into /data/maps/ .",
+    },
+	--[[
     {
         Header = "Server Moved",
         Url = nil, --"https://www.beyondallreason.info/",
         Time = nil,-- "NowTime",
         Text = "We have moved the multiplayer lobby server from road-flag.bnr.la:8200 to bar.teifion.co.uk:8200. We hope games will continue to be uninterrupted, report any connectivity issues to us on Discord!\n Please update your game to automatically switch over, and if you need to manually switch servers, you can do so in Settings->Lobby->Choose Server" ,
-    },
+    },]]--
     {
         Header = "New single player scenarios",
         Url = nil, --"https://www.beyondallreason.info/",
