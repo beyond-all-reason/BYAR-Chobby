@@ -18,6 +18,7 @@ return {
 ['Cervino v1']={Width=20, Height=16, Is1v1=nil, IsTeam=1, IsFFA=nil, IsCertified=nil, Special=nil, Flat=nil, Hills=1, Water=nil, IsInPool=1, },
 ['Coastlines_Dry_V2.2']={Width=20, Height=14, Is1v1=nil, IsTeam=1, IsFFA=1, IsCertified=1, Special=nil, Flat=1, Hills=nil, Water=nil, IsInPool=1, },
 ['Colorado_v1']={Width=18, Height=12, Is1v1=nil, IsTeam=1, IsFFA=nil, IsCertified=nil, Special=nil, Flat=nil, Hills=1, Water=nil, IsInPool=1, },
+['Colorado_V2']={Width=18, Height=12, Is1v1=nil, IsTeam=1, IsFFA=nil, IsCertified=nil, Special=nil, Flat=nil, Hills=1, Water=nil, IsInPool=1, },
 ['Comet Catcher Remake 1.8']={Width=16, Height=12, Is1v1=1, IsTeam=1, IsFFA=nil, IsCertified=1, Special=nil, Flat=1, Hills=nil, Water=nil, IsInPool=1, },
 ['Crescent_Bay_V2']={Width=24, Height=24, Is1v1=nil, IsTeam=1, IsFFA=1, IsCertified=1, Special=nil, Flat=nil, Hills=1, Water=1, IsInPool=1, },
 ['Desert 3.25']={Width=20, Height=12, Is1v1=nil, IsTeam=1, IsFFA=nil, IsCertified=1, Special=nil, Flat=nil, Hills=1, Water=nil, IsInPool=1, },
