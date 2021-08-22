@@ -68,3 +68,9 @@ Prerequesites:
 
 - flatpak-builder
 - org.freedesktop.Sdk.Extension.node14 (for system)
+
+Then run:
+
+```
+flatpak-builder build-dir info.beyondallreason.bar.yml --force-clean
+```
