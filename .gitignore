@@ -1,1 +1,6 @@
 .vscode/
+
+# Flatpak
+.flatpak-builder
+build-dir
+flatpak-node-generator.py

@@ -61,3 +61,10 @@ git clone https://github.com/beyond-all-reason/Beyond-All-Reason.git BAR.sdd
 2. Wait until the build **completely** finishes (the action should be green and have a check), otherwise you might create an incomplete release.
 3. Make a release by finding the latest Draft here https://github.com/beyond-all-reason/BYAR-Chobby/releases , open it, click `Edit draft` and then `Publish Release`
 4. Send new download links to .exe and .AppImage to BAR discord #website so download links on website can be updated.
+
+## How to make a new Flatpak release
+
+Prerequesites:
+
+- flatpak-builder
+- org.freedesktop.Sdk.Extension.node14 (for system)
