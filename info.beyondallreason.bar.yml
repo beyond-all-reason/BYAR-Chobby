@@ -15,9 +15,16 @@ finish-args:
   - --share=network
   - --env=PATH=/usr/bin:/app/bin:/usr/lib/sdk/node14/bin
 modules:
+  - name: sqlite3
+    buildsystem: autotools
+    sources:
+      - type: archive
+        url: https://www.sqlite.org/2021/sqlite-autoconf-3360000.tar.gz
+        sha256: bd90c3eb96bee996206b83be7065c9ce19aef38c3f4fb53073ada0d0b69bbce3
   - name: spring-launcher-backend
     buildsystem: simple
     build-commands:
+      - sqlite3
       - npm ci --offline --cache=/run/build/spring-launcher-backend/flatpak-node/npm-cache/
     sources:
       - type: git
