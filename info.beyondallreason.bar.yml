@@ -10,6 +10,7 @@ sdk-extensions:
   - org.freedesktop.Sdk.Extension.node14
 build-options:
   append_path: "/usr/lib/sdk/node14/bin"
+  npm_config_cache: /run/build/launcher/flatpak-node/npm-cache
 finish-args:
   - --socket=x11
   - --share=ipc
@@ -23,12 +24,12 @@ modules:
     buildsystem: simple
     build-commands:
       - pwd && ls -al
-      - pwd
+      - npm ci --offline --cache=/run/build/launcher/flatpak-node/npm-cache/
     sources:
       - type: git
         url: https://github.com/gajop/spring-launcher-backend
         commit: 6dccaef21a5b9d1db9ee0a584f02f69773f6f560
-      #- generated.sources.json
+      - generated-sources.json
   - name: hello
     buildsystem: simple
     build-commands:
