@@ -1,0 +1,87 @@
+From 8885725e66389be3e364a28b8ce2344d63ba4ee9 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Tobias=20Sch=C3=B6nberg?= <tobias47n9e@gmail.com>
+Date: Mon, 23 Aug 2021 20:30:24 +0200
+Subject: [PATCH] Flatpak patch
+
+---
+ src/builder/build_steps/build_repository.js | 12 ++++++++++--
+ src/builder/build_steps/partial_clone.js    |  1 +
+ src/builder/process_build.js                | 11 +++++++++--
+ 3 files changed, 20 insertions(+), 4 deletions(-)
+
+diff --git a/src/builder/build_steps/build_repository.js b/src/builder/build_steps/build_repository.js
+index 731a495..a7c03a0 100644
+--- a/src/builder/build_steps/build_repository.js
++++ b/src/builder/build_steps/build_repository.js
+@@ -12,6 +12,14 @@ function buildRepository (repoDir, launcherDir, buildDir, buildInfo, shouldPubli
+ 	const buildTypes = packageInfo.buildTypes;
+ 	const artifactBaseNameWithVersion = `${packageInfo.artifactBaseName}-${version}`;
+ 
++	console.log('Flatpak: packageInfo', buildInfo.packageInfo);
++	console.log('Flatpak: version', buildInfo.version);
++	console.log('Flatpak: buildTypes', buildInfo.buildTypes);
++	console.log('Flatpak: repoDir', repoDir);
++	console.log('Flatpak: launcherDir', launcherDir);
++	console.log('Flatpak: buildDir', buildDir);
++	console.log('Flatpak: shouldPublish', shouldPublish);
++
+ 	fs.removeSync(buildDir);
+ 	fs.ensureDirSync(buildDir);
+ 	fs.copySync(launcherDir, buildDir);
+@@ -21,8 +29,8 @@ function buildRepository (repoDir, launcherDir, buildDir, buildInfo, shouldPubli
+ 	copyIfExists(path.join(repoDir, 'dist_cfg/build'), path.join(buildDir, 'build'));
+ 	fs.removeSync(path.join(buildDir, 'src/bin'));
+ 	fs.copySync(path.join(repoDir, 'package.json'), path.join(buildDir, 'package.json'));
+-	execSync('npm install', { cwd: buildDir });
+-	execSync('npm ci', { cwd: buildDir });
++	// Flatpak: execSync('npm install', { cwd: buildDir });
++	// Flatpak: execSync('npm ci', { cwd: buildDir });
+ 	if (buildTypes.includes('linux')) {
+ 		execSync(`npm run build-linux ${shouldPublish ? '-- --publish always' : ''}`, { cwd: buildDir });
+ 	}
+diff --git a/src/builder/build_steps/partial_clone.js b/src/builder/build_steps/partial_clone.js
+index a8ccc63..97c26db 100644
+--- a/src/builder/build_steps/partial_clone.js
++++ b/src/builder/build_steps/partial_clone.js
+@@ -22,6 +22,7 @@ function partialClone (gitUrl, clonePath, partialPath) {
+ }
+ 
+ function pullExisting (clonePath) {
++	console.log('Flatpak: clone path', clonePath);
+ 	execSync('git pull --rebase', {
+ 		cwd: clonePath
+ 	});
+diff --git a/src/builder/process_build.js b/src/builder/process_build.js
+index ae41174..da19d33 100644
+--- a/src/builder/process_build.js
++++ b/src/builder/process_build.js
+@@ -19,17 +19,24 @@ function processBuild (repoFullName, gitUrl, repoPrefix, buildPrefix) {
+ 
+ function makeBuild (repoFullName, gitUrl, repoDir, launcherDir, buildDir, useGenericBackend) {
+ 	const buildInfo = prepareForBuild(repoFullName, gitUrl, repoDir, launcherDir, useGenericBackend);
++	repoDir = '/app/bar/BYAR-Chobby';
++	launcherDir = '/app/bar/spring-launcher';
+ 	buildRepository(repoDir, launcherDir, buildDir, buildInfo, !useGenericBackend);
+ 	return buildInfo;
+ }
+ 
+ function prepareForBuild (repoFullName, gitUrl, repoDir, launcherDir, useGenericBackend) {
+ 	console.log('Cloning repositories...');
++	console.log('Flatpak:', gitUrl, repoDir, launcherDir);
+ 
+-	partialClone(gitUrl, repoDir, 'dist_cfg');
+-	clone('https://github.com/gajop/spring-launcher.git', launcherDir);
++	//partialClone(gitUrl, repoDir, 'dist_cfg');
++	//clone('https://github.com/gajop/spring-launcher.git', launcherDir);
+ 
+ 	console.log('Creating package.json...');
++	console.log('Flatpak:', repoDir);
++	repoDir = '/app/bar/BYAR-Chobby';
++	launcherDir = '/app/bar/spring-launcher';
++	console.log('Flatpak:', repoDir);
+ 	const version = getVersionFromGit(repoDir);
+ 	console.log(`Version: ${version}`);
+ 	createPackagejson(launcherDir, repoDir, repoFullName, version, useGenericBackend);
+-- 
+2.30.2
+

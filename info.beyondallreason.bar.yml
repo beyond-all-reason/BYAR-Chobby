@@ -10,6 +10,7 @@ build-options:
   append_path: "/usr/lib/sdk/node14/bin"
   env:
     npm_config_nodedir: /usr/lib/sdk/node14
+    npm_config_offline: 'true'
 finish-args:
   - --socket=x11
   - --share=ipc
@@ -36,12 +37,18 @@ modules:
     buildsystem: simple
     build-commands:
       - pwd && ls -al
+      - npm ci --offline --cache=/run/build/spring-launcher-backend/flatpak-node/npm-cache/
       - mkdir /app/bar/spring-launcher
       - cp -Rp . /app/bar/spring-launcher
     sources:
       - type: git
         url: https://github.com/gajop/spring-launcher
         commit: 03d42be4796253ad8d61a68cf946e589e1e0deb6
+      - flatpak/generated_source/spring-launcher.json
+    build-options:
+      env:
+        XDB_CACHE_HOME: /run/build/spring-launcher-backend/flatpak-node/cache
+        npm_config_cache: /run/build/spring-launcher-backend/flatpak-node/npm-cache
   - name: spring-launcher-backend
     buildsystem: simple
     build-commands:
@@ -53,7 +60,7 @@ modules:
         commit: 6dccaef21a5b9d1db9ee0a584f02f69773f6f560
       - type: patch
         path: flatpak/patch/spring-launcher-backend.patch
-      - generated-sources.json
+      - flatpak/generated_source/spring-launcher-backend.json
     build-options:
       env:
         XDB_CACHE_HOME: /run/build/spring-launcher-backend/flatpak-node/cache
