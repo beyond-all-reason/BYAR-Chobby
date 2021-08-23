@@ -1,6 +1,6 @@
 app-id: info.beyondallreason.bar
 runtime: org.freedesktop.Platform
-runtime-version: '20.08'
+runtime-version: "20.08"
 sdk: org.freedesktop.Sdk
   # TODO: Replace shell script call with game launcher
 command: hello.sh
@@ -8,7 +8,8 @@ sdk-extensions:
   - org.freedesktop.Sdk.Extension.node14
 build-options:
   append_path: "/usr/lib/sdk/node14/bin"
-  npm_config_cache: /run/build/spring-launcher-backend/flatpak-node/npm-cache
+  env:
+    npm_config_nodedir: /usr/lib/sdk/node14
 finish-args:
   - --socket=x11
   - --share=ipc
@@ -31,6 +32,10 @@ modules:
         url: https://github.com/gajop/spring-launcher-backend
         commit: 6dccaef21a5b9d1db9ee0a584f02f69773f6f560
       - generated-sources.json
+    build-options:
+      env:
+        XDB_CACHE_HOME: /run/build/spring-launcher-backend/flatpak-node/cache
+        npm_config_cache: /run/build/spring-launcher-backend/flatpak-node/npm-cache
   # TODO: Replace this with the launcher after the rest works
   - name: hello
     buildsystem: simple
