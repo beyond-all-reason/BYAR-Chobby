@@ -59,7 +59,9 @@ modules:
       - cp -Rp /app/bar/BYAR-Chobby/dist_cfg/build /app/build/build
       - ls -al /app/build
       - node src/builder/run_build.js beyond-all-reason/BYAR-Chobby --no-generic-backend
-      - /app/build/node_modules/.bin/electron-builder --linux --dir --project /app/build
+      - |
+        . ../flatpak-node/electron-builder-arch-args.sh
+        /app/build/node_modules/.bin/electron-builder -- $ELECTRON_BUILDER_ARCH_ARGS --linux --dir --project /app/build
     sources:
       - type: git
         url: https://github.com/gajop/spring-launcher-backend
@@ -67,6 +69,11 @@ modules:
       - type: patch
         path: flatpak/patch/spring-launcher-backend.patch
       - spring-launcher-backend.json
+      - type: script
+        dest-filename: run.sh
+        commands:
+          # TODO: What is the generated file named?
+          - zypak-wrapper.sh /app/build/bar "$@"
     build-options:
       env:
         XDB_CACHE_HOME: /run/build/spring-launcher-backend/flatpak-node/cache
