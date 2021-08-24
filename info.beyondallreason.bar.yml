@@ -1,6 +1,8 @@
 app-id: info.beyondallreason.bar
 runtime: org.freedesktop.Platform
 runtime-version: "20.08"
+base: org.electronjs.Electron2.BaseApp
+base-version: "20.08"
 sdk: org.freedesktop.Sdk
   # TODO: Replace shell script call with game launcher
 command: hello.sh
@@ -17,12 +19,6 @@ finish-args:
   - --share=network
   - --env=PATH=/usr/bin:/app/bin:/usr/lib/sdk/node14/bin
 modules:
-  - name: sqlite3
-    buildsystem: autotools
-    sources:
-      - type: archive
-        url: https://www.sqlite.org/2021/sqlite-autoconf-3360000.tar.gz
-        sha256: bd90c3eb96bee996206b83be7065c9ce19aef38c3f4fb53073ada0d0b69bbce3
   - name: byar-chobby
     buildsystem: simple
     build-commands:
@@ -38,9 +34,11 @@ modules:
     build-commands:
       - pwd && ls -al
       - ls -al /run/build/spring-launcher
-      - npm ci --offline --cache=/run/build/spring-launcher/flatpak-node/npm-cache/
-      - mkdir /app/bar/spring-launcher
-      - cp -Rp . /app/bar/spring-launcher
+      # Use `--ignore-scripts`, so electron does not make a postinstall request
+      - npm ci --offline --ignore-scripts --cache=/run/build/spring-launcher/flatpak-node/npm-cache/
+      - ls -al node_modules/.bin
+      - mkdir /app/build
+      - cp -Rp . /app/build
     sources:
       - type: git
         url: https://github.com/gajop/spring-launcher
@@ -54,7 +52,14 @@ modules:
     buildsystem: simple
     build-commands:
       - npm ci --offline --cache=/run/build/spring-launcher-backend/flatpak-node/npm-cache/
+      - ls -al /app/build
+      - ls -al /app/bar/BYAR-Chobby
+      - cp -Rp /app/bar/BYAR-Chobby/dist_cfg /app/build/src
+      - cp -Rp /app/bar/BYAR-Chobby/dist_cfg/files /app/build/files
+      - cp -Rp /app/bar/BYAR-Chobby/dist_cfg/build /app/build/build
+      - ls -al /app/build
       - node src/builder/run_build.js beyond-all-reason/BYAR-Chobby --no-generic-backend
+      - /app/build/node_modules/.bin/electron-builder --linux --dir --project /app/build
     sources:
       - type: git
         url: https://github.com/gajop/spring-launcher-backend
