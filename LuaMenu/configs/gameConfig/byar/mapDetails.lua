@@ -73,7 +73,7 @@ return {
 ['Supreme_Crossing_V1']={Width=16, Height=16, Is1v1=nil, IsTeam=1, IsFFA=nil, IsCertified=1, Special=nil, Flat=1, Hills=nil, Water=1, IsInPool=1, },
 ['Tabula_Flooded_v04']={Width=16, Height=14, Is1v1=nil, IsTeam=1, IsFFA=nil, IsCertified=nil, Special=nil, Flat=nil, Hills=1, Water=1, IsInPool=1, },
 ['Tabula-v4']={Width=16, Height=14, Is1v1=nil, IsTeam=1, IsFFA=nil, IsCertified=nil, Special=nil, Flat=nil, Hills=1, Water=nil, IsInPool=1, },
-['Tabula_Remake 1.4']={Width=16, Height=14, Is1v1=nil, IsTeam=1, IsFFA=nil, IsCertified=1, Special=nil, Flat=nil, Hills=1, Water=nil, IsInPool=1, },
+['Tabula_Remake 1.5']={Width=16, Height=14, Is1v1=nil, IsTeam=1, IsFFA=nil, IsCertified=1, Special=nil, Flat=nil, Hills=1, Water=nil, IsInPool=1, },
 ['Taldarim_V3']={Width=24, Height=18, Is1v1=nil, IsTeam=1, IsFFA=nil, IsCertified=1, Special=nil, Flat=nil, Hills=1, Water=nil, IsInPool=1, },
 ['Talus_v2']={Width=16, Height=16, Is1v1=nil, IsTeam=1, IsFFA=nil, IsCertified=1, Special=nil, Flat=nil, Hills=1, Water=nil, IsInPool=1, },
 ['Talus-wet-v3']={Width=16, Height=16, Is1v1=nil, IsTeam=1, IsFFA=nil, IsCertified=nil, Special=nil, Flat=nil, Hills=1, Water=1, IsInPool=1, },
