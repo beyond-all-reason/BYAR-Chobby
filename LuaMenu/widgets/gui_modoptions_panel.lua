@@ -569,7 +569,7 @@ function ModoptionsPanel.LoadModotpions(gameName, newBattleLobby)
 	-- Set modoptionDefaults
 	for i = 1, #modoptions do
 		local data = modoptions[i]
-		if data.key and data.def ~= nil then
+		if data.key and data.def ~= nil and data.hidden ~= true then
 			if type(data.def) == "boolean" then
 				modoptionDefaults[data.key] = tostring((data.def and 1) or 0)
 			elseif type(data.def) == "number" then
@@ -587,7 +587,7 @@ function ModoptionsPanel.LoadModotpions(gameName, newBattleLobby)
 		if data.type == "section" then
 			modoptionStructure.sectionTitles[data.key] = data.name
 		else
-			if data.section then
+			if data.section and data.hidden ~= true then
 				modoptionStructure.sections[data.section] = modoptionStructure.sections[data.section] or {
 					title = data.section,
 					options = {}
