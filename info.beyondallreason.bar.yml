@@ -16,6 +16,10 @@ build-options:
     npm_config_nodedir: /usr/lib/sdk/node14
     npm_config_offline: 'true'
     NPM_CONFIG_LOGLEVEL: info
+    XDG_CACHE_HOME: /run/build/spring-launcher/flatpak-node/cache
+    npm_config_cache: /run/build/spring-launcher/flatpak-node/npm-cache
+    npm_config_nodedir: /usr/lib/sdk/node14
+    npm_config_offline: 'true'
 finish-args:
   - --share=ipc
   - --socket=x11
@@ -37,18 +41,21 @@ modules:
     buildsystem: simple
     build-commands:
       - pwd && ls -al
-      - ls -al /run/build/spring-launcher/flatpak-node
-      - ls -al /run/build/spring-launcher/flatpak-node/npm-cache
+      - ls -al flatpak-node
+      - ls -al flatpak-node/npm-cache
+      - ls -al flatpak-node/npm-cache/_cacache
       # Use `--ignore-scripts`, so electron does not make a postinstall request
       - npm ci --offline --ignore-scripts --cache=/run/build/spring-launcher/flatpak-node/npm-cache/
       - cp -Rp /app/bar/BYAR-Chobby/dist_cfg ./src
       - cp -Rp /app/bar/BYAR-Chobby/dist_cfg/files ./files
       - cp -Rp /app/bar/BYAR-Chobby/dist_cfg/build ./build
       - cat package.json
+      - echo $XDG_CACHE_HOME
+      - echo $npm_config_cache
       - . flatpak-node/electron-builder-arch-args.sh
       - |
         . flatpak-node/electron-builder-arch-args.sh
-        node_modules/.bin/electron-builder -- $ELECTRON_BUILDER_ARCH_ARGS --linux --dir
+        node_modules/.bin/electron-builder -- $ELECTRON_BUILDER_ARCH_ARGS --linux --dir --project /run/build/spring-launcher
       - cp -a dist/linux*unpacked /app/main
       - install -Dm755 -t /app/bin/ ../run.sh
     sources:
@@ -65,7 +72,7 @@ modules:
           - zypak-wrapper.sh /app/main/spring-launcher "$@"
     build-options:
       env:
-        XDB_CACHE_HOME: /run/build/spring-launcher/flatpak-node/cache
+        XDG_CACHE_HOME: /run/build/spring-launcher/flatpak-node/cache
         npm_config_cache: /run/build/spring-launcher/flatpak-node/npm-cache
         npm_config_nodedir: /usr/lib/sdk/node14
         npm_config_offline: 'true'
