@@ -703,6 +703,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 				ButtonUtilities.SetButtonSelected(obj)
 				ButtonUtilities.SetCaption(obj, i18n("spectating"))
 				WG.Analytics.SendOnetimeEvent("lobby:multiplayer:custom:spectate")
+				WG.Chobby.Configuration:SetConfigValue("lastGameSpectatorState", true)
 			end
 		},
 		parent = rightInfo,
@@ -719,13 +720,18 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		tooltip = "Become a player in this game",
 		OnClick = {
 			function(obj)
-				battleLobby:SetBattleStatus({isSpectator = false,
-					side = (WG.Chobby.Configuration.lastFactionChoice or 0) })
+				local unusedTeamID = battleLobby:GetUnusedTeamID()
+				--Spring.Echo("unusedTeamID",unusedTeamID)
+				battleLobby:SetBattleStatus({
+					isSpectator = false,
+					side = (WG.Chobby.Configuration.lastFactionChoice or 0),
+					teamNumber = unusedTeamID})
 				ButtonUtilities.SetButtonDeselected(btnSpectate)
 				ButtonUtilities.SetCaption(btnSpectate, i18n("spectate"))
 				ButtonUtilities.SetButtonSelected(obj)
 				ButtonUtilities.SetCaption(obj, i18n("playing"))
 				WG.Analytics.SendOnetimeEvent("lobby:multiplayer:custom:play")
+				WG.Chobby.Configuration:SetConfigValue("lastGameSpectatorState", false)
 			end
 		},
 		parent = rightInfo,
@@ -2978,8 +2984,15 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 
 	local function OnRequestBattleStatus(listener)
 		-- if the server is requesting our battle status, that means we have free reign over teamcolor
+		-- if there are 0 players in the lobby, then we should always go as player
+		-- we should also save last picked choice
+		local wespecnow =  (WG.Chobby.Configuration.lastGameSpectatorState or false)
+		--Spring.Echo("OnRequestBattleStatus, wespecnow?:",wespecnow,WG.Chobby.Configuration.lastGameSpectatorState)
 		battleLobby:SetBattleStatus({
-			tamColor = PickRandomColor()
+			isSpectator = wespecnow,
+			side = (WG.Chobby.Configuration.lastFactionChoice or 0) ,
+			sync = (haveMapAndGame and 1) or 2, -- 0 = unknown, 1 = synced, 2 = unsynced
+			-- tamColor = PickRandomColor()
 			-- teamColor = {
 			-- 	math.random() * 0.7 + 0.1,
 			-- 	math.random() * 0.7 + 0.1,
