@@ -243,6 +243,10 @@ function BattleListWindow:Update()
 		self:AddBattle(battle.battleID, battle)
 	end
 
+	for _, battle in pairs(battles) do
+		self:UpdateButtonColor(battle.battleID)
+	end
+
 	self:SoftUpdate()
 end
 
@@ -627,13 +631,16 @@ function BattleListWindow:ItemInFilter(id)
 end
 
 function BattleListWindow:FilterRedundantBattle(battle, id)
-	-- for each non-empty battle, only display EU-AUS-USA- hosts first number that is empty
 	if battle.isRunning
 	 or lobby:GetBattlePlayerCount(id) > 0
 	 or (battle.spectatorCount and battle.spectatorCount > 1) then
 		return true
 	end
 
+	if true then return true end
+	-- for each non-empty battle, only display EU-AUS-USA- hosts first number that is empty
+	-- This is no longer needed since spads instances only have 1 extra host
+	--[[
 	function parseBattleNumber(battleTitle)
 		battleKeys = Configuration.battleFilterRedundantRegions or {}
 		local hostCountry = nil
@@ -681,6 +688,7 @@ function BattleListWindow:FilterRedundantBattle(battle, id)
 	end
 
 	return lowestEmptyBattleID == nil or lowestEmptyBattleID == id
+	]] --
 end
 
 function BattleListWindow:CompareItems(id1, id2)
