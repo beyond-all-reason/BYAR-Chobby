@@ -229,6 +229,7 @@ function Configuration:init()
 	self.drawAtFullSpeed = false
 	self.fixFlicker = true
 	self.lastFactionChoice = 0
+	self.lastGameSpectatorState = false
 	self.lobbyIdleSleep = false
 	self.rememberQueuesOnStart = false
 	self.channels = {}
@@ -548,6 +549,7 @@ function Configuration:GetConfigData()
 		confirmation_battleFromBattle = self.confirmation_battleFromBattle,
 		drawAtFullSpeed = self.drawAtFullSpeed,
 		lastFactionChoice = self.lastFactionChoice,
+		lastGameSpectatorState = self.lastGameSpectatorState,
 		lobbyIdleSleep = self.lobbyIdleSleep,
 		rememberQueuesOnStart = self.rememberQueuesOnStart,
 		loadLocalWidgets = self.loadLocalWidgets,
