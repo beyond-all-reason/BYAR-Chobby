@@ -1120,6 +1120,26 @@ function BattleListWindow:JoinBattle(battle)
 	-- the place to deal with this case.
 	if not battle.passworded then
 		WG.BattleRoomWindow.LeaveBattle()
+
+		local removeListeners 
+
+		local function onJoinBattle(listener)
+			removeListeners()
+		end
+
+		local function onJoinBattleFailed(listener, reason)
+			WG.Chobby.InformationPopup("Unable to join battle: " .. (reason or ""))
+			removeListeners()
+		end
+		
+		removeListeners = function ()    
+			lobby:RemoveListener("OnJoinBattleFailed", onJoinBattleFailed)
+			lobby:RemoveListener("OnJoinBattle", onJoinBattle)
+		end
+
+		lobby:AddListener("OnJoinBattleFailed", onJoinBattleFailed)
+		lobby:AddListener("OnJoinBattle", onJoinBattle)
+
 		lobby:JoinBattle(battle.battleID)
 	else
 		local tryJoin, passwordWindow
