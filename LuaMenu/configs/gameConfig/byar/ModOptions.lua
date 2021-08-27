@@ -391,7 +391,7 @@ local options={
 		name="Burrow Placement",
 		desc="Control where burrows spawn",
 		type="list",
-		def="avoid",
+		def="initialbox",
 		section="chicken_defense_options",
 		items={
 			{key="anywhere", name="Anywhere", desc="Burrows can spawn anywhere"},
@@ -433,7 +433,7 @@ local options={
 		name   = "Chicken Limit",
 		desc   = "Maximum number of chickens on map.",
 		type   = "number",
-		def    = 400,
+		def    = 300,
 		min    = 50,
 		max    = 5000,
 		step   = 25,
@@ -455,7 +455,7 @@ local options={
 		name   = "Grace Period (Seconds)",
 		desc   = "Time before chickens become active.",
 		type   = "number",
-		def    = 160,
+		def    = 300,
 		min    = 5,
 		max    = 900,
 		step   = 5,
@@ -523,7 +523,7 @@ local options={
 		desc   = "Percent chance of each chicken spawn once greater than the min chickens per player limit",
 		hidden = true,
 		type   = "number",
-		def    = 50,
+		def    = 33,
 		min    = 0,
 		max    = 100,
 		step   = 1,
@@ -620,7 +620,7 @@ local options={
 		desc   = 'Player team is always blue',
 		type   = 'bool',
 		section = 'teamcoloring_options',
-		def  = true,
+		def  = false,
 	},
 	{
 		key    = 'teamcolors_anonymous_mode',
@@ -729,7 +729,7 @@ local options={
 		def    = false,
 		section= "options",
 	},
-
+  
 	 {
 	 	key    = 'coop',
 	 	name   = 'Cooperative mode',
@@ -789,7 +789,7 @@ local options={
 		desc   = 'No basebuilding',
 		type   = 'bool',
 		section= 'controlvictoryoptions',
-		def    = true,
+		def  = true,
 	},
 	{
 		key    = 'scoremode_chess_unbalanced',
@@ -797,7 +797,7 @@ local options={
 		desc   = 'Each player gets diffrent set of units',
 		type   = 'bool',
 		section= 'controlvictoryoptions',
-		def    = true,
+		def  = false,
 	},
 	{
 		key    = 'scoremode_chess_adduptime',
