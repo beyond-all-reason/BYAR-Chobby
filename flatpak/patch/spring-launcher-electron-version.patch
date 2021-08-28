@@ -1,12 +1,12 @@
-From 3eff31a4d626d56dd3d75d3f6d750534c308e170 Mon Sep 17 00:00:00 2001
+From 7ff3e2907147a0bbb6d4a7503b69b146409c3609 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Tobias=20Sch=C3=B6nberg?= <tobias47n9e@gmail.com>
 Date: Wed, 25 Aug 2021 12:19:27 +0200
 Subject: [PATCH] Flatpak: Fix electron version, for Flatpak compiliation
 
 ---
  package-lock.json | 1574 ++++++++++++++++++++++++++-------------------
- package.json      |    4 +-
- 2 files changed, 907 insertions(+), 671 deletions(-)
+ package.json      |   29 +-
+ 2 files changed, 907 insertions(+), 696 deletions(-)
 
 diff --git a/package-lock.json b/package-lock.json
 index 4585387..22b7c58 100644
@@ -2541,10 +2541,42 @@ index 4585387..22b7c58 100644
      },
      "yauzl": {
 diff --git a/package.json b/package.json
-index bf0bb23..4e8a5a3 100644
+index bf0bb23..c9c0554 100644
 --- a/package.json
 +++ b/package.json
-@@ -59,8 +59,8 @@
+@@ -17,31 +17,6 @@
+   },
+   "author": "gajop",
+   "license": "ISC",
+-  "build": {
+-    "appId": "com.springrts.launcher",
+-    "extraFiles": [
+-      "bin/**",
+-      "files/*"
+-    ],
+-    "artifactName": "${productName}-${version}.${ext}",
+-    "linux": {
+-      "target": "AppImage",
+-      "category": "Game"
+-    },
+-    "nsis": {
+-      "oneClick": false,
+-      "allowToChangeInstallationDirectory": true,
+-      "perMachine": false
+-    },
+-    "publish": {
+-      "provider": "generic",
+-      "url": "https://content.spring-launcher.com",
+-      "channel": "latest"
+-    },
+-    "mac": {
+-      "target": "zip"
+-    }
+-  },
+   "dependencies": {
+     "7zip-bin": "^5.0.3",
+     "chokidar": "^3.5.0",
+@@ -59,8 +34,8 @@
      "yargs": "^15.4.1"
    },
    "devDependencies": {
