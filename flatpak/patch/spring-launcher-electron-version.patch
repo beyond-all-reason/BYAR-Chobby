@@ -1,4 +1,4 @@
-From 54b3908b367ab850cdbcfc372893a43b75124acd Mon Sep 17 00:00:00 2001
+From 3eff31a4d626d56dd3d75d3f6d750534c308e170 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Tobias=20Sch=C3=B6nberg?= <tobias47n9e@gmail.com>
 Date: Wed, 25 Aug 2021 12:19:27 +0200
 Subject: [PATCH] Flatpak: Fix electron version, for Flatpak compiliation
@@ -9,7 +9,7 @@ Subject: [PATCH] Flatpak: Fix electron version, for Flatpak compiliation
  2 files changed, 907 insertions(+), 671 deletions(-)
 
 diff --git a/package-lock.json b/package-lock.json
-index 4585387..896b3f3 100644
+index 4585387..22b7c58 100644
 --- a/package-lock.json
 +++ b/package-lock.json
 @@ -24,8 +24,8 @@
@@ -18,8 +18,8 @@ index 4585387..896b3f3 100644
        "devDependencies": {
 -        "electron": "^11.4.4",
 -        "electron-builder": "^22.9.1",
-+        "electron": "^12.0.11",
-+        "electron-builder": "^22.11.7",
++        "electron": "12.0.11",
++        "electron-builder": "22.11.7",
          "eslint": "^6.8.0",
          "jest": "^26.6.3"
        }
@@ -778,9 +778,9 @@ index 4585387..896b3f3 100644
 -      "version": "11.4.4",
 -      "resolved": "https://registry.npmjs.org/electron/-/electron-11.4.4.tgz",
 -      "integrity": "sha512-m52nF85VADCmL9DpzJfgmkvc9fNiGZPYwptv/4fTYrYhAMiO+hmClGMXncCoSAzoULQjl+f+0b9CY4yd6nRFlQ==",
-+      "version": "12.0.17",
-+      "resolved": "https://registry.npmjs.org/electron/-/electron-12.0.17.tgz",
-+      "integrity": "sha512-jkOMKSEj/X9i++5LD7NKqYK/ORi6H0kHYk6rrvcJNQfbDpYX5lxNNexZ2ikPeKxS2B84+WcSFrw5Ce9y8B+pmA==",
++      "version": "12.0.11",
++      "resolved": "https://registry.npmjs.org/electron/-/electron-12.0.11.tgz",
++      "integrity": "sha512-6gPjcce3QCeAWZ8UVAqVy6os+86D5BcxgkIzlROxX89u+du/i7WpZXF5F1vgv419rspds9OHejP3JrJnoUGh6w==",
        "dev": true,
        "hasInstallScript": true,
        "dependencies": {
@@ -2026,9 +2026,9 @@ index 4585387..896b3f3 100644
 -      "version": "11.4.4",
 -      "resolved": "https://registry.npmjs.org/electron/-/electron-11.4.4.tgz",
 -      "integrity": "sha512-m52nF85VADCmL9DpzJfgmkvc9fNiGZPYwptv/4fTYrYhAMiO+hmClGMXncCoSAzoULQjl+f+0b9CY4yd6nRFlQ==",
-+      "version": "12.0.17",
-+      "resolved": "https://registry.npmjs.org/electron/-/electron-12.0.17.tgz",
-+      "integrity": "sha512-jkOMKSEj/X9i++5LD7NKqYK/ORi6H0kHYk6rrvcJNQfbDpYX5lxNNexZ2ikPeKxS2B84+WcSFrw5Ce9y8B+pmA==",
++      "version": "12.0.11",
++      "resolved": "https://registry.npmjs.org/electron/-/electron-12.0.11.tgz",
++      "integrity": "sha512-6gPjcce3QCeAWZ8UVAqVy6os+86D5BcxgkIzlROxX89u+du/i7WpZXF5F1vgv419rspds9OHejP3JrJnoUGh6w==",
        "dev": true,
        "requires": {
          "@electron/get": "^1.0.1",
@@ -2541,7 +2541,7 @@ index 4585387..896b3f3 100644
      },
      "yauzl": {
 diff --git a/package.json b/package.json
-index bf0bb23..5713b44 100644
+index bf0bb23..4e8a5a3 100644
 --- a/package.json
 +++ b/package.json
 @@ -59,8 +59,8 @@
@@ -2550,8 +2550,8 @@ index bf0bb23..5713b44 100644
    "devDependencies": {
 -    "electron": "^11.4.4",
 -    "electron-builder": "^22.9.1",
-+    "electron": "^12.0.11",
-+    "electron-builder": "^22.11.7",
++    "electron": "12.0.11",
++    "electron-builder": "22.11.7",
      "eslint": "^6.8.0",
      "jest": "^26.6.3"
    }

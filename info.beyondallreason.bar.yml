@@ -64,7 +64,7 @@ modules:
         commit: 03d42be4796253ad8d61a68cf946e589e1e0deb6
       - type: patch
         path: flatpak/patch/spring-launcher-electron-version.patch
-      - spring-launcher.json
+      - generated-sources.json
       - type: script
         dest-filename: run.sh
         commands:
