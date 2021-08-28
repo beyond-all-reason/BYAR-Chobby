@@ -22,6 +22,7 @@ finish-args:
   - --share=ipc
   - --socket=x11
   - --socket=pulseaudio
+  - --device=dri
   - --share=network
   - --env=PATH=/usr/bin:/app/bin:/usr/lib/sdk/node14/bin
 modules:
