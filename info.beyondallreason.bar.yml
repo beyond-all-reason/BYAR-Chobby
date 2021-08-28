@@ -47,6 +47,7 @@ modules:
       - cp -p /app/bar/BYAR-Chobby/dist_cfg/config.json ./src
       - cp -p /app/bar/BYAR-Chobby/dist_cfg/config-backup.json ./src
       - cp -p /app/bar/BYAR-Chobby/dist_cfg/springsettings.json ./src
+      - cp -Rp /app/bar/BYAR-Chobby/dist_cfg/renderer/* ./src/renderer
       - cp -Rp /app/bar/BYAR-Chobby/dist_cfg/files ./files
       - cp -Rp /app/bar/BYAR-Chobby/dist_cfg/build ./build
       - cat package.json
