@@ -50,6 +50,8 @@ modules:
       - cp -Rp /app/bar/BYAR-Chobby/dist_cfg/files ./files
       - cp -Rp /app/bar/BYAR-Chobby/dist_cfg/build ./build
       - cat package.json
+      - jq '.build.linux.target="dir"' <<<$(<package.json) > package.json
+      - cat package.json
       - echo $XDG_CACHE_HOME
       - echo $npm_config_cache
       - . flatpak-node/electron-builder-arch-args.sh
@@ -57,7 +59,8 @@ modules:
         . flatpak-node/electron-builder-arch-args.sh
         node_modules/.bin/electron-builder -- $ELECTRON_BUILDER_ARCH_ARGS --linux --dir --project /run/build/spring-launcher
       - cp -a dist/linux*unpacked /app/main
-      - install -Dm755 -t /app/bin/ ../run.sh
+      - ls -al
+      - install -Dm755 -t /app/bin/ run.sh
     sources:
       - type: git
         url: https://github.com/gajop/spring-launcher
