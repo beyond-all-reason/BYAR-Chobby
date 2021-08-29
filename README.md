@@ -66,11 +66,19 @@ git clone https://github.com/beyond-all-reason/Beyond-All-Reason.git BAR.sdd
 
 Prerequesites:
 
-- flatpak-builder
-- org.freedesktop.Sdk.Extension.node14 (for system)
+- flatpak (Package repository)
+- flatpak-builder (Package repository)
+- org.freedesktop.Sdk.Extension.node14 (`flatpak install org.freedesktop.Sdk.Extension.node14`)
+- org.freedesktop.Sdk//20.08 (`flatpak install org.freedesktop.Sdk//20.08`)
 
 Then run:
 
 ```
-flatpak-builder build-dir info.beyondallreason.bar.yml --force-clean
+flatpak-builder build-dir info.beyondallreason.bar.yml --force-clean --install --user
+```
+
+After the package is built run:
+
+```
+flatpak run info.beyondallreason.bar
 ```
