@@ -4,8 +4,7 @@ runtime-version: "20.08"
 base: org.electronjs.Electron2.BaseApp
 base-version: "20.08"
 sdk: org.freedesktop.Sdk
-  # TODO: Replace shell script call with game launcher
-command: run.sh
+command: launcher-args.sh
 sdk-extensions:
   - org.freedesktop.Sdk.Extension.node14
 build-options:
@@ -62,6 +61,7 @@ modules:
         node_modules/.bin/electron-builder -- $ELECTRON_BUILDER_ARCH_ARGS --linux --dir --project /run/build/spring-launcher
       - cp -a dist/linux*unpacked /app/main
       - ls -al
+      - install -Dm755 -t /app/bin/ launcher-args.sh
       - install -Dm755 -t /app/bin/ run.sh
       - install -Dm644 info.beyondallreason.bar.desktop /app/share/applications/info.beyondallreason.bar.desktop
       - install -Dm644 icon.png /app/share/icons/hicolor/16x16/apps/info.beyondallreason.bar.png
@@ -80,6 +80,8 @@ modules:
       - type: file
         path: dist_cfg/build/icon.png
       - generated-sources.json
+      - type: file
+        path: flatpak/launcher-args.sh
       - type: script
         dest-filename: run.sh
         commands:
