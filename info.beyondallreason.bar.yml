@@ -74,6 +74,8 @@ modules:
       - type: git
         url: https://github.com/gajop/spring-launcher
         commit: 03d42be4796253ad8d61a68cf946e589e1e0deb6
+      - type: patch
+        path: flatpak/patch/remove-launcher-self-update.patch
       - type: file
         path: flatpak/info.beyondallreason.bar.desktop
       - type: file
