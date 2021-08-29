@@ -25,6 +25,7 @@ finish-args:
   - --device=dri
   - --share=network
   - --env=PATH=/usr/bin:/app/bin:/usr/lib/sdk/node14/bin
+  - --filesystem=home
 modules:
   - name: byar-chobby
     buildsystem: simple
@@ -51,7 +52,6 @@ modules:
       - cp -Rp /app/bar/BYAR-Chobby/dist_cfg/renderer/* ./src/renderer
       - cp -Rp /app/bar/BYAR-Chobby/dist_cfg/files ./files
       - cp -Rp /app/bar/BYAR-Chobby/dist_cfg/build ./build
-      - rm -rf ./bin
       - cat package.json
       - jq '.build.linux.target="dir"' <<<$(<package.json) > package.json
       - cat package.json
