@@ -25,7 +25,6 @@ finish-args:
   - --device=dri
   - --share=network
   - --env=PATH=/usr/bin:/app/bin:/usr/lib/sdk/node14/bin
-  - --filesystem=home
 modules:
   - name: byar-chobby
     buildsystem: simple
