@@ -27,6 +27,7 @@ local lobby
 local IMG_READY    = LUA_DIRNAME .. "images/ready.png"
 local IMG_UNREADY  = LUA_DIRNAME .. "images/unready.png"
 
+local MINIMAP_TOOLTIP_PREFIX = "minimap_tooltip_"
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 -- Utilities
@@ -134,14 +135,18 @@ local function CreateMapEntry(mapName, mapData, CloseFunc)--{"ResourceID":7098,"
 	if lobby.name == "singleplayer" then
 		if not haveMap and (mapData and mapData.IsInPool) then
 			mapButtonCaption = "Click to Download this map"
+		else
+			mapButtonCaption = "Click to choose this map"
 		end
 	else
 		if not haveMap and (mapData and mapData.IsInPool) then
 			mapButtonCaption = "Click to Download this map"
-		end
-		if not (mapData and mapData.IsInPool) then
+		elseif not (mapData and mapData.IsInPool) then
 			mapButtonCaption = "Unofficial maps are not available in online play"
+		else
+			mapButtonCaption = "Click to choose this map"
 		end
+	
 	end
 
 	local mapButton = Button:New {
@@ -152,7 +157,7 @@ local function CreateMapEntry(mapName, mapData, CloseFunc)--{"ResourceID":7098,"
 		resizable = false,
 		draggable = false,
 		padding = {0, 0, 0, 0},
-		tooltip = mapButtonCaption,
+		tooltip = MINIMAP_TOOLTIP_PREFIX .. mapName .. "|" .. mapButtonCaption,
 		OnClick = {
 			function()
 				if (lobby.name == "singleplayer") or (mapData and mapData.IsInPool) then
