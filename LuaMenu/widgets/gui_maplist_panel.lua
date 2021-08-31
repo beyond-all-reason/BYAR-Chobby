@@ -394,20 +394,22 @@ local function InitializeControls()
 		mapList:AddItem(mapName, control, sortData)
 	end
 
-	--if not Configuration.onlyShowFeaturedMaps then
+	local addedmaps = {}
+	
 	for i, archive in pairs(VFS.GetAllArchives()) do
 		local info = VFS.GetArchiveInfo(archive)
 		if info and info.modtype == 3 and not mapFuncs[info.name] then
-			-- Spring.Echo("Map name debug list", info.name)
+			addedmaps[info.name] = true
 			control, sortData, mapFuncs[info.name] = CreateMapEntry(info.name, Configuration.gameConfig.mapDetails[info.name] , CloseFunc)
 			mapList:AddItem(info.name, control, sortData)
 		end
 	end
-	-- Spring.Echo("Configuration.gameConfig.mapDetails",Configuration.gameConfig.mapDetails)
+
 	for mapname, mapdetails in pairs(Configuration.gameConfig.mapDetails) do
-		-- Spring.Echo(mapname)
-		control, sortData, mapFuncs[mapname] = CreateMapEntry(mapname, mapdetails , CloseFunc)
-		mapList:AddItem(mapname, control, sortData)
+		if addedmaps[mapname] == nil then 
+			control, sortData, mapFuncs[mapname] = CreateMapEntry(mapname, mapdetails , CloseFunc)
+			mapList:AddItem(mapname, control, sortData)
+		end
 	end
 
 	mapList.sortBy = 7
