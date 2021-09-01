@@ -1,4 +1,4 @@
-{  
+{
     "title" : "Beyond All Reason",
     "setups" : [
         {
@@ -11,11 +11,10 @@
                 "games" : ["byar:test", "chobby:test", "byar-chobby:test"],
                 "resources": [
                     {
-                        "url": "https://github.com/beyond-all-reason/spring/releases/download/spring_bar_%7BBAR%7D104.0.1-1977-g12700e0/spring_bar_.BAR.104.0.1-1977-g12700e0_linux-64-minimal-portable.7z",
-                        "destination": "engine/104.0.1-1977-g12700e0 bar",
+                        "url": "https://github.com/beyond-all-reason/spring/releases/download/spring_bar_%7BBAR%7D104.0.1-1978-gcd328de/spring_bar_.BAR.104.0.1-1978-gcd328de_linux-64-minimal-portable.7z",
+                        "destination": "engine/104.0.1-1978-gcd328de bar",
                         "extract": true
                     },
-
                     {
                         "url": "https://github.com/beyond-all-reason/Maps/releases/download/1.0/altored_divide_bar_remake_1.55.sd7",
                         "destination": "maps/altored_divide_bar_remake_1.55.sd7",
@@ -46,7 +45,7 @@
             "no_start_script" : true,
             "launch": {
                 "start_args" : ["--menu", "rapid://byar-chobby:test"],
-                "engine": "104.0.1-1977-g12700e0 bar"
+                "engine": "104.0.1-1978-gcd328de bar"
             }
         },
         {
@@ -59,8 +58,8 @@
                 "games" : ["byar:test", "chobby:test", "byar-chobby:test"],
                 "resources": [
                     {
-                        "url": "https://github.com/beyond-all-reason/spring/releases/download/spring_bar_%7BBAR%7D104.0.1-1977-g12700e0/spring_bar_.BAR.104.0.1-1977-g12700e0_windows-64-minimal-portable.7z",
-                        "destination": "engine/104.0.1-1977-g12700e0 bar",
+                        "url": "https://github.com/beyond-all-reason/spring/releases/download/spring_bar_%7BBAR%7D104.0.1-1978-gcd328de/spring_bar_.BAR.104.0.1-1978-gcd328de_windows-64-minimal-portable.7z",
+                        "destination": "engine/104.0.1-1978-gcd328de bar",
                         "extract": true
                     },
 
@@ -94,7 +93,7 @@
             "no_start_script" : true,
             "launch": {
                 "start_args" : ["--menu", "rapid://byar-chobby:test"],
-				"engine": "104.0.1-1977-g12700e0 bar"
+				"engine": "104.0.1-1978-gcd328de bar"
             }
         },
         {
@@ -106,8 +105,8 @@
             "downloads": {
                 "resources": [
                     {
-                        "url": "https://github.com/beyond-all-reason/spring/releases/download/spring_bar_%7BBAR%7D104.0.1-1977-g12700e0/spring_bar_.BAR.104.0.1-1977-g12700e0_linux-64-minimal-portable.7z",
-                        "destination": "engine/104.0.1-1977-g12700e0 bar",
+                        "url": "https://github.com/beyond-all-reason/spring/releases/download/spring_bar_%7BBAR%7D104.0.1-1978-gcd328de/spring_bar_.BAR.104.0.1-1978-gcd328de_linux-64-minimal-portable.7z",
+                        "destination": "engine/104.0.1-1978-gcd328de bar",
                         "extract": true
                     }
                 ]
@@ -116,7 +115,7 @@
             "no_downloads" : true,
             "launch": {
                 "start_args" : ["--menu", "BYAR Chobby $VERSION"],
-                "engine" : "104.0.1-1977-g12700e0 bar"
+                "engine" : "104.0.1-1978-gcd328de bar"
             }
         },
         {
@@ -128,8 +127,8 @@
             "downloads": {
                 "resources": [
                     {
-                        "url": "https://github.com/beyond-all-reason/spring/releases/download/spring_bar_%7BBAR%7D104.0.1-1977-g12700e0/spring_bar_.BAR.104.0.1-1977-g12700e0_windows-64-minimal-portable.7z",
-                        "destination": "engine/104.0.1-1977-g12700e0 bar",
+                        "url": "https://github.com/beyond-all-reason/spring/releases/download/spring_bar_%7BBAR%7D104.0.1-1978-gcd328de/spring_bar_.BAR.104.0.1-1978-gcd328de_windows-64-minimal-portable.7z",
+                        "destination": "engine/104.0.1-1978-gcd328de bar",
                         "extract": true
                     }
                 ]
@@ -138,7 +137,7 @@
             "no_downloads" : true,
             "launch": {
                 "start_args" : ["--menu", "BYAR Chobby $VERSION"],
-                "engine" : "104.0.1-1977-g12700e0 bar"
+                "engine" : "104.0.1-1978-gcd328de bar"
             }
         }
 
