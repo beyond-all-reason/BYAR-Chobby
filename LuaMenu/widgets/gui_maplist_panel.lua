@@ -28,6 +28,8 @@ local IMG_READY    = LUA_DIRNAME .. "images/ready.png"
 local IMG_UNREADY  = LUA_DIRNAME .. "images/unready.png"
 
 local MINIMAP_TOOLTIP_PREFIX = "minimap_tooltip_"
+
+local listFont2
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 -- Utilities
@@ -158,6 +160,7 @@ local function CreateMapEntry(mapName, mapData, CloseFunc)--{"ResourceID":7098,"
 		draggable = false,
 		padding = {0, 0, 0, 0},
 		tooltip = MINIMAP_TOOLTIP_PREFIX .. mapName .. "|" .. mapButtonCaption,
+		objectOverrideFont = listFont2,
 		OnClick = {
 			function()
 				if (lobby.name == "singleplayer") or (mapData and mapData.IsInPool) then
@@ -176,6 +179,7 @@ local function CreateMapEntry(mapName, mapData, CloseFunc)--{"ResourceID":7098,"
 		height = 52,
 		padding = {1,1,1,1},
 		parent = mapButton,
+		noFont = true,
 	}
 
 	local mapImageFile, needDownload = Configuration:GetMinimapSmallImage(mapName)
@@ -190,6 +194,7 @@ local function CreateMapEntry(mapName, mapData, CloseFunc)--{"ResourceID":7098,"
 		fallbackFile = Configuration:GetLoadingImage(2),
 		checkFileExists = needDownload,
 		parent = minimap,
+		noFont = true,
 	}
 
 	TextBox:New {
@@ -198,7 +203,7 @@ local function CreateMapEntry(mapName, mapData, CloseFunc)--{"ResourceID":7098,"
 		width = 200,
 		height = 20,
 		valign = 'center',
-		fontsize = Configuration:GetFont(2).size,
+		objectOverrideFont = listFont2,
 		text = mapName:gsub("_", " "),
 		parent = mapButton,
 	}
@@ -210,6 +215,7 @@ local function CreateMapEntry(mapName, mapData, CloseFunc)--{"ResourceID":7098,"
 		height = 20,
 		file = (haveMap and IMG_READY) or IMG_UNREADY,
 		parent = mapButton,
+		noFont = true,
 		-- tooltip = (haveMap and "") or "Click to Download this map",
 	}
 
@@ -220,7 +226,7 @@ local function CreateMapEntry(mapName, mapData, CloseFunc)--{"ResourceID":7098,"
 			width = 160,
 			height = 20,
 			valign = 'center',
-			fontsize = Configuration:GetFont(2).size,
+			objectOverrideFont = listFont2,
 			text = certificationLevel,
 			parent = mapButton,
 		}
@@ -233,32 +239,32 @@ local function CreateMapEntry(mapName, mapData, CloseFunc)--{"ResourceID":7098,"
 			width = 68,
 			height = 20,
 			valign = 'center',
-			fontsize = Configuration:GetFont(2).size,
+			objectOverrideFont = listFont2,
 			text = (mapData.Width or " ?") .. "x" .. (mapData.Height or " ?"),
 			parent = mapButton,
 		}
 
 
 		local mapType = GetMapTypeBar(mapData.Is1v1, mapData.IsTeam, mapData.IsFFA)
-		TextBox:New {
+		local maptypetextbox = TextBox:New {
 			x = 356,
 			y = 12,
 			width = 98,
 			height = 20,
 			valign = 'center',
-			fontsize = Configuration:GetFont(2).size,
+			objectOverrideFont = listFont2,
 			text = mapType,
 			parent = mapButton,
 		}
 
 		local terrainType = GetTerrainTypeBar(mapData.Special, mapData.Flat, mapData.Hills, mapData.WaterLevel)
-		TextBox:New {
+		local testtextbox = TextBox:New {
 			x = 468,
 			y = 12,
 			width = 160,
 			height = 20,
 			valign = 'center',
-			fontsize = Configuration:GetFont(2).size,
+			objectOverrideFont = listFont2,
 			text = terrainType,
 			parent = mapButton,
 		}
@@ -290,6 +296,7 @@ end
 
 local function InitializeControls()
 	local Configuration = WG.Chobby.Configuration
+	listFont2 = Font:New(Configuration:GetFont(2))
 	local vsx, vsy = Spring.GetViewSizes()
 	local mapListWindow = Window:New {
 		classname = "main_window",
@@ -393,7 +400,6 @@ local function InitializeControls()
 		control, sortData, mapFuncs[mapName] = CreateMapEntry(mapName, featuredMapList[i], CloseFunc)
 		mapList:AddItem(mapName, control, sortData)
 	end
-
 	local addedmaps = {}
 	
 	for i, archive in pairs(VFS.GetAllArchives()) do
