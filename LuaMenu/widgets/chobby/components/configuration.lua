@@ -708,10 +708,14 @@ function Configuration:GetTick()
 end
 
 function Configuration:GetFont(sizeScale, fontName)
+	if fontName == nil then fontName = 'LuaMenu/widgets/chili/skins/Evolved/fonts/n019003l.pfb' end
 	return {
 		size = self.font[sizeScale].size,
 		shadow = self.font[sizeScale].shadow,
 		font = fontName,
+		-- color        = {1,1,1,1},
+		-- outlineColor = {0.05,0.05,0.05,0.9},
+		-- outline = false,
 	}
 end
 
