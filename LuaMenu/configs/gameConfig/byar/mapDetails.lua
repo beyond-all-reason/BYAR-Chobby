@@ -82,7 +82,7 @@ return {
 ['Tempest Dry']={Width=20, Height=20, Is1v1=nil, IsTeam=1, IsFFA=nil, IsCertified=nil, Special=nil, Flat=1, Hills=nil, Water=nil, IsInPool=1, },
 ['Tetrad_V2']={Width=20, Height=20, Is1v1=nil, IsTeam=1, IsFFA=1, IsCertified=1, Special=nil, Flat=nil, Hills=1, Water=nil, IsInPool=1, },
 ['TheRock_V3']={Width=20, Height=16, Is1v1=nil, IsTeam=1, IsFFA=nil, IsCertified=1, Special=nil, Flat=nil, Hills=1, Water=nil, IsInPool=1, },
-['Throne Acidic']={Width=24, Height=24, Is1v1=nil, IsTeam=nil, IsFFA=1, IsCertified=nil, Special=nil, Flat=nil, Hills=1, Water=nil, IsInPool=1, },
+--['Throne Acidic']={Width=24, Height=24, Is1v1=nil, IsTeam=nil, IsFFA=1, IsCertified=nil, Special=nil, Flat=nil, Hills=1, Water=nil, IsInPool=1, },
 ['Throne_V8']={Width=24, Height=24, Is1v1=nil, IsTeam=nil, IsFFA=1, IsCertified=1, Special=nil, Flat=nil, Hills=1, Water=1, IsInPool=1, },
 ['Titan v3.1']={Width=18, Height=12, Is1v1=nil, IsTeam=1, IsFFA=nil, IsCertified=nil, Special=nil, Flat=nil, Hills=1, Water=nil, IsInPool=1, },
 ['TitanDuel_V3']={Width=10, Height=10, Is1v1=1, IsTeam=nil, IsFFA=nil, IsCertified=1, Special=nil, Flat=1, Hills=nil, Water=nil, IsInPool=1, },
