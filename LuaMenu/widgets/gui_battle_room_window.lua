@@ -1976,9 +1976,15 @@ local function SetupVotePanel(votePanel, battle, battleID)
 		oldTitle = oldVoteInitiator.. " called a vote for:\n"..voteMessage..timeleft
 
 		voteName:SetCaption(oldTitle)
-		voteCountLabel:SetCaption(candidates[1].votes .. "/" .. votesNeeded)
-		voteProgressYes:SetValue(100 * candidates[1].votes / votesNeeded)
-		voteProgressNo:SetValue( 100 * candidates[2].votes / votesNeeded)
+		if votesNeeded == -1 then 
+			voteCountLabel:SetCaption(tostring(candidates[1].votes))
+			voteProgressYes:SetValue(0)
+			voteProgressNo:SetValue(0)
+		else
+			voteCountLabel:SetCaption(candidates[1].votes .. "/" .. votesNeeded)
+			voteProgressYes:SetValue(100 * candidates[1].votes / votesNeeded)
+			voteProgressNo:SetValue( 100 * candidates[2].votes / votesNeeded)
+		end
 		activePanel:SetVisibility(true)
 		if resetButtons then
 			ResetButtons()
@@ -2752,6 +2758,15 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 			return s
 		end
 	end
+
+	local function startsWith(targetstring, pattern) 
+		if string.len(pattern) <= string.len(targetstring) and pattern == string.sub(targetstring,1, string.len(pattern)) then
+		  return true, string.sub(targetstring, string.len(pattern) + 1)
+		else
+		  return false
+		end
+	end
+
 	-- whoever wrote lua string parser needs to get rammed by a horse
 
 	local function initBattleStatusPanel(bs)
@@ -2827,7 +2842,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 			local userwhocalledvote = nil
 			local ismapppoll = false
 			local mapname = ''
-			local votesNeeded = 2
+			local votesNeeded = -1
 			local yesvotes = 1
 			local novotes = 0
 			local timeleft = nil
@@ -2837,7 +2852,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 				local startOfVoteResults = pyPartition(message," [y:",false)
 				yesvotes = tonumber(pyPartition(startOfVoteResults,"/",true)) or 0
 				votesNeeded = tonumber(pyPartition(pyPartition(startOfVoteResults,"/",false), ",",true)) or
-							tonumber(pyPartition(pyPartition(startOfVoteResults,"/",false), "(",true)) or 0
+							tonumber(pyPartition(pyPartition(startOfVoteResults,"/",false), "(",true)) or -1
 				novotes = tonumber(pyPartition(pyPartition(startOfVoteResults," n:",false),"/",true)) or 0
 				-- Spring.Echo("votes",message, 'yes:',yesvotes,"needed:",votesNeeded,"no:",novotes)
 			end
@@ -2898,12 +2913,22 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 			--[14:43:19] * [teh]host * Cancelling "set map Throne Acidic" vote (command executed directly by [teh]Beherith)
 			votePanel.ImmediateVoteEnd()
 			return true
-
+		elseif string.find(message, "* Game starting, cancelling ", nil, true) then
+			votePanel.ImmediateVoteEnd()
+			return false
 		end
 
 		return false
 	end
 
+	local function ParseBarManagerSaidBattleEx(userName,message)
+		local BARMANAGER_PREFIX = "* BarManager|"
+		local doesStartWith, barManagerMessage = startsWith(message,BARMANAGER_PREFIX)
+		if doesStartWith then
+			return true
+		end
+		return false
+	end
 
 	local function OnSaidBattle(listener, userName, message)
 		--ParseForVotingSaidBattle(userName,message) --only on EX?
@@ -2922,6 +2947,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		if userName == battle.founder then -- todo dont do this for self-hosted
 			local hidespads = ParseSpadsMessage(userName,message)
 			local hidevote = ParseForVotingSaidBattle(userName,message)
+			local hidebarmanager = ParseBarManagerSaidBattleEx(userName, message)
 			if hidevote or hidespads then
 				hidemessage = true
 				--Spring.Echo("Hiding",message,hidevote, hidespads)
