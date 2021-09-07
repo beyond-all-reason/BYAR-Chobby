@@ -31,6 +31,9 @@ local currentStartRects = {}
 local singleplayerWrapper
 local multiplayerWrapper
 
+local spadsStatusPanel
+local barManagerPresent
+
 local singleplayerGame = "Chobby $VERSION"
 
 local IMG_READY    = LUA_DIRNAME .. "images/ready.png"
@@ -1925,6 +1928,10 @@ local function SetupVotePanel(votePanel, battle, battleID)
 		if voteResultLabel.visible then
 			voteResultLabel:Hide()
 		end
+		--if not spadsStatusPanel.visible then
+		--Spring.Echo("HideVoteResult")
+		if barManagerPresent then spadsStatusPanel:SetVisibility(true) end
+		--end
 	end
 
 	local externalFunctions = {}
@@ -1985,13 +1992,17 @@ local function SetupVotePanel(votePanel, battle, battleID)
 			voteProgressYes:SetValue(100 * candidates[1].votes / votesNeeded)
 			voteProgressNo:SetValue( 100 * candidates[2].votes / votesNeeded)
 		end
+
 		activePanel:SetVisibility(true)
+		spadsStatusPanel:SetVisibility(false)
+		spadsStatusPanel:Invalidate()
+
 		if resetButtons then
 			ResetButtons()
 			externalFunctions.VoteButtonVisible(true)
 		end
 		matchmakerModeEnabled = (pollType == "quickplay")
-		HideVoteResult()
+		--HideVoteResult()
 	end
 
 	function externalFunctions.VoteEnd(message, success)
@@ -2014,7 +2025,7 @@ local function SetupVotePanel(votePanel, battle, battleID)
 		--Spring.Echo("ImmediateVoteEnd()")
 		activePanel:SetVisibility(false)
 		minimapPanel:SetVisibility(false)
-
+		if barManagerPresent then spadsStatusPanel:SetVisibility(true) end
 		matchmakerModeEnabled = false
 		ResetButtons()
 		HideVoteResult()
@@ -2034,21 +2045,32 @@ local function SetupVotePanel(votePanel, battle, battleID)
 	return externalFunctions
 end
 
-local function SetupSpadsStatusPanel(spadsStatusPanel,battle, battleID)
+local function SetupSpadsStatusPanel(battle, battleID)
+	
+	local freezeSettings = true
+	
+	local spadsSettingsOrder = {'teamSize','nbTeams','preset','autoBalance','balanceMode','locked'}
 	spadsSettingsTable = {
-		autoLock = { -- key is spads setting name
-			current = "off",
-			allowed = {"off","on","advanced"},
-			caption = "Autolock",
-			tooltip = "If the battle must be locked when the target number of players are reached",
-			spadscommand = "!autolock",
+		teamSize = {
+			current = "2",
+			allowed = {"1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16"},
+			caption = "TeamSize",
+			tooltip = "How many players should be on each team",
+			spadscommand = "!set teamSize",
 		},
-		autoStart = { 
-			current = "off",
-			allowed = {"off","on","advanced"},
-			caption = "Autostart",
-			tooltip = "Start game automatically if target number of players is reached",
-			spadscommand = "!autostart",
+		nbTeams = {
+			current = "2",
+			allowed = {"1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16"},
+			caption = "#Teams",
+			tooltip = "How many teams should SPADS make",
+			spadscommand = "!nbTeams",
+		},
+		preset = {
+			current = "team",
+			allowed = {"team","ffa","coop","duel","tourney"},
+			caption = "Preset",
+			tooltip = "Team - Game of multiple Teams\nFFA - Free-For-All\nCoop - Humans vs AI\nDuel - 1v1",
+			spadscommand = "!preset",
 		},
 		autoBalance = { 
 			current = "off",
@@ -2057,6 +2079,49 @@ local function SetupSpadsStatusPanel(spadsStatusPanel,battle, battleID)
 			tooltip = "Balance teams automatically",
 			spadscommand = "!autobalance",
 		},
+		balanceMode = { 
+			current = "clan;skill",
+			allowed = {"random","clan;skill","skill","clan;random"},
+			caption = "BalanceMode",
+			tooltip = "Method to use when autobalancing",
+			spadscommand = "!balanceMode",
+		},
+		locked = {
+			current = "unlocked",
+			allowed = {"unlocked","locked"},
+			caption = "Locked",
+			tooltip = "Is the game locked?",
+			spadscommand = {unlocked = "!unlock", locked = "!lock"},
+		},
+		--[[
+		boss = {
+			current = "None",
+			allowed = {"None"},
+			caption = "Boss",
+			tooltip = "Is there a boss currently set",
+			spadscommand = "!boss",
+		},
+		stop = {
+			current = "stopped",
+			allowed = {"stopped","running"},
+			caption = "Stop",
+			tooltip = "Select stop to stop the game",
+			spadscommand = "!stop",
+		},
+		autoLock = { -- key is spads setting name
+			current = "off",
+			allowed = {"off","on","advanced"},
+			caption = "Autolock",
+			tooltip = "If the battle must be locked when the target number of players are reached",
+			spadscommand = "!autolock",
+		},
+		autoStart = {
+			current = "off",
+			allowed = {"off","on","advanced"},
+			caption = "Autostart",
+			tooltip = "Start game automatically if target number of players is reached",
+			spadscommand = "!autostart",
+		},
 		autoFixColors = { 
 			current = "off",
 			allowed = {"off","on","advanced"},
@@ -2064,47 +2129,22 @@ local function SetupSpadsStatusPanel(spadsStatusPanel,battle, battleID)
 			tooltip = "Automatically choose colors based on number of players",
 			spadscommand = "!autofixcolors",
 		},
-		nbTeams = { 
-			current = "2",
-			allowed = {"1","2","3","4","5","6","7","8"},
-			caption = "#Teams",
-			tooltip = "How many teams should SPADS make",
-			spadscommand = "!nbTeams",
-		},
-		balanceMode = { 
-			current = "clan;skill",
-			allowed = {"random","clan;skill","skill","clan;random"},
-			caption = "Balance",
-			tooltip = "Which method to use when autobalancing",
-			spadscommand = "!balanceMode",
-		},
 		clanMode = { 
 			current = "off",
 			allowed = {"off","on","advanced"},
-			caption = "clanMode",
+			caption = "ClanMode",
 			tooltip = "Do not touch",
 			spadscommand = "!clanMode",
 		},
-		locked = { 
-			current = "off",
-			allowed = {"off","on","advanced"},
-			caption = "Autostart",
-			tooltip = "Is the game locked?",
-			spadscommand = "!lock",
-		},
-		preset = { 
-			current = "team",
-			allowed = {"team","coop","duel","tourney"},
-			caption = "Preset",
-			tooltip = "What kind of game is this",
-			spadscommand = "!preset",
-		},
+		]]--
 	}
+
 
 	local rows = 3
 	local cols = 3
 	local i = 0
-	for k, sts in pairs(spadsSettingsTable) do
+	for _, k in ipairs(spadsSettingsOrder) do
+		local sts = spadsSettingsTable[k]
 		local xpos = tostring(math.fmod(i,cols) * 100/cols) ..'%'
 		local stslabel = Label:New {
 			x = tostring(math.fmod(i,cols) * 100/cols + 1) ..'%',
@@ -2133,18 +2173,26 @@ local function SetupSpadsStatusPanel(spadsStatusPanel,battle, battleID)
 			items = sts.allowed,
 			align = "right",
 			valign = "center",
+			name = k,
 			--itemFontSize = Configuration:GetFont(1).size,
 			selected = stsCBdefault,
 			OnSelectName = {
 				function (obj, selectedName)
-					Spring.Echo(sts.spadscommand .." "..selectedName)
+					if freezeSettings then return end -- so these funcs dont run on first init
+					if type(sts.spadscommand) == "table" then
+						battleLobby:SayBattle(sts.spadscommand[selectedName])
+					else
+						battleLobby:SayBattle(sts.spadscommand .." "..selectedName)
+					end
 				end
 			},
 			parent = spadsStatusPanel,
 			tooltip = sts.tooltip,
 		}
+		sts.control = stsCB
 		i = i+1
 	end
+	freezeSettings = false
 end
 
 local function InitializeSetupPage(subPanel, screenHeight, pageConfig, nextPage, prevPage, selectedOptions, ApplyFunction)
@@ -2438,16 +2486,19 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	local playerHandler = SetupPlayerPanel(playerPanel, spectatorPanel, battle, battleID)
 
 
-	local spadsStatusPanel = Control:New{
+	spadsStatusPanel = Control:New{
 		x = 0,
 		right = "33%",
 		bottom = 0,
 		height = BOTTOM_SPACING,
 		padding = {EXTERNAL_PAD_HOR, INTERNAL_PAD, 1, INTERNAL_PAD},
 		parent = topPanel,
+		backgroundColor = {1,1,1,0.5},
 	}
 
-	--local spadsStatusPanel = SetupSpadsStatusPanel(spadsStatusPanel) -- git stash for scumbags
+	--spadsStatusPanel = 
+	SetupSpadsStatusPanel() -- git stash for scumbags
+	spadsStatusPanel:SetVisibility(false) -- start hidden
 
 	local votePanel = Control:New {
 		x = 0,
@@ -2662,7 +2713,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 
 	-- Lobby interface
 	local function OnUpdateUserTeamStatus(listener, userName, allyNumber, isSpectator)
-		votePanel.VoteButtonVisible(isSpectator == false)
+		--votePanel.VoteButtonVisible(isSpectator == false)
 		infoHandler.UpdateUserTeamStatus(userName, allyNumber, isSpectator)
 		playerHandler.UpdateUserTeamStatus(userName, allyNumber, isSpectator)
 	end
@@ -2925,6 +2976,27 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		local BARMANAGER_PREFIX = "* BarManager|"
 		local doesStartWith, barManagerMessage = startsWith(message,BARMANAGER_PREFIX)
 		if doesStartWith then
+			-- Spring.Echo("BarManagerMessage",barManagerMessage)
+			if barManagerPresent ~= true then
+				spadsStatusPanel:SetVisibility(true)
+				barManagerPresent = true
+			end
+
+			barManagerTable = Spring.Utilities.json.decode( barManagerMessage)
+			if barManagerTable['BattleStateChanged'] then
+				for settingKey, settingValue in pairs(barManagerTable['BattleStateChanged']) do
+					local settingCB = spadsStatusPanel:GetChildByName(settingKey)
+					if settingCB and settingCB.items and settingCB.caption ~= settingValue then
+						for i = 1, #settingCB.items do
+							if settingCB.items[i] == settingValue then settingCB:Select(i) end
+						end
+					else
+
+					end
+				end
+			end
+				--* BarManager|{"BattleStateChanged": {"locked": "locked"}}".
+			
 			return true
 		end
 		return false
@@ -3317,6 +3389,7 @@ function BattleRoomWindow.LeaveBattle(onlyMultiplayer, onlySingleplayer)
 	end
 
 	battleLobby:LeaveBattle()
+	barManagerPresent = nil
 	if mainWindowFunctions then
 		mainWindowFunctions.OnBattleClosed(_, battleLobby:GetMyBattleID())
 	end
