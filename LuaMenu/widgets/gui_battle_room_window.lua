@@ -3020,7 +3020,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 			local hidespads = ParseSpadsMessage(userName,message)
 			local hidevote = ParseForVotingSaidBattle(userName,message)
 			local hidebarmanager = ParseBarManagerSaidBattleEx(userName, message)
-			if hidevote or hidespads then
+			if hidevote or hidespads or hidebarmanager then
 				hidemessage = true
 				--Spring.Echo("Hiding",message,hidevote, hidespads)
 			end
