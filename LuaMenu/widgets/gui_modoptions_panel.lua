@@ -569,7 +569,7 @@ function ModoptionsPanel.LoadModotpions(gameName, newBattleLobby)
 	-- Set modoptionDefaults
 	for i = 1, #modoptions do
 		local data = modoptions[i]
-		if data.key and data.def ~= nil and data.hidden ~= true then
+		if data.key and data.def ~= nil then -- dont check for hidden here yet, as undefined defaults mean they will appear in the modopts list
 			if type(data.def) == "boolean" then
 				modoptionDefaults[data.key] = tostring((data.def and 1) or 0)
 			elseif type(data.def) == "number" then
