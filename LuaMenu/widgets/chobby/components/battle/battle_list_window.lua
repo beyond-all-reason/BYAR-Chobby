@@ -984,85 +984,71 @@ function BattleListWindow:OpenHostWindow()
 		caption = "",
 		name = "hostBattle",
 		parent = WG.Chobby.lobbyInterfaceHolder,
-		width = 530,
-		height = 310,
+		width = 400,
+		height = 400,
 		resizable = false,
 		draggable = false,
 		classname = "main_window",
 	}
 
 	local title = Label:New {
-		x = 150,
-		width = 170,
+		x = "10%",
+		width = "80%",
 		y = 15,
 		height = 35,
+		align = "center",
 		caption = i18n("open_mp_game"),
-		font = Configuration:GetFont(4),
-		parent = hostBattleWindow,
-	}
-
-	local gameNameLabel = Label:New {
-		x = 15,
-		width = 200,
-		y = 75,
-		align = "right",
-		height = 35,
-		caption = i18n("game_name") .. ":",
-		font = Configuration:GetFont(3),
-		parent = hostBattleWindow,
-	}
-	local gameNameEdit = EditBox:New {
-		x = 220,
-		width = 260,
-		y = 70,
-		height = 35,
-		text = (lobby:GetMyUserName() or "Player") .. "'s Battle",
 		font = Configuration:GetFont(3),
 		parent = hostBattleWindow,
 	}
 
-	local passwordLabel = Label:New {
-		x = 15,
-		width = 200,
-		y = 115,
-		align = "right",
-		height = 35,
-		caption = i18n("password_optional") .. ":",
-		font = Configuration:GetFont(3),
+	local hostinfo = TextBox:New {
+		x = '5%',
+		width = '90%',
+		y = 50,
+		align = "left",
+		--multiline = true,
+		valign = "top",
+		height = 150,
+		text = "You can host a game by requesting an empty battle room. You can lock the battle rooms (!lock) to prevent anyone from joining, otherwise anyone can join your game.",--i18n("game_name") .. ":",
+		font = Configuration:GetFont(2),
 		parent = hostBattleWindow,
 	}
-	local passwordEdit = EditBox:New {
-		x = 220,
-		width = 260,
-		y = 110,
-		height = 35,
-		text = "",
-		font = Configuration:GetFont(3),
-		useIME = false,
-		parent = hostBattleWindow,
-	}
+
 
 	local typeLabel = Label:New {
 		x = 15,
-		width = 200,
-		y = 155,
+		right = "49%",
+		y = 205,
 		align = "right",
 		height = 35,
-		caption = i18n("game_type") .. ":",
-		font = Configuration:GetFont(3),
+		caption = "Geographical region",-- i18n("game_type") .. ":",
+		font = Configuration:GetFont(2),
 		parent = hostBattleWindow,
 	}
 	local typeCombo = ComboBox:New {
-		x = 220,
-		width = 260,
-		y = 150,
+		x = "51%",
+		width = 150,
+		y = 200,
 		height = 35,
 		itemHeight = 22,
 		text = "",
-		font = Configuration:GetFont(3),
-		items = {"Cooperative", "Team", "1v1", "FFA", "Custom"},
-		itemFontSize = Configuration:GetFont(3).size,
+		font = Configuration:GetFont(2),
+		items = Configuration.hostRegions,
+		itemFontSize = Configuration:GetFont(2).size,
 		selected = 1,
+		tooltip = "Choose the one closest to you for the best ping. Battle Rooms are not geographically limited.",
+		parent = hostBattleWindow,
+	}
+
+	local errorLabel = Label:New {
+		x = 15,
+		width = 200,
+		y = 250,
+		align = "right",
+		height = 35,
+		caption = "",-- i18n("game_type") .. ":",
+		font = Configuration:GetFont(2),
 		parent = hostBattleWindow,
 	}
 
@@ -1072,12 +1058,48 @@ function BattleListWindow:OpenHostWindow()
 
 	local function HostBattle()
 		WG.BattleRoomWindow.LeaveBattle()
-		if string.len(passwordEdit.text) > 0 then
-			lobby:HostBattle(gameNameEdit.text, passwordEdit.text, typeCombo.items[typeCombo.selected])
-		else
-			lobby:HostBattle(gameNameEdit.text, nil, typeCombo.items[typeCombo.selected])
+		--Attempting to host game at 
+		local requestedregion = typeCombo.items[typeCombo.selected]
+		--Spring.Echo("Looking for empty host in region", requestedregion)
+		
+		local targetbattle = nil
+		-- try to get empty matching one
+		local battles = lobby:GetBattles()
+		local tmp = {}
+		for _, battle in pairs(battles) do
+			table.insert(tmp, battle)
 		end
-		hostBattleWindow:Dispose()
+		battles = tmp
+	
+		for _, battle in pairs(battles) do
+			if string.sub(battle.title,1,string.len(requestedregion)) == requestedregion and
+				lobby:GetBattlePlayerCount(battle.battleID) == 0 and 
+				battle.spectatorCount == 1 and
+				Configuration:IsValidEngineVersion(battle.engineVersion) then
+
+				targetbattle = battle.battleID
+				break
+			else
+				--Spring.Echo('tryhostbattle',battle, battle.battleID, battle.title, lobby:GetBattlePlayerCount(battle.battleID),Configuration:IsValidEngineVersion(battle.engineVersion) )
+			end
+
+		end
+
+		if targetbattle == nil then
+			--Spring.Echo("Failed to find a battle")
+			errorLabel:SetCaption("Could not find a suitable battle room, please try again")
+		else
+			
+			--Spring.Echo("Found a battle")
+			local function bossSelf() 
+				local myplayername = lobby:GetMyUserName() or ''
+				lobby:SayBattle("!boss " .. myplayername)
+			end
+
+			self:JoinBattle(lobby:GetBattle(targetbattle))
+			WG.Delay(bossSelf, 1)
+			hostBattleWindow:Dispose()
+		end
 	end
 
 	local buttonHost = Button:New {
@@ -1086,7 +1108,7 @@ function BattleListWindow:OpenHostWindow()
 		bottom = 1,
 		height = 70,
 		caption = i18n("host"),
-		font = Configuration:GetFont(3),
+		font = Configuration:GetFont(2),
 		parent = hostBattleWindow,
 		classname = "action_button",
 		OnClick = {
@@ -1102,7 +1124,7 @@ function BattleListWindow:OpenHostWindow()
 		bottom = 1,
 		height = 70,
 		caption = i18n("cancel"),
-		font = Configuration:GetFont(3),
+		font = Configuration:GetFont(2),
 		parent = hostBattleWindow,
 		classname = "negative_button",
 		OnClick = {
