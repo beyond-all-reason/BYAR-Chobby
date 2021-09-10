@@ -1089,7 +1089,11 @@ function BattleListWindow:OpenHostWindow()
 			--Spring.Echo("Failed to find a battle")
 			errorLabel:SetCaption("Could not find a suitable battle room, please try again")
 		else
-			
+			if WG.Analytics then
+				WG.Analytics.SendRepeatEvent("lobby:multiplayer:hostgame", {
+					hostregion = requestedregion
+				})
+			end
 			--Spring.Echo("Found a battle")
 			local function bossSelf() 
 				local myplayername = lobby:GetMyUserName() or ''
