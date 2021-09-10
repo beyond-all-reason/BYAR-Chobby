@@ -2192,6 +2192,57 @@ local function SetupSpadsStatusPanel(battle, battleID)
 		sts.control = stsCB
 		i = i+1
 	end
+
+	local balanceButton = Button:New {
+		x = '1%',
+		y = '68%',
+		width = '31%',
+		height = '31%',
+		caption = "Balance",
+		tooltip = "Attempt to balance the teams. In Coop Preset this splits Humans and AIs.",
+		font = WG.Chobby.Configuration:GetFont(2),
+		parent = spadsStatusPanel,
+		classname = "option_button",
+		OnClick = {
+			function()
+				battleLobby:SayBattle('!balance')
+			end
+		},
+	}
+		
+	local lockButton = Button:New {
+		x = '34%',
+		y = '68%',
+		width = '31%',
+		height = '31%',
+		caption = "Lock",
+		tooltip = "Lock the battleroom, preventing everyone from joining",
+		font = WG.Chobby.Configuration:GetFont(2),
+		parent = spadsStatusPanel,
+		classname = "option_button",
+		OnClick = {
+			function()
+				battleLobby:SayBattle('!lock')
+			end
+		},
+	}
+		
+	local unlockButton = Button:New {
+		x = '68%',
+		y = '68%',
+		width = '31%',
+		height = '31%',
+		caption = "Unlock",
+		tooltip = "Unlock the battleroom, to allow players to join",
+		font = WG.Chobby.Configuration:GetFont(2),
+		parent = spadsStatusPanel,
+		classname = "option_button",
+		OnClick = {
+			function()
+				battleLobby:SayBattle('!unlock')
+			end
+		},
+	}
 	freezeSettings = false
 end
 
