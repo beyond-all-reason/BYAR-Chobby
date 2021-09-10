@@ -12,6 +12,24 @@ function AiListWindow:init(lobby, gameName)
 
 	-- Disable game-specific AIs for now since it breaks /luaui reload
 	local ais = VFS.GetAvailableAIs(gameName)
+	-- Barb and nullai are always available, but the rest need to be added manually here, because f you thats why
+	local numAis = #ais
+	local unversionedGameAis = Configuration.gameConfig.unversionedGameAis or {}
+	for _, unversionedGameAi in ipairs(unversionedGameAis) do
+		local found = false
+		for i=1, numAis do
+			if unversionedGameAi == ais[i].shortName then 
+				found = true 
+				break
+			end
+		end
+		if found == false then 
+			ais[#ais+1] = {shortName = unversionedGameAi, version = "<not-versioned>"} 
+		end
+	end
+
+	--Spring.Echo("VFS.GetAvailableAIs(gameName)",gameName)
+	--Spring.Utilities.TableEcho(ais)
 
 	local blackList = Configuration.gameConfig.aiBlacklist
 	local oldAiVersions = (not Configuration.showOldAiVersions) and Configuration.gameConfig.oldAiVersions

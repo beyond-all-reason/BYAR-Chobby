@@ -72,6 +72,7 @@ local externalFuncAndData = {
 	defaultChatChannels    = {"main", "newbies"},
 	sayPrivateSelectAndActivateChatTab = sayPrivateSelectAndActivateChatTab,
 	aiBlacklist            = aiBlacklist,
+	unversionedGameAis	   = {"SimpleAI", "SimpleCheaterAI","SimpleDefenderAI", "SimpleConstructorAI", "ScavengersAI", "ControlModeAI", "ChickensAI"},
 	GetAiSimpleName        = aiSimpleNames.GetAiSimpleName,
 	simpleAiOrder          = aiSimpleNames.simpleAiOrder,
 	aiTooltip              = aiSimpleNames.aiTooltip,
