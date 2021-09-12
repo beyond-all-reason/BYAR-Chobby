@@ -116,10 +116,10 @@ function SendBARAnalytics(cmdName,args,isEvent)
 	if isEvent then
 		if type(args) ~= "table" then args = {value = args or 0} end
 		args = Spring.Utilities.Base64Encode(Spring.Utilities.json.encode(args))
-		message = "c.telemetry.log_client_event  " .. cmdName .. " " ..args.." ".. machineHash .. "\n"
+		message = "c.telemetry.log_client_event " .. cmdName .. " " ..args.." ".. machineHash .. "\n"
 	else
 		args = Spring.Utilities.Base64Encode(tostring(args or "nil"))
-		message = "c.telemetry.update_client_property  " .. cmdName .. " " ..args.." ".. machineHash .. "\n"
+		message = "c.telemetry.update_client_property " .. cmdName .. " " ..args.." ".. machineHash .. "\n"
 	end
 	if PRINT_DEBUG then Spring.Echo("Message:",message) end
 	if isConnected then
@@ -231,6 +231,12 @@ local function ProcessString(str)
 	return string.gsub(string.gsub(str," ","_"),"/","_")
 end
 
+local function LateHWInfo()
+	if osinfo ~= "" then Analytics.SendOnetimeEvent("hardware:osinfo",osinfo) end
+	if cpuinfo ~= "" then Analytics.SendOnetimeEvent("hardware:cpuinfo",cpuinfo) end
+	if gpuinfo ~= "" then Analytics.SendOnetimeEvent("hardware:gpuinfo",gpuinfo) end
+end
+
 function DelayedInitialize()
 	local port = 8200
 	Spring.Log("Analytics", LOG.NOTICE, "Using port: ", port)
@@ -268,11 +274,7 @@ function DelayedInitialize()
 	Analytics.SendOnetimeEvent("graphics:gpu", ProcessString(tostring((Platform and Platform.gpu) or "unknown") or "unknown"))
 	Analytics.SendOnetimeEvent("graphics:glRenderer", ProcessString(tostring((Platform and Platform.glRenderer) or "unknown") or "unknown"))
 	Analytics.SendOnetimeEvent("graphics:tesselation", ((IsTesselationShaderSupported() and 1) or 0))
-
-	
-	if osinfo ~= "" then Analytics.SendOnetimeEvent("hardware:osinfo",osinfo) end
-	if cpuinfo ~= "" then Analytics.SendOnetimeEvent("hardware:cpuinfo",cpuinfo) end
-	if gpuinfo ~= "" then Analytics.SendOnetimeEvent("hardware:gpuinfo",gpuinfo) end
+	WG.Delay(LateHWInfo,15)
 
 end
 
