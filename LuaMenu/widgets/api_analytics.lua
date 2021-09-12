@@ -43,6 +43,7 @@ local machineHash = "DEADBEEF"
 local cpuinfo = ""
 local gpuinfo = ""
 local osinfo = ""
+local raminfo = ""
 
 local function MachineHash()
 	--Spring.Echo("DEADBEEF", debug.getinfo(1).short_src, debug.getinfo(1).source, VFS.GetFileAbsolutePath("infolog.txt"))
@@ -80,7 +81,11 @@ local function MachineHash()
 			if string.find(line:lower(), 'hardware config:') then
 				local s,e = string.find(line:lower(), 'hardware config:')
 				cpustr = string.sub(line, e+2)
-				cpuinfo = cpustr
+				s,e = string.find(cpustr, ";", nil,true)
+				cpuinfo = string.sub(cpustr, 1, s-1)
+				rs,re = string.find(cpustr, ",", nil,true)
+				raminfo = string.sub(cpustr, s+2, rs -1)
+
 				break
 			end
 		end
@@ -235,6 +240,7 @@ local function LateHWInfo()
 	if osinfo ~= "" then Analytics.SendOnetimeEvent("hardware:osinfo",osinfo) end
 	if cpuinfo ~= "" then Analytics.SendOnetimeEvent("hardware:cpuinfo",cpuinfo) end
 	if gpuinfo ~= "" then Analytics.SendOnetimeEvent("hardware:gpuinfo",gpuinfo) end
+	if raminfo ~= "" then Analytics.SendOnetimeEvent("hardware:raminfo",raminfo) end
 end
 
 function DelayedInitialize()
@@ -294,7 +300,9 @@ function widget:Initialize()
 	local function OnConnected()
 		--Spring.Echo("Analytics OnConnected")
 		isConnected = true
-		client:close()
+		if client ~= nil then
+			client:close()
+		end
 		ACTIVE = false
 		-- disconnect
 	end
