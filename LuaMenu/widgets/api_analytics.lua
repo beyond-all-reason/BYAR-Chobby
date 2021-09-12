@@ -40,19 +40,25 @@ local PRINT_DEBUG = false
 ------------------------ Connection ---------------------
 
 local machineHash = "DEADBEEF"
-
+local cpuinfo = ""
+local gpuinfo = ""
+local osinfo = ""
 
 local function MachineHash()
 	--Spring.Echo("DEADBEEF", debug.getinfo(1).short_src, debug.getinfo(1).source, VFS.GetFileAbsolutePath("infolog.txt"))
 	local hashstr = ""
 	if Platform and Platform.gpu then
 		hashstr = hashstr .."|".. Platform.gpu
+		gpuinfo = Platform.gpu
 	end
 	if Platform and Platform.osFamily then
 		hashstr = hashstr .."|" ..Platform.osFamily
+		osinfo = Platform.osFamily
 	end
 	if Platform and Platform.osName then
 		hashstr = hashstr .."|" ..Platform.osName
+		osinfo = osinfo .. ":" .. Platform.osName
+
 	end
 	local hashstr = hashstr .. "|" .. tostring(VFS.GetFileAbsolutePath("infolog.txt") or "")
 
@@ -74,11 +80,14 @@ local function MachineHash()
 			if string.find(line:lower(), 'hardware config:') then
 				local s,e = string.find(line:lower(), 'hardware config:')
 				cpustr = string.sub(line, e+2)
+				cpuinfo = cpustr
 				break
 			end
 		end
 	end
 	hashstr = hashstr .."|" ..cpustr
+	
+	-- e.g. :hashstr = |NVIDIA GeForce RTX 2060/PCIe/SSE2|Windows|Windows 7|N:\Beyond_all_reason\Beyond-All-Reason\data\infolog.txt|Intel(R) Core(TM) i7-2600K CPU @ 3.40GHz; 32751MB RAM, 65500MB pagefile, clhUckpDMG5BZFdVbUNIOFE3K2tXUT09
 
 	machineHash = Spring.Utilities.Base64Encode(VFS.CalculateHash(hashstr,0))
 
@@ -259,6 +268,12 @@ function DelayedInitialize()
 	Analytics.SendOnetimeEvent("graphics:gpu", ProcessString(tostring((Platform and Platform.gpu) or "unknown") or "unknown"))
 	Analytics.SendOnetimeEvent("graphics:glRenderer", ProcessString(tostring((Platform and Platform.glRenderer) or "unknown") or "unknown"))
 	Analytics.SendOnetimeEvent("graphics:tesselation", ((IsTesselationShaderSupported() and 1) or 0))
+
+	
+	if osinfo ~= "" then Analytics.SendOnetimeEvent("hardware:osinfo",osinfo) end
+	if cpuinfo ~= "" then Analytics.SendOnetimeEvent("hardware:cpuinfo",cpuinfo) end
+	if gpuinfo ~= "" then Analytics.SendOnetimeEvent("hardware:gpuinfo",gpuinfo) end
+
 end
 
 --------------------------------------------------------------------------------
