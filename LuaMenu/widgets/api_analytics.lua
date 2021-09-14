@@ -45,6 +45,7 @@ local gpuinfo = ""
 local osinfo = ""
 local raminfo = ""
 
+
 local function MachineHash()
 	--Spring.Echo("DEADBEEF", debug.getinfo(1).short_src, debug.getinfo(1).source, VFS.GetFileAbsolutePath("infolog.txt"))
 	local hashstr = ""
