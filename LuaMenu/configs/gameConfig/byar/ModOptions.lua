@@ -139,8 +139,8 @@ local options={
 	},
 	{
 		key    		= 'disable_fogofwar',
-		name   		= 'Disable Fog of War',
-		desc   		= 'Disable Fog of War',
+		name   		= 'Disable Fog of War (Can break AI behaviour!!!)',
+		desc   		= 'Disable Fog of War (Can break AI behaviour!!!)',
 		type   		= "bool",
 		section		= 'restrictions',
 		def    		= false,
