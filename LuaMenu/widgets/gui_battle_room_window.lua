@@ -2053,7 +2053,7 @@ local function SetupSpadsStatusPanel(battle, battleID)
 	spadsSettingsTable = {
 		teamSize = {
 			current = "2",
-			allowed = {"1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16"},
+			allowed = {"1","2","3","4","5","6","7","8"},
 			caption = "TeamSize",
 			tooltip = "How many players should be on each team",
 			spadscommand = "!set teamSize",
