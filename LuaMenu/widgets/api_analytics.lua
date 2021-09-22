@@ -244,6 +244,17 @@ local function LateHWInfo()
 	if raminfo ~= "" then Analytics.SendOnetimeEvent("hardware:raminfo",raminfo) end
 end
 
+local function LoginHWInfo()
+	onetimeEvents['hardware:osinfo'] = nil
+	onetimeEvents['hardware:cpuinfo'] = nil
+	onetimeEvents['hardware:gpuinfo'] = nil
+	onetimeEvents['hardware:raminfo'] = nil
+	if osinfo ~= "" then Analytics.SendOnetimeEvent("hardware:osinfo",osinfo) end
+	if cpuinfo ~= "" then Analytics.SendOnetimeEvent("hardware:cpuinfo",cpuinfo) end
+	if gpuinfo ~= "" then Analytics.SendOnetimeEvent("hardware:gpuinfo",gpuinfo) end
+	if raminfo ~= "" then Analytics.SendOnetimeEvent("hardware:raminfo",raminfo) end
+end
+
 function DelayedInitialize()
 	local port = 8200
 	Spring.Log("Analytics", LOG.NOTICE, "Using port: ", port)
@@ -270,6 +281,7 @@ function DelayedInitialize()
 
 	WG.LibLobby.localLobby:AddListener("OnBattleAboutToStart", OnBattleStartSingleplayer)
 	WG.LibLobby.lobby:AddListener("OnBattleAboutToStart", OnBattleStartMultiplayer)
+	WG.LibLobby.lobby:AddListener("OnLoginInfoEnd", LoginHWInfo)
 
 	Analytics.SendOnetimeEvent("lobby:started")
 	if Platform and Platform.glVersionShort and type(Platform.glVersionShort) == "string" then
