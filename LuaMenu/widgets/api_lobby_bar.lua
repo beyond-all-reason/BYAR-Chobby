@@ -83,6 +83,7 @@ function widget:Initialize()
 		if locationtype == nil then locationtype = "nil" end
 		if locationID == nil then locationID = "nil" end
 		if reason == nil then return end
+		if reason == "" then reason = "None Given" end 
 		self:_SendCommand("c.moderation.report_user "..tostring(userName) .. "\t" .. tostring(locationtype) .. "\t" .. tostring(locationID) .. "\t" .. tostring(reason))
 	end
 
