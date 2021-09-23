@@ -26,6 +26,12 @@ local welcomePanelItems = {
         Text = "Play these from the single player menu on the left, and tell us what you think of them on Discord in the #scenarios channel.\n" ,
     },
     {
+        Header = "New code of conduct",
+        Url = nil,--"https://www.beyondallreason.info/code-of-conduct",
+        Time = nil,-- "NowTime",
+        Text = "We recently updated our code of conduct; be sure to check it out. As our community growth we've added the ability to report problems, click a user and select 'report user' to alert the moderator team to an issue. See the full code of conduct at https://www.beyondallreason.info/code-of-conduct",
+    },
+    {
         Header = "Play with your friends: use our servers!",
         Url = nil,--"https://www.beyondallreason.info/",
         Time = nil,-- "NowTime",
