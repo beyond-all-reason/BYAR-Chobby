@@ -100,8 +100,7 @@ local function CreateTextEntryWindow(opts)
 		font = Configuration:GetFont(2),
 		useIME = false,
 		parent = TextEntryWindow,
-		--[[
-		multiline = true,
+		--multiline = true,
 		OnFocusUpdate = {
 			function (obj)
 				editBoxValue = obj.text
@@ -109,7 +108,7 @@ local function CreateTextEntryWindow(opts)
 					return
 				end
 			end
-		}]]--
+		}
 	}
 
 
