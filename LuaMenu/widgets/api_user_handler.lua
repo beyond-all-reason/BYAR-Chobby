@@ -49,6 +49,10 @@ local userListList = {
 	notificationUsers,
 }
 
+local overrideFont1
+local overrideFont2
+local overrideFont3
+
 local IMAGE_DIR          = LUA_DIRNAME .. "images/"
 
 local IMAGE_AFK          = IMAGE_DIR .. "away.png"
@@ -304,7 +308,8 @@ local function GetUserComboBoxOptions(userName, isInBattle, userControl, showTea
 			y = 0,
 			width = 100,
 			height = 30,
-			font = Configuration:GetFont(1),
+			--font = Configuration:GetFont(1),
+			objectOverrideFont = overrideFont1,
 			caption = "No Actions",
 		}
 	end
@@ -961,7 +966,8 @@ local function GetUserControls(userName, opts)
 		bottom = 4,
 		align = "left",
 		parent = userControls.mainControl,
-		fontsize = Configuration:GetFont(2).size,
+		--fontsize = Configuration:GetFont(2).size,
+		objectOverrideFont = overrideFont2,
 		text = userName,
 	}
 	local userNameStart = offset
@@ -1016,6 +1022,7 @@ local function GetUserControls(userName, opts)
 			parent = userControls.mainControl,
 			caption = handicaptxt,
 			tooltip = "Handicap",
+			objectOverrideFont = overrideFont1,
 		}
 	end
 
@@ -1045,7 +1052,8 @@ local function GetUserControls(userName, opts)
 				valign = 'center',
 				parent = userControls.mainControl,
 				caption = i18n(status .. "_status"),
-				font = Configuration:GetFont(1),
+				--font = Configuration:GetFont(1),
+				objectOverrideFont = overrideFont1,
 			}
 			userControls.lblStatusLarge.font.color = fontColor
 			userControls.lblStatusLarge:Invalidate()
@@ -1284,6 +1292,11 @@ local function DelayedInitialize()
 	local Configuration = WG.Chobby.Configuration
 	UserLevelToImageConfFunction = Configuration.gameConfig.rankFunction
 
+	
+	overrideFont1 = Font:New(Configuration:GetFont(1))
+	overrideFont2 = Font:New(Configuration:GetFont(2))
+	overrideFont3 = Font:New(Configuration:GetFont(3))
+
 	local function onConfigurationChange(listener, key, value)
 		if key == "gameConfigName" then
 			UserLevelToImageConfFunction = Configuration.gameConfig.rankFunction
@@ -1299,9 +1312,9 @@ function widget:Initialize()
 	CHOBBY_DIR = LUA_DIRNAME .. "widgets/chobby/"
 	VFS.Include(LUA_DIRNAME .. "widgets/chobby/headers/exports.lua", nil, VFS.RAW_FIRST)
 
+
 	AddListeners()
 	WG.Delay(DelayedInitialize, 0.1)
-
 	WG.UserHandler = userHandler
 end
 
