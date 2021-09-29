@@ -179,6 +179,7 @@ function BattleListWindow:init(parent)
 			return
 		end
 		self:OnUpdateBattleInfo(battleID)
+		self:UpdateButtonColor(battleID)
 		self:SoftUpdate()
 	end
 	lobby:AddListener("OnUpdateBattleInfo", self.onUpdateBattleInfo)
