@@ -15,7 +15,7 @@ end
 --------------------------------------------------------------------
 
 local unusedwidgets = {
-	[[Community Window]],
+	--[[Community Window]],
 	[[Planetwars List Window]],
 	[[ZK Comm Config]],
 	[[SpringBoard Window]],
