@@ -249,6 +249,7 @@ local function LoginHWInfo()
 	onetimeEvents['hardware:cpuinfo'] = nil
 	onetimeEvents['hardware:gpuinfo'] = nil
 	onetimeEvents['hardware:raminfo'] = nil
+	Spring.Log("Analytics", LOG.NOTICE, "LoginHWInfo", isConnected, ACTIVE, client)
 	if osinfo ~= "" then Analytics.SendOnetimeEvent("hardware:osinfo",osinfo) end
 	if cpuinfo ~= "" then Analytics.SendOnetimeEvent("hardware:cpuinfo",cpuinfo) end
 	if gpuinfo ~= "" then Analytics.SendOnetimeEvent("hardware:gpuinfo",gpuinfo) end
