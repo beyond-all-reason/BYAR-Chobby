@@ -89,7 +89,7 @@ local communityLines = {
 		"Browse and download maps.",
 		"Maps",
 		function ()
-			WG.BrowserHandler.OpenUrl("https://springfiles.springrts.com/spring/spring-maps")
+			WG.BrowserHandler.OpenUrl("https://springfiles.springrts.com/?type=1&filter=&category=map")
 		end
 	},
 	{
