@@ -236,24 +236,24 @@ local function ParseInfolog(infologpath)
 				--[t=00:00:37.141179][f=-000001] Error: [LuaRules::RunCallInTraceback] error=2 (LUA_ERRRUN) callin=ViewResize trace=[Internal Lua error: Call failure] [string "LuaRules/Gadgets/dbg_gadget_profiler.lua"]:514: attempt to perform arithmetic on local 'viewWidth' (a table value)
 				-- yes we got an error here, then we should use this as error key
 				-- "LuaRules/Gadgets/dbg_gadget_profiler.lua"]:514: attempt to perform arithmetic on local 'viewWidth' (a table value)
-				local errorkeystart = string.find(line,"[string ",nil, true ) or 1
-				local errorname = string.sub(line, errorkeystart, nil)
-				return "LuaRules",errorname, infolog
+				--local errorkeystart = string.find(line,"[string ",nil, true ) or 1
+				--local errorname = string.sub(line, errorkeystart, nil)
+				return "LuaRules",line, infolog
 			end
 
 			
 			if string.find(line, "Error: [LuaMenu::RunCallInTraceback] ", nil, true) then -- exact match
 				--Error: [LuaMenu::RunCallInTraceback] error=4 (LUA_ERRMEM) callin=MousePress trace=[Internal Lua error: Call failure] not enough memory
-				local errorkeystart = string.find(line,"[string ",nil, true ) or 1
-				local errorname = string.sub(line, errorkeystart, nil)
-				return "LuaMenu",errorname, infolog
+				--local errorkeystart = string.find(line,"[string ",nil, true ) or 1
+				--local errorname = string.sub(line, errorkeystart, nil)
+				return "LuaMenu",line, infolog
 			end
 
 			if string.find(line, "] Sync error for ", nil, true) and string.find(line,", correct is ", nil, true) then -- exact match
 				-- [t=00:57:33.506372][f=0065713] Sync error for [DE]resopmok in frame 65708 (got 3658c9d5, correct is cb2dd8d7)
-				local errorkeystart = string.find(line,"Sync error for ",nil, true ) or 1
-				local errorname = string.sub(line, errorkeystart, nil)
-				return "SyncError", errorname, infolog
+				--local errorkeystart = string.find(line,"Sync error for ",nil, true ) or 1
+				--local errorname = string.sub(line, errorkeystart, nil)
+				return "SyncError", line, infolog
 			end
 			
 			if string.find(line, "] Error: Spring ", nil, true) and string.find(line," has crashed.", nil, true) then -- exact match
@@ -263,7 +263,8 @@ local function ParseInfolog(infologpath)
 				stackframe = "spring.exe [0xDEADBEEF]"
 				for k=i, #fileLines do
 					if string.find(fileLines[k], "[ProgCtr=", nil, true) then
-						stackframe = string.sub(fileLines[k+1], string.find(fileLines[k+1],"engine", nil, true) + 6,nil)
+						--stackframe = string.sub(fileLines[k+1], string.find(fileLines[k+1],"engine", nil, true) + 6,nil)
+						stackframe = fileLines[k+1]
 						break
 					end
 				end
