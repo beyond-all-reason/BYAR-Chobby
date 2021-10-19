@@ -45,6 +45,12 @@ local gpuinfo = ""
 local osinfo = ""
 local raminfo = ""
 
+local function lines(str)
+	local t = {}
+	local function helper(line) table.insert(t, line) return "" end
+	helper((str:gsub("(.-)\r?\n", helper)))
+	return t
+end
 
 local function MachineHash()
 	--Spring.Echo("DEADBEEF", debug.getinfo(1).short_src, debug.getinfo(1).source, VFS.GetFileAbsolutePath("infolog.txt"))
@@ -64,12 +70,6 @@ local function MachineHash()
 	end
 	local hashstr = hashstr .. "|" .. tostring(VFS.GetFileAbsolutePath("infolog.txt") or "")
 
-	local function lines(str)
-		local t = {}
-		local function helper(line) table.insert(t, line) return "" end
-		helper((str:gsub("(.-)\r?\n", helper)))
-		return t
-  	end
 	local cpustr = ''
 	local infolog = VFS.LoadFile("infolog.txt")
 	if infolog then
@@ -108,26 +108,28 @@ local port = 8200
 
 local buffer = ""
 local commands = {} -- table with possible commands
-
-
+local infologDirectory = "log/"
 
 function SendBARAnalytics(cmdName,args,isEvent)
-	if PRINT_DEBUG then Spring.Echo("Analytics Event", cmdName, args, isEvent, client, "C/A",isConnected, ACTIVE) end
+	if PRINT_DEBUG then Spring.Log("Chobby", LOG.WARNING, "Analytics Event", cmdName, args, isEvent, client, "C/A",isConnected, ACTIVE) end
 
 	if client == nil then
 		return
 	end
 	-- events are always tables, properties always just string
 	local message
+	local istest = ""
+	if PRINT_DEBUG then istest = "_test" end
 	if isEvent then
 		if type(args) ~= "table" then args = {value = args or 0} end
-		args = Spring.Utilities.Base64Encode(Spring.Utilities.json.encode(args))
-		message = "c.telemetry.log_client_event " .. cmdName .. " " ..args.." ".. machineHash .. "\n"
+		args = Spring.Utilities.json.encode(args)
+		args = Spring.Utilities.Base64Encode(args)		
+		message = "c.telemetry.log_client_event".. istest .. " " .. cmdName .. " " ..args.." ".. machineHash .. "\n"
 	else
 		args = Spring.Utilities.Base64Encode(tostring(args or "nil"))
-		message = "c.telemetry.update_client_property " .. cmdName .. " " ..args.." ".. machineHash .. "\n"
+		message = "c.telemetry.update_client_property".. istest .." " .. cmdName .. " " ..args.." ".. machineHash .. "\n"
 	end
-	if PRINT_DEBUG then Spring.Echo("Message:",message) end
+	if PRINT_DEBUG then Spring.Log("Chobby", LOG.WARNING, "Message:",message) end
 	if isConnected then
 		lobby:_SendCommand(message)
 	else
@@ -157,6 +159,18 @@ end
 -- Widget Interface
 
 local Analytics = {}
+
+
+function Analytics.SendCrashReportOneTimeEvent(filename, errortype, errorkey, compressedlog)
+	if PRINT_DEBUG then Spring.Log("Chobby", LOG.WARNING, "BAR Analytics.SendCrashReportOneTimeEvent(filename, errortype, errorkey, compressedlog)", filename, errortype, errorkey) end
+	if onetimeEvents["reportedcrashes"][filename] then
+		return
+	end
+	onetimeEvents["reportedcrashes"][filename] = true
+	
+	SendBARAnalytics(errortype, {shorterror = errorkey, fullinfolog = compressedlog, }, true)
+end
+
 
 function Analytics.SendOnetimeEvent(eventName, value)
 	if PRINT_DEBUG then Spring.Echo("BAR Analytics.SendOnetimeEvent(eventName, value)", eventName, value) end
@@ -201,6 +215,108 @@ local function HandleAnalytics(msg)
 		end
 	end
 end
+
+
+local function ParseInfolog(infologpath)
+	local infolog = VFS.LoadFile(infologpath)
+	
+	if PRINT_DEBUG then Spring.Echo("BAR Analytics: ParseInfolog()", infologpath) end 
+	if infolog then
+		local fileLines = lines(infolog)
+		for i, line in ipairs(fileLines) do
+			-- look for game or chobby version mismatch, if $VERSION then return
+			if string.find(line,"Chobby $VERSION\"", nil, true) then -- BYAR-Chobby or Chobby is dev mode, so dont report
+				if not PRINT_DEBUG then return nil end
+			end
+			if string.find(line, "Beyond All Reason $VERSION", nil, true) then -- Game is test version, no reporting
+				if not PRINT_DEBUG then return nil end
+			end
+
+			if string.find(line, "Error: [LuaRules::RunCallInTraceback] ", nil, true) then -- exact match
+				--[t=00:00:37.141179][f=-000001] Error: [LuaRules::RunCallInTraceback] error=2 (LUA_ERRRUN) callin=ViewResize trace=[Internal Lua error: Call failure] [string "LuaRules/Gadgets/dbg_gadget_profiler.lua"]:514: attempt to perform arithmetic on local 'viewWidth' (a table value)
+				-- yes we got an error here, then we should use this as error key
+				-- "LuaRules/Gadgets/dbg_gadget_profiler.lua"]:514: attempt to perform arithmetic on local 'viewWidth' (a table value)
+				local errorkeystart = string.find(line,"[string ",nil, true ) or 1
+				local errorname = string.sub(line, errorkeystart, nil)
+				return "LuaRules",errorname, infolog
+			end
+
+			
+			if string.find(line, "Error: [LuaMenu::RunCallInTraceback] ", nil, true) then -- exact match
+				--Error: [LuaMenu::RunCallInTraceback] error=4 (LUA_ERRMEM) callin=MousePress trace=[Internal Lua error: Call failure] not enough memory
+				local errorkeystart = string.find(line,"[string ",nil, true ) or 1
+				local errorname = string.sub(line, errorkeystart, nil)
+				return "LuaMenu",errorname, infolog
+			end
+
+			if string.find(line, "] Sync error for ", nil, true) and string.find(line,", correct is ", nil, true) then -- exact match
+				-- [t=00:57:33.506372][f=0065713] Sync error for [DE]resopmok in frame 65708 (got 3658c9d5, correct is cb2dd8d7)
+				local errorkeystart = string.find(line,"Sync error for ",nil, true ) or 1
+				local errorname = string.sub(line, errorkeystart, nil)
+				return "SyncError", errorname, infolog
+			end
+			
+			if string.find(line, "] Error: Spring ", nil, true) and string.find(line," has crashed.", nil, true) then -- exact match
+				-- [t=00:35:40.093162][f=0000524] Error: Spring 105.1.1-475-gd112b9e BAR105 has crashed. -- this is the actual crash line
+
+				-- look for the first frame of the stack trace, and get the address
+				stackframe = "spring.exe [0xDEADBEEF]"
+				for k=i, #fileLines do
+					if string.find(fileLines[k], "[ProgCtr=", nil, true) then
+						stackframe = string.sub(fileLines[k+1], string.find(fileLines[k+1],"engine", nil, true) + 6,nil)
+						break
+					end
+				end
+				
+				return "EngineCrash", stackframe, infolog
+			end
+
+		end
+	else
+		Spring.Echo("Failed to open:", infologpath)
+	end
+	return nil -- nil if nothing bad happened
+end
+
+
+
+local function GetInfologs()
+	if onetimeEvents["reportedcrashes"] == nil then
+		onetimeEvents["reportedcrashes"] = {}
+	end
+
+	filenames = VFS.DirList(infologDirectory) -- ipairs
+	table.sort(filenames, function (a,b) return a > b end) -- reverse dir sort, we only need the most recent 5
+
+	if PRINT_DEBUG then Spring.Echo("BAR Analytics: GetInfologs()", #filenames) end 
+	for i=1, math.min(#filenames, 5) do 
+		filename = filenames[i]
+		if onetimeEvents["reportedcrashes"][filename] ~= nil then -- we already reported this one
+			Spring.Echo("Already processed an error in ", filename)
+		else
+			local errortype, errorkey, fullinfolog = ParseInfolog(filename)
+			if errortype ~= nil then 
+				
+				if PRINT_DEBUG then Spring.Echo("BAR Analytics: GetInfologs() found an error:", filename, errortype, errorkey) end 
+				if WG.Chobby.ConfirmationPopup then 
+					local function reportinfolog()
+						local compressedlog = Spring.Utilities.Base64Encode(VFS.ZlibCompress(fullinfolog))
+						--Spring.Echo("Uncompressed length:", string.len(fullinfolog), "Compressed base64 length:", string.len(compressedlog))
+						Analytics.SendCrashReportOneTimeEvent(filename,"errorReport:"..errortype, errorkey, compressedlog)
+					end
+
+					local function dontreportinfolog()
+						Analytics.SendCrashReportOneTimeEvent(filename,"errorReport:"..errortype, errorkey, "UserDenied")
+					end
+
+					WG.Chobby.ConfirmationPopup(reportinfolog, "BAR has detected a ["..errortype.."] error during one of your previous games in:\n    " .. filename .. "\nSuch infologs help us fix any bugs you may have encountered. This file contains information such as your username, your system configuration and the path the game was installed to. This data will not be made public. Feel free to reject if you dont want to share this information.\nDo you agree to upload this infolog?", nil, 550, 400, "Yes", "No", dontreportinfolog, nil)
+				end
+				return
+			end
+		end
+	end
+end
+
 
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
@@ -295,6 +411,8 @@ function DelayedInitialize()
 	Analytics.SendOnetimeEvent("graphics:glRenderer", ProcessString(tostring((Platform and Platform.glRenderer) or "unknown") or "unknown"))
 	Analytics.SendOnetimeEvent("graphics:tesselation", ((IsTesselationShaderSupported() and 1) or 0))
 	WG.Delay(LateHWInfo,15)
+	WG.Delay(GetInfologs,17)
+
 
 end
 
@@ -348,5 +466,6 @@ function widget:SetConfigData(data)
 		return
 	end
 	onetimeEvents = data.onetimeEvents or {}
+	if PRINT_DEBUG then onetimeEvents = {} end -- so we also resend everything in debugging mode
 	indexedRepeatEvents = data.indexedRepeatEvents or {}
 end
