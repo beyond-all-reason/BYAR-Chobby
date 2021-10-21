@@ -57,19 +57,26 @@ local function traceLost(node)
 end
 
 
+local objects = 0
+local fonts = 0
+
 local function tracePerWidget(node)
+	
+	objects = 0
+	fonts = 0
 	collectgarbage("collect")
 	for w,t in pairs(Chili.DebugHandler.objectsOwnedByWidgets) do
 		if (w.whInfo.name ~= widget.whInfo.name) then
 			local caption = ("%s"):format(w.whInfo.name)
 			local nodec = node:Add(caption)
 			for i,obj in pairs(t) do
-
+				objects = objects + 1 
 				local fontinfo = ""
 				if obj.font then
+					fonts = fonts + 1
 					--local fontname = string.match(obj.font.font or "", "(%d+)/?$") -- remove all before trailing slash
 					local fontname = string.sub(obj.font.font or "", -10) -- remove all before trailing slash
-
+					
 					fontinfo = ("Font:(%s[%i])"):format(fontname, obj.font.size or "0")
 				end
 
@@ -183,6 +190,6 @@ local updatecount = 0
 function widget:Update()
 	updatecount = updatecount + 1
 	local curUsage, gcLimit = gcinfo()
-	local caption = ("Frame:%i Lua MemUsage: %.2fMB"):format(updatecount, curUsage / 1024)
+	local caption = ("O/F: %d/%d Frame:%i Lua MemUsage: %.2fMB"):format(objects, fonts,updatecount, curUsage / 1024)
 	label0:SetCaption(caption)
 end
