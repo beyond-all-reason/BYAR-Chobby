@@ -40,6 +40,9 @@ local mydifficulty = {name = "Normal", playerhandicap = 100, enemyhandicap = 100
 local myscores = {time = 0, resources = 0}
 local myside = nil
 
+local myFont1
+local myFont2
+local myFont3
 
 local scoreData = {} -- a table, with keys being scenario uniqueIDs, e.g.:
 --[[
@@ -780,7 +783,8 @@ local function MakeScenarioScrollPanelChildren()
 			height = 100,
 			caption = "",
 			classname = "battle_default_button",
-			font = Configuration:GetFont(2),
+			objectOverrideFont = myFont2,
+			--font = Configuration:GetFont(2),
 			--tooltip = "",
 			OnClick = {
 				function()
@@ -825,7 +829,8 @@ local function MakeScenarioScrollPanelChildren()
 				width = 300,
 				--height = 30,
 				parent = scenSelectorButton,
-				font = Configuration:GetFont(3),
+				objectOverrideFont = myFont3,
+				--font = Configuration:GetFont(3),
 				caption = string.format( "%03d. %s",i+reloadcount, scen.title ),
 			}
 
@@ -836,7 +841,8 @@ local function MakeScenarioScrollPanelChildren()
 				width = 100,
 				--height = 30,
 				parent = scenSelectorButton,
-				font = Configuration:GetFont(3),
+				objectOverrideFont = myFont3,
+				--font = Configuration:GetFont(3),
 				caption = string.format( "Difficulty: % 2d/10",scen.difficulty ),
 			}
 
@@ -847,7 +853,8 @@ local function MakeScenarioScrollPanelChildren()
 					width = 100,
 					--height = 30,
 					parent = scenSelectorButton,
-					font = Configuration:GetFont(3),
+					objectOverrideFont = myFont3,
+					--font = Configuration:GetFont(3),
 					caption = string.format( "New!"),
 				}
 			end
@@ -873,7 +880,8 @@ local function MakeScenarioScrollPanelChildren()
 					width = 500,
 					--height = 30,
 					parent = scenSelectorButton,
-					font = Configuration:GetFont(2),
+					objectOverrideFont = myFont2,
+					--font = Configuration:GetFont(2),
 					caption = string.format( "Completed On: %s   Time: %s  Resources: %.2fK metal",mybestdiff, SecondsToTimeString(mybestscore.time), mybestscore.resources/1000.0 ),
 				}
 			else
@@ -883,7 +891,8 @@ local function MakeScenarioScrollPanelChildren()
 					width = 500,
 					--height = 30,
 					parent = scenSelectorButton,
-					font = Configuration:GetFont(2),
+					objectOverrideFont = myFont2,
+					--font = Configuration:GetFont(2),
 					caption = "Not completed yet",
 				}
 			end
@@ -907,6 +916,9 @@ end
 
 local function InitializeControls(parentControl)
 	local Configuration = WG.Chobby.Configuration
+	myFont1 = Font:New(Configuration:GetFont(1))
+	myFont2 = Font:New(Configuration:GetFont(2))
+	myFont3 = Font:New(Configuration:GetFont(3))
 
 	DownloadRequirements()
 
@@ -1005,7 +1017,8 @@ local function InitializeControls(parentControl)
 		--captionAlign  = 0, -- these dont work
 		--captionHorAlign = 10,
 		text = "HasText",
-		font = Configuration:GetFont(3),
+		objectOverrideFont = myFont3,
+		--font = Configuration:GetFont(3),
 		items = cbitemlist, --{"Coop", "Team", "1v1", "FFA", "Custom"},
 		itemFontSize = Configuration:GetFont(3).size,
 		selected = 1,
