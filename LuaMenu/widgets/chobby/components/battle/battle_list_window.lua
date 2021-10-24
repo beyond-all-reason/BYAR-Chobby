@@ -1045,8 +1045,8 @@ function BattleListWindow:OpenHostWindow()
 	local errorLabel = Label:New {
 		x = 15,
 		width = 200,
-		y = 250,
-		align = "right",
+		y = 235,
+		align = "left",
 		height = 35,
 		caption = "",-- i18n("game_type") .. ":",
 		font = Configuration:GetFont(2),
@@ -1088,8 +1088,9 @@ function BattleListWindow:OpenHostWindow()
 
 		if targetbattle == nil then
 			--Spring.Echo("Failed to find a battle")
-			errorLabel:SetCaption("Could not find a suitable battle room, please try again")
+			errorLabel:SetCaption("Could not find a suitable battle room!\nPlease try again.")
 		else
+			errorLabel:SetCaption("")
 			if WG.Analytics then
 				WG.Analytics.SendRepeatEvent("lobby:multiplayer:hostgame", {
 					hostregion = requestedregion
