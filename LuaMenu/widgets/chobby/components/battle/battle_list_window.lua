@@ -1090,6 +1090,7 @@ function BattleListWindow:OpenHostWindow()
 			--Spring.Echo("Failed to find a battle")
 			errorLabel:SetCaption("Could not find a suitable battle room!\nPlease try again.")
 		else
+			errorLabel:SetCaption("")
 			if WG.Analytics then
 				WG.Analytics.SendRepeatEvent("lobby:multiplayer:hostgame", {
 					hostregion = requestedregion
