@@ -32,6 +32,12 @@ local welcomePanelItems = {
         Text = "We recently updated our code of conduct; be sure to check it out. As our community growth we've added the ability to report problems, click a user and select 'report user' to alert the moderator team to an issue. See the full code of conduct at https://www.beyondallreason.info/code-of-conduct",
     },
     {
+        Header = "2nd November server work",
+        Url = nil, --"https://www.beyondallreason.info/",
+        Time = nil,-- "NowTime",
+        Text = "Early (6am GMT ish) on the 2nd November, work will be performed on the server. During this time BAR services will be down and you won't be able to play multiplayer games but singleplayer will still be around. Check the discord #server room for any updates as Teifion performs the update.\n",
+    },
+    {
         Header = "Play with your friends: use our servers!",
         Url = nil,--"https://www.beyondallreason.info/",
         Time = nil,-- "NowTime",
