@@ -80,7 +80,7 @@ local function UpdateArchiveStatus(updateSync)
 	if btnStartBattle then
 		if haveMapAndGame then
 			btnStartBattle.tooltip = "Start the game, or call a vote to start multiplayer, or join a running game"
-			ButtonUtilities.SetButtonDeSelected(btnStartBattle)
+			ButtonUtilities.SetButtonDeselected(btnStartBattle)
 		else
 			btnStartBattle.tooltip = "Please wait for downloads to finish before starting."
 			ButtonUtilities.SetButtonDeselected(btnStartBattle)
