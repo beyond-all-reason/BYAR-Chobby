@@ -44,6 +44,8 @@ local MINIMUM_QUICKPLAY_PLAYERS = 4 -- Hax until the server tells me a number.
 
 local lastUserToChangeStartBoxes = ''
 
+local btnStartBattle = nil
+
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 -- Download management
@@ -74,6 +76,17 @@ local function UpdateArchiveStatus(updateSync)
 		infoHandler.SetHaveMap(haveMap)
 	end
 	haveMapAndGame = (haveGame and haveMap)
+
+	if btnStartBattle then
+		if haveMapAndGame then
+			btnStartBattle.tooltip = "Start the game, or call a vote to start multiplayer, or join a running game"
+			ButtonUtilities.SetButtonDeselected(btnStartBattle)
+		else
+			btnStartBattle.tooltip = "Please wait for downloads to finish before starting."
+			ButtonUtilities.SetButtonDeselected(btnStartBattle)
+		end
+
+	end
 
 	if updateSync and battleLobby then
 		battleLobby:SetBattleStatus({
@@ -646,7 +659,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		WG.Analytics.SendOnetimeEvent("lobby:multiplayer:custom:rejoin")
 	end
 
-	local btnStartBattle = Button:New {
+	btnStartBattle = Button:New {
 		x = 0,
 		bottom = 0,
 		right = 0,
