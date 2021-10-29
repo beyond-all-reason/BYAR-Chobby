@@ -11,8 +11,8 @@
                 "games" : ["byar:test", "chobby:test", "byar-chobby:test"],
                 "resources": [
                     {
-                        "url": "https://github.com/beyond-all-reason/spring/releases/download/spring_bar_%7BBAR105%7D105.1.1-475-gd112b9e/spring_bar_.BAR105.105.1.1-475-gd112b9e_linux-64-minimal-portable.7z",
-                        "destination": "engine/105.1.1-475-gd112b9e bar",
+                        "url": "https://github.com/beyond-all-reason/spring/releases/download/spring_bar_%7BBAR105%7D105.1.1-533-g73cb706/spring_bar_.BAR105.105.1.1-533-g73cb706_linux-64-minimal-portable.7z",
+                        "destination": "engine/105.1.1-533-g73cb706 bar",
                         "extract": true
                     },
                     {
@@ -45,7 +45,7 @@
             "no_start_script" : true,
             "launch": {
                 "start_args" : ["--menu", "rapid://byar-chobby:test"],
-                "engine": "105.1.1-475-gd112b9e bar"
+                "engine": "105.1.1-533-g73cb706 bar"
             }
         },
         {
@@ -58,8 +58,8 @@
                 "games" : ["byar:test", "chobby:test", "byar-chobby:test"],
                 "resources": [
                     {
-                        "url": "https://github.com/beyond-all-reason/spring/releases/download/spring_bar_%7BBAR105%7D105.1.1-475-gd112b9e/spring_bar_.BAR105.105.1.1-475-gd112b9e_windows-64-minimal-portable.7z",
-                        "destination": "engine/105.1.1-475-gd112b9e bar",
+                        "url": "https://github.com/beyond-all-reason/spring/releases/download/spring_bar_%7BBAR105%7D105.1.1-533-g73cb706/spring_bar_.BAR105.105.1.1-533-g73cb706_windows-64-minimal-portable.7z",
+                        "destination": "engine/105.1.1-533-g73cb706 bar",
                         "extract": true
                     },
 
@@ -93,7 +93,7 @@
             "no_start_script" : true,
             "launch": {
                 "start_args" : ["--menu", "rapid://byar-chobby:test"],
-				"engine": "105.1.1-475-gd112b9e bar"
+				"engine": "105.1.1-533-g73cb706 bar"
             }
         },
         {
@@ -105,8 +105,8 @@
             "downloads": {
                 "resources": [
                     {
-                        "url": "https://github.com/beyond-all-reason/spring/releases/download/spring_bar_%7BBAR105%7D105.1.1-475-gd112b9e/spring_bar_.BAR105.105.1.1-475-gd112b9e_linux-64-minimal-portable.7z",
-                        "destination": "engine/105.1.1-475-gd112b9e bar",
+                        "url": "https://github.com/beyond-all-reason/spring/releases/download/spring_bar_%7BBAR105%7D105.1.1-533-g73cb706/spring_bar_.BAR105.105.1.1-533-g73cb706_linux-64-minimal-portable.7z",
+                        "destination": "engine/105.1.1-533-g73cb706 bar",
                         "extract": true
                     }
                 ]
@@ -115,7 +115,7 @@
             "no_downloads" : true,
             "launch": {
                 "start_args" : ["--menu", "BYAR Chobby $VERSION"],
-                "engine" : "105.1.1-475-gd112b9e bar"
+                "engine" : "105.1.1-533-g73cb706 bar"
             }
         },
         {
@@ -127,8 +127,8 @@
             "downloads": {
                 "resources": [
                     {
-                        "url": "https://github.com/beyond-all-reason/spring/releases/download/spring_bar_%7BBAR105%7D105.1.1-475-gd112b9e/spring_bar_.BAR105.105.1.1-475-gd112b9e_windows-64-minimal-portable.7z",
-                        "destination": "engine/105.1.1-475-gd112b9e bar",
+                        "url": "https://github.com/beyond-all-reason/spring/releases/download/spring_bar_%7BBAR105%7D105.1.1-533-g73cb706/spring_bar_.BAR105.105.1.1-533-g73cb706_windows-64-minimal-portable.7z",
+                        "destination": "engine/105.1.1-533-g73cb706 bar",
                         "extract": true
                     }
                 ]
@@ -137,7 +137,7 @@
             "no_downloads" : true,
             "launch": {
                 "start_args" : ["--menu", "BYAR Chobby $VERSION"],
-                "engine" : "105.1.1-475-gd112b9e bar"
+                "engine" : "105.1.1-533-g73cb706 bar"
             }
         }
 
