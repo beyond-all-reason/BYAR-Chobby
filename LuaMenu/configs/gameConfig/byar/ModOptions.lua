@@ -338,22 +338,6 @@ local options={
 		}
 	},
 	{
-		key    = 'scavonlyruins',
-		name   = 'Random Ruins (ScavMode)',
-		desc   = 'description',
-		type   = 'bool',
-		section = 'options_scavengers',
-		def  = true,
-	},
-	{
-		key    = 'scavonlylootboxes',
-		name   = 'Lootboxes (ScavMode)',
-		desc   = '1 to enable, 0 to disable',
-		type   = 'bool',
-		section= 'options_scavengers',
-		def  = true,
-	},
-	{
 		key    = 'scavinitialbonuscommander',
 		name   = 'Bonus Starter Constructors',
 		desc   = 'Spawns additional constructors on game start',
@@ -505,22 +489,7 @@ local options={
 		desc	= "Options",
 		type	= "section",
 	},
-	{
-		key    = 'ruins',
-		name   = 'Random Ruins',
-		desc   = 'description',
-		type   = 'bool',
-		section = 'options',
-		def  = false,
-	},
-	{
-		key    = 'lootboxes',
-		name   = 'Lootboxes',
-		desc   = '1 to enable, 0 to disable',
-		type   = 'bool',
-		section= 'options',
-		def  = false,
-	},
+	
 	{
 		key    = 'critters',
 		name   = 'Animal amount',
@@ -567,14 +536,15 @@ local options={
 		section= "options",
 	},
   
-	 {
-	 	key    = 'coop',
-	 	name   = 'Cooperative mode',
-	 	desc   = 'Adds extra commanders to id-sharing teams, 1 com per player',
-	 	type   = 'bool',
-	 	def    = false,
-	 	section= 'options',
-	 },
+	{
+		key    = 'coop',
+		name   = 'Cooperative mode',
+		desc   = 'Adds extra commanders to id-sharing teams, 1 com per player',
+		type   = 'bool',
+		def    = false,
+		section= 'options',
+	},
+	
 	{
 		key    = 'disablemapdamage',
 		name   = 'Undeformable map',
@@ -583,6 +553,101 @@ local options={
 		def    = false,
 		section= "options",
 	},
+
+	{
+		key="ruins",
+		name="Random Ruins",
+		type="list",
+		def="scav_only",
+		section="options",
+		items={
+			{key="enabled", name="Enabled"},
+			{key="scav-only", name="Enabled for Scavengers only"},
+			{key="disabled", name="Kill everything"},
+		}
+	},
+
+	{
+		key="ruins_density",
+		name="Ruins: Density",
+		type="list",
+		def="normal",
+		section="options",
+		items={
+			{key="veryrare", name="Very Rare"},
+			{key="rarer", name="Rare"},
+			{key="normal", name="Normal"},
+			{key="dense", name="Dense"},
+			{key="verydense", name="Very Dense"},
+		}
+	},
+
+	{
+		key    = 'ruins_t4_disable',
+		name   = 'Ruins: Disable T4',
+		type   = 'bool',
+		def    = false,
+		section= "options",
+	},
+
+	{
+		key    = 'ruins_t3_disable',
+		name   = 'Ruins: Disable T3',
+		type   = 'bool',
+		def    = false,
+		section= "options",
+	},
+
+	{
+		key    = 'ruins_t2_disable',
+		name   = 'Ruins: Disable T2',
+		type   = 'bool',
+		def    = false,
+		section= "options",
+	},
+
+	{
+		key    = 'ruins_t1_disable',
+		name   = 'Ruins: Disable T1 (that will keep T0 ruins in)',
+		type   = 'bool',
+		def    = false,
+		section= "options",
+	},
+
+	{
+		key    = 'ruins_civilian_disable',
+		name   = 'Ruins: Disable Civilian (Not Implemented Yet)',
+		type   = 'bool',
+		def    = false,
+		section= "options",
+	},
+
+	{
+		key="ruins_scavpercentage",
+		name="Ruins: Percentage of ruins given to Scavengers (Only T1 and T0 ruins)",
+		type="number",
+		def    = 25,
+		min    = 0,
+		max    = 100,
+		step   = 1,
+		section="options",
+	},
+
+	{
+		key="lootboxes",
+		name="Lootboxes",
+		desc="description",
+		type="list",
+		def="scav_only",
+		section="options",
+		items={
+			{key="enabled", name="Enabled"},
+			{key="scav-only", name="Enabled for Scavengers only"},
+			{key="disabled", name="Kill everything"},
+		}
+	},
+
+
 
 	---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 	---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
