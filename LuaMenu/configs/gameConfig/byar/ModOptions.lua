@@ -556,13 +556,13 @@ local options={
 
 	{
 		key="ruins",
-		name="Random Ruins",
+		name="Ruins",
 		type="list",
 		def="scav_only",
 		section="options",
 		items={
 			{key="enabled", name="Enabled"},
-			{key="scav-only", name="Enabled for Scavengers only"},
+			{key="scav_only", name="Enabled for Scavengers only"},
 			{key="disabled", name="Kill everything"},
 		}
 	},
@@ -583,32 +583,8 @@ local options={
 	},
 
 	{
-		key    = 'ruins_t4_disable',
-		name   = 'Ruins: Disable T4',
-		type   = 'bool',
-		def    = false,
-		section= "options",
-	},
-
-	{
-		key    = 'ruins_t3_disable',
-		name   = 'Ruins: Disable T3',
-		type   = 'bool',
-		def    = false,
-		section= "options",
-	},
-
-	{
-		key    = 'ruins_t2_disable',
-		name   = 'Ruins: Disable T2',
-		type   = 'bool',
-		def    = false,
-		section= "options",
-	},
-
-	{
-		key    = 'ruins_t1_disable',
-		name   = 'Ruins: Disable T1 (that will keep T0 ruins in)',
+		key    = 'ruins_only_t1',
+		name   = 'Ruins: Only T1',
 		type   = 'bool',
 		def    = false,
 		section= "options",
@@ -620,30 +596,34 @@ local options={
 		type   = 'bool',
 		def    = false,
 		section= "options",
-	},
-
-	{
-		key="ruins_scavpercentage",
-		name="Ruins: Percentage of ruins given to Scavengers (Only T1 and T0 ruins)",
-		type="number",
-		def    = 25,
-		min    = 0,
-		max    = 100,
-		step   = 1,
-		section="options",
+		hidden = true,
 	},
 
 	{
 		key="lootboxes",
 		name="Lootboxes",
-		desc="description",
 		type="list",
 		def="scav_only",
 		section="options",
 		items={
 			{key="enabled", name="Enabled"},
-			{key="scav-only", name="Enabled for Scavengers only"},
+			{key="scav_only", name="Enabled for Scavengers only"},
 			{key="disabled", name="Kill everything"},
+		}
+	},
+
+	{
+		key="lootboxes_density",
+		name="Lootboxes: Density",
+		type="list",
+		def="normal",
+		section="options",
+		items={
+			{key="veryrare", name="Very Rare"},
+			{key="rarer", name="Rare"},
+			{key="normal", name="Normal"},
+			{key="dense", name="Dense"},
+			{key="verydense", name="Very Dense"},
 		}
 	},
 
