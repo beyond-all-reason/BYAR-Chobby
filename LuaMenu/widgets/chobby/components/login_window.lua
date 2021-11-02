@@ -788,10 +788,10 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		classname = "option_button",
 		OnClick = {
 			function ()
-				WG.BrowserHandler.OpenUrl("https://teifion.co.uk/")
+				WG.BrowserHandler.OpenUrl("https://server2.beyondallreason.info/") -- TEMPORARILY
 			end
 		},
-		tooltip = "Visit the server's website for all your account and clan management needs at https://teifion.co.uk/. You can also recover your account/password from there.",
+		tooltip = "Visit the server's website for all your account and clan management needs at https://server2.beyondallreason.info/. You can also recover your account/password from there.", -- TEMPORARILY
 	}
 
 	

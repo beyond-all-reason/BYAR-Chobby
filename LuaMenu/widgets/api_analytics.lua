@@ -32,8 +32,8 @@ local ANALYTICS_EVENT = "analyticsEvent_"
 local ANALYTICS_EVENT_ERROR = "analyticsEventError_"
 
 -- Do not send analytics for dev versions as they will likely be nonsense.
-local ACTIVE = false -- means that we either have an unauthed or an authed connection to server.
-						-- Temporarily for server1.beyondallreason.info
+local ACTIVE = true -- means that we either have an unauthed or an authed connection to server.
+						-- Temporarily for server2.beyondallreason.info
 
 local lobby = nil
 local isConnected = false
