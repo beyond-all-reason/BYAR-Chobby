@@ -32,7 +32,8 @@ local ANALYTICS_EVENT = "analyticsEvent_"
 local ANALYTICS_EVENT_ERROR = "analyticsEventError_"
 
 -- Do not send analytics for dev versions as they will likely be nonsense.
-local ACTIVE = true -- means that we either have an unauthed or an authed connection to server.
+local ACTIVE = false -- means that we either have an unauthed or an authed connection to server.
+						-- Temporarily for server1.beyondallreason.info
 
 local lobby = nil
 local isConnected = false
@@ -379,8 +380,8 @@ function DelayedInitialize()
 	MachineHash()
 	if ACTIVE then 
 		ACTIVE = SocketConnect("bar.teifion.co.uk", port)
-		if not ACTIVE then return end
 	end
+	if not ACTIVE then return end
 
 	local function OnBattleStartSingleplayer()
 		Analytics.SendOnetimeEvent("lobby:singleplayer:game_loading")
