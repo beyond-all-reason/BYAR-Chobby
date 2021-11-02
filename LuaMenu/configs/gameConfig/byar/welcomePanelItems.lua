@@ -10,7 +10,7 @@ local welcomePanelItems = {
         Header = "2nd November server work",
         Url = nil, --"https://www.beyondallreason.info/",
         Time = nil,-- "NowTime",
-        Text = "Early (6am GMT ish) on the 2nd November, work will be performed on the server. During this time BAR services will be down and you won't be able to play multiplayer games but singleplayer will still be around. Check the discord #server room for any updates as Teifion performs the update.\n UPDATE: Things are taking a bit longer, we are forwarding all servers to server2.beyondallreason.info",
+        Text = "Early (6am GMT ish) on the 2nd November, work will be performed on the server. During this time BAR services will be down and you won't be able to play multiplayer games but singleplayer will still be around. Check the discord #server room for any updates as Teifion performs the update.\n UPDATE: Things are taking a bit longer, we are forwarding all servers to server1.beyondallreason.info",
     },
     --[[
     {
