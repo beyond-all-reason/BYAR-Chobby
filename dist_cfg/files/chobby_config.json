@@ -1,6 +1,6 @@
 {
     "server" : {
-        "address"    : "bar.teifion.co.uk",
+        "address"    : "server2.beyondallreason.info",
         "port"       : 8200,
         "protocol"   : "spring",
         "serverName" : "BAR"

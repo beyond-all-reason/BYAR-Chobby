@@ -484,6 +484,9 @@ function Configuration:SetConfigData(data)
 		self.serverAddress = "bar.teifion.co.uk"
 	end
 
+	if self.serverAddress ~= "server2.beyondallreason.info" then
+		self.serverAddress = "server2.beyondallreason.info" -- TEMPORARILY
+	end
 
 	local newSpringsettings, onlyIfMissingSettings = VFS.Include(LUA_DIRNAME .. "configs/springsettings/springsettingsChanges.lua")
 	for key, value in pairs(newSpringsettings) do
@@ -549,6 +552,7 @@ function Configuration:GetConfigData()
 		confirmation_mainMenuFromBattle = self.confirmation_mainMenuFromBattle,
 		confirmation_battleFromBattle = self.confirmation_battleFromBattle,
 		drawAtFullSpeed = self.drawAtFullSpeed,
+		fixFlicker = self.fixFlicker,
 		lastFactionChoice = self.lastFactionChoice,
 		lastGameSpectatorState = self.lastGameSpectatorState,
 		lobbyIdleSleep = self.lobbyIdleSleep,

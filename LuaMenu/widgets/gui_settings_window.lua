@@ -926,10 +926,10 @@ local function GetLobbyTabControls()
 		objectOverrideFont = settingsFont2,
 		--font = Configuration:GetFont(2),
 		caption = "Choose Server:",
-		tooltip = "Old Server is road-flag.bnr.la, new is bar.teifion.co.uk. Changing this will log you out of current server, click Login in top right to reconnect to new one",
+		tooltip = "Old Server is road-flag.bnr.la, new is bar.teifion.co.uk. Changing this will log you out of current server, click Login in top right to reconnect to new one, Temporarily we are on : server2.beyondallreason.info",
 	}
 
-	local barservers = {"bar.teifion.co.uk","road-flag.bnr.la"}
+	local barservers = {"server2.beyondallreason.info","road-flag.bnr.la"}
 
 	if WG.Chobby.Configuration.devMode then
 		barservers[#barservers + 1] = "localhost"
@@ -946,7 +946,7 @@ local function GetLobbyTabControls()
 		--font = Configuration:GetFont(2),
 		itemFontSize = Configuration:GetFont(2).size,
 		selected = Configuration:GetServerAddress(),
-		tooltip = "Old Server is road-flag.bnr.la, new is bar.teifion.co.uk. Changing this will log you out of current server, click Login in top right to reconnect to new one",
+		tooltip = "Old Server is road-flag.bnr.la, new is bar.teifion.co.uk. Changing this will log you out of current server, click Login in top right to reconnect to new one. Temporarily we are on: server2.beyondallreason.info",
 		OnSelect = {
 			function (obj, num)
 				if freezeSettings then -- so that it doesnt run when started, fucking yay
@@ -1163,7 +1163,7 @@ local function GetVoidTabControls()
 		objectOverrideFont = settingsFont2,
 		--font = Configuration:GetFont(2),
 		useIME = false,
-		tooltip = "Requires a lobby restart for changes to take effect. Old Server is road-flag.bnr.la, new will be bar.teifion.co.uk",
+		tooltip = "Requires a lobby restart for changes to take effect. Old Server is road-flag.bnr.la, new will be bar.teifion.co.uk. Temporarily we are on server2.beyondallreason.info",
 		OnFocusUpdate = {
 			function (obj)
 				if obj.focused then
