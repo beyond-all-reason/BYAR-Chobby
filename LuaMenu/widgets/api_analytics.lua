@@ -104,7 +104,7 @@ end
 
 local socket = socket
 local client
-local host = "bar.teifion.co.uk"
+local host = "server2.beyondallreason.info"
 local port = 8200
 
 local buffer = ""
@@ -379,7 +379,7 @@ function DelayedInitialize()
 	Spring.Log("Analytics", LOG.NOTICE, "Using port: ", port)
 	MachineHash()
 	if ACTIVE then 
-		ACTIVE = SocketConnect("bar.teifion.co.uk", port)
+		ACTIVE = SocketConnect("server2.beyondallreason.info", port)
 	end
 	if not ACTIVE then return end
 
