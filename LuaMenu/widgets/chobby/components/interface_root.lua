@@ -97,6 +97,21 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 		preserveChildrenOrder = true
 	}
 
+	version_font = Configuration:GetFont(1)
+	version_font.color = {0.7,0.7,0.7,1} -- Grey color
+
+	local label_version = Label:New {
+		x = "80%",
+		y = "95%",
+		width = "20%",
+		height = "5%",
+		parent = lobbyInterfaceHolder,
+		font = version_font,
+		caption = "Version: " .. Configuration.gameConfig.ShortenNameString(Configuration:GetDefaultGameName()) .. "  \nEngine: " .. Configuration:GetTruncatedEngineVersion() .. "  ",
+		align = "right",
+		valign = 'bottom',
+	}
+
 	-- Direct children of lobbyInterfaceHolder are called holder_<name>
 	-- and are each within their own subsection
 
