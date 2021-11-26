@@ -25,7 +25,7 @@ jobs:
           sudo dpkg --add-architecture i386
           sudo apt-get update
           # sudo DEBIAN_FRONTEND=noninteractive apt-get install wine32 -y
-          sudo apt-get install ia32-libs 
+          # sudo apt-get install ia32-libs 
           sudo apt-get install lib32z1
           sudo apt install wine-stable wine64 wine32:i386 wine64
       - name: Clone parent directory
