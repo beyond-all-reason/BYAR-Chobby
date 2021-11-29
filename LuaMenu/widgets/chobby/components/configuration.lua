@@ -477,11 +477,11 @@ function Configuration:SetConfigData(data)
 
 	--THIS IS FOR WHEN WE PULL THE PLUG, AUTOMATICALLY SWITCH OVER TO TEISERVER
 	if self.serverAddress == "road-flag.bnr.la" then
-		self.serverAddress = "bar.teifion.co.uk"
+		self.serverAddress = "server2.beyondallreason.info"
 	end
 
-	if self.serverAddress ~= "bar.teifion.co.uk" then
-		self.serverAddress = "bar.teifion.co.uk"
+	if self.serverAddress ~= "server2.beyondallreason.info" then
+		self.serverAddress = "server2.beyondallreason.info"
 	end
 
 	if self.serverAddress ~= "server2.beyondallreason.info" then
