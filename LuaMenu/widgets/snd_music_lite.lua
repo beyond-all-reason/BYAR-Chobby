@@ -146,8 +146,35 @@ end
 
 function widget:Initialize()
 
+	math.randomseed( os.clock() )
+	math.random(); math.random(); math.random()
+
 	-- load custom game dependent music
-	randomTrackList = WG.Chobby.Configuration.gameConfig.randomTrackList
+	-- randomTrackList = WG.Chobby.Configuration.gameConfig.randomTrackList
+
+	randomTrackList = {}
+	local originalSoundtrackEnabled = Spring.GetConfigInt('UseSoundtrackNew', 1)
+	local legacySoundtrackEnabled 	= Spring.GetConfigInt('UseSoundtrackOld', 0)
+	local customSoundtrackEnabled	= Spring.GetConfigInt('UseSoundtrackCustom', 1)
+	
+	
+	local musicPlaylist = {}
+	if originalSoundtrackEnabled == 1 then
+		local musicDirOriginal 		= 'luamenu/configs/gameconfig/byar/lobbyMusic/original'
+		randomTrackList = table.merge(randomTrackList, VFS.DirList(musicDirOriginal, '*.ogg'))
+	end
+
+	-- Legacy Soundtrack List
+	if legacySoundtrackEnabled == 1 then
+		local musicDirLegacy 		= 'luamenu/configs/gameconfig/byar/lobbyMusic/legacy'
+		randomTrackList = table.merge(randomTrackList, VFS.DirList(musicDirLegacy, '*.ogg'))
+	end
+
+	-- Custom Soundtrack List
+	if customSoundtrackEnabled == 1 then
+		local musicDirCustom 		= 'music/custom/menu'
+		randomTrackList = table.merge(randomTrackList, VFS.DirList(musicDirCustom, '*.ogg'))
+	end
 
 	if randomTrackList == nil or #randomTrackList == 0 then
 		Spring.Log("snd_music.lite.lua", LOG.NOTICE, "No random track list found, disabling lobby music")
@@ -155,12 +182,10 @@ function widget:Initialize()
 		return
 	end
 
-	openTrack = WG.Chobby.Configuration.gameConfig.openTrack
-	if openTrack == nil then
-		openTrack = randomTrackList[math.random(#randomTrackList)]
-	end
-
-	math.randomseed(os.clock() * 100)
+	--openTrack = WG.Chobby.Configuration.gameConfig.openTrack
+	--if openTrack == nil then
+	openTrack = randomTrackList[math.random(#randomTrackList)]
+	--end
 
 	local Configuration = WG.Chobby.Configuration
 
