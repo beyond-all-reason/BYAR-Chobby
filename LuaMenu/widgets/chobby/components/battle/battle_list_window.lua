@@ -1018,19 +1018,20 @@ function BattleListWindow:OpenHostWindow()
 
 
 	local typeLabel = Label:New {
-		x = 15,
+		x = 0,
 		right = "49%",
-		y = 205,
+		y = 175,
 		align = "right",
 		height = 35,
 		caption = "Geographical region",-- i18n("game_type") .. ":",
 		font = Configuration:GetFont(2),
 		parent = hostBattleWindow,
 	}
+
 	local typeCombo = ComboBox:New {
 		x = "51%",
 		width = 150,
-		y = 200,
+		y = 170,
 		height = 35,
 		itemHeight = 22,
 		text = "",
@@ -1041,6 +1042,28 @@ function BattleListWindow:OpenHostWindow()
 		tooltip = "Choose the one closest to you for the best ping. Battle Rooms are not geographically limited.",
 		parent = hostBattleWindow,
 	}
+
+	local userWantsPrivateBattle = false
+	if lobby:GetMyIsAdmin() then -- TODO: remove this when feature goes live
+		local privateCheckbox = Checkbox:New {
+			x = 15,
+			width = 300,
+			y = 200,
+			height = 35,
+			boxalign = "left",
+			boxsize = 20,
+			caption = "Passworded private battle",
+			checked =  false,
+			font = Configuration:GetFont(2),
+			OnChange = {
+				function (obj, newState)
+					userWantsPrivateBattle =  newState
+				end
+			},
+			parent = hostBattleWindow,
+			tooltip = "If you want a passworded battleroom, please be patient while we spin up a room for you. You will be PM-ed a 4 character password you can share with your friends.",
+		}
+	end
 
 	local errorLabel = Label:New {
 		x = 15,
@@ -1062,7 +1085,71 @@ function BattleListWindow:OpenHostWindow()
 		--Attempting to host game at 
 		local requestedregion = typeCombo.items[typeCombo.selected]
 		--Spring.Echo("Looking for empty host in region", requestedregion)
-		
+		if userWantsPrivateBattle then
+			local privateclusters = {EU = '[teh]cluster1', US = '[teh]clusterUS', AU = '[balance]cluster'}
+			local targetCluster = privateclusters[requestedregion]
+			local mypassword = nil
+			local function listenForPrivateBattle(listener, userName, message, msgDate)
+				--Spring.Echo("listenForPrivateBattle",listener, userName, message, msgDate)
+				if userName == targetCluster and string.find(message,"Starting a new private instance in", nil, true) then 
+					local pwindex = string.find(message,"password=", nil, true)
+					mypassword = string.sub(message, pwindex + 9, pwindex + 9 + 3)
+					Spring.Echo("Got the password:", mypassword)
+				end
+			end
+
+			lobby:AddListener("OnSaidPrivate", listenForPrivateBattle)
+			lobby:SayPrivate(targetCluster, "!privatehost")
+			errorLabel:SetCaption("Please wait we spin up a battle room for you.")
+			
+			local trytime = 30
+
+			local function delayedWatchRooms()
+				if trytime < 1 then
+					lobby:RemoveListener("OnSaidPrivate", listenForPrivateBattle)
+					errorLabel:SetCaption("Unable to spin up a private battle right now.")
+					return
+				end
+				local myplayername = lobby:GetMyUserName() or ''
+				--lobby:SayBattle("!boss " .. myplayername)
+				local myprivatebattleID = nil
+				local battles = lobby:GetBattles()
+				local tmp = {}
+				for _, battle in pairs(battles) do
+					table.insert(tmp, battle)
+				end
+				battles = tmp
+				for _, battle in pairs(battles) do
+					if string.sub(battle.title,1,string.len(myplayername)) == myplayername and
+						Configuration:IsValidEngineVersion(battle.engineVersion) then
+							myprivatebattleID = battle.battleID
+						break
+					end
+				end
+				if myprivatebattleID ~= nil then
+					trytime = -1
+					lobby:JoinBattle(myprivatebattleID, mypassword)
+					lobby:RemoveListener("OnSaidPrivate", listenForPrivateBattle)
+
+					local function bossSelf()
+						local myplayername = lobby:GetMyUserName() or ''
+						lobby:SayBattle("Password is: " .. mypassword)
+						lobby:SayBattle("!boss " .. myplayername)
+					end
+
+					WG.Delay(bossSelf, 1)
+					hostBattleWindow:Dispose()
+				end
+				trytime = trytime -1
+			end
+
+			for i=1, trytime do -- poll every sec for success
+				WG.Delay(delayedWatchRooms, i)
+			end
+
+			return
+		end
+
 		local targetbattle = nil
 		-- try to get empty matching one
 		local battles = lobby:GetBattles()
