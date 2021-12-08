@@ -43,7 +43,6 @@
                 ]
             },
             "no_start_script" : true,
-            "logs_upload_location": "s3",
             "launch": {
                 "start_args" : ["--menu", "rapid://byar-chobby:test"],
                 "engine": "105.1.1-659-g800da82 bar"
@@ -92,7 +91,6 @@
                 ]
             },
             "no_start_script" : true,
-            "logs_upload_location": "s3",
             "launch": {
                 "start_args" : ["--menu", "rapid://byar-chobby:test"],
 				"engine": "105.1.1-659-g800da82 bar"
@@ -114,7 +112,6 @@
                 ]
             },
             "no_start_script" : true,
-            "logs_upload_location": "s3",
             "no_downloads" : true,
             "launch": {
                 "start_args" : ["--menu", "BYAR Chobby $VERSION"],
@@ -137,7 +134,6 @@
                 ]
             },
             "no_start_script" : true,
-            "logs_upload_location": "s3",
             "no_downloads" : true,
             "launch": {
                 "start_args" : ["--menu", "BYAR Chobby $VERSION"],
