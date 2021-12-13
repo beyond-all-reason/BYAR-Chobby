@@ -1,22 +1,6 @@
-.video {
-	position: absolute;
-	width: 100%;
-	height: 388px;
-	overflow: hidden;
-  }
-
-  video {
-	position: absolute;
-	left: 0px;
-	top: 0px;
-	right: 0px;
-	bottom: 0px;
-	transform: scale(1.015);
-	z-index: -1;
-  }
 
   #main-content {
-	background-image: none;
+	background-image: url(./images/background.png);
   }
 
   @font-face {
