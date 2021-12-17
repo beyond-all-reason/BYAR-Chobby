@@ -71,6 +71,7 @@ return {
 ['Rifted_V2']={Width=16, Height=16, Is1v1=1, IsTeam=1, IsFFA=nil, IsCertified=1, Special=nil, Flat=1, Hills=nil, Water=nil, IsInPool=1, PlayerCount=nil,TeamCount=nil, InfoText=nil},
 ['Ring_Atoll_Remake_V1']={Width=18, Height=18, Is1v1=1, IsTeam=1, IsFFA=1, IsCertified=1, Special=nil, Flat=nil, Hills=nil, Water=1, IsInPool=1, PlayerCount='10',TeamCount='5', InfoText='Medium sized map, optimal for 4 to 6 players. Fight for the circle of islands and shallow water in the middle.'},
 ['Riverdale Remake 1.4']={Width=12, Height=16, Is1v1=1, IsTeam=1, IsFFA=nil, IsCertified=1, Special=nil, Flat=1, Hills=1, Water=nil, IsInPool=1, PlayerCount=nil,TeamCount=nil, InfoText=nil},
+['Riverdale Remake 2.1']={Width=12, Height=16, Is1v1=1, IsTeam=1, IsFFA=nil, IsCertified=1, Special=nil, Flat=1, Hills=1, Water=nil, IsInPool=1, PlayerCount=nil,TeamCount=nil, InfoText=nil},
 ['SapphireShores_V2.2']={Width=18, Height=8, Is1v1=nil, IsTeam=1, IsFFA=nil, IsCertified=nil, Special=nil, Flat=1, Hills=nil, Water=1, IsInPool=1, PlayerCount=nil,TeamCount=nil, InfoText=nil},
 ['Sertagatta_V5']={Width=16, Height=12, Is1v1=1, IsTeam=1, IsFFA=nil, IsCertified=1, Special=nil, Flat=1, Hills=nil, Water=nil, IsInPool=1, PlayerCount=nil,TeamCount=nil, InfoText=nil},
 ['Sertaleina_V8']={Width=12, Height=8, Is1v1=1, IsTeam=1, IsFFA=nil, IsCertified=1, Special=nil, Flat=1, Hills=nil, Water=nil, IsInPool=1, PlayerCount=nil,TeamCount=nil, InfoText=nil},
