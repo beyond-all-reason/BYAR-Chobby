@@ -560,7 +560,7 @@ local function InitializeControls(parentControl)
 			font = Configuration:GetFont(2),
 			useIME = false,
 			parent = parentControl,
-			tooltip = "Enter the path to the replay"
+			tooltip = "Enter the path to the replay",
 			OnFocusUpdate = {
 				function (obj)
 					manualreplaypath = obj.text
