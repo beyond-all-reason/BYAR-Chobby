@@ -638,35 +638,35 @@ local function GetLobbyTabControls()
 
 	local children = {}
 
-	--children[#children + 1] = Label:New {
-	--	x = 20,
-	--	y = offset + TEXT_OFFSET,
-	--	width = 90,
-	--	height = 40,
-	--	valign = "top",
-	--	align = "left",
-	--	font = Configuration:GetFont(2),
-	--	caption = "Split Panel Mode",
-	--}
-	--children[#children + 1] = ComboBox:New {
-	--	x = COMBO_X,
-	--	y = offset,
-	--	width = COMBO_WIDTH,
-	--	height = 30,
-	--	items = {"Autodetect", "Always Two", "Always One"},
-	--	font = Configuration:GetFont(2),
-	--	itemFontSize = Configuration:GetFont(2).size,
-	--	selected = Configuration.panel_layout or 1,
-	--	OnSelect = {
-	--		function (obj)
-	--			if freezeSettings then
-	--				return
-	--			end
-	--			Configuration:SetConfigValue("panel_layout", obj.selected)
-	--		end
-	--	},
-	--}
-	--offset = offset + ITEM_OFFSET
+	children[#children + 1] = Label:New {
+		x = 20,
+		y = offset + TEXT_OFFSET,
+		width = 90,
+		height = 40,
+		valign = "top",
+		align = "left",
+		font = Configuration:GetFont(2),
+		caption = "Split Panel Mode",
+	}
+	children[#children + 1] = ComboBox:New {
+		x = COMBO_X,
+		y = offset,
+		width = COMBO_WIDTH,
+		height = 30,
+		items = {"Autodetect", "Always Two", "Always One"},
+		font = Configuration:GetFont(2),
+		itemFontSize = Configuration:GetFont(2).size,
+		selected = Configuration.panel_layout or 3,
+		OnSelect = {
+			function (obj)
+				if freezeSettings then
+					return
+				end
+				Configuration:SetConfigValue("panel_layout", obj.selected)
+			end
+		},
+	}
+	offset = offset + ITEM_OFFSET
 
 	--children[#children + 1], children[#children + 2], offset = AddNumberSetting(offset, "Lobby Interface Scale", "Increase or decrease interface size, for accessibility and 4k screens.",
 	--	"uiScale", Configuration.uiScale, Configuration.minUiScale*100, Configuration.maxUiScale*100, true)
