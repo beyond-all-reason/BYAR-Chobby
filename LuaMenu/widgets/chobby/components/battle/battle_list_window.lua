@@ -119,10 +119,31 @@ function BattleListWindow:init(parent)
 		tooltip = "Hides all battles that are in progress",
 	}
 
+    local checkLocked = Checkbox:New {
+		x = 575,
+		width = 21,
+		bottom = 4,
+		height = 30,
+		boxalign = "left",
+		boxsize = 20,
+		caption = " Locked",
+		checked = Configuration.battleFilterLocked or false,
+		font = Configuration:GetFont(2),
+		OnChange = {
+			function (obj, newState)
+				Configuration:SetConfigValue("battleFilterLocked", newState)
+				self:SoftUpdate()
+			end
+		},
+		parent = self.window,
+		tooltip = "Hides all locked battles",
+	}
+
 	local function UpdateCheckboxes()
 		checkPassworded:SetToggle(Configuration.battleFilterPassworded2)
 		checkNonFriend:SetToggle(Configuration.battleFilterNonFriend)
 		checkRunning:SetToggle(Configuration.battleFilterRunning)
+        checkLocked:SetToggle(Configuration.battleFilterLocked)
 	end
 	WG.Delay(UpdateCheckboxes, 0.2)
 
@@ -618,6 +639,10 @@ function BattleListWindow:ItemInFilter(id)
 		if Configuration.battleFilterNonFriend then
 			return false
 		end
+	end
+	
+	if Configuration.battleFilterLocked and battle.locked  then
+		return false
 	end
 
 	if Configuration.battleFilterRunning and battle.isRunning then
