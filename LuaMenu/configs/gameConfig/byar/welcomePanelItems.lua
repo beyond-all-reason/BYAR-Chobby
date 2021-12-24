@@ -5,6 +5,7 @@ local welcomePanelItems = {
         Time = nil,-- "NowTime",
         Text = "Welcome back Commander. We hope you are ready for epic single player and multiplayer battles. Check out our Discord and join the community!\n",
     },
+    
 
     --[[
     {

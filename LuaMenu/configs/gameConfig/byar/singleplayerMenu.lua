@@ -5,6 +5,7 @@ local items = 	{
 		control = WG.BattleRoomWindow.GetSingleplayerControl(),
 		entryCheck = WG.BattleRoomWindow.SetSingleplayerGame,
 	},
+	
 	{
 		name = "scenarios",
 		control = WG.ScenarioHandler.GetControl(),
