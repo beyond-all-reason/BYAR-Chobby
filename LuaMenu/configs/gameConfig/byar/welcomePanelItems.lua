@@ -1,9 +1,9 @@
 local welcomePanelItems = {
     {
         Header = "Welcome to BAR Alpha",
-        Url = nil, --"https://www.beyondallreason.info/",
+        Url = "https://discord.gg/N968ddE",
         Time = nil,-- "NowTime",
-        Text = "Welcome Commander! We hope you are ready for epic single player and multiplayer battles!\n",
+        Text = "Welcome back Commander. We hope you are ready for epic single player and multiplayer battles. Check out our Discord and join the community!\n",
     },
 
     --[[

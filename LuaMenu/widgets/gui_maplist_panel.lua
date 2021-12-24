@@ -398,7 +398,10 @@ local function InitializeControls()
 	for i = 1, #featuredMapList do
 		local mapName = featuredMapList[i].Name
 		control, sortData, mapFuncs[mapName] = CreateMapEntry(mapName, featuredMapList[i], CloseFunc)
-		mapList:AddItem(mapName, control, sortData)
+		local certification = sortData[6]
+		if lobby.name == "singleplayer" or certification ~= "Unofficial" then
+			mapList:AddItem(mapName, control, sortData)
+		end
 	end
 	local addedmaps = {}
 	
@@ -407,14 +410,20 @@ local function InitializeControls()
 		if info and info.modtype == 3 and not mapFuncs[info.name] then
 			addedmaps[info.name] = true
 			control, sortData, mapFuncs[info.name] = CreateMapEntry(info.name, Configuration.gameConfig.mapDetails[info.name] , CloseFunc)
-			mapList:AddItem(info.name, control, sortData)
+			local certification = sortData[6]
+			if lobby.name == "singleplayer" or certification ~= "Unofficial" then
+				mapList:AddItem(info.name, control, sortData)
+			end
 		end
 	end
 
 	for mapname, mapdetails in pairs(Configuration.gameConfig.mapDetails) do
 		if addedmaps[mapname] == nil then 
 			control, sortData, mapFuncs[mapname] = CreateMapEntry(mapname, mapdetails , CloseFunc)
-			mapList:AddItem(mapname, control, sortData)
+			local certification = sortData[6]
+			if lobby.name == "singleplayer" or certification ~= "Unofficial" then
+				mapList:AddItem(mapname, control, sortData)
+			end
 		end
 	end
 

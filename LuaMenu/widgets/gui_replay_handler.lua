@@ -403,7 +403,7 @@ local function InitializeControls(parentControl)
 		width = 180,
 		height = 30,
 		parent = parentControl,
-		objectoverridefont = myfont3,
+		objectoverridefont = myFont3,
 		--font = Configuration:GetFont(3),
 		caption = "Replays",
 	}
@@ -425,7 +425,7 @@ local function InitializeControls(parentControl)
 		align = "center",
 		valign = "center",
 		parent = loadingPanel,
-		objectoverridefont = myfont3,
+		objectoverridefont = myFont3,
 		--font = Configuration:GetFont(3),
 		caption = "Loading",
 	}
@@ -521,7 +521,7 @@ local function InitializeControls(parentControl)
 		width = 120,
 		height = 45,
 		caption = i18n("refresh"),
-		objectoverridefont = myfont3,
+		objectoverridefont = myFont3,
 		--font = Configuration:GetFont(3),
 		classname = "option_button",
 		tooltip = "Refresh the list of replays",
@@ -535,7 +535,7 @@ local function InitializeControls(parentControl)
 		width = 120,
 		height = 45,
 		caption = i18n("more"),
-		objectoverridefont = myfont3,
+		objectoverridefont = myFont3,
 		--font = Configuration:GetFont(3),
 		classname = "option_button",
 		parent = parentControl,
@@ -549,6 +549,51 @@ local function InitializeControls(parentControl)
 		},
 	}
 
+	if Configuration.debugMode then
+		local manualreplaypath = ''
+		local replaymanual = EditBox:New{
+			right = 15 + 520,
+			y= 7,
+			width = 200,
+			height = 45,
+			text = "/demos/",
+			font = Configuration:GetFont(2),
+			useIME = false,
+			parent = parentControl,
+			tooltip = "Enter the path to the replay",
+			OnFocusUpdate = {
+				function (obj)
+					manualreplaypath = obj.text
+					if obj.focused then
+						return
+					end
+				end
+			}
+		}
+
+		local manualbutton = Button:New{
+			right = 15 + 390,
+			y = 7,
+			width = 120,
+			height = 45,
+			caption = "force start replay",
+			objectoverridefont = myFont3,
+			--font = Configuration:GetFont(3),
+			classname = "option_button",
+			parent = parentControl,
+			tooltip = "Force start a specific replay",
+			OnClick = {
+				function ()
+					Spring.Echo("Attempting to start a manual replay from", manualreplaypath)
+					WG.Chobby.localLobby:StartReplay(manualreplaypath, "BeherithDebugMode")
+				end
+			},
+
+		}
+
+	end
+
+
 	if WG.BrowserHandler and Configuration.gameConfig.link_replays ~= nil then
 		Button:New {
 			right = 15 + 260,
@@ -556,7 +601,7 @@ local function InitializeControls(parentControl)
 			width = 120,
 			height = 45,
 			caption = i18n("download"),
-			objectoverridefont = myfont3,
+			objectoverridefont = myFont3,
 			--font = Configuration:GetFont(3),
 			classname = "option_button",
 			parent = parentControl,

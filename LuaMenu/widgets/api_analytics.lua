@@ -161,15 +161,65 @@ end
 
 local Analytics = {}
 
+local function jsonEscapeString(s)
+	s = string.gsub(s, "\b", "\\b")
+	s = string.gsub(s, "\f", "\\f")
+	s = string.gsub(s, "\n", "\\n")
+	s = string.gsub(s, "\r", "\\r")
+	s = string.gsub(s, "\t", "\\t")
+	s = string.gsub(s, '"', '\"')
+	s = string.gsub(s, "\\", "\\")
+	return s
+end
 
-function Analytics.SendCrashReportOneTimeEvent(filename, errortype, errorkey, compressedlog)
-	if PRINT_DEBUG then Spring.Log("Chobby", LOG.WARNING, "BAR Analytics.SendCrashReportOneTimeEvent(filename, errortype, errorkey, compressedlog)", filename, errortype, errorkey) end
-	if onetimeEvents["reportedcrashes"][filename] then
+
+function Analytics.SendCrashReportOneTimeEvent(filename, errortype, errorkey, compressedlog, private)
+	if PRINT_DEBUG then
+		Spring.Log("Chobby", LOG.WARNING, "BAR Analytics.SendCrashReportOneTimeEvent(filename, errortype, errorkey, compressedlog)", filename, errortype, errorkey, private)
+	else -- only save it if we are in debug mode
+		if onetimeEvents["reportedcrashes"][filename] then
+			return
+		end
+		onetimeEvents["reportedcrashes"][filename] = true
+	end
+	
+	if PRINT_DEBUG then Spring.Log("Chobby", LOG.WARNING, "Analytics Event", cmdName, args, isEvent, client, "C/A",isConnected, ACTIVE) end
+
+	if client == nil then
 		return
 	end
-	onetimeEvents["reportedcrashes"][filename] = true
-	
-	SendBARAnalytics(errortype, {shorterror = errorkey, fullinfolog = compressedlog, }, true)
+	-- events are always tables, properties always just string
+	local message
+	local istest = ""
+	local Configuration = WG.Chobby.Configuration
+	-- c.telemetry.upload_infolog log_type user_hash base64(json({metadata})) base64(gzip(infologcontents))
+	local metadata = {
+		errortype = errortype,
+		shorterror = jsonEscapeString(errorkey),
+		gameversion = Configuration.gameConfig.ShortenNameString(Configuration:GetDefaultGameName()),
+		engineversion = Configuration:GetTruncatedEngineVersion(),
+		private = private,
+		filename = filename,
+	}
+	metadata = Spring.Utilities.json.encode(metadata)
+	--Spring.Echo(metadata)
+	metadata = Spring.Utilities.Base64Encode(metadata)
+
+	local contents = compressedlog
+	--https://codebeautify.org/gzip-decompress-online
+	--https://www.base64decode.org/
+
+	message = "c.telemetry.upload_infolog " .. errortype .. " " .. machineHash .. " ".. metadata .. " " .. contents
+
+	if PRINT_DEBUG then Spring.Log("Chobby", LOG.WARNING, "Message:",message) end
+	if isConnected then
+		lobby:_SendCommand(message)
+	else
+		if ACTIVE then
+			client:send(message)
+		end
+	end
+
 end
 
 
@@ -220,8 +270,8 @@ end
 
 local function ParseInfolog(infologpath)
 	local infolog = VFS.LoadFile(infologpath)
-	
-	if PRINT_DEBUG then Spring.Echo("BAR Analytics: ParseInfolog()", infologpath) end 
+
+	if PRINT_DEBUG then Spring.Echo("BAR Analytics: ParseInfolog()", infologpath) end
 	if infolog then
 		local fileLines = lines(infolog)
 		for i, line in ipairs(fileLines) do
@@ -242,7 +292,7 @@ local function ParseInfolog(infologpath)
 				return "LuaRules",line, infolog
 			end
 
-			
+
 			if string.find(line, "Error: [LuaMenu::RunCallInTraceback] ", nil, true) then -- exact match
 				--Error: [LuaMenu::RunCallInTraceback] error=4 (LUA_ERRMEM) callin=MousePress trace=[Internal Lua error: Call failure] not enough memory
 				--local errorkeystart = string.find(line,"[string ",nil, true ) or 1
@@ -256,12 +306,12 @@ local function ParseInfolog(infologpath)
 				--local errorname = string.sub(line, errorkeystart, nil)
 				return "SyncError", line, infolog
 			end
-			
+
 			if string.find(line, "] Error: Spring ", nil, true) and string.find(line," has crashed.", nil, true) then -- exact match
 				-- [t=00:35:40.093162][f=0000524] Error: Spring 105.1.1-475-gd112b9e BAR105 has crashed. -- this is the actual crash line
 
 				-- look for the first frame of the stack trace, and get the address
-				stackframe = "spring.exe [0xDEADBEEF]"
+				local stackframe = "spring.exe [0xDEADBEEF]"
 				for k=i, #fileLines do
 					if string.find(fileLines[k], "[ProgCtr=", nil, true) then
 						--stackframe = string.sub(fileLines[k+1], string.find(fileLines[k+1],"engine", nil, true) + 6,nil)
@@ -269,7 +319,7 @@ local function ParseInfolog(infologpath)
 						break
 					end
 				end
-				
+
 				return "EngineCrash", stackframe, infolog
 			end
 
@@ -287,31 +337,33 @@ local function GetInfologs()
 		onetimeEvents["reportedcrashes"] = {}
 	end
 
-	filenames = VFS.DirList(infologDirectory) -- ipairs
+	local filenames = VFS.DirList(infologDirectory) -- ipairs
 	table.sort(filenames, function (a,b) return a > b end) -- reverse dir sort, we only need the most recent 5
 
-	if PRINT_DEBUG then Spring.Echo("BAR Analytics: GetInfologs()", #filenames) end 
-	for i=1, math.min(#filenames, 5) do 
+	if PRINT_DEBUG then Spring.Echo("BAR Analytics: GetInfologs()", #filenames) end
+	for i=1, math.min(#filenames, 5) do
 		filename = filenames[i]
 		if onetimeEvents["reportedcrashes"][filename] ~= nil then -- we already reported this one
 			Spring.Echo("Already processed an error in ", filename)
 		else
 			local errortype, errorkey, fullinfolog = ParseInfolog(filename)
-			if errortype ~= nil then 
+			if errortype ~= nil then
 				
 				if PRINT_DEBUG then Spring.Echo("BAR Analytics: GetInfologs() found an error:", filename, errortype, errorkey) end 
-				if WG.Chobby.ConfirmationPopup then 
+				if WG.Chobby.ConfirmationPopup then
+					
+					--local compressedlog = Spring.Utilities.Base64Encode(VFS.ZlibCompress(fullinfolog))
+					local compressedlog = Spring.Utilities.Base64Encode(VFS.ZlibCompress(fullinfolog))
 					local function reportinfolog()
-						local compressedlog = Spring.Utilities.Base64Encode(VFS.ZlibCompress(fullinfolog))
 						--Spring.Echo("Uncompressed length:", string.len(fullinfolog), "Compressed base64 length:", string.len(compressedlog))
-						Analytics.SendCrashReportOneTimeEvent(filename,"errorReport:"..errortype, errorkey, compressedlog)
+						Analytics.SendCrashReportOneTimeEvent(filename,errortype, errorkey, compressedlog, true)
 					end
 
 					local function dontreportinfolog()
-						Analytics.SendCrashReportOneTimeEvent(filename,"errorReport:"..errortype, errorkey, "UserDenied")
+						Analytics.SendCrashReportOneTimeEvent(filename, errortype, errorkey, compressedlog, false)
 					end
 
-					WG.Chobby.ConfirmationPopup(reportinfolog, "BAR has detected a ["..errortype.."] error during one of your previous games in:\n    " .. filename .. "\nSuch infologs help us fix any bugs you may have encountered. This file contains information such as your username, your system configuration and the path the game was installed to. This data will not be made public. Feel free to reject if you dont want to share this information.\nDo you agree to upload this infolog?", nil, 550, 400, "Yes", "No", dontreportinfolog, nil)
+					WG.Chobby.ConfirmationPopup(reportinfolog, "BAR has detected a ["..errortype.."] error during one of your previous games in:\n    " .. filename .. "\nSuch infologs help us fix any bugs you may have encountered. This file contains information such as your username, your system configuration and the path the game was installed to. This data will not be made public.\nDo you agree to upload this infolog?", nil, 550, 400, "Yes", "No", dontreportinfolog, nil)
 				end
 				return
 			end
