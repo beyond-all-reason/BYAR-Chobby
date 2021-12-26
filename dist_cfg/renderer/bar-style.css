@@ -1,8 +1,6 @@
 
-
- 
- #main-content {
-	background-image: url(./images/backgrounda.png);
+  #main-content {
+	background-image: url(./images/background.png);
   }
 
   @font-face {
