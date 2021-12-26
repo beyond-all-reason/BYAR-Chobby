@@ -6,9 +6,9 @@ body {
 
 #main-content {
   padding-top: 10px;
-  padding-right: 10px;
-  padding-bottom: px;
-  padding-left: 10px;
+  padding-right: 40px;
+  padding-bottom: 10px;
+  padding-left: 40px;
 
   background-image: url(./images/background.png);
   /* background-attachment: fixed; */
@@ -56,9 +56,9 @@ background-position: center;
     'prog prog mainbtn'
     'prog prog checkupdates';
   grid-template-columns: 1fr 4fr 1fr;
-  grid-template-rows: 100fr 1fr 1fr 1fr 1fr 1fr;
+  grid-template-rows: 50fr 1fr 1fr 1fr 1fr 1fr;
   column-gap: 30px;
-  row-gap: 20px;
+  row-gap: 15px;
 }
 
 body::-webkit-scrollbar {
