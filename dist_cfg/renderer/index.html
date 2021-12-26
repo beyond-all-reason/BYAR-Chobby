@@ -8,9 +8,12 @@
       <link href="./style.css" rel="stylesheet">
       <!-- BAR START -->
       <link href="./bar-style.css" rel="stylesheet">
-      <div class="image">
-        <image id="randomimages"></image>
-      </div>
+      <script type="text/javascript">
+        const images = ['1.png', '2.png', '3.png'];
+        const image = images[Math.floor(Math.random() * images.length)];
+        document.getElementById('randomimages').src = 'images/backgrounds/' + image;
+        $('html').css({'background-image': 'url(images/backgrounds/' + image + ')'});
+      </script>
       <!-- BAR END -->
       <style>
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800&display=swap');
@@ -28,6 +31,11 @@
         <div class="borders"></div>
       </div>
       -->
+      <!-- 
+      <div class="image">
+        <image id="randomimages"></image>
+      </div>
+       -->
       <!-- BAR END -->
       <div class="grid-container" id="main-content">
         <h1 id="title" class="header">DEFAULT-MAIN-TITLE</h1>
