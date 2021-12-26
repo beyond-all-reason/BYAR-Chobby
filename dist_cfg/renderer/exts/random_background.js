@@ -1,3 +1,5 @@
+'use strict';
+
 var images = [  './images/backgrounds/1.png',
                 './images/backgrounds/2.png',
                 './images/backgrounds/3.png',
