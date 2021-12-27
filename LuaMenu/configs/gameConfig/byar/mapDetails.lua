@@ -51,7 +51,7 @@ return {
 ['KnockoutR 1.5']={Width=18, Height=18, Is1v1=nil, IsTeam=1, IsFFA=1, IsCertified=1, Special=nil, Flat=nil, Hills=1, Water=nil, IsInPool=1, PlayerCount=nil,TeamCount=nil, InfoText=nil},
 ['Kolmogorov']={Width=20, Height=20, Is1v1=nil, IsTeam=1, IsFFA=1, IsCertified=nil, Special=nil, Flat=nil, Hills=1, Water=nil, IsInPool=1, PlayerCount=nil,TeamCount=nil, InfoText=nil},
 ['Koom Valley 3 3.0']={Width=24, Height=16, Is1v1=nil, IsTeam=1, IsFFA=nil, IsCertified=1, Special=nil, Flat=1, Hills=1, Water=nil, IsInPool=1, PlayerCount=nil,TeamCount=nil, InfoText=nil},
-['LV412 1.1']={Width=16, Height=16, Is1v1=nil, IsTeam=nil, IsFFA=1, IsCertified=1, Special='Survival', Flat=nil, Hills=1, Water=nil, IsInPool=1, PlayerCount='4',TeamCount='2', InfoText='Survival map. Perfect against Chickens or Scavengers.'},
+['LV412 1.2']={Width=16, Height=16, Is1v1=nil, IsTeam=nil, IsFFA=1, IsCertified=1, Special='Survival', Flat=nil, Hills=1, Water=nil, IsInPool=1, PlayerCount='4',TeamCount='2', InfoText='Survival map. Perfect against Chickens or Scavengers.'},
 ['Mescaline_V2']={Width=20, Height=12, Is1v1=nil, IsTeam=1, IsFFA=nil, IsCertified=1, Special=nil, Flat=1, Hills=1, Water=nil, IsInPool=1, PlayerCount=nil,TeamCount=nil, InfoText=nil},
 ['MoonQ20XR2 2.5']={Width=20, Height=10, Is1v1=nil, IsTeam=1, IsFFA=nil, IsCertified=1, Special='Craters', Flat=1, Hills=1, Water=nil, IsInPool=1, PlayerCount=nil,TeamCount=nil, InfoText=nil},
 ['Neurope_a7_v3']={Width=32, Height=16, Is1v1=nil, IsTeam=nil, IsFFA=1, IsCertified=1, Special=nil, Flat=1, Hills=nil, Water=1, IsInPool=1, PlayerCount=nil,TeamCount=nil, InfoText=nil},
