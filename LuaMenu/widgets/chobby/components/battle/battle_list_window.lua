@@ -1069,7 +1069,7 @@ function BattleListWindow:OpenHostWindow()
 	}
 
 	local userWantsPrivateBattle = false
-	if lobby:GetMyIsAdmin() then -- TODO: remove this when feature goes live
+	--if lobby:GetMyIsAdmin() then -- TODO: remove this when feature goes live
 		local privateCheckbox = Checkbox:New {
 			x = 15,
 			width = 300,
@@ -1088,7 +1088,7 @@ function BattleListWindow:OpenHostWindow()
 			parent = hostBattleWindow,
 			tooltip = "If you want a passworded battleroom, please be patient while we spin up a room for you. You will be PM-ed a 4 character password you can share with your friends.",
 		}
-	end
+	--end
 
 	local errorLabel = Label:New {
 		x = 15,
