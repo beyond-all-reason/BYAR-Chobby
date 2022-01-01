@@ -54,6 +54,7 @@
                 "display": "Alpha",
                 "platform": "win32"
             },
+			"silent": false,
             "downloads": {
                 "games" : ["byar:test", "chobby:test", "byar-chobby:test"],
                 "resources": [
