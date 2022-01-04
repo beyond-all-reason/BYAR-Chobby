@@ -28,7 +28,7 @@ jobs:
           sudo apt install wine-stable wine64 wine32:i386 wine64 -y
 
       - name: Clone parent directory
-        run: git clone https://github.com/gajop/spring-launcher-backend
+        run: git clone https://github.com/beyond-all-reason/spring-launcher-backend
 
       - name: Install builder dependencies
         run: cd spring-launcher-backend && npm ci
