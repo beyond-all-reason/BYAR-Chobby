@@ -43,6 +43,7 @@
                 ]
             },
             "no_start_script" : true,
+            "auto_start" : true,
             "launch": {
                 "start_args" : ["--menu", "rapid://byar-chobby:test"],
                 "engine": "105.1.1-714-ge909643 bar"
@@ -92,6 +93,7 @@
                 ]
             },
             "no_start_script" : true,
+            "auto_start" : true,
             "launch": {
                 "start_args" : ["--menu", "rapid://byar-chobby:test"],
 				"engine": "105.1.1-714-ge909643 bar"
