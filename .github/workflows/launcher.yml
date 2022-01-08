@@ -22,7 +22,7 @@ jobs:
             build_cmd: "build-linux"
 
           - os: windows-latest
-            build_cmd: "build-windows"
+            build_cmd: "build-win"
 
     steps:
       - uses: actions/checkout@v2
@@ -61,6 +61,8 @@ jobs:
           cd build
           npm ci
           npm run ${{ matrix.build_cmd }} -- --publish always
+        env:
+          GH_TOKEN: ${{ secrets.github_token }}
 
 
 
