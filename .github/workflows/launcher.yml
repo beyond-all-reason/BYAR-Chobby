@@ -24,7 +24,7 @@ jobs:
 
           - os: windows-latest
             build_cmd: "build-win"
-            arch: "--ia32"
+            arch: "--x64"
 
     steps:
       - uses: actions/checkout@v2
