@@ -27,6 +27,9 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         with:
+          # This should fix git rev-list --count HEAD
+          # https://stackoverflow.com/a/65056108
+          fetch-depth: 0 
           path: BYAR-Chobby
 
       - uses: actions/checkout@v2
@@ -53,6 +56,7 @@ jobs:
         run: |
           cd BYAR-Chobby
           export PACKAGE_VERSION=1.$(git rev-list --count HEAD).0
+          echo "Making build for version: $PACKAGE_VERSION"
           cd ..
           node ./BYAR-Chobby/build/make_package_json.js build/package.json BYAR-Chobby/dist_cfg/config.json beyond-all-reason/BYAR-Chobby $PACKAGE_VERSION
 
@@ -63,9 +67,3 @@ jobs:
           npm run ${{ matrix.build_cmd }} -- --publish always
         env:
           GH_TOKEN: ${{ secrets.github_token }}
-
-
-
-
-
-
