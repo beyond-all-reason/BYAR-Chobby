@@ -49,10 +49,11 @@ jobs:
           mkdir build
           cp spring-launcher/* -r build/
           cp BYAR-Chobby/dist_cfg/* -r build/src/
+          mkdir -p build/{bin,files,build}
           [ -d build/src/bin/ ] && mv build/src/bin/* build/bin/
           [ -d build/src/files/ ] && mv build/src/files/* build/files/
           [ -d build/src/build/ ] && mv build/src/build/* build/build/
-          rm -rf build/src/bin build/src/files build/src/build
+          rm -rf build/src/{bin,files,build}
           exit 0
 
       - name: Make package.json
