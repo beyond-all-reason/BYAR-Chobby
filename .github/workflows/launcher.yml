@@ -20,9 +20,11 @@ jobs:
         include:
           - os: ubuntu-20.04
             build_cmd: "build-linux"
+            arch: "--x64"
 
           - os: windows-latest
             build_cmd: "build-win"
+            arch: "--ia32"
 
     steps:
       - uses: actions/checkout@v2
@@ -64,6 +66,6 @@ jobs:
         run: |
           cd build
           npm ci
-          npm run ${{ matrix.build_cmd }} -- --publish always
+          npm run ${{ matrix.build_cmd }} -- ${{ matrix.arch }} --publish always
         env:
           GH_TOKEN: ${{ secrets.github_token }}
