@@ -10,30 +10,56 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-18.04
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-20.04
+            build_cmd: "build-linux"
+
+          - os: windows-latest
+            build_cmd: "build-windows"
 
     steps:
       - uses: actions/checkout@v2
+        with:
+          path: BYAR-Chobby
+
+      - uses: actions/checkout@v2
+        with:
+          repository: gajop/spring-launcher
+          path: spring-launcher
 
       - name: Setup NodeJs
         uses: actions/setup-node@v1
         with:
-          node-version: '15.x'
+          node-version: '17.x'
 
-      - name: Setup Wine
+      - name: Prepare folder structure
         run: |
-          sudo dpkg --add-architecture i386
-          sudo apt-get update
-          sudo apt-get install lib32z1
-          sudo apt install wine-stable wine64 wine32:i386 wine64 -y
+          mkdir build
+          cp spring-launcher/* -r build/
+          cp BYAR-Chobby/dist_cfg/* -r build/src/
+          [ -f build/src/bin/ ] && mv build/src/bin/* build/bin/
+          [ -f build/src/files/ ] && mv build/src/files/* build/files/
+          [ -f build/src/build/ ] && mv build/src/build/* build/build/
+          exit 0
 
-      - name: Clone parent directory
-        run: git clone https://github.com/gajop/spring-launcher-backend
+      - name: Make package.json
+        run: |
+          cd BYAR-Chobby
+          export PACKAGE_VERSION=1.$(git rev-list --count HEAD).0
+          cd ..
+          node ./BYAR-Chobby/build/make_package_json.js build/package.json BYAR-Chobby/dist_cfg/config.json beyond-all-reason/BYAR-Chobby $PACKAGE_VERSION
 
-      - name: Install builder dependencies
-        run: cd spring-launcher-backend && npm ci
+      - name: Build
+        run: |
+          cd build
+          npm ci
+          npm run ${{ matrix.build_cmd }} -- --publish always
 
-      - name: Launcher
-        run: cd spring-launcher-backend && node src/builder/run_build.js $GITHUB_REPOSITORY --no-generic-backend
-        env:
-          GH_TOKEN: ${{ secrets.github_token }}
+
+
+
+
+
