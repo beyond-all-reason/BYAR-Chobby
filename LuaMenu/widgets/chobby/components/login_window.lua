@@ -484,7 +484,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		classname = "negative_button",
 		OnClick = {
 			function()
-				WG.BrowserHandler.OpenUrl("https://server2.beyondallreason.info/")
+				WG.BrowserHandler.OpenUrl("https://server2.beyondallreason.info/forgot_password")
 			end
 		},
 	}
