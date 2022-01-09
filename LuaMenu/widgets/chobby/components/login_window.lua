@@ -469,10 +469,31 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		width =   formw * 3 ,
 		height =  formh * 1 ,
 		-- caption = i18n("register_long"),
-		text = "Reset forgotten password: Enter your email address used for registration, then enter the validation code sent via email.",
+		text = "Reset forgotten password: You need to use your web browser to reset a forgotten password.",
 		font = Configuration:GetFont(1),
 	}
 	recoverChildren[#recoverChildren+1] = self.txtResetPassword
+
+	self.btnResetPassword = Button:New {
+		x = pad + formw * 0 ,
+		y = pad + formh * 7 ,
+		width =   formw * 3 ,
+		height =  formh * 2 ,
+		caption = "Reset your password via a browser link",
+		font = Configuration:GetFont(2),
+		classname = "negative_button",
+		OnClick = {
+			function()
+				WG.BrowserHandler.OpenUrl("https://server2.beyondallreason.info/")
+			end
+		},
+	}
+	recoverChildren[#recoverChildren+1] = self.btnResetPassword
+	
+	recoverChildren[#recoverChildren+1] = Line:New{x=5,y=formh * 11,right=5, height = 1}
+--[[
+
+
 
 	self.lblResetPasswordEmail =  Label:New {
 		x = pad + formw * 0 ,
@@ -563,7 +584,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 	recoverChildren[#recoverChildren+1] = self.txtErrorResetPassword
 
 	recoverChildren[#recoverChildren+1] = Line:New{x=5,y=formh * 11,right=5, height = 1}
-
+]]--
 ---------------------------Change Password--------------------------------
 	self.txtChangePassword = TextBox:New {
 		x = pad + formw * 0 ,
