@@ -315,7 +315,7 @@ Scoring:
 {name = 'armflash', x = 3310, y = 593, z = 583, rot = 0 , team = 1},
 {name = 'armflash', x = 3342, y = 593, z = 583, rot = 0 , team = 1},
 {name = 'cornanotc', x = 3771, y = 321, z = 3614, rot = 0 , team = 0},
-
+ 
 		},
 		featureloadout = {
 			-- Similarly to units, but these can also be resurrectable!
