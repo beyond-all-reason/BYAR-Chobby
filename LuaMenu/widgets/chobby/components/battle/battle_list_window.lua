@@ -214,6 +214,16 @@ function BattleListWindow:init(parent)
 	end
 	lobby:AddListener("OnBattleIngameUpdate", self.onBattleIngameUpdate)
 
+	
+	self.onS_Battle_Update_lobby_title = function(listener, battleID, newbattletitle)
+		if self.listenerUpdateDisabled then
+			return
+		end
+		self:OnS_Battle_Update_lobby_title(battleID, newbattletitle)
+		self:SoftUpdate()
+	end
+	lobby:AddListener("OnS_Battle_Update_lobby_title", self.onS_Battle_Update_lobby_title)
+
 	local function onConfigurationChange(listener, key, value)
 		if key == "displayBadEngines2" then
 			update()
@@ -1004,6 +1014,32 @@ function BattleListWindow:OnBattleIngameUpdate(battleID, isRunning)
 	self:UpdateButtonColor(battleID)
 	self:RecalculateOrder(battleID)
 end
+
+
+function BattleListWindow:OnS_Battle_Update_lobby_title(battleID, newbattletitle)
+	--Spring.Echo("function BattleListWindow:OnS_Battle_Update_lobby_title",battleID, newbattletitle)
+	local battle = lobby:GetBattle(battleID)
+	if not (Configuration.displayBadEngines2 or Configuration:IsValidEngineVersion(battle.engineVersion)) then
+		return
+	end
+	local items = self:GetRowItems(battleID)
+	if not items then
+		self:AddBattle(battleID)
+		return
+	end
+	
+	battle.title = newbattletitle
+
+	local battletitlelable = items.battleButton:GetChildByName("lblTitle")
+	battletitlelable:SetCaption(StringUtilities.GetTruncatedStringWithDotDot(newbattletitle, battletitlelable.font, battletitlelable.width ))
+	battletitlelable:Invalidate()
+	items.battleButton:Invalidate()
+
+	self:UpdateButtonColor(battleID)
+	self:RecalculateOrder(battleID)
+end
+
+
 
 function BattleListWindow:OpenHostWindow()
 	local hostBattleWindow = Window:New {
