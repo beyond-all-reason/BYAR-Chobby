@@ -79,6 +79,12 @@ function widget:Initialize()
 		self:_SendCommand("CHANGEBATTLETITLE "..tostring(newtitle))
 	end
 	
+	lobby._OnS_Battle_Update_lobby_title = function(self, battleID, newbattletitle)
+		if self.battles[battleID] then
+			self.battles[battleID].title = newbattletitle
+		end
+	end
+
 	lobby.ReportPlayer = function(self, userName, locationtype, locationID, reason)
 		if locationtype == nil then locationtype = "nil" end
 		if locationID == nil then locationID = "nil" end
