@@ -1678,4 +1678,17 @@ function Interface:_OnListQueues(queues)
 end
 Interface.jsonCommands["LISTQUEUES"] = Interface._OnListQueues
 
+-- Teiserver Tachyon commands for BAR:
+
+function Interface:_OnS_Battle_Update_lobby_title(battleID, newbattletitle)
+	--self:super("_OnS_Battle_Update_lobby_title", tonumber(battleID), newbattletitle)
+	battleID = tonumber(battleID)
+	if battleID then 
+		self:_CallListeners("OnS_Battle_Update_lobby_title", battleID, newbattletitle)
+		--Spring.Echo("Interface:_OnS_Battle_Update_lobby_title",battleID, newbattletitle)
+	end
+end
+Interface.commands["s.battle.update_lobby_title"] = Interface._OnS_Battle_Update_lobby_title
+Interface.commandPattern["s.battle.update_lobby_title"] = "(%S+)%s+(.*)"
+
 return Interface
