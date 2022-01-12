@@ -2639,6 +2639,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 
 	local battleTitle = ""
 	local lblBattleTitle = Label:New {
+		name = "lblBattleTitle",
 		x = 20,
 		y = 17,
 		right = 100,
@@ -3177,6 +3178,11 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		})
 	end
 
+	local function OnS_Battle_Update_lobby_title(listener, changedbattleID, newbattletitle)
+		if battleID == changedbattleID then
+			UpdateBattleTitle()
+		end
+	end
 
 	battleLobby:AddListener("OnUpdateUserTeamStatus", OnUpdateUserTeamStatus)
 	battleLobby:AddListener("OnBattleIngameUpdate", OnBattleIngameUpdate)
@@ -3198,6 +3204,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	battleLobby:AddListener("OnEnableAllUnits", OnEnableAllUnits)
 	battleLobby:AddListener("OnDisableUnits", OnDisableUnits)
 	battleLobby:AddListener("OnRequestBattleStatus", OnRequestBattleStatus)
+	battleLobby:AddListener("OnS_Battle_Update_lobby_title", OnS_Battle_Update_lobby_title)
 
 	local function OnDisposeFunction()
 		emptyTeamIndex = 0
