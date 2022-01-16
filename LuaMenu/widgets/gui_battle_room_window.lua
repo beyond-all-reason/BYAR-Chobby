@@ -2709,7 +2709,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 				battleTitle = tostring(battle.title)
 			end
 
-			local truncatedTitle = StringUtilities.GetTruncatedStringWithDotDot(battleTitle, lblBattleTitle.font, lblBattleTitle.width)
+			local truncatedTitle = StringUtilities.GetTruncatedStringWithDotDot(battleTitle, lblBattleTitle.font, math.max(lblBattleTitle.width, 250))
 			lblBattleTitle:SetCaption(truncatedTitle)
 		else
 			battleTitle = "\255\255\0\0Warning: Restart to get correct engine version"

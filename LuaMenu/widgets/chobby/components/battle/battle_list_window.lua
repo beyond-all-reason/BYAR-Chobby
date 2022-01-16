@@ -1049,7 +1049,7 @@ function BattleListWindow:OnS_Battle_Update_lobby_title(battleID, newbattletitle
 	battle.title = newbattletitle
 
 	local battletitlelable = items.battleButton:GetChildByName("lblTitle")
-	battletitlelable:SetCaption(StringUtilities.GetTruncatedStringWithDotDot(newbattletitle, battletitlelable.font, battletitlelable.width ))
+	battletitlelable:SetCaption(StringUtilities.GetTruncatedStringWithDotDot(newbattletitle, battletitlelable.font, math.max(battletitlelable.width, 250) ))
 	battletitlelable:Invalidate()
 	items.battleButton:Invalidate()
 
