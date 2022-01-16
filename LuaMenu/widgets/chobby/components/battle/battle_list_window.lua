@@ -728,17 +728,35 @@ function BattleListWindow:FilterRedundantBattle(battle, id)
 end
 
 function BattleListWindow:CompareItems(id1, id2)
+	-- Help: returns true if id1 should be before id2
+	-- Sort 'open games first', by player count
+	-- Then empty battles
+	-- Then running but unlocked battles , by player count
+	-- Then running but locked battles, by player count
+	-- Finally private battles, alphabetically
+
+	-- sorted list of params to check by?
+
 	local battle1, battle2 = lobby:GetBattle(id1), lobby:GetBattle(id2)
 	if id1 and id2 then
 		if not (battle1 and battle2) then
-			return false
+			return false -- just for sanity
 		end
-		if battle1.isMatchMaker ~= battle2.isMatchMaker then
-			return battle2.isMatchMaker
+		
+		if battle1.passworded ~= battle2.passworded then 
+			return battle2.passworded --
+		elseif battle1.passworded == true and battle2.passworded == true then
+			return string.lower(battle1.title) < string.lower(battle2.title )
 		end
-		if battle1.isRunning ~= battle2.isRunning then
-			return battle2.isRunning
+
+		if battle1.isRunning ~= battle2.isRunning then 
+			return battle2.isRunning 
 		end
+
+		if battle1.locked ~= battle2.locked then 
+			return battle2.locked
+		end
+
 		local countOne = lobby:GetBattlePlayerCount(id1)
 		local countTwo = lobby:GetBattlePlayerCount(id2)
 		if countOne ~= countTwo then
