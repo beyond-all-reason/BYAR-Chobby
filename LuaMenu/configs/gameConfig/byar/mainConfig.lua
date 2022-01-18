@@ -121,7 +121,7 @@ local externalFuncAndData = {
 	spadsLobbyFeatures = true,
 	filterEmptyRegionalAutohosts = true,
 	logoutOpensLoginPanel = logoutOpensLoginPanel,
-
+	SaveLobbyVersionGZPath = "rapid/repos.springrts.com/byar-chobby/versions.gz",
 	ShortenNameString = ShortenNameString,
 }
 if Spring.GetConfigInt('soundtrack', 2) == 3 then

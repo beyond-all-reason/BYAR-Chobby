@@ -323,6 +323,11 @@ local function ParseInfolog(infologpath)
 				return "EngineCrash", stackframe, infolog
 			end
 
+			if string.find(line, "TraceFullEcho:[", nil, true) then -- exact match
+				-- TraceFullEcho:[
+				return "LuaUI", line, infolog
+			end
+
 		end
 	else
 		Spring.Echo("Failed to open:", infologpath)

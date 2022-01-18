@@ -19,7 +19,7 @@ local function CreateLine(lineText, linkText, onClick)
 			x = 3,
 			y = 3,
 			height = 34,
-			width = 95,
+			width = 180,
 			caption = linkText,
 			classname = "action_button",
 			font = WG.Chobby.Configuration:GetFont(2),
@@ -32,7 +32,7 @@ local function CreateLine(lineText, linkText, onClick)
 
 	local text = TextBox:New {
 		name = "text",
-		x = 110,
+		x = 195,
 		y = 12,
 		right = 0,
 		height = 20,
@@ -64,6 +64,21 @@ local communityLines = {
 --			WG.BrowserHandler.OpenUrl("https://springrts.com/phpbb/viewforum.php?f=51")
 --		end
 --	},
+	{
+		"Code of conduct and terms of use.",
+		"Code of conduct",
+		function ()
+			WG.BrowserHandler.OpenUrl("https://www.beyondallreason.info/code-of-conduct")
+		end
+	},
+	
+	{
+		"What information we store and how we use it.",
+		"Privacy Policy",
+		function ()
+			WG.BrowserHandler.OpenUrl("https://www.beyondallreason.info/privacy")
+		end
+	},
 	{
 		"Youtube channel.",
 		"Youtube",
@@ -107,10 +122,29 @@ local communityLines = {
 		end
 	},
 	{
-		"Upload Spring-Launcher log.",
-		"Upload log",
+		"Upload your Infolog.txt to report any error",
+		"Upload Infolog.txt",
 		function ()
-			WG.WrapperLoopback.UploadLog()
+			--WG.WrapperLoopback.UploadLog()
+			--We need the report kind of box here!
+			if WG.TextEntryWindow then 
+				WG.TextEntryWindow.CreateTextEntryWindow({
+					defaultValue = "",
+					caption = "Upload Infolog",
+					labelCaption = "Your infolog.txt contains sensitive information such as your username and install location. These will be kept private. Please fill in the reason with a description of the problem you encountered. Click \"Send\" to send the infolog, escape or enter to cancel.",
+					width = 500,
+					--ebheight = 120,
+					oklabel = "Send",
+					OnAccepted = function(reportreason)
+						local infolog = VFS.LoadFile("infolog.txt")
+						local compressedlog = Spring.Utilities.Base64Encode(VFS.ZlibCompress(infolog))
+						if WG.Analytics then 
+							WG.Analytics.SendCrashReportOneTimeEvent("infolog.txt", "UserUpload", reportreason, compressedlog, false )
+						end
+					end
+				})
+			end
+
 		end
 	},
 	{

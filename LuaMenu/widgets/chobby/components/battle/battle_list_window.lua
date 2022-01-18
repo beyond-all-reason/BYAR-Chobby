@@ -119,10 +119,31 @@ function BattleListWindow:init(parent)
 		tooltip = "Hides all battles that are in progress",
 	}
 
+    local checkLocked = Checkbox:New {
+		x = 575,
+		width = 21,
+		bottom = 4,
+		height = 30,
+		boxalign = "left",
+		boxsize = 20,
+		caption = " Locked",
+		checked = Configuration.battleFilterLocked or false,
+		font = Configuration:GetFont(2),
+		OnChange = {
+			function (obj, newState)
+				Configuration:SetConfigValue("battleFilterLocked", newState)
+				self:SoftUpdate()
+			end
+		},
+		parent = self.window,
+		tooltip = "Hides all locked battles",
+	}
+
 	local function UpdateCheckboxes()
 		checkPassworded:SetToggle(Configuration.battleFilterPassworded2)
 		checkNonFriend:SetToggle(Configuration.battleFilterNonFriend)
 		checkRunning:SetToggle(Configuration.battleFilterRunning)
+        checkLocked:SetToggle(Configuration.battleFilterLocked)
 	end
 	WG.Delay(UpdateCheckboxes, 0.2)
 
@@ -192,6 +213,16 @@ function BattleListWindow:init(parent)
 		self:SoftUpdate()
 	end
 	lobby:AddListener("OnBattleIngameUpdate", self.onBattleIngameUpdate)
+
+	
+	self.onS_Battle_Update_lobby_title = function(listener, battleID, newbattletitle)
+		if self.listenerUpdateDisabled then
+			return
+		end
+		self:OnS_Battle_Update_lobby_title(battleID, newbattletitle)
+		self:SoftUpdate()
+	end
+	lobby:AddListener("OnS_Battle_Update_lobby_title", self.onS_Battle_Update_lobby_title)
 
 	local function onConfigurationChange(listener, key, value)
 		if key == "displayBadEngines2" then
@@ -619,6 +650,10 @@ function BattleListWindow:ItemInFilter(id)
 			return false
 		end
 	end
+	
+	if Configuration.battleFilterLocked and battle.locked  then
+		return false
+	end
 
 	if Configuration.battleFilterRunning and battle.isRunning then
 		return false
@@ -693,17 +728,35 @@ function BattleListWindow:FilterRedundantBattle(battle, id)
 end
 
 function BattleListWindow:CompareItems(id1, id2)
+	-- Help: returns true if id1 should be before id2
+	-- Sort 'open games first', by player count
+	-- Then empty battles
+	-- Then running but unlocked battles , by player count
+	-- Then running but locked battles, by player count
+	-- Finally private battles, alphabetically
+
+	-- sorted list of params to check by?
+
 	local battle1, battle2 = lobby:GetBattle(id1), lobby:GetBattle(id2)
 	if id1 and id2 then
 		if not (battle1 and battle2) then
-			return false
+			return false -- just for sanity
 		end
-		if battle1.isMatchMaker ~= battle2.isMatchMaker then
-			return battle2.isMatchMaker
+		
+		if battle1.passworded ~= battle2.passworded then 
+			return battle2.passworded --
+		elseif battle1.passworded == true and battle2.passworded == true then
+			return string.lower(battle1.title) < string.lower(battle2.title )
 		end
-		if battle1.isRunning ~= battle2.isRunning then
-			return battle2.isRunning
+
+		if battle1.isRunning ~= battle2.isRunning then 
+			return battle2.isRunning 
 		end
+
+		if battle1.locked ~= battle2.locked then 
+			return battle2.locked
+		end
+
 		local countOne = lobby:GetBattlePlayerCount(id1)
 		local countTwo = lobby:GetBattlePlayerCount(id2)
 		if countOne ~= countTwo then
@@ -980,6 +1033,32 @@ function BattleListWindow:OnBattleIngameUpdate(battleID, isRunning)
 	self:RecalculateOrder(battleID)
 end
 
+
+function BattleListWindow:OnS_Battle_Update_lobby_title(battleID, newbattletitle)
+	--Spring.Echo("function BattleListWindow:OnS_Battle_Update_lobby_title",battleID, newbattletitle)
+	local battle = lobby:GetBattle(battleID)
+	if not (Configuration.displayBadEngines2 or Configuration:IsValidEngineVersion(battle.engineVersion)) then
+		return
+	end
+	local items = self:GetRowItems(battleID)
+	if not items then
+		self:AddBattle(battleID)
+		return
+	end
+	
+	battle.title = newbattletitle
+
+	local battletitlelable = items.battleButton:GetChildByName("lblTitle")
+	battletitlelable:SetCaption(StringUtilities.GetTruncatedStringWithDotDot(newbattletitle, battletitlelable.font, math.max(battletitlelable.width, 250) ))
+	battletitlelable:Invalidate()
+	items.battleButton:Invalidate()
+
+	self:UpdateButtonColor(battleID)
+	self:RecalculateOrder(battleID)
+end
+
+
+
 function BattleListWindow:OpenHostWindow()
 	local hostBattleWindow = Window:New {
 		caption = "",
@@ -1044,7 +1123,7 @@ function BattleListWindow:OpenHostWindow()
 	}
 
 	local userWantsPrivateBattle = false
-	if lobby:GetMyIsAdmin() then -- TODO: remove this when feature goes live
+	--if lobby:GetMyIsAdmin() then -- TODO: remove this when feature goes live
 		local privateCheckbox = Checkbox:New {
 			x = 15,
 			width = 300,
@@ -1063,7 +1142,7 @@ function BattleListWindow:OpenHostWindow()
 			parent = hostBattleWindow,
 			tooltip = "If you want a passworded battleroom, please be patient while we spin up a room for you. You will be PM-ed a 4 character password you can share with your friends.",
 		}
-	end
+	--end
 
 	local errorLabel = Label:New {
 		x = 15,

@@ -1,6 +1,8 @@
 local subnameMap = {
 	['BARb stable'] = "BARbarian AI",
-	['NullAI 0.1'] = "Inactive AI"
+	['NullAI 0.1'] = "Inactive AI",
+	['ScavengersAI'] = "ScavengersDefense AI",
+	['ChickensAI'] = "RaptorsDefense AI",
 }
 
 local function GetAiSimpleName(name)
