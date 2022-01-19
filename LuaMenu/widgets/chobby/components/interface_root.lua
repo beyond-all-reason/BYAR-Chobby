@@ -100,6 +100,24 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 	version_font = Configuration:GetFont(1)
 	version_font.color = {0.7,0.7,0.7,1} -- Grey color
 
+	local byarchobbyrapidTag = 'byar-chobby:test'
+	if byarchobbyrapidTag and VFS.GetNameFromRapidTag then
+		local rapidName = VFS.GetNameFromRapidTag(byarchobbyrapidTag)
+		if rapidName then
+			byarchobbyrapidTag = rapidName
+			byarchobbyrapidTag = string.gsub(byarchobbyrapidTag, "BYAR Chobby test%-", "")
+		end
+	end
+
+	local chobbyrapidTag = 'chobby:test'
+	if chobbyrapidTag and VFS.GetNameFromRapidTag then
+		local rapidName = VFS.GetNameFromRapidTag(chobbyrapidTag)
+		if rapidName then
+			chobbyrapidTag = rapidName
+			chobbyrapidTag = string.gsub(chobbyrapidTag, "Chobby test%-", "")
+		end
+	end
+
 	local label_version = Label:New {
 		x = "80%",
 		y = "95%",
@@ -107,7 +125,8 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 		height = "5%",
 		parent = lobbyInterfaceHolder,
 		font = version_font,
-		caption = "Version: " .. Configuration.gameConfig.ShortenNameString(Configuration:GetDefaultGameName()) .. "  \nEngine: " .. Configuration:GetTruncatedEngineVersion() .. "  ",
+		caption = "Game: " .. Configuration.gameConfig.ShortenNameString(Configuration:GetDefaultGameName()) .. "  Engine: " .. Configuration:GetTruncatedEngineVersion() .. "  "
+			.. '\nChobby: ' .. byarchobbyrapidTag .. " / " ..chobbyrapidTag ,
 		align = "right",
 		valign = 'bottom',
 	}
