@@ -94,6 +94,7 @@ return {
 ['Tetrad_V2']={Width=20, Height=20, Is1v1=nil, IsTeam=1, IsFFA=1, IsCertified=1, Special=nil, Flat=nil, Hills=1, Water=nil, IsInPool=1, PlayerCount=nil,TeamCount=nil, InfoText=nil},
 ['TheRock_V3']={Width=20, Height=16, Is1v1=nil, IsTeam=1, IsFFA=nil, IsCertified=1, Special=nil, Flat=nil, Hills=1, Water=nil, IsInPool=1, PlayerCount=nil,TeamCount=nil, InfoText=nil},
 ['Throne_V8']={Width=24, Height=24, Is1v1=nil, IsTeam=nil, IsFFA=1, IsCertified=1, Special=nil, Flat=nil, Hills=1, Water=1, IsInPool=1, PlayerCount=nil,TeamCount=nil, InfoText=nil},
+['Timna Island 1.0']={Width=20, Height=12, Is1v1=nil, IsTeam=1, IsFFA=1, IsCertified=1, Special='Asymmetrical', Flat=nil, Hills=1, Water=1, IsInPool=1, PlayerCount='6',TeamCount='2', InfoText=nil},
 ['Titan v3.1']={Width=18, Height=12, Is1v1=nil, IsTeam=1, IsFFA=nil, IsCertified=nil, Special=nil, Flat=nil, Hills=1, Water=nil, IsInPool=1, PlayerCount=nil,TeamCount=nil, InfoText=nil},
 ['TitanDuel_V3']={Width=10, Height=10, Is1v1=1, IsTeam=nil, IsFFA=nil, IsCertified=1, Special=nil, Flat=1, Hills=nil, Water=nil, IsInPool=1, PlayerCount=nil,TeamCount=nil, InfoText=nil},
 ['TMA20X 1.8']={Width=20, Height=20, Is1v1=nil, IsTeam=nil, IsFFA=1, IsCertified=1, Special='Asteroid', Flat=1, Hills=nil, Water=nil, IsInPool=1, PlayerCount=nil,TeamCount=nil, InfoText=nil},
