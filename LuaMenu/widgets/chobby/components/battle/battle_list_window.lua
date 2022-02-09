@@ -1165,7 +1165,7 @@ function BattleListWindow:OpenHostWindow()
 		local requestedregion = typeCombo.items[typeCombo.selected]
 		--Spring.Echo("Looking for empty host in region", requestedregion)
 		if userWantsPrivateBattle then
-			local privateclusters = {EU = '[teh]cluster1', US = '[teh]clusterUS', AU = '[balance]cluster'}
+			local privateclusters = {EU = '[teh]cluster1', US = '[teh]clusterUS', AU = '[teh]clusterAU', HU = '[teh]cluster2',}
 			local targetCluster = privateclusters[requestedregion]
 			local mypassword = nil
 			local function listenForPrivateBattle(listener, userName, message, msgDate)
@@ -1179,7 +1179,7 @@ function BattleListWindow:OpenHostWindow()
 
 			lobby:AddListener("OnSaidPrivate", listenForPrivateBattle)
 			lobby:SayPrivate(targetCluster, "!privatehost")
-			errorLabel:SetCaption("Please wait we spin up a battle room for you.")
+			errorLabel:SetCaption("Please wait while we spin up a \nbattle room for you.")
 			
 			local trytime = 30
 
@@ -1229,6 +1229,8 @@ function BattleListWindow:OpenHostWindow()
 			return
 		end
 
+
+
 		local targetbattle = nil
 		-- try to get empty matching one
 		local battles = lobby:GetBattles()
@@ -1237,7 +1239,7 @@ function BattleListWindow:OpenHostWindow()
 			table.insert(tmp, battle)
 		end
 		battles = tmp
-	
+		if requestedregion == 'HU' then requestedregion = "EU - 1" end -- nasty
 		for _, battle in pairs(battles) do
 			if string.sub(battle.title,1,string.len(requestedregion)) == requestedregion and
 				lobby:GetBattlePlayerCount(battle.battleID) == 0 and 
