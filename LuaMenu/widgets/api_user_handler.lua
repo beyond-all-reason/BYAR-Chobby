@@ -844,10 +844,12 @@ local function GetUserControls(userName, opts)
 						WG.TextEntryWindow.CreateTextEntryWindow({
 							defaultValue = "",
 							caption = "Report "..userName,
-							labelCaption = "Report ".. userName .." for abusive behaviour or violation of the terms of service. Click \"Report\" to send the report, escape or enter to cancel.",
+							labelCaption = "Report ".. userName .." for abusive behaviour or violation of the terms of service. Please specify a description of the event.",
 							width = 360,
 							--ebheight = 120,
 							oklabel = "Report",
+							disableAcceptHotkey = true,
+							url = 'https://www.beyondallreason.info/code-of-conduct',
 							OnAccepted = function(reportreason)
 								if isSingleplayer then
 									-- hell no
