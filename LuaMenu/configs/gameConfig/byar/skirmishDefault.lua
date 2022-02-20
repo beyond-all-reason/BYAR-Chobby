@@ -4,7 +4,7 @@ for pickedMap, mapDetails in pairs(listOfCertifiedMaps) do
 	convertedListOfMaps[#convertedListOfMaps+1] = {
 		mapName = pickedMap,
 		mapSize = mapDetails.Width + mapDetails.Height,
-		isFFA = mapDetails.isFFA,
+		isFFA = mapDetails.IsFFA,
 	}
 end
 
