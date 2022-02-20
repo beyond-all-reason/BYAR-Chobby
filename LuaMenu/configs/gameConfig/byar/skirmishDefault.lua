@@ -9,6 +9,7 @@ for pickedMap, mapDetails in pairs(listOfCertifiedMaps) do
 end
 
 local pickedTheMap = false
+local skirmishTable
 while pickedTheMap == false do
 	local pickedMap = convertedListOfMaps[math.random(1,#convertedListOfMaps)]
 	if not pickedMap.isFFA then
