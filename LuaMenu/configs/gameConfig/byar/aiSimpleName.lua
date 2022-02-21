@@ -3,6 +3,7 @@ local subnameMap = {
 	['NullAI 0.1'] = "Inactive AI",
 	['ScavengersAI'] = "ScavengersDefense AI",
 	['ChickensAI'] = "RaptorsDefense AI",
+	['STAI'] = "STAI",
 }
 
 local function GetAiSimpleName(name)
@@ -11,11 +12,11 @@ end
 
 local simpleAiOrder = {
 	['BARb stable'] = 01,
+	['STAI'] = 02,
 	['SimpleAI'] = 11,
 	['SimpleCheaterAI'] = 12,
 	['SimpleDefenderAI'] = 13,
 	['SimpleConstructorAI'] = 14,
-	['STAI'] = 21,
 	['ScavengersAI'] = 31,
 	['ChickensAI'] = 41,
 	['NullAI 0.1'] = 51,
