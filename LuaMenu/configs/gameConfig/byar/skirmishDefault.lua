@@ -19,7 +19,8 @@ while pickedTheMap == false do
 		local enemyAI = {}
 		local friendlyAI = {}
 		for i = 1,teamSizes do
-			local randomAIList = {"SimpleAI", "SimpleAI", "SimpleAI", "SimpleAI", "SimpleAI", "SimpleDefenderAI", "SimpleCheaterAI", "SimpleConstructorAI", "BARb stable", "STAI",}
+			local randomAIList = {"SimpleAI", "SimpleAI", "SimpleAI", "SimpleAI", "SimpleAI", "SimpleDefenderAI", "SimpleCheaterAI", "SimpleConstructorAI", "BARb", "STAI",}
+			--local randomAIList = {"BARb", "STAI",}
 			local randomAI = randomAIList[math.random(1,#randomAIList)]
 			if i == 1 then
 				enemyAI[#enemyAI+1] = {shortName = "SimpleAI"}
