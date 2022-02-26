@@ -274,6 +274,7 @@ local function ParseInfolog(infologpath)
 	if PRINT_DEBUG then Spring.Echo("BAR Analytics: ParseInfolog()", infologpath) end
 	if infolog then
 		local fileLines = lines(infolog)
+		local firstLuauiError = ""
 		for i, line in ipairs(fileLines) do
 			-- look for game or chobby version mismatch, if $VERSION then return
 			if string.find(line,"Chobby $VERSION\"", nil, true) then -- BYAR-Chobby or Chobby is dev mode, so dont report
@@ -281,6 +282,23 @@ local function ParseInfolog(infologpath)
 			end
 			if string.find(line, "Beyond All Reason $VERSION", nil, true) then -- Game is test version, no reporting
 				if not PRINT_DEBUG then return nil end
+			end
+
+
+			--plain old luaui errors:
+			-- [t=00:00:55.609414][f=-000001] Error: gl.CreateList: error(2) = [string "LuaUI/Widgets/gui_options.lua"]:576: attempt to perform arithmetic on field 'value' (a boolean value)
+			-- [t=00:46:28.227318][f=0066863] Error in GameFrame(): [string "LuaUI/Widgets/gui_healthbars_gl4.lua"]:1470: attempt to perform arithmetic on local 'newparalyzeDamage' (a nil value)
+			-- [f=0003767] Error in DrawScreen(): [string "LuaUI/Widgets_BAR/gui_unit_stats.lua"]:603: attempt to perform arithmetic on local 'maxHP' (a nil value)
+
+			if (firstLuauiError == "") and
+				string.find(line,"] Error", nil, true) and
+				string.find(line,"[string \"LuaUI/Widgets/", nil, true) then
+				-- might as well straight up send an analytics event for this
+				firstLuauiError = string.sub(line,string.find(line,"] Error", nil, true) )
+				if PRINT_DEBUG then 
+					Spring.Echo("Found a luaui error while parsing infolog", infologpath, firstLuauiError)
+				end
+				Analytics.SendRepeatEvent("lobby:luauierror", {errorcode = firstLuauiError})
 			end
 
 			if string.find(line, "Error: [LuaRules::RunCallInTraceback] ", nil, true) then -- exact match
@@ -346,7 +364,7 @@ local function GetInfologs()
 	table.sort(filenames, function (a,b) return a > b end) -- reverse dir sort, we only need the most recent 5
 
 	if PRINT_DEBUG then Spring.Echo("BAR Analytics: GetInfologs()", #filenames) end
-	for i=1, math.min(#filenames, 5) do
+	for i=1, math.min(#filenames, 3) do
 		filename = filenames[i]
 		if onetimeEvents["reportedcrashes"][filename] ~= nil then -- we already reported this one
 			Spring.Echo("Already processed an error in ", filename)
