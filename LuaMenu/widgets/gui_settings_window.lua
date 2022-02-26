@@ -888,7 +888,7 @@ local function GetLobbyTabControls()
 		boxalign = "right",
 		boxsize = 20,
 		caption = i18n("randomSkirmishSetup"),
-		checked = Configuration.randomSkirmishSetup or false,
+		checked = Configuration.randomSkirmishSetup or true,
 		tooltip = i18n("randomSkirmishSetup_tooltip"),
 		objectOverrideFont = settingsFont2,
 		--font = Configuration:GetFont(2),
