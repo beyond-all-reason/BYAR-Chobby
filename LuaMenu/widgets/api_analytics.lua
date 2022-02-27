@@ -294,7 +294,11 @@ local function ParseInfolog(infologpath)
 				string.find(line,"] Error", nil, true) and
 				string.find(line,"[string \"LuaUI/Widgets/", nil, true) then
 				-- might as well straight up send an analytics event for this
-				firstLuauiError = string.sub(line,string.find(line,"] Error", nil, true) )
+				local errorstart, errorend = string.find(line,"] Error", nil, true)
+				firstLuauiError = string.sub(line,errorstart + 2, nil)
+				firstLuauiError = string.gsub(firstLuauiError, "\"", "")
+				firstLuauiError = string.gsub(firstLuauiError, "\'", "")
+				firstLuauiError = string.gsub(firstLuauiError, "\\", "/")
 				if PRINT_DEBUG then 
 					Spring.Echo("Found a luaui error while parsing infolog", infologpath, firstLuauiError)
 				end
