@@ -85,9 +85,12 @@ local function MachineHash()
 				cpustr = string.sub(line, e+2)
 				s,e = string.find(cpustr, ";", nil,true)
 				cpuinfo = string.sub(cpustr, 1, s-1)
-				rs,re = string.find(cpustr, ",", nil,true)
-				raminfo = string.sub(cpustr, s+2, rs -1)
-
+				local rs,re = string.find(cpustr, ",", nil,true)
+				if rs and re then 
+					raminfo = string.sub(cpustr, s+2, rs -1)
+				else
+					raminfo = "unknown"
+				end
 				break
 			end
 		end
