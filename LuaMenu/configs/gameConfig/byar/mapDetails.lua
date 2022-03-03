@@ -50,6 +50,7 @@ return {
 ['hotstepper']={Width=8, Height=8, Is1v1=nil, IsTeam=nil, IsFFA=1, IsCertified=nil, Special='Lava', Flat=nil, Hills=nil, Water=nil, IsInPool=1, PlayerCount=nil,TeamCount=nil, InfoText=nil},
 ['Ice Scream v1.1']={Width=12, Height=22, Is1v1=1, IsTeam=1, IsFFA=nil, IsCertified=1, Special=nil, Flat=1, Hills=nil, Water=nil, IsInPool=1, PlayerCount='20',TeamCount='10', InfoText='Large flat map for "cool" team games. Symmetric, acid water (you cant pass there anyway).'},
 ['Incandescence 2.2']={Width=16, Height=16, Is1v1=nil, IsTeam=1, IsFFA=nil, IsCertified=nil, Special=nil, Flat=1, Hills=nil, Water=nil, IsInPool=1, PlayerCount=nil,TeamCount=nil, InfoText=nil},
+['Incandescence_Remake 3.1']={Width=16, Height=16, Is1v1=nil, IsTeam=1, IsFFA=nil, IsCertified=1, Special='Lava', Flat=1, Hills=nil, Water=nil, IsInPool=1, PlayerCount=10,TeamCount=2, InfoText=nil},
 ['KnockoutR 1.5']={Width=18, Height=18, Is1v1=nil, IsTeam=1, IsFFA=1, IsCertified=1, Special=nil, Flat=nil, Hills=1, Water=nil, IsInPool=1, PlayerCount=nil,TeamCount=nil, InfoText=nil}, 
 ['Kolmogorov Remake 3.0']={Width=20, Height=20, Is1v1=nil, IsTeam=1, IsFFA=1, IsCertified=1, Special=nil, Flat=nil, Hills=1, Water=1, IsInPool=1, PlayerCount=8,TeamCount=2, InfoText=nil},
 ['Koom Valley 3 3.1']={Width=24, Height=16, Is1v1=nil, IsTeam=1, IsFFA=nil, IsCertified=1, Special=nil, Flat=1, Hills=1, Water=nil, IsInPool=1, PlayerCount=nil,TeamCount=nil, InfoText=nil},
