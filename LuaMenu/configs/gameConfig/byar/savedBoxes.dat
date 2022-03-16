@@ -19,8 +19,8 @@ Calamity 1.1.smf:2|0 0 200 40;0 160 200 200
 Centerrock Remake 1.2.smf:2|0 0 80 80;120 120 200 200
 Cervino v1.smf:2|0 0 50 200;150 0 200 200
 Coastlines_Dry_V2.1.smf:2|0 0 40 200;160 0 200 200
-Colorado_v1.smf:2|0 0 40 200;160 0 200 200
-Colorado_V2.smf:2|0 0 40 200;160 0 200 200
+#Colorado_v1.smf:2|0 0 40 200;160 0 200 200
+#Colorado_V2.smf:2|0 0 40 200;160 0 200 200
 Colorado_V2 1.1.smf:2|0 0 40 200;160 0 200 200
 Comet Catcher Remake 1.8.smf:2|0 0 34 200;166 0 200 200
 DSDR 4.0.smf:2|0 0 58 200;142 0 200 200
@@ -28,18 +28,18 @@ DWorld_V3.smf:2|0 0 200 54;0 146 200 200
 DeltaSiegeDry.smf:2|0 0 56 200;144 0 200 200
 Desert 3.25.smf:2|0 0 46 200;154 0 200 200
 DesertTriad.smf:2|0 0 46 200;154 0 200 200
-DigSite.smf:2|0 0 200 40;0 160 200 200
+#DigSite.smf:2|0 0 200 40;0 160 200 200
 Downs_of_Destruction_Fix.smf:2|0 140 60 200;140 0 200 60
 Emain Macha v3.smf:2|0 0 200 22;0 178 200 200
 EmainMacha Remake 2.1.smf:2|0 0 200 22;0 178 200 200
-Eye of Horus v13.smf:2|0 0 200 34;0 166 200 200
+#Eye of Horus v13.smf:2|0 0 200 34;0 166 200 200
 Eye Of Horus 1.7.smf:2|0 0 200 34;0 166 200 200
 Fallendell_V4.smf:2|0 0 38 200;162 0 200 200
 FaF.smf:2|0 0 38 200;162 0 200 200
 Flooded_Valley_V5.smf:2|0 0 200 40;0 160 200 200
-FolsomDamDeluxeV4.smf:2|0 0 38 200;162 0 200 200
+#FolsomDamDeluxeV4.smf:2|0 0 38 200;162 0 200 200
 FolsomDamR 1.16.smf:2|0 0 38 200;162 0 200 200
-FolsomDam_V2.smf:2|0 0 20 200;180 0 200 200
+#FolsomDam_V2.smf:2|0 0 20 200;180 0 200 200
 Gecko Isle 1.1.smf:2|0 0 200 30;0 170 200 200
 #Gehenna Rising 3.smf:2|0 0 60 60;140 140 200 200
 #Gehenna Rising 3.smf:4|0 0 60 60;140 140 200 200;0 140 60 200;140 0 200 60
@@ -76,16 +76,16 @@ Neurope_Remake 4.2.smf:2|0 0 30 200;160 0 200 200
 Neurope_Remake 4.2.smf:3|0 0 30 200;160 0 200 200;60 170 140 200
 Neurope_Remake 4.2.smf:4|0 0 30 200;160 0 200 200;60 170 140 200;60 40 140 110
 Nuclear Winter Bar 1.4.smf:2|0 0 40 200;160 0 200 200
-Nuclear Winter v3.smf:2|0 0 50 200;150 0 200 200
+#Nuclear Winter v3.smf:2|0 0 50 200;150 0 200 200
 Otago 1.4.smf:2|0 0 60 200;140 0 200 200
 Painted Badlands 1.0.smf:2|0 0 200 80;0 120 200 200
 Paradise_Lost_V4.smf:2|0 0 30 200;170 0 200 200
 Pentos_V1.smf:2|0 0 64 200;136 0 200 200
 Ponds.smf:2|0 0 200 40;0 160 200 200
-Quicksilver Remake 1.22.smf:2|0 110 90 200;110 0 200 90
+#Quicksilver Remake 1.22.smf:2|0 110 90 200;110 0 200 90
 Quicksilver Remake 1.24.smf:2|0 130 200 200;0 0 200 70
 Red Comet Remake 1.8.smf:2|0 0 46 200;154 0 200 200
-Riverdale Remake 1.4.smf:2|0 0 200 40;0 160 200 200
+#Riverdale Remake 1.4.smf:2|0 0 200 40;0 160 200 200
 Riverdale Remake 2.1.smf:2|0 0 200 40;0 160 200 200
 SapphireShores_V2.2.smf:2|0 0 30 200;170 0 200 200
 Sertagatta_V5.smf:2|0 0 40 200;160 0 200 200
@@ -102,12 +102,12 @@ Stronghold V4.smf:4|0 0 50 50;150 150 200 200;0 150 50 200;150 0 200 50
 Supreme_Crossing_V1.smf:2|0 126 74 200;126 0 200 74
 Supreme_Lake_Dry_V5.smf:2|0 0 80 200;120 0 200 200
 TMA20X 1.8.smf:2|0 0 200 70;0 130 200 200
-TMA20XR 2.1.smf:2|0 0 200 80;0 120 200 200
-Tabula-v4.smf:2|0 0 30 200;170 0 200 200
+#TMA20XR 2.1.smf:2|0 0 200 80;0 120 200 200
+#Tabula-v4.smf:2|0 0 30 200;170 0 200 200
 Tabula_Remake 1.5.smf:2|0 0 30 200;170 0 200 200
-Tabula-v6.1.smf:2|0 0 60 200;140 0 200 200
-Tabula-v6.smf:2|0 0 200 40;0 160 200 200
-Tabula_Flooded_v04.smf:2|0 0 40 200;160 0 200 200
+#Tabula-v6.1.smf:2|0 0 60 200;140 0 200 200
+#Tabula-v6.smf:2|0 0 200 40;0 160 200 200
+#Tabula_Flooded_v04.smf:2|0 0 40 200;160 0 200 200
 Talus-wet-v3.smf:2|0 0 30 200;170 0 200 200
 Talus_v2.smf:2|0 0 30 200;170 0 200 200
 Tempest Dry.smf:2|0 0 200 52;0 148 200 200
