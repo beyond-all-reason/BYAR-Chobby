@@ -60,7 +60,7 @@ return {
 ['LV412 1.3']={Width=16, Height=16, Is1v1=nil, IsTeam=nil, IsFFA=1, IsCertified=1, Special='Survival', Flat=nil, Hills=1, Water=nil, IsInPool=1, PlayerCount='4',TeamCount='2', InfoText='Survival map. Perfect against Chickens or Scavengers.'},
 ['Mescaline_V2']={Width=20, Height=12, Is1v1=nil, IsTeam=1, IsFFA=nil, IsCertified=1, Special=nil, Flat=1, Hills=1, Water=nil, IsInPool=1, PlayerCount=nil,TeamCount=nil, InfoText=nil},
 ['MoonQ20XR2 2.5']={Width=20, Height=10, Is1v1=nil, IsTeam=1, IsFFA=nil, IsCertified=1, Special='Craters', Flat=1, Hills=1, Water=nil, IsInPool=1, PlayerCount=nil,TeamCount=nil, InfoText=nil},
-['Neurope_a7_v3']={Width=32, Height=16, Is1v1=nil, IsTeam=nil, IsFFA=1, IsCertified=1, Special=nil, Flat=1, Hills=nil, Water=1, IsInPool=1, PlayerCount=nil,TeamCount=nil, InfoText=nil},
+--['Neurope_a7_v3']={Width=32, Height=16, Is1v1=nil, IsTeam=nil, IsFFA=1, IsCertified=1, Special=nil, Flat=1, Hills=nil, Water=1, IsInPool=1, PlayerCount=nil,TeamCount=nil, InfoText=nil},
 ['Neurope_Remake 4.2']={Width=32, Height=16, Is1v1=nil, IsTeam=nil, IsFFA=1, IsCertified=1, Special=nil, Flat=1, Hills=nil, Water=1, IsInPool=1, PlayerCount='16',TeamCount='16', InfoText=nil},
 ['Nuclear Winter Bar 1.4']={Width=20, Height=10, Is1v1=nil, IsTeam=1, IsFFA=nil, IsCertified=nil, Special=nil, Flat=1, Hills=nil, Water=nil, IsInPool=1, PlayerCount=nil,TeamCount=nil, InfoText=nil},
 ['Oort_Cloud_V2']={Width=24, Height=24, Is1v1=nil, IsTeam=1, IsFFA=1, IsCertified=1, Special='Metal', Flat=1, Hills=nil, Water=nil, IsInPool=1, PlayerCount='16',TeamCount='16', InfoText='Metal map with strong solar wind, with impassable empty space between the metal structures.'},
