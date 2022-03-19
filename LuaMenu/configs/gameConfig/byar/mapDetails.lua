@@ -115,5 +115,5 @@ return {
 --['Valles_Marineris_v2']={Width=16, Height=12, Is1v1=nil, IsTeam=1, IsFFA=nil, IsCertified=nil, Special=nil, Flat=1, Hills=nil, Water=nil, IsInPool=1, PlayerCount=nil,TeamCount=nil, InfoText=nil},
 ['Valles Marineris 2.6']={Width=16, Height=12, Is1v1=nil, IsTeam=1, IsFFA=nil, IsCertified=1, Special=nil, Flat=1, Hills=1, Water=nil, IsInPool=1, PlayerCount='8',TeamCount='2', InfoText=nil},
 ['Zed Remake 3.1']={Width=12, Height=12, Is1v1=1, IsTeam=nil, IsFFA=nil, IsCertified=1, Special=nil, Flat=nil, Hills=1, Water=nil, IsInPool=1, PlayerCount=2,TeamCount=2, InfoText='1V1 mystic lavamap'},
-#['Zed 2.3 - MexesFix']={Width=12, Height=12, Is1v1=1, IsTeam=nil, IsFFA=nil, IsCertified=nil, Special=nil, Flat=nil, Hills=1, Water=nil, IsInPool=1, PlayerCount=nil,TeamCount=nil, InfoText=nil},
+--['Zed 2.3 - MexesFix']={Width=12, Height=12, Is1v1=1, IsTeam=nil, IsFFA=nil, IsCertified=nil, Special=nil, Flat=nil, Hills=1, Water=nil, IsInPool=1, PlayerCount=nil,TeamCount=nil, InfoText=nil},
 }
