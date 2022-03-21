@@ -114,6 +114,6 @@ return {
 ['Two Continents v1.5']={Width=20, Height=24, Is1v1=1, IsTeam=1, IsFFA=1, IsCertified=1, Special=nil, Flat=nil, Hills=1, Water=1, IsInPool=1, PlayerCount='20',TeamCount='10', InfoText='Large map, optimal for 2 teams, up to 10 players each. Fight for the strategically important center continents or push through the middle water passage. Early fights for reclaim on the middle ridges.'},
 --['Valles_Marineris_v2']={Width=16, Height=12, Is1v1=nil, IsTeam=1, IsFFA=nil, IsCertified=nil, Special=nil, Flat=1, Hills=nil, Water=nil, IsInPool=1, PlayerCount=nil,TeamCount=nil, InfoText=nil},
 ['Valles Marineris 2.6']={Width=16, Height=12, Is1v1=nil, IsTeam=1, IsFFA=nil, IsCertified=1, Special=nil, Flat=1, Hills=1, Water=nil, IsInPool=1, PlayerCount='8',TeamCount='2', InfoText=nil},
-['Zed Remake 3.2']={Width=12, Height=12, Is1v1=1, IsTeam=nil, IsFFA=nil, IsCertified=1, Special=nil, Flat=nil, Hills=1, Water=nil, IsInPool=1, PlayerCount=2,TeamCount=2, InfoText='1V1 mystic lavamap'},
+['Zed Remake 3.3']={Width=12, Height=12, Is1v1=1, IsTeam=nil, IsFFA=nil, IsCertified=1, Special=nil, Flat=nil, Hills=1, Water=nil, IsInPool=1, PlayerCount=2,TeamCount=2, InfoText='1V1 mystic lavamap'},
 --['Zed 2.3 - MexesFix']={Width=12, Height=12, Is1v1=1, IsTeam=nil, IsFFA=nil, IsCertified=nil, Special=nil, Flat=nil, Hills=1, Water=nil, IsInPool=1, PlayerCount=nil,TeamCount=nil, InfoText=nil},
 }
