@@ -277,7 +277,7 @@ local function ParseInfolog(infologpath)
 	if PRINT_DEBUG then Spring.Echo("BAR Analytics: ParseInfolog()", infologpath) end
 	if infolog then
 		local fileLines = lines(infolog)
-		local firstLuauiError = ""
+		local luauierrorcount = 0 
 		for i, line in ipairs(fileLines) do
 			-- look for game or chobby version mismatch, if $VERSION then return
 			if string.find(line,"Chobby $VERSION\"", nil, true) then -- BYAR-Chobby or Chobby is dev mode, so dont report
@@ -293,19 +293,20 @@ local function ParseInfolog(infologpath)
 			-- [t=00:46:28.227318][f=0066863] Error in GameFrame(): [string "LuaUI/Widgets/gui_healthbars_gl4.lua"]:1470: attempt to perform arithmetic on local 'newparalyzeDamage' (a nil value)
 			-- [f=0003767] Error in DrawScreen(): [string "LuaUI/Widgets_BAR/gui_unit_stats.lua"]:603: attempt to perform arithmetic on local 'maxHP' (a nil value)
 
-			if (firstLuauiError == "") and
+			if (luauierrorcount < 3) and
 				string.find(line,"] Error", nil, true) and
-				string.find(line,"[string \"LuaUI/Widgets/", nil, true) then
+				string.find(line,"[string \"LuaUI/", nil, true) then
 				-- might as well straight up send an analytics event for this
+				luauierrorcount = luauierrorcount + 1
 				local errorstart, errorend = string.find(line,"] Error", nil, true)
-				firstLuauiError = string.sub(line,errorstart + 2, nil)
+				local firstLuauiError = string.sub(line, errorstart + 2, nil)
 				firstLuauiError = string.gsub(firstLuauiError, "\"", "")
 				firstLuauiError = string.gsub(firstLuauiError, "\'", "")
 				firstLuauiError = string.gsub(firstLuauiError, "\\", "/")
 				if PRINT_DEBUG then 
 					Spring.Echo("Found a luaui error while parsing infolog", infologpath, firstLuauiError)
 				end
-				Analytics.SendRepeatEvent("lobby:luauierror", {errorcode = firstLuauiError})
+				Analytics.SendRepeatEvent("lobby:luauierror", {errorcode = firstLuauiError .. " file:" .. infologpath})
 			end
 
 			if string.find(line, "Error: [LuaRules::RunCallInTraceback] ", nil, true) then -- exact match
