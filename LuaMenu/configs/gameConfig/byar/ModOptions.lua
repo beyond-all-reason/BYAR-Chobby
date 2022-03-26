@@ -643,6 +643,15 @@ local options={
 		def    = false,
 		section= "options",
 	},
+	{
+		key    = "ffa_wreckage",
+		name   = "FFA Mode Wreckage",
+		desc   = "Killed players will blow up but leave wreckages",
+		hidden = true,
+		type   = "bool",
+		def    = false,
+		section= "options",
+	},
   
 	{
 		key    = 'coop',
