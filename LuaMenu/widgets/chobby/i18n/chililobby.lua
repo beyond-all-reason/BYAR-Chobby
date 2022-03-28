@@ -169,6 +169,8 @@ return {
 		wip_challenges = "WiP Challenges",
 		scenarios = "Scenarios",
 		-- Settings
+		randomSkirmishSetup = "Random Skirmish AI and Map",
+		randomSkirmishSetup_tooltip = "Randomizes AIs and Map in Singleplayer Skirmish mode. Requires Restart.",
 		planetwars_notifications = "Planetwars notifications",
 		ingame_notifcations = "Notifications while ingame",
 		ingame_notifcations_tooltip = "Allows chat from friends and other important notifications to be shown while you are playing",

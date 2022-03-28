@@ -146,11 +146,8 @@ end
 
 function widget:Initialize()
 
-	math.randomseed( os.clock() )
-	math.random(); math.random(); math.random()
-
-	-- load custom game dependent music
-	-- randomTrackList = WG.Chobby.Configuration.gameConfig.randomTrackList
+	--math.randomseed( os.clock() )
+	--math.random(); math.random(); math.random()
 
 	randomTrackList = {}
 	local originalSoundtrackEnabled = Spring.GetConfigInt('UseSoundtrackNew', 1)
@@ -159,6 +156,7 @@ function widget:Initialize()
 	
 	
 	local musicPlaylist = {}
+	-- Original Soundtrack List
 	if originalSoundtrackEnabled == 1 then
 		local musicDirOriginal 		= 'luamenu/configs/gameconfig/byar/lobbyMusic/original'
 		randomTrackList = table.merge(randomTrackList, VFS.DirList(musicDirOriginal, '*.ogg'))
@@ -182,10 +180,17 @@ function widget:Initialize()
 		return
 	end
 
-	--openTrack = WG.Chobby.Configuration.gameConfig.openTrack
-	--if openTrack == nil then
-	openTrack = randomTrackList[math.random(#randomTrackList)]
-	--end
+	for i = 1,1000 do
+		openTrackTest = randomTrackList[math.random(#randomTrackList)]
+		Spring.Echo("[LobbyMusicPlayer] OpenTrackTest path: "..openTrackTest)
+		if string.find(openTrackTest, "(intro)") or string.find(openTrackTest, "(INTRO)") then
+			openTrack = openTrackTest
+			break
+		end
+		if i == 1000 then
+			openTrack = randomTrackList[math.random(#randomTrackList)]
+		end
+	end
 
 	local Configuration = WG.Chobby.Configuration
 

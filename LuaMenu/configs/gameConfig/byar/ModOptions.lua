@@ -228,6 +228,51 @@ local options={
 		section		= 'restrictions',
 		def    		= false,
 	},
+
+	{
+		key    = 'map_restrictions_shrinknorth',
+		name   = 'Map Shrink Percentage North',
+		desc   = 'Set a percentage of map area to cut from playable area from the north',
+		type   = 'number',
+		def    = 0,
+		min    = 0,
+		max    = 100,
+		step   = 1,
+		section= "restrictions",
+	},
+	{
+		key    = 'map_restrictions_shrinksouth',
+		name   = 'Map Shrink Percentage South',
+		desc   = 'Set a percentage of map area to cut from playable area from the south',
+		type   = 'number',
+		def    = 0,
+		min    = 0,
+		max    = 100,
+		step   = 1,
+		section= "restrictions",
+	},
+	{
+		key    = 'map_restrictions_shrinkwest',
+		name   = 'Map Shrink Percentage West',
+		desc   = 'Set a percentage of map area to cut from playable area from the west',
+		type   = 'number',
+		def    = 0,
+		min    = 0,
+		max    = 100,
+		step   = 1,
+		section= "restrictions",
+	},
+	{
+		key    = 'map_restrictions_shrinkeast',
+		name   = 'Map Shrink Percentage East',
+		desc   = 'Set a percentage of map area to cut from playable area from the east',
+		type   = 'number',
+		def    = 0,
+		min    = 0,
+		max    = 100,
+		step   = 1,
+		section= "restrictions",
+	},
 	---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 	---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 	-- Scavengers
@@ -432,7 +477,6 @@ local options={
 			{key="normal", name="Medium", desc="Medium"},
 			{key="hard", name="Hard", desc="Hard"},
 			{key="veryhard", name="Very Hard", desc="Very Hard"},
-			{key="epic", name="Epic", desc="Epic"},
 			{key="survival", name="Survival", desc="Endless Mode"}
 		}
 	},
@@ -599,6 +643,15 @@ local options={
 		def    = false,
 		section= "options",
 	},
+	{
+		key    = "ffa_wreckage",
+		name   = "FFA Mode Wreckage",
+		desc   = "Killed players will blow up but leave wreckages",
+		hidden = true,
+		type   = "bool",
+		def    = false,
+		section= "options",
+	},
   
 	{
 		key    = 'coop',
@@ -710,7 +763,7 @@ local options={
 		desc   = 'How many assist drones per commander should be spawned',
 		type   = 'number',
 		section= 'options',
-		def    = 8,
+		def    = 4,
 		min    = 1,
 		max    = 30,
 		step   = 1,
@@ -718,7 +771,7 @@ local options={
 
 	{
 		key="commanderbuildersenabled",
-		name="Commander Builders",
+		name="Base Construction Turret",
 		type="list",
 		def="scav_only",
 		section="options",
@@ -795,6 +848,7 @@ local options={
 		min    = 1,
 		max    = 10,
 		step   = 1,  -- quantization is aligned to the def value
+		hidden = true,
 		-- (step <= 0) means that there is no quantization
 	},
 	{
@@ -875,7 +929,7 @@ local options={
 		hidden = true,
 		type   = 'number',
 		section= 'controlvictoryoptions',
-		def    = 5,
+		def    = 100,
 		min    = 1,
 		max    = 100,
 		step   = 1,  -- quantization is aligned to the def value
@@ -1091,6 +1145,15 @@ local options={
 		key    = 'experimentalscavuniqueunits',
 		name   = 'Scavenger Units Buildable by Players',
 		desc   = 'Scavenger Units Buildable by Players',
+		type   = 'bool',
+		section = 'options_experimental',
+		def  = false,
+	},
+
+	{
+		key    = 'experimentallegionfaction',
+		name   = 'Legion Faction',
+		desc   = '3rd experimental faction',
 		type   = 'bool',
 		section = 'options_experimental',
 		def  = false,
