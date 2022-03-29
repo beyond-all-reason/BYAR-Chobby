@@ -298,8 +298,8 @@ local function ParseInfolog(infologpath)
 				string.find(line,"[string \"LuaUI/", nil, true) then
 				-- might as well straight up send an analytics event for this
 				luauierrorcount = luauierrorcount + 1
-				local errorstart, errorend = string.find(line,"] Error", nil, true)
-				local firstLuauiError = string.sub(line, errorstart + 2, nil)
+				--local errorstart, errorend = string.find(line,"] Error", nil, true)
+				local firstLuauiError = line
 				firstLuauiError = string.gsub(firstLuauiError, "\"", "")
 				firstLuauiError = string.gsub(firstLuauiError, "\'", "")
 				firstLuauiError = string.gsub(firstLuauiError, "\\", "/")
