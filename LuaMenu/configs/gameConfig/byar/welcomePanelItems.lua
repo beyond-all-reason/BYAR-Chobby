@@ -20,6 +20,12 @@ local welcomePanelItems = {
         Text = "We have moved the multiplayer lobby server from road-flag.bnr.la:8200 to server2.beyondallreason.info:8200. We hope games will continue to be uninterrupted, report any connectivity issues to us on Discord!\n Please update your game to automatically switch over, and if you need to manually switch servers, you can do so in Settings->Lobby->Choose Server" ,
     },]]--
     {
+        Header = "Beyond All Reason Alpha Championship Cup #2",
+        Url = "https://challonge.com/tournaments/signup/UxXpuy8RO0#/signup/bbsespckcj",
+        Time = nil, --"",
+        Text = "Click above for more info!\nFormat: 1v1 - Single Stage - Double Elimination\nDate: Sat 9th April - 15:00 UTC\nPrize Pool: $330, Courtesy of Jazcash $200, Badosu $10, PtaQ $50, Glass $70\n    1st Place: 60%\n    2nd Place: 30%\n    3rd Place: 10%\n \nKeep your eye on #announcements and #tournament channel in discord for more info.\nFeel free to direct any questions to @Jazcash on Discord!"
+    },
+    {
         Header = "New single player scenarios",
         Url = nil, --"https://www.beyondallreason.info/",
         Time = nil,-- "NowTime",
