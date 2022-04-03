@@ -121,7 +121,7 @@ local options={
 			{key="none", name="Disallow All", desc="No enemy units can be napped"},
 		}
 	},
-	{		
+	{
 		key    		= "allowuserwidgets",
 		name   		= "Allow custom widgets",
 		desc   		= "Allow custom user widgets or disallow them",
@@ -547,13 +547,13 @@ local options={
 		def    = true,
 		section= "chicken_defense_options",
     },
-	
+
 	---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 	---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 	-- TeamColoring
 	---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 	---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-	
+
 	{
 		key		= "teamcoloring_options",
 		name	= "TeamColors",
@@ -584,20 +584,20 @@ local options={
 			{key="gaiagray", name="Gaia Gray", desc="description"},
 		}
 	},
-	
+
 	---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 	---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 	-- Other Options
 	---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 	---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-	
+
 	{
 		key		= "options",
 		name	= "Other",
 		desc	= "Options",
 		type	= "section",
 	},
-	
+
 	{
 		key    = 'critters',
 		name   = 'Animal amount',
@@ -652,7 +652,16 @@ local options={
 		def    = false,
 		section= "options",
 	},
-  
+	{
+		key    = "ffa_wreckage",
+		name   = "FFA Mode Wreckage",
+		desc   = "Killed players will blow up but leave wreckages",
+		hidden = true,
+		type   = "bool",
+		def    = false,
+		section= "options",
+	},
+
 	{
 		key    = 'coop',
 		name   = 'Cooperative mode',
@@ -661,7 +670,7 @@ local options={
 		def    = false,
 		section= 'options',
 	},
-	
+
 	{
 		key    = 'disablemapdamage',
 		name   = 'Undeformable map',
@@ -1031,10 +1040,167 @@ local options={
 
 	---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 	---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-	-- Experimental Options
+	-- Multiplier Options
 	---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 	---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+	{
+		key		= "options_multipliers",
+		name	= "Multipliers",
+		desc	= "Multipliers options",
+		type	= "section",
+	},
+
+	{
+		key    = 'multiplier_maxdamage',
+		name   = 'Health Multiplier',
+		desc   = 'Health Multiplier',
+		type   ="number",
+		section = 'options_multipliers',
+		def    = 1,
+		min    = 0.1,
+		max    = 10,
+		step   = 0.1,
+	},
+
+	{
+		key    = 'multiplier_maxvelocity',
+		name   = 'Unit MaxSpeed Multiplier',
+		desc   = 'Unit MaxSpeed Multiplier',
+		type   ="number",
+		section = 'options_multipliers',
+		def    = 1,
+		min    = 0.1,
+		max    = 10,
+		step   = 0.1,
+	},
+
+	{
+		key    = 'multiplier_turnrate',
+		name   = 'Unit TurnSpeed Multiplier',
+		desc   = 'Unit TurnSpeed Multiplier',
+		type   ="number",
+		section = 'options_multipliers',
+		def    = 1,
+		min    = 0.1,
+		max    = 10,
+		step   = 0.1,
+	},
+
+	{
+		key    = 'multiplier_builddistance',
+		name   = 'Build Range Multiplier',
+		desc   = 'Build Range Multiplier',
+		type   ="number",
+		section = 'options_multipliers',
+		def    = 1,
+		min    = 0.1,
+		max    = 10,
+		step   = 0.1,
+	},
+
+	{
+		key    = 'multiplier_buildpower',
+		name   = 'Build Power Multiplier',
+		desc   = 'Build Power Multiplier',
+		type   ="number",
+		section = 'options_multipliers',
+		def    = 1,
+		min    = 0.1,
+		max    = 10,
+		step   = 0.1,
+	},
+
+	{
+		key    = 'multiplier_metalcost',
+		name   = 'Unit Cost Multiplier - Metal',
+		desc   = 'Unit Cost Multiplier - Metal',
+		type   ="number",
+		section = 'options_multipliers',
+		def    = 1,
+		min    = 0.1,
+		max    = 10,
+		step   = 0.1,
+	},
+
+	{
+		key    = 'multiplier_energycost',
+		name   = 'Unit Cost Multiplier - Energy',
+		desc   = 'Unit Cost Multiplier - Energy',
+		type   ="number",
+		section = 'options_multipliers',
+		def    = 1,
+		min    = 0.1,
+		max    = 10,
+		step   = 0.1,
+	},
+
+	{
+		key    = 'multiplier_buildtimecost',
+		name   = 'Unit Cost Multiplier - Time',
+		desc   = 'Unit Cost Multiplier - Time',
+		type   ="number",
+		section = 'options_multipliers',
+		def    = 1,
+		min    = 0.1,
+		max    = 10,
+		step   = 0.1,
+	},
+
+	{
+		key    = 'multiplier_losrange',
+		name   = 'Vision Range Multiplier',
+		desc   = 'Vision Range Multiplier',
+		type   ="number",
+		section = 'options_multipliers',
+		def    = 1,
+		min    = 0.1,
+		max    = 10,
+		step   = 0.1,
+	},
+
+	{
+		key    = 'multiplier_radarrange',
+		name   = 'Radar and Sonar Range Multiplier',
+		desc   = 'Radar and Sonar Range Multiplier',
+		type   ="number",
+		section = 'options_multipliers',
+		def    = 1,
+		min    = 0.1,
+		max    = 10,
+		step   = 0.1,
+	},
+
+	{
+		key    = 'multiplier_weaponrange',
+		name   = 'Weapon Range Multiplier',
+		desc   = 'Weapon Range Multiplier',
+		type   ="number",
+		section = 'options_multipliers',
+		def    = 1,
+		min    = 0.1,
+		max    = 10,
+		step   = 0.1,
+	},
+
+	{
+		key    = 'multiplier_weapondamage',
+		name   = 'Weapon Damage Multiplier',
+		desc   = 'Weapon Damage Multiplier (Also affects unit death explosions)',
+		type   ="number",
+		section = 'options_multipliers',
+		def    = 1,
+		min    = 0.1,
+		max    = 10,
+		step   = 0.1,
+	},
+
+
+	---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+	---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+	-- Experimental Options
+	---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+	---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 	{
 		key		= "options_experimental",
 		name	= "Experimental",
@@ -1090,54 +1256,6 @@ local options={
 		def    = 1,
 		min    = 0.1,
 		max    = 10,
-		step   = 0.1,
-	},
-	{
-		key    = 'experimentalbuildrange',
-		name   = 'Build Range Multiplier',
-		desc   = 'Build Range Multiplier',
-		hidden = true,
-		type   ="number",
-		section = 'options_experimental',
-		def    = 1,
-		min    = 0.1,
-		max    = 10,
-		step   = 0.1,
-	},
-
-	{
-		key    = 'experimentalbuildpower',
-		name   = 'Build Power Multiplier',
-		desc   = 'Build Power Multiplier',
-		hidden = true,
-		type   ="number",
-		section = 'options_experimental',
-		def    = 1,
-		min    = 0.1,
-		max    = 10,
-		step   = 0.1,
-	},
-	{
-		key    = 'experimentallosrange',
-		name   = 'Line of Sight Range Multiplier',
-		desc   = 'Line of Sight Range Multiplier',
-		type   ="number",
-		section = 'options_experimental',
-		def    = 1,
-		min    = 0.1,
-		max    = 5,
-		step   = 0.1,
-	},
-
-	{
-		key    = 'experimentalradarrange',
-		name   = 'Radar Range Multiplier',
-		desc   = 'Radar Range Multiplier',
-		type   ="number",
-		section = 'options_experimental',
-		def    = 1,
-		min    = 0.1,
-		max    = 5,
 		step   = 0.1,
 	},
 
