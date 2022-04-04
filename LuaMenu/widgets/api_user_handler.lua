@@ -202,14 +202,14 @@ local function GetUserComboBoxOptions(userName, isInBattle, userControl, showTea
 		if userInfo.accountID and Configuration.gameConfig.link_reportPlayer ~= nil then
 			comboOptions[#comboOptions + 1] = "Report"
 		end
-
+		
 		if userInfo.isIgnored then
 			comboOptions[#comboOptions + 1] = "Unignore"
-		-- elseif not userInfo.isAdmin then
-		-- 	if (not Configuration.gameConfig.spadsLobbyFeatures) or
-		-- 		(Configuration.gameConfig.spadsLobbyFeatures and not userInfo.isBot) then
-		-- 		-- comboOptions[#comboOptions + 1] = "Ignore" --remove ignore for now
-		-- 	end
+		elseif not userInfo.isAdmin then
+		 	if (not Configuration.gameConfig.spadsLobbyFeatures) or
+		 		(Configuration.gameConfig.spadsLobbyFeatures and not userInfo.isBot) then
+		 		comboOptions[#comboOptions + 1] = "Ignore" --remove ignore for now
+		 	end
 		end
 
 
@@ -837,8 +837,12 @@ local function GetUserControls(userName, opts)
 							WG.BrowserHandler.OpenUrl(Configuration.gameConfig.link_reportPlayer(userInfo.accountID))
 						end
 					elseif selectedName == "Unignore" then
+						local userInfo = userControls.lobby:GetUser(userName)
+						userInfo.isIgnored = nil
 						userControls.lobby:Unignore(userName)
 					elseif selectedName == "Ignore" then
+						local userInfo = userControls.lobby:GetUser(userName)
+						userInfo.isIgnored = true
 						userControls.lobby:Ignore(userName)
 					elseif selectedName == "Report User" then
 						WG.TextEntryWindow.CreateTextEntryWindow({
