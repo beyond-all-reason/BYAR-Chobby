@@ -319,7 +319,7 @@ local function ParseInfolog(infologpath)
 			end
 
 
-			if string.find(line, "Error: [LuaMenu::RunCallInTraceback] ", nil, true) then -- exact match
+			if string.find(line, "Error: [LuaMenu::RunCallInTraceback] ", nil, true) or string.find(line, "] [LuaMenu] Error: In", nil) or string.find(line,"] [Chili] Error: stacktrace:", nil) then -- exact match
 				--Error: [LuaMenu::RunCallInTraceback] error=4 (LUA_ERRMEM) callin=MousePress trace=[Internal Lua error: Call failure] not enough memory
 				--local errorkeystart = string.find(line,"[string ",nil, true ) or 1
 				--local errorname = string.sub(line, errorkeystart, nil)
