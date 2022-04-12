@@ -83,7 +83,7 @@ local communityLines = {
 		"Youtube channel.",
 		"Youtube",
 		function ()
-			WG.BrowserHandler.OpenUrl("https://www.youtube.com/user/Ruwetuin")
+			WG.BrowserHandler.OpenUrl("https://www.youtube.com/BeyondAllReason")
 		end
 	},
 	{
