@@ -8,7 +8,7 @@
     "BumpWaterBlurReflection": 1,
     "BumpWaterDepthBits": 16,
     "BumpWaterShoreWaves": 1,
-    "BumpWaterTexSizeReflection": 512,
+    "BumpWaterTexSizeReflection": 1024,
     "CamTimeExponent": 4.0,
     "CamTimeFactor": 1.0,
     "CrossAlpha": 0,
