@@ -47,7 +47,7 @@ function InterfaceSkirmish:MakeScriptTXT(script)
 	return str
 end
 
-function InterfaceSkirmish:_StartScript(gameName, mapName, playerName, friendList, friendsReplaceAI, hostPort)
+function InterfaceSkirmish:_StartScript(gameName, mapName, playerName, friendList, friendsReplaceAI, hostPort, startPosType)
 	local allyTeams = {}
 	local allyTeamCount = 0
 	local teams = {} -- OHO this is teams, not allyteams!
@@ -289,7 +289,7 @@ function InterfaceSkirmish:_StartScript(gameName, mapName, playerName, friendLis
 		nohelperais = 0,
 		numplayers = playerCount,
 		numusers = playerCount + aiCount,
-		startpostype = 2,
+		startpostype = startPosType or 2,
 		modoptions = self.modoptions,
 		GameStartDelay = 5,
 	}
@@ -426,7 +426,7 @@ function InterfaceSkirmish:StartBattle(gameType, myName, friendList, friendsRepl
 
 	self:_CallListeners("OnBattleAboutToStart", gameType, battle.gameName, battle.mapName)
 	self:_OnSaidBattleEx("Battle", "about to start", battle.gameName, battle.mapName, myName)
-	self:_StartScript(battle.gameName, battle.mapName, myName, friendList, friendsReplaceAI, hostPort)
+	self:_StartScript(battle.gameName, battle.mapName, myName, friendList, friendsReplaceAI, hostPort, battle.startPosType)
 	return self
 end
 

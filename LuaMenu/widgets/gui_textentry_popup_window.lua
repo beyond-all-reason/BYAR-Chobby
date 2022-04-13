@@ -112,7 +112,7 @@ local function CreateTextEntryWindow(opts)
 	}
 
 
-	WG.Chobby.PriorityPopup(TextEntryWindow, CloseFunction, CloseFunction, screen0)
+	WG.Chobby.PriorityPopup(TextEntryWindow, CloseFunction, CloseFunction, screen0, nil, opts.disableAcceptHotkey)
 end
 
 function widget:Initialize()

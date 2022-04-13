@@ -651,6 +651,38 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		}
 	end
 	]]--
+	if config.devMode then 
+		local comboboxstartpostype = ComboBox:New{
+			x = 0,
+			bottom = 100,
+			right = 0,
+			height = 30,
+			itemHeight = 22,
+			selectByName = true,
+			captionHorAlign = -12,
+			text = "",
+			font = config:GetFont(2),
+			items = {"Fixed", "Random", "Choose In Game", "Choose Before Game"},
+			itemFontSize = config:GetFont(2).size,
+			selected = "Choose In Game",
+			OnSelectName = {
+				function (obj, selectedName)
+					for k,v in ipairs  {"Fixed", "Random", "Choose In Game", "Choose Before Game"} do
+						if selectedName == v then
+							battle.startPosType = k - 1
+							Spring.Echo("Selected startPosType", k,v, k-1,selectedName)
+							return
+						end
+					end
+					battle.startPosType = nil
+				end
+			},
+			parent = rightInfo,
+		}
+	end
+
+
+
 
 
 	local function RejoinBattleFunc()

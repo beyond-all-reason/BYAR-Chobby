@@ -873,7 +873,32 @@ local function GetLobbyTabControls()
 	}
 	offset = offset + ITEM_OFFSET
 
-
+	-- Why is this shit so fucked up.
+	local randomSkirmishOption = Spring.GetConfigInt("randomSkirmishSetup", 1)
+	if randomSkirmishOption == 1 then
+		Configuration.randomSkirmishSetup = true
+	else
+		Configuration.randomSkirmishSetup = false
+	end
+	local randomSkirmishSetup = Checkbox:New {
+		x = 20,
+		width = CHECK_WIDTH,
+		y = offset,
+		height = 30,
+		boxalign = "right",
+		boxsize = 20,
+		caption = i18n("randomSkirmishSetup"),
+		checked = Configuration.randomSkirmishSetup or true,
+		tooltip = i18n("randomSkirmishSetup_tooltip"),
+		objectOverrideFont = settingsFont2,
+		--font = Configuration:GetFont(2),
+		OnChange = {function (obj, newState)
+			Configuration:SetConfigValue("randomSkirmishSetup", newState)
+		end},
+	}
+	children[#children + 1] = randomSkirmishSetup
+	offset = offset + ITEM_OFFSET
+	
 	local autoLogin = Checkbox:New {
 		x = 20,
 		width = CHECK_WIDTH,
@@ -913,6 +938,7 @@ local function GetLobbyTabControls()
 	children[#children + 1], offset = AddCheckboxSetting(offset, i18n("fixFlicker"), "fixFlicker", true, nil, i18n("fixFlicker_tooltip"))
 	children[#children + 1], offset = AddCheckboxSetting(offset, i18n("displayBots"), "displayBots", false, nil, i18n("displayBots_tooltip") )
 	children[#children + 1], offset = AddCheckboxSetting(offset, i18n("filterbattleroom"), "filterbattleroom", true, nil, i18n("filterbattleroom_tooltip"))
+
 	--children[#children + 1], offset = AddCheckboxSetting(offset, i18n("keep_queues"), "rememberQueuesOnStart", false, nil, "Stay in matchmaker queues when a battle is launched.")
 
 
@@ -1040,6 +1066,14 @@ local function GetLobbyTabControls()
 		end
 		if key == "autoLogin" then
 			autoLogin:SetToggle(value)
+		end
+		if key == "randomSkirmishSetup" then
+			if value == true then
+				Spring.SetConfigInt("randomSkirmishSetup", 1)
+			else
+				Spring.SetConfigInt("randomSkirmishSetup", 0)
+			end
+			--Configuration:SetConfigValue("randomSkirmishSetup", value)
 		end
 	end
 

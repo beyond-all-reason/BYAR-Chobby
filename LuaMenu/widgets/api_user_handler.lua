@@ -202,14 +202,14 @@ local function GetUserComboBoxOptions(userName, isInBattle, userControl, showTea
 		if userInfo.accountID and Configuration.gameConfig.link_reportPlayer ~= nil then
 			comboOptions[#comboOptions + 1] = "Report"
 		end
-
+		
 		if userInfo.isIgnored then
 			comboOptions[#comboOptions + 1] = "Unignore"
-		-- elseif not userInfo.isAdmin then
-		-- 	if (not Configuration.gameConfig.spadsLobbyFeatures) or
-		-- 		(Configuration.gameConfig.spadsLobbyFeatures and not userInfo.isBot) then
-		-- 		-- comboOptions[#comboOptions + 1] = "Ignore" --remove ignore for now
-		-- 	end
+		elseif not userInfo.isAdmin then
+		 	if (not Configuration.gameConfig.spadsLobbyFeatures) or
+		 		(Configuration.gameConfig.spadsLobbyFeatures and not userInfo.isBot) then
+		 		comboOptions[#comboOptions + 1] = "Ignore" --remove ignore for now
+		 	end
 		end
 
 
@@ -837,17 +837,23 @@ local function GetUserControls(userName, opts)
 							WG.BrowserHandler.OpenUrl(Configuration.gameConfig.link_reportPlayer(userInfo.accountID))
 						end
 					elseif selectedName == "Unignore" then
+						local userInfo = userControls.lobby:GetUser(userName)
+						userInfo.isIgnored = nil
 						userControls.lobby:Unignore(userName)
 					elseif selectedName == "Ignore" then
+						local userInfo = userControls.lobby:GetUser(userName)
+						userInfo.isIgnored = true
 						userControls.lobby:Ignore(userName)
 					elseif selectedName == "Report User" then
 						WG.TextEntryWindow.CreateTextEntryWindow({
 							defaultValue = "",
 							caption = "Report "..userName,
-							labelCaption = "Report ".. userName .." for abusive behaviour or violation of the terms of service. Click \"Report\" to send the report, escape or enter to cancel.",
+							labelCaption = "Report ".. userName .." for abusive behaviour or violation of the terms of service. Please specify a description of the event.",
 							width = 360,
 							--ebheight = 120,
 							oklabel = "Report",
+							disableAcceptHotkey = true,
+							url = 'https://www.beyondallreason.info/code-of-conduct',
 							OnAccepted = function(reportreason)
 								if isSingleplayer then
 									-- hell no
