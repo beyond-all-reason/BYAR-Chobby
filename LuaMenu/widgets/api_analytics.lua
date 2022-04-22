@@ -346,7 +346,11 @@ local function ParseInfolog(infologpath)
 					end
 				end
 
-				return "EngineCrash", stackframe, infolog
+				if string.find(infolog, 'This stacktrace indicates a problem with a skirmish AI', nil , true) then 
+					return "AICrash", stackframe, infolog
+				else
+					return "EngineCrash", stackframe, infolog
+				end
 			end
 
 			if string.find(line, "TraceFullEcho:[", nil, true) then -- exact match
