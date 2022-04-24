@@ -270,6 +270,12 @@ local function HandleAnalytics(msg)
 	end
 end
 
+local function EscapeSlashesAndQuotes(s)
+	s = string.gsub(s, "\"", "")
+	s = string.gsub(s, "\'", "")
+	s = string.gsub(s, "\\", "/")
+	return s
+end
 
 local function ParseInfolog(infologpath)
 	local infolog = VFS.LoadFile(infologpath)
@@ -299,14 +305,19 @@ local function ParseInfolog(infologpath)
 				-- might as well straight up send an analytics event for this
 				luauierrorcount = luauierrorcount + 1
 				--local errorstart, errorend = string.find(line,"] Error", nil, true)
-				local firstLuauiError = line
-				firstLuauiError = string.gsub(firstLuauiError, "\"", "")
-				firstLuauiError = string.gsub(firstLuauiError, "\'", "")
-				firstLuauiError = string.gsub(firstLuauiError, "\\", "/")
+				local luauiError = EscapeSlashesAndQuotes(line)
 				if PRINT_DEBUG then 
-					Spring.Echo("Found a luaui error while parsing infolog", infologpath, firstLuauiError)
+					Spring.Echo("Found a luaui error while parsing infolog", infologpath, luauiError)
 				end
-				Analytics.SendRepeatEvent("lobby:luauierror", {errorcode = firstLuauiError .. " file:" .. infologpath})
+				Analytics.SendRepeatEvent("lobby:luauierror", {errorcode = luauiError .. " file:" .. infologpath})
+			end
+
+			if string.find(line, "Missing I18N for map feature:", nil, true) then
+				local luauiError = EscapeSlashesAndQuotes(line)
+				if PRINT_DEBUG then
+					Spring.Echo("Found a Missing I18N for map feature: while parsing infolog", infologpath, luauiError)
+				end
+				Analytics.SendRepeatEvent("lobby:luauierror", {errorcode = luauiError .. " file:" .. infologpath})
 			end
 
 			if string.find(line, "Error: [LuaRules::RunCallInTraceback] ", nil, true) then -- exact match
