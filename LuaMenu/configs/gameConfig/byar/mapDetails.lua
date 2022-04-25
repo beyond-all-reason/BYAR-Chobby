@@ -64,7 +64,7 @@ return {
 ['Neurope_Remake 4.2']={Width=32, Height=16, Is1v1=nil, IsTeam=nil, IsFFA=1, IsCertified=1, Special=nil, Flat=1, Hills=nil, Water=1, IsInPool=1, PlayerCount='16',TeamCount='16', InfoText=nil},
 ['Nuclear Winter Bar 1.4']={Width=20, Height=10, Is1v1=nil, IsTeam=1, IsFFA=nil, IsCertified=nil, Special=nil, Flat=1, Hills=nil, Water=nil, IsInPool=1, PlayerCount=nil,TeamCount=nil, InfoText=nil},
 ['Oort_Cloud_V2']={Width=24, Height=24, Is1v1=nil, IsTeam=1, IsFFA=1, IsCertified=1, Special='Metal', Flat=1, Hills=nil, Water=nil, IsInPool=1, PlayerCount='16',TeamCount='16', InfoText='Metal map with strong solar wind, with impassable empty space between the metal structures.'},
-['Otago 1.4']={Width=16, Height=16, Is1v1=nil, IsTeam=1, IsFFA=nil, IsCertified=nil, Special=nil, Flat=nil, Hills=1, Water=nil, IsInPool=1, PlayerCount=nil,TeamCount=nil, InfoText=nil},
+--['Otago 1.4']={Width=16, Height=16, Is1v1=nil, IsTeam=1, IsFFA=nil, IsCertified=nil, Special=nil, Flat=nil, Hills=1, Water=nil, IsInPool=1, PlayerCount=nil,TeamCount=nil, InfoText=nil},
 ['Painted Badlands 1.0']={Width=16, Height=16, Is1v1=nil, IsTeam=1, IsFFA=nil, IsCertified=nil, Special=nil, Flat=1, Hills=nil, Water=nil, IsInPool=1, PlayerCount=nil,TeamCount=nil, InfoText=nil},
 ['Paradise_Lost_V4']={Width=20, Height=10, Is1v1=nil, IsTeam=1, IsFFA=nil, IsCertified=1, Special=nil, Flat=nil, Hills=nil, Water=1, IsInPool=1, PlayerCount=nil,TeamCount=nil, InfoText=nil},
 ['Pentos_V1']={Width=20, Height=20, Is1v1=nil, IsTeam=nil, IsFFA=1, IsCertified=1, Special=nil, Flat=1, Hills=nil, Water=1, IsInPool=1, PlayerCount=nil,TeamCount=nil, InfoText=nil},
