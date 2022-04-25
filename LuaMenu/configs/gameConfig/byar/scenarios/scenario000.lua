@@ -1263,22 +1263,29 @@ local scenariodata = {
 		}
 		[player0]
 		{
-		name=Rookie;
+		Name = __PLAYERNAME__;
 		rank=0;
 		isfromdemo=0;
 		team=0;
 		}
 		numplayers=1;
 		gamestartdelay=5;
-		myplayername=Rookie;
-		gametype=Beyond All Reason $VERSION;
+		myplayername = __PLAYERNAME__;
+		gametype = __BARVERSION__;
 		ishost=1;
 		hostip=127.0.0.1;
-		mapname=Neurope_Remake 4.2;
+		mapname = __MAPNAME__;
 		startpostype=2;
 		hostport=0;
 		numusers=2;
 		nohelperais=0;
+		
+		NumRestrictions=__NUMRESTRICTIONS__;
+		[RESTRICT]
+		{
+			__RESTRICTEDUNITS__
+		}
+
 		}
 	]],
 }
