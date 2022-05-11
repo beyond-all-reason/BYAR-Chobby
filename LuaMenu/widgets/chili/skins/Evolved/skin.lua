@@ -113,6 +113,32 @@ skin.action_button = {
   DrawControl = DrawButton,
 }
 
+skin.ready_button = {
+  TileImageBK = ":cl:tech_button_bright_small_bk.png",
+  TileImageFG = ":cl:tech_button_bright_small_fg.png",
+  tiles = {40, 40, 40, 40}, --// tile widths: left,top,right,bottom
+  padding = {10, 10, 10, 10},
+
+  backgroundColor = {0.26, 0.98, 0.26, 0.65},
+  focusColor  = {0.26, 0.98, 0.26, 0.9},
+  borderColor = {0.26, 0.98, 0.26, 0.15},
+
+  DrawControl = DrawButton,
+}
+
+skin.unready_button = {
+  TileImageBK = ":cl:tech_button_bright_small_bk.png",
+  TileImageFG = ":cl:tech_button_bright_small_fg.png",
+  tiles = {40, 40, 40, 40}, --// tile widths: left,top,right,bottom
+  padding = {10, 10, 10, 10},
+
+  backgroundColor = {0.98, 0.98, 0.26, 0.65},
+  focusColor  = {0.98, 0.98, 0.26, 0.9},
+  borderColor = {0.98, 0.98, 0.26, 0.15},
+
+  DrawControl = DrawButton,
+}
+
 skin.option_button = {
   TileImageBK = ":cl:tech_button_bright_small_bk.png",
   TileImageFG = ":cl:tech_button_bright_small_fg.png",
