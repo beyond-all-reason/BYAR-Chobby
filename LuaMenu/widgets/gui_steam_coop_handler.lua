@@ -401,6 +401,7 @@ function SteamCoopHandler.AttemptGameStart(gameType, gameName, mapName, scriptTa
 					SpringSettings = WG.SettingsWindow.GetSettingsString(),
 				}
 				WG.WrapperLoopback.StartNewSpring(params)
+				Spring.PauseSoundStream()
 				return
 			end
 
