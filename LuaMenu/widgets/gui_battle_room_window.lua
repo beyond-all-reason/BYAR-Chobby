@@ -2832,21 +2832,19 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	local function OnUpdateUserBattleStatus(listener, username, status)
 		if username == battleLobby.myUserName then
 			readyButton:SetVisibility(not status.isSpectator)
+
 			if status.isReady then
-				readyButton.classname = "ready_button"
 				readyButton.tooltip = "Click to become unready. This will prevent the game from starting!"
 				readyButton:SetCaption("Ready")
-				Spring.Echo("##### Ready!")
+				readyButton:StyleReady()
 			else
-				readyButton.classname = "unready_button"
+				readyButton:StyleUnready()
 				readyButton.tooltip = "Click to become ready. If you're not ready, the game can't start!"
 				readyButton:SetCaption("Not Ready")
-				Spring.Echo("##### Not ready!")
 			end
 		end
 	end
 		
-
 	local function OnUpdateUserTeamStatus(listener, userName, allyNumber, isSpectator)
 		--votePanel.VoteButtonVisible(isSpectator == false)
 		infoHandler.UpdateUserTeamStatus(userName, allyNumber, isSpectator)
