@@ -2834,13 +2834,13 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 			readyButton:SetVisibility(not status.isSpectator)
 
 			if status.isReady then
-				readyButton.tooltip = "Click to become unready. This will prevent the game from starting!"
-				readyButton:SetCaption("Ready")
 				readyButton:StyleReady()
+				readyButton:SetCaption(i18n("ready"))
+				readyButton.tooltip = i18n("ready_tooltip")
 			else
 				readyButton:StyleUnready()
-				readyButton.tooltip = "Click to become ready. If you're not ready, the game can't start!"
-				readyButton:SetCaption("Not Ready")
+				readyButton:SetCaption(i18n("unready"))
+				readyButton.tooltip = i18n("unready_tooltip")
 			end
 		end
 	end
