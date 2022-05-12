@@ -394,6 +394,7 @@ function SteamCoopHandler.AttemptGameStart(gameType, gameName, mapName, scriptTa
 					return
 				end
 				local engine = string.gsub(string.gsub(startEngineVersion, " maintenance", ""), " develop", "")
+				local engine = string.gsub(startEngineVersion, "BAR105", "bar") -- because this is the path we use
 				local params = {
 					StartDemoName = string.sub(startReplayFile, 7),
 					Engine = engine,
