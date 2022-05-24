@@ -172,6 +172,8 @@ function widget:Initialize()
 	if customSoundtrackEnabled == 1 then
 		local musicDirCustom 		= 'music/custom/menu'
 		randomTrackList = table.merge(randomTrackList, VFS.DirList(musicDirCustom, '*.ogg'))
+		local musicDirCustom2 		= 'music/custom/peace'
+		randomTrackList = table.merge(randomTrackList, VFS.DirList(musicDirCustom2, '*.ogg'))
 	end
 
 	if randomTrackList == nil or #randomTrackList == 0 then
