@@ -374,6 +374,17 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 		return true
 	end
 
+	-- Note: this is separate, so we can constrain optionally displaying a quit confirmation
+	--       popup to just the Menu button, not the ESC key as well.
+	local function HandleExitButton()
+		-- only ask for confirmation if asked
+		if not WG.Chobby.Configuration.confirmExit == false then
+			MakeExitPopup()
+			return true
+		end
+		ExitSpring()
+	end
+
 	local buttons_exit = Button:New {
 		x = BUTTON_SIDE_SPACING,
 		bottom = 0,
@@ -382,7 +393,7 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 		caption = i18n("exit"),
 		font = Configuration:GetFont(3),
 		parent = buttonsHolder_buttons,
-		OnClick = {MakeExitPopup},
+		OnClick = {HandleExitButton},
 	}
 
 	-----------------------------------

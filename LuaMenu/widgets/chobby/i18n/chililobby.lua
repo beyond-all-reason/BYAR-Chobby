@@ -193,6 +193,8 @@ return {
 		filterbattleroom_tooltip = "Battleroom management bots are quite verbose, enable this if you want to see every debug message that the bots do (for SPADS)",
 		showConnectAtStartup = "Show Connect Window at Startup",
 		showConnectAtStartup_tooltip = "Whether to automatically display the Connect Window on startup.",
+		confirmExit = "Ask for Confirmation when Exiting",
+		confirmExit_tooltip = "Whether to ask for confirmation first after clicking the main Exit button.",
 
 		-- chat_windows.lua
 		server = "Server",

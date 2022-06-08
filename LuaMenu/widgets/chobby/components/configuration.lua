@@ -235,6 +235,7 @@ function Configuration:init()
 	self.lobbyIdleSleep = false
 	self.rememberQueuesOnStart = false
 	self.showConnectAtStartup = true
+	self.confirmExit = true
 	self.channels = {}
 	if self.gameConfig.defaultChatChannels ~= nil then
 		for _, channelName in ipairs(self.gameConfig.defaultChatChannels) do
@@ -561,6 +562,7 @@ function Configuration:GetConfigData()
 		lobbyIdleSleep = self.lobbyIdleSleep,
 		rememberQueuesOnStart = self.rememberQueuesOnStart,
 		showConnectAtStartup = self.showConnectAtStartup,
+		confirmExit = self.confirmExit,
 		loadLocalWidgets = self.loadLocalWidgets,
 		activeDebugConsole = self.activeDebugConsole,
 		onlyShowFeaturedMaps = self.onlyShowFeaturedMaps,

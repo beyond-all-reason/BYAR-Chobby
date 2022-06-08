@@ -939,6 +939,7 @@ local function GetLobbyTabControls()
 	children[#children + 1], offset = AddCheckboxSetting(offset, i18n("displayBots"), "displayBots", false, nil, i18n("displayBots_tooltip") )
 	children[#children + 1], offset = AddCheckboxSetting(offset, i18n("filterbattleroom"), "filterbattleroom", true, nil, i18n("filterbattleroom_tooltip"))
 	children[#children + 1], offset = AddCheckboxSetting(offset, i18n("showConnectAtStartup"), "showConnectAtStartup", true, nil, i18n("showConnectAtStartup_tooltip"))
+	children[#children + 1], offset = AddCheckboxSetting(offset, i18n("confirmExit"), "confirmExit", true, nil, i18n("confirmExit_tooltip"))
 
 	--children[#children + 1], offset = AddCheckboxSetting(offset, i18n("keep_queues"), "rememberQueuesOnStart", false, nil, "Stay in matchmaker queues when a battle is launched.")
 
