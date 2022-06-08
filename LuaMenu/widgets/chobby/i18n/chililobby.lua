@@ -191,7 +191,8 @@ return {
 		displayBots_tooltip = "Shows various bots (TS ranking bot SLDB, battleroom host bots, user account management bots) in the chat channels if you need to interacti with them (you dont, unless you are developing)",
 		filterbattleroom = "Filter bot chatter",
 		filterbattleroom_tooltip = "Battleroom management bots are quite verbose, enable this if you want to see every debug message that the bots do (for SPADS)",
-
+		showConnectAtStartup = "Show Connect Window at Startup",
+		showConnectAtStartup_tooltip = "Whether to automatically display the Connect Window on startup.",
 
 		-- chat_windows.lua
 		server = "Server",
