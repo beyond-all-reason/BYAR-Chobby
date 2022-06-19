@@ -187,7 +187,6 @@ local function UpdateAndCreateMerge(userData, status)
 		battleStatus.side = userData.side or 0 -- self:GetMySide() or 0
 	end
 
-	battleStatus.isReady = not battleStatus.isSpectator
 	return battleStatus, updated
 end
 

@@ -44,6 +44,7 @@ local MINIMUM_QUICKPLAY_PLAYERS = 4 -- Hax until the server tells me a number.
 
 local lastUserToChangeStartBoxes = ''
 
+local readyButton
 local btnStartBattle = nil
 
 --------------------------------------------------------------------------------
@@ -732,6 +733,25 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		},
 		parent = rightInfo,
 	}
+
+	readyButton = Button:New {
+		x = 0,
+		bottom = 102,
+		right = 0,
+		height = 48,
+		caption = "", -- Set in OnUpdateUserBattleStatus
+		classname = "ready_button",
+		font = config:GetFont(4),
+		tooltip = "", -- Set in OnUpdateUserBattleStatus
+		OnClick = {
+			function()
+				local newReady = not battleLobby.userBattleStatus[battleLobby.myUserName].isReady
+				battleLobby:SetBattleStatus({ isReady = newReady })
+			end
+		},
+		parent = rightInfo,
+	}
+	readyButton:SetVisibility(false)
 
 	local btnPlay
 	local btnSpectate = Button:New {
@@ -2809,6 +2829,22 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	end
 
 	-- Lobby interface
+	local function OnUpdateUserBattleStatus(listener, username, status)
+		if username == battleLobby.myUserName then
+			readyButton:SetVisibility(not status.isSpectator)
+
+			if status.isReady then
+				readyButton:StyleReady()
+				readyButton:SetCaption(i18n("ready"))
+				readyButton.tooltip = i18n("ready_tooltip")
+			else
+				readyButton:StyleUnready()
+				readyButton:SetCaption(i18n("unready"))
+				readyButton.tooltip = i18n("unready_tooltip")
+			end
+		end
+	end
+		
 	local function OnUpdateUserTeamStatus(listener, userName, allyNumber, isSpectator)
 		--votePanel.VoteButtonVisible(isSpectator == false)
 		infoHandler.UpdateUserTeamStatus(userName, allyNumber, isSpectator)
@@ -3217,6 +3253,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	end
 
 	battleLobby:AddListener("OnUpdateUserTeamStatus", OnUpdateUserTeamStatus)
+	battleLobby:AddListener("OnUpdateUserBattleStatus", OnUpdateUserBattleStatus)
 	battleLobby:AddListener("OnBattleIngameUpdate", OnBattleIngameUpdate)
 	battleLobby:AddListener("OnUpdateBattleInfo", OnUpdateBattleInfo)
 	battleLobby:AddListener("OnLeftBattle", OnLeftBattle)
@@ -3242,6 +3279,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		emptyTeamIndex = 0
 
 		oldLobby:RemoveListener("OnUpdateUserTeamStatus", OnUpdateUserTeamStatus)
+		oldLobby:RemoveListener("OnUpdateUserBattleStatus", OnUpdateUserBattleStatus)
 		oldLobby:RemoveListener("OnBattleIngameUpdate", OnBattleIngameUpdate)
 		oldLobby:RemoveListener("OnUpdateBattleInfo", OnUpdateBattleInfo)
 		oldLobby:RemoveListener("OnLeftBattle", OnLeftBattle)

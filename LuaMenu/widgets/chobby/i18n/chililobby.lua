@@ -192,6 +192,12 @@ return {
 		filterbattleroom = "Filter bot chatter",
 		filterbattleroom_tooltip = "Battleroom management bots are quite verbose, enable this if you want to see every debug message that the bots do (for SPADS)",
 
+		-- gui_battle_room_window.lua
+
+		ready = "Ready",
+		ready_tooltip = "Click to become unready. This will prevent the game from starting!",
+		unready = "Not Ready",
+		unready_tooltip = "Click to become ready. If you're not ready, the game can't start!",
 
 		-- chat_windows.lua
 		server = "Server",

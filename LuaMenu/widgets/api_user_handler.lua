@@ -147,6 +147,18 @@ local function GetUserSyncStatus(userName, userControl)
 	end
 end
 
+local function GetUserReadyStatus(userName, userControl)
+	local userBattleInfo = userControl.lobby:GetUserBattleStatus(userName) or {}
+	if userBattleInfo.aiLib then
+		return
+	end
+	if userBattleInfo.isReady then
+		return IMAGE_READY
+	else
+		return IMAGE_UNREADY
+	end
+end
+
 local function GetUserClanImage(userName, userControl)
 	local userInfo = userControl.lobby:GetUser(userName) or {}
 	local file, needDownload = GetClanImage(userInfo.clan)
@@ -519,8 +531,18 @@ local function UpdateUserBattleStatus(listener, userName)
 				data.imSyncStatus.file = GetUserSyncStatus(userName, data)
 				data.imSyncStatus:Invalidate()
 			end
+
 			local battleStatus = data.lobby:GetUserBattleStatus(userName) or {}
 			local isPlaying = not battleStatus.isSpectator
+
+			if data.imReadyStatus then
+				data.imReadyStatus.file = GetUserReadyStatus(userName, data)
+				data.imReadyStatus:SetVisibility(isPlaying)
+				if isPlaying then
+					data.imReadyStatus:Invalidate()
+				end
+			end
+
 			if data.imTeamColor then
 				data.imTeamColor.color = battleStatus.teamColor
 				data.imTeamColor:SetVisibility(isPlaying)
@@ -886,6 +908,22 @@ local function GetUserControls(userName, opts)
 			keepAspect = true,
 			file = GetUserSyncStatus(userName, userControls),
 		}
+		offset = offset + 21
+	end
+
+	if isInBattle then
+		offset = offset + 1
+		userControls.imReadyStatus = Image:New {
+			name = "imReadyStatus",
+			x = offset,
+			y = offsetY + 1,
+			width = 21,
+			height = 19,
+			parent = userControls.mainControl,
+			keepAspect = true,
+			file = GetUserSyncStatus(userName, userControls),
+		}
+		userControls.imReadyStatus:SetVisibility(false)
 		offset = offset + 21
 	end
 
