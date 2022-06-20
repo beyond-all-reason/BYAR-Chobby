@@ -535,7 +535,7 @@ local function UpdateUserBattleStatus(listener, userName)
 			local battleStatus = data.lobby:GetUserBattleStatus(userName) or {}
 			local isPlaying = not battleStatus.isSpectator
 
-			if data.imReadyStatus then
+			if data.imReadyStatus and not isSingleplayer then
 				data.imReadyStatus.file = GetUserReadyStatus(userName, data)
 				data.imReadyStatus:SetVisibility(isPlaying)
 				if isPlaying then
@@ -911,7 +911,7 @@ local function GetUserControls(userName, opts)
 		offset = offset + 21
 	end
 
-	if isInBattle then
+	if isInBattle and not isSingleplayer then
 		offset = offset + 1
 		userControls.imReadyStatus = Image:New {
 			name = "imReadyStatus",
@@ -921,7 +921,7 @@ local function GetUserControls(userName, opts)
 			height = 19,
 			parent = userControls.mainControl,
 			keepAspect = true,
-			file = GetUserSyncStatus(userName, userControls),
+			file = GetUserReadyStatus(userName, userControls),
 		}
 		userControls.imReadyStatus:SetVisibility(false)
 		offset = offset + 21
