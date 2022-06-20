@@ -923,7 +923,7 @@ local function GetUserControls(userName, opts)
 			keepAspect = true,
 			file = GetUserReadyStatus(userName, userControls),
 		}
-		userControls.imReadyStatus:SetVisibility(false)
+		userControls.imReadyStatus:SetVisibility(not lobby:GetUserBattleStatus(userName).isSpectator)
 		offset = offset + 21
 	end
 
