@@ -618,6 +618,7 @@ local function GetUserControls(userName, opts)
 	local offset             = opts.offset or 0
 	local offsetY            = opts.offsetY or 0
 	local height             = opts.height or 22
+	local showReady          = opts.showReady
 	local showFounder        = opts.showFounder
 	local showModerator      = opts.showModerator
 	local comboBoxOnly       = opts.comboBoxOnly
@@ -911,7 +912,7 @@ local function GetUserControls(userName, opts)
 		offset = offset + 21
 	end
 
-	if isInBattle and not isSingleplayer then
+	if showReady then
 		offset = offset + 1
 		userControls.imReadyStatus = Image:New {
 			name = "imReadyStatus",
@@ -1179,6 +1180,7 @@ function userHandler.GetBattleUser(userName, isSingleplayer)
 	return _GetUser(battleUsers, userName, {
 		autoResize     = true,
 		isInBattle     = true,
+		showReady      = true,
 		showModerator  = true,
 		showFounder    = true,
 		showTeamColor  = not WG.Chobby.Configuration.gameConfig.disableColorChoosing,
