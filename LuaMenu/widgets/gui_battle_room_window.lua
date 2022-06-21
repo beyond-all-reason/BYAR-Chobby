@@ -734,24 +734,26 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		parent = rightInfo,
 	}
 
-	readyButton = Button:New {
-		x = 0,
-		bottom = 102,
-		right = 0,
-		height = 48,
-		caption = "", -- Set in OnUpdateUserBattleStatus
-		classname = "ready_button",
-		font = config:GetFont(4),
-		tooltip = "", -- Set in OnUpdateUserBattleStatus
-		OnClick = {
-			function()
-				local newReady = not battleLobby.userBattleStatus[battleLobby.myUserName].isReady
-				battleLobby:SetBattleStatus({ isReady = newReady })
-			end
-		},
-		parent = rightInfo,
-	}
-	readyButton:SetVisibility(false)
+	if battleLobby.name ~= "singleplayer" then
+		readyButton = Button:New {
+			x = 0,
+			bottom = 102,
+			right = 0,
+			height = 48,
+			caption = "", -- Set in OnUpdateUserBattleStatus
+			classname = "ready_button",
+			font = config:GetFont(4),
+			tooltip = "", -- Set in OnUpdateUserBattleStatus
+			OnClick = {
+				function()
+					local newReady = not battleLobby.userBattleStatus[battleLobby.myUserName].isReady
+					battleLobby:SetBattleStatus({ isReady = newReady })
+				end
+			},
+			parent = rightInfo,
+		}
+		readyButton:SetVisibility(false)
+	end
 
 	local btnPlay
 	local btnSpectate = Button:New {
@@ -792,6 +794,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 				--Spring.Echo("unusedTeamID",unusedTeamID)
 				battleLobby:SetBattleStatus({
 					isSpectator = false,
+					isReady = false,
 					side = (WG.Chobby.Configuration.lastFactionChoice or 0),
 					teamNumber = unusedTeamID})
 				ButtonUtilities.SetButtonDeselected(btnSpectate)
@@ -2830,7 +2833,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 
 	-- Lobby interface
 	local function OnUpdateUserBattleStatus(listener, username, status)
-		if username == battleLobby.myUserName then
+		if battleLobby.name ~= "singleplayer" and username == battleLobby.myUserName then
 			readyButton:SetVisibility(not status.isSpectator)
 
 			if status.isReady then
@@ -3235,6 +3238,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		--Spring.Echo("OnRequestBattleStatus, wespecnow?:",wespecnow,WG.Chobby.Configuration.lastGameSpectatorState)
 		battleLobby:SetBattleStatus({
 			isSpectator = wespecnow,
+			isReady = false,
 			side = (WG.Chobby.Configuration.lastFactionChoice or 0) ,
 			sync = (haveMapAndGame and 1) or 2, -- 0 = unknown, 1 = synced, 2 = unsynced
 			-- tamColor = PickRandomColor()
