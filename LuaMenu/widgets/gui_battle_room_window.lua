@@ -692,10 +692,33 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		WG.Analytics.SendOnetimeEvent("lobby:multiplayer:custom:rejoin")
 	end
 
+	if battleLobby.name ~= "singleplayer" then
+		readyButton = Button:New {
+			x = 0,
+			right = "50.5%",
+			bottom = 0,
+			height = 48,
+			classname = "ready_button",
+			font = config:GetFont(4),
+			disabledFont = config:GetFont(4),
+			hasDisabledFont = true,
+			tooltip = "", -- Set in OnUpdateUserBattleStatus
+			OnClick = {
+				function(readyButton)
+					if not readyButton.state.enabled then return end
+					local newReady = not battleLobby.userBattleStatus[battleLobby.myUserName].isReady
+					battleLobby:SetBattleStatus({ isReady = newReady })
+				end
+			},
+			parent = rightInfo,
+		}
+		readyButton:SetEnabled(false)
+	end
+
 	btnStartBattle = Button:New {
-		x = 0,
-		bottom = 0,
+		x = ((readyButton == nil) and 0 or "50.5%"),
 		right = 0,
+		bottom = 0,
 		height = 48,
 		caption = i18n("start"),
 		classname = "action_button",
@@ -734,27 +757,6 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		parent = rightInfo,
 	}
 
-	if battleLobby.name ~= "singleplayer" then
-		readyButton = Button:New {
-			x = 0,
-			bottom = 102,
-			right = 0,
-			height = 48,
-			caption = "", -- Set in OnUpdateUserBattleStatus
-			classname = "ready_button",
-			font = config:GetFont(4),
-			tooltip = "", -- Set in OnUpdateUserBattleStatus
-			OnClick = {
-				function()
-					local newReady = not battleLobby.userBattleStatus[battleLobby.myUserName].isReady
-					battleLobby:SetBattleStatus({ isReady = newReady })
-				end
-			},
-			parent = rightInfo,
-		}
-		readyButton:SetVisibility(false)
-	end
-
 	local btnPlay
 	local btnSpectate = Button:New {
 		x = "50.5%",
@@ -767,7 +769,10 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		tooltip = "Watch the game as a spectator",
 		OnClick = {
 			function(obj)
-				battleLobby:SetBattleStatus({isSpectator = true})
+				battleLobby:SetBattleStatus({
+					isSpectator = true,
+					isReady = false
+				})
 				ButtonUtilities.SetButtonDeselected(btnPlay)
 				ButtonUtilities.SetCaption(btnPlay, i18n("play"))
 				ButtonUtilities.SetButtonSelected(obj)
@@ -2834,7 +2839,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	-- Lobby interface
 	local function OnUpdateUserBattleStatus(listener, username, status)
 		if battleLobby.name ~= "singleplayer" and username == battleLobby.myUserName then
-			readyButton:SetVisibility(not status.isSpectator)
+			readyButton:SetEnabled(not status.isSpectator)
 
 			if status.isReady then
 				readyButton:StyleReady()
