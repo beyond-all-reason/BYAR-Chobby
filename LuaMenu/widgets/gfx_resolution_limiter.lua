@@ -1,4 +1,3 @@
-
 function widget:GetInfo()
 	return {
 		name = "Resolution limiter",
@@ -10,6 +9,7 @@ function widget:GetInfo()
 		enabled = true
 	}
 end
+
 
 function checkResolution()
 	-- resize resolution if is larger than screen resolution
@@ -34,10 +34,6 @@ function checkResolution()
 				Spring.SendCommands("Fullscreen 1")
 			end
 		end
-		vsx,vsy = Spring.Orig.GetViewSizes()
-	end
-	if WG.Chobby and WG.Chobby.Configuration and WG.Chobby.Configuration.uiScale then
-		WG.Chobby.Configuration:SetConfigValue('uiScale', math.min(1.0,vsx / 1600) )
 	end
 end
 
