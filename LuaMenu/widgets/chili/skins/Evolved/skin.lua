@@ -66,9 +66,9 @@ skin.button_highlight = {
   tiles = {32, 32, 32, 32}, --// tile widths: left,top,right,bottom
   padding = {20, 20, 20, 20},
 
-  backgroundColor = {0.2, 0.2, 0.2, 0.7},
-  focusColor  = {0.375, 0.375, 0.375, 0.5},
-  borderColor = {1,1,1,0},
+  backgroundColor = {0.70, 0.70, 0.75, 0.65},
+  focusColor  = {0.72, 0.72, 0.80, 0.9},
+  borderColor = {0.40, 0.40, 0.50, 0.15},
 
   DrawControl = DrawButton,
 }

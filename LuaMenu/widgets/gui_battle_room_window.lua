@@ -760,25 +760,52 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	}
 
 	local btnPlay
-	local btnSpectate = Button:New {
+	local btnSpectate
+
+	local function SetButtonStatePlaying()
+		ButtonUtilities.SetButtonDeselected(btnSpectate)
+		ButtonUtilities.SetCaption(btnSpectate, i18n("spectate"))
+		ButtonUtilities.SetButtonSelected(btnPlay)
+		ButtonUtilities.SetCaption(btnPlay, i18n("playing"))
+
+		btnPlay.suppressButtonReaction = true
+		btnSpectate.suppressButtonReaction = false
+
+		btnPlay.tooltip = i18n("tooltip_is_player")
+		btnSpectate.tooltip = i18n("tooltip_become_spectator")
+
+	end
+	local function SetButtonStateSpectating()
+		ButtonUtilities.SetButtonDeselected(btnPlay)
+		ButtonUtilities.SetCaption(btnPlay, i18n("play"))
+		ButtonUtilities.SetButtonSelected(btnSpectate)
+
+		btnSpectate.suppressButtonReaction = true
+		btnPlay.suppressButtonReaction = false
+
+		btnSpectate.tooltip = i18n("tooltip_is_spectator")
+		btnPlay.tooltip = i18n("tooltip_become_player")
+		
+		ButtonUtilities.SetCaption(btnSpectate, i18n("spectating"))
+	end
+	
+	btnSpectate = Button:New { -- Some properties set by SetButtonStatePlaying() after both buttons are initialised.
 		x = "50.5%",
 		right = 0,
 		bottom = 51,
-		height = 48,
+		height = 32,
 		classname = "button_highlight",
-		caption = "\255\66\138\201" .. i18n("spectator") .. "\b",
-		font = config:GetFont(3),
-		tooltip = "Watch the game as a spectator",
+		caption = "",
+		font = config:GetFont(2),
 		OnClick = {
 			function(obj)
 				battleLobby:SetBattleStatus({
 					isSpectator = true,
 					isReady = false
 				})
-				ButtonUtilities.SetButtonDeselected(btnPlay)
-				ButtonUtilities.SetCaption(btnPlay, i18n("play"))
-				ButtonUtilities.SetButtonSelected(obj)
-				ButtonUtilities.SetCaption(obj, i18n("spectating"))
+
+				SetButtonStateSpectating()
+
 				WG.Analytics.SendOnetimeEvent("lobby:multiplayer:custom:spectate")
 				WG.Chobby.Configuration:SetConfigValue("lastGameSpectatorState", true)
 			end
@@ -786,15 +813,14 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		parent = rightInfo,
 	}
 
-	btnPlay = Button:New {
+	btnPlay = Button:New { -- Some properties set by SetButtonStatePlaying() after both buttons are initialised.
 		x = 0,
 		right = "50.5%",
 		bottom = 51,
-		height = 48,
+		height = 32,
 		classname = "button_highlight",
-		caption = "\255\66\138\201" .. i18n("player") .. "\b",
-		font = config:GetFont(3),
-		tooltip = "Become a player in this game",
+		caption = "",
+		font = config:GetFont(2),
 		OnClick = {
 			function(obj)
 				local unusedTeamID = battleLobby:GetUnusedTeamID()
@@ -804,16 +830,17 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 					isReady = false,
 					side = (WG.Chobby.Configuration.lastFactionChoice or 0),
 					teamNumber = unusedTeamID})
-				ButtonUtilities.SetButtonDeselected(btnSpectate)
-				ButtonUtilities.SetCaption(btnSpectate, i18n("spectate"))
-				ButtonUtilities.SetButtonSelected(obj)
-				ButtonUtilities.SetCaption(obj, i18n("playing"))
+				
+				SetButtonStatePlaying()
+
 				WG.Analytics.SendOnetimeEvent("lobby:multiplayer:custom:play")
 				WG.Chobby.Configuration:SetConfigValue("lastGameSpectatorState", false)
 			end
 		},
 		parent = rightInfo,
 	}
+
+	SetButtonStatePlaying()
 
 	rightInfo.OnResize = {
 		function (obj, xSize, ySize)
@@ -1065,17 +1092,11 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	function externalFunctions.UpdateUserTeamStatus(userName, allyNumber, isSpectator)
 		if userName == myUserName then
 			if isSpectator then
-				ButtonUtilities.SetButtonDeselected(btnPlay)
-				ButtonUtilities.SetCaption(btnPlay, i18n("play"))
-				ButtonUtilities.SetButtonSelected(btnSpectate)
-				ButtonUtilities.SetCaption(btnSpectate, i18n("spectating"))
+				SetButtonStateSpectating()
 				startBoxPanel:Hide()
 				minimapPanel.disableChildrenHitTest = true --omg this is amazing
 			else
-				ButtonUtilities.SetButtonDeselected(btnSpectate)
-				ButtonUtilities.SetCaption(btnSpectate, i18n("spectate"))
-				ButtonUtilities.SetButtonSelected(btnPlay)
-				ButtonUtilities.SetCaption(btnPlay, i18n("playing"))
+				SetButtonStatePlaying()
 				startBoxPanel:Show()
 				minimapPanel.disableChildrenHitTest = false
 			end
