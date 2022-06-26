@@ -699,10 +699,11 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 			bottom = 0,
 			height = 48,
 			classname = "ready_button",
-			font = config:GetFont(4),
-			disabledFont = config:GetFont(4),
+			font = config:GetFont(3),
+			disabledFont = config:GetFont(3),
 			hasDisabledFont = true,
-			tooltip = "", -- Set in OnUpdateUserBattleStatus
+			caption = i18n("unready"),
+			tooltip = i18n("unready_tooltip"), -- Set in OnUpdateUserBattleStatus
 			OnClick = {
 				function(readyButton)
 					if not readyButton.state.enabled then return end
@@ -713,6 +714,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 			parent = rightInfo,
 		}
 		readyButton:SetEnabled(false)
+		readyButton:StyleUnready()
 	end
 
 	btnStartBattle = Button:New {
@@ -722,7 +724,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		height = 48,
 		caption = i18n("start"),
 		classname = "action_button",
-		font = config:GetFont(4),
+		font = config:GetFont(3),
 		tooltip = "Start the game, or call a vote to start multiplayer, or join a running game",
 		OnClick = {
 			function()
