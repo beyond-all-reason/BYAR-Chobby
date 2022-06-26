@@ -2838,7 +2838,12 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 
 	-- Lobby interface
 	local function OnUpdateUserBattleStatus(listener, username, status)
-		if battleLobby.name ~= "singleplayer" and username == battleLobby.myUserName then
+
+		if username ~= battleLobby.myUserName then return end
+
+		WG.Chobby.Configuration:SetConfigValue("lastGameSpectatorState", status.isSpectator)
+
+		if battleLobby.name ~= "singleplayer" then
 			readyButton:SetEnabled(not status.isSpectator)
 
 			if status.isReady then
@@ -3377,7 +3382,6 @@ function BattleRoomWindow.ShowMultiplayerBattleRoom(battleID)
 
 	battleLobby:SetBattleStatus({
 		allyNumber = 0,
-		isSpectator = false,
 		sync = (haveMapAndGame and 1) or 2, -- 0 = unknown, 1 = synced, 2 = unsynced
 	})
 end
