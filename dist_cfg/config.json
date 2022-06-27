@@ -14,31 +14,6 @@
                         "url": "https://github.com/beyond-all-reason/spring/releases/download/spring_bar_%7BBAR105%7D105.1.1-966-g597222f/spring_bar_.BAR105.105.1.1-966-g597222f_linux-64-minimal-portable.7z",
                         "destination": "engine/105.1.1-966-g597222f bar",
                         "extract": true
-                    },
-                    {
-                        "url": "https://github.com/beyond-all-reason/Maps/releases/download/1.0/altored_divide_bar_remake_1.55.sd7",
-                        "destination": "maps/altored_divide_bar_remake_1.55.sd7",
-                        "extract": false
-                    },
-                    {
-                        "url": "https://github.com/beyond-all-reason/Maps/releases/download/1.0/boulder_beach_v1.sd7",
-                        "destination": "maps/boulder_beach_v1.sd7",
-                        "extract": false
-                    },
-                    {
-                        "url": "https://github.com/beyond-all-reason/Maps/releases/download/1.0/dsdr_4.0.sd7",
-                        "destination": "maps/dsdr_4.0.sd7",
-                        "extract": false
-                    },
-                    {
-                        "url": "https://github.com/beyond-all-reason/Maps/releases/download/1.0/quicksilver_remake_1.24.sd7",
-                        "destination": "maps/quicksilver_remake_1.24.sd7",
-                        "extract": false
-                    },
-                    {
-                        "url": "https://github.com/beyond-all-reason/Maps/releases/download/1.0/trefoil_remake_2.20.sd7",
-                        "destination": "maps/trefoil_remake_2.20.sd7",
-                        "extract": false
                     }
                 ]
             },
@@ -63,31 +38,6 @@
                         "url": "https://github.com/beyond-all-reason/spring/releases/download/spring_bar_%7BBAR105%7D105.1.1-966-g597222f/spring_bar_.BAR105.105.1.1-966-g597222f_windows-64-minimal-portable.7z",
                         "destination": "engine/105.1.1-966-g597222f bar",
                         "extract": true
-                    },
-                    {
-                        "url": "https://github.com/beyond-all-reason/Maps/releases/download/1.0/altored_divide_bar_remake_1.55.sd7",
-                        "destination": "maps/altored_divide_bar_remake_1.55.sd7",
-                        "extract": false
-                    },
-                    {
-                        "url": "https://github.com/beyond-all-reason/Maps/releases/download/1.0/boulder_beach_v1.sd7",
-                        "destination": "maps/boulder_beach_v1.sd7",
-                        "extract": false
-                    },
-                    {
-                        "url": "https://github.com/beyond-all-reason/Maps/releases/download/1.0/dsdr_4.0.sd7",
-                        "destination": "maps/dsdr_4.0.sd7",
-                        "extract": false
-                    },
-                    {
-                        "url": "https://github.com/beyond-all-reason/Maps/releases/download/1.0/quicksilver_remake_1.24.sd7",
-                        "destination": "maps/quicksilver_remake_1.24.sd7",
-                        "extract": false
-                    },
-                    {
-                        "url": "https://github.com/beyond-all-reason/Maps/releases/download/1.0/trefoil_remake_2.20.sd7",
-                        "destination": "maps/trefoil_remake_2.20.sd7",
-                        "extract": false
                     }
                 ]
             },
