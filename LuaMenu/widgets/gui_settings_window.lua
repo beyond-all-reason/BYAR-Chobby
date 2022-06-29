@@ -876,6 +876,8 @@ local function GetLobbyTabControls()
 		uiScaleTrackbar:SetValue(newScale * 100.0)
 	end)
 
+	children[#children + 1], offset = AddCheckboxSetting(offset, i18n("autoLaunchAsSpectator"), "autoLaunchAsSpectator", true)
+
 	-- Why is this shit so fucked up.
 	local randomSkirmishOption = Spring.GetConfigInt("randomSkirmishSetup", 1)
 	if randomSkirmishOption == 1 then
