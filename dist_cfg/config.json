@@ -50,6 +50,63 @@
         },
         {
             "package": {
+                "id": "manual-linux-exp-cdn",
+                "display": "Alpha (CDN)",
+                "platform": "linux"
+            },
+            "env_variables": {
+                "PRD_HTTP_SEARCH_URL": "https://bar-springfiles.p2004a.com/find",
+                "PRD_RAPID_USE_STREAMER": "false",
+                "PRD_RAPID_REPO_MASTER": "https://bar-rapid.p2004a.com/repos.gz",
+            },
+            "downloads": {
+                "games": ["byar:test", "chobby:test", "byar-chobby:test"],
+                "resources": [
+                    {
+                        "url": "https://github.com/beyond-all-reason/spring/releases/download/spring_bar_%7BBAR105%7D105.1.1-966-g597222f/spring_bar_.BAR105.105.1.1-966-g597222f_linux-64-minimal-portable.7z",
+                        "destination": "engine/105.1.1-966-g597222f bar",
+                        "extract": true
+                    }
+                ]
+            },
+            "no_start_script": true,
+            "logs_s3_bucket": "bar-infologs",
+            "launch": {
+                "start_args": ["--menu", "rapid://byar-chobby:test"],
+                "engine": "105.1.1-966-g597222f bar"
+            }
+        },
+        {
+            "package": {
+                "id": "manual-win-exp-cdn",
+                "display": "Alpha (CDN)",
+                "platform": "win32"
+            },
+            "env_variables": {
+                "PRD_HTTP_SEARCH_URL": "https://bar-springfiles.p2004a.com/find",
+                "PRD_RAPID_USE_STREAMER": "false",
+                "PRD_RAPID_REPO_MASTER": "https://bar-rapid.p2004a.com/repos.gz",
+            },
+            "silent": false,
+            "downloads": {
+                "games": ["byar:test", "chobby:test", "byar-chobby:test"],
+                "resources": [
+                    {
+                        "url": "https://github.com/beyond-all-reason/spring/releases/download/spring_bar_%7BBAR105%7D105.1.1-966-g597222f/spring_bar_.BAR105.105.1.1-966-g597222f_windows-64-minimal-portable.7z",
+                        "destination": "engine/105.1.1-966-g597222f bar",
+                        "extract": true
+                    }
+                ]
+            },
+            "no_start_script": true,
+            "logs_s3_bucket": "bar-infologs",
+            "launch": {
+                "start_args": ["--menu", "rapid://byar-chobby:test"],
+                "engine": "105.1.1-966-g597222f bar"
+            }
+        },
+        {
+            "package": {
                 "id": "dev-lobby-linux",
                 "display": "Dev Lobby",
                 "platform": "linux"
