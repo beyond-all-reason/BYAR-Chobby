@@ -138,13 +138,20 @@ return {
 		skip_tutorial = "Skip Tutorial",
 		rejoin = "Rejoin",
 		abandon = "Abandon",
+
+		tooltip_is_spectator = "You will spectate this game",
+		tooltip_become_spectator = "Press to watch the game as a spectator",
 		spectate = "Spectate",
 		spectating = "Spectating",
+
+		tooltip_is_player = "You will play in this game",
+		tooltip_become_player = "Press to play in this game",
 		play = "Play",
+		playing = "Playing",
+
 		watch = "Watch",
 		matchmaking = "Matchmaking",
 		customGames = "Custom Games",
-		playing = "Playing",
 		pick_map = "Change Map",
 		add_team = "Add Team",
 		players = "Players",
