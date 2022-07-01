@@ -214,6 +214,7 @@ function Configuration:init()
 		end
 	end
 
+	self.autoLaunchAsSpectator = true
 	self.lastLoginChatLength = 25
 	self.notifyForAllChat = true
 	self.planetwarsNotifications = false -- Possibly too intrusive? See how it goes.
@@ -538,6 +539,7 @@ end
 
 function Configuration:GetConfigData()
 	return {
+		autoLaunchAsSpectator = self.autoLaunchAsSpectator,
 		serverAddress = self.serverAddress,
 		serverPort = self.serverPort,
 		userName = self.userName,

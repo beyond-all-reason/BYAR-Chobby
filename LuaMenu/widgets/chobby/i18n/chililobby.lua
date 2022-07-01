@@ -176,6 +176,7 @@ return {
 		wip_challenges = "WiP Challenges",
 		scenarios = "Scenarios",
 		-- Settings
+		autoLaunchAsSpectator = "Auto-launch when spectating",
 		randomSkirmishSetup = "Random Skirmish AI and Map",
 		randomSkirmishSetup_tooltip = "Randomizes AIs and Map in Singleplayer Skirmish mode. Requires Restart.",
 		planetwars_notifications = "Planetwars notifications",
