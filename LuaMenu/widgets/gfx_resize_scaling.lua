@@ -12,6 +12,7 @@ end
 
 function widget:ViewResize()
     if WG.Chobby and WG.Chobby.Configuration then
+		WG.Chobby.Configuration:UpdateUiScaleMaxMin()
         WG.Chobby.Configuration:SetUiScale()
     end
 end

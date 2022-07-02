@@ -34,21 +34,16 @@ function Configuration:init()
 		[5] = {size = 48, shadow = false},
 	}
 
-	local realWidth, realHeight = Spring.Orig.GetViewSizes()
-
 	-- self.uiScale, WG.uiScale, and self.uiScalesForScreenSizes will be overridden in Configuration:SetConfigData;
 	-- We're setting default values here in case something tries to access it before we get there.
 	-- See Configuration:SetUiScale() for setting, listen for OnUiScaleChange for updates.
 	self.uiScale = 1
 	self.defaultUiScale = self.uiScale
 	WG.uiScale = self.uiScale
-	-- This max needs to adjust when the user's resolution changes; e.g. if they load up in 400x400 windowed before it adjusts to fullscreen 1440p (I believe this is Kobold's issue)
-	-- I don't have time to do a proper fix now, so this will make sure they always have at least up to 200%.
-	self.maxUiScale = math.max(realWidth / 860, 2) -- 200% @ 1080p; 400% @ 4k
-	-- size it against font sizes, because readability is the lower limit here.
-	-- We don't use font[0], so cap it against font[1]
-	self.minUiScale = 6 / self.font[1].size 
 	self.uiScalesForScreenSizes = {}
+
+	self:UpdateUiScaleMaxMin()
+	self:SetUiScale()
 
 	self.userListWidth = 240 -- Main user list width. Possibly configurable in the future.
 	self.chatMaxNameLength = 250 -- Pixels
@@ -465,11 +460,25 @@ function Configuration:SetUiScale(newScale)
 	WG.uiScale = self.uiScale
 	self.uiScalesForScreenSizes[screenSizeKey()] = newScale
 
-	local screenWidth, screenHeight = Spring.GetViewSizes()
-
 	self:_CallListeners("OnUiScaleChange", newScale)
 
+	local screenWidth, screenHeight = Spring.GetViewSizes()
 	screen0:Resize(screenWidth, screenHeight)
+end
+
+function Configuration:UpdateUiScaleMaxMin()
+	local screenWidth, screenHeight = Spring.Orig.GetViewSizes()
+	local oldMin = self.minUiScale
+	local oldMax = self.maxUiScale
+
+	self.maxUiScale = math.max(1, screenWidth / 960, screenHeight / 540) -- 200% @ 1080p; 400% @ 4k
+	-- size it against font sizes, because readability is the lower limit here.
+	-- We don't use font[0], so cap it against font[1]
+	self.minUiScale = 7 / self.font[1].size
+
+	if oldMin ~= self.minUiScale or oldMax ~= self.maxUiScale then
+		self:_CallListeners("OnUiScaleMaxMinChange", self.minUiScale, self.maxUiScale)
+	end
 end
 
 function Configuration:SetConfigData(data)
