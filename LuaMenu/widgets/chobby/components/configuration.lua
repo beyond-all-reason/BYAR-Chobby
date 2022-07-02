@@ -42,7 +42,9 @@ function Configuration:init()
 	self.uiScale = 1
 	self.defaultUiScale = self.uiScale
 	WG.uiScale = self.uiScale
-	self.maxUiScale = math.max(realWidth / 860) -- 200% @ 1080p; 400% @ 4k
+	-- This max needs to adjust when the user's resolution changes; e.g. if they load up in 400x400 windowed before it adjusts to fullscreen 1440p (I believe this is Kobold's issue)
+	-- I don't have time to do a proper fix now, so this will make sure they always have at least up to 200%.
+	self.maxUiScale = math.max(realWidth / 860, 2) -- 200% @ 1080p; 400% @ 4k
 	-- size it against font sizes, because readability is the lower limit here.
 	-- We don't use font[0], so cap it against font[1]
 	self.minUiScale = 6 / self.font[1].size 
