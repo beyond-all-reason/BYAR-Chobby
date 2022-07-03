@@ -875,6 +875,9 @@ local function GetLobbyTabControls()
 	Configuration:AddListener("OnUiScaleChange", function(_, newScale)
 		uiScaleTrackbar:SetValue(newScale * 100.0)
 	end)
+	Configuration:AddListener("OnUiScaleMaxMinChange", function(_, newMin, newMax)
+		uiScaleTrackbar:SetMinMax(newMin * 100.0, newMax * 100.0)
+	end)
 
 	children[#children + 1], offset = AddCheckboxSetting(offset, i18n("autoLaunchAsSpectator"), "autoLaunchAsSpectator", true)
 
