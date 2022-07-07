@@ -144,6 +144,14 @@ function widget:ActivateMenu()
 	previousTrack = newTrack
 end
 
+
+function playlistMerge(t1, t2)
+	for k,v in ipairs(t2) do
+	   table.insert(t1, v)
+	end 
+	return t1
+end
+
 function widget:Initialize()
 
 	--math.randomseed( os.clock() )
@@ -159,21 +167,21 @@ function widget:Initialize()
 	-- Original Soundtrack List
 	if originalSoundtrackEnabled == 1 then
 		local musicDirOriginal 		= 'luamenu/configs/gameconfig/byar/lobbyMusic/original'
-		randomTrackList = table.merge(randomTrackList, VFS.DirList(musicDirOriginal, '*.ogg'))
+		randomTrackList = playlistMerge(randomTrackList, VFS.DirList(musicDirOriginal, '*.ogg'))
 	end
 
 	-- Legacy Soundtrack List
 	if legacySoundtrackEnabled == 1 then
 		local musicDirLegacy 		= 'luamenu/configs/gameconfig/byar/lobbyMusic/legacy'
-		randomTrackList = table.merge(randomTrackList, VFS.DirList(musicDirLegacy, '*.ogg'))
+		randomTrackList = playlistMerge(randomTrackList, VFS.DirList(musicDirLegacy, '*.ogg'))
 	end
 
 	-- Custom Soundtrack List
 	if customSoundtrackEnabled == 1 then
 		local musicDirCustom 		= 'music/custom/menu'
-		randomTrackList = table.merge(randomTrackList, VFS.DirList(musicDirCustom, '*.ogg'))
+		randomTrackList = playlistMerge(randomTrackList, VFS.DirList(musicDirCustom, '*.ogg'))
 		local musicDirCustom2 		= 'music/custom/peace'
-		randomTrackList = table.merge(randomTrackList, VFS.DirList(musicDirCustom2, '*.ogg'))
+		randomTrackList = playlistMerge(randomTrackList, VFS.DirList(musicDirCustom2, '*.ogg'))
 	end
 
 	if randomTrackList == nil or #randomTrackList == 0 then
