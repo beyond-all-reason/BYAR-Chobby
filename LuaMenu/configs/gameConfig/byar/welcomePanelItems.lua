@@ -7,11 +7,11 @@ local welcomePanelItems = {
     },
 
     {
-        Header = "New Map: Tumult Remake v1.0",
+        Header = "New Map: Bismuth Valley v1.0",
         --Url = "https://drive.google.com/drive/folders/16eBcMpkgMTV9mlKxYmNda64X_dmCFdkk",
         Time = nil,-- "NowTime",
-        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/tumult_remake_v1.0.png",
-        Text = "Nikuksis proudly presents his beautiful remake of the classic 4v4 Tumult map by hunterw.",
+        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/bismuth_valley_v1.0.png",
+        Text = "New 8v8 map released! Fight over large 24x16 grim alien canyon.",
     },
 
     --['Tumult Remake v1.0']={Width=14, Height=14, Is1v1=1, IsTeam=1, IsFFA=nil, IsCertified=nil, Special=nil, Flat=1, Hills=1, Water=nil, IsInPool=1, PlayerCount=nil,TeamCount=nil,Author='Nikuksis (original by Hunterw)', InfoText='4v4 map where only bots can pass side hills.'},
