@@ -62,6 +62,8 @@ local IMAGE_MODERATOR    = IMAGE_DIR .. "ranks/moderator.png"
 local IMAGE_PLAYER       = IMAGE_DIR .. "ranks/player.png"
 local IMAGE_READY        = IMAGE_DIR .. "ready.png"
 local IMAGE_UNREADY      = IMAGE_DIR .. "unready.png"
+local IMAGE_DLREADY      = IMAGE_DIR .. "downloadready.png"
+local IMAGE_DLUNREADY    = IMAGE_DIR .. "downloadnotready.png"
 local IMAGE_UNKNOWN_SYNC = IMAGE_DIR .. "unknown_sync.png"
 local IMAGE_ONLINE       = IMAGE_DIR .. "online.png"
 local IMAGE_OFFLINE      = IMAGE_DIR .. "offline.png"
@@ -139,9 +141,9 @@ local function GetUserSyncStatus(userName, userControl)
 		return
 	end
 	if userBattleInfo.sync == 1 then
-		return IMAGE_READY
+		return IMAGE_DLREADY
 	elseif userBattleInfo.sync == 2 then
-		return IMAGE_UNREADY
+		return IMAGE_DLUNREADY
 	else
 		return IMAGE_UNKNOWN_SYNC
 	end
