@@ -7,6 +7,13 @@ local welcomePanelItems = {
     },
 
     {
+        Header = "New Map: Cirolata 1.02",
+        Time = nil,-- "NowTime",
+        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/Cirolata_1.02.png",
+        Text = "A new 4-way Team-FFA map on a 16x16 subtropical island.",
+    },
+
+    {
         Header = "New Map: Bismuth Valley v1.0",
         --Url = "https://drive.google.com/drive/folders/16eBcMpkgMTV9mlKxYmNda64X_dmCFdkk",
         Time = nil,-- "NowTime",
