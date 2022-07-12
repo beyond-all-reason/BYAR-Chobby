@@ -38,6 +38,8 @@ local singleplayerGame = "Chobby $VERSION"
 
 local IMG_READY    = LUA_DIRNAME .. "images/ready.png"
 local IMG_UNREADY  = LUA_DIRNAME .. "images/unready.png"
+local IMAGE_DLREADY      = LUA_DIRNAME .. "images/downloadready.png"
+local IMAGE_DLUNREADY    = LUA_DIRNAME .. "images/downloadnotready.png"
 local IMG_LINK     = LUA_DIRNAME .. "images/link.png"
 
 local MINIMUM_QUICKPLAY_PLAYERS = 4 -- Hax until the server tells me a number.
@@ -964,7 +966,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		y = leftOffset,
 		width = 15,
 		height = 15,
-		file = IMG_READY,
+		file = IMAGE_DLREADY,
 		parent = leftInfo,
 	}
 	local lblHaveGame = Label:New {
@@ -981,7 +983,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		y = leftOffset,
 		width = 15,
 		height = 15,
-		file = IMG_READY,
+		file = IMAGE_DLREADY,
 		parent = leftInfo,
 	}
 	local lblHaveMap = Label:New {
@@ -1068,10 +1070,10 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 
 	function externalFunctions.SetHaveGame(newHaveGame)
 		if newHaveGame then
-			imHaveGame.file = IMG_READY
+			imHaveGame.file = IMAGE_DLREADY
 			lblHaveGame:SetCaption(i18n("have_game"))
 		else
-			imHaveGame.file = IMG_UNREADY
+			imHaveGame.file = IMAGE_DLUNREADY
 			lblHaveGame:SetCaption(i18n("dont_have_game"))
 		end
 		imHaveGame:Invalidate()
@@ -1079,10 +1081,10 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 
 	function externalFunctions.SetHaveMap(newHaveMap)
 		if newHaveMap then
-			imHaveMap.file = IMG_READY
+			imHaveMap.file = IMAGE_DLREADY
 			lblHaveMap:SetCaption(i18n("have_map"))
 		else
-			imHaveMap.file = IMG_UNREADY
+			imHaveMap.file = IMAGE_DLUNREADY
 			lblHaveMap:SetCaption(i18n("dont_have_map"))
 		end
 		imHaveMap:Invalidate()
