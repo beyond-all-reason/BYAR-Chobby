@@ -6,13 +6,14 @@ local scenariodata = {
 	author			= "Watch The Fort", -- your name here
 	imagepath		= "", -- placed next to lua file, should be 3:1 ratio banner style
 	imageflavor		= "", -- This text will be drawn over image
-    summary         = [[An enemy base lies nearby, destroy it!]],
-	briefing 		= [[The enemy is purely defending, so you don't have to worry about incoming attacks. There are multiple approaches to the base, with some more defended than others.]],
+    summary         = [[An abandoned enemy base lies nearby, though its defences still work. Destroy it, Commander!]],
+	briefing 		= [[The enemy is purely defending, so you won't have to worry about any incoming attacks.
+There are multiple approaches to the base, with some more defended than others.]],
 
 	mapfilename		= "Death Valley v1", -- the name of the map to be displayed here, and which to play on, no .smf ending needed
-	playerstartx	= "10%", -- X position of where player comm icon should be drawn, from top left of the map
-	playerstarty	= "85%", -- Y position of where player comm icon should be drawn, from top left of the map
-	partime 		= 3000, -- par time in seconds (time a mission is expected to take on average)
+	playerstartx	= "19%", -- X position of where player comm icon should be drawn, from top left of the map
+	playerstarty	= "87%", -- Y position of where player comm icon should be drawn, from top left of the map
+	partime 		= 1200, -- par time in seconds (time a mission is expected to take on average)
 	parresources	= 1000000, -- par resource amount (amount of metal one is expected to spend on mission)
 	difficulty		= 0, -- Percieved difficulty at 'normal' level: integer 1-10
     defaultdifficulty = "Normal", -- an entry of the difficulty table
@@ -25,7 +26,7 @@ local scenariodata = {
         -- {name = "Hard"    , playerhandicap = 0,  enemyhandicap=25},
         -- {name = "Brutal" , playerhandicap = 0,  enemyhandicap=50},
     },
-    allowedsides     = {"Armada", "Cortex"}, --these are the permitted factions for this mission, choose from {"Armada", "Cortex", "Random"}
+    allowedsides     = {"Armada"}, --these are the permitted factions for this mission, choose from {"Armada", "Cortex", "Random"}
 	victorycondition= "Kill all enemy factories", -- This is plaintext, but should be reflected in startscript
 	losscondition	= "Loss of all your builders and factories",  -- This is plaintext, but should be reflected in startscript
     unitlimits   = { -- table of unitdefname : maxnumberofthese units, 0 means disable it
