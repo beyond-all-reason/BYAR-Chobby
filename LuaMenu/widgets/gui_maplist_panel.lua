@@ -24,8 +24,8 @@ end
 
 local mapListWindow
 local lobby
-local IMG_READY    = LUA_DIRNAME .. "images/ready.png"
-local IMG_UNREADY  = LUA_DIRNAME .. "images/unready.png"
+local IMG_READY    = LUA_DIRNAME .. "images/downloadready.png"
+local IMG_UNREADY  = LUA_DIRNAME .. "images/downloadnotready.png"
 
 local MINIMAP_TOOLTIP_PREFIX = "minimap_tooltip_"
 

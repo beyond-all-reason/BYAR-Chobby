@@ -38,12 +38,15 @@ local singleplayerGame = "Chobby $VERSION"
 
 local IMG_READY    = LUA_DIRNAME .. "images/ready.png"
 local IMG_UNREADY  = LUA_DIRNAME .. "images/unready.png"
+local IMAGE_DLREADY      = LUA_DIRNAME .. "images/downloadready.png"
+local IMAGE_DLUNREADY    = LUA_DIRNAME .. "images/downloadnotready.png"
 local IMG_LINK     = LUA_DIRNAME .. "images/link.png"
 
 local MINIMUM_QUICKPLAY_PLAYERS = 4 -- Hax until the server tells me a number.
 
 local lastUserToChangeStartBoxes = ''
 
+local readyButton
 local btnStartBattle = nil
 
 --------------------------------------------------------------------------------
@@ -691,14 +694,39 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		WG.Analytics.SendOnetimeEvent("lobby:multiplayer:custom:rejoin")
 	end
 
+	if battleLobby.name ~= "singleplayer" then
+		readyButton = Button:New {
+			x = 0,
+			right = "50.5%",
+			bottom = 0,
+			height = 48,
+			classname = "ready_button",
+			font = config:GetFont(3),
+			disabledFont = config:GetFont(3),
+			hasDisabledFont = true,
+			caption = i18n("unready"),
+			tooltip = i18n("unready_tooltip"), -- Set in OnUpdateUserBattleStatus
+			OnClick = {
+				function(readyButton)
+					if not readyButton.state.enabled then return end
+					local newReady = not battleLobby.userBattleStatus[battleLobby.myUserName].isReady
+					battleLobby:SetBattleStatus({ isReady = newReady })
+				end
+			},
+			parent = rightInfo,
+		}
+		readyButton:SetEnabled(false)
+		readyButton:StyleUnready()
+	end
+
 	btnStartBattle = Button:New {
-		x = 0,
-		bottom = 0,
+		x = ((readyButton == nil) and 0 or "50.5%"),
 		right = 0,
+		bottom = 0,
 		height = 48,
 		caption = i18n("start"),
 		classname = "action_button",
-		font = config:GetFont(4),
+		font = config:GetFont(3),
 		tooltip = "Start the game, or call a vote to start multiplayer, or join a running game",
 		OnClick = {
 			function()
@@ -734,22 +762,52 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	}
 
 	local btnPlay
-	local btnSpectate = Button:New {
+	local btnSpectate
+
+	local function SetButtonStatePlaying()
+		ButtonUtilities.SetButtonDeselected(btnSpectate)
+		ButtonUtilities.SetCaption(btnSpectate, i18n("spectate"))
+		ButtonUtilities.SetButtonSelected(btnPlay)
+		ButtonUtilities.SetCaption(btnPlay, i18n("playing"))
+
+		btnPlay.suppressButtonReaction = true
+		btnSpectate.suppressButtonReaction = false
+
+		btnPlay.tooltip = i18n("tooltip_is_player")
+		btnSpectate.tooltip = i18n("tooltip_become_spectator")
+
+	end
+	local function SetButtonStateSpectating()
+		ButtonUtilities.SetButtonDeselected(btnPlay)
+		ButtonUtilities.SetCaption(btnPlay, i18n("play"))
+		ButtonUtilities.SetButtonSelected(btnSpectate)
+
+		btnSpectate.suppressButtonReaction = true
+		btnPlay.suppressButtonReaction = false
+
+		btnSpectate.tooltip = i18n("tooltip_is_spectator")
+		btnPlay.tooltip = i18n("tooltip_become_player")
+		
+		ButtonUtilities.SetCaption(btnSpectate, i18n("spectating"))
+	end
+	
+	btnSpectate = Button:New { -- Some properties set by SetButtonStatePlaying() after both buttons are initialised.
 		x = "50.5%",
 		right = 0,
 		bottom = 51,
-		height = 48,
+		height = 32,
 		classname = "button_highlight",
-		caption = "\255\66\138\201" .. i18n("spectator") .. "\b",
-		font = config:GetFont(3),
-		tooltip = "Watch the game as a spectator",
+		caption = "",
+		font = config:GetFont(2),
 		OnClick = {
 			function(obj)
-				battleLobby:SetBattleStatus({isSpectator = true})
-				ButtonUtilities.SetButtonDeselected(btnPlay)
-				ButtonUtilities.SetCaption(btnPlay, i18n("play"))
-				ButtonUtilities.SetButtonSelected(obj)
-				ButtonUtilities.SetCaption(obj, i18n("spectating"))
+				battleLobby:SetBattleStatus({
+					isSpectator = true,
+					isReady = false
+				})
+
+				SetButtonStateSpectating()
+
 				WG.Analytics.SendOnetimeEvent("lobby:multiplayer:custom:spectate")
 				WG.Chobby.Configuration:SetConfigValue("lastGameSpectatorState", true)
 			end
@@ -757,33 +815,34 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		parent = rightInfo,
 	}
 
-	btnPlay = Button:New {
+	btnPlay = Button:New { -- Some properties set by SetButtonStatePlaying() after both buttons are initialised.
 		x = 0,
 		right = "50.5%",
 		bottom = 51,
-		height = 48,
+		height = 32,
 		classname = "button_highlight",
-		caption = "\255\66\138\201" .. i18n("player") .. "\b",
-		font = config:GetFont(3),
-		tooltip = "Become a player in this game",
+		caption = "",
+		font = config:GetFont(2),
 		OnClick = {
 			function(obj)
 				local unusedTeamID = battleLobby:GetUnusedTeamID()
 				--Spring.Echo("unusedTeamID",unusedTeamID)
 				battleLobby:SetBattleStatus({
 					isSpectator = false,
+					isReady = false,
 					side = (WG.Chobby.Configuration.lastFactionChoice or 0),
 					teamNumber = unusedTeamID})
-				ButtonUtilities.SetButtonDeselected(btnSpectate)
-				ButtonUtilities.SetCaption(btnSpectate, i18n("spectate"))
-				ButtonUtilities.SetButtonSelected(obj)
-				ButtonUtilities.SetCaption(obj, i18n("playing"))
+				
+				SetButtonStatePlaying()
+
 				WG.Analytics.SendOnetimeEvent("lobby:multiplayer:custom:play")
 				WG.Chobby.Configuration:SetConfigValue("lastGameSpectatorState", false)
 			end
 		},
 		parent = rightInfo,
 	}
+
+	SetButtonStatePlaying()
 
 	rightInfo.OnResize = {
 		function (obj, xSize, ySize)
@@ -907,7 +966,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		y = leftOffset,
 		width = 15,
 		height = 15,
-		file = IMG_READY,
+		file = IMAGE_DLREADY,
 		parent = leftInfo,
 	}
 	local lblHaveGame = Label:New {
@@ -924,7 +983,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		y = leftOffset,
 		width = 15,
 		height = 15,
-		file = IMG_READY,
+		file = IMAGE_DLREADY,
 		parent = leftInfo,
 	}
 	local lblHaveMap = Label:New {
@@ -1011,10 +1070,10 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 
 	function externalFunctions.SetHaveGame(newHaveGame)
 		if newHaveGame then
-			imHaveGame.file = IMG_READY
+			imHaveGame.file = IMAGE_DLREADY
 			lblHaveGame:SetCaption(i18n("have_game"))
 		else
-			imHaveGame.file = IMG_UNREADY
+			imHaveGame.file = IMAGE_DLUNREADY
 			lblHaveGame:SetCaption(i18n("dont_have_game"))
 		end
 		imHaveGame:Invalidate()
@@ -1022,10 +1081,10 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 
 	function externalFunctions.SetHaveMap(newHaveMap)
 		if newHaveMap then
-			imHaveMap.file = IMG_READY
+			imHaveMap.file = IMAGE_DLREADY
 			lblHaveMap:SetCaption(i18n("have_map"))
 		else
-			imHaveMap.file = IMG_UNREADY
+			imHaveMap.file = IMAGE_DLUNREADY
 			lblHaveMap:SetCaption(i18n("dont_have_map"))
 		end
 		imHaveMap:Invalidate()
@@ -1035,17 +1094,11 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	function externalFunctions.UpdateUserTeamStatus(userName, allyNumber, isSpectator)
 		if userName == myUserName then
 			if isSpectator then
-				ButtonUtilities.SetButtonDeselected(btnPlay)
-				ButtonUtilities.SetCaption(btnPlay, i18n("play"))
-				ButtonUtilities.SetButtonSelected(btnSpectate)
-				ButtonUtilities.SetCaption(btnSpectate, i18n("spectating"))
+				SetButtonStateSpectating()
 				startBoxPanel:Hide()
 				minimapPanel.disableChildrenHitTest = true --omg this is amazing
 			else
-				ButtonUtilities.SetButtonDeselected(btnSpectate)
-				ButtonUtilities.SetCaption(btnSpectate, i18n("spectate"))
-				ButtonUtilities.SetButtonSelected(btnPlay)
-				ButtonUtilities.SetCaption(btnPlay, i18n("playing"))
+				SetButtonStatePlaying()
 				startBoxPanel:Show()
 				minimapPanel.disableChildrenHitTest = false
 			end
@@ -2809,6 +2862,27 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	end
 
 	-- Lobby interface
+	local function OnUpdateUserBattleStatus(listener, username, status)
+
+		if username ~= battleLobby.myUserName then return end
+
+		WG.Chobby.Configuration:SetConfigValue("lastGameSpectatorState", status.isSpectator)
+
+		if battleLobby.name ~= "singleplayer" then
+			readyButton:SetEnabled(not status.isSpectator)
+
+			if status.isReady then
+				readyButton:StyleReady()
+				readyButton:SetCaption(i18n("ready"))
+				readyButton.tooltip = i18n("ready_tooltip")
+			else
+				readyButton:StyleUnready()
+				readyButton:SetCaption(i18n("unready"))
+				readyButton.tooltip = i18n("unready_tooltip")
+			end
+		end
+	end
+		
 	local function OnUpdateUserTeamStatus(listener, userName, allyNumber, isSpectator)
 		--votePanel.VoteButtonVisible(isSpectator == false)
 		infoHandler.UpdateUserTeamStatus(userName, allyNumber, isSpectator)
@@ -3199,6 +3273,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		--Spring.Echo("OnRequestBattleStatus, wespecnow?:",wespecnow,WG.Chobby.Configuration.lastGameSpectatorState)
 		battleLobby:SetBattleStatus({
 			isSpectator = wespecnow,
+			isReady = false,
 			side = (WG.Chobby.Configuration.lastFactionChoice or 0) ,
 			sync = (haveMapAndGame and 1) or 2, -- 0 = unknown, 1 = synced, 2 = unsynced
 			-- tamColor = PickRandomColor()
@@ -3217,6 +3292,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	end
 
 	battleLobby:AddListener("OnUpdateUserTeamStatus", OnUpdateUserTeamStatus)
+	battleLobby:AddListener("OnUpdateUserBattleStatus", OnUpdateUserBattleStatus)
 	battleLobby:AddListener("OnBattleIngameUpdate", OnBattleIngameUpdate)
 	battleLobby:AddListener("OnUpdateBattleInfo", OnUpdateBattleInfo)
 	battleLobby:AddListener("OnLeftBattle", OnLeftBattle)
@@ -3242,6 +3318,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		emptyTeamIndex = 0
 
 		oldLobby:RemoveListener("OnUpdateUserTeamStatus", OnUpdateUserTeamStatus)
+		oldLobby:RemoveListener("OnUpdateUserBattleStatus", OnUpdateUserBattleStatus)
 		oldLobby:RemoveListener("OnBattleIngameUpdate", OnBattleIngameUpdate)
 		oldLobby:RemoveListener("OnUpdateBattleInfo", OnUpdateBattleInfo)
 		oldLobby:RemoveListener("OnLeftBattle", OnLeftBattle)
@@ -3330,7 +3407,6 @@ function BattleRoomWindow.ShowMultiplayerBattleRoom(battleID)
 
 	battleLobby:SetBattleStatus({
 		allyNumber = 0,
-		isSpectator = false,
 		sync = (haveMapAndGame and 1) or 2, -- 0 = unknown, 1 = synced, 2 = unsynced
 	})
 end

@@ -6,6 +6,23 @@ local welcomePanelItems = {
         Text = "Welcome back Commander. We hope you are ready for epic single player and multiplayer battles. Check out our Discord and join the community!\n",
     },
 
+    {
+        Header = "New Map: Cirolata 1.02",
+        Time = nil,-- "NowTime",
+        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/Cirolata_1.02.png",
+        Text = "A new 4-way Team-FFA map on a 16x16 subtropical island.",
+    },
+
+    {
+        Header = "New Map: Bismuth Valley v1.0",
+        --Url = "https://drive.google.com/drive/folders/16eBcMpkgMTV9mlKxYmNda64X_dmCFdkk",
+        Time = nil,-- "NowTime",
+        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/bismuth_valley_v1.0.png",
+        Text = "New 8v8 map released! Fight over large 24x16 grim alien canyon.",
+    },
+
+    --['Tumult Remake v1.0']={Width=14, Height=14, Is1v1=1, IsTeam=1, IsFFA=nil, IsCertified=nil, Special=nil, Flat=1, Hills=1, Water=nil, IsInPool=1, PlayerCount=nil,TeamCount=nil,Author='Nikuksis (original by Hunterw)', InfoText='4v4 map where only bots can pass side hills.'},
+
     --[[
     {
         Header = "Map Download Issues",
@@ -19,12 +36,13 @@ local welcomePanelItems = {
         Time = nil,-- "NowTime",
         Text = "We have moved the multiplayer lobby server from road-flag.bnr.la:8200 to server2.beyondallreason.info:8200. We hope games will continue to be uninterrupted, report any connectivity issues to us on Discord!\n Please update your game to automatically switch over, and if you need to manually switch servers, you can do so in Settings->Lobby->Choose Server" ,
     },]]--
+    --[[
     {
         Header = "New engine release",
-        Url = "",
+        Url = nil, -- should be nil if you dont want a clickable link button
         Time = nil, --"",
         Text = "We've just released a new engine update. Be sure to report any issues to #bugreports on the discord and thank you for bearing with us through any teething problems with it.."
-    },
+    }, ]]--
     {
         Header = "Beyond All Reason Alpha Championship Cup #2",
         Url = "https://www.twitch.tv/videos/1450944560",
@@ -47,7 +65,7 @@ local welcomePanelItems = {
         Header = "Play with your friends: use our servers!",
         Url = nil,--"https://www.beyondallreason.info/",
         Time = nil,-- "NowTime",
-        Text = "Join any empty room (marked blue) with your friends and type !boss to be able to !lock the game. Hosting your own private battles is under development, but there are always empty rooms on demand, just use them.",
+        Text = "Join any empty (blue), or waiting (green) battle to start playing, or host your own public or private battle by clicking the Host Game button in the Multiplayer Battle List",
     },
     {
         Header = "Multiplayer battle room commands",

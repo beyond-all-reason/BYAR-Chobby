@@ -23,12 +23,27 @@ function Configuration:init()
 	self.serverAddress = WG.Server.address
 	self.serverPort =  WG.Server.port
 
-	local realWidth, realHeight = Spring.Orig.GetViewSizes()
-	self.uiScale = math.floor(math.max(1, realHeight/950))
+	self.chatFontSize = 18
+
+	self.font = {
+		[0] = {size = 10, shadow = false},
+		[1] = {size = 14, shadow = false},
+		[2] = {size = 18, shadow = false},
+		[3] = {size = 22, shadow = false},
+		[4] = {size = 32, shadow = false},
+		[5] = {size = 48, shadow = false},
+	}
+
+	-- self.uiScale, WG.uiScale, and self.uiScalesForScreenSizes will be overridden in Configuration:SetConfigData;
+	-- We're setting default values here in case something tries to access it before we get there.
+	-- See Configuration:SetUiScale() for setting, listen for OnUiScaleChange for updates.
+	self.uiScale = 1
 	self.defaultUiScale = self.uiScale
-	self.maxUiScale = math.max(2, realWidth/1000)
-	self.minUiScale = math.min(0.5, realWidth/4000)
 	WG.uiScale = self.uiScale
+	self.uiScalesForScreenSizes = {}
+
+	self:UpdateUiScaleMaxMin()
+	self:SetUiScale()
 
 	self.userListWidth = 240 -- Main user list width. Possibly configurable in the future.
 	self.chatMaxNameLength = 250 -- Pixels
@@ -196,6 +211,7 @@ function Configuration:init()
 		end
 	end
 
+	self.autoLaunchAsSpectator = true
 	self.lastLoginChatLength = 25
 	self.notifyForAllChat = true
 	self.planetwarsNotifications = false -- Possibly too intrusive? See how it goes.
@@ -249,17 +265,6 @@ function Configuration:init()
 
 	self.lobby_fullscreen = 1
 	self.game_fullscreen = 1
-
-	self.chatFontSize = 18
-
-	self.font = {
-		[0] = {size = 10, shadow = false},
-		[1] = {size = 14, shadow = false},
-		[2] = {size = 18, shadow = false},
-		[3] = {size = 22, shadow = false},
-		[4] = {size = 32, shadow = false},
-		[5] = {size = 48, shadow = false},
-	}
 
 	self.configParamTypes = {}
 	for _, param in pairs(Spring.GetConfigParams()) do
@@ -442,10 +447,47 @@ end
 -- Widget interface callins
 ---------------------------------------------------------------------------------
 
+local function screenSizeKey()
+	local vsx, vsy = Spring.Orig.GetViewSizes()
+	-- Scale down to avoid using different keys for only slightly different view sizes.
+	return math.floor(vsx / 500) .. "x" .. math.floor(vsy / 250)  
+end
+
+function Configuration:SetUiScale(newScale)
+	newScale = newScale or self.uiScalesForScreenSizes[screenSizeKey()] or self.uiScale
+
+	self.uiScale = math.max(self.minUiScale, math.min(self.maxUiScale, newScale))
+	WG.uiScale = self.uiScale
+	self.uiScalesForScreenSizes[screenSizeKey()] = newScale
+
+	self:_CallListeners("OnUiScaleChange", newScale)
+
+	local screenWidth, screenHeight = Spring.GetViewSizes()
+	screen0:Resize(screenWidth, screenHeight)
+end
+
+function Configuration:UpdateUiScaleMaxMin()
+	local screenWidth, screenHeight = Spring.Orig.GetViewSizes()
+	local oldMin = self.minUiScale
+	local oldMax = self.maxUiScale
+
+	self.maxUiScale = math.max(1, screenWidth / 960, screenHeight / 540) -- 200% @ 1080p; 400% @ 4k
+	-- size it against font sizes, because readability is the lower limit here.
+	-- We don't use font[0], so cap it against font[1]
+	self.minUiScale = 7 / self.font[1].size
+
+	if oldMin ~= self.minUiScale or oldMax ~= self.maxUiScale then
+		self:_CallListeners("OnUiScaleMaxMinChange", self.minUiScale, self.maxUiScale)
+	end
+end
+
 function Configuration:SetConfigData(data)
 	if data.campaignConfigName == "dev" then
 		data.campaignConfigName = "sample"
 	end
+
+	self.uiScalesForScreenSizes = data.uiScalesForScreenSizes or {}
+	self:SetUiScale()
 
 	if data ~= nil then
 		for k, v in pairs(data) do
@@ -508,11 +550,12 @@ end
 
 function Configuration:GetConfigData()
 	return {
+		autoLaunchAsSpectator = self.autoLaunchAsSpectator,
 		serverAddress = self.serverAddress,
 		serverPort = self.serverPort,
 		userName = self.userName,
 		suggestedNameFromSteam = self.suggestedNameFromSteam,
-		uiScale = self.uiScale,
+		uiScalesForScreenSizes = self.uiScalesForScreenSizes,
 		password = self.password,
 		autoLogin = self.autoLogin,
 		firstLoginEver = self.firstLoginEver,
@@ -614,12 +657,6 @@ function Configuration:SetConfigValue(key, value)
 	end
 	if key == "disableColorChoosing" then
 		localLobby.useTeamColor = not value
-	end
-	if key == "uiScale" then
-		self[key] = math.max(self.minUiScale, math.min(self.maxUiScale, value))
-		WG.uiScale = self[key]
-		local screenWidth, screenHeight = Spring.GetViewSizes()
-		screen0:Resize(screenWidth, screenHeight)
 	end
 	if key == "gameConfigName" then
 		self:LoadGameConfig(LUA_DIRNAME .. "configs/gameConfig/" .. value .. "/mainConfig.lua")

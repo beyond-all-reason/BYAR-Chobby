@@ -37,7 +37,6 @@ local TEXT_OFFSET = 6
 
 local settingsWindowHandler
 
-
 local settingsFont1
 local settingsFont2
 local settingsFont3
@@ -687,7 +686,7 @@ local function GetLobbyTabControls()
 		y = offset,
 		width  = COMBO_WIDTH,
 		height = 30,
-		value  = Configuration.chatFontSize or 16,
+		value  = Configuration.chatFontSize or 18,
 		min    = 12,
 		max    = 20,
 		step   = 1,
@@ -846,23 +845,22 @@ local function GetLobbyTabControls()
 		--font = Configuration:GetFont(2),
 		caption = "User Interface Scale",
 	}
-	children[#children + 1] = Trackbar:New {
+	local uiScaleTrackbar = Trackbar:New {
 		x = COMBO_X,
 		y = offset,
 		width  = COMBO_WIDTH,
 		height = 30,
-		value  = (Configuration.uiScale*100.0) or 100.0,
-		min    = 75,
-		max    = 133,
+		value  = Configuration.uiScale * 100.0,
+		min    = math.ceil(Configuration.minUiScale * 100.0),
+		max    = math.floor(Configuration.maxUiScale * 100.0),
 		step   = 1,
 		OnMouseUp = {
-			function(obj,value)
-				--Spring.Echo("Trackbar onmouseup",obj,value)
+			function(obj)
 				if freezeSettings then
 					return
 				end
 
-				Configuration:SetConfigValue("uiScale", value/100.0)
+				Configuration:SetUiScale(obj.value / 100.0)
 			end
 		},
 		OnChange = {
@@ -871,7 +869,17 @@ local function GetLobbyTabControls()
 			end
 		}
 	}
+	children[#children + 1] = uiScaleTrackbar
 	offset = offset + ITEM_OFFSET
+
+	Configuration:AddListener("OnUiScaleChange", function(_, newScale)
+		uiScaleTrackbar:SetValue(newScale * 100.0)
+	end)
+	Configuration:AddListener("OnUiScaleMaxMinChange", function(_, newMin, newMax)
+		uiScaleTrackbar:SetMinMax(newMin * 100.0, newMax * 100.0)
+	end)
+
+	children[#children + 1], offset = AddCheckboxSetting(offset, i18n("autoLaunchAsSpectator"), "autoLaunchAsSpectator", true)
 
 	-- Why is this shit so fucked up.
 	local randomSkirmishOption = Spring.GetConfigInt("randomSkirmishSetup", 1)

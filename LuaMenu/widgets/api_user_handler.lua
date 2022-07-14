@@ -62,6 +62,8 @@ local IMAGE_MODERATOR    = IMAGE_DIR .. "ranks/moderator.png"
 local IMAGE_PLAYER       = IMAGE_DIR .. "ranks/player.png"
 local IMAGE_READY        = IMAGE_DIR .. "ready.png"
 local IMAGE_UNREADY      = IMAGE_DIR .. "unready.png"
+local IMAGE_DLREADY      = IMAGE_DIR .. "downloadready.png"
+local IMAGE_DLUNREADY    = IMAGE_DIR .. "downloadnotready.png"
 local IMAGE_UNKNOWN_SYNC = IMAGE_DIR .. "unknown_sync.png"
 local IMAGE_ONLINE       = IMAGE_DIR .. "online.png"
 local IMAGE_OFFLINE      = IMAGE_DIR .. "offline.png"
@@ -139,11 +141,23 @@ local function GetUserSyncStatus(userName, userControl)
 		return
 	end
 	if userBattleInfo.sync == 1 then
-		return IMAGE_READY
+		return IMAGE_DLREADY
 	elseif userBattleInfo.sync == 2 then
-		return IMAGE_UNREADY
+		return IMAGE_DLUNREADY
 	else
 		return IMAGE_UNKNOWN_SYNC
+	end
+end
+
+local function GetUserReadyStatus(userName, userControl)
+	local userBattleInfo = userControl.lobby:GetUserBattleStatus(userName) or {}
+	if userBattleInfo.aiLib then
+		return
+	end
+	if userBattleInfo.isReady then
+		return IMAGE_READY
+	else
+		return IMAGE_UNREADY
 	end
 end
 
@@ -519,8 +533,18 @@ local function UpdateUserBattleStatus(listener, userName)
 				data.imSyncStatus.file = GetUserSyncStatus(userName, data)
 				data.imSyncStatus:Invalidate()
 			end
+
 			local battleStatus = data.lobby:GetUserBattleStatus(userName) or {}
 			local isPlaying = not battleStatus.isSpectator
+
+			if data.imReadyStatus and not isSingleplayer then
+				data.imReadyStatus.file = GetUserReadyStatus(userName, data)
+				data.imReadyStatus:SetVisibility(isPlaying)
+				if isPlaying then
+					data.imReadyStatus:Invalidate()
+				end
+			end
+
 			if data.imTeamColor then
 				data.imTeamColor.color = battleStatus.teamColor
 				data.imTeamColor:SetVisibility(isPlaying)
@@ -596,6 +620,7 @@ local function GetUserControls(userName, opts)
 	local offset             = opts.offset or 0
 	local offsetY            = opts.offsetY or 0
 	local height             = opts.height or 22
+	local showReady          = opts.showReady
 	local showFounder        = opts.showFounder
 	local showModerator      = opts.showModerator
 	local comboBoxOnly       = opts.comboBoxOnly
@@ -889,6 +914,22 @@ local function GetUserControls(userName, opts)
 		offset = offset + 21
 	end
 
+	if showReady then
+		offset = offset + 1
+		userControls.imReadyStatus = Image:New {
+			name = "imReadyStatus",
+			x = offset,
+			y = offsetY + 1,
+			width = 21,
+			height = 19,
+			parent = userControls.mainControl,
+			keepAspect = true,
+			file = GetUserReadyStatus(userName, userControls),
+		}
+		userControls.imReadyStatus:SetVisibility(not lobby:GetUserBattleStatus(userName).isSpectator)
+		offset = offset + 21
+	end
+
 	if not isSingleplayer then
 		offset = offset + 1
 		userControls.imCountry = Image:New {
@@ -1141,6 +1182,7 @@ function userHandler.GetBattleUser(userName, isSingleplayer)
 	return _GetUser(battleUsers, userName, {
 		autoResize     = true,
 		isInBattle     = true,
+		showReady      = true,
 		showModerator  = true,
 		showFounder    = true,
 		showTeamColor  = not WG.Chobby.Configuration.gameConfig.disableColorChoosing,

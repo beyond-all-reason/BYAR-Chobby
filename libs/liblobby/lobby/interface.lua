@@ -187,7 +187,7 @@ local function UpdateAndCreateMerge(userData, status)
 		battleStatus.side = userData.side or 0 -- self:GetMySide() or 0
 	end
 
-	battleStatus.isReady = not battleStatus.isSpectator
+	--battleStatus.isReady = not battleStatus.isSpectator
 	return battleStatus, updated
 end
 
@@ -564,7 +564,8 @@ function Interface:_OnClientStatus(userName, status)
 		end
 		if self.myBattleID and status.isInGame then
 			local myBattle = self:GetBattle(self.myBattleID)
-			if myBattle and myBattle.founder == userName then
+			local myBattleStatus = self.userBattleStatus[self.myUserName]
+			if myBattle and myBattle.founder == userName and not (Spring.GetGameName() ~= "" and myBattleStatus.isSpectator) and not self.commandBuffer and (not myBattleStatus.isSpectator or WG.Chobby.Configuration.autoLaunchAsSpectator) then
 				local battle = self:GetBattle(self.myBattleID)
 				self:ConnectToBattle(self.useSpringRestart, battle.ip, battle.port, nil, self:GetScriptPassword())
 			end

@@ -138,13 +138,20 @@ return {
 		skip_tutorial = "Skip Tutorial",
 		rejoin = "Rejoin",
 		abandon = "Abandon",
+
+		tooltip_is_spectator = "You will spectate this game",
+		tooltip_become_spectator = "Press to watch the game as a spectator",
 		spectate = "Spectate",
 		spectating = "Spectating",
+
+		tooltip_is_player = "You will play in this game",
+		tooltip_become_player = "Press to play in this game",
 		play = "Play",
+		playing = "Playing",
+
 		watch = "Watch",
 		matchmaking = "Matchmaking",
 		customGames = "Custom Games",
-		playing = "Playing",
 		pick_map = "Change Map",
 		add_team = "Add Team",
 		players = "Players",
@@ -169,6 +176,7 @@ return {
 		wip_challenges = "WiP Challenges",
 		scenarios = "Scenarios",
 		-- Settings
+		autoLaunchAsSpectator = "Auto-launch when spectating",
 		randomSkirmishSetup = "Random Skirmish AI and Map",
 		randomSkirmishSetup_tooltip = "Randomizes AIs and Map in Singleplayer Skirmish mode. Requires Restart.",
 		planetwars_notifications = "Planetwars notifications",
@@ -192,6 +200,12 @@ return {
 		filterbattleroom = "Filter bot chatter",
 		filterbattleroom_tooltip = "Battleroom management bots are quite verbose, enable this if you want to see every debug message that the bots do (for SPADS)",
 
+		-- gui_battle_room_window.lua
+
+		ready = "Ready",
+		ready_tooltip = "Click to become unready. This will prevent the game from starting!",
+		unready = "Not Ready",
+		unready_tooltip = "Click to become ready. If you're not ready, the game can't start!",
 
 		-- chat_windows.lua
 		server = "Server",

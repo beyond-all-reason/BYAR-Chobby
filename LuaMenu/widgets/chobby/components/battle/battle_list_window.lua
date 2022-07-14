@@ -3,8 +3,8 @@ BattleListWindow = ListWindow:extends{}
 local BATTLE_RUNNING = LUA_DIRNAME .. "images/runningBattle.png"
 local BATTLE_NOT_RUNNING = LUA_DIRNAME .. "images/nothing.png"
 
-local IMG_READY    = LUA_DIRNAME .. "images/ready.png"
-local IMG_UNREADY  = LUA_DIRNAME .. "images/unready.png"
+local IMAGE_DLREADY      = LUA_DIRNAME .. "images/downloadready.png"
+local IMAGE_DLUNREADY    = LUA_DIRNAME .. "images/downloadnotready.png"
 
 function BattleListWindow:init(parent)
 	self:super("init", parent, "Play or watch a game", true, nil, nil, nil, 34)
@@ -571,7 +571,7 @@ function BattleListWindow:MakeJoinBattle(battleID, battle)
 			height = 15,
 			y = 20,
 			height = 15,
-			file = (VFS.HasArchive(battle.gameName) and IMG_READY or IMG_UNREADY),
+			file = (VFS.HasArchive(battle.gameName) and IMAGE_DLREADY or IMAGE_DLUNREADY),
 			parent = parentButton,
 		}
 	end
@@ -595,7 +595,7 @@ function BattleListWindow:MakeJoinBattle(battleID, battle)
 		height = 15,
 		y = 36,
 		height = 15,
-		file = (VFS.HasArchive(battle.mapName) and IMG_READY or IMG_UNREADY),
+		file = (VFS.HasArchive(battle.mapName) and IMAGE_DLREADY or IMAGE_DLUNREADY),
 		parent = parentButton,
 	}
 	local lblMap = Label:New {
@@ -836,12 +836,12 @@ function BattleListWindow:UpdateSync(battleID)
 
 	local imHaveMap = items.battleButton:GetChildByName("imHaveMap")
 	if imHaveMap ~= nil then
-		imHaveMap.file = (VFS.HasArchive(battle.mapName) and IMG_READY or IMG_UNREADY)
+		imHaveMap.file = (VFS.HasArchive(battle.mapName) and IMAGE_DLREADY or IMAGE_DLUNREADY)
 	end
 
 	local imHaveGame = items.battleButton:GetChildByName("imHaveGame")
 	if imHaveGame ~= nil then
-		imHaveGame.file = (VFS.HasArchive(battle.gameName) and IMG_READY or IMG_UNREADY)
+		imHaveGame.file = (VFS.HasArchive(battle.gameName) and IMAGE_DLREADY or IMAGE_DLUNREADY)
 	end
 end
 
@@ -974,16 +974,16 @@ function BattleListWindow:OnUpdateBattleInfo(battleID)
 
 		mapCaption:SetCaption(battle.mapName:gsub("_", " "))
 		if VFS.HasArchive(battle.mapName) then
-			imHaveMap.file = IMG_READY
+			imHaveMap.file = IMAGE_DLREADY
 		else
-			imHaveMap.file = IMG_UNREADY
+			imHaveMap.file = IMAGE_DLUNREADY
 		end
 		imHaveMap:Invalidate()
 
 
 		local imHaveGame = items.battleButton:GetChildByName("imHaveGame")
 		if imHaveGame ~= nil then
-			imHaveGame.file = (VFS.HasArchive(battle.gameName) and IMG_READY or IMG_UNREADY)
+			imHaveGame.file = (VFS.HasArchive(battle.gameName) and IMAGE_DLREADY or IMAGE_DLUNREADY)
 		end
 
 		local gameCaption = items.battleButton:GetChildByName("gameCaption")

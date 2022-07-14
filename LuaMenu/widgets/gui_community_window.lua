@@ -600,6 +600,8 @@ local function GetNewsHandler(parentControl, headingSize, timeAsTooltip, topHead
 						WG.WrapperLoopback.DownloadImage({ImageUrl = items[i].Image, TargetPath = imagePath})
 					end
 					entry.imageFile = imagePath
+				else
+					entry.imageFile = items[i].Image
 				end
 			end
 

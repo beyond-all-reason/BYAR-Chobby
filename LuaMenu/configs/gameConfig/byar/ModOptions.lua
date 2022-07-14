@@ -352,6 +352,7 @@ local options={
 		--desc   = '',
 		type   = 'number',
 		section= 'options_scavengers',
+		hidden = true,
 		def    = 1,
 		min    = 0.01,
 		max    = 10,
@@ -478,7 +479,7 @@ local options={
 			{key="hard", name="Hard", desc="Hard"},
 			{key="veryhard", name="Very Hard", desc="Very Hard"},
 			{key="epic", name="Epic", desc="Epic"},
-			{key="survival", name="Survival", desc="Endless Mode"}
+			{key="survival", name="Endless", desc="Endless Mode"}
 		}
 	},
 	{
@@ -500,9 +501,9 @@ local options={
 		name   = "Max Queen Arrival (Minutes)",
 		desc   = "Queen will spawn after given time.",
 		type   = "number",
-		def    = 60,
+		def    = 40,
 		min    = 1,
-		max    = 120,
+		max    = 1440,
 		step   = 1,
 		section= "chicken_defense_options",
 	},
@@ -530,19 +531,27 @@ local options={
 		section= "chicken_defense_options",
 	},
 	{
+		key    = "chicken_swarmmode",
+		name   = "Swarm Mode",
+		desc   = "Waves spawn 10 times faster but for every 2 minutes of waves you get 4 minutes of grace period",
+		type   = "bool",
+		def    = false,
+		section= "chicken_defense_options",
+    },
+	{
 		key    = "chicken_graceperiod",
-		name   = "Grace Period (Seconds)",
+		name   = "Grace Period (Minutes)",
 		desc   = "Time before Raptors become active.",
 		type   = "number",
-		def    = 300,
-		min    = 5,
-		max    = 900,
-		step   = 5,
+		def    = 5,
+		min    = 1,
+		max    = 20,
+		step   = 1,
 		section= "chicken_defense_options",
 	},
 	{
 		key    = "chicken_queenanger",
-		name   = "Add Queen Anger",
+		name   = "Killing burrows adds to queen anger.",
 		desc   = "Killing burrows adds to queen anger.",
 		type   = "bool",
 		def    = true,
@@ -784,6 +793,30 @@ local options={
 			{key="disabled", name="Disabled"},
 		}
 	},
+
+	{
+		key    = 'commanderbuildersrange',
+		name   = 'Base Construction Turret: Range',
+		type   = 'number',
+		section= 'options',
+		def    = 1500,
+		min    = 100,
+		max    = 5000,
+		step   = 1,
+	},
+
+	{
+		key    = 'commanderbuildersbuildpower',
+		name   = 'Base Construction Turret: Buildpower',
+		type   = 'number',
+		section= 'options',
+		def    = 500,
+		min    = 100,
+		max    = 5000,
+		step   = 1,
+	},
+
+
 
 
 
@@ -1394,10 +1427,27 @@ local options={
 	},
 
 	{
+		key		= "experimentalreversegear",
+		name	= "Reverse gear - Allows units to move backwards over short distances",
+		desc	= "Allows units to move backwards over short distances",
+		type	= "bool",
+		def		= false,
+		section	= "options_experimental",
+	},
+
+	{
 		key		= "unba",
-		name	= "UnbaCom - Totally Rebalanced Commanders (WIP)",
-		desc	= "Defines if commanders level up with xp and gain more power or not",
-		hidden = true,
+		name	= "UnbaCom - Reworked Commanders",
+		desc	= "Commander levels up with XP, gaining better weapons, more health and higher tech buildlist.",
+		type	= "bool",
+		def		= false,
+		section	= "options_experimental",
+	},
+
+	{
+		key		= "unbatech",
+		name	= "UnbaTech - Reworked Tech Progression (Requires UnbaCom)",
+		desc	= "Constructors cannot build Tech2 factories. In order to reach Tech2 you have to level up your commander.",
 		type	= "bool",
 		def		= false,
 		section	= "options_experimental",

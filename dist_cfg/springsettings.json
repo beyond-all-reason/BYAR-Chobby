@@ -68,7 +68,6 @@
     "UnitIconFadeVanish": 2700,
     "UnitIconFadeStart": 3000,
     "UnitIconFadeAmount": 0.1,
-    "UnitIconsHideWithUI": 1,
     "UsePBO": 1,
     "Water": 4,
     "WindowedEdgeMove": 1,
