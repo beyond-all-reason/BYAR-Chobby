@@ -21,21 +21,14 @@ local welcomePanelItems = {
         Text = "New 8v8 map released! Fight over large 24x16 grim alien canyon.",
     },
 
-    --['Tumult Remake v1.0']={Width=14, Height=14, Is1v1=1, IsTeam=1, IsFFA=nil, IsCertified=nil, Special=nil, Flat=1, Hills=1, Water=nil, IsInPool=1, PlayerCount=nil,TeamCount=nil,Author='Nikuksis (original by Hunterw)', InfoText='4v4 map where only bots can pass side hills.'},
-
-    --[[
     {
-        Header = "Map Download Issues",
-        Url = "https://drive.google.com/drive/folders/16eBcMpkgMTV9mlKxYmNda64X_dmCFdkk",
+        Header = "Steam release roadmap",
+        Url = "https://discord.com/channels/549281623154229250/697141979892416512/997178414257680444",
         Time = nil,-- "NowTime",
-        Text = "We are experiencing some issues with automatic map downloads. You can download all of the maps from the google drive link in the title and just put them into /data/maps/ .",
+        -- Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/bismuth_valley_v1.0.png",
+        Text = "We've published our Steam Release roadmap, check it out on the discord!",
     },
-    {
-        Header = "Server Moved",
-        Url = nil, --"https://www.beyondallreason.info/",
-        Time = nil,-- "NowTime",
-        Text = "We have moved the multiplayer lobby server from road-flag.bnr.la:8200 to server2.beyondallreason.info:8200. We hope games will continue to be uninterrupted, report any connectivity issues to us on Discord!\n Please update your game to automatically switch over, and if you need to manually switch servers, you can do so in Settings->Lobby->Choose Server" ,
-    },]]--
+
     --[[
     {
         Header = "New engine release",
@@ -43,12 +36,12 @@ local welcomePanelItems = {
         Time = nil, --"",
         Text = "We've just released a new engine update. Be sure to report any issues to #bugreports on the discord and thank you for bearing with us through any teething problems with it.."
     }, ]]--
-    {
-        Header = "Beyond All Reason Alpha Championship Cup #2",
-        Url = "https://www.twitch.tv/videos/1450944560",
-        Time = nil, --"",
-        Text = "Congratulations to Raghna for his victory. We'll have something up on YouTube in the near future but for now we still have the twitch stream."
-    },
+    -- {
+    --     Header = "Beyond All Reason Alpha Championship Cup #2",
+    --     Url = "https://www.twitch.tv/videos/1450944560",
+    --     Time = nil, --"",
+    --     Text = "Congratulations to Raghna for his victory. We'll have something up on YouTube in the near future but for now we still have the twitch stream."
+    -- },
     {
         Header = "New single player scenarios",
         Url = nil, --"https://www.beyondallreason.info/",
