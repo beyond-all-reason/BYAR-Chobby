@@ -7,18 +7,18 @@ local welcomePanelItems = {
     },
 
     {
+        Header = "Map update: Bismuth Valley v2.0",
+        --Url = "https://drive.google.com/drive/folders/16eBcMpkgMTV9mlKxYmNda64X_dmCFdkk",
+        Time = nil,-- "NowTime",
+        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/bismuth_valley_v2.0.png",
+        Text = "Bismuth Valley is now updated to v2.0! New metal distibution and reworked south pillars along with new bismuth texture.",
+    },
+
+    {
         Header = "New Map: Cirolata 1.02",
         Time = nil,-- "NowTime",
         Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/Cirolata_1.02.png",
         Text = "A new 4-way Team-FFA map on a 16x16 subtropical island.",
-    },
-
-    {
-        Header = "New Map: Bismuth Valley v1.0",
-        --Url = "https://drive.google.com/drive/folders/16eBcMpkgMTV9mlKxYmNda64X_dmCFdkk",
-        Time = nil,-- "NowTime",
-        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/bismuth_valley_v1.0.png",
-        Text = "New 8v8 map released! Fight over large 24x16 grim alien canyon.",
     },
 
     {
