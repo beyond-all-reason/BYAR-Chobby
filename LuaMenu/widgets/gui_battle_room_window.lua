@@ -157,7 +157,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		bottom = 0,
 		width = "12%",
 		height = "100%",
-		classname = "option_button",
+		classname = "button_small",
 		caption = "",
 		padding = {0, 0, 0, 0},
 		parent = startBoxPanel,
@@ -206,7 +206,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		width = '12%',
 		height = "100%",
 		parent = startBoxPanel,
-		classname = "option_button",
+		classname = "button_small",
 		caption = "",
 		padding = {0, 0, 0, 0},
 		tooltip = "Split start boxes top vs bottom",
@@ -254,7 +254,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		width = '12%',
 		height = "100%",
 		parent = startBoxPanel,
-		classname = "option_button",
+		classname = "button_small",
 		caption = "",
 		padding = {0, 0, 0, 0},
 		tooltip = "Split start boxes top left vs bottom right",
@@ -302,7 +302,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		width = '12%',
 		height = "100%",
 		parent = startBoxPanel,
-		classname = "option_button",
+		classname = "button_small",
 		caption = "",
 		padding = {0, 0, 0, 0},
 		tooltip = "Split start boxes bottom left vs top right",
@@ -351,7 +351,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		width = '12%',
 		height = "100%",
 		parent = startBoxPanel,
-		classname = "option_button",
+		classname = "button_small",
 		caption = "",
 		padding = {0, 0, 0, 0},
 		tooltip = "Split start boxes into 4 corners for 4 teams",
@@ -402,7 +402,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		width = '12%',
 		height = "100%",
 		parent = startBoxPanel,
-		classname = "option_button",
+		classname = "button_small",
 		caption = "",
 		padding = {0, 0, 0, 0},
 		tooltip = "Split start boxes into 4 sides for 4 teams",
@@ -453,7 +453,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		width = '12%',
 		height = "100%",
 		parent = startBoxPanel,
-		classname = "option_button",
+		classname = "button_small",
 		caption = "",
 		padding = {0, 0, 0, 0},
 		tooltip = "Add a new start box in the center",
@@ -489,7 +489,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		width = '12%',
 		height = "100%",
 		parent = startBoxPanel,
-		classname = "option_button",
+		classname = "button_small",
 		caption = "",
 		padding = {0, 0, 0, 0},
 		tooltip = "Remove last start box",
@@ -796,7 +796,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		right = 0,
 		bottom = 51,
 		height = 32,
-		classname = "button_highlight",
+		classname = "option_button",
 		caption = "",
 		font = config:GetFont(2),
 		OnClick = {
@@ -820,7 +820,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		right = "50.5%",
 		bottom = 51,
 		height = 32,
-		classname = "button_highlight",
+		classname = "option_button",
 		caption = "",
 		font = config:GetFont(2),
 		OnClick = {
@@ -1385,29 +1385,29 @@ local function AddTeamButtons(parent, offX, joinFunc, aiFunc, unjoinable, disall
 		local addAiButton = Button:New {
 			name = "addAiButton",
 			x = offX,
-			y = 4,
-			height = 24,
-			width = 72,
+			y = 0,
+			height = 32,
+			width = 95,
 			font = WG.Chobby.Configuration:GetFont(2),
 			caption = i18n("add_ai") .. "\b",
 			OnClick = {aiFunc},
-			classname = "option_button",
+			classname = "button_square",
 			parent = parent,
 			tooltip = "Add an AI to the game",
 		}
-		offX = offX + 82
+		offX = offX + 95
 	end
 	if not unjoinable then
 		local joinTeamButton = Button:New {
 			name = "joinTeamButton",
 			x = offX,
-			y = 4,
-			height = 24,
-			width = 72,
+			y = 0,
+			height = 32,
+			width = 95,
 			font = WG.Chobby.Configuration:GetFont(2),
 			caption = i18n("join") .. "\b",
 			OnClick = {joinFunc},
-			classname = "option_button",
+			classname = "button_square",
 			parent = parent,
 			tooltip = "Change your team to this one",
 		}
@@ -2300,7 +2300,7 @@ local function SetupSpadsStatusPanel(battle, battleID)
 		tooltip = "Attempt to balance the teams. In Coop Preset this splits Humans and AIs.",
 		font = WG.Chobby.Configuration:GetFont(2),
 		parent = spadsStatusPanel,
-		classname = "option_button",
+		classname = "button_square",
 		OnClick = {
 			function()
 				battleLobby:SayBattle('!balance')
@@ -2317,7 +2317,7 @@ local function SetupSpadsStatusPanel(battle, battleID)
 		tooltip = "Lock the battleroom, preventing everyone from joining",
 		font = WG.Chobby.Configuration:GetFont(2),
 		parent = spadsStatusPanel,
-		classname = "option_button",
+		classname = "button_square",
 		OnClick = {
 			function()
 				battleLobby:SayBattle('!lock')
@@ -2334,7 +2334,7 @@ local function SetupSpadsStatusPanel(battle, battleID)
 		tooltip = "Unlock the battleroom, to allow players to join",
 		font = WG.Chobby.Configuration:GetFont(2),
 		parent = spadsStatusPanel,
-		classname = "option_button",
+		classname = "button_square",
 		OnClick = {
 			function()
 				battleLobby:SayBattle('!unlock')

@@ -158,6 +158,7 @@ local function CreateMapEntry(mapName, mapData, CloseFunc)--{"ResourceID":7098,"
 		caption = "",
 		resizable = false,
 		draggable = false,
+		classname = "button_simple",
 		padding = {0, 0, 0, 0},
 		tooltip = MINIMAP_TOOLTIP_PREFIX .. mapName .. "|" .. mapButtonCaption,
 		objectOverrideFont = listFont2,
