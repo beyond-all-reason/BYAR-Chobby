@@ -96,7 +96,7 @@ skin.button_square = {
   tiles = {2, 2, 2, 2}, --// tile widths: left,top,right,bottom
   padding = {10, 10, 10, 10},
 
-  backgroundColor = {0.45, 0.45, 0.45, 0.75},
+  backgroundColor = {0.45, 0.45, 0.45, 0.9},
   focusColor  = {0.70, 0.80, 0.80, 0.75},
   borderColor = {1,1,1,0},
 
@@ -109,8 +109,8 @@ skin.button_square_dark = {
   tiles = {4, 4, 4, 4}, --// tile widths: left,top,right,bottom
   padding = {10, 10, 10, 10},
 
-  backgroundColor = {0.15, 0.15, 0.15, 0.65},
-  focusColor  = {0.70, 0.80, 0.80, 0.4},
+  backgroundColor = {0.15, 0.15, 0.15, 0.9},
+  focusColor  = {0.70, 0.80, 0.80, 0.75},
   borderColor = {1,1,1,0},
 
   DrawControl = DrawButton,
