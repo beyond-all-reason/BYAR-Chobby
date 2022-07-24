@@ -14,11 +14,11 @@ local welcomePanelItems = {
     },
 
     {
-        Header = "Map update: Bismuth Valley v2.0",
+        Header = "New Map: Lightside Darkside v1.1",
         --Url = "https://drive.google.com/drive/folders/16eBcMpkgMTV9mlKxYmNda64X_dmCFdkk",
         Time = nil,-- "NowTime",
-        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/bismuth_valley_v2.0.png",
-        Text = "Bismuth Valley is now updated to v2.0! New metal distibution and reworked south pillars along with new bismuth texture.",
+        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/lightside_darkside_v1.1.png",
+        Text = "New map is now live! Fight over the terminator on this lifeless asteroid. Large metal values in larger craters and middle, lots of rocks for reclaim. Vehicles can pass through most slopes.\nBy Nikuksis",
     },
 
     {
