@@ -1,6 +1,6 @@
 local welcomePanelItems = {
     {
-        Header = "Welcome to BAR Alpha",
+        Header = "Welcome to Beyond All Reason",
         Url = "https://discord.gg/N968ddE",
         Time = nil,-- "NowTime",
         Text = "Welcome back Commander. We hope you are ready for epic single player and multiplayer battles. Check out our Discord and join the community!\n",
