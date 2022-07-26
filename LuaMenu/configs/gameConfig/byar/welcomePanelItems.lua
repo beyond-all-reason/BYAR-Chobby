@@ -14,11 +14,11 @@ local welcomePanelItems = {
     },
 
     {
-        Header = "New Map: Lightside Darkside v1.1",
+        Header = "New Map: Lightside Darkside v2.0",
         --Url = "https://drive.google.com/drive/folders/16eBcMpkgMTV9mlKxYmNda64X_dmCFdkk",
         Time = nil,-- "NowTime",
-        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/lightside_darkside_v1.1.png",
-        Text = "New map is now live! Fight over the terminator on this lifeless asteroid. Large metal values in larger craters and middle, lots of rocks for reclaim. Vehicles can pass through most slopes.\nBy Nikuksis",
+        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/lightside_darkside_v2.0.png",
+        Text = "Updated map Lightside Darkside. Reduced amount of reclaim metal, a bit reduced metal value for larger mexes, most starting craters remade to provide more space for initial base. East vs West boxes preferable.\nBy Nikuksis",
     },
 
     {
