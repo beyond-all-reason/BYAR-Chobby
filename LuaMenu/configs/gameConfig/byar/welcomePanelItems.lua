@@ -14,6 +14,14 @@ local welcomePanelItems = {
     },
 
     {
+        Header = "New Map: Sky Isle v1.1",
+        --Url = "https://drive.google.com/drive/folders/16eBcMpkgMTV9mlKxYmNda64X_dmCFdkk",
+        Time = nil,-- "NowTime",
+        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/sky_isle_v1.1.png",
+        Text = "New map for 1v1 - 3v3 battles over the island surrounded by unpassable fog of death.\nBy Nikuksis",
+    },
+
+    {
         Header = "New Map: Lightside Darkside v2.0",
         --Url = "https://drive.google.com/drive/folders/16eBcMpkgMTV9mlKxYmNda64X_dmCFdkk",
         Time = nil,-- "NowTime",
