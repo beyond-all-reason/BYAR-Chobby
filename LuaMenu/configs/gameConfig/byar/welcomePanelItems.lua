@@ -17,7 +17,7 @@ local welcomePanelItems = {
         Header = "New Map: Rustcrown Canyon 1.0",
         Time = nil,-- "NowTime",
         Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/Rustcrown_Canyon_1.0.png",
-        Text = "\n \n \nPtaq and Moose have collaborated to bring you a new map for up to 6vs6 set in a deep canyon with a long river.",
+        Text = "\n \n \nPtaQ and Moose have collaborated to bring you a new map for up to 6vs6 set in a deep canyon with a long river.",
     },
 
     {
