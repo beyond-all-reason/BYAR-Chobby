@@ -29,6 +29,14 @@ local welcomePanelItems = {
     },
 
     {
+        Header = "New Map: Lightside Darkside v2.0",
+        --Url = "https://drive.google.com/drive/folders/16eBcMpkgMTV9mlKxYmNda64X_dmCFdkk",
+        Time = nil,-- "NowTime",
+        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/lightside_darkside_v2.0.png",
+        Text = "Updated map Lightside Darkside. Reduced amount of reclaim metal, a bit reduced metal value for larger mexes, most starting craters remade to provide more space for initial base. East vs West boxes preferable.\nBy Nikuksis",
+    },
+
+    {
         Header = "Steam release roadmap",
         Url = "https://discord.com/channels/549281623154229250/697141979892416512/997178414257680444",
         Time = nil,-- "NowTime",
