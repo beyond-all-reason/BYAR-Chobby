@@ -14,18 +14,18 @@ local welcomePanelItems = {
     },
 
     {
+        Header = "New Map: Rustcrown Canyon 1.1",
+        Time = nil,-- "NowTime",
+        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/Rustcrown_Canyon_1.1.png",
+        Text = "\n \n \nPtaQ and Moose have collaborated to bring you Rustcrown Canyon. East vs West battles over a deep chasm containing a long river.",
+    },
+
+    {
         Header = "New Map: Sky Isle v1.1",
         --Url = "https://drive.google.com/drive/folders/16eBcMpkgMTV9mlKxYmNda64X_dmCFdkk",
         Time = nil,-- "NowTime",
         Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/sky_isle_v1.1.png",
         Text = "New map for 1v1 - 3v3 battles over the island surrounded by unpassable fog of death.\nBy Nikuksis",
-    },
-
-    {
-        Header = "New Map: Cirolata 1.02",
-        Time = nil,-- "NowTime",
-        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/Cirolata_1.02.png",
-        Text = "A new 4-way Team-FFA map on a 16x16 subtropical island.",
     },
 
     {
