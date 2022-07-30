@@ -5,19 +5,12 @@ local welcomePanelItems = {
         Time = nil,-- "NowTime",
         Text = "Welcome back Commander. We hope you are ready for epic single player and multiplayer battles. Check out our Discord and join the community!\n",
     },
-
+    
     {
         Header = "Video guides for new players",
         Url = "https://www.youtube.com/channel/UCAByJ5NKeMmQ95EIWgBtbEw",
         Time = nil,-- "NowTime",
         Text = "Requiem has created some guides for new players. If you're new to the game and want to learn the basics via video we highly recommend you check them out.\n",
-    },
-
-    {
-        Header = "New Map: Rustcrown Canyon 1.0",
-        Time = nil,-- "NowTime",
-        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/Rustcrown_Canyon_1.0.png",
-        Text = "\n \n \nPtaq and Moose have collaborated to bring you a new map for up to 6vs6 set in a deep canyon with a long river.",
     },
 
     {
@@ -34,6 +27,13 @@ local welcomePanelItems = {
         Time = nil,-- "NowTime",
         Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/lightside_darkside_v2.0.png",
         Text = "Updated map Lightside Darkside. Reduced amount of reclaim metal, a bit reduced metal value for larger mexes, most starting craters remade to provide more space for initial base. East vs West boxes preferable.\nBy Nikuksis",
+    },
+
+    {
+        Header = "New Map: Cirolata 1.02",
+        Time = nil,-- "NowTime",
+        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/Cirolata_1.02.png",
+        Text = "A new 4-way Team-FFA map on a 16x16 subtropical island.",
     },
 
     {
