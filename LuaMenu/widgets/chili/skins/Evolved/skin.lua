@@ -51,14 +51,17 @@ skin.button = {
 }
 
 skin.menu_button = {
-  TileImageBK = ":cl:tech_menu_button_bk.png",
-  TileImageFG = ":cl:tech_menu_button_fg.png",
-  tiles = {45, 30, 45, 30}, --// tile widths: left,top,right,bottom
+  TileImageBK = ":cl:tech_button_small_bk.png",
+  TileImageFG = ":cl:tech_button_small_fg.png",
+  tiles = {4, 4, 4, 4}, --// tile widths: left,top,right,bottom
   --tiles = {4, 4, 4, 4}, --// tile widths: left,top,right,bottom
-  padding = {10, 10, 10, 10},
+  padding = {5, 5, 5, 5},
 
+  --backgroundColor = {0.1, 0.1, 0.1, 0.7},
+  --focusColor  = {0.6, 0.7, 0.9, 0.7},
+  --borderColor = {1,1,1,0},
   backgroundColor = {0.5, 0.5, 0.5, 0.9},
-  focusColor  = {0.6, 0.7, 0.9, 0.7},
+  focusColor  = {0.6, 0.7, 0.9, 0.9},
   borderColor = {1,1,1,0},
 
   DrawControl = DrawButton,
@@ -122,9 +125,9 @@ skin.button_small = {
   tiles = {22, 22, 22, 22}, --// tile widths: left,top,right,bottom
   padding = {10, 10, 10, 10},
 
-  backgroundColor = {0.15, 0.15, 0.15, 0.65},
-  focusColor  = {0.70, 0.80, 0.80, 0.4},
-  borderColor = {1,1,1,0},
+  backgroundColor = {0.55, 0.55, 0.55, 0.35},
+  focusColor  = {0.15, 0.65, 0.85, 0.6},
+  borderColor = {0.50, 0.50, 0.50, 0.0},
 
   DrawControl = DrawButton,
 }
