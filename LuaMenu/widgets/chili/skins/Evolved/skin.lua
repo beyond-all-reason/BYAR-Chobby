@@ -169,9 +169,9 @@ skin.ready_button = {
     self:Invalidate()
   end,
   StyleUnready = function(self)
-    self.backgroundColor = {0.98, 0.98, 0.26, 0.65}
-    self.focusColor  = {0.98, 0.98, 0.26, 0.9}
-    self.borderColor = {0.98, 0.98, 0.26, 0.15}
+    self.backgroundColor = {0.0, 0.62, 0.26, 0.85}
+    self.focusColor  = {0.98, 0.82, 0.26, 0.9}
+    self.borderColor = {0.68, 0.46, 0.26, 0.75}
     self:Invalidate()
   end,
 
@@ -184,9 +184,9 @@ skin.option_button = {
   tiles = {20, 20, 20, 20}, --// tile widths: left,top,right,bottom: updated to match skin.action_button
   padding = {10, 10, 10, 10},
 
-  backgroundColor = {0.70, 0.70, 0.75, 0.65},
-  focusColor  = {0.52, 0.52, 0.90, 0.9},
-  borderColor = {0.40, 0.40, 0.50, 0.15},
+  backgroundColor = {0.75, 0.75, 0.75, 0.65},
+  focusColor  = {0.15, 0.58, 0.90, 0.9},
+  borderColor = {0.50, 0.50, 0.50, 0.15},
 
   DrawControl = DrawButton,
 }
@@ -210,9 +210,9 @@ skin.negative_button = {
   tiles = {40, 40, 40, 40}, --// tile widths: left,top,right,bottom: updated to match skin.action_button
   padding = {10, 10, 10, 10},
 
-  backgroundColor = {1.0, 0.70, 0.75, 0.65},
-  focusColor  = {0.85, 0.05, 0.25, 0.9},
-  borderColor = {0.85, 0.05, 0.25, 0.15},
+  backgroundColor = {1.0, 0.45, 0.55, 0.95},
+  focusColor  = {1.0, 0.1, 0.1, 1.0},
+  borderColor = {1.0, 0.0, 0.0, 0.67},
 
   DrawControl = DrawButton,
 }
@@ -223,9 +223,9 @@ skin.positive_button = {
   tiles = {40, 40, 40, 40}, --// tile widths: left,top,right,bottom
   padding = {10, 10, 10, 10},
 
-  backgroundColor = {0.50, 0.50, 0.50, 0.65},
-  focusColor  = {0.50, 0.50, 0.50, 0.9},
-  borderColor = {0.50, 0.50, 0.50, 0.15},
+  backgroundColor = {0.26, 0.98, 0.26, 0.65},
+  focusColor  = {0.26, 0.98, 0.26, 0.9},
+  borderColor = {0.26, 0.98, 0.26, 0.15},
 
   DrawControl = DrawButton,
 }
