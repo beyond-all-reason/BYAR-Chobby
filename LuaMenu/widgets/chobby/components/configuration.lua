@@ -102,8 +102,8 @@ function Configuration:init()
 	self.ignoredUserNameColor = {0.6, 0.6, 0.6, 1}
 	self.userNameColor = {1, 1, 1, 1}
 
-	self.buttonFocusColor = {0.54,0.72,1,0.3}
-	self.buttonSelectedColor = {0.54,0.72,1,0.6}--{1.0, 1.0, 1.0, 1.0}
+	self.buttonFocusColor = {0.70, 0.80, 0.80, 0.75}
+	self.buttonSelectedColor = {0.54,0.72,1,0.8}--{1.0, 1.0, 1.0, 1.0}
 
 	self.loadLocalWidgets = false
 	self.displayBots = false
