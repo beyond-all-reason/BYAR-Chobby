@@ -158,7 +158,7 @@ local function CreateMapEntry(mapName, mapData, CloseFunc)--{"ResourceID":7098,"
 		caption = "",
 		resizable = false,
 		draggable = false,
-		classname = "button_simple",
+		classname = "button_small",
 		padding = {0, 0, 0, 0},
 		tooltip = MINIMAP_TOOLTIP_PREFIX .. mapName .. "|" .. mapButtonCaption,
 		objectOverrideFont = listFont2,
@@ -436,8 +436,8 @@ local function InitializeControls()
 	-------------------------
 
 	local btnClose = Button:New {
-		right = 11,
-		y = 7,
+		right = 18,
+		y = 9,
 		width = 80,
 		height = 45,
 		caption = i18n("close"),
@@ -452,9 +452,9 @@ local function InitializeControls()
 	}
 
 	local btnOnlineMaps = Button:New {
-		right = 95,
-		y = 7,
-		width = 180,
+		right = 102,
+		y = 9,
+		width = 200,
 		height = 45,
 		caption = i18n("download_maps"),
 		font = Configuration:GetFont(3),
