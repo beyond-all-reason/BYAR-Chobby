@@ -98,7 +98,7 @@ local function AddLinkButton(scroll, name, tooltip, link, x, right, y, bottom)
 		bottom = bottom,
 		caption = name,
 		tooltip = tooltip,
-		classname = "option_button",
+		classname = "link_button",
 		font = WG.Chobby.Configuration:GetFont(3),
 		OnClick = {
 			function ()

@@ -239,7 +239,7 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 	local panelButtons_buttons = Control:New {
 		x = "0%",
 		y = "0%",
-		width = "100%",
+		width = "98%",
 		height = "100%",
 		name = "panelButtons_buttons",
 		caption = "", -- Panel Buttons
