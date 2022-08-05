@@ -437,9 +437,9 @@ local function InitializeControls()
 
 	local btnClose = Button:New {
 		right = 18,
-		y = 9,
+		y = 13,
 		width = 80,
-		height = 45,
+		height = 35,
 		caption = i18n("close"),
 		font = Configuration:GetFont(3),
 		classname = "negative_button",
@@ -453,9 +453,9 @@ local function InitializeControls()
 
 	local btnOnlineMaps = Button:New {
 		right = 102,
-		y = 9,
+		y = 13,
 		width = 200,
-		height = 45,
+		height = 35,
 		caption = i18n("download_maps"),
 		font = Configuration:GetFont(3),
 		classname = "option_button",

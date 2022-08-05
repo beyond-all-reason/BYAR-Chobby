@@ -128,9 +128,9 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		y = 0,
 		right = 3,
 		height = 20,
-		classname = "button_square",
+		classname = "button_small",
 		caption = "",
-		padding = {0, 0, 0, 0},
+		padding = {1, 0, 0, 0},
 		parent = rightInfo,
 		--tooltip = "Choose a different map",
 		OnClick = {
@@ -2326,7 +2326,7 @@ local function SetupSpadsStatusPanel(battle, battleID)
 	}
 		
 	local unlockButton = Button:New {
-		x = '68%',
+		x = '67%',
 		y = '68%',
 		width = '31%',
 		height = '31%',

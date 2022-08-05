@@ -34,18 +34,14 @@ skin.icons = {
 }
 
 skin.button = {
-  TileImageBK = ":cl:tech_button_small_bk.png",
-  TileImageFG = ":cl:tech_button_small_fg.png",
-  tiles = {4, 4, 4, 4}, --// tile widths: left,top,right,bottom
-  --tiles = {4, 4, 4, 4}, --// tile widths: left,top,right,bottom
-  padding = {5, 5, 5, 5},
+  TileImageBK = ":cl:tech_button_small2_bk.png",
+  TileImageFG = ":cl:tech_button_small2_fg.png",
+  tiles = {22, 22, 22, 22}, --// tile widths: left,top,right,bottom
+  padding = {10, 10, 10, 10},
 
-  --backgroundColor = {0.1, 0.1, 0.1, 0.7},
-  --focusColor  = {0.6, 0.7, 0.9, 0.7},
-  --borderColor = {1,1,1,0},
-  backgroundColor = {0.5, 0.5, 0.5, 0.9},
-  focusColor  = {0.6, 0.7, 0.9, 0.9},
-  borderColor = {1,1,1,0},
+  backgroundColor = {0.55, 0.55, 0.55, 0.92},
+  focusColor  = {0.15, 0.65, 0.85, 0.9},
+  borderColor = {0.50, 0.50, 0.50, 0.0},
 
   DrawControl = DrawButton,
 }
@@ -74,7 +70,7 @@ skin.button_large = {
   padding = {10, 10, 10, 10},
 
   backgroundColor = {0, 0, 0, 0.7},
-  focusColor  = {0.94, 0.50, 0.23, 0.7},
+  focusColor  = {0.15, 0.65, 0.85, 0.8},
   borderColor = {1,1,1,0},
 
   DrawControl = DrawButton,
@@ -140,7 +136,7 @@ skin.button_planet = {
   disableTiling = true,
 
   backgroundColor = {0, 0, 0, 0},
-  focusColor  = {0.94, 0.50, 0.23, 0.4},
+  focusColor  = {0.15, 0.65, 0.85, 0.8},
   borderColor = {1,1,1,0},
 
   DrawControl = DrawButton,
@@ -201,7 +197,7 @@ skin.button_simple = {
   padding = {10, 10, 10, 10},
 
   backgroundColor = {0.70, 0.70, 0.75, 0.65},
-  focusColor  = {0.52, 0.52, 0.90, 0.9},
+  focusColor  = {0.15, 0.65, 0.85, 0.8},
   borderColor = {0.40, 0.40, 0.50, 0.15},
 
   DrawControl = DrawButton,
@@ -235,7 +231,7 @@ skin.positive_button = {
 
 skin.battle_default_button = { --Blue
   TileImageBK = ":cl:tech_button_dark_small_bk.png",
-  TileImageFG = ":cl:tech_button_bright_small_fg.png",
+  TileImageFG = ":cl:tech_button_bright_small_alt_fg.png",
   tiles = {20, 20, 20, 20}, --// tile widths: left,top,right,bottom
   padding = {10, 10, 10, 10},
 
@@ -295,7 +291,7 @@ skin.editbox = {
   hintFont = table.merge({color = {1,1,1,0.7}}, skin.general.font),
 
   backgroundColor = {0.1, 0.1, 0.1, 0},
-  cursorColor     = {1.0, 0.7, 0.1, 0.8},
+  cursorColor     = {0.15, 0.65, 0.85, 0.8},
 
   focusColor  = {1, 1, 1, 1},
   borderColor = {1, 1, 1, 0.6},
@@ -330,7 +326,7 @@ skin.imagelistview = {
   --DrawControl = DrawBackground,
 
   colorBK          = {1,1,1,0.3},
-  colorBK_selected = {1,0.7,0.1,0.8},
+  colorBK_selected = {0.15, 0.65, 0.85, 0.8},
 
   colorFG          = {0, 0, 0, 0},
   colorFG_selected = {2, 2, 2, 2},
@@ -413,7 +409,7 @@ skin.scrollpanel = {
   HKnobTileImage = ":cl:tech_scrollbar_knob.png",
   HKnobTiles     = {6,8,6,8},
 
-  KnobColorSelected = {1,0.7,0.1,0.8},
+  KnobColorSelected = {0.15, 0.65, 0.85, 0.8},
 
   padding = {5, 5, 5, 0},
 
@@ -439,7 +435,7 @@ skin.scrollpanel_borderless = {
   HKnobTileImage = ":cl:tech_scrollbar_knob.png",
   HKnobTiles     = {6,8,6,8},
 
-  KnobColorSelected = {1,0.7,0.1,0.8},
+  KnobColorSelected = {0.15, 0.65, 0.85, 0.8},
 
   padding = {5, 5, 5, 0},
 

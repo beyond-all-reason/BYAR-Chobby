@@ -13,7 +13,7 @@ function BattleListWindow:init(parent)
 		self.btnNewBattle = Button:New {
 			x = 260,
 			y = 7,
-			width = 150,
+			width = 200,
 			height = 45,
 			caption = i18n("open_mp_game"),
 			font = Configuration:GetFont(3),
