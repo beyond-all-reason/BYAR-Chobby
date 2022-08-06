@@ -11,7 +11,7 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 	local userStatusPanelWidth = 300
 
 	local battleStatusWidth = 480
-	local panelButtonsWidth = "47%"
+	local panelButtonsWidth = "45%"
 	local panelButtonsHeight = 42
 	local statusWindowGapSmall = 44
 
@@ -233,13 +233,13 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 		parent = holder_status,
 		resizable = false,
 		draggable = false,
-		padding = {0, 0, 10, 0},
+		padding = {-30, 0, 30, 0},
 		children = {}
 	}
 	local panelButtons_buttons = Control:New {
 		x = "0%",
 		y = "0%",
-		width = "96%",
+		width = "100%",
 		height = "100%",
 		name = "panelButtons_buttons",
 		caption = "", -- Panel Buttons
