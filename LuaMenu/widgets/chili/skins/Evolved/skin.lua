@@ -547,7 +547,7 @@ skin.startbox_window = {
 }
 
 skin.main_window = {
-  TileImage = ":c:tech_mainwindow_darker.png",
+  TileImage = ":c:tech_mainwindow_cool.png",
   tiles = {352, 128, 352, 128}, --// tile widths: left,top,right,bottom
   padding = {16, 16, 16, 16},
   hitpadding = {4, 4, 4, 4},
@@ -571,7 +571,7 @@ skin.main_window = {
 }
 
 skin.main_window_small = {
-  TileImage = ":c:tech_mainwindow_small_darker.png",
+  TileImage = ":c:tech_mainwindow_cool_small.png",
   tiles = {76, 40, 76, 40}, --// tile widths: left,top,right,bottom
   padding = {13, 13, 13, 13},
   hitpadding = {4, 4, 4, 4},
