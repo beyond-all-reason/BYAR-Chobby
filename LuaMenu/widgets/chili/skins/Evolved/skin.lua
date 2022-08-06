@@ -13,7 +13,7 @@ local skin = {
 --//
 
 skin.general = {
-  focusColor  = {0.94, 0.50, 0.23, 1},
+  focusColor  = {0.15, 0.65, 1.0, 1.0},
   borderColor = {1.0, 1.0, 1.0, 1.0},
 
   font = {

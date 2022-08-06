@@ -30,9 +30,9 @@ local delayedModeSet, delayedBorderOverride
 
 local ITEM_OFFSET = 38
 
-local COMBO_X = 280
-local COMBO_WIDTH = 235
-local CHECK_WIDTH = 280
+local COMBO_X = 300
+local COMBO_WIDTH = 295
+local CHECK_WIDTH = 300
 local TEXT_OFFSET = 6
 
 local settingsWindowHandler
@@ -953,7 +953,7 @@ local function GetLobbyTabControls()
 	children[#children + 1] = Label:New {
 		x = 20,
 		y = offset + TEXT_OFFSET,
-		width = 90,
+		width = 110,
 		height = 40,
 		valign = "top",
 		align = "left",
