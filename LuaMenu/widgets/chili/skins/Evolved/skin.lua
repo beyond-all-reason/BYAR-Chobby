@@ -17,12 +17,12 @@ skin.general = {
   borderColor = {1.0, 1.0, 1.0, 1.0},
 
   font = {
-    font    = SKINDIR .. "fonts/n019003l.pfb",
+    font    = SKINDIR .. "fonts/Poppins-Regular.otf",
     color        = {1,1,1,1},
     outlineColor = {0.05,0.05,0.05,0.9},
     outline = false,
     shadow  = true,
-    size    = 14,
+    size    = 12,
   },
 
   --padding         = {5, 5, 5, 5}, --// padding: left, top, right, bottom
@@ -39,7 +39,7 @@ skin.button = {
   tiles = {22, 22, 22, 22}, --// tile widths: left,top,right,bottom
   padding = {10, 10, 10, 10},
 
-  backgroundColor = {0.55, 0.55, 0.55, 0.92},
+  backgroundColor = {0.55, 0.55, 0.55, 0.935},
   focusColor  = {0.15, 0.65, 0.85, 0.9},
   borderColor = {0.50, 0.50, 0.50, 0.0},
 
