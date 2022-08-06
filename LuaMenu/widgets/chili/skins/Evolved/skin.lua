@@ -17,12 +17,12 @@ skin.general = {
   borderColor = {1.0, 1.0, 1.0, 1.0},
 
   font = {
-    font    = SKINDIR .. "fonts/Poppins-Regular.otf",
+    font    = SKINDIR .. "fonts/Exo2-Regular.otf",
     color        = {1,1,1,1},
     outlineColor = {0.05,0.05,0.05,0.9},
     outline = false,
     shadow  = true,
-    size    = 12,
+    size    = 14,
   },
 
   --padding         = {5, 5, 5, 5}, --// padding: left, top, right, bottom

@@ -752,7 +752,7 @@ function Configuration:GetTick()
 end
 
 function Configuration:GetFont(sizeScale, fontName)
-	if fontName == nil then fontName = 'LuaMenu/widgets/chili/skins/Evolved/fonts/Exo2-Regular.otf' end
+	if fontName == nil then fontName = 'LuaMenu/widgets/chili/skins/Evolved/fonts/Poppins-Regular.otf' end
 	return {
 		size = self.font[sizeScale].size,
 		shadow = self.font[sizeScale].shadow,
