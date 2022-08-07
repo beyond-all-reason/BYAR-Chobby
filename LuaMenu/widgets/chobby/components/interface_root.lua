@@ -11,7 +11,7 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 	local userStatusPanelWidth = 300
 
 	local battleStatusWidth = 480
-	local panelButtonsWidth = "45%"
+	local panelButtonsWidth = "44.9%" --This needs a precise setting to remove gaps
 	local panelButtonsHeight = 42
 	local statusWindowGapSmall = 44
 
@@ -233,7 +233,7 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 		parent = holder_status,
 		resizable = false,
 		draggable = false,
-		padding = {-30, 0, 30, 0},
+		padding = {-30, 0, 20, 0},
 		children = {}
 	}
 	local panelButtons_buttons = Control:New {
