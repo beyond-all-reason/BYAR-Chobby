@@ -11,8 +11,9 @@ function BattleListWindow:init(parent)
 
 	if not Configuration.gameConfig.disableBattleListHostButton then
 		self.btnNewBattle = Button:New {
-			x = 260,
+			--x = 260,
 			y = 7,
+			right = 95,
 			width = 200,
 			height = 45,
 			caption = i18n("open_mp_game"),
@@ -54,7 +55,7 @@ function BattleListWindow:init(parent)
 	Label:New {
 		x = 20,
 		right = 5,
-		bottom = 11,
+		bottom = 15,
 		height = 20,
 		font = Configuration:GetFont(2),
 		caption = "Filter out:",
@@ -64,7 +65,7 @@ function BattleListWindow:init(parent)
 	local checkPassworded = Checkbox:New {
 		x = 110,
 		width = 21,
-		bottom = 4,
+		bottom = 8,
 		height = 30,
 		boxalign = "left",
 		boxsize = 20,
@@ -83,7 +84,7 @@ function BattleListWindow:init(parent)
 	local checkNonFriend = Checkbox:New {
 		x = 280,
 		width = 21,
-		bottom = 4,
+		bottom = 8,
 		height = 30,
 		boxalign = "left",
 		boxsize = 20,
@@ -102,7 +103,7 @@ function BattleListWindow:init(parent)
 	local checkRunning = Checkbox:New {
 		x = 435,
 		width = 21,
-		bottom = 4,
+		bottom = 8,
 		height = 30,
 		boxalign = "left",
 		boxsize = 20,
@@ -122,7 +123,7 @@ function BattleListWindow:init(parent)
     local checkLocked = Checkbox:New {
 		x = 575,
 		width = 21,
-		bottom = 4,
+		bottom = 8,
 		height = 30,
 		boxalign = "left",
 		boxsize = 20,
