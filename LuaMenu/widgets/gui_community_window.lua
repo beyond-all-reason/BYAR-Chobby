@@ -340,7 +340,7 @@ local function GetNewsEntry(parentHolder, index, headingSize, timeAsTooltip, top
 					y = offset + 5,
 					right = 2,
 					height = headFormat.buttonSize,
-					classname = "button_square",
+					classname = "button_small",
 					caption = "",
 					padding = {0, 0, 0, 0},
 					parent = holder,
