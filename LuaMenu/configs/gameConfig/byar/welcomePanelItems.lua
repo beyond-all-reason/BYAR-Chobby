@@ -14,11 +14,11 @@ local welcomePanelItems = {
     },
 
     {
-        Header = "New Map: Serene Caldera v1.0",
+        Header = "New Map: Ice Scream v2.0",
         --Url = "https://drive.google.com/drive/folders/16eBcMpkgMTV9mlKxYmNda64X_dmCFdkk",
         Time = nil,-- "NowTime",
-        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/serene_caldera_v1.0.png",
-        Text = "New huge 30x30 sea map with lots of small islands.\nBy Nikuksis",
+        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/ice_scream_v2.0.png",
+        Text = "Complete rework for the Ice Scream map. Wide 30x10 map with icy rivers with boost for vehicle/hover speeds separated by hills best for bots. Air spot for each team.\nBy Nikuksis",
     },
 
     {
