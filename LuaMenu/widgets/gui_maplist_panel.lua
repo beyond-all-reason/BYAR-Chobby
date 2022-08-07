@@ -328,12 +328,12 @@ local function InitializeControls()
 
 	end
 	Label:New {
-		x = 20,
+		x = 35,
 		right = 5,
-		y = 17,
-		height = 20,
+		y = 20,
+		height = 21,
 		parent = mapListWindow,
-		font = Configuration:GetFont(3),
+		font = Configuration:GetFont(2),
 		--caption = "Select a Map. Choose a Certified map for the best experience!",
 		caption = maincaption,
 	}

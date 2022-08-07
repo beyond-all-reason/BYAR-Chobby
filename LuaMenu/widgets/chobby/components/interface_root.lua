@@ -11,7 +11,7 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 	local userStatusPanelWidth = 300
 
 	local battleStatusWidth = 480
-	local panelButtonsWidth = "44.9%" --This needs a precise setting to remove gaps
+	local panelButtonsWidth = "44.9%"
 	local panelButtonsHeight = 42
 	local statusWindowGapSmall = 44
 
