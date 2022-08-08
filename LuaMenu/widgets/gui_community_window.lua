@@ -848,9 +848,9 @@ local function InitializeControls(window)
 	--	font = WG.Chobby.Configuration:GetFont(3),
 	--	caption = "Community",
 	local Configuration = WG.Chobby.Configuration
-	myFont1 = Font:New(Configuration:GetFont(1,'LuaMenu/widgets/chili/skins/Evolved/fonts/Poppins-Regular.otf'))
-	myFont2 = Font:New(Configuration:GetFont(2,'LuaMenu/widgets/chili/skins/Evolved/fonts/Poppins-Regular.otf'))
-	myFont3 = Font:New(Configuration:GetFont(3,'LuaMenu/widgets/chili/skins/Evolved/fonts/Poppins-Regular.otf'))
+	myFont1 = Font:New(Configuration:GetFont(1))
+	myFont2 = Font:New(Configuration:GetFont(2))
+	myFont3 = Font:New(Configuration:GetFont(3))
 
 	local lobby = WG.LibLobby.lobby
 	local staticCommunityData = LoadStaticCommunityData()
