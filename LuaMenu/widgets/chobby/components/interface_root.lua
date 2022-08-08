@@ -379,7 +379,7 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 		bottom = 0,
 		right = BUTTON_SIDE_SPACING,
 		height = 70,
-		caption = i18n("exit"),
+		caption = i18n("exit"),		
 		font = Configuration:GetFont(3),
 		parent = buttonsHolder_buttons,
 		OnClick = {MakeExitPopup},
@@ -541,6 +541,8 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 	)
 
 	mainWindowHandler = GetSubmenuHandler(buttonsHolder_buttons, mainContent_window, submenuWindow_mainContent, submenus, UpdateTitle)
+
+	--Spring.Utilities.TableEcho(submenus)
 
 	local statusAndInvitesPanel = GetControlPanelHandler(holder_statusAndInvites)
 
