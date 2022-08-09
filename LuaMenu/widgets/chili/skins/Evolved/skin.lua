@@ -548,7 +548,7 @@ skin.startbox_window = {
 
 skin.main_window = {
   TileImage = ":c:tech_mainwindow_cool.png",
-  tiles = {128, 128, 128, 128}, --// tile widths: left,top,right,bottom
+  tiles = {64, 256, 64, 256}, --// tile widths: left,top,right,bottom
   padding = {16, 16, 16, 16},
   hitpadding = {4, 4, 4, 4},
 
