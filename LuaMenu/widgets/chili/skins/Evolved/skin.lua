@@ -20,7 +20,7 @@ skin.general = {
     font    = SKINDIR .. "fonts/Exo2-Regular.otf",
     color        = {1,1,1,1},
     outlineColor = {0.05,0.05,0.05,0.9},
-    outline = false,
+    outline = true,
     shadow  = true,
     size    = 14,
   },

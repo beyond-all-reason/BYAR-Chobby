@@ -759,7 +759,7 @@ function Configuration:GetFont(sizeScale, fontName)
 		font = fontName,
 		-- color        = {1,1,1,1},
 		-- outlineColor = {0.05,0.05,0.05,0.9},
-		-- outline = false,
+		outline = false,
 	}
 end
 
