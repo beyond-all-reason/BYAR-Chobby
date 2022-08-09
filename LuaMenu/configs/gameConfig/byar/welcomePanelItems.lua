@@ -14,11 +14,11 @@ local welcomePanelItems = {
     },
 
     {
-        Header = "New Map: Ice Scream v2.0",
+        Header = "New Map: Ice Scream v2.1",
         --Url = "https://drive.google.com/drive/folders/16eBcMpkgMTV9mlKxYmNda64X_dmCFdkk",
         Time = nil,-- "NowTime",
-        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/ice_scream_v2.0.png",
-        Text = "Complete rework for the Ice Scream map. Wide 30x10 map with icy rivers with boost for vehicle/hover speeds separated by hills best for bots. Air spot for each team.\nBy Nikuksis",
+        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/ice_scream_v2.1.png",
+        Text = "Complete rework for the Ice Scream map. Wide 30x10 map with icy rivers with boost for vehicle/hover speeds separated by hills best for bots. Air spot for each team.\nUpdated to version 2.1.\nBy Nikuksis",
     },
 
     {
