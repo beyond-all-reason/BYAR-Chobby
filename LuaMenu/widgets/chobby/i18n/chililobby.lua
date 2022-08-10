@@ -204,7 +204,7 @@ return {
 
 		ready = "Ready",
 		ready_tooltip = "Click to become unready. This will prevent the game from starting!",
-		unready = "Ready Up!",
+		unready = "Ready?",
 		unready_tooltip = "Click to become ready. If you're not ready, the game can't start!",
 
 		-- chat_windows.lua
