@@ -479,7 +479,7 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 		multiPlayerTabs[#multiPlayerTabs + 1] = {name = "planetwars", control = planetwarsListWindow}
 	end
 
-	local submenus = {
+	local submenus = { --These menus have clashing fonts, Why won't these take any config or overide?
 		{
 			name = "singleplayer",
 			tabs = Configuration.gameConfig.singleplayerConfig,

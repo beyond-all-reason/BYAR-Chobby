@@ -330,10 +330,11 @@ local function InitializeControls()
 	Label:New {
 		x = 35,
 		right = 5,
-		y = 20,
+		y = 22,
 		height = 21,
 		parent = mapListWindow,
-		font = Configuration:GetFont(2),
+		objectOverrideFont = listFont2,
+		--font = Configuration:GetFont(2),
 		--caption = "Select a Map. Choose a Certified map for the best experience!",
 		caption = maincaption,
 	}
@@ -372,19 +373,20 @@ local function InitializeControls()
 		right = 15,
 		y = 54,
 		bottom = 15,
+		objectOverrideFont = listFont2,
 		parent = mapListWindow,
 		resizable = false,
 		draggable = false,
 		padding = {0, 0, 0, 0},
 	}
 
-	local headings = {
-		{name = "Name", x = 62, width = 208},
-		{name = "Size", tooltip = "Choose larger maps for longer games.",x = 272, width = 80},
-		{name = "Type", tooltip = "Each map is designed with a specific gameplay setup in mind, but can be played as you desire.\n- 1v1: Designed for small, competitive games\n- Teams: Has resources for multiple players\n- FFA: Free-for-all games", x = 354, width = 110},
-		{name = "Terrain", tooltip = "Water maps have underwater resources, and feature naval combat. Bots perform better than vehicles on Hilly maps. Metal maps have unlimited Metal resources.", x = 466, width = 142},
-		{name = "", tooltip = "Downloaded", x = 610, width = 40, image = "LuaMenu/images/download.png"},
-		{name = "Certified", tooltip = "Certified maps guarantee the best experience, Classic maps offer a great variety of gameplay, and third party maps are marked as Unofficial", x = 653, width = 100},
+	local headings = {  --This font is huge and I can't config or override any of these
+		{name = "Name", x = 22, width = 208},
+		{name = "Size", tooltip = "Choose larger maps for longer games.",x = 232, width = 80},
+		{name = "Type", tooltip = "Each map is designed with a specific gameplay setup in mind, but can be played as you desire.\n- 1v1: Designed for small, competitive games\n- Teams: Has resources for multiple players\n- FFA: Free-for-all games", x = 314, width = 110},
+		{name = "Terrain", tooltip = "Water maps have underwater resources, and feature naval combat. Bots perform better than vehicles on Hilly maps. Metal maps have unlimited Metal resources.", x = 426, width = 142},
+		{name = "", tooltip = "Downloaded", x = 570, width = 40, image = "LuaMenu/images/download.png"},
+		{name = "Certified", tooltip = "Certified maps guarantee the best experience, Classic maps offer a great variety of gameplay, and third party maps are marked as Unofficial", x = 613, width = 140},
 		{name = "", tooltip = "Certified maps guarantee the best experience, Classic maps offer a great variety of gameplay, and third party maps are marked as Unofficial", x = 753, width = 10},
 	}
 
@@ -405,7 +407,7 @@ local function InitializeControls()
 		end
 	end
 	local addedmaps = {}
-	
+
 	for i, archive in pairs(VFS.GetAllArchives()) do
 		local info = VFS.GetArchiveInfo(archive)
 		if info and info.modtype == 3 and not mapFuncs[info.name] then
@@ -441,7 +443,8 @@ local function InitializeControls()
 		width = 80,
 		height = 35,
 		caption = i18n("close"),
-		font = Configuration:GetFont(3),
+		objectOverrideFont = listFont2,
+		--font = Configuration:GetFont(2),
 		classname = "negative_button",
 		parent = mapListWindow,
 		OnClick = {
@@ -457,7 +460,8 @@ local function InitializeControls()
 		width = 200,
 		height = 35,
 		caption = i18n("download_maps"),
-		font = Configuration:GetFont(3),
+		objectOverrideFont = listFont2,
+		--font = Configuration:GetFont(2),
 		classname = "option_button",
 		parent = mapListWindow,
 		OnClick = {

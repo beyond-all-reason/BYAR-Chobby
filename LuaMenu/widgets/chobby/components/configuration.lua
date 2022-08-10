@@ -754,11 +754,11 @@ end
 function Configuration:GetFont(sizeScale, fontName)
 	if fontName == nil then fontName = 'LuaMenu/widgets/chili/skins/Evolved/fonts/Poppins-Regular.otf' end
 	return {
-		size = self.font[sizeScale].size,
+		size = self.font[sizeScale].size-1,
 		shadow = self.font[sizeScale].shadow,
 		font = fontName,
 		-- color        = {1,1,1,1},
-		-- outlineColor = {0.05,0.05,0.05,0.9},
+		outlineColor = {0.05,0.05,0.05,0.9},
 		outline = false,
 	}
 end
