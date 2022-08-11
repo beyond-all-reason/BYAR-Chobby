@@ -3,9 +3,9 @@
 
 local skin = {
   info = {
-    name    = "Evolved",
-    version = "0.3",
-    author  = "jK & IceXuick",
+    name    = "Evolved", --Armada Blues Edition
+    version = "0.4",
+    author  = "jK, IceXuick, Moose",
   }
 }
 
@@ -41,7 +41,7 @@ skin.button = {
 
   backgroundColor = {0.55, 0.55, 0.55, 0.935},
   focusColor  = {0.15, 0.65, 0.85, 0.9},
-  borderColor = {0.50, 0.50, 0.50, 0.0},
+  borderColor = {0.10, 0.10, 0.10, 0.2},
 
   DrawControl = DrawButton,
 }
