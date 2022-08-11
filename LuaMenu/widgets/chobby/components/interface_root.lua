@@ -36,14 +36,14 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 	local mainButtonsWidth = 180
 	local mainButtonsWidthSmall = 140
 
-	local userStatusWidth = 275
+	local userStatusWidth = 265
 
 	local imageFudge = 0
 
 	local padding = 0
 
-	local statusButtonWidth = 259
-	local statusButtonWidthSmall = 259
+	local statusButtonWidth = 265
+	local statusButtonWidthSmall = 265
 
 	local topBarHeight = 42
 
@@ -600,7 +600,7 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 		local topOffset = (showTopBar and topBarHeight) or 0
 
 		if doublePanelMode then
-			battleStatusPanelHandler.Rescale(3, nil, statusButtonWidth)
+			battleStatusPanelHandler.Rescale(2, nil, statusButtonWidth)
 			RescaleMainWindow(3, 70, 50, buttonSpacingLarge)
 
 			-- Make main buttons wider
@@ -658,7 +658,7 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 			holder_topImage:SetPos(nil, topOffset, nil, titleHeight + imageFudge)
 		else
 			rightPanelHandler.Rescale(2, 55, nil, nil, buttonSpacingSmall)
-			battleStatusPanelHandler.Rescale(3, nil, statusButtonWidthSmall)
+			battleStatusPanelHandler.Rescale(2, nil, statusButtonWidthSmall)
 			RescaleMainWindow(2, 55, 46, buttonSpacingSmall)
 
 			-- Make main buttons thinner
@@ -1224,7 +1224,7 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 	-------------------------------------------------------------------
 	local screenWidth, screenHeight = Spring.GetViewSizes()
 
-	battleStatusPanelHandler.Rescale(3, 70)
+	battleStatusPanelHandler.Rescale(2, 70)
 	rightPanelHandler.Rescale(2, 70)
 	RescaleMainWindow(3, 70, 50)
 
