@@ -787,10 +787,10 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 
 		btnSpectate.tooltip = i18n("tooltip_is_spectator")
 		btnPlay.tooltip = i18n("tooltip_become_player")
-		
+
 		ButtonUtilities.SetCaption(btnSpectate, i18n("spectating"))
 	end
-	
+
 	btnSpectate = Button:New { -- Some properties set by SetButtonStatePlaying() after both buttons are initialised.
 		x = "50.5%",
 		right = 0,
@@ -2144,9 +2144,9 @@ local function SetupVotePanel(votePanel, battle, battleID)
 end
 
 local function SetupSpadsStatusPanel(battle, battleID)
-	
+
 	local freezeSettings = true
-	
+
 	local spadsSettingsOrder = {'teamSize','nbTeams','preset','autoBalance','balanceMode','locked'}
 	spadsSettingsTable = {
 		teamSize = {
@@ -2170,7 +2170,7 @@ local function SetupSpadsStatusPanel(battle, battleID)
 			tooltip = "Team - Game of multiple Teams\nFFA - Free-For-All\nCoop - Humans vs AI\nDuel - 1v1",
 			spadscommand = "!preset",
 		},
-		autoBalance = { 
+		autoBalance = {
 			current = "off",
 			allowed = {"off","on","advanced"},
 			caption = "Autobalance",
@@ -2256,7 +2256,7 @@ local function SetupSpadsStatusPanel(battle, battleID)
 			caption = sts.caption,
 			tooltip = sts.tooltip
 		}
-		
+
 		local stsCBdefault = sts.current
 		local stsCB = ComboBox:New{
 			x = tostring(50/cols + math.fmod(i,cols) * 100/cols + 1 ) ..'%',

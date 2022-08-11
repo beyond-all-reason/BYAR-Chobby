@@ -244,6 +244,7 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 		name = "panelButtons_buttons",
 		caption = "", -- Panel Buttons
 		parent = status_panelButtons,
+		font = Configuration:GetFont(3),
 		resizable = false,
 		draggable = false,
 		padding = {0, 0, 0, 0},
@@ -323,6 +324,21 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 		children = {}
 	}
 
+	local buttonsHolder = Control:New {
+
+		x = 0,
+		y = 0,
+		width = "100%",
+		height = "100%",
+		name = "buttonsHolder",
+		caption = "", -- Main Buttons
+		--parent = buttonsHolder_buttons,
+		resizable = false,
+		draggable = false,
+		padding = {0, 0, 0, 0},
+		children = {}
+	}
+
 	local buttonsHolder_image = Image:New {
 		x = 0,
 		y = 0,
@@ -379,7 +395,8 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 		bottom = 0,
 		right = BUTTON_SIDE_SPACING,
 		height = 70,
-		caption = i18n("exit"),		
+		caption = i18n("exit"),
+		--objectOverrideFont = myFont3,
 		font = Configuration:GetFont(3),
 		parent = buttonsHolder_buttons,
 		OnClick = {MakeExitPopup},
@@ -514,8 +531,6 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 		caption = "", -- Battle and MM Status Window
 		resizable = false,
 		draggable = false,
-		align = "left",
-		captionHorAlign = -22,
 		padding = {0, 0, 0, 0},
 	}
 
@@ -544,7 +559,7 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 
 	mainWindowHandler = GetSubmenuHandler(buttonsHolder_buttons, mainContent_window, submenuWindow_mainContent, submenus, UpdateTitle)
 
-	--Spring.Utilities.TableEcho(submenus)
+	--Spring.Utilities.TableEcho(buttonsHolder)
 
 	local statusAndInvitesPanel = GetControlPanelHandler(holder_statusAndInvites)
 
