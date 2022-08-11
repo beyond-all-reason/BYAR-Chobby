@@ -42,8 +42,8 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 
 	local padding = 0
 
-	local statusButtonWidth = 290
-	local statusButtonWidthSmall = 290
+	local statusButtonWidth = 259
+	local statusButtonWidthSmall = 259
 
 	local topBarHeight = 42
 
@@ -514,6 +514,8 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 		caption = "", -- Battle and MM Status Window
 		resizable = false,
 		draggable = false,
+		align = "left",
+		captionHorAlign = -22,
 		padding = {0, 0, 0, 0},
 	}
 

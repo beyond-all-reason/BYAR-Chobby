@@ -41,7 +41,7 @@ skin.button = {
 
   backgroundColor = {0.55, 0.55, 0.55, 0.935},
   focusColor  = {0.15, 0.65, 0.85, 0.9},
-  borderColor = {0.10, 0.10, 0.10, 0.2},
+  borderColor = {0.50, 0.50, 0.50, 0.0},
 
   DrawControl = DrawButton,
 }
