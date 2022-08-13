@@ -14,11 +14,11 @@ local welcomePanelItems = {
     },
 
     {
-        Header = "New Map: Melting Glacier v1.0",
+        Header = "New Map: Melting Glacier v1.1",
         --Url = "https://drive.google.com/drive/folders/16eBcMpkgMTV9mlKxYmNda64X_dmCFdkk",
         Time = nil,-- "NowTime",
         Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/melting_glacier_v1.0.png",
-        Text = "New assymetric hybrid map for land, sea and air battle across the ice floes. Up to 16 players. Suitable for FFA.\nBy Nikuksis",
+        Text = "New assymetric hybrid map for land, sea and air battle across the ice floes. Up to 16 players. Suitable for FFA.\nUpdated to v1.1, improved map east-west balance, added few UW mexes, tidal 20->25.\nBy Nikuksis",
     },
 
     {
