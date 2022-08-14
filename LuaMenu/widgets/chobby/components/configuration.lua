@@ -28,7 +28,7 @@ function Configuration:init()
 	self.font = {
 		[0] = {size = 10, outline = false, shadow = false},
 		[1] = {size = 15, outline = false, shadow = false},
-		[2] = {size = 18, outline = true, shadow = false},
+		[2] = {size = 17, outline = false, shadow = false},
 		[3] = {size = 18, outline = false, shadow = false},
 		[4] = {size = 24, outline = true,  shadow = false},
 		[5] = {size = 28, outline = true, shadow = false},
