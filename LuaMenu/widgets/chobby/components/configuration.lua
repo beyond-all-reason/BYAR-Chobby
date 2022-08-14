@@ -26,12 +26,12 @@ function Configuration:init()
 	self.chatFontSize = 18
 
 	self.font = {
-		[0] = {size = 10, shadow = false},
-		[1] = {size = 14, shadow = false},
-		[2] = {size = 18, shadow = false},
-		[3] = {size = 22, shadow = false},
-		[4] = {size = 32, shadow = false},
-		[5] = {size = 48, shadow = false},
+		[0] = {size = 10, outline = false, shadow = false},
+		[1] = {size = 15, outline = false, shadow = false},
+		[2] = {size = 18, outline = true, shadow = false},
+		[3] = {size = 18, outline = false, shadow = false},
+		[4] = {size = 24, outline = true,  shadow = false},
+		[5] = {size = 28, outline = true, shadow = false},
 	}
 
 	-- self.uiScale, WG.uiScale, and self.uiScalesForScreenSizes will be overridden in Configuration:SetConfigData;
@@ -754,12 +754,12 @@ end
 function Configuration:GetFont(sizeScale, fontName)
 	if fontName == nil then fontName = 'LuaMenu/widgets/chili/skins/Evolved/fonts/Poppins-Regular.otf' end
 	return {
-		size = self.font[sizeScale].size/2+8, --Dirty font size manipulations because I can't change some elements
+		size = self.font[sizeScale].size,
+		outline = self.font[sizeScale].outline,
 		shadow = self.font[sizeScale].shadow,
 		font = fontName,
 		-- color        = {1,1,1,1},
 		outlineColor = {0.05,0.05,0.05,0.9},
-		outline = false,
 	}
 end
 
