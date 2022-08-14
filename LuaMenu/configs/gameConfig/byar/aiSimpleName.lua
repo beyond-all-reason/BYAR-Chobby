@@ -14,7 +14,6 @@ local simpleAiOrder = {
 	['BARb stable'] = 01,
 	['STAI'] = 02,
 	['SimpleAI'] = 11,
-	['SimpleCheaterAI'] = 12,
 	['SimpleDefenderAI'] = 13,
 	['SimpleConstructorAI'] = 14,
 	['ScavengersAI'] = 31,
@@ -24,7 +23,6 @@ local simpleAiOrder = {
 
 local aiTooltip = {
 	['SimpleAI'] = "A simple, easy playing beginner AI (Great for your first game!)",
-	['SimpleCheaterAI'] = "A moderately difficult AI, cheats!",
 	['SimpleDefenderAI'] = "An easy AI, mostly defends and doesnt attack much",
 	['ScavengersAI'] = "This is a PvE game mode, with an increasing difficulty waves of Scavenger AI controlled units attacking the players. Only add 1 per game.",
 	['STAI'] = "A medium to hard difficulty, experimental, non cheating AI.",
