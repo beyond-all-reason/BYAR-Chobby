@@ -99,7 +99,7 @@ local function AddLinkButton(scroll, name, tooltip, link, x, right, y, bottom)
 		caption = name,
 		tooltip = tooltip,
 		classname = "link_button",
-		objectOverrideFont = myFont3,
+		objectOverrideFont = myFont5,
 		--font = WG.Chobby.Configuration:GetFont(3),
 		--Spring.Utilities.TraceFullEcho(maxdepth, 50, 50),
 		OnClick = {
@@ -110,9 +110,9 @@ local function AddLinkButton(scroll, name, tooltip, link, x, right, y, bottom)
 		OnResize = {
 			function(obj, xSize, ySize)
 				if globalSizeMode == 2 then
-					ButtonUtilities.SetFontSizeScale(obj, 4)
+					ButtonUtilities.SetFontSizeScale(obj, 5)
 				else
-					ButtonUtilities.SetFontSizeScale(obj, 3)
+					ButtonUtilities.SetFontSizeScale(obj, 4)
 				end
 			end
 		},
@@ -848,9 +848,7 @@ local function InitializeControls(window)
 	--	font = WG.Chobby.Configuration:GetFont(3),
 	--	caption = "Community",
 	local Configuration = WG.Chobby.Configuration
-	myFont1 = Font:New(Configuration:GetFont(1))
-	myFont2 = Font:New(Configuration:GetFont(2))
-	myFont3 = Font:New(Configuration:GetFont(3))
+	myFont5 = Font:New(Configuration:GetFont(5))
 
 	local lobby = WG.LibLobby.lobby
 	local staticCommunityData = LoadStaticCommunityData()
