@@ -1385,8 +1385,8 @@ local function AddTeamButtons(parent, offX, joinFunc, aiFunc, unjoinable, disall
 		local addAiButton = Button:New {
 			name = "addAiButton",
 			x = offX,
-			y = 1,
-			height = 28,
+			y = 5,
+			height = 24,
 			width = 95,
 			font = WG.Chobby.Configuration:GetFont(2),
 			caption = i18n("add_ai") .. "\b",
@@ -1401,8 +1401,8 @@ local function AddTeamButtons(parent, offX, joinFunc, aiFunc, unjoinable, disall
 		local joinTeamButton = Button:New {
 			name = "joinTeamButton",
 			x = offX,
-			y = 1,
-			height = 28,
+			y = 5,
+			height = 24,
 			width = 95,
 			font = WG.Chobby.Configuration:GetFont(2),
 			caption = i18n("join") .. "\b",
@@ -1416,7 +1416,7 @@ end
 
 local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 
-	local SPACING = 22
+	local SPACING = 21
 	local disallowCustomTeams = battle.disallowCustomTeams
 	local disallowBots = battle.disallowBots
 
@@ -1557,7 +1557,7 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 				width = 120,
 				height = 30,
 				valign = "center",
-				font = WG.Chobby.Configuration:GetFont(3),
+				font = WG.Chobby.Configuration:GetFont(2),
 				caption = humanName,
 				parent = teamHolder,
 			}
@@ -1594,6 +1594,7 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 				x = 0,
 				y = 31,
 				right = 0,
+				font = WG.Chobby.Configuration:GetFont(1),
 				bottom = 0,
 				padding = {0, 0, 0, 0},
 				parent = teamHolder,
