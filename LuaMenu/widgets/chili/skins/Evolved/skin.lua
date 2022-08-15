@@ -300,7 +300,7 @@ skin.combobox_scrollpanel = {
 
 skin.combobox_item = {
 	clone       = "button";
-  backgroundColor = {0.55, 0.55, 0.55, 0.1},
+  backgroundColor = {0, 0, 0, 0.25},
 	borderColor = {1, 1, 1, 0};
 }
 
