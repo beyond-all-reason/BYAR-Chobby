@@ -1207,6 +1207,8 @@ function BattleListWindow:OpenHostWindow()
 				end
 				if myprivatebattleID ~= nil then
 					trytime = -1
+					
+					Configuration:SetConfigValue("lastGameSpectatorState", false) -- assume that private hoster wants to play, needed so he can boss self!
 					lobby:JoinBattle(myprivatebattleID, mypassword)
 					lobby:RemoveListener("OnSaidPrivate", listenForPrivateBattle)
 
