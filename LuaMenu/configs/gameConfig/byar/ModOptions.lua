@@ -6,7 +6,7 @@
 --  - using an enumerated table lets you specify the options order
 
 --
---  These keywords must be lowercase fohttps://github.com/beyond-all-reason/Beyond-All-Reason/pull/1147r LuaParser to read them.
+--  These keywords must be lowercase for LuaParser to read them.
 --
 --  key:      the string used in the script.txt
 --  name:     the displayed name
