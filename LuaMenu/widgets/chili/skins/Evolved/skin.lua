@@ -33,7 +33,7 @@ skin.icons = {
   imageplaceholder = ":cl:placeholder.png",
 }
 
-skin.button = {
+--[[ skin.button = {
   TileImageBK = ":cl:tech_button_small2_bk.png",
   TileImageFG = ":cl:tech_button_small2_fg.png",
   tiles = {22, 22, 22, 22}, --// tile widths: left,top,right,bottom
@@ -44,18 +44,13 @@ skin.button = {
   borderColor = {0.50, 0.50, 0.50, 0.0},
 
   DrawControl = DrawButton,
-}
+} ]]
 
-skin.menu_button = {
+skin.button = {
   TileImageBK = ":cl:tech_button_small_bk.png",
   TileImageFG = ":cl:tech_button_small_fg.png",
   tiles = {4, 4, 4, 4}, --// tile widths: left,top,right,bottom
-  --tiles = {4, 4, 4, 4}, --// tile widths: left,top,right,bottom
   padding = {5, 5, 5, 5},
-
-  --backgroundColor = {0.1, 0.1, 0.1, 0.7},
-  --focusColor  = {0.6, 0.7, 0.9, 0.7},
-  --borderColor = {1,1,1,0},
   backgroundColor = {0.5, 0.5, 0.5, 0.9},
   focusColor  = {0.6, 0.7, 0.9, 0.9},
   borderColor = {1,1,1,0},
@@ -261,9 +256,9 @@ skin.battle_default_button = { --Blue
   tiles = {20, 20, 20, 20}, --// tile widths: left,top,right,bottom
   padding = {10, 10, 10, 10},
 
-  backgroundColor = {0.10, 0.10, 0.1, 0.65},
-  focusColor  = {1.0, 1.0, 1.0, 0.1}, -- color when focusd
-  borderColor = {0.1, 0.1, 0.1, 0.05},
+  backgroundColor = {0.20, 0.20, 0.2, 0.65},
+  focusColor  = {0.05, 0.55, 1.0, 0.8}, -- color when focusd
+  borderColor = {0.40, 0.40, 0.50, 0.15},
 
   DrawControl = DrawButton,
 }
@@ -299,7 +294,7 @@ skin.combobox_scrollpanel = {
 
 
 skin.combobox_item = {
-	clone       = "button";
+	clone       = "button_small";
   backgroundColor = {0, 0, 0, 0.25},
 	borderColor = {1, 1, 1, 0};
 }

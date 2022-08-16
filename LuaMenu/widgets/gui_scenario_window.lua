@@ -966,7 +966,7 @@ local function InitializeControls(parentControl)
 		right = "2%",
 		height = 35,
 		caption = "Back",
-		classname = "action_button",
+		classname = "negative_button",
 		font = Configuration:GetFont(2),
 		tooltip = "Back to the list of scenarios",
 		OnClick = {

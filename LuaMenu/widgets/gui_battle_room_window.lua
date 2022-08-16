@@ -561,7 +561,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		x = 2,
 		y = 3,
 		right = 20,
-		align = "left",
+		align = "center",
 		parent = btnMapLink,
 		fontsize = config:GetFont(2).size,
 	}

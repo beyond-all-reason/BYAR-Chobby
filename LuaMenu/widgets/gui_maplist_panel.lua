@@ -158,7 +158,7 @@ local function CreateMapEntry(mapName, mapData, CloseFunc)--{"ResourceID":7098,"
 		caption = "",
 		resizable = false,
 		draggable = false,
-		classname = "button_small",
+		classname = "battle_default_button",
 		padding = {0, 0, 0, 0},
 		tooltip = MINIMAP_TOOLTIP_PREFIX .. mapName .. "|" .. mapButtonCaption,
 		objectOverrideFont = listFont2,
@@ -174,8 +174,8 @@ local function CreateMapEntry(mapName, mapData, CloseFunc)--{"ResourceID":7098,"
 
 	local minimap = Panel:New {
 		name = "minimap",
-		x = 3,
-		y = 3,
+		x = 5,
+		y = 4,
 		width = 52,
 		height = 52,
 		padding = {1,1,1,1},
