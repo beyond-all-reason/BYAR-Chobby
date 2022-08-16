@@ -1165,7 +1165,7 @@ function BattleListWindow:OpenHostWindow()
 		local requestedregion = typeCombo.items[typeCombo.selected]
 		--Spring.Echo("Looking for empty host in region", requestedregion)
 		if userWantsPrivateBattle then
-			local privateclusters = {EU = '[teh]cluster1', US = '[teh]clusterUS', AU = '[teh]clusterAU', HU = '[teh]cluster2',}
+			local privateclusters = {EU = '[teh]cluster1', US = '[teh]clusterUS2', AU = '[teh]clusterAU', HU = '[teh]cluster2',}
 			local targetCluster = privateclusters[requestedregion]
 			local mypassword = nil
 			local function listenForPrivateBattle(listener, userName, message, msgDate)
