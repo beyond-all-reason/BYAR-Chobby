@@ -457,12 +457,12 @@ local function InitializeControls()
 	local btnOnlineMaps = Button:New {
 		right = 102,
 		y = 13,
-		width = 200,
+		width = 215,
 		height = 35,
 		caption = i18n("download_maps"),
 		objectOverrideFont = listFont2,
 		--font = Configuration:GetFont(2),
-		classname = "option_button",
+		classname = "link_button",
 		parent = mapListWindow,
 		OnClick = {
 			function ()

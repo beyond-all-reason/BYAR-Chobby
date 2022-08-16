@@ -603,7 +603,7 @@ local function InitializeControls(parentControl)
 			caption = i18n("download"),
 			objectoverridefont = myFont3,
 			--font = Configuration:GetFont(3),
-			classname = "option_button",
+			classname = "link_button",
 			parent = parentControl,
 			tooltip = "Get more replays from our website, and download the .sdfz files into your data/demos folder.",
 			OnClick = {

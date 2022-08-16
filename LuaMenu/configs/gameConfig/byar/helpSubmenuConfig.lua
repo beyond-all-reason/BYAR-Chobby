@@ -19,7 +19,7 @@ local function CreateLine(lineText, linkText, onClick)
 			x = 3,
 			y = 3,
 			height = 34,
-			width = 240,
+			width = 235,
 			caption = linkText,
 			classname = "link_button",
 			font = WG.Chobby.Configuration:GetFont(2),
@@ -32,7 +32,7 @@ local function CreateLine(lineText, linkText, onClick)
 
 	local text = TextBox:New {
 		name = "text",
-		x = 255,
+		x = 250,
 		y = 12,
 		right = 0,
 		height = 20,
@@ -133,7 +133,6 @@ local communityLines = {
 					caption = "Upload Infolog",
 					labelCaption = "Your infolog.txt contains sensitive information such as your username and install location. These will be kept private. Please fill in the reason with a description of the problem you encountered. Click \"Send\" to send the infolog, escape or enter to cancel.",
 					width = 500,
-					classname = "button_highlight",
 					--ebheight = 120,
 					oklabel = "Send",
 					OnAccepted = function(reportreason)
