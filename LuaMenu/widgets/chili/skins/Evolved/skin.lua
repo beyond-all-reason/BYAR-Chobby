@@ -51,7 +51,7 @@ skin.button = {
   TileImageFG = ":cl:tech_button_small_fg.png",
   tiles = {4, 4, 4, 4}, --// tile widths: left,top,right,bottom
   padding = {5, 5, 5, 5},
-  backgroundColor = {0.5, 0.5, 0.5, 0.9},
+  backgroundColor = {0.5, 0.5, 0.5, 0.935},
   focusColor  = {0.6, 0.7, 0.9, 0.9},
   borderColor = {1,1,1,0},
 
