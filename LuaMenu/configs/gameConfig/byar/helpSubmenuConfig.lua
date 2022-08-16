@@ -21,7 +21,7 @@ local function CreateLine(lineText, linkText, onClick)
 			height = 34,
 			width = 235,
 			caption = linkText,
-			classname = "link_button",
+			classname = "option_button",
 			font = WG.Chobby.Configuration:GetFont(2),
 			OnClick = {
 				onClick

@@ -462,7 +462,7 @@ local function InitializeControls()
 		caption = i18n("download_maps"),
 		objectOverrideFont = listFont2,
 		--font = Configuration:GetFont(2),
-		classname = "link_button",
+		classname = "option_button",
 		parent = mapListWindow,
 		OnClick = {
 			function ()
