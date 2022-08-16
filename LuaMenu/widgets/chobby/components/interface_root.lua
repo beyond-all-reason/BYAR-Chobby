@@ -938,6 +938,7 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 		height = 38,
 		name = "switchToGameButton",
 		caption = "Return to Game",
+		classname = "action_button",
 		font = WG.Chobby.Configuration:GetFont(2),
 		parent = holder_topBar,
 		resizable = false,
@@ -962,6 +963,7 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 		height = 38,
 		name = "leaveGameButton",
 		caption = "Leave",
+		classname = "negative_button",
 		font = WG.Chobby.Configuration:GetFont(2),
 		parent = holder_topBar,
 		resizable = false,
@@ -983,7 +985,7 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 		file = IMAGE_TOP_BACKGROUND,
 		parent = holder_topBar,
 		keepAspect = false,
-		color = {0, 0, 0, 0.0},
+		color = {0, 0, 0, 0.45},
 	}
 
 	-------------------------------------------------------------------
