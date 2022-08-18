@@ -250,6 +250,7 @@ function ChatWindows:init()
 		height = 30,
 		parent = self.tabScrollPanel,
 		caption = "+",
+		classname = "button_small",
 		OnClick = {
 			function()
 				if self.joinWindow == nil then
@@ -766,6 +767,7 @@ function ChatWindows:GetChannelConsole(chanName)
 		local closeChannelButton = Button:New {
 			width = 24, height = 24, y = 5, right = Configuration.userListWidth + 18,
 			caption = "x",
+			classname = "button_small",
 			OnClick = {
 				function()
 					self.channelConsoles[chanName] = nil

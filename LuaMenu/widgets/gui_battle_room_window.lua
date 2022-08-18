@@ -725,7 +725,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		bottom = 0,
 		height = 48,
 		caption = i18n("start"),
-		classname = "action_button",
+		classname = "start_button",
 		font = config:GetFont(3),
 		tooltip = "Start the game, or call a vote to start multiplayer, or join a running game",
 		OnClick = {
@@ -1001,6 +1001,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		right = 0,
 		height = 120,
 		padding = {2, 0, 2, 0},
+		font = config:GetFont(1),
 		autosize = false,
 		resizable = false,
 		tooltip = "All custom gameplay options are listed here",
