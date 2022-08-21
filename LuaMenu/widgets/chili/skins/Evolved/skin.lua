@@ -3,9 +3,9 @@
 
 local skin = {
   info = {
-    name    = "Evolved", --Armada Blues Edition
+    name    = "Armada Blues",
     version = "0.4",
-    author  = "jK, IceXuick, Moose",
+    author  = "Moose",
   }
 }
 
@@ -17,7 +17,7 @@ skin.general = {
   borderColor = {1.0, 1.0, 1.0, 1.0},
 
   font = {
-    font    = SKINDIR .. "fonts/Exo2-Regular.otf",
+    font    = "fonts/Exo2-Regular.otf",
     color        = {1,1,1,1},
     outlineColor = {0.05,0.05,0.05,0.9},
     outline = true,
