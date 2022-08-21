@@ -1977,7 +1977,6 @@ local function SetupVotePanel(votePanel, battle, battleID)
 		color     = {1, 0, 0, 1},
 	}
 
-	
 	local voteProgressYes = Progressbar:New {
 		x = offset,
 		y = height * 0.80,
@@ -1986,7 +1985,6 @@ local function SetupVotePanel(votePanel, battle, battleID)
 		value = 0,
 		parent = activePanel,
 		tooltip = "How many players have voted no out of the required number have voted to fail",
-		
 		color     = {0, 1, 0, 1},
 	}
 
@@ -2066,7 +2064,7 @@ local function SetupVotePanel(votePanel, battle, battleID)
 
 	local oldVoteInitiator = ""
 	local oldTitle = ""
-	
+
 	function externalFunctions.VoteUpdate(voteMessage, pollType, mapPoll, candidates, votesNeeded, pollUrl, voteInitiator, resetButtons)
 		--Spring.Echo("externalFunctions.VoteUpdate(voteMessage, pollType, mapPoll, candidates, votesNeeded, pollUrl, voteInitiator)",voteMessage, pollType, mapPoll, candidates, votesNeeded, pollUrl, voteInitiator)
 		UpdatePollType(pollType, mapPoll, pollUrl)
@@ -2309,7 +2307,7 @@ local function SetupSpadsStatusPanel(battle, battleID)
 			end
 		},
 	}
-		
+
 	local lockButton = Button:New {
 		x = '34%',
 		y = '68%',
@@ -2326,7 +2324,7 @@ local function SetupSpadsStatusPanel(battle, battleID)
 			end
 		},
 	}
-		
+
 	local unlockButton = Button:New {
 		x = '67%',
 		y = '68%',
@@ -3026,7 +3024,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		initBattleStatusPanel(pyPartition(message,'"', true))
 		return true
 	end
-	
+
 	if string.match(message, "Player .* has already been added in game") then return true end
 
 	return false -- false if it should be displayed to user, true if not
@@ -3039,7 +3037,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 			lastUserToChangeStartBoxes = userName 
 			if not mine then return true end
 		end
-		
+
 		if mine then return false end -- alway show own messages from here:
 
 		if message == '!vote y' or message == '!vote n' or message == '!vote b' then
@@ -3049,7 +3047,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		if string.match(message, "^!joinas spec$") then return true end
 
 		if string.match(message, "^!cv .*") then return true end
-		
+
 		if string.match(message, "^!ring .*") then return true end
 
 		if string.match(message, "^!endvote$") then return true end
@@ -3169,7 +3167,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 				end
 			end
 				--* BarManager|{"BattleStateChanged": {"locked": "locked"}}".
-			
+
 			return true
 		end
 		return false
@@ -3224,7 +3222,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 
 	local function OnRing(listener, userName) -- userName is who rang you
 		Spring.PlaySoundFile("sounds/ring.wav", WG.Chobby.Configuration.menuNotificationVolume or 1)
-		
+
 		local userInfo = lobby:TryGetUser(userName)
 		if userInfo then
 			local userControl = WG.UserHandler.GetNotificationUser(userName)
@@ -3248,7 +3246,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 			{math.random(50,255),	0,						0					},
 			{0,						math.random(50,255),	0					},
 			{0,						0,						math.random(50,255)},
-			
+
 			{math.random(50,255),	math.random(0,255),		0					},
 			{math.random(50,255),	0,						math.random(0,255)	},
 			{math.random(50,255),	math.random(0,200),		math.random(0,200)	},
@@ -3260,8 +3258,8 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 			{math.random(0,255),	0,						math.random(50,255)},
 			{0,						math.random(0,255),		math.random(50,255)},
 			{math.random(0,200),	math.random(0,200),		math.random(50,255)},
-		}	
-		
+		}
+
 		local r = math.random(1,#colorOptions)
 		return {colorOptions[r][1]/255, colorOptions[r][2]/255, colorOptions[r][3]/255,}
 	end
@@ -3489,7 +3487,7 @@ function BattleRoomWindow.GetSingleplayerControl(setupData)
 								return counter
 							end
 						end
-						
+
 						fullName = fullName .. " (".. counter ..")"
 						-- Ubserver AI names cannot include whitespace
 						-- Not required for singleplayer, but breaks counter otherwise
