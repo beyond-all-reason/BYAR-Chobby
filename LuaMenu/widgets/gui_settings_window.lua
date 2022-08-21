@@ -28,7 +28,7 @@ local currentMode = false
 local currentManualBorderless = false
 local delayedModeSet, delayedBorderOverride
 
-local ITEM_OFFSET = 38
+local ITEM_OFFSET = 36
 
 local COMBO_X = 300
 local COMBO_WIDTH = 295

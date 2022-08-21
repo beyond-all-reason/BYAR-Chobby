@@ -985,7 +985,7 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 		file = IMAGE_TOP_BACKGROUND,
 		parent = holder_topBar,
 		keepAspect = false,
-		color = {0, 0, 0, 0.5},
+		color = {0, 0, 0, 0.0},
 	}
 
 	-------------------------------------------------------------------

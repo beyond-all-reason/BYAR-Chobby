@@ -2302,7 +2302,7 @@ local function SetupSpadsStatusPanel(battle, battleID)
 		tooltip = "Attempt to balance the teams. In Coop Preset this splits Humans and AIs.",
 		font = WG.Chobby.Configuration:GetFont(2),
 		parent = spadsStatusPanel,
-		classname = "option_button",
+		classname = "button_small",
 		OnClick = {
 			function()
 				battleLobby:SayBattle('!balance')
@@ -2319,7 +2319,7 @@ local function SetupSpadsStatusPanel(battle, battleID)
 		tooltip = "Lock the battleroom, preventing everyone from joining",
 		font = WG.Chobby.Configuration:GetFont(2),
 		parent = spadsStatusPanel,
-		classname = "option_button",
+		classname = "button_small",
 		OnClick = {
 			function()
 				battleLobby:SayBattle('!lock')
@@ -2336,7 +2336,7 @@ local function SetupSpadsStatusPanel(battle, battleID)
 		tooltip = "Unlock the battleroom, to allow players to join",
 		font = WG.Chobby.Configuration:GetFont(2),
 		parent = spadsStatusPanel,
-		classname = "option_button",
+		classname = "button_small",
 		OnClick = {
 			function()
 				battleLobby:SayBattle('!unlock')
