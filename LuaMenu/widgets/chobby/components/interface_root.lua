@@ -934,12 +934,13 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 	local switchToGameButton = Button:New {
 		y = 2,
 		right = 3,
-		width = 220,
+		width = 150,
 		height = 38,
 		name = "switchToGameButton",
-		caption = "Return to Game",
-		classname = "action_button",
+		caption = "Back to Game",
+		captionHorAlign = 5,
 		font = WG.Chobby.Configuration:GetFont(2),
+		tiles = {4, 4, 90, 4}, --// To squish that left side bulb
 		parent = holder_topBar,
 		resizable = false,
 		draggable = false,
@@ -958,12 +959,11 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 
 	local leaveGameButton = Button:New {
 		y = 2,
-		right = 226,
+		right = 156,
 		width = 108,
 		height = 38,
 		name = "leaveGameButton",
 		caption = "Leave",
-		classname = "negative_button",
 		font = WG.Chobby.Configuration:GetFont(2),
 		parent = holder_topBar,
 		resizable = false,

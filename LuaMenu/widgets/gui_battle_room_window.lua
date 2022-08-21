@@ -1856,7 +1856,7 @@ local function SetupVotePanel(votePanel, battle, battleID)
 		y = 0,
 		right = 0,
 		bottom = 0,
-		classname = "button_small",
+		classname = "option_button",
 		caption = "",
 		parent = minimapPanel,
 		padding = {1,1,1,1},
@@ -2302,7 +2302,7 @@ local function SetupSpadsStatusPanel(battle, battleID)
 		tooltip = "Attempt to balance the teams. In Coop Preset this splits Humans and AIs.",
 		font = WG.Chobby.Configuration:GetFont(2),
 		parent = spadsStatusPanel,
-		classname = "button_small",
+		classname = "option_button",
 		OnClick = {
 			function()
 				battleLobby:SayBattle('!balance')
@@ -2319,7 +2319,7 @@ local function SetupSpadsStatusPanel(battle, battleID)
 		tooltip = "Lock the battleroom, preventing everyone from joining",
 		font = WG.Chobby.Configuration:GetFont(2),
 		parent = spadsStatusPanel,
-		classname = "button_small",
+		classname = "option_button",
 		OnClick = {
 			function()
 				battleLobby:SayBattle('!lock')
@@ -2336,7 +2336,7 @@ local function SetupSpadsStatusPanel(battle, battleID)
 		tooltip = "Unlock the battleroom, to allow players to join",
 		font = WG.Chobby.Configuration:GetFont(2),
 		parent = spadsStatusPanel,
-		classname = "button_small",
+		classname = "option_button",
 		OnClick = {
 			function()
 				battleLobby:SayBattle('!unlock')
@@ -2469,7 +2469,7 @@ local function InitializeSetupPage(subPanel, screenHeight, pageConfig, nextPage,
 			y = y,
 			right = right,
 			height = height,
-			classname = "button_highlight",
+			classname = "option_button",
 			caption = caption,
 			tooltip = tooltip,
 			font = Configuration:GetFont(buttonFont),
