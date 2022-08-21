@@ -4,7 +4,6 @@ local welcomePanelItems = {
         Url = "https://discord.gg/N968ddE",
         Time = nil,-- "NowTime",
         Text = "Welcome back Commander. We hope you are ready for epic single player and multiplayer battles. Check out our Discord and join the community!\n",
-        UrlText = "Join our discord"
     },
     
     {
@@ -12,7 +11,6 @@ local welcomePanelItems = {
         Url = "https://www.youtube.com/channel/UCAByJ5NKeMmQ95EIWgBtbEw",
         Time = nil,-- "NowTime",
         Text = "Requiem has created some guides for new players. If you're new to the game and want to learn the basics via video we highly recommend you check them out.\n",
-        UrlText = "Watch video guides"
     },
 
     {
