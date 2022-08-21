@@ -2618,7 +2618,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		y = 0,
 		right = "52%",
 		bottom = BOTTOM_SPACING,
-		padding = {EXTERNAL_PAD_HOR, EXTERNAL_PAD_VERT, INTERNAL_PAD, INTERNAL_PAD},
+		padding = {EXTERNAL_PAD_HOR, 0, INTERNAL_PAD, 0},
 		parent = topPanel,
 	}
 
