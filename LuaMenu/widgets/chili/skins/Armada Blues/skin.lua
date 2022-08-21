@@ -6,6 +6,10 @@ local skin = {
     name    = "Armada Blues",
     version = "0.4",
     author  = "Moose",
+    depend = {
+      "Evolved",
+    },
+
   }
 }
 
