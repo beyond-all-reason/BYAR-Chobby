@@ -2570,7 +2570,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	local EXTERNAL_PAD_HOR = 12
 	local INTERNAL_PAD = 2
 
-	local BOTTOM_SPACING = 100
+	local BOTTOM_SPACING = 96
 	if isSingleplayer then BOTTOM_SPACING = 5 end
 
 	mainWindow = Control:New {
@@ -2618,7 +2618,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		y = 0,
 		right = "52%",
 		bottom = BOTTOM_SPACING,
-		padding = {EXTERNAL_PAD_HOR, 0, INTERNAL_PAD, 0},
+		padding = {EXTERNAL_PAD_HOR, EXTERNAL_PAD_VERT, INTERNAL_PAD, 0},
 		parent = topPanel,
 	}
 
