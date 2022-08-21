@@ -58,52 +58,13 @@ skin.button = {
   DrawControl = DrawButton,
 }
 
-skin.button_large = {
-  TileImageBK = ":cl:tech_button_bk.png",
-  TileImageFG = ":cl:tech_button_fg.png",
-  tiles = {64, 64, 64, 64}, --// tile widths: left,top,right,bottom
-  padding = {10, 10, 10, 10},
-
-  backgroundColor = {0, 0, 0, 0.7},
-  focusColor  = {0.15, 0.65, 0.85, 0.8},
-  borderColor = {1,1,1,0},
-
-  DrawControl = DrawButton,
-}
-
-skin.button_highlight = {
-  TileImageBK = ":cl:tech_button_bright_small_bk.png",
-  TileImageFG = ":cl:tech_button_bright_small_fg.png",
-  tiles = {32, 32, 32, 32}, --// tile widths: left,top,right,bottom
-  padding = {20, 20, 20, 20},
-
-  backgroundColor = {0.70, 0.70, 0.75, 0.65},
-  focusColor  = {0.72, 0.72, 0.80, 0.9},
-  borderColor = {0.40, 0.40, 0.50, 0.15},
-
-  DrawControl = DrawButton,
-}
-
-skin.button_square = {
+skin.button_slimbulb = {
   TileImageBK = ":cl:tech_button_action_bk.png",
   TileImageFG = ":cl:tech_button_action_fg.png",
   tiles = {2, 2, 2, 2}, --// tile widths: left,top,right,bottom
   padding = {10, 10, 10, 10},
 
   backgroundColor = {0.45, 0.45, 0.45, 0.9},
-  focusColor  = {0.70, 0.80, 0.80, 0.75},
-  borderColor = {1,1,1,0},
-
-  DrawControl = DrawButton,
-}
-
-skin.button_square_dark = {
-  TileImageBK = ":cl:tech_button_action_bk.png",
-  TileImageFG = ":cl:tech_button_action_fg.png",
-  tiles = {4, 4, 4, 4}, --// tile widths: left,top,right,bottom
-  padding = {10, 10, 10, 10},
-
-  backgroundColor = {0.15, 0.15, 0.15, 0.9},
   focusColor  = {0.70, 0.80, 0.80, 0.75},
   borderColor = {1,1,1,0},
 
@@ -119,20 +80,6 @@ skin.button_small = {
   backgroundColor = {0.55, 0.55, 0.55, 0.65},
   focusColor  = {0.15, 0.65, 0.85, 0.6},
   borderColor = {1, 1, 1, 0.0},
-
-  DrawControl = DrawButton,
-}
-
-skin.button_planet = {
-  TileImageBK = ":cl:tech_button_circle_fg.png",
-  TileImageFG = ":cl:tech_button_circle_fg.png",
-  tiles = {64, 64, 64, 64}, --// tile widths: left,top,right,bottom
-  padding = {0, 0, 0, 0},
-  disableTiling = true,
-
-  backgroundColor = {0, 0, 0, 0},
-  focusColor  = {0.15, 0.65, 0.85, 0.8},
-  borderColor = {1,1,1,0},
 
   DrawControl = DrawButton,
 }
@@ -159,19 +106,6 @@ skin.start_button = {
   backgroundColor = {0.45, 1.0, 0.55, 0.75},
   focusColor  = {0.1, 1.0, 0.1, 1.0},
   borderColor = {0.0, 1.0, 0.0, 0.67},
-
-  DrawControl = DrawButton,
-}
-
-skin.playing_button = {
-  TileImageBK = ":cl:tech_button_dark_small_bk.png",
-  TileImageFG = ":cl:tech_button_bright_small_alt_fg.png",
-  tiles = {20, 20, 20, 20}, --// tile widths: left,top,right,bottom
-  padding = {10, 10, 10, 10},
-
-  backgroundColor = {0.65, 0.65, 0.65, 0.75},
-  focusColor  = {0.05, 0.58, 1.0, 1.0},
-  borderColor = {1.0, 1.0, 1.0, 0.0},
 
   DrawControl = DrawButton,
 }
@@ -205,14 +139,18 @@ skin.ready_button = {
 skin.option_button = {
   TileImageBK = ":cl:tech_button_dark_small_bk.png",
   TileImageFG = ":cl:tech_button_bright_small_alt_fg.png",
-  tiles = {20, 20, 20, 20}, --// tile widths: left,top,right,bottom: updated to match skin.action_button
+  tiles = {20, 20, 20, 20}, --// tile widths: left,top,right,bottom
   padding = {10, 10, 10, 10},
 
-  backgroundColor = {0.75, 0.75, 0.75, 0.65},
-  focusColor  = {0.15, 0.58, 0.90, 0.9},
-  borderColor = {0.50, 0.50, 0.50, 0.15},
+  backgroundColor = {0.65, 0.65, 0.65, 0.75},
+  focusColor  = {0.05, 0.58, 1.0, 1.0},
+  borderColor = {1.0, 1.0, 1.0, 0.0},
 
   DrawControl = DrawButton,
+}
+
+skin.playing_button = {
+  clone = "option_button",
 }
 
 skin.link_button = {
