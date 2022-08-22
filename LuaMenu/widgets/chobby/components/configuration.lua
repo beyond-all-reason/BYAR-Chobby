@@ -26,7 +26,7 @@ function Configuration:init()
 	self.chatFontSize = 18
 
 	self.font = {
-		[0] = {size = 10, outline = false, shadow = false},
+		[0] = {size = 17, outline = true, shadow = false},
 		[1] = {size = 15, outline = false, shadow = false},
 		[2] = {size = 17, outline = false, shadow = false},
 		[3] = {size = 18, outline = false, shadow = false},

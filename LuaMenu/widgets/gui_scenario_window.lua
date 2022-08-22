@@ -423,12 +423,12 @@ local function CreateScenarioPanel(shortname, sPanel)
 	}
 
 	local flavortext = Label:New{
-		x = "12.5%",
-		bottom = "25%",
+		x = "1.5%",
+		bottom = "23%",
 		width = "73%",
 		height = "5%",
 		parent = flavorimage,
-		font = Configuration:GetFont(2),
+		font = Configuration:GetFont(0),
 		caption = scen.imageflavor,
 	}
 
@@ -710,7 +710,7 @@ local function CreateScenarioPanel(shortname, sPanel)
 		right = 0,
 		height = "10%",
 		caption = "Start Scenario",
-		classname = "action_button",
+		classname = "start_button",
 		font = Configuration:GetFont(3),
 		tooltip = "Start the scenario",
 		OnClick = {
@@ -783,7 +783,7 @@ local function MakeScenarioScrollPanelChildren()
 			height = 100,
 			caption = "",
 			classname = "battle_default_button",
-			objectOverrideFont = myFont2,
+			objectOverrideFont = myFont3,
 			--font = Configuration:GetFont(2),
 			--tooltip = "",
 			OnClick = {
@@ -793,6 +793,7 @@ local function MakeScenarioScrollPanelChildren()
 						scenarioSelectorPanel:SetVisibility(false)
 						scenarioSelectorCombo:Select(scen.title)
 						CreateScenarioPanel(scen.title,scenarioPanel)
+						backbutton:SetVisibility(true)
 					end
 				end
 			},
@@ -960,11 +961,11 @@ local function InitializeControls(parentControl)
 		parent = parentControl,
 	}
 
-	local backbutton = Button:New {
+	backbutton = Button:New {
 		x = "90%",
-		y = 14,
+		y = 6,
 		right = "2%",
-		height = 35,
+		height = 38,
 		caption = "Back",
 		classname = "negative_button",
 		font = Configuration:GetFont(2),
@@ -973,11 +974,13 @@ local function InitializeControls(parentControl)
 			function()
 				scenarioPanel:SetVisibility(false)
 				scenarioSelectorPanel:SetVisibility(true)
+				backbutton:SetVisibility(false)
 				--widget:Initialize()
 			end
 		},
 		parent = parentControl,
 	}
+	backbutton:SetVisibility(false)
 --[[
 	local refreshbutton = Button:New {
 		x = "86%",
