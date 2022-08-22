@@ -274,7 +274,7 @@ end
 local headingFormats = {
 	[2] = {
 		buttonSize = 28,
-		height = 24,
+		height = 48,
 		linkSize = 16,
 		spacing = 2,
 		buttonPos = 2,
@@ -286,7 +286,7 @@ local headingFormats = {
 	},
 	[4] = {
 		buttonSize = 40,
-		height = 34,
+		height = 68,
 		linkSize = 28,
 		spacing = 16,
 		buttonPos = 5,
@@ -341,6 +341,7 @@ local function GetNewsEntry(parentHolder, index, headingSize, timeAsTooltip, top
 					x = headingPos,
 					y = offset + 5,
 					right = 2,
+					align = "center",
 					height = headFormat.buttonSize,
 					classname = "button_small",
 					caption = "",
@@ -362,10 +363,10 @@ local function GetNewsEntry(parentHolder, index, headingSize, timeAsTooltip, top
 					y = headFormat.inButton,
 					right = 4,
 					height = headFormat.height,
-					align = "left",
+					align = "center",
 					valign = "top",
 					text = entryData.heading,
-					fontsize = WG.Chobby.Configuration:GetFont(headingSize).size,
+					objectOverrideFont = myFont4,
 					parent = controls.linkButton,
 				}
 			else
@@ -403,7 +404,7 @@ local function GetNewsEntry(parentHolder, index, headingSize, timeAsTooltip, top
 					align = "left",
 					valign = "top",
 					text = entryData.heading,
-					fontsize = WG.Chobby.Configuration:GetFont(4).size,
+					objectOverrideFont = myFont4,
 					parent = holder,
 				}
 			else
@@ -463,7 +464,7 @@ local function GetNewsEntry(parentHolder, index, headingSize, timeAsTooltip, top
 					align = "left",
 					valign = "top",
 					text = entryData.text,
-					fontsize = WG.Chobby.Configuration:GetFont(2).size,
+					objectOverrideFont = myFont2,
 					parent = holder,
 				}
 			else
@@ -592,6 +593,7 @@ local function GetNewsHandler(parentControl, headingSize, timeAsTooltip, topHead
 				link = items[i].Url,
 				atTime = items[i].Time,
 				text = items[i].Text,
+				urlText = items[i].UrlText,
 			}
 			if items[i].Image then
 				local imagePos = string.find(items[i].Image, "news")
@@ -849,6 +851,8 @@ local function InitializeControls(window)
 	--	caption = "Community",
 	local Configuration = WG.Chobby.Configuration
 	myFont5 = Font:New(Configuration:GetFont(5))
+	myFont4 = Font:New(Configuration:GetFont(5, 'fonts/Poppins-Medium.otf'))
+	myFont2 = Font:New(Configuration:GetFont(2))
 
 	local lobby = WG.LibLobby.lobby
 	local staticCommunityData = LoadStaticCommunityData()
