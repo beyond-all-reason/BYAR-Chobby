@@ -84,7 +84,8 @@ end
 --	Return a widget containing a player's information
 local function playerWidget(playerInfo)
 	local Configuration = WG.Chobby.Configuration
-	local userName = playerInfo.name
+	--local userName = playerInfo.name
+	local userName = StringUtilities.GetTruncatedStringWithDotDot(playerInfo.name, myFont1, REPLAY_LIST_ENTRY_HEIGHT-5)
 
 	-- Create a control widget to encapsulate the player's information
 	local ret = Chili.Control:New {
@@ -133,6 +134,7 @@ local function CreateReplayEntry(
 )
 
 	local Configuration = WG.Chobby.Configuration
+	local mapNameTruncated = StringUtilities.GetTruncatedStringWithDotDot(mapName, myFont1, REPLAY_LIST_ENTRY_HEIGHT+50)
 	local fileName = string.sub(replayPath, 7)
 	if string.sub(fileName, 0, 4) == "hide" then
 		return
@@ -243,15 +245,15 @@ local function CreateReplayEntry(
 		valign = 'center',
 		objectoverridefont = myFont2,
 		fontsize = Configuration:GetFont(2).size,
-		text = mapName,
+		text = mapNameTruncated,
 		parent = replayPanel,
 	}
 
 	-- Compute the teams/players lists
 
 	local userList = Chili.Control:New {
-		x = 415, y = 10,
-		right = 0, bottom = 0,
+		x = "50%", y = 10,
+		right = "13%", bottom = 0,
 		padding = {0, 0, 0, 0},
 		parent = replayPanel,
 	}
