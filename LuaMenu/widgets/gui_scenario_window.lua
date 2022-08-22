@@ -794,6 +794,7 @@ local function MakeScenarioScrollPanelChildren()
 						scenarioSelectorCombo:Select(scen.title)
 						CreateScenarioPanel(scen.title,scenarioPanel)
 						backbutton:SetVisibility(true)
+						scenarioSelectorCombo:SetVisibility(true)
 					end
 				end
 			},
@@ -974,6 +975,7 @@ local function InitializeControls(parentControl)
 			function()
 				scenarioPanel:SetVisibility(false)
 				scenarioSelectorPanel:SetVisibility(true)
+				scenarioSelectorCombo:SetVisibility(false)
 				backbutton:SetVisibility(false)
 				--widget:Initialize()
 			end
@@ -1037,6 +1039,7 @@ local function InitializeControls(parentControl)
 		parent = parentControl,
 
 	}
+	scenarioSelectorCombo:SetVisibility(false)
 
 	--CreateScenarioPanel(1,scenarioPanel)
 
