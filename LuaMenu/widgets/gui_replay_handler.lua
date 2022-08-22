@@ -347,8 +347,8 @@ local function CreateReplayEntry(
 			"action_button",
 			"option_button"
 		),
-		objectoverridefont = myFont2,
-		--font = WG.Chobby.Configuration:GetFont(2),
+		objectoverridefont = myFont1,
+		font = WG.Chobby.Configuration:GetFont(1),
 		OnClick = {
 			function()
 				if not replayPath or not CheckReplayFileExists() then
@@ -371,8 +371,8 @@ local function CreateReplayEntry(
 		width = "10%",
 		caption = i18n("delete_replay"),
 		classname = "negative_button",
-		--font = WG.Chobby.Configuration:GetFont(2),
-		objectoverridefont = myFont2,
+		font = WG.Chobby.Configuration:GetFont(1),
+		objectoverridefont = myFont1,
 		tooltip = "Delete the replay from your hard drive",
 		OnClick = {
 			function()
@@ -405,8 +405,8 @@ local function InitializeControls(parentControl)
 		width = 180,
 		height = 30,
 		parent = parentControl,
-		objectoverridefont = myFont3,
-		--font = Configuration:GetFont(3),
+		--objectoverridefont = myFont3,
+		font = Configuration:GetFont(3),
 		caption = "Replays",
 	}
 
@@ -523,8 +523,8 @@ local function InitializeControls(parentControl)
 		width = 120,
 		height = 45,
 		caption = i18n("refresh"),
-		objectoverridefont = myFont3,
-		--font = Configuration:GetFont(3),
+		objectoverridefont = myFont2,
+		font = Configuration:GetFont(2),
 		classname = "option_button",
 		tooltip = "Refresh the list of replays",
 		parent = parentControl,
@@ -537,8 +537,8 @@ local function InitializeControls(parentControl)
 		width = 120,
 		height = 45,
 		caption = i18n("more"),
-		objectoverridefont = myFont3,
-		--font = Configuration:GetFont(3),
+		objectoverridefont = myFont2,
+		font = Configuration:GetFont(2),
 		classname = "option_button",
 		parent = parentControl,
 		tooltip = "Load more, older replays",
@@ -579,8 +579,8 @@ local function InitializeControls(parentControl)
 			width = 120,
 			height = 45,
 			caption = "force start replay",
-			objectoverridefont = myFont3,
-			--font = Configuration:GetFont(3),
+			objectoverridefont = myFont2,
+			font = Configuration:GetFont(2),
 			classname = "option_button",
 			parent = parentControl,
 			tooltip = "Force start a specific replay",
@@ -603,8 +603,8 @@ local function InitializeControls(parentControl)
 			width = 120,
 			height = 45,
 			caption = i18n("download"),
-			objectoverridefont = myFont3,
-			--font = Configuration:GetFont(3),
+			objectoverridefont = myFont2,
+			font = Configuration:GetFont(2),
 			classname = "option_button",
 			parent = parentControl,
 			tooltip = "Get more replays from our website, and download the .sdfz files into your data/demos folder.",
