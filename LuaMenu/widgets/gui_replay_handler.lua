@@ -90,7 +90,7 @@ local function playerWidget(playerInfo)
 	-- Create a control widget to encapsulate the player's information
 	local ret = Chili.Control:New {
 		x = 0, y = 0, right = 0,
-		height=PLAYER_HEIGHT* 1.5, bottom = 0, padding = {0, 0, 0, 0},
+		height=PLAYER_HEIGHT * 0.8, bottom = 0, padding = {0, 0, 0, 0},
 	}
 
 	local image_file
@@ -117,7 +117,7 @@ local function playerWidget(playerInfo)
 	-- Textbox with the user's name
 	TextBox:New {
 		name = "userName",
-		x = 18, y = 0, right = 0, height = PLAYER_HEIGHT * 1.5,
+		x = 18, y = 0, right = 0, height = PLAYER_HEIGHT,
 		valign = "top",
 		objectoverridefont = myFont1,
 		--fontsize = Configuration:GetFont(1).size,
@@ -253,7 +253,7 @@ local function CreateReplayEntry(
 
 	local userList = Chili.Control:New {
 		x = "50%", y = 10,
-		right = "12%", bottom = 0,
+		right = "11.5%", bottom = 0,
 		padding = {0, 0, 0, 0},
 		parent = replayPanel,
 	}
