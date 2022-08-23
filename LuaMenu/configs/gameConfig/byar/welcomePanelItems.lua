@@ -4,13 +4,15 @@ local welcomePanelItems = {
         Url = "https://discord.gg/N968ddE",
         Time = nil,-- "NowTime",
         Text = "Welcome back Commander. We hope you are ready for epic single player and multiplayer battles. Check out our Discord and join the community!\n",
+        UrlText = "Join our discord"
     },
-    
+
     {
         Header = "Video guides for new players",
         Url = "https://www.youtube.com/channel/UCAByJ5NKeMmQ95EIWgBtbEw",
         Time = nil,-- "NowTime",
         Text = "Requiem has created some guides for new players. If you're new to the game and want to learn the basics via video we highly recommend you check them out.\n",
+        UrlText = "Watch video guides"
     },
 
     {
@@ -34,6 +36,7 @@ local welcomePanelItems = {
         Time = nil,-- "NowTime",
         -- Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/bismuth_valley_v1.0.png",
         Text = "We've published our Steam Release roadmap, check it out on the discord!",
+        UrlText = "Our Roadmap"
     },
 
     --[[
@@ -60,6 +63,7 @@ local welcomePanelItems = {
         Url = "https://www.beyondallreason.info/code-of-conduct",
         Time = nil,-- "NowTime",
         Text = "We recently updated our code of conduct; be sure to check it out. As our community growth we've added the ability to report problems, click a user and select 'report user' to alert the moderator team to an issue. See the full code of conduct at https://www.beyondallreason.info/code-of-conduct",
+        UrlText = "Code of conduct"
     },
     {
         Header = "Play with your friends: use our servers!",
