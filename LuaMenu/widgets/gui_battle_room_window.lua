@@ -2683,7 +2683,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	local infoHandler = SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, battleLobby:GetMyUserName())
 
 	local btnQuitBattle = Button:New {
-		right = 11,
+		right = 12,
 		y = 7,
 		width = 80,
 		height = 45,
@@ -2726,7 +2726,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	local lblBattleTitle = Label:New {
 		name = "lblBattleTitle",
 		x = 20,
-		y = 17,
+		y = 19,
 		right = 100,
 		height = 30,
 		font = Configuration:GetFont(3),

@@ -252,7 +252,7 @@ local function AddSaveEntryButton(saveFile, saveList)
 		width = 65,
 		caption = i18n("load"),
 		classname = "action_button",
-		font = WG.Chobby.Configuration:GetFont(2),
+		font = WG.Chobby.Configuration:GetFont(1),
 		OnClick = {
 			function()
 				if ingame then
@@ -274,7 +274,7 @@ local function AddSaveEntryButton(saveFile, saveList)
 		right = 0,
 		height = 20,
 		valign = 'center',
-		font = Configuration:GetFont(2),
+		font = Configuration:GetFont(1),
 		text = saveFile.filename,
 		parent = container,
 	}
@@ -290,7 +290,7 @@ local function AddSaveEntryButton(saveFile, saveList)
 		right = 0,
 		height = 20,
 		valign = 'center',
-		font = Configuration:GetFont(2),
+		font = Configuration:GetFont(1),
 		text = shortenname,
 		parent = container,
 	}
@@ -304,7 +304,7 @@ local function AddSaveEntryButton(saveFile, saveList)
 		right = 0,
 		height = 20,
 		valign = 'center',
-		font = Configuration:GetFont(2),
+		font = Configuration:GetFont(1),
 		text = WriteDate(saveFile.date),
 		parent = container,
 	}
@@ -315,10 +315,10 @@ local function AddSaveEntryButton(saveFile, saveList)
 		name = "saveDetails",
 		x = x,
 		y = 12,
-		right = 0,
+		right = 55,
 		height = 20,
 		valign = 'center',
-		font = Configuration:GetFont(2),
+		font = Configuration:GetFont(1),
 		text = GetSaveDescText(saveFile),
 		parent = container,
 	}
@@ -333,7 +333,7 @@ local function AddSaveEntryButton(saveFile, saveList)
 		bottom = 4,
 		caption = i18n("delete"),
 		classname = "negative_button",
-		font = WG.Chobby.Configuration:GetFont(2),
+		font = WG.Chobby.Configuration:GetFont(1),
 		OnClick = { function(self)
 				WG.Chobby.ConfirmationPopup(function(self) DeleteSave(saveFile.filename, saveList) end, i18n("delete_confirm"), nil, 360, 200)
 			end
@@ -362,9 +362,9 @@ local function InitializeControls(parent)
 	Configuration = WG.Chobby.Configuration
 
 	Label:New {
-		x = 20,
+		x = 15,
 		right = 5,
-		y = 17,
+		y = 14,
 		height = 20,
 		parent = parent,
 		font = Configuration:GetFont(3),

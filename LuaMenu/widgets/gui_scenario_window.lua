@@ -708,7 +708,7 @@ local function CreateScenarioPanel(shortname, sPanel)
 		x = "76%",
 		y = "51%",
 		right = 0,
-		height = "10%",
+		height = "7%",
 		caption = "Start Scenario",
 		classname = "start_button",
 		font = Configuration:GetFont(3),
@@ -725,8 +725,8 @@ local function CreateScenarioPanel(shortname, sPanel)
 					if not VFS.HasArchive(barversion) then
 						WG.Chobby.InformationPopup("You do no have the the latest game version, check your downloads tab or update the game.", {caption = "OK"})
 						return
-					end 	
-						
+					end
+
 					if not VFS.HasArchive(scen.mapfilename) then
 						WG.Chobby.InformationPopup("You do not have the map for this scenario, check your downloads tab to see the download progress.", {caption = "OK"})
 						return
@@ -831,7 +831,7 @@ local function MakeScenarioScrollPanelChildren()
 				width = 300,
 				--height = 30,
 				parent = scenSelectorButton,
-				objectOverrideFont = myFont3,
+				objectOverrideFont = myFont2,
 				--font = Configuration:GetFont(3),
 				caption = string.format( "%03d. %s",i+reloadcount, scen.title ),
 			}
@@ -843,7 +843,7 @@ local function MakeScenarioScrollPanelChildren()
 				width = 100,
 				--height = 30,
 				parent = scenSelectorButton,
-				objectOverrideFont = myFont3,
+				objectOverrideFont = myFont2,
 				--font = Configuration:GetFont(3),
 				caption = string.format( "Difficulty: % 2d/10",scen.difficulty ),
 			}
@@ -855,7 +855,7 @@ local function MakeScenarioScrollPanelChildren()
 					width = 100,
 					--height = 30,
 					parent = scenSelectorButton,
-					objectOverrideFont = myFont3,
+					objectOverrideFont = myFont2,
 					--font = Configuration:GetFont(3),
 					caption = string.format( "New!"),
 				}
@@ -925,7 +925,7 @@ local function InitializeControls(parentControl)
 	DownloadRequirements()
 
 	Label:New {
-		x = "2%",
+		x = 15,
 		y = 14,
 		width = 180,
 		--height = 30,
@@ -963,10 +963,10 @@ local function InitializeControls(parentControl)
 	}
 
 	backbutton = Button:New {
-		x = "90%",
-		y = 6,
-		right = "2%",
-		height = 38,
+		y = 2,
+		right = 7,
+		width = 80,
+		height = 45,
 		caption = "Back",
 		classname = "negative_button",
 		font = Configuration:GetFont(2),
@@ -975,7 +975,6 @@ local function InitializeControls(parentControl)
 			function()
 				scenarioPanel:SetVisibility(false)
 				scenarioSelectorPanel:SetVisibility(true)
-				scenarioSelectorCombo:SetVisibility(false)
 				backbutton:SetVisibility(false)
 				--widget:Initialize()
 			end
@@ -1030,7 +1029,7 @@ local function InitializeControls(parentControl)
 		OnSelectName = {
 			function (obj, selectedName)
 				Spring.Echo(selectedName)
-
+				backbutton:SetVisibility(true)
 				scenarioPanel:SetVisibility(true)
 				scenarioSelectorPanel:SetVisibility(false)
 				CreateScenarioPanel(selectedName,scenarioPanel)
@@ -1039,7 +1038,6 @@ local function InitializeControls(parentControl)
 		parent = parentControl,
 
 	}
-	scenarioSelectorCombo:SetVisibility(false)
 
 	--CreateScenarioPanel(1,scenarioPanel)
 
