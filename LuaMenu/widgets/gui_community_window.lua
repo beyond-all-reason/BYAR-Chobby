@@ -56,7 +56,7 @@ local function GetScroll(window, x, right, y, bottom, verticalScrollbar, borderC
 		y = y,
 		right = right,
 		bottom = bottom,
-		padding = {2, 2, 2, 2},
+		padding = {8, 6, 6, 6},
 		parent = window
 	}
 	return ScrollPanel:New {
@@ -83,7 +83,7 @@ local function LeaveIntentionallyBlank(scroll, caption)
 		width = 120,
 		height = 20,
 		align = "left",
-		valign = "tp",
+		valign = "top",
 		font = WG.Chobby.Configuration:GetFont(1),
 		caption = caption,
 		parent = scroll
@@ -99,7 +99,7 @@ local function AddLinkButton(scroll, name, tooltip, link, x, right, y, bottom)
 		caption = name,
 		tooltip = tooltip,
 		classname = "link_button",
-		objectOverrideFont = myFont5,
+		objectOverrideFont = myFont7,
 		--font = WG.Chobby.Configuration:GetFont(3),
 		--Spring.Utilities.TraceFullEcho(maxdepth, 50, 50),
 		OnClick = {
@@ -274,25 +274,25 @@ end
 local headingFormats = {
 	[2] = {
 		buttonSize = 28,
-		height = 48,
+		height = 24,
 		linkSize = 16,
 		spacing = 2,
 		buttonPos = 2,
 		inButton = 4,
-		paragraphSpacing = 0,
-		topHeadingOffset = 30,
+		paragraphSpacing = 20,
+		topHeadingOffset = 60,
 		imageSize = 120,
 		buttonBot = 6,
 	},
 	[4] = {
 		buttonSize = 40,
-		height = 68,
+		height = 34,
 		linkSize = 28,
 		spacing = 16,
 		buttonPos = 5,
 		inButton = 7,
-		paragraphSpacing = 30,
-		topHeadingOffset = 50,
+		paragraphSpacing = 10,
+		topHeadingOffset = 80,
 		imageSize = 120,
 		buttonBot = 10,
 	},
@@ -338,13 +338,15 @@ local function GetNewsEntry(parentHolder, index, headingSize, timeAsTooltip, top
 			linkString = entryData.link
 			if not controls.linkButton then
 				controls.linkButton = Button:New {
-					x = headingPos,
-					y = offset + 5,
-					right = 2,
-					align = "center",
-					height = headFormat.buttonSize,
-					classname = "button_small",
-					caption = "",
+					x = 2,
+					y = offset + 6,
+					right = 400,
+					align = "left",
+					valign = "top",
+					height = 40,
+					classname = "link_button",
+					objectOverrideFont = myFont0,
+					caption = entryData.urlText,
 					padding = {0, 0, 0, 0},
 					parent = holder,
 					OnClick = {
@@ -367,14 +369,14 @@ local function GetNewsEntry(parentHolder, index, headingSize, timeAsTooltip, top
 					valign = "top",
 					text = entryData.heading,
 					objectOverrideFont = myFont4,
-					parent = controls.linkButton,
+					parent = holder,
 				}
 			else
 				controls.heading:SetText(entryData.heading)
 			end
 
 			-- Possibly looks nicer without link image.
-			if not showBulletHeading then
+			--[[ if not showBulletHeading then
 				if not controls.linkImage then
 					controls.linkImage = Image:New {
 						x = 0,
@@ -389,7 +391,7 @@ local function GetNewsEntry(parentHolder, index, headingSize, timeAsTooltip, top
 
 				local length = controls.heading.font:GetTextWidth(entryData.heading)
 				controls.linkImage:SetPos(length + 8)
-			end
+			end ]]
 
 			if controls.freeHeading then
 				controls.freeHeading:SetVisibility(false)
@@ -495,13 +497,12 @@ local function GetNewsEntry(parentHolder, index, headingSize, timeAsTooltip, top
 		end
 
 		local headingSize
-		if controls.linkButton and controls.linkButton.visible then
+		if controls.heading and controls.heading.visible then
 			headingSize = (#controls.heading.physicalLines)*headFormat.fontSize
-			controls.linkButton:SetPos(nil, offset + headFormat.buttonPos, nil, headingSize + headFormat.buttonBot)
 			controls.heading:SetPos(nil, nil, nil, headingSize)
 		elseif controls.freeHeading then
 			headingSize = (#controls.freeHeading.physicalLines)*headFormat.fontSize
-			controls.freeHeading:SetPos(nil, offset + 12, nil, headingSize)
+			controls.freeHeading:SetPos(nil, nil, nil, headingSize)
 		end
 		offset = offset + headingSize + headFormat.spacing
 
@@ -519,6 +520,11 @@ local function GetNewsEntry(parentHolder, index, headingSize, timeAsTooltip, top
 		local offsetSize = (controls.text and (#controls.text.physicalLines)*18) or 6
 		if controls.image and controls.image.visible and ((not controls.text) or (offsetSize < headFormat.imageSize - (controls.dateTime and 46 or 0))) then
 			offsetSize = headFormat.imageSize - (controls.dateTime and 46 or 0)
+		end
+
+		if controls.linkButton and controls.linkButton.visible then
+			offset = offset + offsetSize +20
+			controls.linkButton:SetPos(nil, offset)
 		end
 
 		holder:SetPos(nil, parentPosition, nil, offset + offsetSize + 10)
@@ -850,9 +856,11 @@ local function InitializeControls(window)
 	--	font = WG.Chobby.Configuration:GetFont(3),
 	--	caption = "Community",
 	local Configuration = WG.Chobby.Configuration
+	myFont7 = Font:New(Configuration:GetFont(7))
 	myFont5 = Font:New(Configuration:GetFont(5))
 	myFont4 = Font:New(Configuration:GetFont(5, 'fonts/Poppins-Medium.otf'))
 	myFont2 = Font:New(Configuration:GetFont(2))
+	myFont0 = Font:New(Configuration:GetFont(0))
 
 	local lobby = WG.LibLobby.lobby
 	local staticCommunityData = LoadStaticCommunityData()

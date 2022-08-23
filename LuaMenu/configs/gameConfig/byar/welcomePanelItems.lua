@@ -35,7 +35,7 @@ local welcomePanelItems = {
         Url = "https://discord.com/channels/549281623154229250/697141979892416512/997178414257680444",
         Time = nil,-- "NowTime",
         -- Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/bismuth_valley_v1.0.png",
-        Text = "We've published our Steam Release roadmap, check it out on the discord!",
+        Text = "We've published our Steam Release roadmap, check it out on the discord!\n ",
         UrlText = "Our Roadmap"
     },
 

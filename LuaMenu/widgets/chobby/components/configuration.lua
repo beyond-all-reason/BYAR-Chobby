@@ -26,12 +26,14 @@ function Configuration:init()
 	self.chatFontSize = 18
 
 	self.font = {
-		[0] = {font = "fonts/Poppins-Medium.otf", size = 17, outline = true, shadow = false},  --Can cause formatting issues
+		[0] = {font = "fonts/Poppins-Medium.otf", size = 17, outline = false, shadow = true},
 		[1] = {size = 15, outline = false, shadow = false},
 		[2] = {size = 17, outline = false, shadow = false},
 		[3] = {size = 18, outline = false, shadow = false},
 		[4] = {size = 24, outline = true,  shadow = false},
-		[5] = {size = 28, outline = true, shadow = false},
+		[5] = {size = 24, outline = false, shadow = true},
+		[6] = {size = 28, outline = true, shadow = false},
+		[7] = {size = 28, outline = false, shadow = true},
 	}
 
 	-- self.uiScale, WG.uiScale, and self.uiScalesForScreenSizes will be overridden in Configuration:SetConfigData;
@@ -759,7 +761,7 @@ function Configuration:GetFont(sizeScale, fontName)
 		shadow = self.font[sizeScale].shadow,
 		font = fontName,
 		-- color        = {1,1,1,1},
-		outlineColor = {0.05,0.05,0.05,0.9},
+		outlineColor = {0.05,0.05,0.05,0.7},
 	}
 end
 
