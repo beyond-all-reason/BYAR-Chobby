@@ -56,7 +56,7 @@ local function GetScroll(window, x, right, y, bottom, verticalScrollbar, borderC
 		y = y,
 		right = right,
 		bottom = bottom,
-		padding = {8, 6, 6, 6},
+		padding = {2, 2, 2, 2},
 		parent = window
 	}
 	return ScrollPanel:New {
@@ -309,7 +309,7 @@ local function GetNewsEntry(parentHolder, index, headingSize, timeAsTooltip, top
 		y = 0,
 		right = 0,
 		height = 500,
-		padding = {0,0,0,0},
+		padding = {15,5,15,0},
 		parent = parentHolder,
 	}
 
@@ -318,7 +318,7 @@ local function GetNewsEntry(parentHolder, index, headingSize, timeAsTooltip, top
 	function externalFunctions.AddEntry(entryData, parentPosition)
 		local textPos = 6
 		local headingPos = 2
-		local offset = 0
+		local offset = -5
 
 		if showBulletHeading then
 			if not controls.bullet then
@@ -340,7 +340,8 @@ local function GetNewsEntry(parentHolder, index, headingSize, timeAsTooltip, top
 				controls.linkButton = Button:New {
 					x = 2,
 					y = offset + 6,
-					right = 400,
+					width = 300,
+					--right = 400,
 					align = "left",
 					valign = "top",
 					height = 40,
@@ -368,7 +369,7 @@ local function GetNewsEntry(parentHolder, index, headingSize, timeAsTooltip, top
 					align = "center",
 					valign = "top",
 					text = entryData.heading,
-					objectOverrideFont = myFont4,
+					objectOverrideFont = myFont7,
 					parent = holder,
 				}
 			else
@@ -406,7 +407,7 @@ local function GetNewsEntry(parentHolder, index, headingSize, timeAsTooltip, top
 					align = "left",
 					valign = "top",
 					text = entryData.heading,
-					objectOverrideFont = myFont4,
+					objectOverrideFont = myFont7,
 					parent = holder,
 				}
 			else
@@ -551,7 +552,7 @@ local function GetNewsHandler(parentControl, headingSize, timeAsTooltip, topHead
 		x = 0,
 		y = 0,
 		right = 0,
-		padding = {0,0,0,0},
+		padding = {0,15,0,0},
 		parent = parentControl,
 	}
 

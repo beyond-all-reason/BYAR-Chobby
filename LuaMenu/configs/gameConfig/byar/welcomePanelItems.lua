@@ -8,7 +8,7 @@ local welcomePanelItems = {
     },
 
     {
-        Header = "Video guides for new players",
+        Header = "Guides for new players",
         Url = "https://www.youtube.com/channel/UCAByJ5NKeMmQ95EIWgBtbEw",
         Time = nil,-- "NowTime",
         Text = "Requiem has created some guides for new players. If you're new to the game and want to learn the basics via video we highly recommend you check them out.\n",
