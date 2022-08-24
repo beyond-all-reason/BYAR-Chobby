@@ -113,6 +113,7 @@ function AiListWindow:MakeAiOptionsButton(displayName, tooltip, shortName, versi
 		width = "20%",
 		height = "100%",
 		caption = "",
+		classname = "button_small",
 		font = Configuration:GetFont(3),
 		OnClick = {
 			function()
@@ -142,6 +143,7 @@ function AiListWindow:MakeAiButton(btnWidth, displayName, tooltip, shortName, ve
 		width = btnWidth,
 		height = "100%",
 		caption = displayName,
+		classname = "button_small",
 		font = Configuration:GetFont(3),
 		tooltip = tooltip,
 		OnClick = {

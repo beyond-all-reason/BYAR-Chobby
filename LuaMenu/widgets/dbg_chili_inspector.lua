@@ -131,6 +131,7 @@ function widget:Initialize()
 				right = 0, width = 50,
 				y=5, bottom=-25,
 				caption="gc",
+				classname = "button_small",
 				OnMouseUp = {function() collectgarbage("collect") end},
 			},
 			Chili.ScrollPanel:New{
@@ -154,18 +155,22 @@ function widget:Initialize()
 				children = {
 					Chili.Button:New{
 						caption="visible objects",
+						classname = "option_button",
 						OnMouseUp = {function() tree0.root:Clear(); trace(Chili.Screen0.children, tree0.root) end},
 					},
 					Chili.Button:New{
 						caption="lost objects",
+						classname = "option_button",
 						OnMouseUp = {function() tree0.root:Clear(); traceLost(tree0.root) end},
 					},
 					Chili.Button:New{
 						caption="per widget",
+						classname = "option_button",
 						OnMouseUp = {function() tree0.root:Clear(); tracePerWidget(tree0.root) end},
 					},
 					Chili.Button:New{
 						caption="close",
+						classname = "negative_button",
 						OnMouseUp = {function()
 							widgetHandler:RemoveWidget() end},
 					},

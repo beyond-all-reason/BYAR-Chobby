@@ -104,7 +104,7 @@ local function CreateColorChangeWindow(opts)
 		height = 40,
 		caption = i18n("cancel"),
 		font = Configuration:GetFont(2),
-		classname = "action_button",
+		classname = "negative_button",
 		OnClick = { CloseFunction },
 		parent = colorChangeWindow,
 	}

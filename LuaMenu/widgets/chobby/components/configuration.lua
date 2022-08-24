@@ -26,12 +26,14 @@ function Configuration:init()
 	self.chatFontSize = 18
 
 	self.font = {
-		[0] = {size = 10, shadow = false},
-		[1] = {size = 14, shadow = false},
-		[2] = {size = 18, shadow = false},
-		[3] = {size = 22, shadow = false},
-		[4] = {size = 32, shadow = false},
-		[5] = {size = 48, shadow = false},
+		[0] = {font = "fonts/Poppins-Medium.otf", size = 17, outline = false, shadow = true},
+		[1] = {size = 15, outline = false, shadow = false},
+		[2] = {size = 17, outline = false, shadow = false},
+		[3] = {size = 18, outline = false, shadow = false},
+		[4] = {size = 24, outline = true,  shadow = false},
+		[5] = {size = 24, outline = false, shadow = true},
+		[6] = {size = 28, outline = true, shadow = false},
+		[7] = {size = 28, outline = false, shadow = true},
 	}
 
 	-- self.uiScale, WG.uiScale, and self.uiScalesForScreenSizes will be overridden in Configuration:SetConfigData;
@@ -102,8 +104,8 @@ function Configuration:init()
 	self.ignoredUserNameColor = {0.6, 0.6, 0.6, 1}
 	self.userNameColor = {1, 1, 1, 1}
 
-	self.buttonFocusColor = {0.54,0.72,1,0.3}
-	self.buttonSelectedColor = {0.54,0.72,1,0.6}--{1.0, 1.0, 1.0, 1.0}
+	self.buttonFocusColor = {0.34,0.52,1,0.3}
+	self.buttonSelectedColor = {0.1, 0.58, 0.90, 0.9}--{1.0, 1.0, 1.0, 1.0}
 
 	self.loadLocalWidgets = false
 	self.displayBots = false
@@ -752,14 +754,14 @@ function Configuration:GetTick()
 end
 
 function Configuration:GetFont(sizeScale, fontName)
-	if fontName == nil then fontName = 'LuaMenu/widgets/chili/skins/Evolved/fonts/n019003l.pfb' end
+	if fontName == nil then fontName = 'fonts/Poppins-Regular.otf' end
 	return {
 		size = self.font[sizeScale].size,
+		outline = self.font[sizeScale].outline,
 		shadow = self.font[sizeScale].shadow,
 		font = fontName,
 		-- color        = {1,1,1,1},
-		-- outlineColor = {0.05,0.05,0.05,0.9},
-		-- outline = false,
+		outlineColor = {0.05,0.05,0.05,0.7},
 	}
 end
 

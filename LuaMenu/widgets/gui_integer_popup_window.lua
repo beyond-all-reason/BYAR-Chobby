@@ -3,10 +3,10 @@
 
 function widget:GetInfo()
 	return {
-		name      = "Text Entry Popop Window",
-		desc      = "Displays a text input window popup.",
+		name      = "Integer Selector Window",
+		desc      = "Displays an integer selector window popup.",
 		author    = "Beherith",
-		date      = "2021.07",
+		date      = "2020.11",
 		license   = "GNU LGPL, v2.1 or later",
 		layer     = 0,
 		enabled   = true  --  loaded by default?
@@ -14,15 +14,15 @@ function widget:GetInfo()
 end
 
 
-local function CreateTextEntryWindow(opts)
+local function CreateIntegerSelectorWindow(opts)
 	opts = opts or {}
 
-	local editBoxValue = opts.defaultValue or 0
+	local integerTrackBarValue = opts.defaultValue or 0
 	local Configuration = WG.Chobby.Configuration
 
-	local TextEntryWindow = Window:New {
+	local IntegerSelectorWindow = Window:New {
 		caption = opts.caption or "",
-		name = "TextEntryWindow",
+		name = "IntegerSelectorWindow",
 		parent = screen0,
 		width = opts.width or 280,
 		height = opts.height or 330,
@@ -33,13 +33,13 @@ local function CreateTextEntryWindow(opts)
 
 	local function ChangeAccepted()
 		if opts.OnAccepted then
-			opts.OnAccepted(editBoxValue)
+			opts.OnAccepted(integerTrackBarValue)
 		end
 	end
 
 	local function CloseFunction()
-		TextEntryWindow:Dispose()
-		TextEntryWindow = nil
+		IntegerSelectorWindow:Dispose()
+		IntegerSelectorWindow = nil
 	end
 
 	local lblTitle = TextBox:New {
@@ -51,16 +51,16 @@ local function CreateTextEntryWindow(opts)
 		multiline = true,
 		font = Configuration:GetFont(2),
 		text = opts.labelCaption or "",
-		parent = TextEntryWindow,
+		parent = IntegerSelectorWindow,
 	}
 	if opts.imageFile then
 		local wideimg = Image:New{
-			name = "TextEntryWindowImage",
+			name = "IntegerSelectorWindowImage",
 			x = "5%",
 			y = "40%",
 			width = opts.imageWidth or "90%",
 			height = opts.imageHeight or "33%",
-			parent = TextEntryWindow,
+			parent = IntegerSelectorWindow,
 			keepAspect = opts.keepAspect and true,
 			image = opts.imageFile,
 		}
@@ -71,11 +71,11 @@ local function CreateTextEntryWindow(opts)
 		width = "30%",
 		bottom = 1,
 		height = 40,
-		caption = opts.oklabel  or i18n("ok"),
+		caption = i18n("ok"),
 		font = Configuration:GetFont(2),
 		classname = "action_button",
 		OnClick = { CloseFunction, ChangeAccepted },
-		parent = TextEntryWindow,
+		parent = IntegerSelectorWindow,
 	}
 
 	local btnCancel = Button:New {
@@ -83,42 +83,53 @@ local function CreateTextEntryWindow(opts)
 		width = "30%",
 		bottom = 1,
 		height = 40,
-		caption = opts.cancellabel or i18n("cancel"),
+		caption = i18n("cancel"),
 		font = Configuration:GetFont(2),
 		classname = "negative_button",
 		OnClick = { CloseFunction },
-		parent = TextEntryWindow,
+		parent = IntegerSelectorWindow,
 	}
 
-
-	local eb = EditBox:New{
-		x = 0,
-		width = TextEntryWindow.width * 0.90,
-		height = opts.ebheight or 40,
-		bottom = 45,
-		text = opts.defaultValue or "",
+	local tbValue = TextBox:New{
+		right = "45%",
+		width = "10%",
+		bottom = 5,
+		height = 40,
+		align = "center",
+		caption = tostring(opts.defaultValue),
 		font = Configuration:GetFont(2),
-		useIME = false,
-		parent = TextEntryWindow,
-		--multiline = true,
-		OnFocusUpdate = {
-			function (obj)
-				editBoxValue = obj.text
-				if obj.focused then
-					return
-				end
+		parent = IntegerSelectorWindow,
+	}
+
+	tbValue:SetText(tostring(opts.defaultValue))
+
+	local integerTrackBar = Trackbar:New {
+		x = 0,
+		width  = IntegerSelectorWindow.width * 0.90,
+		height = 40,
+		bottom = 45,
+		value  = opts.defaultValue or 0,
+		min    = opts.minValue or 0,
+		max    = opts.maxValue or 100,
+		step   = opts.step or 1,
+		parent = IntegerSelectorWindow,
+		OnChange = {
+			function(obj, value)
+				--Spring.Echo(value)
+				integerTrackBarValue = value
+				tbValue:SetText(tostring(value))
+				tbValue:Invalidate()
 			end
 		}
 	}
 
-
-	WG.Chobby.PriorityPopup(TextEntryWindow, CloseFunction, CloseFunction, screen0, nil, opts.disableAcceptHotkey)
+	WG.Chobby.PriorityPopup(IntegerSelectorWindow, CloseFunction, CloseFunction, screen0)
 end
 
 function widget:Initialize()
 	VFS.Include(LUA_DIRNAME .. "widgets/chobby/headers/exports.lua", nil, VFS.RAW_FIRST)
 
-	WG.TextEntryWindow = {
-		CreateTextEntryWindow = CreateTextEntryWindow
+	WG.IntegerSelectorWindow = {
+		CreateIntegerSelectorWindow = CreateIntegerSelectorWindow
 	}
 end

@@ -423,12 +423,12 @@ local function CreateScenarioPanel(shortname, sPanel)
 	}
 
 	local flavortext = Label:New{
-		x = "12.5%",
-		bottom = "25%",
+		x = "1.5%",
+		bottom = "23%",
 		width = "73%",
 		height = "5%",
 		parent = flavorimage,
-		font = Configuration:GetFont(2),
+		font = Configuration:GetFont(0),
 		caption = scen.imageflavor,
 	}
 
@@ -708,9 +708,9 @@ local function CreateScenarioPanel(shortname, sPanel)
 		x = "76%",
 		y = "51%",
 		right = 0,
-		height = "10%",
+		height = "7%",
 		caption = "Start Scenario",
-		classname = "action_button",
+		classname = "start_button",
 		font = Configuration:GetFont(3),
 		tooltip = "Start the scenario",
 		OnClick = {
@@ -725,8 +725,8 @@ local function CreateScenarioPanel(shortname, sPanel)
 					if not VFS.HasArchive(barversion) then
 						WG.Chobby.InformationPopup("You do no have the the latest game version, check your downloads tab or update the game.", {caption = "OK"})
 						return
-					end 	
-						
+					end
+
 					if not VFS.HasArchive(scen.mapfilename) then
 						WG.Chobby.InformationPopup("You do not have the map for this scenario, check your downloads tab to see the download progress.", {caption = "OK"})
 						return
@@ -783,7 +783,7 @@ local function MakeScenarioScrollPanelChildren()
 			height = 100,
 			caption = "",
 			classname = "battle_default_button",
-			objectOverrideFont = myFont2,
+			objectOverrideFont = myFont3,
 			--font = Configuration:GetFont(2),
 			--tooltip = "",
 			OnClick = {
@@ -793,6 +793,8 @@ local function MakeScenarioScrollPanelChildren()
 						scenarioSelectorPanel:SetVisibility(false)
 						scenarioSelectorCombo:Select(scen.title)
 						CreateScenarioPanel(scen.title,scenarioPanel)
+						backbutton:SetVisibility(true)
+						scenarioSelectorCombo:SetVisibility(true)
 					end
 				end
 			},
@@ -829,7 +831,7 @@ local function MakeScenarioScrollPanelChildren()
 				width = 300,
 				--height = 30,
 				parent = scenSelectorButton,
-				objectOverrideFont = myFont3,
+				objectOverrideFont = myFont2,
 				--font = Configuration:GetFont(3),
 				caption = string.format( "%03d. %s",i+reloadcount, scen.title ),
 			}
@@ -841,7 +843,7 @@ local function MakeScenarioScrollPanelChildren()
 				width = 100,
 				--height = 30,
 				parent = scenSelectorButton,
-				objectOverrideFont = myFont3,
+				objectOverrideFont = myFont2,
 				--font = Configuration:GetFont(3),
 				caption = string.format( "Difficulty: % 2d/10",scen.difficulty ),
 			}
@@ -853,7 +855,7 @@ local function MakeScenarioScrollPanelChildren()
 					width = 100,
 					--height = 30,
 					parent = scenSelectorButton,
-					objectOverrideFont = myFont3,
+					objectOverrideFont = myFont2,
 					--font = Configuration:GetFont(3),
 					caption = string.format( "New!"),
 				}
@@ -923,7 +925,7 @@ local function InitializeControls(parentControl)
 	DownloadRequirements()
 
 	Label:New {
-		x = "2%",
+		x = 15,
 		y = 14,
 		width = 180,
 		--height = 30,
@@ -960,24 +962,26 @@ local function InitializeControls(parentControl)
 		parent = parentControl,
 	}
 
-	local backbutton = Button:New {
-		x = "90%",
-		y = 14,
-		right = "2%",
-		height = 35,
+	backbutton = Button:New {
+		y = 2,
+		right = 7,
+		width = 80,
+		height = 45,
 		caption = "Back",
-		classname = "action_button",
+		classname = "negative_button",
 		font = Configuration:GetFont(2),
 		tooltip = "Back to the list of scenarios",
 		OnClick = {
 			function()
 				scenarioPanel:SetVisibility(false)
 				scenarioSelectorPanel:SetVisibility(true)
+				backbutton:SetVisibility(false)
 				--widget:Initialize()
 			end
 		},
 		parent = parentControl,
 	}
+	backbutton:SetVisibility(false)
 --[[
 	local refreshbutton = Button:New {
 		x = "86%",
@@ -1025,7 +1029,7 @@ local function InitializeControls(parentControl)
 		OnSelectName = {
 			function (obj, selectedName)
 				Spring.Echo(selectedName)
-
+				backbutton:SetVisibility(true)
 				scenarioPanel:SetVisibility(true)
 				scenarioSelectorPanel:SetVisibility(false)
 				CreateScenarioPanel(selectedName,scenarioPanel)

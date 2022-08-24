@@ -19,9 +19,9 @@ local function CreateLine(lineText, linkText, onClick)
 			x = 3,
 			y = 3,
 			height = 34,
-			width = 180,
+			width = 235,
 			caption = linkText,
-			classname = "action_button",
+			classname = "option_button",
 			font = WG.Chobby.Configuration:GetFont(2),
 			OnClick = {
 				onClick
@@ -32,7 +32,7 @@ local function CreateLine(lineText, linkText, onClick)
 
 	local text = TextBox:New {
 		name = "text",
-		x = 195,
+		x = 250,
 		y = 12,
 		right = 0,
 		height = 20,

@@ -84,12 +84,13 @@ end
 --	Return a widget containing a player's information
 local function playerWidget(playerInfo)
 	local Configuration = WG.Chobby.Configuration
-	local userName = playerInfo.name
+	--local userName = playerInfo.name
+	local userName = StringUtilities.GetTruncatedStringWithDotDot(playerInfo.name, myFont1, REPLAY_LIST_ENTRY_HEIGHT-5)
 
 	-- Create a control widget to encapsulate the player's information
 	local ret = Chili.Control:New {
 		x = 0, y = 0, right = 0,
-		height=PLAYER_HEIGHT, bottom = 0, padding = {0, 0, 0, 0},
+		height=PLAYER_HEIGHT * 0.8, bottom = 0, padding = {0, 0, 0, 0},
 	}
 
 	local image_file
@@ -133,6 +134,7 @@ local function CreateReplayEntry(
 )
 
 	local Configuration = WG.Chobby.Configuration
+	local mapNameTruncated = StringUtilities.GetTruncatedStringWithDotDot(mapName, myFont1, REPLAY_LIST_ENTRY_HEIGHT+50)
 	local fileName = string.sub(replayPath, 7)
 	if string.sub(fileName, 0, 4) == "hide" then
 		return
@@ -243,15 +245,15 @@ local function CreateReplayEntry(
 		valign = 'center',
 		objectoverridefont = myFont2,
 		fontsize = Configuration:GetFont(2).size,
-		text = mapName,
+		text = mapNameTruncated,
 		parent = replayPanel,
 	}
 
 	-- Compute the teams/players lists
 
 	local userList = Chili.Control:New {
-		x = 415, y = 10,
-		right = 0, bottom = 0,
+		x = "50%", y = 10,
+		right = "11.5%", bottom = 0,
 		padding = {0, 0, 0, 0},
 		parent = replayPanel,
 	}
@@ -345,8 +347,8 @@ local function CreateReplayEntry(
 			"action_button",
 			"option_button"
 		),
-		objectoverridefont = myFont2,
-		--font = WG.Chobby.Configuration:GetFont(2),
+		objectoverridefont = myFont1,
+		font = WG.Chobby.Configuration:GetFont(1),
 		OnClick = {
 			function()
 				if not replayPath or not CheckReplayFileExists() then
@@ -369,8 +371,8 @@ local function CreateReplayEntry(
 		width = "10%",
 		caption = i18n("delete_replay"),
 		classname = "negative_button",
-		--font = WG.Chobby.Configuration:GetFont(2),
-		objectoverridefont = myFont2,
+		font = WG.Chobby.Configuration:GetFont(1),
+		objectoverridefont = myFont1,
 		tooltip = "Delete the replay from your hard drive",
 		OnClick = {
 			function()
@@ -403,8 +405,8 @@ local function InitializeControls(parentControl)
 		width = 180,
 		height = 30,
 		parent = parentControl,
-		objectoverridefont = myFont3,
-		--font = Configuration:GetFont(3),
+		--objectoverridefont = myFont3,
+		font = Configuration:GetFont(3),
 		caption = "Replays",
 	}
 
@@ -521,8 +523,8 @@ local function InitializeControls(parentControl)
 		width = 120,
 		height = 45,
 		caption = i18n("refresh"),
-		objectoverridefont = myFont3,
-		--font = Configuration:GetFont(3),
+		objectoverridefont = myFont2,
+		font = Configuration:GetFont(2),
 		classname = "option_button",
 		tooltip = "Refresh the list of replays",
 		parent = parentControl,
@@ -535,8 +537,8 @@ local function InitializeControls(parentControl)
 		width = 120,
 		height = 45,
 		caption = i18n("more"),
-		objectoverridefont = myFont3,
-		--font = Configuration:GetFont(3),
+		objectoverridefont = myFont2,
+		font = Configuration:GetFont(2),
 		classname = "option_button",
 		parent = parentControl,
 		tooltip = "Load more, older replays",
@@ -577,8 +579,8 @@ local function InitializeControls(parentControl)
 			width = 120,
 			height = 45,
 			caption = "force start replay",
-			objectoverridefont = myFont3,
-			--font = Configuration:GetFont(3),
+			objectoverridefont = myFont2,
+			font = Configuration:GetFont(2),
 			classname = "option_button",
 			parent = parentControl,
 			tooltip = "Force start a specific replay",
@@ -601,8 +603,8 @@ local function InitializeControls(parentControl)
 			width = 120,
 			height = 45,
 			caption = i18n("download"),
-			objectoverridefont = myFont3,
-			--font = Configuration:GetFont(3),
+			objectoverridefont = myFont2,
+			font = Configuration:GetFont(2),
 			classname = "option_button",
 			parent = parentControl,
 			tooltip = "Get more replays from our website, and download the .sdfz files into your data/demos folder.",
