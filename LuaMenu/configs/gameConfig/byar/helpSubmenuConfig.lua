@@ -179,7 +179,7 @@ local communityControl = Control:New {
 			}
 
 			Button:New {
-				right = 11,
+				right = 12,
 				y = 7,
 				width = 80,
 				height = 45,
