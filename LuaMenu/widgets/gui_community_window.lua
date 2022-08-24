@@ -340,7 +340,7 @@ local function GetNewsEntry(parentHolder, index, headingSize, timeAsTooltip, top
 				controls.linkButton = Button:New {
 					x = 2,
 					y = offset + 6,
-					width = 300,
+					width = 280,
 					--right = 400,
 					align = "left",
 					valign = "top",
