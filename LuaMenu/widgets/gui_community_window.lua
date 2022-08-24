@@ -523,7 +523,7 @@ local function GetNewsEntry(parentHolder, index, headingSize, timeAsTooltip, top
 			controls.linkButton:SetPos(nil, offset)
 		end
 
-		local offsetSize = (controls.text.height * 0.25 + 30) or 6
+		local offsetSize = (controls.text and (#controls.text.physicalLines)*18) or 6
 		if controls.image and controls.image.visible and ((not controls.text) or (offsetSize < headFormat.imageSize - (controls.dateTime and 46 or 0))) then
 			offsetSize = headFormat.imageSize - (controls.dateTime and 46 or 0)
 		end
