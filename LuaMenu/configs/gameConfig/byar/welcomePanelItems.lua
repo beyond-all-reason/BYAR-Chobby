@@ -9,7 +9,7 @@ local welcomePanelItems = {
 
     {
         Header = "Official BAR pro 2v2 Tournament coming this weekend!",
-        Url = "https://forms.gle/nw6M8ETmX8SzQA7m9",
+        Url = "https://www.beyondallreason.info/news/pro-2v2-tourney-2-august-28th",
         Time = nil,-- "NowTime",
         Image = "LuaMenu/images/2vs2Tournament.png",
         Text = "The hottest event this summer is getting closer and closer. Tune in for the Stream of this tourney with our amazing hosts - Tarnished Knight, Teifion and Resopmok. Some of the strongest players in our community will clash in epic battles in what is considered one of the most interesting formats.\nFill in the form if you want to submit your own team and participate.\nSunday, August 28th 2022, 14:00 UTC",
