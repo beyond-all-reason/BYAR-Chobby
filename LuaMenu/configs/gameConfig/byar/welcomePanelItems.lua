@@ -8,12 +8,12 @@ local welcomePanelItems = {
     },
 
     {
-        Header = "Official BAR pro 2v2 Tournament coming this weekend!",
-        Url = "https://forms.gle/nw6M8ETmX8SzQA7m9",
+        Header = "The August 2022 2v2 Tournament has concluded!",
+        --Url = "https://forms.gle/nw6M8ETmX8SzQA7m9",
         Time = nil,-- "NowTime",
-        --Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/melting_glacier_v1.0.png",
-        Text = "The hottest event this summer is getting closer and closer. Tune in for the Stream of this tourney with our amazing hosts - Tarnished Knight, Teifion and Resopmok. Some of the strongest players in our community will clash in epic battles in what is considered one of the most interesting formats.\nFill in the form if you want to submit your own team and participate.\nSunday, August 28th 2022, 14:00 UTC",
-        UrlText = "Sign up here"
+        Image = "LuaMenu/images/BAR-2V2_Tournament_AUG2022_Victory_2.png",
+        Text = " \nBow to the new grand masters of the 2v2 format, Raghna and Malady!",
+        --UrlText = "Sign up here"
     },
 
     {
