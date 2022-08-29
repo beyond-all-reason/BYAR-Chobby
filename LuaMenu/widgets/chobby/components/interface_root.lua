@@ -940,7 +940,6 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 		caption = "Back to Game",
 		captionHorAlign = 5,
 		font = WG.Chobby.Configuration:GetFont(2),
-		tiles = {4, 4, 90, 4}, --// To squish that left side bulb
 		parent = holder_topBar,
 		resizable = false,
 		draggable = false,
