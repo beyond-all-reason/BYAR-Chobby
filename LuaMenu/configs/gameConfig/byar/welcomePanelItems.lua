@@ -4,22 +4,24 @@ local welcomePanelItems = {
         Url = "https://discord.gg/N968ddE",
         Time = nil,-- "NowTime",
         Text = "Welcome back Commander. We hope you are ready for epic single player and multiplayer battles. Check out our Discord and join the community!\n",
+        UrlText = "Join our discord"
     },
-    
 
     {
-        Header = "Official BAR pro 2v2 Tournament coming this weekend!",
-        Url = "https://www.beyondallreason.info/news/pro-2v2-tourney-2-august-28th",
+        Header = "The August 2022 2v2 Tournament has concluded!",
+        --Url = "https://forms.gle/nw6M8ETmX8SzQA7m9",
         Time = nil,-- "NowTime",
-        Image = "LuaMenu/images/2vs2Tournament.png",
-        Text = "The hottest event this summer is getting closer and closer. Tune in for the Stream of this tourney with our amazing hosts - Tarnished Knight, Teifion and Resopmok. Some of the strongest players in our community will clash in epic battles in what is considered one of the most interesting formats.\nFill in the form if you want to submit your own team and participate.\nSunday, August 28th 2022, 14:00 UTC",
+        Image = "LuaMenu/images/BAR-2V2_Tournament_AUG2022_Victory_2.png",
+        Text = " \nBow to the new grand masters of the 2v2 format, Raghna and Malady!",
+        --UrlText = "Sign up here"
     },
 
     {
-        Header = "Video guides for new players",
+        Header = "Guides for new players",
         Url = "https://www.youtube.com/channel/UCAByJ5NKeMmQ95EIWgBtbEw",
         Time = nil,-- "NowTime",
         Text = "Requiem has created some guides for new players. If you're new to the game and want to learn the basics via video we highly recommend you check them out.\n",
+        UrlText = "Watch video guides"
     },
 
     {
@@ -42,7 +44,8 @@ local welcomePanelItems = {
         Url = "https://discord.com/channels/549281623154229250/697141979892416512/997178414257680444",
         Time = nil,-- "NowTime",
         -- Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/bismuth_valley_v1.0.png",
-        Text = "We've published our Steam Release roadmap, check it out on the discord!",
+        Text = "We've published our Steam Release roadmap, check it out on the discord!\n ",
+        UrlText = "Our Roadmap"
     },
 
     --[[
@@ -69,6 +72,7 @@ local welcomePanelItems = {
         Url = "https://www.beyondallreason.info/code-of-conduct",
         Time = nil,-- "NowTime",
         Text = "We recently updated our code of conduct; be sure to check it out. As our community growth we've added the ability to report problems, click a user and select 'report user' to alert the moderator team to an issue. See the full code of conduct at https://www.beyondallreason.info/code-of-conduct",
+        UrlText = "Code of conduct"
     },
     {
         Header = "Play with your friends: use our servers!",
