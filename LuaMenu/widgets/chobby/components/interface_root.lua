@@ -48,7 +48,7 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 	local topBarHeight = 42
 
 	-- Switch to single panel mode when below the minimum screen width
-	local minScreenWidth = 1360
+	local minScreenWidth = 1350
 
 	local gameRunning = false
 	local showTopBar = false
