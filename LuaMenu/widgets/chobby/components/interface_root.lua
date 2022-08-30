@@ -119,14 +119,15 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 	end
 
 	local label_version = Label:New {
-		x = "80%",
+		--x = "68.5%",
 		y = "95%",
 		width = "20%",
 		height = "5%",
+		right = "2.25%",
 		parent = lobbyInterfaceHolder,
 		font = version_font,
 		caption = "Game: " .. Configuration.gameConfig.ShortenNameString(Configuration:GetDefaultGameName()) .. "  Engine: " .. Configuration:GetTruncatedEngineVersion() .. "  "
-			.. '\nChobby: ' .. byarchobbyrapidTag .. " / " ..chobbyrapidTag ,
+			.. 'Chobby: ' .. byarchobbyrapidTag .. " / " ..chobbyrapidTag ,
 		align = "right",
 		valign = 'bottom',
 	}
