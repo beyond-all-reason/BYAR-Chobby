@@ -30,9 +30,9 @@ local delayedModeSet, delayedBorderOverride
 
 local ITEM_OFFSET = 36
 
-local COMBO_X = "50%"
+local COMBO_X = "55%"
 local COMBO_WIDTH = 85
-local CHECK_WIDTH = "50%"
+local CHECK_WIDTH = "55%"
 local TEXT_OFFSET = 6
 
 local settingsWindowHandler
