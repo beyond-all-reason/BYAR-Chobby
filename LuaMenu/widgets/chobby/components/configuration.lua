@@ -473,9 +473,9 @@ function Configuration:UpdateUiScaleMaxMin()
 	local oldMin = self.minUiScale
 	local oldMax = self.maxUiScale
 
-	self.maxUiScale = math.max(1, screenWidth / 1920, screenHeight / 1080) -- 200% @ 1080p; 400% @ 4k
+	self.maxUiScale = math.max(1, screenWidth / 960, screenHeight / 540) -- 200% @ 1080p; 400% @ 4k -- 200% @ 1080p; 400% @ 4k
 	-- size it against font sizes, because readability is the lower limit here.
-	-- We don't use font[0], so cap it against font[1]
+	-- font[0] is outlined and larger, so cap it against font[1]
 	self.minUiScale = 7 / self.font[1].size
 
 	if oldMin ~= self.minUiScale or oldMax ~= self.maxUiScale then
