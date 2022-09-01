@@ -318,7 +318,7 @@ local function GetNewsEntry(parentHolder, index, headingSize, timeAsTooltip, top
 	function externalFunctions.AddEntry(entryData, parentPosition)
 		local textPos = 6
 		local headingPos = 2
-		local offset = -5
+		local offset = 0
 
 		if showBulletHeading then
 			if not controls.bullet then
@@ -521,6 +521,10 @@ local function GetNewsEntry(parentHolder, index, headingSize, timeAsTooltip, top
 		if controls.linkButton and controls.linkButton.visible then
 			offset = offset + controls.text.height + 20
 			controls.linkButton:SetPos(nil, offset)
+		end
+
+		if controls.text and controls.text.height <= 20 then
+			offset = offset + 20
 		end
 
 		local offsetSize = (controls.text and (#controls.text.physicalLines)*18) or 6
