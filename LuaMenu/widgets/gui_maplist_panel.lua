@@ -380,7 +380,7 @@ local function InitializeControls()
 		padding = {0, 0, 0, 0},
 	}
 
-	local headings = {  --This font is huge and I can't config or override any of these
+	local headings = {
 		{name = "Name", x = 22, width = 208},
 		{name = "Size", tooltip = "Choose larger maps for longer games.",x = 232, width = 80},
 		{name = "Type", tooltip = "Each map is designed with a specific gameplay setup in mind, but can be played as you desire.\n- 1v1: Designed for small, competitive games\n- Teams: Has resources for multiple players\n- FFA: Free-for-all games", x = 314, width = 110},
