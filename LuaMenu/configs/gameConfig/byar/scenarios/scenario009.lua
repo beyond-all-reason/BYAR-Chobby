@@ -41,8 +41,8 @@ Scoring:
         {name = "Brutal" , playerhandicap = 0,  enemyhandicap=50},
     },
     allowedsides     = {"Cortex"}, --these are the permitted factions for this mission, ch0ose from {"Armada", "Cortex", "Random"}
-	victorycondition= "Kill all enemy units", -- This is plaintext, but should be reflected in startscript
-	losscondition	= "Loss of all your units",  -- This is plaintext, but should be reflected in startscript
+	victorycondition= "Kill all construction units", -- This is plaintext, but should be reflected in startscript
+	losscondition	= "Lose all of your construction units",  -- This is plaintext, but should be reflected in startscript
     unitlimits   = { -- table of unitdefname : maxnumberofthese units, 0 means disable it
         -- dont use the one in startscript, put the disabled stuff here so we can show it in scenario window!
         --armavp = 0,
@@ -226,7 +226,7 @@ Scoring:
 
 	[modoptions]
 	{
-        deathmode = killall;
+        deathmode = builders;
         scenariooptions = __SCENARIOOPTIONS__;
         ruins = enabled;
 	}

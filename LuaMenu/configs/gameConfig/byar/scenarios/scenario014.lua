@@ -43,8 +43,8 @@ The difficulty modifier will change the amount of resources you and the enemy ca
         {name = "Brutal"  , playerhandicap = 0, enemyhandicap = 100 },
     },
     allowedsides     = {"Armada","Cortex","Random"}, --these are the permitted factions for this mission
-	victorycondition= "Kill all enemy units", -- This is plaintext, but should be reflected in startscript
-	losscondition	= "Loss of all your units",  -- This is plaintext, but should be reflected in startscript
+	victorycondition= "Kill all construction units", -- This is plaintext, but should be reflected in startscript
+	losscondition	= "Lose all of your construction units",  -- This is plaintext, but should be reflected in startscript
     unitlimits   = { -- table of unitdefname : maxnumberoftese units, 0 is disable it
 	-- dont use the one in startscript, put it here!
         --armavp = 0,
@@ -90,7 +90,7 @@ The difficulty modifier will change the amount of resources you and the enemy ca
 
 	[modoptions]
 	{
-		deathmode = killall;
+		deathmode = builders;
 		scenariooptions = __SCENARIOOPTIONS__;
 	}
 
