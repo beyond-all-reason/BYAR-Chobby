@@ -28,11 +28,11 @@ local currentMode = false
 local currentManualBorderless = false
 local delayedModeSet, delayedBorderOverride
 
-local ITEM_OFFSET = 38
+local ITEM_OFFSET = 36
 
-local COMBO_X = 280
-local COMBO_WIDTH = 235
-local CHECK_WIDTH = 280
+local COMBO_X = "55%"
+local COMBO_WIDTH = 85
+local CHECK_WIDTH = "55%"
 local TEXT_OFFSET = 6
 
 local settingsWindowHandler
@@ -651,6 +651,7 @@ local function GetLobbyTabControls()
 		x = COMBO_X,
 		y = offset,
 		width = COMBO_WIDTH,
+		right = 18,
 		height = 30,
 		items = {"Autodetect", "Always Two", "Always One"},
 		font = Configuration:GetFont(2),
@@ -686,6 +687,7 @@ local function GetLobbyTabControls()
 		y = offset,
 		width  = COMBO_WIDTH,
 		height = 30,
+		right = 18,
 		value  = Configuration.chatFontSize or 18,
 		min    = 12,
 		max    = 20,
@@ -717,6 +719,7 @@ local function GetLobbyTabControls()
 		y = offset,
 		width  = COMBO_WIDTH,
 		height = 30,
+		right = 18,
 		value  = Configuration.menuMusicVolume or 0.5,
 		min    = 0,
 		max    = 1,
@@ -748,6 +751,7 @@ local function GetLobbyTabControls()
 		y = offset,
 		width  = COMBO_WIDTH,
 		height = 30,
+		right = 18,
 		value  = Configuration.menuNotificationVolume or 0.5,
 		min    = 0,
 		max    = 1,
@@ -788,6 +792,7 @@ local function GetLobbyTabControls()
 		y = offset,
 		width  = COMBO_WIDTH,
 		height = 30,
+		right = 18,
 		value  = Configuration.menuBackgroundBrightness or 1,
 		min    = 0,
 		max    = 1,
@@ -819,6 +824,7 @@ local function GetLobbyTabControls()
 		y = offset,
 		width  = COMBO_WIDTH,
 		height = 30,
+		right = 18,
 		value  = Configuration.gameOverlayOpacity or 0.5,
 		min    = 0,
 		max    = 1,
@@ -850,6 +856,7 @@ local function GetLobbyTabControls()
 		y = offset,
 		width  = COMBO_WIDTH,
 		height = 30,
+		right = 18,
 		value  = Configuration.uiScale * 100.0,
 		min    = math.ceil(Configuration.minUiScale * 100.0),
 		max    = math.floor(Configuration.maxUiScale * 100.0),
@@ -953,7 +960,7 @@ local function GetLobbyTabControls()
 	children[#children + 1] = Label:New {
 		x = 20,
 		y = offset + TEXT_OFFSET,
-		width = 90,
+		width = 110,
 		height = 40,
 		valign = "top",
 		align = "left",
@@ -975,6 +982,7 @@ local function GetLobbyTabControls()
 		y = offset,
 		width = COMBO_WIDTH,
 		height = 30,
+		right = 18,
 		items = barservers,
 		objectOverrideFont = settingsFont2,
 		--font = Configuration:GetFont(2),
@@ -1174,6 +1182,7 @@ local function GetVoidTabControls()
 		y = offset,
 		width = COMBO_WIDTH,
 		height = 30,
+		right = 18,
 		caption = "Disable",
 		tooltip = "Disables the entire lobby and menu.",
 		objectOverrideFont = settingsFont2,
@@ -1203,6 +1212,7 @@ local function GetVoidTabControls()
 		y = offset,
 		width = COMBO_WIDTH,
 		height = 30,
+		right = 18,
 		text = Configuration:GetServerAddress(),
 		objectOverrideFont = settingsFont2,
 		--font = Configuration:GetFont(2),
@@ -1236,6 +1246,7 @@ local function GetVoidTabControls()
 		y = offset,
 		width = COMBO_WIDTH,
 		height = 30,
+		right = 18,
 		text = tostring(Configuration.serverPort),
 		objectOverrideFont = settingsFont2,
 		--font = Configuration:GetFont(2),
@@ -1288,6 +1299,7 @@ local function GetVoidTabControls()
 		y = offset,
 		width = COMBO_WIDTH,
 		height = 30,
+		right = 18,
 		parent = window,
 		items = Configuration.gameConfigHumanNames,
 		objectOverrideFont = settingsFont2,
@@ -1333,6 +1345,7 @@ local function GetVoidTabControls()
 		y = offset,
 		width = COMBO_WIDTH,
 		height = 30,
+		right = 18,
 		parent = window,
 		items = Configuration.campaignConfigHumanNames,
 		objectOverrideFont = settingsFont2,
@@ -1368,6 +1381,7 @@ local function GetVoidTabControls()
 		y = offset,
 		width  = COMBO_WIDTH,
 		height = 30,
+		right = 18,
 		value  = Configuration.coopConnectDelay or 0,
 		min    = 0,
 		max    = 100,
@@ -1536,6 +1550,7 @@ local function ProcessScreenSizeOption(data, offset)
 		y = offset,
 		width = COMBO_WIDTH,
 		height = 30,
+		right = 18,
 		items = items,
 		objectOverrideFont = settingsFont2,
 		--font = Configuration:GetFont(2),
@@ -1619,6 +1634,7 @@ local function ProcessSettingsOption(data, offset, defaults, customSettingsSwitc
 		y = offset,
 		width = COMBO_WIDTH,
 		height = 30,
+		right = 18,
 		items = items,
 		objectOverrideFont = settingsFont2,
 		--font = Configuration:GetFont(2),
@@ -1687,6 +1703,7 @@ local function ProcessSettingsNumber(data, offset, defaults, customSettingsSwitc
 		y = offset,
 		width = COMBO_WIDTH,
 		height = 30,
+		right = 18,
 		text = FormatFunc(Configuration.settingsMenuValues[data.name] or defaults[data.name]),
 		objectOverrideFont = settingsFont2,
 		--font = Configuration:GetFont(2),

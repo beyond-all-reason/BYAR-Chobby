@@ -83,7 +83,7 @@ local function LeaveIntentionallyBlank(scroll, caption)
 		width = 120,
 		height = 20,
 		align = "left",
-		valign = "tp",
+		valign = "top",
 		font = WG.Chobby.Configuration:GetFont(1),
 		caption = caption,
 		parent = scroll
@@ -98,8 +98,10 @@ local function AddLinkButton(scroll, name, tooltip, link, x, right, y, bottom)
 		bottom = bottom,
 		caption = name,
 		tooltip = tooltip,
-		classname = "option_button",
-		font = WG.Chobby.Configuration:GetFont(3),
+		classname = "link_button",
+		objectOverrideFont = myFont7,
+		--font = WG.Chobby.Configuration:GetFont(3),
+		--Spring.Utilities.TraceFullEcho(maxdepth, 50, 50),
 		OnClick = {
 			function ()
 				WG.BrowserHandler.OpenUrl(link)
@@ -108,9 +110,9 @@ local function AddLinkButton(scroll, name, tooltip, link, x, right, y, bottom)
 		OnResize = {
 			function(obj, xSize, ySize)
 				if globalSizeMode == 2 then
-					ButtonUtilities.SetFontSizeScale(obj, 4)
+					ButtonUtilities.SetFontSizeScale(obj, 5)
 				else
-					ButtonUtilities.SetFontSizeScale(obj, 3)
+					ButtonUtilities.SetFontSizeScale(obj, 4)
 				end
 			end
 		},
@@ -277,8 +279,8 @@ local headingFormats = {
 		spacing = 2,
 		buttonPos = 2,
 		inButton = 4,
-		paragraphSpacing = 0,
-		topHeadingOffset = 30,
+		paragraphSpacing = 20,
+		topHeadingOffset = 60,
 		imageSize = 120,
 		buttonBot = 6,
 	},
@@ -290,7 +292,7 @@ local headingFormats = {
 		buttonPos = 5,
 		inButton = 7,
 		paragraphSpacing = 30,
-		topHeadingOffset = 50,
+		topHeadingOffset = 80,
 		imageSize = 120,
 		buttonBot = 10,
 	},
@@ -307,7 +309,7 @@ local function GetNewsEntry(parentHolder, index, headingSize, timeAsTooltip, top
 		y = 0,
 		right = 0,
 		height = 500,
-		padding = {0,0,0,0},
+		padding = {15,5,15,0},
 		parent = parentHolder,
 	}
 
@@ -336,12 +338,16 @@ local function GetNewsEntry(parentHolder, index, headingSize, timeAsTooltip, top
 			linkString = entryData.link
 			if not controls.linkButton then
 				controls.linkButton = Button:New {
-					x = headingPos,
-					y = offset + 5,
-					right = 2,
-					height = headFormat.buttonSize,
-					classname = "button_square",
-					caption = "",
+					x = 2,
+					y = offset + 6,
+					width = 280,
+					--right = 400,
+					align = "left",
+					valign = "top",
+					height = 40,
+					classname = "link_button",
+					objectOverrideFont = myFont0,
+					caption = entryData.urlText,
 					padding = {0, 0, 0, 0},
 					parent = holder,
 					OnClick = {
@@ -360,18 +366,18 @@ local function GetNewsEntry(parentHolder, index, headingSize, timeAsTooltip, top
 					y = headFormat.inButton,
 					right = 4,
 					height = headFormat.height,
-					align = "left",
+					align = "center",
 					valign = "top",
 					text = entryData.heading,
-					fontsize = WG.Chobby.Configuration:GetFont(headingSize).size,
-					parent = controls.linkButton,
+					objectOverrideFont = myFont7,
+					parent = holder,
 				}
 			else
 				controls.heading:SetText(entryData.heading)
 			end
 
 			-- Possibly looks nicer without link image.
-			if not showBulletHeading then
+			--[[ if not showBulletHeading then
 				if not controls.linkImage then
 					controls.linkImage = Image:New {
 						x = 0,
@@ -386,7 +392,7 @@ local function GetNewsEntry(parentHolder, index, headingSize, timeAsTooltip, top
 
 				local length = controls.heading.font:GetTextWidth(entryData.heading)
 				controls.linkImage:SetPos(length + 8)
-			end
+			end ]]
 
 			if controls.freeHeading then
 				controls.freeHeading:SetVisibility(false)
@@ -401,7 +407,7 @@ local function GetNewsEntry(parentHolder, index, headingSize, timeAsTooltip, top
 					align = "left",
 					valign = "top",
 					text = entryData.heading,
-					fontsize = WG.Chobby.Configuration:GetFont(4).size,
+					objectOverrideFont = myFont7,
 					parent = holder,
 				}
 			else
@@ -461,7 +467,7 @@ local function GetNewsEntry(parentHolder, index, headingSize, timeAsTooltip, top
 					align = "left",
 					valign = "top",
 					text = entryData.text,
-					fontsize = WG.Chobby.Configuration:GetFont(2).size,
+					objectOverrideFont = myFont2,
 					parent = holder,
 				}
 			else
@@ -492,13 +498,12 @@ local function GetNewsEntry(parentHolder, index, headingSize, timeAsTooltip, top
 		end
 
 		local headingSize
-		if controls.linkButton and controls.linkButton.visible then
+		if controls.heading and controls.heading.visible then
 			headingSize = (#controls.heading.physicalLines)*headFormat.fontSize
-			controls.linkButton:SetPos(nil, offset + headFormat.buttonPos, nil, headingSize + headFormat.buttonBot)
 			controls.heading:SetPos(nil, nil, nil, headingSize)
 		elseif controls.freeHeading then
 			headingSize = (#controls.freeHeading.physicalLines)*headFormat.fontSize
-			controls.freeHeading:SetPos(nil, offset + 12, nil, headingSize)
+			controls.freeHeading:SetPos(nil, nil, nil, headingSize)
 		end
 		offset = offset + headingSize + headFormat.spacing
 
@@ -511,6 +516,15 @@ local function GetNewsEntry(parentHolder, index, headingSize, timeAsTooltip, top
 		end
 		if controls.text and controls.text.visible then
 			controls.text:SetPos(nil, offset + 6)
+		end
+
+		if controls.linkButton and controls.linkButton.visible then
+			offset = offset + controls.text.height + 20
+			controls.linkButton:SetPos(nil, offset)
+		end
+
+		if controls.text and controls.text.height <= 20 then
+			offset = offset + 20
 		end
 
 		local offsetSize = (controls.text and (#controls.text.physicalLines)*18) or 6
@@ -542,7 +556,7 @@ local function GetNewsHandler(parentControl, headingSize, timeAsTooltip, topHead
 		x = 0,
 		y = 0,
 		right = 0,
-		padding = {0,0,0,0},
+		padding = {0,15,0,0},
 		parent = parentControl,
 	}
 
@@ -590,6 +604,7 @@ local function GetNewsHandler(parentControl, headingSize, timeAsTooltip, topHead
 				link = items[i].Url,
 				atTime = items[i].Time,
 				text = items[i].Text,
+				urlText = items[i].UrlText,
 			}
 			if items[i].Image then
 				local imagePos = string.find(items[i].Image, "news")
@@ -845,6 +860,12 @@ local function InitializeControls(window)
 	--	parent = window,
 	--	font = WG.Chobby.Configuration:GetFont(3),
 	--	caption = "Community",
+	local Configuration = WG.Chobby.Configuration
+	myFont7 = Font:New(Configuration:GetFont(7))
+	myFont5 = Font:New(Configuration:GetFont(5))
+	myFont4 = Font:New(Configuration:GetFont(5, 'fonts/Poppins-Medium.otf'))
+	myFont2 = Font:New(Configuration:GetFont(2))
+	myFont0 = Font:New(Configuration:GetFont(0))
 
 	local lobby = WG.LibLobby.lobby
 	local staticCommunityData = LoadStaticCommunityData()

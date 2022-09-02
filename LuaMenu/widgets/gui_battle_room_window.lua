@@ -128,7 +128,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		y = 0,
 		right = 3,
 		height = 20,
-		classname = "button_square",
+		classname = "button_small",
 		caption = "",
 		padding = {0, 0, 0, 0},
 		parent = rightInfo,
@@ -577,7 +577,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		x = 2,
 		y = 3,
 		right = 20,
-		align = "left",
+		align = "center",
 		parent = btnMapLink,
 		fontsize = config:GetFont(2).size,
 	}
@@ -741,7 +741,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		bottom = 0,
 		height = 48,
 		caption = i18n("start"),
-		classname = "action_button",
+		classname = "start_button",
 		font = config:GetFont(3),
 		tooltip = "Start the game, or call a vote to start multiplayer, or join a running game",
 		OnClick = {
@@ -803,16 +803,16 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 
 		btnSpectate.tooltip = i18n("tooltip_is_spectator")
 		btnPlay.tooltip = i18n("tooltip_become_player")
-		
+
 		ButtonUtilities.SetCaption(btnSpectate, i18n("spectating"))
 	end
-	
+
 	btnSpectate = Button:New { -- Some properties set by SetButtonStatePlaying() after both buttons are initialised.
 		x = "50.5%",
 		right = 0,
 		bottom = 51,
 		height = 32,
-		classname = "option_button",
+		classname = "playing_button",
 		caption = "",
 		font = config:GetFont(2),
 		OnClick = {
@@ -836,7 +836,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		right = "50.5%",
 		bottom = 51,
 		height = 32,
-		classname = "option_button",
+		classname = "playing_button",
 		caption = "",
 		font = config:GetFont(2),
 		OnClick = {
@@ -1017,6 +1017,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		right = 0,
 		height = 120,
 		padding = {2, 0, 2, 0},
+		font = config:GetFont(1),
 		autosize = false,
 		resizable = false,
 		tooltip = "All custom gameplay options are listed here",
@@ -1401,13 +1402,13 @@ local function AddTeamButtons(parent, offX, joinFunc, aiFunc, unjoinable, disall
 		local addAiButton = Button:New {
 			name = "addAiButton",
 			x = offX,
-			y = 0,
-			height = 32,
+			y = 5,
+			height = 24,
 			width = 95,
 			font = WG.Chobby.Configuration:GetFont(2),
 			caption = i18n("add_ai") .. "\b",
 			OnClick = {aiFunc},
-			classname = "button_square",
+			classname = "button_small",
 			parent = parent,
 			tooltip = "Add an AI to the game",
 		}
@@ -1417,13 +1418,13 @@ local function AddTeamButtons(parent, offX, joinFunc, aiFunc, unjoinable, disall
 		local joinTeamButton = Button:New {
 			name = "joinTeamButton",
 			x = offX,
-			y = 0,
-			height = 32,
+			y = 5,
+			height = 24,
 			width = 95,
 			font = WG.Chobby.Configuration:GetFont(2),
 			caption = i18n("join") .. "\b",
 			OnClick = {joinFunc},
-			classname = "button_square",
+			classname = "button_small",
 			parent = parent,
 			tooltip = "Change your team to this one",
 		}
@@ -1432,7 +1433,7 @@ end
 
 local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 
-	local SPACING = 22
+	local SPACING = 21
 	local disallowCustomTeams = battle.disallowCustomTeams
 	local disallowBots = battle.disallowBots
 
@@ -1573,7 +1574,7 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 				width = 120,
 				height = 30,
 				valign = "center",
-				font = WG.Chobby.Configuration:GetFont(3),
+				font = WG.Chobby.Configuration:GetFont(2),
 				caption = humanName,
 				parent = teamHolder,
 			}
@@ -1610,6 +1611,7 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 				x = 0,
 				y = 31,
 				right = 0,
+				font = WG.Chobby.Configuration:GetFont(1),
 				bottom = 0,
 				padding = {0, 0, 0, 0},
 				parent = teamHolder,
@@ -1870,7 +1872,7 @@ local function SetupVotePanel(votePanel, battle, battleID)
 		y = 0,
 		right = 0,
 		bottom = 0,
-		classname = "button_square",
+		classname = "option_button",
 		caption = "",
 		parent = minimapPanel,
 		padding = {1,1,1,1},
@@ -1991,7 +1993,6 @@ local function SetupVotePanel(votePanel, battle, battleID)
 		color     = {1, 0, 0, 1},
 	}
 
-	
 	local voteProgressYes = Progressbar:New {
 		x = offset,
 		y = height * 0.80,
@@ -2000,7 +2001,6 @@ local function SetupVotePanel(votePanel, battle, battleID)
 		value = 0,
 		parent = activePanel,
 		tooltip = "How many players have voted no out of the required number have voted to fail",
-		
 		color     = {0, 1, 0, 1},
 	}
 
@@ -2080,7 +2080,7 @@ local function SetupVotePanel(votePanel, battle, battleID)
 
 	local oldVoteInitiator = ""
 	local oldTitle = ""
-	
+
 	function externalFunctions.VoteUpdate(voteMessage, pollType, mapPoll, candidates, votesNeeded, pollUrl, voteInitiator, resetButtons)
 		--Spring.Echo("externalFunctions.VoteUpdate(voteMessage, pollType, mapPoll, candidates, votesNeeded, pollUrl, voteInitiator)",voteMessage, pollType, mapPoll, candidates, votesNeeded, pollUrl, voteInitiator)
 		UpdatePollType(pollType, mapPoll, pollUrl)
@@ -2160,9 +2160,9 @@ local function SetupVotePanel(votePanel, battle, battleID)
 end
 
 local function SetupSpadsStatusPanel(battle, battleID)
-	
+
 	local freezeSettings = true
-	
+
 	local spadsSettingsOrder = {'teamSize','nbTeams','preset','autoBalance','balanceMode','locked'}
 	spadsSettingsTable = {
 		teamSize = {
@@ -2186,7 +2186,7 @@ local function SetupSpadsStatusPanel(battle, battleID)
 			tooltip = "Team - Game of multiple Teams\nFFA - Free-For-All\nCoop - Humans vs AI\nDuel - 1v1",
 			spadscommand = "!preset",
 		},
-		autoBalance = { 
+		autoBalance = {
 			current = "off",
 			allowed = {"off","on","advanced"},
 			caption = "Autobalance",
@@ -2265,14 +2265,14 @@ local function SetupSpadsStatusPanel(battle, battleID)
 			y = tostring(math.floor(i/cols) * 100/rows + 1) ..'%',
 			width = tostring(100.0/cols -2 ) ..'%',
 			height = tostring(100.0/rows -2) ..'%',
-			font = WG.Chobby.Configuration:GetFont(1),
+			--font = WG.Chobby.Configuration:GetFont(1),
 			align = "left",
 			valign = "center",
 			parent = spadsStatusPanel,
 			caption = sts.caption,
 			tooltip = sts.tooltip
 		}
-		
+
 		local stsCBdefault = sts.current
 		local stsCB = ComboBox:New{
 			x = tostring(50/cols + math.fmod(i,cols) * 100/cols + 1 ) ..'%',
@@ -2283,7 +2283,7 @@ local function SetupSpadsStatusPanel(battle, battleID)
 			selectByName = true,
 			captionHorAlign = -1,
 			text = "winkydink",
-			font = WG.Chobby.Configuration:GetFont(1),
+			--font = WG.Chobby.Configuration:GetFont(1),
 			items = sts.allowed,
 			align = "right",
 			valign = "center",
@@ -2316,14 +2316,14 @@ local function SetupSpadsStatusPanel(battle, battleID)
 		tooltip = "Attempt to balance the teams. In Coop Preset this splits Humans and AIs.",
 		font = WG.Chobby.Configuration:GetFont(2),
 		parent = spadsStatusPanel,
-		classname = "button_square",
+		classname = "button_small",
 		OnClick = {
 			function()
 				battleLobby:SayBattle('!balance')
 			end
 		},
 	}
-		
+
 	local lockButton = Button:New {
 		x = '34%',
 		y = '68%',
@@ -2333,16 +2333,16 @@ local function SetupSpadsStatusPanel(battle, battleID)
 		tooltip = "Lock the battleroom, preventing everyone from joining",
 		font = WG.Chobby.Configuration:GetFont(2),
 		parent = spadsStatusPanel,
-		classname = "button_square",
+		classname = "button_small",
 		OnClick = {
 			function()
 				battleLobby:SayBattle('!lock')
 			end
 		},
 	}
-		
+
 	local unlockButton = Button:New {
-		x = '68%',
+		x = '67%',
 		y = '68%',
 		width = '31%',
 		height = '31%',
@@ -2350,7 +2350,7 @@ local function SetupSpadsStatusPanel(battle, battleID)
 		tooltip = "Unlock the battleroom, to allow players to join",
 		font = WG.Chobby.Configuration:GetFont(2),
 		parent = spadsStatusPanel,
-		classname = "button_square",
+		classname = "button_small",
 		OnClick = {
 			function()
 				battleLobby:SayBattle('!unlock')
@@ -2483,7 +2483,7 @@ local function InitializeSetupPage(subPanel, screenHeight, pageConfig, nextPage,
 			y = y,
 			right = right,
 			height = height,
-			classname = "button_highlight",
+			classname = "option_button",
 			caption = caption,
 			tooltip = tooltip,
 			font = Configuration:GetFont(buttonFont),
@@ -2586,7 +2586,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	local EXTERNAL_PAD_HOR = 12
 	local INTERNAL_PAD = 2
 
-	local BOTTOM_SPACING = 100
+	local BOTTOM_SPACING = 96
 	if isSingleplayer then BOTTOM_SPACING = 5 end
 
 	mainWindow = Control:New {
@@ -2634,7 +2634,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		y = 0,
 		right = "52%",
 		bottom = BOTTOM_SPACING,
-		padding = {EXTERNAL_PAD_HOR, EXTERNAL_PAD_VERT, INTERNAL_PAD, INTERNAL_PAD},
+		padding = {EXTERNAL_PAD_HOR, EXTERNAL_PAD_VERT, INTERNAL_PAD, 0},
 		parent = topPanel,
 	}
 
@@ -2699,7 +2699,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	local infoHandler = SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, battleLobby:GetMyUserName())
 
 	local btnQuitBattle = Button:New {
-		right = 11,
+		right = 12,
 		y = 7,
 		width = 80,
 		height = 45,
@@ -2742,7 +2742,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	local lblBattleTitle = Label:New {
 		name = "lblBattleTitle",
 		x = 20,
-		y = 17,
+		y = 19,
 		right = 100,
 		height = 30,
 		font = Configuration:GetFont(3),
@@ -2898,7 +2898,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 			end
 		end
 	end
-		
+
 	local function OnUpdateUserTeamStatus(listener, userName, allyNumber, isSpectator)
 		--votePanel.VoteButtonVisible(isSpectator == false)
 		infoHandler.UpdateUserTeamStatus(userName, allyNumber, isSpectator)
@@ -3040,7 +3040,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		initBattleStatusPanel(pyPartition(message,'"', true))
 		return true
 	end
-	
+
 	if string.match(message, "Player .* has already been added in game") then return true end
 
 	return false -- false if it should be displayed to user, true if not
@@ -3053,7 +3053,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 			lastUserToChangeStartBoxes = userName 
 			if not mine then return true end
 		end
-		
+
 		if mine then return false end -- alway show own messages from here:
 
 		if message == '!vote y' or message == '!vote n' or message == '!vote b' then
@@ -3063,7 +3063,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		if string.match(message, "^!joinas spec$") then return true end
 
 		if string.match(message, "^!cv .*") then return true end
-		
+
 		if string.match(message, "^!ring .*") then return true end
 
 		if string.match(message, "^!endvote$") then return true end
@@ -3183,7 +3183,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 				end
 			end
 				--* BarManager|{"BattleStateChanged": {"locked": "locked"}}".
-			
+
 			return true
 		end
 		return false
@@ -3238,7 +3238,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 
 	local function OnRing(listener, userName) -- userName is who rang you
 		Spring.PlaySoundFile("sounds/ring.wav", WG.Chobby.Configuration.menuNotificationVolume or 1)
-		
+
 		local userInfo = lobby:TryGetUser(userName)
 		if userInfo then
 			local userControl = WG.UserHandler.GetNotificationUser(userName)
@@ -3262,7 +3262,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 			{math.random(50,255),	0,						0					},
 			{0,						math.random(50,255),	0					},
 			{0,						0,						math.random(50,255)},
-			
+
 			{math.random(50,255),	math.random(0,255),		0					},
 			{math.random(50,255),	0,						math.random(0,255)	},
 			{math.random(50,255),	math.random(0,200),		math.random(0,200)	},
@@ -3274,8 +3274,8 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 			{math.random(0,255),	0,						math.random(50,255)},
 			{0,						math.random(0,255),		math.random(50,255)},
 			{math.random(0,200),	math.random(0,200),		math.random(50,255)},
-		}	
-		
+		}
+
 		local r = math.random(1,#colorOptions)
 		return {colorOptions[r][1]/255, colorOptions[r][2]/255, colorOptions[r][3]/255,}
 	end
@@ -3503,7 +3503,7 @@ function BattleRoomWindow.GetSingleplayerControl(setupData)
 								return counter
 							end
 						end
-						
+
 						fullName = fullName .. " (".. counter ..")"
 						-- Ubserver AI names cannot include whitespace
 						-- Not required for singleplayer, but breaks counter otherwise
