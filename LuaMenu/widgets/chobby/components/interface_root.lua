@@ -14,6 +14,7 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 	local panelButtonsWidth = "44.9%"
 	local panelButtonsHeight = 42
 	local statusWindowGapSmall = 44
+	local holderWidth = 90
 
 	local chatTabHolderHeight = 41
 
@@ -187,7 +188,7 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 	-- Top middle and top right status
 	-----------------------------------
 	local holder_status = Control:New {
-		x = titleWidth,
+		x = holderWidth,
 		y = 0,
 		right = 0,
 		height = titleHeight,
@@ -200,7 +201,7 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 	}
 
 	local holder_statusAndInvites = Control:New {
-		x = titleWidth,
+		x = holderWidth,
 		y = 0,
 		right = 0,
 		height = titleHeightSmall,
@@ -226,15 +227,16 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 	}
 
 	local status_panelButtons = Control:New {
+		x = (100 - panelWidthRel) .. "%",
 		bottom = 0,
 		right = 0,
-		width = panelButtonsWidth,
+		--width = panelButtonsWidth,
 		height = panelButtonsHeight,
 		name = "status_panelButtons",
 		parent = holder_status,
 		resizable = false,
 		draggable = false,
-		padding = {-30, 0, 20, 0},
+		padding = {0, 0, 20, 0},
 		children = {}
 	}
 	local panelButtons_buttons = Control:New {
@@ -664,7 +666,7 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 
 			-- Align game title and status.
 			holder_heading:SetPos(0, topOffset, titleWidth, titleHeight)
-			holder_status:SetPos(titleWidth, topOffset, titleHeight, titleHeight)
+			holder_status:SetPos(holderWidth, topOffset, titleHeight, titleHeight)
 			holder_status._relativeBounds.right = 0
 			holder_status:UpdateClientArea()
 
