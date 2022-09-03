@@ -553,7 +553,7 @@ function BattleListWindow:MakeJoinBattle(battleID, battle)
 	if battle.passworded then
 		local imgPassworded = Image:New {
 			name = "password",
-			x = height + 50,
+			x = height + 45,
 			width = 15,
 			height = 15,
 			y = 20,
@@ -567,7 +567,7 @@ function BattleListWindow:MakeJoinBattle(battleID, battle)
 	if not Configuration.gameConfig.hideGameExistanceDisplay then
 		local imHaveGame = Image:New {
 			name = "imHaveGame",
-			x = height + 50,
+			x = height + 45,
 			width = 15,
 			height = 15,
 			y = 20,
@@ -579,19 +579,19 @@ function BattleListWindow:MakeJoinBattle(battleID, battle)
 
 	local lblGame = Label:New {
 		name = "gameCaption",
-		x = height + 70,
+		x = height + 65,
 		right = 0,
 		y = 20,
 		height = 15,
 		valign = 'center',
 		caption = self:_MakeGameCaption(battle),
-		font = Configuration:GetFont(1),
+		font = Configuration:GetFont(2),
 		parent = parentButton,
 	}
 
 	local imHaveMap = Image:New {
 		name = "imHaveMap",
-		x = height + 50,
+		x = height + 45,
 		width = 15,
 		height = 15,
 		y = 36,
@@ -601,14 +601,19 @@ function BattleListWindow:MakeJoinBattle(battleID, battle)
 	}
 	local lblMap = Label:New {
 		name = "mapCaption",
-		x = height + 70,
+		x = height + 65,
 		right = 0,
 		y = 36,
 		height = 15,
 		valign = 'center',
 		caption = battle.mapName:gsub("_", " "),
-		font = Configuration:GetFont(1),
+		font = Configuration:GetFont(2),
 		parent = parentButton,
+		OnResize = {
+			function (obj, xSize, ySize)
+				obj:SetCaption(StringUtilities.GetTruncatedStringWithDotDot(battle.mapName:gsub("_", " "), obj.font, xSize or obj.width))
+			end
+		}
 	}
 
 	return parentButton
@@ -651,7 +656,7 @@ function BattleListWindow:ItemInFilter(id)
 			return false
 		end
 	end
-	
+
 	if Configuration.battleFilterLocked and battle.locked  then
 		return false
 	end
@@ -743,7 +748,7 @@ function BattleListWindow:CompareItems(id1, id2)
 		if not (battle1 and battle2) then
 			return false -- just for sanity
 		end
-		
+
 		if battle1.passworded ~= battle2.passworded then 
 			return battle2.passworded --
 		elseif battle1.passworded == true and battle2.passworded == true then
@@ -1046,7 +1051,7 @@ function BattleListWindow:OnS_Battle_Update_lobby_title(battleID, newbattletitle
 		self:AddBattle(battleID)
 		return
 	end
-	
+
 	battle.title = newbattletitle
 
 	local battletitlelable = items.battleButton:GetChildByName("lblTitle")
@@ -1181,7 +1186,7 @@ function BattleListWindow:OpenHostWindow()
 			lobby:AddListener("OnSaidPrivate", listenForPrivateBattle)
 			lobby:SayPrivate(targetCluster, "!privatehost")
 			errorLabel:SetCaption("Please wait while we spin up a \nbattle room for you.")
-			
+
 			local trytime = 30
 
 			local function delayedWatchRooms()
@@ -1208,7 +1213,7 @@ function BattleListWindow:OpenHostWindow()
 				end
 				if myprivatebattleID ~= nil then
 					trytime = -1
-					
+
 					Configuration:SetConfigValue("lastGameSpectatorState", false) -- assume that private hoster wants to play, needed so he can boss self!
 					lobby:JoinBattle(myprivatebattleID, mypassword)
 					lobby:RemoveListener("OnSaidPrivate", listenForPrivateBattle)
