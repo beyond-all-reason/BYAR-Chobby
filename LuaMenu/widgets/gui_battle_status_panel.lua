@@ -163,7 +163,7 @@ local function GetBattleInfoHolder(parent, battleID)
 
 			playersPrefix = PLAYER_PREFIX_BIG
 		end
-		local text = StringUtilities.GetTruncatedStringWithDotDot(battle.title, lblTitle.font, smallMode and 160 or 156)
+		local text = StringUtilities.GetTruncatedStringWithDotDot(battle.title, lblTitle.font, 160)
 		lblTitle:SetCaption(text)
 
 		lblPlayers:SetCaption(playersPrefix .. lobby:GetBattlePlayerCount(battleID) .. "/" .. battle.maxPlayers)
