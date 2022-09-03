@@ -21,10 +21,10 @@ skin.general = {
   borderColor = {1.0, 1.0, 1.0, 1.0},
 
   font = {
-    font    = "fonts/Exo2-Regular.otf",
+    font    = "fonts/n019003l.pfb",
     color        = {1,1,1,1},
     outlineColor = {0.05,0.05,0.05,0.9},
-    outline = true,
+    outline = false,
     shadow  = true,
     size    = 14,
   },

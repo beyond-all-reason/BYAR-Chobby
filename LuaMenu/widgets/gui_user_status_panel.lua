@@ -142,7 +142,7 @@ local function InitializeControls(window)
 	local userControl
 	onAccepted = function(listener)
 		userControl = WG.UserHandler.GetStatusUser(lobby:GetMyUserName())
-		userControl:SetPos(40, 51, 190)
+		userControl:SetPos(40, 51, 265)
 		window:AddChild(userControl)
 		window:RemoveChild(connectivityText)
 		lobby:Ping()

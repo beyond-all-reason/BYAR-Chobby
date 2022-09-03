@@ -848,7 +848,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 					isReady = false,
 					side = (WG.Chobby.Configuration.lastFactionChoice or 0),
 					teamNumber = unusedTeamID})
-				
+
 				SetButtonStatePlaying()
 
 				WG.Analytics.SendOnetimeEvent("lobby:multiplayer:custom:play")
@@ -972,7 +972,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		x = 8,
 		y = leftOffset,
 		caption = WG.Chobby.Configuration.gameConfig.ShortenNameString(battle.gameName),
-		font = config:GetFont(1),
+		fontsize = config:GetFont(1).size,
 		parent = leftInfo,
 	}
 	leftOffset = leftOffset + 26
@@ -989,7 +989,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		x = 28,
 		y = leftOffset,
 		caption = "",
-		font = config:GetFont(1),
+		fontsize = config:GetFont(2).size,
 		parent = leftInfo,
 	}
 	leftOffset = leftOffset + 25
@@ -1006,7 +1006,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		x = 28,
 		y = leftOffset,
 		caption = "",
-		font = config:GetFont(1),
+		fontsize = config:GetFont(2).size,
 		parent = leftInfo,
 	}
 	leftOffset = leftOffset + 25
@@ -1017,7 +1017,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		right = 0,
 		height = 120,
 		padding = {2, 0, 2, 0},
-		font = config:GetFont(1),
+		fontsize = config:GetFont(1).size,
 		autosize = false,
 		resizable = false,
 		tooltip = "All custom gameplay options are listed here",
@@ -1433,7 +1433,7 @@ end
 
 local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 
-	local SPACING = 21
+	local SPACING = 24
 	local disallowCustomTeams = battle.disallowCustomTeams
 	local disallowBots = battle.disallowBots
 
@@ -1611,7 +1611,7 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 				x = 0,
 				y = 31,
 				right = 0,
-				font = WG.Chobby.Configuration:GetFont(1),
+				font = WG.Chobby.Configuration:GetFont(2),
 				bottom = 0,
 				padding = {0, 0, 0, 0},
 				parent = teamHolder,
