@@ -29,7 +29,7 @@ function Configuration:init()
 		[0] = {font = "fonts/Poppins-Medium.otf", size = 17, outline = false, shadow = true},
 		[1] = {size = 15, outline = false, shadow = false},
 		[2] = {size = 17, outline = false, shadow = false},
-		[3] = {size = 18, outline = false, shadow = false},
+		[3] = {size = 20, outline = false, shadow = true},
 		[4] = {size = 24, outline = true,  shadow = false},
 		[5] = {size = 24, outline = false, shadow = true},
 		[6] = {size = 28, outline = true, shadow = false},
