@@ -484,7 +484,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		classname = "negative_button",
 		OnClick = {
 			function()
-				WG.BrowserHandler.OpenUrl("https://server2.beyondallreason.info/forgot_password")
+				WG.BrowserHandler.OpenUrl("https://server3.beyondallreason.info/forgot_password")
 			end
 		},
 	}
@@ -809,10 +809,10 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		classname = "option_button",
 		OnClick = {
 			function ()
-				WG.BrowserHandler.OpenUrl("https://server2.beyondallreason.info/")
+				WG.BrowserHandler.OpenUrl("https://server3.beyondallreason.info/")
 			end
 		},
-		tooltip = "Visit the server's website for all your account and clan management needs at https://server2.beyondallreason.info/. You can also recover your account/password from there.",
+		tooltip = "Visit the server's website for all your account and clan management needs at https://server3.beyondallreason.info/. You can also recover your account/password from there.",
 	}
 
 	
