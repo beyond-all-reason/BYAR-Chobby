@@ -13,7 +13,7 @@ function Downloader:init(buttonsMode, tbl, timeout, updateListener, completeList
 		height = 20,
 		align = "left",
 		valign = "top",
-		font = Configuration:GetFont(1),
+		fontsize = Configuration:GetFont(1).size,
 		caption = "",
 	}
 
