@@ -71,7 +71,7 @@ local communityLines = {
 			WG.BrowserHandler.OpenUrl("https://www.beyondallreason.info/code-of-conduct")
 		end
 	},
-	
+
 	{
 		"What information we store and how we use it.",
 		"Privacy Policy",
