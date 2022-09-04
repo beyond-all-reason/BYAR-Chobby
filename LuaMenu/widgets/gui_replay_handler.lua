@@ -21,7 +21,7 @@ local replayListWindow
 local replayList
 
 -- Size constants for the replay window
-local PLAYER_HEIGHT = 18
+local PLAYER_HEIGHT = 20
 local REPLAY_LIST_ENTRY_HEIGHT = 120
 
 local myFont1
@@ -252,7 +252,7 @@ local function CreateReplayEntry(
 	-- Compute the teams/players lists
 
 	local userList = Chili.Control:New {
-		x = "50%", y = 10,
+		x = 346, y = 10,
 		right = "11.5%", bottom = 0,
 		padding = {0, 0, 0, 0},
 		parent = replayPanel,
@@ -347,8 +347,8 @@ local function CreateReplayEntry(
 			"action_button",
 			"option_button"
 		),
-		objectoverridefont = myFont1,
-		font = WG.Chobby.Configuration:GetFont(1),
+		objectoverridefont = myFont2,
+		--font = WG.Chobby.Configuration:GetFont(2),
 		OnClick = {
 			function()
 				if not replayPath or not CheckReplayFileExists() then
@@ -371,8 +371,8 @@ local function CreateReplayEntry(
 		width = "10%",
 		caption = i18n("delete_replay"),
 		classname = "negative_button",
-		font = WG.Chobby.Configuration:GetFont(1),
-		objectoverridefont = myFont1,
+		--font = WG.Chobby.Configuration:GetFont(2),
+		objectoverridefont = myFont2,
 		tooltip = "Delete the replay from your hard drive",
 		OnClick = {
 			function()
