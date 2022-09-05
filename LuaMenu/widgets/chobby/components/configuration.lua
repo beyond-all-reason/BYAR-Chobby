@@ -522,15 +522,15 @@ function Configuration:SetConfigData(data)
 
 	--THIS IS FOR WHEN WE PULL THE PLUG, AUTOMATICALLY SWITCH OVER TO TEISERVER
 	if self.serverAddress == "road-flag.bnr.la" then
-		self.serverAddress = "server2.beyondallreason.info"
+		self.serverAddress = "server3.beyondallreason.info"
 	end
 
-	if self.serverAddress ~= "server2.beyondallreason.info" then
-		self.serverAddress = "server2.beyondallreason.info"
+	if self.serverAddress ~= "server3.beyondallreason.info" then
+		self.serverAddress = "server3.beyondallreason.info"
 	end
 
-	if self.serverAddress ~= "server2.beyondallreason.info" then
-		self.serverAddress = "server2.beyondallreason.info" -- TEMPORARILY
+	if self.serverAddress ~= "server3.beyondallreason.info" then
+		self.serverAddress = "server3.beyondallreason.info" -- TEMPORARILY
 	end
 
 	local newSpringsettings, onlyIfMissingSettings = VFS.Include(LUA_DIRNAME .. "configs/springsettings/springsettingsChanges.lua")
