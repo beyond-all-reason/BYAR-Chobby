@@ -971,9 +971,15 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	local lblGame = Label:New {
 		x = 8,
 		y = leftOffset,
+		right = 3,
 		caption = WG.Chobby.Configuration.gameConfig.ShortenNameString(battle.gameName),
-		fontsize = config:GetFont(1).size,
+		fontsize = config:GetFont(2).size,
 		parent = leftInfo,
+		OnResize = {
+			function (obj, xSize, ySize)
+				obj:SetCaption(StringUtilities.GetTruncatedStringWithDotDot(WG.Chobby.Configuration.gameConfig.ShortenNameString(battle.gameName), obj.font, xSize or obj.width))
+			end
+		}
 	}
 	leftOffset = leftOffset + 26
 
@@ -1009,7 +1015,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		fontsize = config:GetFont(2).size,
 		parent = leftInfo,
 	}
-	leftOffset = leftOffset + 25
+	leftOffset = leftOffset + 30
 
 	local modoptionsHolder = Control:New {
 		x = 0,
@@ -1050,7 +1056,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	local downloaderPos = {
 		x = 0,
 		height = 120,
-		right = 0,
+		right = 3,
 		y = leftOffset,
 		parent = leftInfo,
 	}
