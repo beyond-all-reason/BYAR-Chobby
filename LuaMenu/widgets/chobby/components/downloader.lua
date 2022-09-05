@@ -37,7 +37,7 @@ function Downloader:init(buttonsMode, tbl, timeout, updateListener, completeList
 		height = 16,
 		align = "left",
 		valign = "center",
-		font = Configuration:GetFont(queueFont),
+		fontsize = Configuration:GetFont(2).size,
 		caption = "Queue:",
 	}
 
@@ -48,7 +48,7 @@ function Downloader:init(buttonsMode, tbl, timeout, updateListener, completeList
 		bottom = 0,
 		align = "left",
 		valign = "top",
-		font = Configuration:GetFont(queueFont),
+		fontsize = Configuration:GetFont(2).size,
 		caption = "",
 	}
 

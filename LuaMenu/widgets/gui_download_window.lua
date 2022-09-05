@@ -17,7 +17,7 @@ end
 --------------------------------------------------------------------------------
 -- Configuration
 
-local STATUS_POSITION = 390
+local STATUS_POSITION = 420
 local BUTTON_WIDTH = 78
 
 local STATUS_PRIORITY = {

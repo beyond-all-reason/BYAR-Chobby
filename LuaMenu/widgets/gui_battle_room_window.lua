@@ -1983,7 +1983,7 @@ local function SetupVotePanel(votePanel, battle, battleID)
 		y = 4,
 		width = 50,
 		bottom = height * 0.4,
-		font = config:GetFont(1),
+		font = config:GetFont(2),
 		caption = "",
 		parent = activePanel,
 	}
