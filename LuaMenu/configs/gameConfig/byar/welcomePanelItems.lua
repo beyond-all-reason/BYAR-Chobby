@@ -6,7 +6,10 @@ local welcomePanelItems = {
         Text = "Welcome back Commander. We hope you are ready for epic single player and multiplayer battles. Check out our Discord and join the community!\n",
         UrlText = "Join our discord"
     },
-
+    {
+        Header = "Server Upgrade",
+        Text = "We are upgrading the lobby server, thus the address of the lobby server will now be\nserver3.beyondallreason.info\nin place of the old server2 address. Please stand by and check discord if you face any issues.",
+    },
     {
         Header = "The August 2022 2v2 Tournament has concluded!",
         --Url = "https://forms.gle/nw6M8ETmX8SzQA7m9",
