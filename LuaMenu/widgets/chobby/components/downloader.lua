@@ -7,14 +7,19 @@ function Downloader:init(buttonsMode, tbl, timeout, updateListener, completeList
 
 	queueFont = queueFont or 1
 	self.lblDownload = Label:New {
-		x = 10 + ((buttonsMode and 75) or 0),
+		x = 9 + ((buttonsMode and 75) or 0),
 		y = 0 + ((buttonsMode and 8) or 0),
 		right = 0,
 		height = 20,
 		align = "left",
 		valign = "top",
-		fontsize = Configuration:GetFont(1).size,
+		fontsize = Configuration:GetFont(2).size,
 		caption = "",
+--[[ 		OnResize = {
+			function (obj, xSize, ySize)
+				obj:SetCaption(StringUtilities.GetTruncatedStringWithDotDot( or obj.caption, obj.font, xSize or obj.width))
+			end
+		} ]]
 	}
 
 	self.prDownload = Progressbar:New {
