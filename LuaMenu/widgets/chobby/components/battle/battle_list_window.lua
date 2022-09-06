@@ -6,7 +6,16 @@ local BATTLE_NOT_RUNNING = LUA_DIRNAME .. "images/nothing.png"
 local IMAGE_DLREADY      = LUA_DIRNAME .. "images/downloadready.png"
 local IMAGE_DLUNREADY    = LUA_DIRNAME .. "images/downloadnotready.png"
 
+local myFont1
+local myFont2
+local myFont3
+
 function BattleListWindow:init(parent)
+
+	myFont1 = Font:New(Configuration:GetFont(1))
+	myFont2 = Font:New(Configuration:GetFont(2))
+	myFont3 = Font:New(Configuration:GetFont(3))
+
 	self:super("init", parent, "Play or watch a game", true, nil, nil, nil, 34)
 
 	if not Configuration.gameConfig.disableBattleListHostButton then
@@ -17,7 +26,7 @@ function BattleListWindow:init(parent)
 			width = 200,
 			height = 45,
 			caption = i18n("open_mp_game"),
-			font = Configuration:GetFont(3),
+			objectOverrideFont = myFont3,
 			classname = "option_button",
 			parent = self.window,
 			OnClick = {
@@ -48,7 +57,7 @@ function BattleListWindow:init(parent)
 		align = "center",
 		valign = "center",
 		parent = self.infoPanel,
-		font = Configuration:GetFont(3),
+		objectOverrideFont = myFont3,
 	}
 	self.infoPanel:SetVisibility(false)
 
@@ -57,7 +66,7 @@ function BattleListWindow:init(parent)
 		right = 5,
 		bottom = 15,
 		height = 20,
-		font = Configuration:GetFont(2),
+		objectOverrideFont = myFont2,
 		caption = "Filter out:",
 		parent = self.window
 	}
@@ -71,7 +80,7 @@ function BattleListWindow:init(parent)
 		boxsize = 20,
 		caption = " Passworded",
 		checked = Configuration.battleFilterPassworded2 or false,
-		font = Configuration:GetFont(2),
+		objectOverrideFont = myFont2,
 		OnChange = {
 			function (obj, newState)
 				Configuration:SetConfigValue("battleFilterPassworded2", newState)
@@ -90,7 +99,7 @@ function BattleListWindow:init(parent)
 		boxsize = 20,
 		caption = " Non-friend",
 		checked = Configuration.battleFilterNonFriend or false,
-		font = Configuration:GetFont(2),
+		objectOverrideFont = myFont2,
 		OnChange = {
 			function (obj, newState)
 				Configuration:SetConfigValue("battleFilterNonFriend", newState)
@@ -109,7 +118,7 @@ function BattleListWindow:init(parent)
 		boxsize = 20,
 		caption = " Running",
 		checked = Configuration.battleFilterRunning or false,
-		font = Configuration:GetFont(2),
+		objectOverrideFont = myFont2,
 		OnChange = {
 			function (obj, newState)
 				Configuration:SetConfigValue("battleFilterRunning", newState)
@@ -129,7 +138,7 @@ function BattleListWindow:init(parent)
 		boxsize = 20,
 		caption = " Locked",
 		checked = Configuration.battleFilterLocked or false,
-		font = Configuration:GetFont(2),
+		objectOverrideFont = myFont2,
 		OnChange = {
 			function (obj, newState)
 				Configuration:SetConfigValue("battleFilterLocked", newState)
@@ -215,7 +224,6 @@ function BattleListWindow:init(parent)
 	end
 	lobby:AddListener("OnBattleIngameUpdate", self.onBattleIngameUpdate)
 
-	
 	self.onS_Battle_Update_lobby_title = function(listener, battleID, newbattletitle)
 		if self.listenerUpdateDisabled then
 			return
@@ -367,7 +375,7 @@ function BattleListWindow:MakeWatchBattle(battleID, battle)
 		right = 0,
 		height = 20,
 		valign = 'center',
-		font = Configuration:GetFont(2),
+		objectOverrideFont = myFont2,
 		caption = (battle.title or "") .. " - Click to watch",
 		parent = parentButton,
 		OnResize = {
@@ -419,7 +427,7 @@ function BattleListWindow:MakeWatchBattle(battleID, battle)
 		y = 20,
 		height = 15,
 		valign = 'center',
-		font = Configuration:GetFont(1),
+		objectOverrideFont = myFont1,
 		caption = playerCount .. ((playerCount == 1 and " player on " ) or " players on ") .. battle.mapName:gsub("_", " "),
 		parent = parentButton,
 	}
@@ -441,7 +449,7 @@ function BattleListWindow:MakeWatchBattle(battleID, battle)
 		y = 36,
 		height = 15,
 		valign = 'center',
-		font = Configuration:GetFont(1),
+		objectOverrideFont = myFont1,
 		caption = modeName,
 		parent = parentButton,
 	}
@@ -494,7 +502,7 @@ function BattleListWindow:MakeJoinBattle(battleID, battle)
 		right = 0,
 		height = 20,
 		valign = 'center',
-		font = Configuration:GetFont(2),
+		objectOverrideFont = myFont2,
 		caption = battle.title,
 		parent = parentButton,
 		OnResize = {
@@ -545,7 +553,7 @@ function BattleListWindow:MakeJoinBattle(battleID, battle)
 		y = 18,
 		height = 22,
 		valign = 'bottom',
-		font = Configuration:GetFont(2),
+		objectOverrideFont = myFont2,
 		caption = lobby:GetBattlePlayerCount(battleID) .. "/" .. battle.maxPlayers,
 		parent = parentButton,
 	}
@@ -585,7 +593,7 @@ function BattleListWindow:MakeJoinBattle(battleID, battle)
 		height = 15,
 		valign = 'center',
 		caption = self:_MakeGameCaption(battle),
-		font = Configuration:GetFont(2),
+		objectOverrideFont = myFont2,
 		parent = parentButton,
 	}
 
@@ -607,7 +615,7 @@ function BattleListWindow:MakeJoinBattle(battleID, battle)
 		height = 15,
 		valign = 'center',
 		caption = battle.mapName:gsub("_", " "),
-		font = Configuration:GetFont(2),
+		objectOverrideFont = myFont2,
 		parent = parentButton,
 		OnResize = {
 			function (obj, xSize, ySize)
@@ -1084,7 +1092,7 @@ function BattleListWindow:OpenHostWindow()
 		height = 35,
 		align = "center",
 		caption = i18n("open_mp_game"),
-		font = Configuration:GetFont(3),
+		objectOverrideFont = myFont3,
 		parent = hostBattleWindow,
 	}
 
@@ -1097,7 +1105,7 @@ function BattleListWindow:OpenHostWindow()
 		valign = "top",
 		height = 150,
 		text = "You can host a game by requesting an empty battle room. You can lock the battle rooms (!lock) to prevent anyone from joining, otherwise anyone can join your game.",--i18n("game_name") .. ":",
-		font = Configuration:GetFont(2),
+		objectOverrideFont = myFont2,
 		parent = hostBattleWindow,
 	}
 
@@ -1109,7 +1117,7 @@ function BattleListWindow:OpenHostWindow()
 		align = "right",
 		height = 35,
 		caption = "Geographical region",-- i18n("game_type") .. ":",
-		font = Configuration:GetFont(2),
+		objectOverrideFont = myFont2,
 		parent = hostBattleWindow,
 	}
 
@@ -1120,7 +1128,7 @@ function BattleListWindow:OpenHostWindow()
 		height = 35,
 		itemHeight = 22,
 		text = "",
-		font = Configuration:GetFont(2),
+		objectOverrideFont = myFont2,
 		items = Configuration.hostRegions,
 		itemFontSize = Configuration:GetFont(2).size,
 		selected = 1,
@@ -1139,7 +1147,7 @@ function BattleListWindow:OpenHostWindow()
 			boxsize = 20,
 			caption = "Passworded private battle",
 			checked =  false,
-			font = Configuration:GetFont(2),
+			objectOverrideFont = myFont2,
 			OnChange = {
 				function (obj, newState)
 					userWantsPrivateBattle =  newState
@@ -1157,7 +1165,7 @@ function BattleListWindow:OpenHostWindow()
 		align = "left",
 		height = 35,
 		caption = "",-- i18n("game_type") .. ":",
-		font = Configuration:GetFont(2),
+		objectOverrideFont = myFont2,
 		parent = hostBattleWindow,
 	}
 
@@ -1290,7 +1298,7 @@ function BattleListWindow:OpenHostWindow()
 		bottom = 1,
 		height = 70,
 		caption = i18n("host"),
-		font = Configuration:GetFont(2),
+		objectOverrideFont = myFont2,
 		parent = hostBattleWindow,
 		classname = "action_button",
 		OnClick = {
@@ -1306,7 +1314,7 @@ function BattleListWindow:OpenHostWindow()
 		bottom = 1,
 		height = 70,
 		caption = i18n("cancel"),
-		font = Configuration:GetFont(2),
+		objectOverrideFont = myFont2,
 		parent = hostBattleWindow,
 		classname = "negative_button",
 		OnClick = {
@@ -1335,7 +1343,7 @@ function BattleListWindow:JoinBattle(battle)
 			WG.Chobby.InformationPopup("Unable to join battle: " .. (reason or ""))
 			removeListeners()
 		end
-		
+
 		removeListeners = function ()    
 			lobby:RemoveListener("OnJoinBattleFailed", onJoinBattleFailed)
 			lobby:RemoveListener("OnJoinBattle", onJoinBattle)
@@ -1394,7 +1402,7 @@ function BattleListWindow:JoinBattle(battle)
 			right = 15,
 			y = 15,
 			height = 35,
-			font = Configuration:GetFont(3),
+			objectOverrideFont = myFont3,
 			caption = i18n("enter_battle_password"),
 			parent = passwordWindow,
 		}
@@ -1428,7 +1436,7 @@ function BattleListWindow:JoinBattle(battle)
 			bottom = 1,
 			height = 70,
 			caption = i18n("join"),
-			font = Configuration:GetFont(3),
+			objectOverrideFont = myFont3,
 			classname = "action_button",
 			OnClick = {
 				function()
@@ -1443,7 +1451,7 @@ function BattleListWindow:JoinBattle(battle)
 			bottom = 1,
 			height = 70,
 			caption = i18n("cancel"),
-			font = Configuration:GetFont(3),
+			objectOverrideFont = myFont3,
 			classname = "negative_button",
 			OnClick = {
 				function()

@@ -252,7 +252,7 @@ local function AddSaveEntryButton(saveFile, saveList)
 		width = 65,
 		caption = i18n("load"),
 		classname = "action_button",
-		font = WG.Chobby.Configuration:GetFont(1),
+		fontsize = Configuration:GetFont(2).size,
 		OnClick = {
 			function()
 				if ingame then
@@ -274,7 +274,7 @@ local function AddSaveEntryButton(saveFile, saveList)
 		right = 0,
 		height = 20,
 		valign = 'center',
-		font = Configuration:GetFont(1),
+		fontsize = Configuration:GetFont(2).size,
 		text = saveFile.filename,
 		parent = container,
 	}
@@ -290,7 +290,7 @@ local function AddSaveEntryButton(saveFile, saveList)
 		right = 0,
 		height = 20,
 		valign = 'center',
-		font = Configuration:GetFont(1),
+		fontsize = Configuration:GetFont(2).size,
 		text = shortenname,
 		parent = container,
 	}
@@ -304,7 +304,7 @@ local function AddSaveEntryButton(saveFile, saveList)
 		right = 0,
 		height = 20,
 		valign = 'center',
-		font = Configuration:GetFont(1),
+		fontsize = Configuration:GetFont(2).size,
 		text = WriteDate(saveFile.date),
 		parent = container,
 	}
@@ -318,7 +318,7 @@ local function AddSaveEntryButton(saveFile, saveList)
 		right = 55,
 		height = 20,
 		valign = 'center',
-		font = Configuration:GetFont(1),
+		fontsize = Configuration:GetFont(2).size,
 		text = GetSaveDescText(saveFile),
 		parent = container,
 	}
@@ -333,7 +333,7 @@ local function AddSaveEntryButton(saveFile, saveList)
 		bottom = 4,
 		caption = i18n("delete"),
 		classname = "negative_button",
-		font = WG.Chobby.Configuration:GetFont(1),
+		fontsize = Configuration:GetFont(2).size,
 		OnClick = { function(self)
 				WG.Chobby.ConfirmationPopup(function(self) DeleteSave(saveFile.filename, saveList) end, i18n("delete_confirm"), nil, 360, 200)
 			end
@@ -361,13 +361,15 @@ end
 local function InitializeControls(parent)
 	Configuration = WG.Chobby.Configuration
 
+	myFont3 = Font:New(Configuration:GetFont(3))
+
 	Label:New {
 		x = 15,
 		right = 5,
 		y = 14,
 		height = 20,
 		parent = parent,
-		font = Configuration:GetFont(3),
+		objectOverrideFont = myFont3,
 		caption = i18n("load_saved_game"),
 	}
 
@@ -381,6 +383,7 @@ local function InitializeControls(parent)
 		y = 52,
 		bottom = 15,
 		parent = parent,
+		objectOverrideFont = myFont3,
 		resizable = false,
 		draggable = false,
 		padding = {0, 0, 0, 0},

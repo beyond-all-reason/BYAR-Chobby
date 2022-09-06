@@ -5,6 +5,8 @@
 local function CreateLine(lineText, linkText, onClick)
 	local Configuration = WG.Chobby.Configuration
 
+	myFont2 = Font:New(Configuration:GetFont(2))
+
 	local lineHolder = Control:New {
 		x = 0,
 		y = 0,
@@ -22,7 +24,7 @@ local function CreateLine(lineText, linkText, onClick)
 			width = 235,
 			caption = linkText,
 			classname = "option_button",
-			font = WG.Chobby.Configuration:GetFont(2),
+			objectOverrideFont = myFont2,
 			OnClick = {
 				onClick
 			},
@@ -37,7 +39,7 @@ local function CreateLine(lineText, linkText, onClick)
 		right = 0,
 		height = 20,
 		valign = 'center',
-		fontsize = Configuration:GetFont(2).size,
+		objectOverrideFont = myFont2,
 		text = lineText,
 		parent = lineHolder,
 	}
