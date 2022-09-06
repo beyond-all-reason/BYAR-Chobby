@@ -348,7 +348,7 @@ local function CreateReplayEntry(
 			"option_button"
 		),
 		objectoverridefont = myFont2,
-		--font = WG.Chobby.Configuration:GetFont(2),
+		fontsize = WG.Chobby.Configuration:GetFont(2).size,
 		OnClick = {
 			function()
 				if not replayPath or not CheckReplayFileExists() then
@@ -371,8 +371,8 @@ local function CreateReplayEntry(
 		width = "10%",
 		caption = i18n("delete_replay"),
 		classname = "negative_button",
-		--font = WG.Chobby.Configuration:GetFont(2),
 		objectoverridefont = myFont2,
+		fontsize = WG.Chobby.Configuration:GetFont(2).size,
 		tooltip = "Delete the replay from your hard drive",
 		OnClick = {
 			function()

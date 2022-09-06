@@ -403,7 +403,7 @@ local function ShowWindowGeoConfig(name, modeNum, modeName, retreatPadding)
 		bottom = 1,
 		height = 70,
 		caption = i18n("apply"),
-		font = Configuration:GetFont(3),
+		objectOverrideFont = settingsFont3,
 		classname = "action_button",
 		OnClick = {
 			function()
@@ -418,7 +418,7 @@ local function ShowWindowGeoConfig(name, modeNum, modeName, retreatPadding)
 		bottom = 1,
 		height = 70,
 		caption = i18n("cancel"),
-		font = Configuration:GetFont(3),
+		objectOverrideFont = settingsFont3,
 		classname = "negative_button",
 		OnClick = {
 			function()
@@ -452,7 +452,7 @@ local function ShowManualFullscreenEntryWindow(name)
 		right = 15,
 		y = 15,
 		height = 35,
-		font = Configuration:GetFont(3),
+		objectOverrideFont = settingsFont3,
 		caption = i18n("set_resolution"),
 		parent = manualWindow,
 	}
@@ -509,7 +509,7 @@ local function ShowManualFullscreenEntryWindow(name)
 		bottom = 1,
 		height = 70,
 		caption = i18n("apply"),
-		font = Configuration:GetFont(3),
+		objectOverrideFont = settingsFont3,
 		classname = "action_button",
 		OnClick = {
 			function()
@@ -524,7 +524,7 @@ local function ShowManualFullscreenEntryWindow(name)
 		bottom = 1,
 		height = 70,
 		caption = i18n("cancel"),
-		font = Configuration:GetFont(3),
+		objectOverrideFont = settingsFont3,
 		classname = "negative_button",
 		OnClick = {
 			function()
@@ -644,7 +644,7 @@ local function GetLobbyTabControls()
 		height = 40,
 		valign = "top",
 		align = "left",
-		font = Configuration:GetFont(2),
+		objectOverrideFont = settingsFont2,
 		caption = "Split Panel Mode",
 	}
 	children[#children + 1] = ComboBox:New {
@@ -654,7 +654,7 @@ local function GetLobbyTabControls()
 		right = 18,
 		height = 30,
 		items = {"Autodetect", "Always Two", "Always One"},
-		font = Configuration:GetFont(2),
+		objectOverrideFont = settingsFont2,
 		itemFontSize = Configuration:GetFont(2).size,
 		selected = Configuration.panel_layout or 3,
 		OnSelect = {
@@ -1158,7 +1158,7 @@ local function GetVoidTabControls()
 	children[#children + 1], offset = AddCheckboxSetting(offset, "Debug for MatchMaker", "showMatchMakerBattles", false)
 	children[#children + 1], offset = AddCheckboxSetting(offset, "Hide interface", "hideInterface", false)
 	--children[#children + 1], offset = AddCheckboxSetting(offset, "Neuter Settings", "doNotSetAnySpringSettings", false)
-	children[#children + 1], offset = AddCheckboxSetting(offset, "Agressive Set Borderless", "agressivelySetBorderlessWindowed", false)
+	children[#children + 1], offset = AddCheckboxSetting(offset, "Aggressive Set Borderless", "agressivelySetBorderlessWindowed", false)
 	children[#children + 1], offset = AddCheckboxSetting(offset, "Use wrong engine", "useWrongEngine", false)
 	children[#children + 1], offset = AddCheckboxSetting(offset, "Show old AI versions", "showOldAiVersions", false)
 	children[#children + 1], offset = AddCheckboxSetting(offset, "Show AIOptions", "showAiOptions", true)
@@ -1184,6 +1184,7 @@ local function GetVoidTabControls()
 		height = 30,
 		right = 18,
 		caption = "Disable",
+		classname = "negative_button",
 		tooltip = "Disables the entire lobby and menu.",
 		objectOverrideFont = settingsFont2,
 		--font = Configuration:GetFont(2),
@@ -1780,9 +1781,8 @@ end
 
 local function InitializeControls(window)
 	window.OnParent = nil
-	
+
 	local Configuration = WG.Chobby.Configuration
-	settingsFont1 = Font:New(Configuration:GetFont(1))
 	settingsFont2 = Font:New(Configuration:GetFont(2))
 	settingsFont3 = Font:New(Configuration:GetFont(3))
 
