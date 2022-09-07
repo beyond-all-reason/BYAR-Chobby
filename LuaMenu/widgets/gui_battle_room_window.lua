@@ -2902,10 +2902,10 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 				end
             else
 				readyButton:StyleUnready()
-				if status.isSpectator then
-                	readyButton.tooltip = i18n("unready_notplaying_tooltip")
-				elseif battle.isRunning then
+				if battle.isRunning then
 					readyButton.tooltip = i18n("inprogress_tooltip")
+				elseif status.isSpectator then
+					readyButton.tooltip = i18n("unready_notplaying_tooltip")
 				else
                 readyButton.tooltip = i18n("unready_tooltip")
 				end
