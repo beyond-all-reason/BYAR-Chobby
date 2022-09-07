@@ -83,9 +83,13 @@ local function UpdateArchiveStatus(updateSync)
 	if btnStartBattle then
 		if haveMapAndGame then
 			btnStartBattle.tooltip = "Start the game, or call a vote to start multiplayer, or join a running game"
+			btnStartBattle:StyleReady()
+			btnStartBattle:SetEnabled(true)
 			ButtonUtilities.SetButtonDeselected(btnStartBattle)
 		else
 			btnStartBattle.tooltip = "Please wait for downloads to finish before starting."
+			btnStartBattle:StyleUnready()
+			btnStartBattle:SetEnabled(false)
 			ButtonUtilities.SetButtonDeselected(btnStartBattle)
 		end
 
@@ -741,7 +745,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		bottom = 0,
 		height = 48,
 		caption = i18n("start"),
-		classname = "start_button",
+		classname = "ready_button",
 		font = config:GetFont(3),
 		tooltip = "Start the game, or call a vote to start multiplayer, or join a running game",
 		OnClick = {
@@ -2898,7 +2902,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 				if battle.isRunning then
 					readyButton.tooltip = i18n("inprogress_tooltip")
 				else
-                readyButton.tooltip = i18n("ready_tooltip")
+                	readyButton.tooltip = i18n("ready_tooltip")
 				end
             else
 				readyButton:StyleUnready()
@@ -2907,7 +2911,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 				elseif status.isSpectator then
 					readyButton.tooltip = i18n("unready_notplaying_tooltip")
 				else
-                readyButton.tooltip = i18n("unready_tooltip")
+                	readyButton.tooltip = i18n("unready_tooltip")
 				end
             end
         end

@@ -114,26 +114,13 @@ skin.action_button = {
   DrawControl = DrawButton,
 }
 
-skin.start_button = {
-  TileImageBK = ":cl:tech_button_bright_small_bk_grey.png",
-  TileImageFG = ":cl:tech_button_bright_small_fg.png",
-  tiles = {40, 40, 40, 40}, --// tile widths: left,top,right,bottom
-  padding = {10, 10, 10, 10},
-
-  backgroundColor = {0.45, 1.0, 0.55, 0.75},
-  focusColor  = {0.1, 1.0, 0.1, 1.0},
-  borderColor = {0.0, 1.0, 0.0, 0.67},
-
-  DrawControl = DrawButton,
-}
-
 skin.ready_button = {
   TileImageBK = ":cl:tech_button_bright_small_bk_grey.png",
   TileImageFG = ":cl:tech_button_bright_small_fg.png",
   tiles = {40, 40, 40, 40},--// tile widths: left,top,right,bottom
   padding = {10, 10, 10, 10},
   StyleReady = function(self)
-    self.backgroundColor = {1.0, 1.0, 0.55, 0.75}
+    self.backgroundColor = {0.45, 1.0, 0.55, 0.75}
     self.focusColor  = {0.1, 1.0, 0.1, 1.0}
     self.borderColor = {0.0, 1.0, 0.0, 0.67}
     self:Invalidate()
