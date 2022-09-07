@@ -2891,22 +2891,26 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		WG.Chobby.Configuration:SetConfigValue("lastGameSpectatorState", status.isSpectator)
 
 		if battleLobby.name ~= "singleplayer" then
-			readyButton:SetEnabled(not status.isSpectator)
-
+            readyButton:SetEnabled(not status.isSpectator)
+			readyButton:SetCaption(i18n("ready"))
 			if status.isReady then
-				readyButton:StyleReady()
-				readyButton:SetCaption(i18n("ready"))
-				readyButton.tooltip = i18n("ready_tooltip")
-			elseif status.isSpectator then
+                readyButton:StyleReady()
+				if battle.isRunning then
+					readyButton.tooltip = i18n("inprogress_tooltip")
+				else
+                readyButton.tooltip = i18n("ready_tooltip")
+				end
+            else
 				readyButton:StyleUnready()
-				readyButton:SetCaption(i18n("ready"))
-				readyButton.tooltip = i18n("unready_notplaying_tooltip")
-			else
-				readyButton:StyleUnready()
-				readyButton:SetCaption(i18n("ready"))
-				readyButton.tooltip = i18n("unready_tooltip")
-			end
-		end
+				if status.isSpectator then
+                	readyButton.tooltip = i18n("unready_notplaying_tooltip")
+				elseif battle.isRunning then
+					readyButton.tooltip = i18n("inprogress_tooltip")
+				else
+                readyButton.tooltip = i18n("unready_tooltip")
+				end
+            end
+        end
 	end
 
 	local function OnUpdateUserTeamStatus(listener, userName, allyNumber, isSpectator)
