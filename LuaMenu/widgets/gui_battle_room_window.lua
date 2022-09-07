@@ -2897,9 +2897,13 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 				readyButton:StyleReady()
 				readyButton:SetCaption(i18n("ready"))
 				readyButton.tooltip = i18n("ready_tooltip")
+			elseif status.isSpectator then
+				readyButton:StyleUnready()
+				readyButton:SetCaption(i18n("ready"))
+				readyButton.tooltip = i18n("unready_notplaying_tooltip")
 			else
 				readyButton:StyleUnready()
-				readyButton:SetCaption(i18n("unready"))
+				readyButton:SetCaption(i18n("ready"))
 				readyButton.tooltip = i18n("unready_tooltip")
 			end
 		end
