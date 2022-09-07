@@ -710,7 +710,7 @@ local function CreateScenarioPanel(shortname, sPanel)
 		right = 0,
 		height = "7%",
 		caption = "Start Scenario",
-		classname = "start_button",
+		classname = "ready_button",
 		objectOverrideFont = myFont3,
 		tooltip = "Start the scenario",
 		OnClick = {
