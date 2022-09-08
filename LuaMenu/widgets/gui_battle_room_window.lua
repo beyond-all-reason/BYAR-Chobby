@@ -73,6 +73,7 @@ local function UpdateArchiveStatus(updateSync)
 	local haveGame = HasGame(battle.gameName)
 	local haveMap = VFS.HasArchive(battle.mapName)
 
+
 	if mainWindowFunctions and mainWindowFunctions.GetInfoHandler() then
 		local infoHandler = mainWindowFunctions.GetInfoHandler()
 		infoHandler.SetHaveGame(haveGame)
@@ -82,13 +83,22 @@ local function UpdateArchiveStatus(updateSync)
 
 	if btnStartBattle then
 		if haveMapAndGame then
-			btnStartBattle.tooltip = "Start the game, or call a vote to start multiplayer, or join a running game"
+			--btnStartBattle.tooltip = "Start the game, or call a vote to start multiplayer, or join a running game"
 			btnStartBattle:StyleReady()
 			btnStartBattle:SetEnabled(true)
+			btnStartBattle:SetCaption(i18n("start"))
+			if battleLobby.name == "singleplayer" then
+				btnStartBattle.tooltip = i18n("startbtn_tooltip")
+			elseif battle.isRunning then
+				btnStartBattle:SetCaption(i18n("rejoin"))
+				btnStartBattle.tooltip = i18n("startbtn_inprogress_tooltip")
+			else
+				btnStartBattle.tooltip = i18n("startbtn_votestart_tooltip")
+			end
 			ButtonUtilities.SetButtonDeselected(btnStartBattle)
 		else
-			btnStartBattle.tooltip = "Please wait for downloads to finish before starting."
-			btnStartBattle:StyleUnready()
+			btnStartBattle.tooltip = i18n("startbtn_gettingcontent_tooltip")
+			btnStartBattle:StyleOff()
 			btnStartBattle:SetEnabled(false)
 			ButtonUtilities.SetButtonDeselected(btnStartBattle)
 		end
@@ -724,8 +734,8 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 			font = config:GetFont(3),
 			disabledFont = config:GetFont(3),
 			hasDisabledFont = true,
-			caption = i18n("unready"),
-			tooltip = i18n("unready_tooltip"), -- Set in OnUpdateUserBattleStatus
+			caption = i18n("ready"),
+			tooltip = i18n("ready_tooltip"), -- Set in OnUpdateUserBattleStatus
 			OnClick = {
 				function(readyButton)
 					if not readyButton.state.enabled then return end
@@ -736,7 +746,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 			parent = rightInfo,
 		}
 		readyButton:SetEnabled(false)
-		readyButton:StyleUnready()
+		readyButton:StyleOff()
 	end
 
 	btnStartBattle = Button:New {
@@ -747,6 +757,8 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		caption = i18n("start"),
 		classname = "ready_button",
 		font = config:GetFont(3),
+		disabledFont = config:GetFont(3),
+		hasDisabledFont = true,
 		tooltip = "Start the game, or call a vote to start multiplayer, or join a running game",
 		OnClick = {
 			function()
@@ -2899,21 +2911,17 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 			readyButton:SetCaption(i18n("ready"))
 			if status.isReady then
                 readyButton:StyleReady()
-				if battle.isRunning then
-					readyButton.tooltip = i18n("inprogress_tooltip")
-				else
-                	readyButton.tooltip = i18n("ready_tooltip")
-				end
-            else
-				readyButton:StyleUnready()
-				if battle.isRunning then
-					readyButton.tooltip = i18n("inprogress_tooltip")
-				elseif status.isSpectator then
+				readyButton.tooltip = i18n("ready_tooltip")	
+            elseif status.isSpectator then
+					readyButton:StyleOff()
 					readyButton.tooltip = i18n("unready_notplaying_tooltip")
-				else
+			else
+					readyButton:StyleUnready()
                 	readyButton.tooltip = i18n("unready_tooltip")
-				end
             end
+			if battle.isRunning then
+				readyButton.tooltip = i18n("inprogress_tooltip")
+			end
         end
 	end
 

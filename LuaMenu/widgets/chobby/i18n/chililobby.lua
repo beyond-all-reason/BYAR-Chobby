@@ -202,12 +202,15 @@ return {
 
 		-- gui_battle_room_window.lua
 
-		ready = "Ready",
 		ready_tooltip = "Click to become unready. This will prevent the game from starting!",
 		unready = "Unready",
 		unready_tooltip = "Click to become ready. If you're not ready, the game can't start!",
 		unready_notplaying_tooltip = "You can't become ready as you are spectating. Press play to join the game.",
 		inprogress_tooltip = "This game is in progress. Press rejoin to watch the game.",
+		startbtn_tooltip = "Start the game.",
+		startbtn_votestart_tooltip = "Call a vote to start.",
+		startbtn_inprogress_tooltip = "Join this already running game.",
+		startbtn_gettingcontent_tooltip = "Please wait for downloads to finish before starting.",
 
 		-- chat_windows.lua
 		server = "Server",
