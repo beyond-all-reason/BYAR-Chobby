@@ -126,6 +126,12 @@ skin.ready_button = {
     self:Invalidate()
   end,
   StyleUnready = function(self)
+    self.backgroundColor = {0.85, 0.8, 0.55, 0.75}
+    self.focusColor  = {1.0, 1.0, 0.1, 1.0}
+    self.borderColor = {0.8, 0.8, 0.0, 0.67}
+    self:Invalidate()
+  end,
+  StyleOff = function(self)
     self.backgroundColor = {0.3, 0.3, 0.3, 0.75}
     self.focusColor  = {0.8, 0.8, 0.8, 1.0}
     self.borderColor = {0.8, 0.8, 0.8, 0.67}
