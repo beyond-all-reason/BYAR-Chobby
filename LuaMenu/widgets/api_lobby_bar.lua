@@ -78,7 +78,7 @@ function widget:Initialize()
 	lobby.ChangeBattleTitle = function(self, newtitle)
 		self:_SendCommand("CHANGEBATTLETITLE "..tostring(newtitle))
 	end
-	
+
 	lobby._OnS_Battle_Update_lobby_title = function(self, battleID, newbattletitle)
 		if self.battles[battleID] then
 			self.battles[battleID].title = newbattletitle

@@ -833,6 +833,10 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		font = config:GetFont(2),
 		OnClick = {
 			function(obj)
+				local battleStatus = battleLobby:GetUserBattleStatus(myUserName) or {}
+				if battleStatus.isSpectator then
+					battleLobby:SayBattle('$leaveq')
+				end
 				battleLobby:SetBattleStatus({
 					isSpectator = true,
 					isReady = false
