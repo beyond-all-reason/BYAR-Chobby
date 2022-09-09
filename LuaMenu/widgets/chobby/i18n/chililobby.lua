@@ -139,13 +139,13 @@ return {
 		rejoin = "Rejoin",
 		abandon = "Abandon",
 
-		tooltip_is_spectator = "You will spectate this game",
-		tooltip_become_spectator = "Press to watch the game as a spectator",
+		tooltip_is_spectator = "You will spectate this game.",
+		tooltip_become_spectator = "Press to watch the game as a spectator.",
 		spectate = "Spectate",
 		spectating = "Spectating",
 
-		tooltip_is_player = "You will play in this game",
-		tooltip_become_player = "Press to play in this game",
+		tooltip_is_player = "You will play in this game.",
+		tooltip_become_player = "Press to play in this game.",
 		play = "Play",
 		playing = "Playing",
 
@@ -209,7 +209,7 @@ return {
 		inprogress_tooltip = "This game is in progress. Press rejoin to watch the game.",
 		startbtn_tooltip = "Start the game.",
 		startbtn_votestart_tooltip = "Call a vote to start.",
-		startbtn_inprogress_tooltip = "Join this already running game.",
+		startbtn_inprogress_tooltip = "Watch this in progress game.",
 		startbtn_gettingcontent_tooltip = "Please wait for downloads to finish before starting.",
 
 		-- chat_windows.lua
