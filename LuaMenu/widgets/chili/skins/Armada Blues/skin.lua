@@ -154,10 +154,6 @@ skin.option_button = {
   DrawControl = DrawButton,
 }
 
-skin.playing_button = {
-  clone = "option_button",
-}
-
 skin.link_button = {
   TileImageBK = ":cl:tech_button_bright_small_bk.png",
   TileImageFG = ":cl:tech_button_bright_small_fg.png",

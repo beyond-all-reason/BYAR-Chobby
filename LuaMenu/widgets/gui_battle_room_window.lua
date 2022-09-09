@@ -794,81 +794,52 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	}
 
 	local btnPlay
-	local btnSpectate
 
 	local function SetButtonStatePlaying()
-		ButtonUtilities.SetButtonDeselected(btnSpectate)
-		ButtonUtilities.SetCaption(btnSpectate, i18n("spectate"))
-		ButtonUtilities.SetButtonSelected(btnPlay)
-		ButtonUtilities.SetCaption(btnPlay, i18n("playing"))
-
-		btnPlay.suppressButtonReaction = true
-		btnSpectate.suppressButtonReaction = false
-
-		btnPlay.tooltip = i18n("tooltip_is_player")
-		btnSpectate.tooltip = i18n("tooltip_become_spectator")
-
+		ButtonUtilities.SetCaption(btnPlay, i18n("spectate"))
+		btnPlay.tooltip = i18n("tooltip_become_spectator")
 	end
+
 	local function SetButtonStateSpectating()
-		ButtonUtilities.SetButtonDeselected(btnPlay)
 		ButtonUtilities.SetCaption(btnPlay, i18n("play"))
-		ButtonUtilities.SetButtonSelected(btnSpectate)
-
-		btnSpectate.suppressButtonReaction = true
-		btnPlay.suppressButtonReaction = false
-
-		btnSpectate.tooltip = i18n("tooltip_is_spectator")
 		btnPlay.tooltip = i18n("tooltip_become_player")
-
-		ButtonUtilities.SetCaption(btnSpectate, i18n("spectating"))
 	end
-
-	btnSpectate = Button:New { -- Some properties set by SetButtonStatePlaying() after both buttons are initialised.
-		x = "50.5%",
-		right = 0,
-		bottom = 51,
-		height = 32,
-		classname = "playing_button",
-		caption = "",
-		font = config:GetFont(2),
-		OnClick = {
-			function(obj)
-				battleLobby:SetBattleStatus({
-					isSpectator = true,
-					isReady = false
-				})
-
-				SetButtonStateSpectating()
-
-				WG.Analytics.SendOnetimeEvent("lobby:multiplayer:custom:spectate")
-				WG.Chobby.Configuration:SetConfigValue("lastGameSpectatorState", true)
-			end
-		},
-		parent = rightInfo,
-	}
 
 	btnPlay = Button:New { -- Some properties set by SetButtonStatePlaying() after both buttons are initialised.
 		x = 0,
-		right = "50.5%",
+		right = 0,
 		bottom = 51,
 		height = 32,
-		classname = "playing_button",
+		classname = "option_button",
 		caption = "",
 		font = config:GetFont(2),
 		OnClick = {
 			function(obj)
-				local unusedTeamID = battleLobby:GetUnusedTeamID()
-				--Spring.Echo("unusedTeamID",unusedTeamID)
-				battleLobby:SetBattleStatus({
-					isSpectator = false,
-					isReady = false,
-					side = (WG.Chobby.Configuration.lastFactionChoice or 0),
-					teamNumber = unusedTeamID})
+				local battleStatus = battleLobby:GetUserBattleStatus(myUserName) or {}
+				if battleStatus.isSpectator then
+					local unusedTeamID = battleLobby:GetUnusedTeamID()
+					--Spring.Echo("unusedTeamID",unusedTeamID)
+					battleLobby:SetBattleStatus({
+						isSpectator = false,
+						isReady = false,
+						side = (WG.Chobby.Configuration.lastFactionChoice or 0),
+						teamNumber = unusedTeamID})
 
-				SetButtonStatePlaying()
+					SetButtonStatePlaying()
 
-				WG.Analytics.SendOnetimeEvent("lobby:multiplayer:custom:play")
-				WG.Chobby.Configuration:SetConfigValue("lastGameSpectatorState", false)
+					WG.Analytics.SendOnetimeEvent("lobby:multiplayer:custom:play")
+					WG.Chobby.Configuration:SetConfigValue("lastGameSpectatorState", false)
+				else
+					battleLobby:SetBattleStatus({
+						isSpectator = true,
+						isReady = false
+					})
+
+					SetButtonStateSpectating()
+
+					WG.Analytics.SendOnetimeEvent("lobby:multiplayer:custom:spectate")
+					WG.Chobby.Configuration:SetConfigValue("lastGameSpectatorState", true)
+				end
 			end
 		},
 		parent = rightInfo,
