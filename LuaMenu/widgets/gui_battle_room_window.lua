@@ -41,6 +41,8 @@ local IMG_UNREADY  = LUA_DIRNAME .. "images/unready.png"
 local IMAGE_DLREADY      = LUA_DIRNAME .. "images/downloadready.png"
 local IMAGE_DLUNREADY    = LUA_DIRNAME .. "images/downloadnotready.png"
 local IMG_LINK     = LUA_DIRNAME .. "images/link.png"
+local IMG_CHECKBOX		= LUA_DIRNAME .. "images/checkbox.png"
+local IMG_CHECKARROW		= LUA_DIRNAME .. "images/checkbox_arrow.png"
 
 local MINIMUM_QUICKPLAY_PLAYERS = 4 -- Hax until the server tells me a number.
 
@@ -727,6 +729,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	if battleLobby.name ~= "singleplayer" then
 		readyButton = Button:New {
 			x = 0,
+			align = "right",
 			right = "50.5%",
 			bottom = 0,
 			height = 48,
@@ -745,6 +748,25 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 			},
 			parent = rightInfo,
 		}
+
+		readyButtonCheck = Image:New {
+			--x = "5%",
+			y = 6,
+			right = "84%",
+			width = 16,
+			height = 16,
+			keepAspect = true,
+			file = IMG_CHECKBOX,
+			parent = readyButton,
+		}
+
+		readyButtonCheckArrow = Image:New {
+			width = 16,
+			height = 16,
+			file = IMG_CHECKARROW,
+			parent = readyButtonCheck,
+		}
+
 		readyButton:SetEnabled(false)
 		readyButton:StyleOff()
 	end
@@ -2913,16 +2935,20 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		if battleLobby.name ~= "singleplayer" then
             readyButton:SetEnabled(not status.isSpectator)
 			readyButton:SetCaption(i18n("ready"))
-			if status.isReady then
-                readyButton:StyleReady()
-				readyButton.tooltip = i18n("ready_tooltip")	
-            elseif status.isSpectator then
+			readyButtonCheckArrow.file = nil
+			readyButtonCheckArrow:Invalidate()
+				if status.isReady then
+                	readyButton:StyleReady()
+					readyButton.tooltip = i18n("ready_tooltip")
+					readyButtonCheckArrow.file = IMG_CHECKARROW
+					readyButtonCheckArrow:Invalidate()
+            	elseif status.isSpectator then
 					readyButton:StyleOff()
 					readyButton.tooltip = i18n("unready_notplaying_tooltip")
-			else
+				else
 					readyButton:StyleUnready()
                 	readyButton.tooltip = i18n("unready_tooltip")
-            end
+        		end
 			if battle.isRunning then
 				readyButton.tooltip = i18n("inprogress_tooltip")
 			end
