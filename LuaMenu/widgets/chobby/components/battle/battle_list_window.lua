@@ -1132,7 +1132,7 @@ function BattleListWindow:OpenHostWindow()
 		items = Configuration.hostRegions,
 		itemFontSize = Configuration:GetFont(2).size,
 		selected = 1,
-		tooltip = "Choose the one closest to you for the best ping. Battle Rooms are not geographically limited.",
+		tooltip = "You may choose any region you wish, BAR is not sensitive to latency.",
 		parent = hostBattleWindow,
 	}
 
@@ -1179,7 +1179,7 @@ function BattleListWindow:OpenHostWindow()
 		local requestedregion = typeCombo.items[typeCombo.selected]
 		--Spring.Echo("Looking for empty host in region", requestedregion)
 		if userWantsPrivateBattle then
-			local privateclusters = {EU = '[teh]cluster1', US = '[teh]clusterUS2', AU = '[teh]clusterAU', HU = '[teh]cluster2',}
+			local privateclusters = {EU = '[teh]cluster1', US = '[teh]clusterUS2', AU = '[teh]clusterAU', DE = '[teh]clusterEU2',}
 			local targetCluster = privateclusters[requestedregion]
 			local mypassword = nil
 			local function listenForPrivateBattle(listener, userName, message, msgDate)
@@ -1255,7 +1255,7 @@ function BattleListWindow:OpenHostWindow()
 			table.insert(tmp, battle)
 		end
 		battles = tmp
-		if requestedregion == 'HU' then requestedregion = "EU - 1" end -- nasty
+		if requestedregion == 'DE' then requestedregion = "EU - 2" end -- nasty
 		for _, battle in pairs(battles) do
 			if string.sub(battle.title,1,string.len(requestedregion)) == requestedregion and
 				lobby:GetBattlePlayerCount(battle.battleID) == 0 and 
