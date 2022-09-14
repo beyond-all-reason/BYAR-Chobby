@@ -38,7 +38,25 @@ function createTabGroup(ctrls, visibleFunc)
 end
 
 local function GetLobbyName()
-	return 'Chobby'
+	local byarchobbyrapidTag = 'byar-chobby:test'
+	if byarchobbyrapidTag and VFS.GetNameFromRapidTag then
+		local rapidName = VFS.GetNameFromRapidTag(byarchobbyrapidTag)
+		if rapidName then
+			byarchobbyrapidTag = rapidName
+			byarchobbyrapidTag = string.gsub(byarchobbyrapidTag, "BYAR Chobby test%-", "")
+		end
+	end
+	local chobbyrapidTag = 'chobby:test'
+	if chobbyrapidTag and VFS.GetNameFromRapidTag then
+		local rapidName = VFS.GetNameFromRapidTag(chobbyrapidTag)
+		if rapidName then
+			chobbyrapidTag = rapidName
+			chobbyrapidTag = string.gsub(chobbyrapidTag, "Chobby test%-", "")
+		end
+	end
+	local lobbyname = 'Chobby:'..byarchobbyrapidTag..'/'..chobbyrapidTag 
+	--Spring.Utilities.TraceFullEcho()
+	return lobbyname
 end
 
 function LoginWindow:init(failFunction, cancelText, windowClassname, params)
