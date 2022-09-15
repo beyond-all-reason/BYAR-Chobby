@@ -99,6 +99,7 @@ return {
 ['Sertagatta_V5']={Width=16, Height=12, Is1v1=1, IsTeam=1, IsFFA=nil, IsCertified=1, Special=nil, Flat=1, Hills=nil, Water=nil, IsInPool=1, PlayerCount=nil,TeamCount=nil,Author='BasiC', InfoText=nil},
 ['Sertaleina_V8']={Width=12, Height=8, Is1v1=1, IsTeam=1, IsFFA=nil, IsCertified=1, Special=nil, Flat=1, Hills=nil, Water=nil, IsInPool=1, PlayerCount=nil,TeamCount=nil,Author='BasiC', InfoText=nil},
 ['Seths Ravine Remake 1.3']={Width=16, Height=12, Is1v1=nil, IsTeam=1, IsFFA=nil, IsCertified=1, Special=nil, Flat=1, Hills=nil, Water=nil, IsInPool=1, PlayerCount=nil,TeamCount=nil,Author='IceXuick', InfoText=nil},
+['Shallow Straits v1']={Width=12, Height=12, Is1v1=1, IsTeam=1, IsFFA=nil, IsCertified=1, Special=nil, Flat=nil, Hills=nil, Water=1, IsInPool=1, PlayerCount='6',TeamCount='2',Author='Johannes', InfoText=nil},
 ['Shore_to_Shore_V3']={Width=30, Height=6, Is1v1=1, IsTeam=1, IsFFA=nil, IsCertified=1, Special=nil, Flat=nil, Hills=nil, Water=1, IsInPool=1, PlayerCount=nil,TeamCount=nil,Author='Beherith', InfoText=nil},
 ['Sky Isle v1.1']={Width=16, Height=16, Is1v1=1, IsTeam=1, IsFFA=nil, IsCertified=1, Special='1', Flat=nil, Hills=1, Water=nil, IsInPool=1, PlayerCount='6',TeamCount='2',Author='Nikuksis', InfoText='Fog of Death surrounding this odd island.'},
 ['Silent Sea v1']={Width=14, Height=14, Is1v1=1, IsTeam=1, IsFFA=nil, IsCertified=1, Special=nil, Flat=nil, Hills=1, Water=1, IsInPool=1, PlayerCount='6',TeamCount='2',Author='Johannes', InfoText=nil},
