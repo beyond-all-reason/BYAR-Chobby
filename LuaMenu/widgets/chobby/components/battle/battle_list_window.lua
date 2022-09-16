@@ -1280,6 +1280,8 @@ function BattleListWindow:OpenHostWindow()
 					hostregion = requestedregion
 				})
 			end
+			Configuration:SetConfigValue("lastGameSpectatorState", false) -- assume that private hoster wants to play, needed so he can boss self!
+					
 			--Spring.Echo("Found a battle")
 			local function bossSelf() 
 				local myplayername = lobby:GetMyUserName() or ''
