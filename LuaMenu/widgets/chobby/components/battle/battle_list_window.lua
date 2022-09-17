@@ -1179,7 +1179,7 @@ function BattleListWindow:OpenHostWindow()
 		local requestedregion = typeCombo.items[typeCombo.selected]
 		--Spring.Echo("Looking for empty host in region", requestedregion)
 		if userWantsPrivateBattle then
-			local privateclusters = {EU = '[teh]cluster1', US = '[teh]clusterUS2', AU = '[teh]clusterAU', DE = '[teh]clusterEU2',}
+			local privateclusters = {EU = '[teh]cluster1', US = '[teh]clusterUS', AU = '[teh]clusterAU', DE = '[teh]clusterEU2',}
 			local targetCluster = privateclusters[requestedregion]
 			local mypassword = nil
 			local function listenForPrivateBattle(listener, userName, message, msgDate)
@@ -1280,6 +1280,8 @@ function BattleListWindow:OpenHostWindow()
 					hostregion = requestedregion
 				})
 			end
+			Configuration:SetConfigValue("lastGameSpectatorState", false) -- assume that private hoster wants to play, needed so he can boss self!
+					
 			--Spring.Echo("Found a battle")
 			local function bossSelf() 
 				local myplayername = lobby:GetMyUserName() or ''
