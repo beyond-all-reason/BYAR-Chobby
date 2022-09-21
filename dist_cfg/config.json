@@ -7,6 +7,11 @@
                 "display": "Alpha",
                 "platform": "linux"
             },
+            "env_variables": {
+                "PRD_HTTP_SEARCH_URL": "https://bar-springfiles.p2004a.com/find",
+                "PRD_RAPID_USE_STREAMER": "false",
+                "PRD_RAPID_REPO_MASTER": "https://bar-rapid.p2004a.com/repos.gz"
+            },
             "downloads": {
                 "games": ["byar:test", "chobby:test", "byar-chobby:test"],
                 "resources": [
@@ -21,7 +26,10 @@
             "logs_s3_bucket": "bar-infologs",
             "launch": {
                 "start_args": ["--menu", "rapid://byar-chobby:test"],
-                "engine": "105.1.1-966-g597222f bar"
+                "engine": "105.1.1-966-g597222f bar",
+                "springsettings": {
+                    "RapidTagResolutionOrder": "bar-rapid.p2004a.com"
+                }
             }
         },
         {
@@ -30,6 +38,11 @@
                 "display": "Alpha",
                 "platform": "win32"
             },
+            "env_variables": {
+                "PRD_HTTP_SEARCH_URL": "https://bar-springfiles.p2004a.com/find",
+                "PRD_RAPID_USE_STREAMER": "false",
+                "PRD_RAPID_REPO_MASTER": "https://bar-rapid.p2004a.com/repos.gz"
+            },
             "silent": false,
             "downloads": {
                 "games": ["byar:test", "chobby:test", "byar-chobby:test"],
@@ -45,19 +58,17 @@
             "logs_s3_bucket": "bar-infologs",
             "launch": {
                 "start_args": ["--menu", "rapid://byar-chobby:test"],
-				"engine": "105.1.1-966-g597222f bar"
+                "engine": "105.1.1-966-g597222f bar",
+                "springsettings": {
+                    "RapidTagResolutionOrder": "bar-rapid.p2004a.com"
+                }
             }
         },
         {
             "package": {
-                "id": "manual-linux-exp-cdn",
-                "display": "Alpha (CDN)",
+                "id": "manual-linux-no-cdn",
+                "display": "Alpha (no CDN)",
                 "platform": "linux"
-            },
-            "env_variables": {
-                "PRD_HTTP_SEARCH_URL": "https://bar-springfiles.p2004a.com/find",
-                "PRD_RAPID_USE_STREAMER": "false",
-                "PRD_RAPID_REPO_MASTER": "https://bar-rapid.p2004a.com/repos.gz"
             },
             "downloads": {
                 "games": ["byar:test", "chobby:test", "byar-chobby:test"],
@@ -73,19 +84,17 @@
             "logs_s3_bucket": "bar-infologs",
             "launch": {
                 "start_args": ["--menu", "rapid://byar-chobby:test"],
-                "engine": "105.1.1-966-g597222f bar"
+                "engine": "105.1.1-966-g597222f bar",
+                "springsettings": {
+                    "RapidTagResolutionOrder": "repos.springrts.com"
+                }
             }
         },
         {
             "package": {
-                "id": "manual-win-exp-cdn",
-                "display": "Alpha (CDN)",
+                "id": "manual-win-no-cdn",
+                "display": "Alpha (no CDN)",
                 "platform": "win32"
-            },
-            "env_variables": {
-                "PRD_HTTP_SEARCH_URL": "https://bar-springfiles.p2004a.com/find",
-                "PRD_RAPID_USE_STREAMER": "false",
-                "PRD_RAPID_REPO_MASTER": "https://bar-rapid.p2004a.com/repos.gz"
             },
             "silent": false,
             "downloads": {
@@ -102,7 +111,10 @@
             "logs_s3_bucket": "bar-infologs",
             "launch": {
                 "start_args": ["--menu", "rapid://byar-chobby:test"],
-                "engine": "105.1.1-966-g597222f bar"
+				"engine": "105.1.1-966-g597222f bar",
+                "springsettings": {
+                    "RapidTagResolutionOrder": "repos.springrts.com"
+                }
             }
         },
         {
