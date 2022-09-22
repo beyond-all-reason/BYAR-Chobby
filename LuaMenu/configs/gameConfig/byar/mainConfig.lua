@@ -121,9 +121,28 @@ local externalFuncAndData = {
 	spadsLobbyFeatures = true,
 	filterEmptyRegionalAutohosts = true,
 	logoutOpensLoginPanel = logoutOpensLoginPanel,
-	SaveLobbyVersionGZPath = "rapid/repos.springrts.com/byar-chobby/versions.gz",
 	ShortenNameString = ShortenNameString,
 }
+
+-- Hack to figure out which versions.gz do we need to cache when downloading
+-- any updates with rapid and then restore afterwards. If we don't set
+-- SaveLobbyVersionGZPath correctly the game will crash in the following scenario:
+-- 1. User starts lobby and joins game for which they don't have the game version downloaded
+-- 2. Change happens on the server in BYAR chobby repository, that repoints byar-chobby:test to a new package
+-- 3. Lobby starts downloading game, pr-downloader updates all version.gz files in all repos because download
+--    of game is done by *springname" not by rapid tag (pr-downloader can't figure out to which repo given
+--    springname belongs)
+-- 4. New version of the game is downloaded, but byar-chobby:test points at new, not downloaded package
+--    as pr-downloaded only downloaded game.
+-- 5. Crash, because spring can't load byar-chobby:test package.
+local chobbyRepoDomain = "repos.springrts.com"
+local rapidTagResolutionOrder = Spring.GetConfigString("RapidTagResolutionOrder")
+if rapidTagResolutionOrder ~= "" then
+	-- We assume that the first one is ok.
+	chobbyRepoDomain = rapidTagResolutionOrder:split(';')[1]
+end
+externalFuncAndData.SaveLobbyVersionGZPath = "rapid/" .. chobbyRepoDomain .."/byar-chobby/versions.gz"
+
 if Spring.GetConfigInt('soundtrack', 2) == 3 then
 	externalFuncAndData.openTrack = "LuaMenu/configs/gameConfig/byar/lobbyMusic/ProfessorKliq-TensionGrowl.ogg"
 	externalFuncAndData.randomTrackList = {
