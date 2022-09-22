@@ -387,7 +387,7 @@ local function GetInfologs()
 	table.sort(filenames, function (a,b) return a > b end) -- reverse dir sort, we only need the most recent 5
 
 	if PRINT_DEBUG then Spring.Echo("BAR Analytics: GetInfologs()", #filenames) end
-	for i=1, math.min(#filenames, 3) do
+	for i=1, math.min(#filenames, 2) do
 		filename = filenames[i]
 		if onetimeEvents["reportedcrashes"][filename] ~= nil then -- we already reported this one
 			Spring.Echo("Already processed an error in ", filename)
@@ -402,10 +402,12 @@ local function GetInfologs()
 					local compressedlog = Spring.Utilities.Base64Encode(VFS.ZlibCompress(fullinfolog))
 					local function reportinfolog()
 						--Spring.Echo("Uncompressed length:", string.len(fullinfolog), "Compressed base64 length:", string.len(compressedlog))
+						Spring.Echo("User agreed to upload infolog",filename,"with error", errortype)
 						Analytics.SendCrashReportOneTimeEvent(filename,errortype, errorkey, compressedlog, true)
 					end
 
 					local function dontreportinfolog()
+						Spring.Echo("User declined to upload infolog",filename,"with error", errortype)
 						Analytics.SendCrashReportOneTimeEvent(filename, errortype, errorkey, compressedlog, false)
 					end
 
