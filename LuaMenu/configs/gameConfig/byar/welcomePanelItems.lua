@@ -7,8 +7,8 @@ local welcomePanelItems = {
         UrlText = "Join our discord"
     },
     {
-        Header = "Server Upgrade",
-        Text = "We are upgrading the lobby server, thus the address of the lobby server will now be\nserver3.beyondallreason.info\nin place of the old server2 address. Please stand by and check discord if you face any issues.",
+        Header = "New Engine: AMD Beta Drivers",
+        Text = "Update your game, new engine version 1214 is out! AMD Graphics drivers users should roll back to non-beta, but recommended drivers for their cards if they experience graphical glitches.",
     },
     {
         Header = "The August 2022 2v2 Tournament has concluded!",
