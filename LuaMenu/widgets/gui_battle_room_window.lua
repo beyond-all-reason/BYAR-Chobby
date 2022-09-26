@@ -2243,7 +2243,7 @@ local function SetupSpadsStatusPanel(battle, battleID)
 		},
 		balanceMode = {
 			current = "skill",
-			allowed = {"skill","clan;skill","clan","random"},
+			allowed = {"skill","clan;skill","random"},
 			caption = "BalanceMode",
 			tooltip = "Method to use when auto balancing teams",
 			spadscommand = "!balanceMode",
