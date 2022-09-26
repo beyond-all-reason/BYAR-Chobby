@@ -2238,14 +2238,14 @@ local function SetupSpadsStatusPanel(battle, battleID)
 			current = "off",
 			allowed = {"off","on","advanced"},
 			caption = "Autobalance",
-			tooltip = "Balance teams automatically",
+			tooltip = "Balance teams and fix IDs automatically. Use Coop preset to play vs AIs",
 			spadscommand = "!autobalance",
 		},
-		balanceMode = { 
-			current = "clan;skill",
-			allowed = {"random","clan;skill","skill","clan;random"},
+		balanceMode = {
+			current = "skill",
+			allowed = {"skill","clan;skill","clan","random"},
 			caption = "BalanceMode",
-			tooltip = "Method to use when autobalancing",
+			tooltip = "Method to use when auto balancing teams",
 			spadscommand = "!balanceMode",
 		},
 		locked = {
