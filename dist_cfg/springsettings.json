@@ -14,7 +14,7 @@
     "CrossAlpha": 0,
     "CubeTexSpecularExponent": 100,
     "CubeTexGenerateMipMaps": 1,
-    "CubeTexSizeReflection": 2048,
+    "CubeTexSizeReflection": 1024,
     "DisplayDebugPrefixConsole": 0,
     "DualScreenMiniMapOnLeft": 1,
     "FPSFOV": 90,
