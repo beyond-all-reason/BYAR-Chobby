@@ -340,8 +340,9 @@ Scoring:
 
 	[modoptions]
 	{
-        scenariooptions = __SCENARIOOPTIONS__;
-        ruins = enabled;
+	  scenariooptions = __SCENARIOOPTIONS__;
+	  startenergy = 7000;
+	  ruins = enabled;
 	}
 
 	[allyTeam1]
