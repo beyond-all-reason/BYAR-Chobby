@@ -6,18 +6,6 @@ local welcomePanelItems = {
         Text = "Welcome back Commander. We hope you are ready for epic single player and multiplayer battles. Check out our Discord and join the community!\n",
         UrlText = "Join our discord"
     },
-    {
-        Header = "New Engine: AMD Beta Drivers",
-        Text = "Update your game, new engine version 1214 is out! AMD Graphics drivers users should roll back to non-beta, but recommended drivers for their cards if they experience graphical glitches.",
-    },
-    {
-        Header = "The August 2022 2v2 Tournament has concluded!",
-        --Url = "https://forms.gle/nw6M8ETmX8SzQA7m9",
-        Time = nil,-- "NowTime",
-        Image = "LuaMenu/images/BAR-2V2_Tournament_AUG2022_Victory_2.png",
-        Text = " \nBow to the new grand masters of the 2v2 format, Raghna and Malady!",
-        --UrlText = "Sign up here"
-    },
 
     {
         Header = "Guides for new players",
@@ -28,18 +16,17 @@ local welcomePanelItems = {
     },
 
     {
-        Header = "New Map: Melting Glacier v1.1",
-        --Url = "https://drive.google.com/drive/folders/16eBcMpkgMTV9mlKxYmNda64X_dmCFdkk",
+        Header = "New Map: Crystallized Plains 1.01",
         Time = nil,-- "NowTime",
-        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/melting_glacier_v1.0.png",
-        Text = "New assymetric hybrid map for land, sea and air battle across the ice floes. Up to 16 players. Suitable for FFA.\nUpdated to v1.1, improved map east-west balance, added few UW mexes, tidal 20->25.\nBy Nikuksis",
+        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/Crystallized_Plains_1.01.png",
+        Text = "A 1vs1 map by Moose with dry rock flats and many colorful pillars.",
     },
 
     {
-        Header = "New Map: Rustcrown Canyon 1.1",
+        Header = "New Map: Shallow Straits v1",
         Time = nil,-- "NowTime",
-        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/Rustcrown_Canyon_1.1.png",
-        Text = "\n \n \nPtaQ and Moose have collaborated to bring you Rustcrown Canyon. East vs West battles over a deep chasm containing a long river.",
+        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/Shallow_Straits_v1.png",
+        Text = "Johannes' newest map is an invitation to get your feet wet, or walk the straight and narrow land to stay dry.",
     },
 
     {
