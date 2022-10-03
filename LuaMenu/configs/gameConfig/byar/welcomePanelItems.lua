@@ -19,7 +19,7 @@ local welcomePanelItems = {
         Header = "New Map: Crystallized Plains 1.01",
         Time = nil,-- "NowTime",
         Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/Crystallized_Plains_1.01.png",
-        Text = "A 1vs1 map by Moose with flat plains and many colorful pillars.",
+        Text = "A 1vs1 map by Moose with dry rock flats and many colorful pillars.",
     },
 
     {
