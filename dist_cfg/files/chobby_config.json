@@ -1,6 +1,6 @@
 {
     "server" : {
-        "address"    : "server2.beyondallreason.info",
+        "address"    : "server3.beyondallreason.info",
         "port"       : 8200,
         "protocol"   : "spring",
         "serverName" : "BAR"
