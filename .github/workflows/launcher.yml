@@ -65,6 +65,14 @@ jobs:
           echo "Making build for version: $PACKAGE_VERSION"
           node build/make_package_json.js ../launcher/package.json dist_cfg/config.json $GITHUB_REPOSITORY $PACKAGE_VERSION
 
+      - name: Cache electron
+        uses: actions/cache@v3
+        with:
+          path: .electron-cache
+          key: ${{ runner.os }}-electron-cache-${{ hashFiles('launcher/package.json') }}
+          restore-keys: |
+            ${{ runner.os }}-electron-cache-
+
       - name: Build
         run: |
           cd launcher
@@ -72,3 +80,5 @@ jobs:
           npm run ${{ matrix.build_cmd }} -- ${{ matrix.arch }} --publish always
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ELECTRON_CACHE: ${{ github.workspace }}/.electron-cache/main
+          ELECTRON_BUILDER_CACHE: ${{ github.workspace }}/.electron-cache/builder
