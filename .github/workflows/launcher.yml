@@ -18,7 +18,7 @@ jobs:
     strategy:
       matrix:
         include:
-          - os: ubuntu-20.04
+          - os: ubuntu-22.04
             build_cmd: "build-linux"
             arch: "--x64"
 
@@ -27,33 +27,35 @@ jobs:
             arch: "--x64"
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           # This should fix git rev-list --count HEAD
           # https://stackoverflow.com/a/65056108
           fetch-depth: 0 
           path: BYAR-Chobby
 
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
-          repository: gajop/spring-launcher
-          path: spring-launcher
+          repository: beyond-all-reason/spring-launcher
+          path: launcher
 
       - name: Setup NodeJs
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
-          node-version: '17.x'
+          node-version: 16
+          cache: 'npm'
+          cache-dependency-path: launcher/package-lock.json
 
-      - name: Prepare folder structure
+      - name: Patch launcher with dist_cfg
         run: |
-          mkdir build
-          cp spring-launcher/* -r build/
-          cp BYAR-Chobby/dist_cfg/* -r build/src/
-          mkdir -p build/{bin,files,build}
-          [ -d build/src/bin/ ] && mv build/src/bin/* build/bin/
-          [ -d build/src/files/ ] && mv build/src/files/* build/files/
-          [ -d build/src/build/ ] && mv build/src/build/* build/build/
-          rm -rf build/src/{bin,files,build}
+          cp -r BYAR-Chobby/dist_cfg/* launcher/src/
+          for dir in bin files build; do
+            mkdir -p launcher/$dir
+            if [ -d launcher/src/$dir/ ]; then
+              mv launcher/src/$dir/* launcher/$dir/
+              rm -rf launcher/src/$dir
+            fi
+          done
           exit 0
 
       - name: Make package.json
@@ -61,13 +63,12 @@ jobs:
           cd BYAR-Chobby
           export PACKAGE_VERSION=1.$(git rev-list --count HEAD).0
           echo "Making build for version: $PACKAGE_VERSION"
-          cd ..
-          node ./BYAR-Chobby/build/make_package_json.js build/package.json BYAR-Chobby/dist_cfg/config.json beyond-all-reason/BYAR-Chobby $PACKAGE_VERSION
+          node build/make_package_json.js ../launcher/package.json dist_cfg/config.json $GITHUB_REPOSITORY $PACKAGE_VERSION
 
       - name: Build
         run: |
-          cd build
+          cd launcher
           npm ci
           npm run ${{ matrix.build_cmd }} -- ${{ matrix.arch }} --publish always
         env:
-          GH_TOKEN: ${{ secrets.github_token }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
