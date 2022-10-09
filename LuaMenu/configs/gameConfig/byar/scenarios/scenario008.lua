@@ -142,7 +142,7 @@ Scoring:
             {name = 'armrl', x = 1128, y = 155, z = 1016, rot = 16384 , team = 0},
             {name = 'corak', x = 5697, y = 52, z = 1720, rot = -29165 , team = 1},
             {name = 'armrl', x = 920, y = 154, z = 856, rot = 16384 , team = 0},
-            {name = 'armestor', x = 1096, y = 154, z = 664, rot = 16384 , team = 0},
+            --{name = 'armestor', x = 1096, y = 154, z = 664, rot = 16384 , team = 0},
             {name = 'corthud', x = 5744, y = 52, z = 1790, rot = -32739 , team = 1},
             {name = 'armmex', x = 3480, y = 52, z = 776, rot = 16384 , team = 0},
             {name = 'corrad', x = 5296, y = 53, z = 2368, rot = 0 , team = 1},
