@@ -74,7 +74,7 @@ The difficulty modifier will change the amount of resources you and the enemy re
 			{name = 'coradvsol', x = 4160, y = 1121, z = 4192, rot = -16384 , team = 0},
 			{name = 'coradvsol', x = 4224, y = 1116, z = 4192, rot = -16384 , team = 0},
 			{name = 'coradvsol', x = 4288, y = 1111, z = 4192, rot = -16384 , team = 0},
-			{name = 'corestor', x = 4160, y = 1126, z = 4256, rot = -16384 , team = 0},
+			--{name = 'corestor', x = 4160, y = 1126, z = 4256, rot = -16384 , team = 0},
 			{name = 'corrad', x = 4208, y = 1123, z = 4240, rot = -16384 , team = 0},
 			{name = 'corjamt', x = 4208, y = 1123, z = 4272, rot = -16384 , team = 0},
 			{name = 'coradvsol', x = 4288, y = 1115, z = 4256, rot = -16384 , team = 0},
