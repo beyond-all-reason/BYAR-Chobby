@@ -215,6 +215,8 @@ return {
 		-- gui_maplist_panel.lua
 
 		type_to_filter = "Type to filter",
+		maincaption_multiplayer = "Select a Map. Only Certified and Classic in Online.",
+		maincaption_singleplayer = "Select a Map. Certified maps are recommended.",
 
 		-- chat_windows.lua
 		server = "Server",

@@ -318,9 +318,9 @@ local function InitializeControls()
 			newh)
 	end
 
-	local maincaption = "Select any map."
-	if lobby.name ~= "singleplayer" then
-		maincaption = "Select a Certified or Classic map."
+	local maincaption = i18n("maincaption_singleplayer")
+	if	lobby.name ~= "singleplayer" then
+		maincaption = i18n("maincaption_multiplayer")
 	end
 
 	Label:New {
@@ -472,7 +472,7 @@ local function InitializeControls()
 		},
 	}
 
-	local btnOnlineMaps = Button:New {
+--[[ 	local btnOnlineMaps = Button:New {
 		right = 102,
 		y = 13,
 		width = 180,
@@ -487,14 +487,14 @@ local function InitializeControls()
 				WG.BrowserHandler.OpenUrl(Configuration.gameConfig.link_maps())
 			end
 		},
-	}
+	} ]]
 
 	-------------------------
 	-- Filtering
 	-------------------------
 
 	local ebFilter = EditBox:New {
-		right = 288,
+		right = 102,
 		y = 14,
 		width = 180,
 		height = 33,
