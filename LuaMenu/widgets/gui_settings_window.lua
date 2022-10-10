@@ -888,7 +888,6 @@ local function GetLobbyTabControls()
 
 	children[#children + 1], offset = AddCheckboxSetting(offset, i18n("autoLaunchAsSpectator"), "autoLaunchAsSpectator", true)
 
-	-- Why is this shit so fucked up.
 	local randomSkirmishOption = Spring.GetConfigInt("randomSkirmishSetup", 1)
 	if randomSkirmishOption == 1 then
 		Configuration.randomSkirmishSetup = true
@@ -903,7 +902,7 @@ local function GetLobbyTabControls()
 		boxalign = "right",
 		boxsize = 20,
 		caption = i18n("randomSkirmishSetup"),
-		checked = Configuration.randomSkirmishSetup or true,
+		checked = Configuration.randomSkirmishSetup or false,
 		tooltip = i18n("randomSkirmishSetup_tooltip"),
 		objectOverrideFont = settingsFont2,
 		--font = Configuration:GetFont(2),
