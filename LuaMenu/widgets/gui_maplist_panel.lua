@@ -261,10 +261,10 @@ local function CreateMapEntry(mapName, mapData, CloseFunc)--{"ResourceID":7098,"
 		}
 
 		sortData = {string.lower(mapName), (mapData.Width or 0)*100 + (mapData.Height or 0), string.lower(mapType), string.lower(terrainType), (haveMap and 1) or 0, string.lower(certificationLevel), (haveMap and ' '..mapName) or mapName}
-		sortData[7] = sortData[1] .. " " .. mapSizeText .. " " .. sortData[3] .. " " .. sortData[4] .. " " .. sortData[6]-- Used for text filter by name, type, terrain or size.
+		sortData[8] = sortData[1] .. " " .. mapSizeText .. " " .. sortData[3] .. " " .. sortData[4] .. " " .. sortData[6] .. " " .. sortData[7]-- Used for text filter by name, type, terrain or size. Now includes HAX COLUMN.
 	else
 		sortData = {string.lower(mapName), 0, "", "", (haveMap and 1) or 0, certificationLevel,(haveMap and ' '..mapName) or mapName}
-		sortData[7] = sortData[1]
+		sortData[8] = sortData[1]
 	end
 
 	local externalFunctions = {}
@@ -345,7 +345,7 @@ local function InitializeControls()
 			return true
 		end
 
-		local textToSearch = sortData[7]
+		local textToSearch = sortData[8]
 		for i = 1, #filterTerms do
 			if not string.find(textToSearch, filterTerms[i]) then
 				return false
