@@ -10,22 +10,32 @@ local scenariodata = {
     summary         = [[7 enemy Commanders are allied against you, at the top of Throne. Destroy all of them to keep your crown.]],
 	briefing 		= [[The seven outcroppings on the edge of Throne all occupied by enemy Commanders. They will send early scouting forces, and if left to expand too much, will advance in technology rapidly. The third level is secured for you with the most basic defences, and some light anti-air.
  
+ 
 Tips:
- - Secure at least the third level as soon as possible, and expand very quickly to claim all the metal on it. 
- - Wind is an excellent source of energy on this map.
- - The enemies arent the sharpest knife in the drawer, but will pose a threat if left to expand to the second level. 
- - Reduce the difficulty of the scenario if you find it too hard. 
+ 
+ ‣  Secure at least the third level as soon as possible, and expand very quickly to claim all the metal on it. 
+ 
+ ‣  Wind is an excellent source of energy on this map.
+ 
+ ‣  The enemies arent the sharpest knife in the drawer, but will pose a threat if left to expand to the second level. 
+ 
+ ‣  Reduce the difficulty of the scenario if you find it too hard. 
+ 
  
 Scoring:
- - Time taken to complete the scenario
- - Resources spent to destroy all enemy units.
+ 
+ ‣  Time taken to complete the scenario
+ ‣  Resources spent to destroy all enemy units.
+  
  
 The difficulty modifier will change the amount of resources you and the enemy can use:
- - Beginner: You +50%, enemy -50%
- - Novice: You +25%, enemy -25%
- - Normal: Regular resources for both sides
- - Hard: Regular resources for you, +50% for the enemy
- - Brutal: Regular resources for you, +100% for the enemy
+ 
+ ‣  Beginner: You +50%, enemy -50%
+ ‣  Novice: You +25%, enemy -25%
+ ‣  Normal: Regular resources for both sides
+ ‣  Hard: Regular resources for you, +50% for the enemy
+ ‣  Brutal: Regular resources for you, +100% for the enemy
+
     ]],
 
 	mapfilename		= "Throne_V8", -- the name of the map to be displayed here
