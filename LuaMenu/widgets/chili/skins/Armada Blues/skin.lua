@@ -276,7 +276,7 @@ skin.editbox = {
   cursorColor     = {0.15, 0.65, 0.85, 0.8},
 
   focusColor  = {1, 1, 1, 1},
-  borderColor = {1, 1, 1, 0.6},
+  borderColor = {0.6, 0.6, 0.6, 0.6},
 
   TileImageBK = ":cl:panel2_bg.png",
   TileImageFG = ":cl:editbox_border.png",
