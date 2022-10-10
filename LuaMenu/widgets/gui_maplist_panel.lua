@@ -401,10 +401,10 @@ local function InitializeControls()
 	}
 
 	local featuredMapList = WG.CommunityWindow.LoadStaticCommunityData().MapItems or {}
+	local featuredMapIndex = 1
 	local mapFuncs = {}
 	local mapList = WG.Chobby.SortableList(listHolder, headings, 60, 1, true, false, ItemInFilter)
 
-	local featuredMapIndex = 1
 	local function AddTheNextBatchOfMaps()
 		local mapItems = {}
 		local control, sortData
@@ -420,7 +420,6 @@ local function InitializeControls()
 			end
 		end
 		mapList:AddItems(mapItems)
-
 		local addedmaps = {}
 		if featuredMapList[featuredMapIndex] then
 			WG.Delay(AddTheNextBatchOfMaps, 0.1)
@@ -447,6 +446,8 @@ local function InitializeControls()
 				end
 			end
 		end
+		mapList.sortBy = 7
+		mapList:UpdateOrder()
 	end
 
 	WG.Delay(AddTheNextBatchOfMaps, 0.5 / loadRate)
@@ -471,6 +472,8 @@ local function InitializeControls()
 			end
 		},
 	}
+
+	WG.Chobby.PriorityPopup(mapListWindow, CloseFunc)
 
 --[[ 	local btnOnlineMaps = Button:New {
 		right = 102,
@@ -555,6 +558,10 @@ local function InitializeControls()
 		end
 	end
 
+	function externalFunctions.Dispose()
+		mapListWindow:Dispose()
+	end
+
 	return externalFunctions
 end
 
@@ -565,8 +572,18 @@ end
 local MapListPanel = {}
 
 function MapListPanel.Show(newLobby, zoomToMap)
+	local redraw = false
+	if lobby == nil or ((lobby.name == "singleplayer" and newLobby.name ~= "singleplayer" ) or (
+		lobby.name ~= "singleplayer" and newLobby.name == "singleplayer" )) then
+		redraw = true
+	end
 	lobby = newLobby
 	loadRate = 40
+	if redraw and mapListWindow then
+		Spring.Echo("Remaking mapListWindow")
+		mapListWindow:Dispose()
+		mapListWindow = InitializeControls()
+	end
 	if not mapListWindow then
 		mapListWindow = InitializeControls()
 	end
