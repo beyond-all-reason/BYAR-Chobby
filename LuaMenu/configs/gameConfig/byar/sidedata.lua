@@ -9,8 +9,4 @@ return {
 		name = "Cortex",
 		logo = SIDEPICS_DIR .. "cortex.png",
 	},
-	{
-		name = "Random",
-		logo = SIDEPICS_DIR .. "random.png",
-	},
 }
