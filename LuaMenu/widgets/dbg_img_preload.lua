@@ -39,14 +39,14 @@ end
 function widget:Update()
 	if files == nil then
 		files = {}
-		MaybeAddFile(LUA_DIRNAME .. "images/heic1403aDowngrade.jpg")
 		AddDir("LuaMenu/widgets/chili/skins/evolved")
+		AddDir("LuaMenu/widgets/chili/skins/Armada Blues")
 		AddDir("LuaMenu/images")
-		AddDir("LuaMenu/images/planets")
-		AddDir("LuaMenu/images/starbackgrounds")
-		AddDir("LuaMenu/configs/gameConfig/zk/unitpics")
-		AddDir("LuaMenu/configs/gameConfig/zk/rankimageslarge")
-		AddDir("LuaMenu/configs/gameConfig/zk/profileimages")
+		AddDir("LuaMenu/images/ranks")
+		AddDir("LuaMenu/configs/gameConfig/byar/minimapOverride")
+		AddDir("LuaMenu/configs/gameConfig/byar/minimapThumbnail")
+		AddDir("LuaMenu/configs/gameConfig/byar/scenarios")
+		AddDir("LuaMenu/configs/gameConfig/byar/skinning")
 	elseif index then
 		if not holder then
 			holder = WG.Chili.Control:New {
