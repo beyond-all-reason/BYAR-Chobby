@@ -24,8 +24,7 @@ local SCALE = 1
 local holder
 
 local function MaybeAddFile(fileName)
-	if (string.find(fileName, "%.dds") or string.find(fileName, "%.png") or string.find(fileName, "%.jpg")) 
-			and not (string.find(fileName, "MinimapThumbnails"))then
+	if string.find(fileName, "%.dds") or string.find(fileName, "%.png") or string.find(fileName, "%.jpg") then
 		files[#files+1] = fileName
 	end
 end
