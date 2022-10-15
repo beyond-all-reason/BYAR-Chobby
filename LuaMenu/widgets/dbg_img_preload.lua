@@ -24,7 +24,7 @@ local SCALE = 1
 local holder
 
 local function MaybeAddFile(fileName)
-	if (string.find(fileName, "%.dds") or string.find(fileName, "%.png") or string.find(fileName, "%.jpg"))
+	if (string.find(fileName, "%.dds") or string.find(fileName, "%.png") or string.find(fileName, "%.jpg")) 
 			and not (string.find(fileName, "MinimapThumbnails"))then
 		files[#files+1] = fileName
 	end
@@ -40,12 +40,13 @@ function widget:Update()
 	if files == nil then
 		files = {}
 		MaybeAddFile(LUA_DIRNAME .. "images/heic1403aDowngrade.jpg")
-		AddDir("LuaMenu/Widgets/chili/Skins/Evolved")
-		AddDir("LuaMenu/Images")
-		AddDir("LuaMenu/Images/planets")
-		AddDir("LuaMenu/Images/starbackgrounds")
+		AddDir("LuaMenu/widgets/chili/skins/evolved")
+		AddDir("LuaMenu/images")
+		AddDir("LuaMenu/images/planets")
+		AddDir("LuaMenu/images/starbackgrounds")
 		AddDir("LuaMenu/configs/gameConfig/zk/unitpics")
-		--AddDir("LuaMenu/configs/gameConfig/zk/rankimages")
+		AddDir("LuaMenu/configs/gameConfig/zk/rankimageslarge")
+		AddDir("LuaMenu/configs/gameConfig/zk/profileimages")
 	elseif index then
 		if not holder then
 			holder = WG.Chili.Control:New {
@@ -56,6 +57,29 @@ function widget:Update()
 				height = SCALE,
 				padding = {0, 0, 0, 0},
 				parent = WG.Chili.Screen0,
+			}
+			WG.Chili.Trackbar:New {
+				x = SCALE/50*(index%50),
+				y = SCALE/50*math.floor(index/50),
+				width = SCALE/50,
+				height = SCALE/50,
+				parent = holder,
+			}
+			WG.Chili.Checkbox:New {
+				x = SCALE/50*(index%50),
+				y = SCALE/50*math.floor(index/50),
+				width = SCALE/50,
+				height = SCALE/50,
+				checked = true,
+				parent = holder,
+			}
+			WG.Chili.Checkbox:New {
+				x = SCALE/50*(index%50),
+				y = SCALE/50*math.floor(index/50),
+				width = SCALE/50,
+				height = SCALE/50,
+				checked = false,
+				parent = holder,
 			}
 		end
 
@@ -83,31 +107,6 @@ function widget:Update()
 		widgetHandler:RemoveWidget()
 	end
 end
-
---function widget:DrawGenesis()
---	if files == nil then
---		files = {}
---		MaybeAddFile(LUA_DIRNAME .. "images/heic1403aDowngrade.jpg")
---		AddDir("LuaMenu/Widgets/chili/Skins/Evolved")
---		AddDir("LuaMenu/Images")
---		AddDir("LuaMenu/configs/gameConfig/zk/unitpics")
---		AddDir("LuaMenu/configs/gameConfig/zk/rankimages")
---		--AddDir("LuaMenu/Images/starbackgrounds")
---	else
---		Spring.Utilities.TableEcho(files, "files")
---		for i = 1, BATCH_SIZE do
---			local file = files[index]
---			if file then
---				gl.Texture(7, file)
---				gl.Texture(7, false)
---				index = index + 1
---			else
---				widgetHandler:RemoveWidget()
---				return
---			end
---		end
---	end
---end
 
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
