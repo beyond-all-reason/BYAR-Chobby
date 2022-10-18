@@ -356,12 +356,15 @@ local options={
 		def="normal",
 		section="chicken_defense_options",
 		items={
-			{key="veryeasy", name="Very Easy", desc="Very Easy"},
-			{key="easy", name="Easy", desc="Easy"},
-			{key="normal", name="Medium", desc="Medium"},
+			-- {key="veryeasy", name="Very Easy", desc="Very Easy"},
+			-- {key="easy", name="Easy", desc="Easy"},
+			{key="normal", name="Normal", desc="Normal"},
 			{key="hard", name="Hard", desc="Hard"},
 			{key="veryhard", name="Very Hard", desc="Very Hard"},
+			{key="insane", name="Insane", desc="Insane"},
 			{key="epic", name="Epic", desc="Epic"},
+			{key="unbeatable", name="Unbeatable", desc="Unbeatable"},
+
 			{key="survival", name="Endless", desc="Endless Mode"}
 		}
 	},
@@ -1437,6 +1440,14 @@ local options={
 		key     = "tweakdefs",
 		name    = "Tweak Defs",
 		desc    = "A base64 encoded snippet of code that modifies game definitions.",
+		section = 'options_experimental',
+		type    = "string",
+		def     = "",
+	},
+	{
+		key     = "debugcommands",
+		name    = "Debug Commands",
+		desc    = "A pipe separated list of commands to execute at [gameframe]:luarules fightertest|100:forcequit...", -- example: debugcommands=150:cheat 1|200:luarules fightertest|600:quitforce;
 		section = 'options_experimental',
 		type    = "string",
 		def     = "",

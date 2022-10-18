@@ -1242,8 +1242,8 @@ local scenariodata = {
 		chicken_graceperiod=5;
 		chicken_queentime=120;
 		chicken_chickenstart=alwaysbox;
-		startmetal=99999999;
-		startenergy=99999999;
+		startmetal=999999;
+		startenergy=999999;
 		}
 		[allyteam0]
 		{
