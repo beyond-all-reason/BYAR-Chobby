@@ -953,7 +953,7 @@ local function GetLobbyTabControls()
 		items = {"Prompt", "Always Yes", "Always No"},
 		objectOverrideFont = settingsFont2,
 		itemFontSize = Configuration:GetFont(2).size,
-		selected = Configuration.panel_layout or 3,
+		selected = Configuration.uploadLogPrompt or 1,
 		tooltip = "Prompt will ask you each time an error is detected if you want to upload the infolog.",
 		OnSelect = {
 			function (obj)
