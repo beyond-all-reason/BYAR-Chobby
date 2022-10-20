@@ -805,18 +805,18 @@ function Configuration:GetMinimapSmallImage(mapName)
 	if not VFS.FileExists(filePath) then
 		filePath = "LuaMenu/Images/Minimaps/" .. mapName .. ".jpg"
 	end
-	-- if not VFS.FileExists(filePath) then
-	-- 	Spring.Log("Chobby", LOG.WARNING,"GetMinimapSmallImage not found for",mapName)
-	-- 	filePath = "LuaMenu/Images/minimapNotFound.png"
-	-- end
-	if WG.WrapperLoopback and WG.WrapperLoopback.DownloadImage and (not VFS.FileExists(filePath)) then
+	if not VFS.FileExists(filePath) then
+	 	Spring.Log("Chobby", LOG.WARNING,"GetMinimapSmallImage not found for",mapName)
+	 	filePath = "LuaMenu/Images/minimapNotFound.png"
+	end
+--[[ 	if WG.WrapperLoopback and WG.WrapperLoopback.DownloadImage and (not VFS.FileExists(filePath)) then
 		if not self.minimapThumbDownloads[mapName] then
 			Spring.CreateDir("LuaMenu/Images/MinimapThumbnails")
 			WG.WrapperLoopback.DownloadImage({ImageUrl = "http://zero-k.info/Resources/" .. mapName .. ".thumbnail.jpg", TargetPath = filePath})
 			self.minimapThumbDownloads[mapName] = true
 		end
 		return filePath, true
-	end
+	end ]]
 	return filePath, not VFS.FileExists(filePath)
 end
 
@@ -829,18 +829,18 @@ function Configuration:GetMinimapImage(mapName)
 	if not VFS.FileExists(filePath) then
 		filePath = "LuaMenu/Images/Minimaps/" .. mapName .. ".jpg"
 	end
-	-- if not VFS.FileExists(filePath) then
-	-- 	Spring.Log("Chobby", LOG.WARNING,"GetMinimapImage not found for",mapName)
-	-- 	filePath = "LuaMenu/Images/minimapNotFound.png"
-	-- end
-	if WG.WrapperLoopback and WG.WrapperLoopback.DownloadImage and (not VFS.FileExists(filePath)) then
+	if not VFS.FileExists(filePath) then
+	 	Spring.Log("Chobby", LOG.WARNING,"GetMinimapImage not found for",mapName)
+	 	filePath = "LuaMenu/Images/minimapNotFound.png"
+	end
+--[[ 	if WG.WrapperLoopback and WG.WrapperLoopback.DownloadImage and (not VFS.FileExists(filePath)) then
 		if not self.minimapDownloads[mapName] then
 			Spring.CreateDir("LuaMenu/Images/Minimaps")
 			WG.WrapperLoopback.DownloadImage({ImageUrl = "http://zero-k.info/Resources/" .. mapName .. ".minimap.jpg", TargetPath = filePath})
 			self.minimapDownloads[mapName] = true
 		end
 		return filePath, true
-	end
+	end ]]
 	return filePath, not VFS.FileExists(filePath)
 end
 
