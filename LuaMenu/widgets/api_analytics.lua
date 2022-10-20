@@ -388,7 +388,7 @@ local function GetInfologs()
 
 	if PRINT_DEBUG then Spring.Echo("BAR Analytics: GetInfologs()", #filenames) end
 	for i=1, math.min(#filenames, 2) do
-		filename = filenames[i]
+		local filename = filenames[i]
 		if onetimeEvents["reportedcrashes"][filename] ~= nil then -- we already reported this one
 			Spring.Echo("Already processed an error in ", filename)
 		else
@@ -396,24 +396,28 @@ local function GetInfologs()
 			if errortype ~= nil then
 				
 				if PRINT_DEBUG then Spring.Echo("BAR Analytics: GetInfologs() found an error:", filename, errortype, errorkey) end 
-				if WG.Chobby.ConfirmationPopup then
-					
-					--local compressedlog = Spring.Utilities.Base64Encode(VFS.ZlibCompress(fullinfolog))
-					local compressedlog = Spring.Utilities.Base64Encode(VFS.ZlibCompress(fullinfolog))
-					local function reportinfolog()
-						--Spring.Echo("Uncompressed length:", string.len(fullinfolog), "Compressed base64 length:", string.len(compressedlog))
-						Spring.Echo("User agreed to upload infolog",filename,"with error", errortype)
-						Analytics.SendCrashReportOneTimeEvent(filename,errortype, errorkey, compressedlog, true)
-					end
 
-					local function dontreportinfolog()
-						Spring.Echo("User declined to upload infolog",filename,"with error", errortype)
-						Analytics.SendCrashReportOneTimeEvent(filename, errortype, errorkey, compressedlog, false)
-					end
+				local compressedlog = Spring.Utilities.Base64Encode(VFS.ZlibCompress(fullinfolog))
+				if Configuration.uploadLogPrompt == "Prompt" then
+					if WG.Chobby.ConfirmationPopup then
+						
+						local function reportinfolog()
+							--Spring.Echo("Uncompressed length:", string.len(fullinfolog), "Compressed base64 length:", string.len(compressedlog))
+							Spring.Echo("User agreed to upload infolog", filename, "with error", errortype)
+							Analytics.SendCrashReportOneTimeEvent(filename, errortype, errorkey, compressedlog, true)
+						end
 
-					WG.Chobby.ConfirmationPopup(reportinfolog, "BAR has detected a ["..errortype.."] error during one of your previous games in:\n    " .. filename .. "\nSuch infologs help us fix any bugs you may have encountered. This file contains information such as your username, your system configuration and the path the game was installed to. This data will not be made public.\nDo you agree to upload this infolog?", nil, 550, 400, "Yes", "No", dontreportinfolog, nil)
+						local function dontreportinfolog()
+							Spring.Echo("User declined to upload infolog", filename, "with error", errortype)
+							Analytics.SendCrashReportOneTimeEvent(filename, errortype, errorkey, compressedlog, false)
+						end
+
+						WG.Chobby.ConfirmationPopup(reportinfolog, "BAR has detected a ["..errortype.."] error during one of your previous games in:\n    " .. filename .. "\nSuch infologs help us fix any bugs you may have encountered. This file contains information such as your username, your system configuration and the path the game was installed to. This data will not be made public.\nDo you agree to upload this infolog?\nYou can specify always yes or always no in the Settings tab -> Error log uploading.", nil, 550, 400, "Yes", "No", dontreportinfolog, nil)
+					end
+					return
+				else
+					Analytics.SendCrashReportOneTimeEvent(filename,errortype, errorkey, compressedlog, (Configuration.uploadLogPrompt == "Always Yes"))
 				end
-				return
 			end
 		end
 	end

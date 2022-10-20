@@ -933,6 +933,40 @@ local function GetLobbyTabControls()
 	children[#children + 1] = autoLogin
 	offset = offset + ITEM_OFFSET
 
+	children[#children + 1] = Label:New {
+		x = 20,
+		y = offset + TEXT_OFFSET,
+		width = 90,
+		height = 40,
+		valign = "top",
+		align = "left",
+		objectOverrideFont = settingsFont2,
+		caption = "Error log uploading",
+		tooltip = "Prompt will ask you each time an error is detected if you want to upload the infolog.",
+	}
+	children[#children + 1] = ComboBox:New {
+		x = COMBO_X,
+		y = offset,
+		width = COMBO_WIDTH,
+		right = 18,
+		height = 30,
+		items = {"Prompt", "Always Yes", "Always No"},
+		objectOverrideFont = settingsFont2,
+		itemFontSize = Configuration:GetFont(2).size,
+		selected = Configuration.panel_layout or 3,
+		tooltip = "Prompt will ask you each time an error is detected if you want to upload the infolog.",
+		OnSelect = {
+			function (obj)
+				if freezeSettings then
+					return
+				end
+				Configuration:SetConfigValue("uploadLogPrompt", obj.selected)
+			end
+		},
+	}
+
+	offset = offset + ITEM_OFFSET
+
 	if not Configuration.gameConfig.disableSteam then
 		children[#children + 1], offset = AddCheckboxSetting(offset, i18n("login_with_steam"), "wantAuthenticateWithSteam", true, nil)
 		children[#children + 1], offset = AddCheckboxSetting(offset, i18n("use_steam_browser"), "useSteamBrowser", true)

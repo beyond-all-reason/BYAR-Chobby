@@ -58,6 +58,7 @@ function Configuration:init()
 	self.suggestedNameFromSteam = false
 	self.password = false
 	self.autoLogin = true
+	self.uploadLogPrompt = 'Prompt'
 	self.firstLoginEver = true
 	self.canAuthenticateWithSteam = false
 	self.wantAuthenticateWithSteam = true
@@ -560,6 +561,7 @@ function Configuration:GetConfigData()
 		uiScalesForScreenSizes = self.uiScalesForScreenSizes,
 		password = self.password,
 		autoLogin = self.autoLogin,
+		uploadLogPrompt = self.uploadLogPrompt,
 		firstLoginEver = self.firstLoginEver,
 		wantAuthenticateWithSteam = self.wantAuthenticateWithSteam,
 		useSteamBrowser = self.useSteamBrowser,
