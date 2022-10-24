@@ -179,7 +179,9 @@ end
 function Analytics.SendCrashReportOneTimeEvent(filename, errortype, errorkey, compressedlog, private)
 	if PRINT_DEBUG then
 		Spring.Log("Chobby", LOG.WARNING, "BAR Analytics.SendCrashReportOneTimeEvent(filename, errortype, errorkey, compressedlog)", filename, errortype, errorkey, private)
-	else -- only save it if we are in debug mode
+	elseif filename ~= "infolog.txt" then
+		-- only save it if we are in debug mode
+		-- if name is basename then dont clobber 
 		if onetimeEvents["reportedcrashes"][filename] then
 			return
 		end
@@ -404,12 +406,12 @@ local function GetInfologs()
 						local function reportinfolog()
 							--Spring.Echo("Uncompressed length:", string.len(fullinfolog), "Compressed base64 length:", string.len(compressedlog))
 							Spring.Echo("User agreed to upload infolog", filename, "with error", errortype)
-							Analytics.SendCrashReportOneTimeEvent(filename, errortype, errorkey, compressedlog, true)
+							Analytics.SendCrashReportOneTimeEvent(filename, errortype, errorkey, compressedlog, false)
 						end
 
 						local function dontreportinfolog()
 							Spring.Echo("User declined to upload infolog", filename, "with error", errortype)
-							Analytics.SendCrashReportOneTimeEvent(filename, errortype, errorkey, compressedlog, false)
+							Analytics.SendCrashReportOneTimeEvent(filename, errortype, errorkey, compressedlog, true)
 						end
 
 						WG.Chobby.ConfirmationPopup(reportinfolog, "BAR has detected a ["..errortype.."] error during one of your previous games in:\n    " .. filename .. "\nSuch infologs help us fix any bugs you may have encountered. This file contains information such as your username, your system configuration and the path the game was installed to. This data will not be made public.\nDo you agree to upload this infolog?\nYou can specify always yes or always no in the Settings tab -> Error log uploading.", nil, 550, 400, "Yes", "No", dontreportinfolog, nil)
@@ -423,6 +425,12 @@ local function GetInfologs()
 	end
 end
 
+local function GetErrorLog()
+	local infolog = VFS.LoadFile("infolog.txt") or "Unable to find infolog.txt"
+	local compressedlog = Spring.Utilities.Base64Encode(VFS.ZlibCompress(infolog))
+	--Spring.Echo("GetErrorLog", string.len(infolog),string.len(compressedlog))
+	Analytics.SendCrashReportOneTimeEvent("infolog.txt", "Errorlog", "Errorlog", compressedlog, true)
+end
 
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
@@ -554,6 +562,7 @@ function widget:Initialize()
 	lobby = WG.LibLobby.lobby
 	lobby:AddListener("OnConnect", OnConnected)
 	lobby:AddListener("OnDisconnected", OnDisconnected)
+	lobby:AddListener("OnS_Client_Errorlog", GetErrorLog)
 
 	WG.Delay(DelayedInitialize, 1)
 end

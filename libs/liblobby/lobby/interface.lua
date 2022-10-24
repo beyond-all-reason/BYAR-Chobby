@@ -1692,4 +1692,11 @@ end
 Interface.commands["s.battle.update_lobby_title"] = Interface._OnS_Battle_Update_lobby_title
 Interface.commandPattern["s.battle.update_lobby_title"] = "(%S+)%s+(.*)"
 
+function Interface:_OnS_Client_Errorlog()
+	self:_CallListeners("OnS_Client_Errorlog")
+end
+
+Interface.commands["s.client.errorlog"] = Interface._OnS_Client_Errorlog
+--Interface.commandPattern["s.client.errorlog"] = "(%S+)"
+
 return Interface
