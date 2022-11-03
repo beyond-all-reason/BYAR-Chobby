@@ -772,7 +772,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	end
 
 	btnStartBattle = Button:New {
-		x = ((readyButton == nil) and 0 or "50.5%"),
+		x = ((battleLobby.name == "singleplayer") and 0 or "50.5%"),
 		right = 0,
 		bottom = 0,
 		height = 48,
