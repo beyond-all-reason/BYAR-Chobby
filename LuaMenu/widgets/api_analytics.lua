@@ -322,6 +322,14 @@ local function ParseInfolog(infologpath)
 				Analytics.SendRepeatEvent("lobby:luauierror", {errorcode = luauiError .. " file:" .. infologpath})
 			end
 
+			if string.find(line, "Error in Interface:_SendCommand while sending", nil, true) then
+				local luauiError = EscapeSlashesAndQuotes(line)
+				if PRINT_DEBUG then
+					Spring.Echo("Failed to send error report", infologpath, luauiError)
+				end
+				Analytics.SendRepeatEvent("lobby:infologerror", {errorcode = luauiError .. " file:" .. infologpath})
+			end
+
 			if string.find(line, "Error: [LuaRules::RunCallInTraceback] ", nil, true) then -- exact match
 				--[t=00:00:37.141179][f=-000001] Error: [LuaRules::RunCallInTraceback] error=2 (LUA_ERRRUN) callin=ViewResize trace=[Internal Lua error: Call failure] [string "LuaRules/Gadgets/dbg_gadget_profiler.lua"]:514: attempt to perform arithmetic on local 'viewWidth' (a table value)
 				-- yes we got an error here, then we should use this as error key
