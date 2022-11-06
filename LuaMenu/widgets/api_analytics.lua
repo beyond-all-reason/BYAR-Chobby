@@ -285,16 +285,21 @@ local function ParseInfolog(infologpath)
 	if PRINT_DEBUG then Spring.Echo("BAR Analytics: ParseInfolog()", infologpath) end
 	if infolog then
 		local fileLines = lines(infolog)
-		local luauierrorcount = 0 
+		local luauierrorcount = 0
+		local userhastestversion = false
 		for i, line in ipairs(fileLines) do
 			-- look for game or chobby version mismatch, if $VERSION then return
+			
 			if string.find(line,"Chobby $VERSION\"", nil, true) then -- BYAR-Chobby or Chobby is dev mode, so dont report
-				if not PRINT_DEBUG then return nil end
+				--if not PRINT_DEBUG then return nil end
+				userhastestversion = true
 			end
 			if string.find(line, "Beyond All Reason $VERSION", nil, true) then -- Game is test version, no reporting
-				if not PRINT_DEBUG then return nil end
+				userhastestversion = true
+				--if not PRINT_DEBUG then return nil end
+				
 			end
-
+			
 
 			--plain old luaui errors:
 			-- [t=00:00:55.609414][f=-000001] Error: gl.CreateList: error(2) = [string "LuaUI/Widgets/gui_options.lua"]:576: attempt to perform arithmetic on field 'value' (a boolean value)
@@ -408,7 +413,7 @@ local function GetInfologs()
 				if PRINT_DEBUG then Spring.Echo("BAR Analytics: GetInfologs() found an error:", filename, errortype, errorkey) end 
 
 				local compressedlog = Spring.Utilities.Base64Encode(VFS.ZlibCompress(fullinfolog))
-				if Configuration.uploadLogPrompt == "Prompt" then
+				if WG.Chobby.Configuration.uploadLogPrompt == "Prompt" then
 					if WG.Chobby.ConfirmationPopup then
 						
 						local function reportinfolog()
@@ -426,7 +431,7 @@ local function GetInfologs()
 					end
 					return
 				else
-					Analytics.SendCrashReportOneTimeEvent(filename,errortype, errorkey, compressedlog, (Configuration.uploadLogPrompt == "Always Yes"))
+					Analytics.SendCrashReportOneTimeEvent(filename,errortype, errorkey, compressedlog, (WG.Chobby.Configuration.uploadLogPrompt == "Always Yes"))
 				end
 			end
 		end
