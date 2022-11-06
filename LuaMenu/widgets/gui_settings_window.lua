@@ -944,23 +944,32 @@ local function GetLobbyTabControls()
 		caption = "Error log uploading",
 		tooltip = "Prompt will ask you each time an error is detected if you want to upload the infolog.",
 	}
+
+	local uploadLogPromptItems = {"Prompt", "Always Yes", "Always No"}
+	local selectedUploadLogPrompt = 1
+	for k,v in ipairs(uploadLogPromptItems) do
+		if v == Configuration.uploadLogPrompt then
+			selectedUploadLogPrompt = k
+		end
+	end
+
 	children[#children + 1] = ComboBox:New {
 		x = COMBO_X,
 		y = offset,
 		width = COMBO_WIDTH,
 		right = 18,
 		height = 30,
-		items = {"Prompt", "Always Yes", "Always No"},
+		items = uploadLogPromptItems,
 		objectOverrideFont = settingsFont2,
 		itemFontSize = Configuration:GetFont(2).size,
-		selected = Configuration.uploadLogPrompt or 1,
+		selected = selectedUploadLogPrompt or 1,
 		tooltip = "Prompt will ask you each time an error is detected if you want to upload the infolog.",
 		OnSelect = {
 			function (obj)
 				if freezeSettings then
 					return
 				end
-				Configuration:SetConfigValue("uploadLogPrompt", obj.selected)
+				Configuration:SetConfigValue("uploadLogPrompt", obj.items[obj.selected])
 			end
 		},
 	}
