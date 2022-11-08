@@ -359,7 +359,8 @@ local function ParseInfolog(infologpath)
 				return "SyncError", line, infolog
 			end
 
-			if string.find(line, "] Error: Spring ", nil, true) and string.find(line," has crashed.", nil, true) then -- exact match
+			if (string.find(line, "] Error: Spring ", nil, true) and string.find(line," has crashed", nil, true) )
+				or string.find(line, "Error handler invoked", nil, true) then -- exact match
 				-- [t=00:35:40.093162][f=0000524] Error: Spring 105.1.1-475-gd112b9e BAR105 has crashed. -- this is the actual crash line
 
 				-- look for the first frame of the stack trace, and get the address
