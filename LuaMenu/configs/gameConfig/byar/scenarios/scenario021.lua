@@ -7,7 +7,7 @@ local scenariodata = {
 	imagepath		= "scenario021.jpg", -- placed next to lua file, should be 3:1 ratio banner style
 	imageflavor		= "Ghost time", -- This text will be drawn over image
     summary         = [[Incoming Transmission: Commander...intel report that it is cortex ba... ,it is...functio...,seek and des... transmission interrupted!]],
-	briefing 		= [[Tips:  - Get in to Water as soon as possible and setup Advanced Shipyard 
+	briefing 		= [[Tips:  - Get in to near Water as soon as you can and setup Advanced Shipyard 
 								 - Build Shield as soon as possible
 								 - Try to Capture enemy constructor to gain access to foe Tech
 ]],
