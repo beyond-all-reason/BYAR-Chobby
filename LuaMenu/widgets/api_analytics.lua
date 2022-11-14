@@ -284,6 +284,9 @@ local function ParseInfolog(infologpath)
 
 	if PRINT_DEBUG then Spring.Echo("BAR Analytics: ParseInfolog()", infologpath) end
 	if infolog then
+		if string.len(infolog) > 1000000 then
+			infolog = string.sub(infolog,1, 1000000)
+		end
 		local fileLines = lines(infolog)
 		local luauierrorcount = 0
 		local userhastestversion = false
@@ -440,7 +443,7 @@ local function GetInfologs()
 end
 
 local function GetErrorLog()
-	local infolog = VFS.LoadFile("infolog.txt") or "Unable to find infolog.txt"
+	local infolog = VFS.LoadFile("infolog.txt") or table.concat(VFS.DirList('.') or {},',') or "Unable to find infolog.txt"
 	local compressedlog = Spring.Utilities.Base64Encode(VFS.ZlibCompress(infolog))
 	--Spring.Echo("GetErrorLog", string.len(infolog),string.len(compressedlog))
 	Analytics.SendCrashReportOneTimeEvent("infolog.txt", "Errorlog", "Errorlog", compressedlog, true)
