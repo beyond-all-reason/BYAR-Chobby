@@ -152,8 +152,8 @@
                         "extract": true
                     },
                     {
-                        "url": "https://github.com/beyond-all-reason/spring/releases/download/spring_bar_%7BBAR105%7D105.1.1-1314-gfb3dea2/spring_bar_.BAR105.105.1.1-1314-gfb3dea2_linux-64-minimal-portable.7z",
-                        "destination": "engine/105.1.1-1314-gfb3dea2 bar",
+                        "url": "https://github.com/beyond-all-reason/spring/releases/download/spring_bar_%7BBAR105%7D105.1.1-1344-g7082b3e/spring_bar_.BAR105.105.1.1-1344-g7082b3e_linux-64-minimal-portable.7z",
+                        "destination": "engine/105.1.1-1344-g7082b3e bar",
                         "extract": true
                     }
                 ]
@@ -162,7 +162,7 @@
             "logs_s3_bucket": "bar-infologs",
             "launch": {
                 "start_args": ["--menu", "rapid://byar-chobby:test"],
-                "engine": "105.1.1-1314-gfb3dea2 bar",
+                "engine": "105.1.1-1344-g7082b3e bar",
                 "springsettings": {
                     "RapidTagResolutionOrder": "bar-rapid.p2004a.com"
                 }
@@ -190,8 +190,8 @@
                         "extract": true
                     },
                     {
-                        "url": "https://github.com/beyond-all-reason/spring/releases/download/spring_bar_%7BBAR105%7D105.1.1-1314-gfb3dea2/spring_bar_.BAR105.105.1.1-1314-gfb3dea2_windows-64-minimal-portable.7z",
-                        "destination": "engine/105.1.1-1314-gfb3dea2 bar",
+                        "url": "https://github.com/beyond-all-reason/spring/releases/download/spring_bar_%7BBAR105%7D105.1.1-1344-g7082b3e/spring_bar_.BAR105.105.1.1-1344-g7082b3e_windows-64-minimal-portable.7z",
+                        "destination": "engine/105.1.1-1344-g7082b3e bar",
                         "extract": true
                     }
                 ]
@@ -200,7 +200,7 @@
             "logs_s3_bucket": "bar-infologs",
             "launch": {
                 "start_args": ["--menu", "rapid://byar-chobby:test"],
-                "engine": "105.1.1-1314-gfb3dea2 bar",
+                "engine": "105.1.1-1344-g7082b3e bar",
                 "springsettings": {
                     "RapidTagResolutionOrder": "bar-rapid.p2004a.com"
                 }
