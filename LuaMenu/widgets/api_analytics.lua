@@ -489,7 +489,7 @@ local function LateHWInfo()
 	if cpuinfo ~= "" then Analytics.SendOnetimeEvent("hardware:cpuinfo",cpuinfo) end
 	if gpuinfo ~= "" then Analytics.SendOnetimeEvent("hardware:gpuinfo",gpuinfo) end
 	if raminfo ~= "" then Analytics.SendOnetimeEvent("hardware:raminfo",raminfo) end
-	if Platform.sysInfoHash then Analytics.SendOnetimeEvent("hardware:sysInfoHash",Platform.sysInfoHash) end
+	if Platform.sysInfoHash then Analytics.SendOnetimeEvent("hardware:sysInfoHash",string.match(Platform.sysInfoHash, '([0-9a-f]*)') ) end
 	if Platform.macAddrHash then Analytics.SendOnetimeEvent("hardware:macAddrHash",Platform.macAddrHash) end
 end
 
