@@ -53,10 +53,6 @@ local function lines(str)
 	return t
 end
 
-local function trim1(s) -- http://lua-users.org/wiki/StringTrim
-   return (s:gsub("^%s*(.-)%s*$", "%1"))
-end
-
 local function MachineHash()
 	--Spring.Echo("DEADBEEF", debug.getinfo(1).short_src, debug.getinfo(1).source, VFS.GetFileAbsolutePath("infolog.txt"))
 	local hashstr = ""
@@ -75,17 +71,33 @@ local function MachineHash()
 	end
 	local hashstr = hashstr .. "|" .. tostring(VFS.GetFileAbsolutePath("infolog.txt") or "")
 
-	local cpustr = Platform.hwConfig
-	local s,e = string.find(cpustr, ";", nil,true)
-	local rs,re = string.find(cpustr, ",", nil,true)
-	cpuinfo = trim1(string.sub(cpustr, 1, s-1))
-	if rs and re then
-		raminfo = trim1(string.sub(cpustr, s+2, rs -1))
-	else
-		raminfo = "unknown"
-	end
+	local cpustr = ''
+	local infolog = VFS.LoadFile("infolog.txt")
+	if infolog then
+		local fileLines = lines(infolog)
+		for i, line in ipairs(fileLines) do
+			if string.sub(line, 1, 3) == '[F='  then
+				break
+			end
 
-	hashstr = hashstr .. "|" ..cpustr
+			if string.find(line:lower(), 'hardware config:') then
+				local s,e = string.find(line:lower(), 'hardware config:')
+				cpustr = string.sub(line, e+2)
+				s,e = string.find(cpustr, ";", nil,true)
+				cpuinfo = string.sub(cpustr, 1, s-1)
+				local rs,re = string.find(cpustr, ",", nil,true)
+				if rs and re then 
+					raminfo = string.sub(cpustr, s+2, rs -1)
+				else
+					raminfo = "unknown"
+				end
+				break
+			end
+		end
+	end
+	hashstr = hashstr .."|" ..cpustr
+	
+	-- e.g. :hashstr = |NVIDIA GeForce RTX 2060/PCIe/SSE2|Windows|Windows 7|N:\Beyond_all_reason\Beyond-All-Reason\data\infolog.txt|Intel(R) Core(TM) i7-2600K CPU @ 3.40GHz; 32751MB RAM, 65500MB pagefile, clhUckpDMG5BZFdVbUNIOFE3K2tXUT09
 
 	machineHash = Spring.Utilities.Base64Encode(VFS.CalculateHash(hashstr,0))
 
@@ -95,7 +107,7 @@ end
 
 local socket = socket
 local client
-local host = "server3.beyondallreason.info"
+local host = "3.beyondallreason.info"
 local port = 8200
 
 local buffer = ""
@@ -386,18 +398,6 @@ end
 
 
 local function GetInfologs()
-	--[[
-	local testlog = {}
-	for i= 100000, 800000, 3 do 
-		testlog[#testlog+1] = tostring(i)
-	end 
-	testlog = table.concat(testlog,',')
-	
-	local compressedlog = Spring.Utilities.Base64Encode(VFS.ZlibCompress(testlog))
-	Spring.Echo("attempting to send test log", #testlog, #compressedlog)
-	Analytics.SendCrashReportOneTimeEvent("infolog.txt", "Testupload", "Testupload", compressedlog, true)
-	]]--
-
 	if onetimeEvents["reportedcrashes"] == nil then
 		onetimeEvents["reportedcrashes"] = {}
 	end
@@ -489,8 +489,6 @@ local function LateHWInfo()
 	if cpuinfo ~= "" then Analytics.SendOnetimeEvent("hardware:cpuinfo",cpuinfo) end
 	if gpuinfo ~= "" then Analytics.SendOnetimeEvent("hardware:gpuinfo",gpuinfo) end
 	if raminfo ~= "" then Analytics.SendOnetimeEvent("hardware:raminfo",raminfo) end
-	if Platform.sysInfoHash then Analytics.SendOnetimeEvent("hardware:sysInfoHash",Platform.sysInfoHash) end
-	if Platform.macAddrHash then Analytics.SendOnetimeEvent("hardware:macAddrHash",Platform.macAddrHash) end
 end
 
 local function LoginHWInfo()
@@ -498,10 +496,11 @@ local function LoginHWInfo()
 	onetimeEvents['hardware:cpuinfo'] = nil
 	onetimeEvents['hardware:gpuinfo'] = nil
 	onetimeEvents['hardware:raminfo'] = nil
-	onetimeEvents['hardware:sysInfoHash'] = nil
-	onetimeEvents['hardware:macAddrHash'] = nil
 	Spring.Log("Analytics", LOG.NOTICE, "LoginHWInfo", isConnected, ACTIVE, client)
-	LateHWInfo()
+	if osinfo ~= "" then Analytics.SendOnetimeEvent("hardware:osinfo",osinfo) end
+	if cpuinfo ~= "" then Analytics.SendOnetimeEvent("hardware:cpuinfo",cpuinfo) end
+	if gpuinfo ~= "" then Analytics.SendOnetimeEvent("hardware:gpuinfo",gpuinfo) end
+	if raminfo ~= "" then Analytics.SendOnetimeEvent("hardware:raminfo",raminfo) end
 end
 
 function DelayedInitialize()
