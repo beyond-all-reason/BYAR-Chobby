@@ -318,7 +318,7 @@ local function ParseInfolog(infologpath)
 				Analytics.SendRepeatEvent("lobby:luauierror", {errorcode = luauiError .. " file:" .. infologpath})
 			end
 
-			if string.find(line, "Error in Interface:_SendCommand while sending", nil, true) then
+			if string.find(line, "Error in Interface:_SendCommand while sending", nil, true) and string.find(line, "timeout", nil, true)  then
 				local luauiError = EscapeSlashesAndQuotes(line)
 				if PRINT_DEBUG then
 					Spring.Echo("Failed to send error report", infologpath, luauiError)
