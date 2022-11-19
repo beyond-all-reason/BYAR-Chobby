@@ -15,6 +15,6 @@ jobs:
             --header "Content-Type: application/json" \
             --header "AccessKey: $ACCESS_KEY" \
             --upload-file dist_cfg/config.json \
-            https://bar-config.p2004a.com/config.json
+            https://launcher-config.beyondallreason.dev/config.json
         env:
           ACCESS_KEY: ${{ secrets.LAUNCHER_CONFIG_PUSH_ACCESS_KEY }}
