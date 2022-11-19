@@ -7,7 +7,7 @@
                 "display": "Alpha",
                 "platform": "linux"
             },
-            "config_url": "https://bar-config.p2004a.com/config.json",
+            "config_url": "https://launcher-config.beyondallreason.dev/config.json",
             "env_variables": {
                 "PRD_HTTP_SEARCH_URL": "https://bar-springfiles.p2004a.com/find",
                 "PRD_RAPID_USE_STREAMER": "false",
@@ -44,7 +44,7 @@
                 "display": "Alpha",
                 "platform": "win32"
             },
-            "config_url": "https://bar-config.p2004a.com/config.json",
+            "config_url": "https://launcher-config.beyondallreason.dev/config.json",
             "env_variables": {
                 "PRD_HTTP_SEARCH_URL": "https://bar-springfiles.p2004a.com/find",
                 "PRD_RAPID_USE_STREAMER": "false",
@@ -82,7 +82,7 @@
                 "display": "Alpha (no CDN)",
                 "platform": "linux"
             },
-            "config_url": "https://bar-config.p2004a.com/config.json",
+            "config_url": "https://launcher-config.beyondallreason.dev/config.json",
             "downloads": {
                 "games": ["byar:test", "chobby:test", "byar-chobby:test"],
                 "resources": [
@@ -109,7 +109,7 @@
                 "display": "Alpha (no CDN)",
                 "platform": "win32"
             },
-            "config_url": "https://bar-config.p2004a.com/config.json",
+            "config_url": "https://launcher-config.beyondallreason.dev/config.json",
             "silent": false,
             "downloads": {
                 "games": ["byar:test", "chobby:test", "byar-chobby:test"],
@@ -137,7 +137,7 @@
                 "display": "Engine Test",
                 "platform": "linux"
             },
-            "config_url": "https://bar-config.p2004a.com/config.json",
+            "config_url": "https://launcher-config.beyondallreason.dev/config.json",
             "env_variables": {
                 "PRD_HTTP_SEARCH_URL": "https://bar-springfiles.p2004a.com/find",
                 "PRD_RAPID_USE_STREAMER": "false",
@@ -174,7 +174,7 @@
                 "display": "Engine Test",
                 "platform": "win32"
             },
-            "config_url": "https://bar-config.p2004a.com/config.json",
+            "config_url": "https://launcher-config.beyondallreason.dev/config.json",
             "env_variables": {
                 "PRD_HTTP_SEARCH_URL": "https://bar-springfiles.p2004a.com/find",
                 "PRD_RAPID_USE_STREAMER": "false",
