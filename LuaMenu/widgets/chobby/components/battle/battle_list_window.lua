@@ -764,7 +764,7 @@ function BattleListWindow:CompareItems(id1, id2)
 		end
 
 		if battle1.isRunning ~= battle2.isRunning then 
-			return battle2.isRunning 
+			return battle1.isRunning 
 		end
 
 		if battle1.locked ~= battle2.locked then 
