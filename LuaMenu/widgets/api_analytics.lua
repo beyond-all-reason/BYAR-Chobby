@@ -428,6 +428,7 @@ local function GetInfologs()
 
 						local function dontreportinfolog()
 							Spring.Echo("User declined to upload infolog", filename, "with error", errortype)
+							compressedlog = Spring.Utilities.Base64Encode(VFS.ZlibCompress("private"))
 							Analytics.SendCrashReportOneTimeEvent(filename, errortype, errorkey, compressedlog, true)
 						end
 
@@ -435,7 +436,13 @@ local function GetInfologs()
 					end
 					return
 				else
-					Analytics.SendCrashReportOneTimeEvent(filename,errortype, errorkey, compressedlog, (WG.Chobby.Configuration.uploadLogPrompt == "Always Yes"))
+					if WG.Chobby.Configuration.uploadLogPrompt == "Always Yes" then
+						Analytics.SendCrashReportOneTimeEvent(filename,errortype, errorkey, compressedlog, false)
+					else
+						compressedlog = Spring.Utilities.Base64Encode(VFS.ZlibCompress("private"))
+						Analytics.SendCrashReportOneTimeEvent(filename,errortype, errorkey, compressedlog, true)
+					end
+
 				end
 			end
 		end
