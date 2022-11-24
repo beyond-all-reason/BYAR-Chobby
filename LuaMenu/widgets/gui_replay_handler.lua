@@ -22,7 +22,7 @@ local replayList
 
 -- Size constants for the replay window
 local PLAYER_HEIGHT = 20
-local REPLAY_LIST_ENTRY_HEIGHT = 120
+local REPLAY_LIST_ENTRY_HEIGHT = 126
 
 local myFont1
 local myFont2
@@ -84,13 +84,12 @@ end
 --	Return a widget containing a player's information
 local function playerWidget(playerInfo)
 	local Configuration = WG.Chobby.Configuration
-	--local userName = playerInfo.name
-	local userName = StringUtilities.GetTruncatedStringWithDotDot(playerInfo.name, myFont1, REPLAY_LIST_ENTRY_HEIGHT-5)
+	local userName = StringUtilities.GetTruncatedStringWithDotDot(playerInfo.name, myFont1, 110)
 
 	-- Create a control widget to encapsulate the player's information
 	local ret = Chili.Control:New {
 		x = 0, y = 0, right = 0,
-		height=PLAYER_HEIGHT * 0.8, bottom = 0, padding = {0, 0, 0, 0},
+		height=PLAYER_HEIGHT, bottom = 0, padding = {0, 0, 0, 0},
 	}
 
 	local image_file
@@ -119,10 +118,15 @@ local function playerWidget(playerInfo)
 		name = "userName",
 		x = 18, y = 0, right = 0, height = PLAYER_HEIGHT,
 		valign = "top",
-		objectoverridefont = myFont1,
-		--fontsize = Configuration:GetFont(1).size,
-		text = userName,
+		--objectoverridefont = myFont1,
+		fontsize = Configuration:GetFont(1).size,
+		text = "",
 		parent = ret,
+		OnResize = {
+			function (obj, xSize, ySize)
+				obj:SetText(StringUtilities.GetTruncatedStringWithDotDot(userName, obj.font, obj.width))
+			end
+		}
 	}
 
 	-- TODO: We could definitely add some more stuff (flag? TS value?) here.
@@ -134,7 +138,7 @@ local function CreateReplayEntry(
 )
 
 	local Configuration = WG.Chobby.Configuration
-	local mapNameTruncated = StringUtilities.GetTruncatedStringWithDotDot(mapName, myFont1, REPLAY_LIST_ENTRY_HEIGHT+50)
+	local mapNameTruncated = StringUtilities.GetTruncatedStringWithDotDot(mapName, myFont1, 180)
 	local fileName = string.sub(replayPath, 7)
 	if string.sub(fileName, 0, 4) == "hide" then
 		return
@@ -189,7 +193,7 @@ local function CreateReplayEntry(
 	local minimap = Panel:New {
 		name = "minimap",
 		x = 3, y = 3,
-		width = 112, height = 112,
+		width = 120, height = 120,
 		padding = {1,1,1,1},
 		parent = replayPanel,
 	}
@@ -280,10 +284,15 @@ local function CreateReplayEntry(
 		TextBox:New {
 			x = xOffset, y = yOffset, right = 0, height = 10,
 			valign = 'center',
-			objectoverridefont = myFont1,
-			--fontsize = Configuration:GetFont(1).size,
+			--objectoverridefont = myFont1,
+			fontsize = Configuration:GetFont(1).size,
 			text = "Team " .. i,
 			parent = userList,
+			OnResize = {
+				function (obj, xSize, ySize)
+					obj:SetText(StringUtilities.GetTruncatedStringWithDotDot("Team " .. i, obj.font, obj.width))
+				end
+			}
 		}
 		yOffset = yOffset + PLAYER_HEIGHT
 
@@ -532,7 +541,7 @@ local function InitializeControls(parentControl)
 	}
 
 	moreButton = Button:New {
-		right = 15 + 130,
+		right = 15 + 260,
 		y = 7,
 		width = 120,
 		height = 45,
@@ -598,7 +607,7 @@ local function InitializeControls(parentControl)
 
 	if WG.BrowserHandler and Configuration.gameConfig.link_replays ~= nil then
 		Button:New {
-			right = 15 + 260,
+			right = 15 + 130,
 			y = 7,
 			width = 120,
 			height = 45,
