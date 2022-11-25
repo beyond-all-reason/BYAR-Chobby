@@ -9,15 +9,15 @@
             },
             "config_url": "https://launcher-config.beyondallreason.dev/config.json",
             "env_variables": {
-                "PRD_HTTP_SEARCH_URL": "https://bar-springfiles.p2004a.com/find",
+                "PRD_HTTP_SEARCH_URL": "https://files-cdn.beyondallreason.dev/find",
                 "PRD_RAPID_USE_STREAMER": "false",
-                "PRD_RAPID_REPO_MASTER": "https://bar-rapid.p2004a.com/repos.gz"
+                "PRD_RAPID_REPO_MASTER": "https://repos-cdn.beyondallreason.dev/repos.gz"
             },
             "downloads": {
                 "games": ["byar:test", "chobby:test", "byar-chobby:test"],
                 "resources": [
                     {
-                        "url": "https://bar-springfiles-data.p2004a.com/init-pool.7z",
+                        "url": "https://pool-init.beyondallreason.dev/data.7z",
                         "destination": "pool",
                         "extract": true
                     },
@@ -34,7 +34,7 @@
                 "start_args": ["--menu", "rapid://byar-chobby:test"],
                 "engine": "105.1.1-1354-g72b2d55 bar",
                 "springsettings": {
-                    "RapidTagResolutionOrder": "bar-rapid.p2004a.com"
+                    "RapidTagResolutionOrder": "repos-cdn.beyondallreason.dev"
                 }
             }
         },
@@ -46,16 +46,16 @@
             },
             "config_url": "https://launcher-config.beyondallreason.dev/config.json",
             "env_variables": {
-                "PRD_HTTP_SEARCH_URL": "https://bar-springfiles.p2004a.com/find",
+                "PRD_HTTP_SEARCH_URL": "https://files-cdn.beyondallreason.dev/find",
                 "PRD_RAPID_USE_STREAMER": "false",
-                "PRD_RAPID_REPO_MASTER": "https://bar-rapid.p2004a.com/repos.gz"
+                "PRD_RAPID_REPO_MASTER": "https://repos-cdn.beyondallreason.dev/repos.gz"
             },
             "silent": false,
             "downloads": {
                 "games": ["byar:test", "chobby:test", "byar-chobby:test"],
                 "resources": [
                     {
-                        "url": "https://bar-springfiles-data.p2004a.com/init-pool.7z",
+                        "url": "https://pool-init.beyondallreason.dev/data.7z",
                         "destination": "pool",
                         "extract": true
                     },
@@ -72,7 +72,7 @@
                 "start_args": ["--menu", "rapid://byar-chobby:test"],
                 "engine": "105.1.1-1354-g72b2d55 bar",
                 "springsettings": {
-                    "RapidTagResolutionOrder": "bar-rapid.p2004a.com"
+                    "RapidTagResolutionOrder": "repos-cdn.beyondallreason.dev"
                 }
             }
         },
@@ -139,15 +139,15 @@
             },
             "config_url": "https://launcher-config.beyondallreason.dev/config.json",
             "env_variables": {
-                "PRD_HTTP_SEARCH_URL": "https://bar-springfiles.p2004a.com/find",
+                "PRD_HTTP_SEARCH_URL": "https://files-cdn.beyondallreason.dev/find",
                 "PRD_RAPID_USE_STREAMER": "false",
-                "PRD_RAPID_REPO_MASTER": "https://bar-rapid.p2004a.com/repos.gz"
+                "PRD_RAPID_REPO_MASTER": "https://repos-cdn.beyondallreason.dev/repos.gz"
             },
             "downloads": {
                 "games": ["byar:test", "chobby:test", "byar-chobby:test"],
                 "resources": [
                     {
-                        "url": "https://bar-springfiles-data.p2004a.com/init-pool.7z",
+                        "url": "https://pool-init.beyondallreason.dev/data.7z",
                         "destination": "pool",
                         "extract": true
                     },
@@ -164,7 +164,7 @@
                 "start_args": ["--menu", "rapid://byar-chobby:test"],
                 "engine": "105.1.1-1353-g68fe327 bar",
                 "springsettings": {
-                    "RapidTagResolutionOrder": "bar-rapid.p2004a.com"
+                    "RapidTagResolutionOrder": "repos-cdn.beyondallreason.dev"
                 }
             }
         },
@@ -176,16 +176,16 @@
             },
             "config_url": "https://launcher-config.beyondallreason.dev/config.json",
             "env_variables": {
-                "PRD_HTTP_SEARCH_URL": "https://bar-springfiles.p2004a.com/find",
+                "PRD_HTTP_SEARCH_URL": "https://files-cdn.beyondallreason.dev/find",
                 "PRD_RAPID_USE_STREAMER": "false",
-                "PRD_RAPID_REPO_MASTER": "https://bar-rapid.p2004a.com/repos.gz"
+                "PRD_RAPID_REPO_MASTER": "https://repos-cdn.beyondallreason.dev/repos.gz"
             },
             "silent": false,
             "downloads": {
                 "games": ["byar:test", "chobby:test", "byar-chobby:test"],
                 "resources": [
                     {
-                        "url": "https://bar-springfiles-data.p2004a.com/init-pool.7z",
+                        "url": "https://pool-init.beyondallreason.dev/data.7z",
                         "destination": "pool",
                         "extract": true
                     },
@@ -202,7 +202,7 @@
                 "start_args": ["--menu", "rapid://byar-chobby:test"],
                 "engine": "105.1.1-1353-g68fe327 bar",
                 "springsettings": {
-                    "RapidTagResolutionOrder": "bar-rapid.p2004a.com"
+                    "RapidTagResolutionOrder": "repos-cdn.beyondallreason.dev"
                 }
             }
         },
