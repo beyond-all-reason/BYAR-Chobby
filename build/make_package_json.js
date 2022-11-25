@@ -17,6 +17,7 @@ function createPackagejson (packageJson, configJson, repoFullName, version) {
 	packageTemplate.build.artifactName = config.title + '-${version}.${ext}'; // '' is used on purpose, we want the spring to contain ${ext} as text
 	packageTemplate.version = version;
 	packageTemplate.repository = `github:${repoFullName}`;
+	packageTemplate.publisherName = 'BAR Team'
 	packageTemplate.build.appId = `com.springrts.launcher.${repoDotName}`;
     packageTemplate.build.publish = undefined;
 	if (config.dependencies != null) {
