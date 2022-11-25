@@ -38,7 +38,7 @@ jobs:
 
       - uses: actions/checkout@v3
         with:
-          repository: beyond-all-reason/spring-launcher
+          repository: MooseOnTheLoose/spring-launcher
           path: launcher
 
       - name: Setup NodeJs
