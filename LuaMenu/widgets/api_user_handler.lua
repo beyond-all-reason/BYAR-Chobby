@@ -926,11 +926,13 @@ local function GetUserControls(userName, opts)
 			keepAspect = true,
 			file = GetUserReadyStatus(userName, userControls),
 		}
-		if lobby:GetUserBattleStatus(userName) == nil then
-			Spring.Utilities.TraceFullEcho(nil,nil,nil, "lobby:GetUserBattleStatus(userName) == nil", userName)
+		local bs = lobby:GetUserBattleStatus(userName)
+
+		if bs then
+			userControls.imReadyStatus:SetVisibility(not (bs and bs.isSpectator))
+		else
+			--Spring.Utilities.TraceFullEcho(nil,nil,nil, "lobby:GetUserBattleStatus(userName) == nil", userName)
 		end
-		
-		userControls.imReadyStatus:SetVisibility(not lobby:GetUserBattleStatus(userName).isSpectator)
 		offset = offset + 21
 	end
 
