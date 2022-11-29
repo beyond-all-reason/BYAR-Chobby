@@ -844,7 +844,6 @@ function BattleListWindow:UpdateSync(battleID)
 		Spring.Utilities.TraceFullEcho(30,nil,nil, "lobby:GetBattle(battleID) == nil", battleID)
 		return
 	end
-	end
 	if not (Configuration.displayBadEngines2 or Configuration:IsValidEngineVersion(battle.engineVersion)) then
 		return
 	end
