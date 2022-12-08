@@ -1771,6 +1771,13 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 							end
 							if teamIndex == maxTeam then
 								teamData.RemoveTeam()
+								-- because it's only possible to remove the team on top of stack
+								-- we need to check, if next team on stack must also be removed
+								-- but always stay with 2 visible teams minimum: teamIndex 0 and 1
+								if (teamIndex-1 > 1) then
+									local teamObject = GetTeam(teamIndex-1)
+									teamObject.CheckRemoval()
+								end
 								return true
 							end
 						end

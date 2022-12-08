@@ -335,11 +335,13 @@ local function ParseInfolog(infologpath)
 				return "LuaRules",line, infolog
 			end
 
-
-			if string.find(line, "Error: [LuaMenu::RunCallInTraceback] ", nil, true) or string.find(line, "] [LuaMenu] Error: In", nil) or string.find(line,"] [Chili] Error: stacktrace:", nil) then -- exact match
+			-- various luamenu errors
+			if string.find(line, "Error: [LuaMenu::RunCallInTraceback] ", nil, true) or
+				string.find(line, "] [LuaMenu] Error: In", nil) or
+				string.find(line,"] [Chili] Error: stacktrace:", nil) or
+				string.find(line, '[liblobby] Error: [string "LuaMenu/', nil, true) then -- exact match
 				--Error: [LuaMenu::RunCallInTraceback] error=4 (LUA_ERRMEM) callin=MousePress trace=[Internal Lua error: Call failure] not enough memory
-				--local errorkeystart = string.find(line,"[string ",nil, true ) or 1
-				--local errorname = string.sub(line, errorkeystart, nil)
+				--[liblobby] Error: [string "LuaMenu/Widgets/api_user_handler.lua"]:929:
 				return "LuaMenu",line, infolog
 			end
 
