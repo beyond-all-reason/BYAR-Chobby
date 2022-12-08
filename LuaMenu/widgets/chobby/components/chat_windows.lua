@@ -898,7 +898,7 @@ function ChatWindows:CreateJoinChannelWindow()
 		caption = "",
 		name = "hostBattle",
 		parent = WG.Chobby.lobbyInterfaceHolder,
-		width = 312,
+		width = 318,
 		height = 216,
 		resizable = false,
 		draggable = false,
@@ -906,12 +906,13 @@ function ChatWindows:CreateJoinChannelWindow()
 	}
 
 	local title = Label:New {
-		x = 45,
-		width = 170,
-		y = 15,
+		x = 15,
+		width = 252,
+		align = "center",
+		y = 5,
 		height = 35,
 		caption = i18n("join_channel"),
-		font = Configuration:GetFont(4),
+		font = Configuration:GetFont(5),
 		parent = self.joinWindow,
 	}
 
