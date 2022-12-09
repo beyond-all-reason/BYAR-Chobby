@@ -16,17 +16,17 @@ local welcomePanelItems = {
     },
 
     {
+        Header = "Updated Map: Gecko Isle Remake v1.2",
+        Time = nil,-- "NowTime",
+        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/Gecko_Isle_Remake_v1.2.png",
+        Text = "Old map with brand new look by Nikuksis.",
+    },
+
+    {
         Header = "New Map: Crystallized Plains 1.01",
         Time = nil,-- "NowTime",
         Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/Crystallized_Plains_1.01.png",
         Text = "A 1vs1 map by Moose with dry rock flats and many colorful pillars.",
-    },
-
-    {
-        Header = "New Map: Shallow Straits v1",
-        Time = nil,-- "NowTime",
-        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/Shallow_Straits_v1.png",
-        Text = "Johannes' newest map is an invitation to get your feet wet, or walk the straight and narrow land to stay dry.",
     },
 
     {
