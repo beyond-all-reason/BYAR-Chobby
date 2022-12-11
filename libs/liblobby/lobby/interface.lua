@@ -648,7 +648,128 @@ Interface.commands["FRIENDREQUESTLISTEND"] = Interface._OnFriendRequestListEnd
 -- Battle commands
 ------------------------
 
+
+-- if num1 > num2 return 1
+-- if num1 < num2 return 0
+-- if num1 = num2 return -1
+local function bignumStr_isGreater(num1, num2)
+	if #num1 > #num2 then
+		return 1
+	end
+	if #num1 < #num2 then
+		return 0
+	end
+  
+	local dig1, dig2
+	for i=1, #num1,1 do
+		dig1 = tonumber(string.sub(num1, i, i))
+		dig2 = tonumber(string.sub(num2, i, i))
+		if dig1 > dig2 then
+			return 1
+		elseif dig1 < dig2 then
+			return 0
+		end
+	end
+	-- equal
+	return -1
+end
+
+-- Subtraction for numbers given in string format greater than 24bits numbers (Spring Lua numbers are floats with maximum of 24bit)
+local function bignumStr_subtraction(minuid, subtrahend)
+	
+	-- calc subtrahend - minuid, if subtrahend is greater than minuid and remember sign to put it into result later
+	local sign = ""
+	local isGreater = bignumStr_isGreater(subtrahend, minuid)
+	if isGreater == 1 then
+		sign = "-"
+		local temp = minuid
+		minuid = subtrahend
+		subtrahend = temp
+	elseif isGreater == -1 then
+		return "0"
+	end
+  
+	local minuidStack = {}
+	for i=#minuid, 1, -1 do
+		minuidStack[#minuidStack+1] = string.sub(minuid, i, i)
+	end
+  
+	local subtrahendStack = {}
+	for i=#subtrahend, 1, -1 do
+		subtrahendStack[#subtrahendStack+1] = string.sub(subtrahend, i, i)
+	end
+  
+	local dig2 = 0
+	local diff = 0
+	local carry = 0
+	local diffStack = {}
+	
+	-- subtract all single digits
+	for pos=1, #minuidStack, 1 do
+		if subtrahendStack[pos] then
+			dig1 = tonumber(minuidStack[pos])
+			dig2 = tonumber(subtrahendStack[pos])
+			diff = dig1 - (dig2 + carry)
+			if diff < 0 and  minuidStack[pos+1] then
+				diff = diff + 10 -- i.e -2 > 8
+				carry = 1
+			else
+				carry = 0
+			end
+			diffStack[pos] = diff
+		else
+			dig1 = tonumber(minuidStack[pos])
+			diff = dig1 - carry
+			carry = 0
+			diffStack[pos] = diff
+		end
+	end
+
+	-- rebuild a bignumber string from each difference digits
+	local strNum = ""
+	local leadingZeros = true
+	for i = #diffStack, 1, -1 do
+		if not leadingZeros then
+			strNum = strNum .. diffStack[i]
+		elseif leadingZeros and diffStack[i] ~= 0 then
+			leadingZeros = false
+			strNum = strNum .. diffStack[i]
+		end
+	end
+	strNum = strNum == "" and "0" or strNum
+
+	return sign .. strNum
+end
+
 local function ParseBattleStatus(battleStatus)
+	local side = 0
+
+	-- recognize bit 25-28 by comparison with their decimal values
+	if bignumStr_isGreater("16777216", battleStatus) == 1 then -- 0001 0000 0000 0000 0000 0000 0000 = 16.777.216
+		side = 0
+	elseif bignumStr_isGreater("33554432", battleStatus) == 1 then -- 0010 0000 0000 0000 0000 0000 0000 = 33.554.432
+		side = 1
+		-- number is greater than 24 bit, so subtract that part, to have the remaining 24bit part
+		battleStatus = bignumStr_subtraction(battleStatus, "16777216")
+	elseif bignumStr_isGreater("50331648", battleStatus) == 1 then -- 0011 0000 0000 0000 0000 0000 0000 = 50.331.648
+		side = 2
+		battleStatus = bignumStr_subtraction(battleStatus, "33554432")
+	elseif bignumStr_isGreater("67108864", battleStatus) == 1 then -- 0100 0000 0000 0000 0000 0000 0000 = 67.108.864
+		side = 3
+		battleStatus = bignumStr_subtraction(battleStatus, "50331648")
+	elseif bignumStr_isGreater("83886080", battleStatus) == 1 then -- 0101 0000 0000 0000 0000 0000 0000 = 83.886.080
+		side = 4
+		battleStatus = bignumStr_subtraction(battleStatus, "67108864")
+	elseif bignumStr_isGreater("100663296", battleStatus) == 1 then -- 0110 0000 0000 0000 0000 0000 0000 = 100.663.296
+		side = 5
+		battleStatus = bignumStr_subtraction(battleStatus, "83886080")
+	elseif bignumStr_isGreater("117440512", battleStatus) == 1 then -- 0111 0000 0000 0000 0000 0000 0000 = 117.440.512
+		side = 6
+		battleStatus = bignumStr_subtraction(battleStatus, "100663296")
+	end
+	-- could be continued for all 16 possibilities, but we usually only have factions 0,1,2 (ARM,Core,special)
+
+	-- now tonumber works, because batteStatus is reduced to 24bit
 	battleStatus = tonumber(battleStatus)
 	return {
 		isReady      = rshift(battleStatus, 1) % 2 == 1,
@@ -657,7 +778,7 @@ local function ParseBattleStatus(battleStatus)
 		isSpectator  = rshift(battleStatus, 10) % 2 == 0,
 		handicap     = rshift(battleStatus, 11) % 128,
 		sync         = rshift(battleStatus, 22) % 4,
-		side         = rshift(battleStatus, 24) % 16,
+		side         = side,
 	}
 end
 
