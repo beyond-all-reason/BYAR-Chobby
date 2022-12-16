@@ -889,7 +889,60 @@ end
 Interface.commands["UPDATEBOT"] = Interface._OnUpdateBot
 Interface.commandPattern["UPDATEBOT"] = "(%d+)%s+(%S+)%s+(%S+)%s+(%S+)"
 
+local function testEncodeDecode()
+	Spring.Log(LOG_SECTION, LOG.NOTICE, "Starting testEncodeDecode")
+	local error = false
+	local bStatus = {}
+	local retBStatus = {}
+	for isReady=0, 1, 1 do
+		for teamNumber=0, 15, 1 do
+			for allyNumber=0,15, 1 do
+				for isSpectator =0, 1, 1 do
+					for sync=0, 2, 1 do
+						for side=0, 2, 1 do
+							bStatus.isReady = isReady == 1 and true or false
+							bStatus.teamNumber = teamNumber
+							bStatus.allyNumber = allyNumber
+							bStatus.isSpectator = isSpectator == 1 and true or false
+							bStatus.sync = sync
+							bStatus.side = side
+							bStatusStr = EncodeBattleStatus(bStatus)
+							retBStatus = ParseBattleStatus(bStatusStr)
+							if	retBStatus.isReady ~= bStatus.isReady or
+								retBStatus.teamNumber ~= bStatus.teamNumber or
+								retBStatus.allyNumber ~= bStatus.allyNumber or
+								retBStatus.isSpectator ~= bStatus.isSpectator or
+								retBStatus.sync ~= bStatus.sync or
+								retBStatus.side ~= bStatus.side then
+								error = true
+								Spring.Log(LOG_SECTION, LOG.NOTICE,
+									bStatus.isReady,
+									bStatus.teamNumber, 
+									bStatus.allyNumber, 
+									bStatus.isSpectator,
+									bStatus.sync,
+									bStatus.side)
+								Spring.Log(LOG_SECTION, LOG.NOTICE,
+									retBStatus.isReady,
+									retBStatus.teamNumber, 
+									retBStatus.allyNumber, 
+									retBStatus.isSpectator,
+									retBStatus.sync,
+									retBStatus.side)
+							end
+						end
+					end
+				end
+			end
+		end
+	end
+	Spring.Log(LOG_SECTION, LOG.NOTICE, "Finished testEncodeDecode, found Errors: ", error)
+end
+
 function Interface:_OnSaidBattle(userName, message)
+	if (message == "?test EncodeBattleStatus") then
+		testEncodeDecode()
+	end
 	self:super("_OnSaidBattle", userName, message)
 end
 Interface.commands["SAIDBATTLE"] = Interface._OnSaidBattle
