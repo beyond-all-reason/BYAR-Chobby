@@ -255,13 +255,15 @@ local function EncodeBattleStatus(battleStatus)
 	-- This nasty piece of code is because battlestatus can overflow the 24bits of float that Spring Lua supports:
 	local lsb16 =
 		(battleStatus.isReady and 2 or 0) +
-		lshift(battleStatus.teamNumber, 2) +
-		lshift(battleStatus.allyNumber, 6) +
+		lshift(battleStatus.teamNumber % 16, 2) +
+		lshift(battleStatus.allyNumber % 16, 6) +
 		lshift(playMode, 10)
 
 	local msb16 =
 		math.floor((lshift(battleStatus.sync, 6) + --Because sync actually has 3 values, 0, 1, 2 (unknown, synced, unsynced)
-		lshift(battleStatus.side, 8)))
+		lshift(battleStatus.side, 8))) +
+		lshift(rshift(battleStatus.teamNumber, 4), 2) + 
+		lshift(rshift(battleStatus.allyNumber, 4), 12)
 
 	return lsbmsb16tostring(lsb16, msb16)
 end
@@ -685,7 +687,7 @@ Interface.commands["FRIENDREQUESTLISTEND"] = Interface._OnFriendRequestListEnd
 ------------------------
 -- Battle commands
 ------------------------
-local msblsb5 = { -- stores a table of each power of 10 >= 10^5 as the 16 bit top and bottom halfs of digits greater than the 5th digit
+local msbLsb5 = { -- stores a table of each power of 10 >= 10^5 as the 16 bit top and bottom halfs of digits greater than the 5th digit
 	{ 1 , 34464 },
 	{ 15 , 16960 },
 	{ 152 , 38528 },
@@ -693,35 +695,74 @@ local msblsb5 = { -- stores a table of each power of 10 >= 10^5 as the 16 bit to
 	{ 15258 , 51712 },
 }
 
--- splits a string-encoded 32bit unsigned integer into 16bit LSB and 16bit MSB
-local function split16fast(bignumstr)
-	local skipdigits = 5
-	local lsb = tonumber(string.sub(bignumstr, -skipdigits)) -- 5 length suffix
+-- splits last 27 bits of a  bitstring-encoded 32bit unsigned integer into 16bit LSB and 11bit MSB
+local function split16Fast(bigNumStr)
+	local skipDigits = 5
+	local lsb = tonumber(string.sub(bigNumStr, -skipDigits)) -- 5 length suffix
 	local msb = 0
-	for i= skipdigits + 1, string.len(bignumstr) do -- for each character of the big number string
-		local n = tonumber(string.sub(bignumstr,-i,-i)) -- get the current character
-		--print (i,string.sub(bignumstr,i,i),n)
+	for i= skipDigits + 1, string.len(bigNumStr) do -- for each character of the big number string
+		local n = tonumber(string.sub(bigNumStr,-i,-i)) -- get the current character
+		--print (i,string.sub(bigNumStr,i,i),n)
 		for k = 1, n do  -- for each number value of current character
-			lsb = lsb + msblsb5[i - skipdigits][2] -- add the 16bit LSB of 10*i'th power
+			lsb = lsb + msbLsb5[i - skipDigits][2] -- add the 16bit LSB of 10*i'th power
 			if lsb >= 65536 then -- if it overflows LSB, increment MSB
 				msb = msb + math.floor(lsb / 65536)
 				lsb = lsb % 65536
 			end
-			msb = msb + msblsb5[i - skipdigits][1] -- add the 16 bit MSB of 10*i'th power
+			msb = msb + msbLsb5[i - skipDigits][1] -- add the 16 bit MSB of 10*i'th power
 		end
 	end
 	--print (msb, lsb, lsb + msb *65536)
 	return lsb, msb
 end
 
-local function ParseBattleStatus(battleStatus)
-	local lsb, msb = split16fast(battleStatus)
+local msbLsb10 = { -- stores a table of each power of 10 as the 16 bit top and bottom halfs
+    { 0 , 1 },
+    { 0 , 10 },
+    { 0 , 100 },
+    { 0 , 1000 },
+    { 0 , 10000 },
+    { 1 , 34464 },
+    { 15 , 16960 },
+    { 152 , 38528 },
+    { 1525 , 57600 },
+    { 15258 , 51712 },
+}
 
+-- splits a string-encoded 32bit unsigned integer into 16bit LSB and 16bit MSB
+local function split16(bigNumStr)
+    local lsb = 0
+    local msb = 0
+    for i=1, string.len(bigNumStr) do -- for each character of the big number string
+        local digit = string.len(bigNumStr)- i + 1 -- start with last character first
+        local n = tonumber(string.sub(bigNumStr,digit,digit)) -- get the current character
+        print (i,string.sub(bigNumStr,i,i),n, digit)
+        for k = 1, n do  -- for each number value of current character
+            lsb = lsb + msbLsb10[i][2] -- add the 16bit LSB of 10*i'th power
+            if lsb >= 65536 then -- if it overflows LSB, increment MSB
+                lsb = lsb - 65536 
+                msb = msb + 1
+            end
+            msb = msb + msbLsb10[i][1] -- add the 16 bit MSB of 10*i'th power
+        end
+    end
+    print (lsb, msb, lsb + msb *65536)
+    return lsb, msb
+end
+
+local function ParseBattleStatus(battleStatus)
+	-- local lsb, msb = split16fast(battleStatus)
+	local lsb, msb = split16(battleStatus)
 	--battleStatus = tonumber(battleStatus)
+	
+	-- local teamNumber = (lshift(rshift(msb, 2) % 16, 4) +  rshift(lsb, 2) % 16)
+	-- local allyNumber = (lshift(rshift(msb, 12) % 16, 4) +  rshift(lsb, 6) % 16)
+	-- Spring.Log(LOG_SECTION, LOG.NOTICE, "battleStatusStr", battleStatus, "lsb", lsb, "msb", msb, "teamNumber", teamNumber, "allyNumber", allyNumber)
+
 	return {
 		isReady      = rshift(lsb, 1) % 2 == 1,
-		teamNumber   = rshift(lsb, 2) % 16,
-		allyNumber   = rshift(lsb, 6) % 16,
+		teamNumber   = (lshift(rshift(msb, 2) % 16, 4) +  rshift(lsb, 2) % 16),
+		allyNumber   = (lshift(rshift(msb, 12) % 16, 4) +  rshift(lsb, 6) % 16),
 		isSpectator  = rshift(lsb, 10) % 2 == 0,
 		handicap     = (lshift(msb, 5) + rshift(lsb, 11) ) % 128,
 		sync         = rshift(msb, 6) % 4,
@@ -895,11 +936,11 @@ local function testEncodeDecode()
 	local bStatus = {}
 	local retBStatus = {}
 	for isReady=0, 1, 1 do
-		for teamNumber=0, 15, 1 do
-			for allyNumber=0,15, 1 do
-				for isSpectator =0, 1, 1 do
-					for sync=0, 2, 1 do
-						for side=0, 2, 1 do
+		for side=0, 2, 1 do
+			for isSpectator =0, 1, 1 do
+				for sync=0, 2, 1 do
+					for teamNumber=15, 17, 1 do -- dont go for all 256 iterations, see below
+						for allyNumber=15, 17, 1 do
 							bStatus.isReady = isReady == 1 and true or false
 							bStatus.teamNumber = teamNumber
 							bStatus.allyNumber = allyNumber
@@ -934,6 +975,30 @@ local function testEncodeDecode()
 					end
 				end
 			end
+		end
+	end
+
+	-- iterate once over all possible allyNumbers
+	for allyNumber=0, 255, 1 do
+		bStatus.allyNumber = allyNumber
+		bStatusStr = EncodeBattleStatus(bStatus)
+		retBStatus = ParseBattleStatus(bStatusStr)
+		if	retBStatus.allyNumber ~= bStatus.allyNumber then
+			error = true
+			Spring.Log(LOG_SECTION, LOG.NOTICE, bStatus.allyNumber)
+			Spring.Log(LOG_SECTION, LOG.NOTICE, retBStatus.allyNumber)
+		end
+	end
+
+	-- iterate once over all possible teamNumbers
+	for teamNumber=0, 255, 1 do 
+		bStatus.teamNumber = teamNumber
+		bStatusStr = EncodeBattleStatus(bStatus)
+		retBStatus = ParseBattleStatus(bStatusStr)
+		if	retBStatus.teamNumber ~= bStatus.teamNumber then
+			error = true
+			Spring.Log(LOG_SECTION, LOG.NOTICE, bStatus.teamNumber)
+			Spring.Log(LOG_SECTION, LOG.NOTICE, retBStatus.teamNumber)
 		end
 	end
 	Spring.Log(LOG_SECTION, LOG.NOTICE, "Finished testEncodeDecode, found Errors: ", error)
