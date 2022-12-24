@@ -1708,11 +1708,47 @@ end
 Interface.commands["SERVERMSGBOX"] = Interface._OnServerMSGBox
 Interface.commandPattern["SERVERMSGBOX"] = "([^\t]+)\t+([^\t]+)"
 
-local mod_opts_pre = "game/modoptions/"
-local mod_opts_pre_indx = #mod_opts_pre + 1
+-- interpret following scripttags
+-- playername/skill=[16.16]
+-- skill=16.16     , skillFromPlugin=false, skillDegraded=false
+-- skill=#16.16#   , skillFromPlugin=false, skillDegraded=true
+-- skill=[16.16]   , skillFromPlugin=true,  skillDegraded=false
+-- skill=[#16.16#] , skillFromPlugin=true,  skillDegraded=true
+-- playername/skilluncertainty=2
+-- Note: playername is delivered in lower case
+local function GetSkillFromScriptTag(tag)
+	local userNameLC, skillKey, skillParam = string.match(tag, "(.+)/(.+)=(.+)")
+	if userNameLC == nil or userNameLC == "" or skillKey == nil or skillKey == "" or skillParam == nil or skillParam == "" then
+		Spring.Log(LOG_SECTION, LOG.ERROR, "Could not parse scriptTag player/[..]", tag)
+		return
+	end
+	local p1,d1,value,d2,p2 = string.match(skillParam, "(%[?)(#?)(%d+%.?%d*)(#?)(%]?)")
+	if value == nil or value == "" then
+		Spring.Log(LOG_SECTION, LOG.ERROR, "Could not parse player/"..skillKey.."/[..]", skillParam)
+		return
+	end
+	local status = {}
+	if (skillKey == "skill") then
+		status["skill"] = value -- stays string, tonumber would change the value
+		status["skillfromPlugin"] = (p1 == "[" and p2 == "]")
+		status["skillDegraded"]   = (d1 == "#" and d2 == "#")		
+	elseif (skillKey == "skilluncertainty") then
+		status["skillUncertainty"] = value
+	else
+		Spring.Log(LOG_SECTION, LOG.WARNING, "unsupported setScriptTags playerKey:", skillKey)
+		return
+	end
+	return userNameLC, status
+end
+
 local function string_starts(String, Start)
 	return string.sub(String, 1, string.len(Start)) == Start
 end
+
+local mod_opts_pre = "game/modoptions/"
+local mod_opts_pre_indx = #mod_opts_pre + 1
+local scriptTagPlayers = "game/players/"
+local scriptTagPlayersIndx = #scriptTagPlayers + 1
 function Interface:_OnSetScriptTags(tagsTxt)
 	local tags = explode("\t", tagsTxt)
 	if self.modoptions == nil then
@@ -1725,6 +1761,14 @@ function Interface:_OnSetScriptTags(tagsTxt)
 			local k = kvTable[1]
 			local v = kvTable[2]
 			self.modoptions[k] = v
+		elseif string_starts(tag, scriptTagPlayers) then
+			local userNameLC, status = GetSkillFromScriptTag(tag:sub(scriptTagPlayersIndx))
+			local userName = self:FindBattleUserByLowerCase(userNameLC)
+			if (not userName) then
+				Spring.Log(LOG_SECTION, LOG.ERROR, "Could not find user " .. userNameLC .. " in current battle")
+			else
+				self:_OnUpdateUserStatus(userName, status)
+			end
 		end
 	end
 	self:_OnSetModOptions(self.modoptions)
