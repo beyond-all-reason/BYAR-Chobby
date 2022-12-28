@@ -16,10 +16,10 @@ local welcomePanelItems = {
     },
 
     {
-        Header = "Updated Map: Gecko Isle Remake v1.2",
+        Header = "New PVE Map: Point of No Return v1.0",
         Time = nil,-- "NowTime",
-        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/Gecko_Isle_Remake_v1.2.png",
-        Text = "Old map with brand new look by Nikuksis.",
+        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/point_of_no_return_v1.0.png",
+        Text = "Welcome to the new PVE battlefield to fight against AI offering great defensive positions and hybrid land-water game style.\nAlso capable for FFA games.\nBy Nikuksis.",
     },
 
     {
