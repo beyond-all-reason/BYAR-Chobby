@@ -14,6 +14,22 @@ local welcomePanelItems = {
         Text = "Requiem has created some guides for new players. If you're new to the game and want to learn the basics via video we highly recommend you check them out.\n",
         UrlText = "Watch video guides"
     },
+    
+    {
+        Header = "Tournament: New Year's Swiss BAR",
+        Url = "https://challonge.com/tournaments/signup/xy8Y4do5yF#/signup/r0kozx5efs",
+        Time = "2023-01-08T14:00:00",
+        Text = "Format: A swiss tourney of 7 rounds, followed by a Bo3 finals between the top2 of the Swiss portion.",
+        UrlText = "SIGN UP"
+    },
+    
+    {
+        Header = "Tournament: The Great Pro-Am Showdown",
+        Url = "https://challonge.com/tournaments/signup/ebJbs4CGip",
+        Time = "2023-01-14T15:00:00",
+        Text = "Format: 1v1 - Single Stage - Double Elimination",
+        UrlText = "SIGN UP"
+    },
 
     {
         Header = "New PVE Map: Point of No Return v1.0",
