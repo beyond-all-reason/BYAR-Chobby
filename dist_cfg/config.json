@@ -13,6 +13,7 @@
                 "PRD_RAPID_USE_STREAMER": "false",
                 "PRD_RAPID_REPO_MASTER": "https://repos-cdn.beyondallreason.dev/repos.gz"
             },
+            "auto_download": true,
             "downloads": {
                 "games": ["byar:test", "chobby:test", "byar-chobby:test"],
                 "resources": [
@@ -51,6 +52,7 @@
                 "PRD_RAPID_REPO_MASTER": "https://repos-cdn.beyondallreason.dev/repos.gz"
             },
             "silent": false,
+            "auto_download": true,
             "downloads": {
                 "games": ["byar:test", "chobby:test", "byar-chobby:test"],
                 "resources": [
@@ -83,6 +85,7 @@
                 "platform": "linux"
             },
             "config_url": "https://launcher-config.beyondallreason.dev/config.json",
+            "auto_download": true,
             "downloads": {
                 "games": ["byar:test", "chobby:test", "byar-chobby:test"],
                 "resources": [
@@ -111,6 +114,7 @@
             },
             "config_url": "https://launcher-config.beyondallreason.dev/config.json",
             "silent": false,
+            "auto_download": true,
             "downloads": {
                 "games": ["byar:test", "chobby:test", "byar-chobby:test"],
                 "resources": [
@@ -143,6 +147,7 @@
                 "PRD_RAPID_USE_STREAMER": "false",
                 "PRD_RAPID_REPO_MASTER": "https://repos-cdn.beyondallreason.dev/repos.gz"
             },
+            "auto_download": true,
             "downloads": {
                 "games": ["byar:test", "chobby:test", "byar-chobby:test"],
                 "resources": [
@@ -181,6 +186,7 @@
                 "PRD_RAPID_REPO_MASTER": "https://repos-cdn.beyondallreason.dev/repos.gz"
             },
             "silent": false,
+            "auto_download": true,
             "downloads": {
                 "games": ["byar:test", "chobby:test", "byar-chobby:test"],
                 "resources": [
