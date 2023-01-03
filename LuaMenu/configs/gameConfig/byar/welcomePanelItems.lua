@@ -16,6 +16,14 @@ local welcomePanelItems = {
     },
 
     {
+        Header = "Please help us test new engines!",
+        --Url = "https://discord.com/channels/549281623154229250/724924957074915358",
+        Time = nil,-- "NowTime",
+        Text = "Just select [Engine Test] in the launcher dropdown, and then play Skirmish and Multiplayer games. AMD testers especially needed. Report anything out of the ordinary to Discord!\n",
+        UrlText = "BAR #engine channel on Discord"
+    },
+
+    {
         Header = "New PVE Map: Point of No Return v1.0",
         Time = nil,-- "NowTime",
         Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/point_of_no_return_v1.0.png",
