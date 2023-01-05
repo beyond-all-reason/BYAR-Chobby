@@ -881,11 +881,6 @@ function Interface:_OnUpdateBot(battleID, name, battleStatus, teamColor)
 	battleID = tonumber(battleID)
 	local status = ParseBattleStatus(battleStatus)
 	status.teamColor = ParseTeamColor(teamColor)
-
-	-- add owner to status to tell lobby:OnUpdateUserBattleStatus that it´s a bot
-	if self.userBattleStatus[name] and self.userBattleStatus[name].owner ~= nil then
-			status.owner = self.userBattleStatus[name].owner
-	end
 	self:_OnUpdateUserBattleStatus(name, status)
 end
 Interface.commands["UPDATEBOT"] = Interface._OnUpdateBot
