@@ -337,6 +337,19 @@ local function GetUserRankImageName(userName, userControl)
 	return image
 end
 
+local function GetUserSkill(userName, userControl)
+	local userInfo = userControl.lobby:GetUser(userName) or {}
+	local userBattleInfo = userControl.lobby:GetUserBattleStatus(userName) or {}
+
+	if userControl.isSingleplayer and not userBattleInfo.aiLib then
+		return
+	end
+
+	if userInfo.skill then
+		return math.floor(userInfo.skill + 0.5)
+	end
+end
+
 local function GetUserStatusImages(userName, isInBattle, userControl)
 	local userInfo = userControl.lobby:GetUser(userName) or {}
 	local images = {}
@@ -486,6 +499,11 @@ local function UpdateUserActivity(listener, userName)
 
 			userControls.tbName.font.color = GetUserNameColor(userName, userControls)
 			userControls.tbName:Invalidate()
+
+			userControls.skill.text = GetUserSkill(userName, userControls)
+			userControls.skillActualLength = userControls.skill.font:GetTextWidth(userControls.skill.text)
+			-- offset = offset + userControls.skillActualLength + 4
+			userControls.skill:Invalidate()
 
 			UpdateUserControlStatus(userName, userControls)
 		end
@@ -982,6 +1000,27 @@ local function GetUserControls(userName, opts)
 		offset = offset + 21
 	end
 
+	
+	local skill = GetUserSkill(userName, userControls)
+	if skill ~= "" then
+		offset = offset + 1
+		userControls.skill = TextBox:New {
+			name = "skill",
+			x = offset,
+			y = offsetY + 4,
+			right = 0,
+			bottom = 5,
+			align = "left",
+			parent = userControls.mainControl,
+			fontsize = Configuration:GetFont(1).size,
+			text = skill,
+		}
+		userControls.skillActualLength = userControls.skill.font:GetTextWidth(userControls.skill.text)
+		offset = offset + userControls.skillActualLength + 4
+	else
+		offset = offset + 2
+	end
+
 	if showSide then
 		local battleStatus = userControls.lobby:GetUserBattleStatus(userName) or {}
 		offset = offset + 2
@@ -1005,7 +1044,10 @@ local function GetUserControls(userName, opts)
 		end
 	end
 
-	offset = offset + 2
+
+
+
+	--offset = offset + 2
 	userControls.tbName = TextBox:New {
 		name = "tbName",
 		x = offset,
