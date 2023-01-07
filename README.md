@@ -62,4 +62,3 @@ git clone https://github.com/beyond-all-reason/Beyond-All-Reason.git BAR.sdd
 3. Make a release by finding the latest Draft here https://github.com/beyond-all-reason/BYAR-Chobby/releases , open it, click `Edit draft` and then `Publish Release`
 4. Send new download links to .exe and .AppImage to BAR discord #website so download links on website can be updated.
 5. Note that pr-downloader is fetched from https://github.com/beyond-all-reason/spring-launcher
-6. TODO: currently, the manual forked action is the one that needs to be launched for a build, as the automatic one still uses the now outdated upstream spring-launcher repo

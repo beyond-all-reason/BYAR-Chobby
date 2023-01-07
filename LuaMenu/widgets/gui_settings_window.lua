@@ -888,7 +888,6 @@ local function GetLobbyTabControls()
 
 	children[#children + 1], offset = AddCheckboxSetting(offset, i18n("autoLaunchAsSpectator"), "autoLaunchAsSpectator", true)
 
-	-- Why is this shit so fucked up.
 	local randomSkirmishOption = Spring.GetConfigInt("randomSkirmishSetup", 1)
 	if randomSkirmishOption == 1 then
 		Configuration.randomSkirmishSetup = true
@@ -903,7 +902,7 @@ local function GetLobbyTabControls()
 		boxalign = "right",
 		boxsize = 20,
 		caption = i18n("randomSkirmishSetup"),
-		checked = Configuration.randomSkirmishSetup or true,
+		checked = Configuration.randomSkirmishSetup or false,
 		tooltip = i18n("randomSkirmishSetup_tooltip"),
 		objectOverrideFont = settingsFont2,
 		--font = Configuration:GetFont(2),
@@ -932,6 +931,49 @@ local function GetLobbyTabControls()
 		end},
 	}
 	children[#children + 1] = autoLogin
+	offset = offset + ITEM_OFFSET
+
+	children[#children + 1] = Label:New {
+		x = 20,
+		y = offset + TEXT_OFFSET,
+		width = 90,
+		height = 40,
+		valign = "top",
+		align = "left",
+		objectOverrideFont = settingsFont2,
+		caption = "Error log uploading",
+		tooltip = "Prompt will ask you each time an error is detected if you want to upload the infolog.",
+	}
+
+	local uploadLogPromptItems = {"Prompt", "Always Yes", "Always No"}
+	local selectedUploadLogPrompt = 1
+	for k,v in ipairs(uploadLogPromptItems) do
+		if v == Configuration.uploadLogPrompt then
+			selectedUploadLogPrompt = k
+		end
+	end
+
+	children[#children + 1] = ComboBox:New {
+		x = COMBO_X,
+		y = offset,
+		width = COMBO_WIDTH,
+		right = 18,
+		height = 30,
+		items = uploadLogPromptItems,
+		objectOverrideFont = settingsFont2,
+		itemFontSize = Configuration:GetFont(2).size,
+		selected = selectedUploadLogPrompt or 1,
+		tooltip = "Prompt will ask you each time an error is detected if you want to upload the infolog.",
+		OnSelect = {
+			function (obj)
+				if freezeSettings then
+					return
+				end
+				Configuration:SetConfigValue("uploadLogPrompt", obj.items[obj.selected])
+			end
+		},
+	}
+
 	offset = offset + ITEM_OFFSET
 
 	if not Configuration.gameConfig.disableSteam then

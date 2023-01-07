@@ -191,6 +191,55 @@ local function UpdateAndCreateMerge(userData, status)
 	return battleStatus, updated
 end
 
+--n = pow(2,i) -- where i = 0,31
+--print('{',n//1000000,',', n%1000000,'},')
+local bin2decmillion16 = { -- the <1M and >1M parts of 2^nth powers where n > 16
+	{ 0 , 65536 }, --16
+	{ 0 , 131072 }, --17
+	{ 0 , 262144 }, --18
+	{ 0 , 524288 }, --19
+	{ 1 , 48576 },
+	{ 2 , 97152 },
+	{ 4 , 194304 },
+	{ 8 , 388608 },
+	{ 16 , 777216 }, --24
+	{ 33 , 554432 }, --25
+	{ 67 , 108864 }, --26
+	{ 134 , 217728 }, --27
+	{ 268 , 435456 }, --28
+	{ 536 , 870912 },  --29
+	{ 1073 , 741824 }, --30
+	{ 2147 , 483648 }, -- 31
+	}
+
+-- Combine two 16 bit numbers into a string-formatted 32-bit integer
+local function lsbmsb16tostring(lsb,msb)
+	local aboveamillion = 0
+	local belowamillion = lsb
+	for b = 1, 16 do
+		if math.bit_and(msb, 2^(b-1)) > 0 then
+			belowamillion = belowamillion + bin2decmillion16[b][2]
+			if belowamillion >= 1000000 then
+				aboveamillion = aboveamillion + math.floor(belowamillion/1000000)
+				belowamillion = belowamillion % 1000000
+			end
+			aboveamillion = aboveamillion + bin2decmillion16[b][1]
+		end
+	end
+
+	local statusstr = ""
+	if aboveamillion == 0 then
+		statusstr = ("%d"):format(belowamillion)
+	else
+		statusstr = ("%d%06d"):format(aboveamillion,belowamillion)
+	end
+	--if statusstr ~= tostring(lsb + 65536 * msb) then
+	--	Spring.Echo("Possible integer overflow issues!",statusstr, lsb + 65536 * msb)
+	--end
+	return statusstr
+end
+
+
 local function EncodeBattleStatus(battleStatus)
 	local playMode = 1
 	if battleStatus.isSpectator then
@@ -204,28 +253,17 @@ local function EncodeBattleStatus(battleStatus)
 	end
 
 	-- This nasty piece of code is because battlestatus can overflow the 24bits of float that Spring Lua supports:
-	local belowamillion =
+	local lsb16 =
 		(battleStatus.isReady and 2 or 0) +
 		lshift(battleStatus.teamNumber, 2) +
 		lshift(battleStatus.allyNumber, 6) +
 		lshift(playMode, 10)
 
-	local aboveamillion = nil
-	local bignum =
-		math.floor((lshift(battleStatus.sync, 22) + --Because sync actually has 3 values, 0, 1, 2 (unknown, synced, unsynced)
-		lshift(battleStatus.side, 24)))
-	
-	aboveamillion = math.floor(bignum / 1000000)
-	belowamillion = belowamillion + (bignum%1000000)
+	local msb16 =
+		math.floor((lshift(battleStatus.sync, 6) + --Because sync actually has 3 values, 0, 1, 2 (unknown, synced, unsynced)
+		lshift(battleStatus.side, 8)))
 
-	local statusstr = ""
-	if aboveamillion == 0 then 
-		statusstr = ("%d"):format(belowamillion)
-	else
-		statusstr = ("%d%06d"):format(aboveamillion,belowamillion)
-	end
-
-	return statusstr
+	return lsbmsb16tostring(lsb16, msb16)
 end
 
 local function EncodeTeamColor(teamColor)
@@ -537,9 +575,12 @@ function Interface:_OnAddUser(userName, country, accountID, lobbyID)
 	self:super("_OnAddUser", userName, userTable)
 end
 Interface.commands["ADDUSER"] = Interface._OnAddUser
-Interface.commandPattern["ADDUSER"] = "(%S+)%s+(%S%S)%s+(%S+)%s*(.*)"
+Interface.commandPattern["ADDUSER"] = "(%S+)%s+(%S%S%-?%S?%S?%S?)%s+(%S+)%s*(.*)"
 
 function Interface:_OnRemoveUser(userName)
+	for channelName, _ in pairs(self:GetChannels()) do
+		self:_OnLeft(channelName, userName, "")
+	end
 	self:super("_OnRemoveUser", userName)
 end
 Interface.commands["REMOVEUSER"] = Interface._OnRemoveUser
@@ -644,17 +685,47 @@ Interface.commands["FRIENDREQUESTLISTEND"] = Interface._OnFriendRequestListEnd
 ------------------------
 -- Battle commands
 ------------------------
+local msblsb5 = { -- stores a table of each power of 10 >= 10^5 as the 16 bit top and bottom halfs of digits greater than the 5th digit
+	{ 1 , 34464 },
+	{ 15 , 16960 },
+	{ 152 , 38528 },
+	{ 1525 , 57600 },
+	{ 15258 , 51712 },
+}
+
+-- splits a string-encoded 32bit unsigned integer into 16bit LSB and 16bit MSB
+local function split16fast(bignumstr)
+	local skipdigits = 5
+	local lsb = tonumber(string.sub(bignumstr, -skipdigits)) -- 5 length suffix
+	local msb = 0
+	for i= skipdigits + 1, string.len(bignumstr) do -- for each character of the big number string
+		local n = tonumber(string.sub(bignumstr,-i,-i)) -- get the current character
+		--print (i,string.sub(bignumstr,i,i),n)
+		for k = 1, n do  -- for each number value of current character
+			lsb = lsb + msblsb5[i - skipdigits][2] -- add the 16bit LSB of 10*i'th power
+			if lsb >= 65536 then -- if it overflows LSB, increment MSB
+				msb = msb + math.floor(lsb / 65536)
+				lsb = lsb % 65536
+			end
+			msb = msb + msblsb5[i - skipdigits][1] -- add the 16 bit MSB of 10*i'th power
+		end
+	end
+	--print (msb, lsb, lsb + msb *65536)
+	return lsb, msb
+end
 
 local function ParseBattleStatus(battleStatus)
-	battleStatus = tonumber(battleStatus)
+	local lsb, msb = split16fast(battleStatus)
+
+	--battleStatus = tonumber(battleStatus)
 	return {
-		isReady      = rshift(battleStatus, 1) % 2 == 1,
-		teamNumber   = rshift(battleStatus, 2) % 16,
-		allyNumber   = rshift(battleStatus, 6) % 16,
-		isSpectator  = rshift(battleStatus, 10) % 2 == 0,
-		handicap     = rshift(battleStatus, 11) % 128,
-		sync         = rshift(battleStatus, 22) % 4,
-		side         = rshift(battleStatus, 24) % 16,
+		isReady      = rshift(lsb, 1) % 2 == 1,
+		teamNumber   = rshift(lsb, 2) % 16,
+		allyNumber   = rshift(lsb, 6) % 16,
+		isSpectator  = rshift(lsb, 10) % 2 == 0,
+		handicap     = (lshift(msb, 5) + rshift(lsb, 11) ) % 128,
+		sync         = rshift(msb, 6) % 4,
+		side         = rshift(msb, 8) % 16,
 	}
 end
 
@@ -818,7 +889,60 @@ end
 Interface.commands["UPDATEBOT"] = Interface._OnUpdateBot
 Interface.commandPattern["UPDATEBOT"] = "(%d+)%s+(%S+)%s+(%S+)%s+(%S+)"
 
+local function testEncodeDecode()
+	Spring.Log(LOG_SECTION, LOG.NOTICE, "Starting testEncodeDecode")
+	local error = false
+	local bStatus = {}
+	local retBStatus = {}
+	for isReady=0, 1, 1 do
+		for teamNumber=0, 15, 1 do
+			for allyNumber=0,15, 1 do
+				for isSpectator =0, 1, 1 do
+					for sync=0, 2, 1 do
+						for side=0, 2, 1 do
+							bStatus.isReady = isReady == 1 and true or false
+							bStatus.teamNumber = teamNumber
+							bStatus.allyNumber = allyNumber
+							bStatus.isSpectator = isSpectator == 1 and true or false
+							bStatus.sync = sync
+							bStatus.side = side
+							bStatusStr = EncodeBattleStatus(bStatus)
+							retBStatus = ParseBattleStatus(bStatusStr)
+							if	retBStatus.isReady ~= bStatus.isReady or
+								retBStatus.teamNumber ~= bStatus.teamNumber or
+								retBStatus.allyNumber ~= bStatus.allyNumber or
+								retBStatus.isSpectator ~= bStatus.isSpectator or
+								retBStatus.sync ~= bStatus.sync or
+								retBStatus.side ~= bStatus.side then
+								error = true
+								Spring.Log(LOG_SECTION, LOG.NOTICE,
+									bStatus.isReady,
+									bStatus.teamNumber, 
+									bStatus.allyNumber, 
+									bStatus.isSpectator,
+									bStatus.sync,
+									bStatus.side)
+								Spring.Log(LOG_SECTION, LOG.NOTICE,
+									retBStatus.isReady,
+									retBStatus.teamNumber, 
+									retBStatus.allyNumber, 
+									retBStatus.isSpectator,
+									retBStatus.sync,
+									retBStatus.side)
+							end
+						end
+					end
+				end
+			end
+		end
+	end
+	Spring.Log(LOG_SECTION, LOG.NOTICE, "Finished testEncodeDecode, found Errors: ", error)
+end
+
 function Interface:_OnSaidBattle(userName, message)
+	if (message == "?test EncodeBattleStatus") then
+		testEncodeDecode()
+	end
 	self:super("_OnSaidBattle", userName, message)
 end
 Interface.commands["SAIDBATTLE"] = Interface._OnSaidBattle
@@ -1691,5 +1815,12 @@ function Interface:_OnS_Battle_Update_lobby_title(battleID, newbattletitle)
 end
 Interface.commands["s.battle.update_lobby_title"] = Interface._OnS_Battle_Update_lobby_title
 Interface.commandPattern["s.battle.update_lobby_title"] = "(%S+)%s+(.*)"
+
+function Interface:_OnS_Client_Errorlog()
+	self:_CallListeners("OnS_Client_Errorlog")
+end
+
+Interface.commands["s.client.errorlog"] = Interface._OnS_Client_Errorlog
+--Interface.commandPattern["s.client.errorlog"] = "(%S+)"
 
 return Interface

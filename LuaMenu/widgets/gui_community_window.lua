@@ -883,8 +883,8 @@ local function InitializeControls(window)
 	-- Populate link panel
 	AddLinkButton(leftCenter, "Donate",   "Help us continue development", "https://www.beyondallreason.info/donate-for-bar",0, 0, "75.5%", 0) --last
 	AddLinkButton(leftCenter, "Manual",  "A quick guide on how the game mechanics work", "https://www.beyondallreason.info/guides", 0, 0, "50.5%", "25.5%") --third
-	AddLinkButton(leftCenter, "Homepage", "Visit our website for more", "https://www.beyondallreason.info/",   0, 0, "25.5%", "50.5%") --second
-	AddLinkButton(leftCenter, "Talk to us", "Chat on the BAR Discord server.", "https://discord.gg/N968ddE", 0, 0, 0, "75.5%") --first
+	AddLinkButton(leftCenter, "Homepage", "Visit our website for more, opens https://www.beyondallreason.info/", "https://www.beyondallreason.info/",   0, 0, "25.5%", "50.5%") --second
+	AddLinkButton(leftCenter, "Join us on Discord", "Opens a link to https://discord.gg/N968ddE in your browser.", "https://discord.gg/N968ddE", 0, 0, 0, "75.5%") --first
 
 	-- News Handler
 	--[[

@@ -53,6 +53,10 @@ local function lines(str)
 	return t
 end
 
+local function trim1(s) -- http://lua-users.org/wiki/StringTrim
+   return (s:gsub("^%s*(.-)%s*$", "%1"))
+end
+
 local function MachineHash()
 	--Spring.Echo("DEADBEEF", debug.getinfo(1).short_src, debug.getinfo(1).source, VFS.GetFileAbsolutePath("infolog.txt"))
 	local hashstr = ""
@@ -71,33 +75,17 @@ local function MachineHash()
 	end
 	local hashstr = hashstr .. "|" .. tostring(VFS.GetFileAbsolutePath("infolog.txt") or "")
 
-	local cpustr = ''
-	local infolog = VFS.LoadFile("infolog.txt")
-	if infolog then
-		local fileLines = lines(infolog)
-		for i, line in ipairs(fileLines) do
-			if string.sub(line, 1, 3) == '[F='  then
-				break
-			end
-
-			if string.find(line:lower(), 'hardware config:') then
-				local s,e = string.find(line:lower(), 'hardware config:')
-				cpustr = string.sub(line, e+2)
-				s,e = string.find(cpustr, ";", nil,true)
-				cpuinfo = string.sub(cpustr, 1, s-1)
-				local rs,re = string.find(cpustr, ",", nil,true)
-				if rs and re then 
-					raminfo = string.sub(cpustr, s+2, rs -1)
-				else
-					raminfo = "unknown"
-				end
-				break
-			end
-		end
+	local cpustr = Platform.hwConfig
+	local s,e = string.find(cpustr, ";", nil,true)
+	local rs,re = string.find(cpustr, ",", nil,true)
+	cpuinfo = trim1(string.sub(cpustr, 1, s-1))
+	if rs and re then
+		raminfo = trim1(string.sub(cpustr, s+2, rs -1))
+	else
+		raminfo = "unknown"
 	end
-	hashstr = hashstr .."|" ..cpustr
-	
-	-- e.g. :hashstr = |NVIDIA GeForce RTX 2060/PCIe/SSE2|Windows|Windows 7|N:\Beyond_all_reason\Beyond-All-Reason\data\infolog.txt|Intel(R) Core(TM) i7-2600K CPU @ 3.40GHz; 32751MB RAM, 65500MB pagefile, clhUckpDMG5BZFdVbUNIOFE3K2tXUT09
+
+	hashstr = hashstr .. "|" ..cpustr
 
 	machineHash = Spring.Utilities.Base64Encode(VFS.CalculateHash(hashstr,0))
 
@@ -107,7 +95,7 @@ end
 
 local socket = socket
 local client
-local host = "3.beyondallreason.info"
+local host = "server3.beyondallreason.info"
 local port = 8200
 
 local buffer = ""
@@ -179,7 +167,9 @@ end
 function Analytics.SendCrashReportOneTimeEvent(filename, errortype, errorkey, compressedlog, private)
 	if PRINT_DEBUG then
 		Spring.Log("Chobby", LOG.WARNING, "BAR Analytics.SendCrashReportOneTimeEvent(filename, errortype, errorkey, compressedlog)", filename, errortype, errorkey, private)
-	else -- only save it if we are in debug mode
+	elseif filename ~= "infolog.txt" then
+		-- only save it if we are in debug mode
+		-- if name is basename then dont clobber 
 		if onetimeEvents["reportedcrashes"][filename] then
 			return
 		end
@@ -282,17 +272,25 @@ local function ParseInfolog(infologpath)
 
 	if PRINT_DEBUG then Spring.Echo("BAR Analytics: ParseInfolog()", infologpath) end
 	if infolog then
+		if string.len(infolog) > 1000000 then
+			infolog = string.sub(infolog,1, 1000000)
+		end
 		local fileLines = lines(infolog)
-		local luauierrorcount = 0 
+		local luauierrorcount = 0
+		local userhastestversion = false
 		for i, line in ipairs(fileLines) do
 			-- look for game or chobby version mismatch, if $VERSION then return
+			
 			if string.find(line,"Chobby $VERSION\"", nil, true) then -- BYAR-Chobby or Chobby is dev mode, so dont report
-				if not PRINT_DEBUG then return nil end
+				--if not PRINT_DEBUG then return nil end
+				userhastestversion = true
 			end
 			if string.find(line, "Beyond All Reason $VERSION", nil, true) then -- Game is test version, no reporting
-				if not PRINT_DEBUG then return nil end
+				userhastestversion = true
+				--if not PRINT_DEBUG then return nil end
+				
 			end
-
+			
 
 			--plain old luaui errors:
 			-- [t=00:00:55.609414][f=-000001] Error: gl.CreateList: error(2) = [string "LuaUI/Widgets/gui_options.lua"]:576: attempt to perform arithmetic on field 'value' (a boolean value)
@@ -320,6 +318,14 @@ local function ParseInfolog(infologpath)
 				Analytics.SendRepeatEvent("lobby:luauierror", {errorcode = luauiError .. " file:" .. infologpath})
 			end
 
+			if string.find(line, "Error in Interface:_SendCommand while sending", nil, true) and string.find(line, "timeout", nil, true)  then
+				local luauiError = EscapeSlashesAndQuotes(line)
+				if PRINT_DEBUG then
+					Spring.Echo("Failed to send error report", infologpath, luauiError)
+				end
+				Analytics.SendRepeatEvent("lobby:infologerror", {errorcode = luauiError .. " file:" .. infologpath})
+			end
+
 			if string.find(line, "Error: [LuaRules::RunCallInTraceback] ", nil, true) then -- exact match
 				--[t=00:00:37.141179][f=-000001] Error: [LuaRules::RunCallInTraceback] error=2 (LUA_ERRRUN) callin=ViewResize trace=[Internal Lua error: Call failure] [string "LuaRules/Gadgets/dbg_gadget_profiler.lua"]:514: attempt to perform arithmetic on local 'viewWidth' (a table value)
 				-- yes we got an error here, then we should use this as error key
@@ -329,11 +335,13 @@ local function ParseInfolog(infologpath)
 				return "LuaRules",line, infolog
 			end
 
-
-			if string.find(line, "Error: [LuaMenu::RunCallInTraceback] ", nil, true) or string.find(line, "] [LuaMenu] Error: In", nil) or string.find(line,"] [Chili] Error: stacktrace:", nil) then -- exact match
+			-- various luamenu errors
+			if string.find(line, "Error: [LuaMenu::RunCallInTraceback] ", nil, true) or
+				string.find(line, "] [LuaMenu] Error: In", nil) or
+				string.find(line,"] [Chili] Error: stacktrace:", nil) or
+				string.find(line, '[liblobby] Error: [string "LuaMenu/', nil, true) then -- exact match
 				--Error: [LuaMenu::RunCallInTraceback] error=4 (LUA_ERRMEM) callin=MousePress trace=[Internal Lua error: Call failure] not enough memory
-				--local errorkeystart = string.find(line,"[string ",nil, true ) or 1
-				--local errorname = string.sub(line, errorkeystart, nil)
+				--[liblobby] Error: [string "LuaMenu/Widgets/api_user_handler.lua"]:929:
 				return "LuaMenu",line, infolog
 			end
 
@@ -344,7 +352,8 @@ local function ParseInfolog(infologpath)
 				return "SyncError", line, infolog
 			end
 
-			if string.find(line, "] Error: Spring ", nil, true) and string.find(line," has crashed.", nil, true) then -- exact match
+			if (string.find(line, "] Error: Spring ", nil, true) and string.find(line," has crashed", nil, true) )
+				or string.find(line, "Error handler invoked", nil, true) then -- exact match
 				-- [t=00:35:40.093162][f=0000524] Error: Spring 105.1.1-475-gd112b9e BAR105 has crashed. -- this is the actual crash line
 
 				-- look for the first frame of the stack trace, and get the address
@@ -379,6 +388,18 @@ end
 
 
 local function GetInfologs()
+	--[[
+	local testlog = {}
+	for i= 100000, 800000, 3 do 
+		testlog[#testlog+1] = tostring(i)
+	end 
+	testlog = table.concat(testlog,',')
+	
+	local compressedlog = Spring.Utilities.Base64Encode(VFS.ZlibCompress(testlog))
+	Spring.Echo("attempting to send test log", #testlog, #compressedlog)
+	Analytics.SendCrashReportOneTimeEvent("infolog.txt", "Testupload", "Testupload", compressedlog, true)
+	]]--
+
 	if onetimeEvents["reportedcrashes"] == nil then
 		onetimeEvents["reportedcrashes"] = {}
 	end
@@ -387,8 +408,8 @@ local function GetInfologs()
 	table.sort(filenames, function (a,b) return a > b end) -- reverse dir sort, we only need the most recent 5
 
 	if PRINT_DEBUG then Spring.Echo("BAR Analytics: GetInfologs()", #filenames) end
-	for i=1, math.min(#filenames, 3) do
-		filename = filenames[i]
+	for i=1, math.min(#filenames, 2) do
+		local filename = filenames[i]
 		if onetimeEvents["reportedcrashes"][filename] ~= nil then -- we already reported this one
 			Spring.Echo("Already processed an error in ", filename)
 		else
@@ -396,27 +417,46 @@ local function GetInfologs()
 			if errortype ~= nil then
 				
 				if PRINT_DEBUG then Spring.Echo("BAR Analytics: GetInfologs() found an error:", filename, errortype, errorkey) end 
-				if WG.Chobby.ConfirmationPopup then
-					
-					--local compressedlog = Spring.Utilities.Base64Encode(VFS.ZlibCompress(fullinfolog))
-					local compressedlog = Spring.Utilities.Base64Encode(VFS.ZlibCompress(fullinfolog))
-					local function reportinfolog()
-						--Spring.Echo("Uncompressed length:", string.len(fullinfolog), "Compressed base64 length:", string.len(compressedlog))
+
+				local compressedlog = Spring.Utilities.Base64Encode(VFS.ZlibCompress(fullinfolog))
+				if WG.Chobby.Configuration.uploadLogPrompt == "Prompt" then
+					if WG.Chobby.ConfirmationPopup then
+						
+						local function reportinfolog()
+							--Spring.Echo("Uncompressed length:", string.len(fullinfolog), "Compressed base64 length:", string.len(compressedlog))
+							Spring.Echo("User agreed to upload infolog", filename, "with error", errortype)
+							Analytics.SendCrashReportOneTimeEvent(filename, errortype, errorkey, compressedlog, false)
+						end
+
+						local function dontreportinfolog()
+							Spring.Echo("User declined to upload infolog", filename, "with error", errortype)
+							compressedlog = Spring.Utilities.Base64Encode(VFS.ZlibCompress("private"))
+							Analytics.SendCrashReportOneTimeEvent(filename, errortype, errorkey, compressedlog, true)
+						end
+
+						WG.Chobby.ConfirmationPopup(reportinfolog, "BAR has detected a ["..errortype.."] error during one of your previous games in:\n    " .. filename .. "\nSuch infologs help us fix any bugs you may have encountered. This file contains information such as your username, your system configuration and the path the game was installed to. This data will not be made public.\nDo you agree to upload this infolog?\nYou can specify always yes or always no in the Settings tab -> Error log uploading.", nil, 550, 400, "Yes", "No", dontreportinfolog, nil)
+					end
+					return
+				else
+					if WG.Chobby.Configuration.uploadLogPrompt == "Always Yes" then
+						Analytics.SendCrashReportOneTimeEvent(filename,errortype, errorkey, compressedlog, false)
+					else
+						compressedlog = Spring.Utilities.Base64Encode(VFS.ZlibCompress("private"))
 						Analytics.SendCrashReportOneTimeEvent(filename,errortype, errorkey, compressedlog, true)
 					end
 
-					local function dontreportinfolog()
-						Analytics.SendCrashReportOneTimeEvent(filename, errortype, errorkey, compressedlog, false)
-					end
-
-					WG.Chobby.ConfirmationPopup(reportinfolog, "BAR has detected a ["..errortype.."] error during one of your previous games in:\n    " .. filename .. "\nSuch infologs help us fix any bugs you may have encountered. This file contains information such as your username, your system configuration and the path the game was installed to. This data will not be made public.\nDo you agree to upload this infolog?", nil, 550, 400, "Yes", "No", dontreportinfolog, nil)
 				end
-				return
 			end
 		end
 	end
 end
 
+local function GetErrorLog()
+	local infolog = VFS.LoadFile("infolog.txt") or table.concat(VFS.DirList('.') or {},',') or "Unable to find infolog.txt"
+	local compressedlog = Spring.Utilities.Base64Encode(VFS.ZlibCompress(infolog))
+	--Spring.Echo("GetErrorLog", string.len(infolog),string.len(compressedlog))
+	Analytics.SendCrashReportOneTimeEvent("infolog.txt", "Errorlog", "Errorlog", compressedlog, true)
+end
 
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
@@ -458,6 +498,8 @@ local function LateHWInfo()
 	if cpuinfo ~= "" then Analytics.SendOnetimeEvent("hardware:cpuinfo",cpuinfo) end
 	if gpuinfo ~= "" then Analytics.SendOnetimeEvent("hardware:gpuinfo",gpuinfo) end
 	if raminfo ~= "" then Analytics.SendOnetimeEvent("hardware:raminfo",raminfo) end
+	if Platform.sysInfoHash then Analytics.SendOnetimeEvent("hardware:sysInfoHash",string.match(Platform.sysInfoHash, '([0-9a-f]*)') ) end
+	if Platform.macAddrHash then Analytics.SendOnetimeEvent("hardware:macAddrHash",Platform.macAddrHash) end
 end
 
 local function LoginHWInfo()
@@ -465,11 +507,10 @@ local function LoginHWInfo()
 	onetimeEvents['hardware:cpuinfo'] = nil
 	onetimeEvents['hardware:gpuinfo'] = nil
 	onetimeEvents['hardware:raminfo'] = nil
+	onetimeEvents['hardware:sysInfoHash'] = nil
+	onetimeEvents['hardware:macAddrHash'] = nil
 	Spring.Log("Analytics", LOG.NOTICE, "LoginHWInfo", isConnected, ACTIVE, client)
-	if osinfo ~= "" then Analytics.SendOnetimeEvent("hardware:osinfo",osinfo) end
-	if cpuinfo ~= "" then Analytics.SendOnetimeEvent("hardware:cpuinfo",cpuinfo) end
-	if gpuinfo ~= "" then Analytics.SendOnetimeEvent("hardware:gpuinfo",gpuinfo) end
-	if raminfo ~= "" then Analytics.SendOnetimeEvent("hardware:raminfo",raminfo) end
+	LateHWInfo()
 end
 
 function DelayedInitialize()
@@ -548,6 +589,7 @@ function widget:Initialize()
 	lobby = WG.LibLobby.lobby
 	lobby:AddListener("OnConnect", OnConnected)
 	lobby:AddListener("OnDisconnected", OnDisconnected)
+	lobby:AddListener("OnS_Client_Errorlog", GetErrorLog)
 
 	WG.Delay(DelayedInitialize, 1)
 end

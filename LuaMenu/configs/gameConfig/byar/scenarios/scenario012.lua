@@ -88,7 +88,7 @@ Scoring:
 {name = 'corfav', x = 3566, y = 322, z = 3375, rot = -16384 , team = 0},
 {name = 'cormex', x = 3464, y = 324, z = 3160, rot = 0 , team = 0},
 {name = 'corrad', x = 3696, y = 324, z = 3392, rot = 0 , team = 0},
-{name = 'corestor', x = 3776, y = 321, z = 3552, rot = 0 , team = 0},
+--{name = 'corestor', x = 3776, y = 321, z = 3552, rot = 0 , team = 0},
 {name = 'coradvsol', x = 3824, y = 319, z = 3680, rot = 0 , team = 0},
 {name = 'coradvsol', x = 3760, y = 321, z = 3680, rot = 0 , team = 0},
 {name = 'coradvsol', x = 3696, y = 319, z = 3680, rot = 0 , team = 0},

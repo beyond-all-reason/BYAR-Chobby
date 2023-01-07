@@ -6,18 +6,6 @@ local welcomePanelItems = {
         Text = "Welcome back Commander. We hope you are ready for epic single player and multiplayer battles. Check out our Discord and join the community!\n",
         UrlText = "Join our discord"
     },
-    {
-        Header = "Server Upgrade",
-        Text = "We are upgrading the lobby server, thus the address of the lobby server will now be\nserver3.beyondallreason.info\nin place of the old server2 address. Please stand by and check discord if you face any issues.",
-    },
-    {
-        Header = "The August 2022 2v2 Tournament has concluded!",
-        --Url = "https://forms.gle/nw6M8ETmX8SzQA7m9",
-        Time = nil,-- "NowTime",
-        Image = "LuaMenu/images/BAR-2V2_Tournament_AUG2022_Victory_2.png",
-        Text = " \nBow to the new grand masters of the 2v2 format, Raghna and Malady!",
-        --UrlText = "Sign up here"
-    },
 
     {
         Header = "Guides for new players",
@@ -28,26 +16,33 @@ local welcomePanelItems = {
     },
 
     {
-        Header = "New Map: Melting Glacier v1.1",
-        --Url = "https://drive.google.com/drive/folders/16eBcMpkgMTV9mlKxYmNda64X_dmCFdkk",
+        Header = "Please help us test new engines!",
+        --Url = "https://discord.com/channels/549281623154229250/724924957074915358",
         Time = nil,-- "NowTime",
-        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/melting_glacier_v1.0.png",
-        Text = "New assymetric hybrid map for land, sea and air battle across the ice floes. Up to 16 players. Suitable for FFA.\nUpdated to v1.1, improved map east-west balance, added few UW mexes, tidal 20->25.\nBy Nikuksis",
+        Text = "Just select [Engine Test] in the launcher dropdown, and then play Skirmish and Multiplayer games. AMD testers especially needed. Report anything out of the ordinary to Discord!\n",
+        UrlText = "BAR #engine channel on Discord"
     },
 
     {
-        Header = "New Map: Rustcrown Canyon 1.1",
+        Header = "New PVE Map: Point of No Return v1.0",
         Time = nil,-- "NowTime",
-        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/Rustcrown_Canyon_1.1.png",
-        Text = "\n \n \nPtaQ and Moose have collaborated to bring you Rustcrown Canyon. East vs West battles over a deep chasm containing a long river.",
+        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/point_of_no_return_v1.0.png",
+        Text = "Welcome to the new PVE battlefield to fight against AI offering great defensive positions and hybrid land-water game style.\nAlso capable for FFA games.\nBy Nikuksis.",
+    },
+
+    {
+        Header = "New Map: Crystallized Plains 1.01",
+        Time = nil,-- "NowTime",
+        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/Crystallized_Plains_1.01.png",
+        Text = "A 1vs1 map by Moose with dry rock flats and many colorful pillars.",
     },
 
     {
         Header = "Steam release roadmap",
-        Url = "https://discord.com/channels/549281623154229250/697141979892416512/997178414257680444",
+        Url = "https://www.beyondallreason.info/development/steam-release",
         Time = nil,-- "NowTime",
         -- Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/bismuth_valley_v1.0.png",
-        Text = "We've published our Steam Release roadmap, check it out on the discord!\n ",
+        Text = "We've published our Steam Release roadmap, check it out on the website!",
         UrlText = "Our Roadmap"
     },
 

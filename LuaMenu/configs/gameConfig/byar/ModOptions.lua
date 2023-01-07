@@ -78,6 +78,27 @@ local options={
 	},
 
 	{
+		key    		= 'norush',
+		name   		= "No Rush mode - Work in Progress, Requires Startboxes (doesn't work in FFA or 1v1 preset)",
+		desc   		= 'No Rush mode',
+		type   		= "bool",
+		section		= 'restrictions',
+		def    		= false,
+	},
+
+	{
+		key    		= 'norushtimer',
+		name   		= "No Rush Time (in minutes)",
+		desc   		= 'No Rush Time (in minutes)',
+		type   		= "number",
+		section		= 'restrictions',
+		def    		= 5,
+		min    		= 5,
+		max    		= 30,
+		step   		= 1,
+	},
+
+	{
 		key    		= 'disable_fogofwar',
 		name   		= 'Disable Fog of War',
 		desc   		= 'Disable Fog of War',
@@ -356,12 +377,15 @@ local options={
 		def="normal",
 		section="chicken_defense_options",
 		items={
-			{key="veryeasy", name="Very Easy", desc="Very Easy"},
-			{key="easy", name="Easy", desc="Easy"},
-			{key="normal", name="Medium", desc="Medium"},
+			-- {key="veryeasy", name="Very Easy", desc="Very Easy"},
+			-- {key="easy", name="Easy", desc="Easy"},
+			{key="normal", name="Normal", desc="Normal"},
 			{key="hard", name="Hard", desc="Hard"},
 			{key="veryhard", name="Very Hard", desc="Very Hard"},
+			{key="insane", name="Insane", desc="Insane"},
 			{key="epic", name="Epic", desc="Epic"},
+			{key="unbeatable", name="Unbeatable", desc="Unbeatable"},
+
 			{key="survival", name="Endless", desc="Endless Mode"}
 		}
 	},
@@ -381,8 +405,8 @@ local options={
 	},
 	{
 		key    = "chicken_queentime",
-		name   = "Max Queen Arrival (Minutes)",
-		desc   = "Queen will spawn after given time.",
+		name   = "Max Queen Hatching Time (Minutes)",
+		desc   = "",
 		type   = "number",
 		def    = 40,
 		min    = 1,
@@ -434,8 +458,8 @@ local options={
 	},
 	{
 		key    = "chicken_queenanger",
-		name   = "Killing burrows adds to queen anger.",
-		desc   = "Killing burrows adds to queen anger.",
+		name   = "Killing burrows delays queen hatching.",
+		desc   = "Killing burrows delays queen hatching.",
 		type   = "bool",
 		def    = true,
 		section= "chicken_defense_options",
@@ -681,6 +705,14 @@ local options={
 	},
 
 	{
+		key    = 'assistdronesair',
+		name   = 'Assist Drones: Use Air Drones',
+		type   = 'bool',
+		def    = false,
+		section= "options",
+	},
+
+	{
 		key="commanderbuildersenabled",
 		name="Base Construction Turret",
 		type="list",
@@ -824,7 +856,7 @@ local options={
     },
 	{
 		key    = "usemexconfig",
-		name   = "Use metal spots as point locations?",
+		name   = "Use metal spots as point locations",
 		type   = 'bool',
 		def    = false,
 		section= "controlvictoryoptions",
@@ -1207,7 +1239,7 @@ local options={
 	{
 		key    = 'experimentallegionfaction',
 		name   = 'Legion Faction',
-		desc   = '3rd experimental faction',
+		desc   = '3rd experimental faction (does not work with unba enabled!)',
 		type   = 'bool',
 		section = 'options_experimental',
 		def  = false,
@@ -1387,6 +1419,15 @@ local options={
 		}
 	},
 
+	{
+		key		= "unified_maxslope",
+		name	= "Standardized land unit maxslope",
+		desc	= "All land units have minimum maxslope of 36",
+		type	= "bool",
+		def		= false,
+		section	= "options_experimental",
+	},
+
 	---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 	---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 	-- Unused Options
@@ -1440,6 +1481,22 @@ local options={
 		section = 'options_experimental',
 		type    = "string",
 		def     = "",
+	},
+	{
+		key     = "debugcommands",
+		name    = "Debug Commands",
+		desc    = "A pipe separated list of commands to execute at [gameframe]:luarules fightertest|100:forcequit...", -- example: debugcommands=150:cheat 1|200:luarules fightertest|600:quitforce;
+		section = 'options_experimental',
+		type    = "string",
+		def     = "",
+	},
+	{
+		key     = "defaultdecals",
+		name    = "Default Decals",
+		desc    = "Use the default explosion decals instead of Decals GL4", -- example: debugcommands=150:cheat 1|200:luarules fightertest|600:quitforce;
+		section = 'options_experimental',
+		type    = "bool",
+		def     =  true,
 	},
 	---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 	---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

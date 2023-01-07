@@ -1103,6 +1103,7 @@ function widget:RecvLuaMsg(msg)
 		if won then
 			SetScore(decodedscenopts.scenarioid,decodedscenopts.version,decodedscenopts.difficulty, stats.endtime,resourcesused,won)
 			widget:Initialize()
+			MakeScenarioScrollPanelChildren()
 		end
 
 	end

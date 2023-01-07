@@ -772,7 +772,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	end
 
 	btnStartBattle = Button:New {
-		x = ((readyButton == nil) and 0 or "50.5%"),
+		x = ((battleLobby.name == "singleplayer") and 0 or "50.5%"),
 		right = 0,
 		bottom = 0,
 		height = 48,
@@ -1771,6 +1771,13 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 							end
 							if teamIndex == maxTeam then
 								teamData.RemoveTeam()
+								-- because it's only possible to remove the team on top of stack
+								-- we need to check, if next team on stack must also be removed
+								-- but always stay with 2 visible teams minimum: teamIndex 0 and 1
+								if (teamIndex-1 > 1) then
+									local teamObject = GetTeam(teamIndex-1)
+									teamObject.CheckRemoval()
+								end
 								return true
 							end
 						end
@@ -2238,14 +2245,14 @@ local function SetupSpadsStatusPanel(battle, battleID)
 			current = "off",
 			allowed = {"off","on","advanced"},
 			caption = "Autobalance",
-			tooltip = "Balance teams automatically",
+			tooltip = "Balance teams and fix IDs automatically. Use Coop preset to play vs AIs",
 			spadscommand = "!autobalance",
 		},
-		balanceMode = { 
-			current = "clan;skill",
-			allowed = {"random","clan;skill","skill","clan;random"},
+		balanceMode = {
+			current = "skill",
+			allowed = {"skill","clan;skill","random"},
 			caption = "BalanceMode",
-			tooltip = "Method to use when autobalancing",
+			tooltip = "Method to use when auto balancing teams",
 			spadscommand = "!balanceMode",
 		},
 		locked = {

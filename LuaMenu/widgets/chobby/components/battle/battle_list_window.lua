@@ -742,13 +742,14 @@ function BattleListWindow:FilterRedundantBattle(battle, id)
 end
 
 function BattleListWindow:CompareItems(id1, id2)
-	-- Help: returns true if id1 should be before id2
-	-- Sort 'open games first', by player count
-	-- Then empty battles
-	-- Then running but unlocked battles , by player count
-	-- Then running but locked battles, by player count
-	-- Finally private battles, alphabetically
-
+	-- Sort:
+	-- 1. public unlocked battles by player count
+	-- 2. public locked battles by player count
+	-- 3. unlocked private battles, alphabetically
+	-- 4. locked private battles, alphabetically
+	-- 
+	-- 1.& 2.: If player count is identical, order those by RunningState (not running first)
+	
 	-- sorted list of params to check by?
 
 	local battle1, battle2 = lobby:GetBattle(id1), lobby:GetBattle(id2)
@@ -763,9 +764,6 @@ function BattleListWindow:CompareItems(id1, id2)
 			return string.lower(battle1.title) < string.lower(battle2.title )
 		end
 
-		if battle1.isRunning ~= battle2.isRunning then 
-			return battle2.isRunning 
-		end
 
 		if battle1.locked ~= battle2.locked then 
 			return battle2.locked
@@ -775,6 +773,10 @@ function BattleListWindow:CompareItems(id1, id2)
 		local countTwo = lobby:GetBattlePlayerCount(id2)
 		if countOne ~= countTwo then
 			return countOne > countTwo
+		end
+
+		if battle1.isRunning ~= battle2.isRunning then 
+			return battle1.isRunning 
 		end
 		return id1 > id2 -- stabalize the sort.
 	else
@@ -838,6 +840,10 @@ end
 
 function BattleListWindow:UpdateSync(battleID)
 	local battle = lobby:GetBattle(battleID)
+	if battle == nil then
+		Spring.Utilities.TraceFullEcho(30,nil,nil, "lobby:GetBattle(battleID) == nil", battleID)
+		return
+	end
 	if not (Configuration.displayBadEngines2 or Configuration:IsValidEngineVersion(battle.engineVersion)) then
 		return
 	end
