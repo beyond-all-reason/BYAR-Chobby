@@ -341,7 +341,8 @@ local function GetUserSkill(userName, userControl)
 	local userInfo = userControl.lobby:GetUser(userName) or {}
 	local userBattleInfo = userControl.lobby:GetUserBattleStatus(userName) or {}
 
-	if userControl.isSingleplayer and not userBattleInfo.aiLib then
+	if userControl.isSingleplayer or userBattleInfo.aiLib ~= nil then
+		Spring.Log(LOG_SECTION, LOG.NOTICE, "GetUserSkill: SinglePlayer or AI")
 		return
 	end
 
@@ -497,13 +498,14 @@ local function UpdateUserActivity(listener, userName)
 			userControls.imLevel.file = GetUserRankImageName(userName, userControls)
 			userControls.imLevel:Invalidate()
 
-			userControls.tbName.font.color = GetUserNameColor(userName, userControls)
-			userControls.tbName:Invalidate()
-
 			userControls.skill.text = GetUserSkill(userName, userControls)
 			userControls.skillActualLength = userControls.skill.font:GetTextWidth(userControls.skill.text)
 			-- offset = offset + userControls.skillActualLength + 4
 			userControls.skill:Invalidate()
+
+			userControls.tbName.font.color = GetUserNameColor(userName, userControls)
+			userControls.tbName:Invalidate()
+
 
 			UpdateUserControlStatus(userName, userControls)
 		end
@@ -1043,9 +1045,6 @@ local function GetUserControls(userName, opts)
 			userControls.imSide:Hide()
 		end
 	end
-
-
-
 
 	--offset = offset + 2
 	userControls.tbName = TextBox:New {
