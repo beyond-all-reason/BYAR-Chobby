@@ -647,6 +647,8 @@ local function GetUserControls(userName, opts)
 	local showTeamColor      = opts.showTeamColor
 	local showSide           = opts.showSide
 	local showHandicap		 = opts.showHandicap
+	local showRank           = opts.showRank
+	local showSkill          = opts.showSkill
 
 	local userControls = reinitialize or {}
 
@@ -971,18 +973,20 @@ local function GetUserControls(userName, opts)
 		offset = offset + 21
 	end
 
-	offset = offset + 1
-	userControls.imLevel = Image:New {
-		name = "imLevel",
-		x = offset,
-		y = offsetY + 1,
-		width = 19,
-		height = 19,
-		parent = userControls.mainControl,
-		keepAspect = false,
-		file = GetUserRankImageName(userName, userControls),
-	}
-	offset = offset + 21
+	if showRank then
+		offset = offset + 1
+		userControls.imLevel = Image:New {
+			name = "imLevel",
+			x = offset,
+			y = offsetY + 1,
+			width = 19,
+			height = 19,
+			parent = userControls.mainControl,
+			keepAspect = false,
+			file = GetUserRankImageName(userName, userControls),
+		}
+		offset = offset + 21
+	end
 
 	local clanImage, needDownload = GetUserClanImage(userName, userControls)
 	if clanImage then
@@ -1002,25 +1006,25 @@ local function GetUserControls(userName, opts)
 		offset = offset + 21
 	end
 
-	
-	local skill = GetUserSkill(userName, userControls)
-	if skill ~= "" then
-		offset = offset + 1
-		userControls.skill = TextBox:New {
-			name = "skill",
-			x = offset,
-			y = offsetY + 4,
-			right = 0,
-			bottom = 5,
-			align = "left",
-			parent = userControls.mainControl,
-			fontsize = Configuration:GetFont(1).size,
-			text = skill,
-		}
-		userControls.skillActualLength = userControls.skill.font:GetTextWidth(userControls.skill.text)
-		offset = offset + userControls.skillActualLength + 4
-	else
-		offset = offset + 2
+	if showSkill then
+		local skill = GetUserSkill(userName, userControls)
+		if skill ~= "" then
+			offset = offset + 1
+			userControls.skill = TextBox:New {
+				name = "skill",
+				x = offset,
+				y = offsetY + 4,
+				right = 0,
+				bottom = 5,
+				align = "left",
+				parent = userControls.mainControl,
+				fontsize = Configuration:GetFont(1).size,
+				text = skill,
+			}
+			userControls.skillActualLength = userControls.skill.font:GetTextWidth(userControls.skill.text)
+			-- offset = offset + userControls.skillActualLength + 4
+		end
+		offset = offset + 15
 	end
 
 	if showSide then
@@ -1230,6 +1234,8 @@ function userHandler.GetBattleUser(userName, isSingleplayer)
 		autoResize     = true,
 		isInBattle     = true,
 		showReady      = true,
+		showRank       = false,
+		showSkill      = true,
 		showModerator  = true,
 		showFounder    = true,
 		showTeamColor  = not WG.Chobby.Configuration.gameConfig.disableColorChoosing,
