@@ -881,9 +881,6 @@ function Interface:_OnUpdateBot(battleID, name, battleStatus, teamColor)
 	battleID = tonumber(battleID)
 	local status = ParseBattleStatus(battleStatus)
 	status.teamColor = ParseTeamColor(teamColor)
-	-- local ai, dll = unpack(explode("\t", aiDll)))
-	status.aiLib = aiDll
-	status.owner = owner
 	self:_OnUpdateUserBattleStatus(name, status)
 end
 Interface.commands["UPDATEBOT"] = Interface._OnUpdateBot
