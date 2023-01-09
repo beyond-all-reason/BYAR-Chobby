@@ -26,7 +26,32 @@ function Interface:Register(userName, password, email)
 	return self
 end
 
+local function GetLobbyName()
+	local byarchobbyrapidTag = 'byar-chobby:test'
+	if byarchobbyrapidTag and VFS.GetNameFromRapidTag then
+		local rapidName = VFS.GetNameFromRapidTag(byarchobbyrapidTag)
+		if rapidName then
+			byarchobbyrapidTag = rapidName
+			byarchobbyrapidTag = string.gsub(byarchobbyrapidTag, "BYAR Chobby test%-", "")
+		end
+	end
+	local chobbyrapidTag = 'chobby:test'
+	if chobbyrapidTag and VFS.GetNameFromRapidTag then
+		local rapidName = VFS.GetNameFromRapidTag(chobbyrapidTag)
+		if rapidName then
+			chobbyrapidTag = rapidName
+			chobbyrapidTag = string.gsub(chobbyrapidTag, "Chobby test%-", "")
+		end
+	end
+	local lobbyname = 'Chobby:'..byarchobbyrapidTag..'/'..chobbyrapidTag
+	--Spring.Utilities.TraceFullEcho()
+	return lobbyname
+end
+
 function Interface:Login(user, password, cpu, localIP, lobbyVersion)
+	-- overwrite lobbyVersion by local function, since it´s not provided by caller right now or given as "Chobby"
+	lobbyVersion = GetLobbyName()
+
 	self:super("Login", user, password, cpu, localIP, lobbyVersion)
 	if localIP == nil then
 		localIP = "*"
