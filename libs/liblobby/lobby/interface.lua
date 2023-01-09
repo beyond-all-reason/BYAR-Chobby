@@ -1730,11 +1730,60 @@ end
 Interface.commands["SERVERMSGBOX"] = Interface._OnServerMSGBox
 Interface.commandPattern["SERVERMSGBOX"] = "([^\t]+)\t+([^\t]+)"
 
-local mod_opts_pre = "game/modoptions/"
-local mod_opts_pre_indx = #mod_opts_pre + 1
+-- l = "(" or ""
+-- p = "[" or ""
+-- d = "#" or ""
+local function parseSkillOrigin(l, p, d)
+	if l == "("              then return "Rank" end
+	if p == "[" and d == ""  then return "Plugin" end
+	if p == "[" and d == "#" then return "Plugin_Degraded" end
+	if              d == ""  then return "SLDB" end
+	if              d == "#" then return "SLDB_Degraded" end
+	return "Unknown" -- to make function clean, shouldn´t be possible
+  end
+
+-- interpret following scripttags
+-- playername/skilluncertainty=2
+-- playername/skill=<skillformat>
+-- skillformat , skillOrigin
+-- 1. (6)     , Lobby Rank
+-- 2. 6.34    , SLDB
+-- 3. #6.34#  , SLDB_Degraded 
+-- 4. [6.34]  , Plugin
+-- 5. [#6.34#], Plugin_Degraded
+-- Note: playername is delivered in lower case by protocol rules, see https://springrts.com/dl/LobbyProtocol/ProtocolDescription.html#SETSCRIPTTAGS:client
+local function GetSkillFromScriptTag(tag)
+	local userNameLC, skillKey, skillParam = string.match(tag, "(.+)/(.+)=(.+)")
+	if userNameLC == "" or skillKey == "" then
+		Spring.Log(LOG_SECTION, LOG.WARNING, "Could not parse scriptTag player/[..]", tag)
+		return
+	end
+	local l,p,d,value = string.match(skillParam, "(%(?)(%[?)(#?)(%d+%.?%d*)") -- ignore closings ")", "#", "]"
+	if value == "" then
+		Spring.Log(LOG_SECTION, LOG.WARNING, "Could not parse player/"..skillKey.."/[..]", skillParam)
+		return
+	end
+	local status = {}
+	if (skillKey == "skill") then
+		status["skillOrigin"] = parseSkillOrigin(l,p,d)
+		status["skill"]       = value --stay with string, tonumber would change the value in spring lua i.e 10.23 -> 10.229999...
+	elseif (skillKey == "skilluncertainty") then
+		status["skillUncertainty"] = value
+	else
+		Spring.Log(LOG_SECTION, LOG.NOTICE, "unsupported setScriptTags playerKey:", skillKey)
+		return
+	end
+	return userNameLC, status
+end
+
 local function string_starts(String, Start)
 	return string.sub(String, 1, string.len(Start)) == Start
 end
+
+local mod_opts_pre = "game/modoptions/"
+local mod_opts_pre_indx = #mod_opts_pre + 1
+local scriptTagPlayers = "game/players/"
+local scriptTagPlayersIndx = #scriptTagPlayers + 1
 function Interface:_OnSetScriptTags(tagsTxt)
 	local tags = explode("\t", tagsTxt)
 	if self.modoptions == nil then
@@ -1747,6 +1796,14 @@ function Interface:_OnSetScriptTags(tagsTxt)
 			local k = kvTable[1]
 			local v = kvTable[2]
 			self.modoptions[k] = v
+		elseif string_starts(tag, scriptTagPlayers) then
+			local userNameLC, status = GetSkillFromScriptTag(tag:sub(scriptTagPlayersIndx))
+			local userName = self:FindBattleUserByLowerCase(userNameLC) --lobby:FindBattleUserByLowerCase
+			if (userName == nil) or (status == nil) then
+				Spring.Log(LOG_SECTION, LOG.WARNING, "Could not parse tag " .. tag)
+			else
+				self:_OnUpdateUserStatus(userName, status)
+			end
 		end
 	end
 	self:_OnSetModOptions(self.modoptions)
