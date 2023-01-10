@@ -2718,7 +2718,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 
 	--spadsStatusPanel = 
 	SetupSpadsStatusPanel() -- git stash for scumbags
-	spadsStatusPanel:SetVisibility(false) -- start hidden
+	spadsStatusPanel:SetVisibility(true) -- start hidden
 
 	local votePanel = Control:New {
 		x = 0,
