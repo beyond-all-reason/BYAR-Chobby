@@ -3647,7 +3647,7 @@ function BattleRoomWindow.LeaveBattle(onlyMultiplayer, onlySingleplayer)
 	end
 
 	battleLobby:LeaveBattle()
-	barManagerPresent = nil
+	barManagerPresent = true
 	if mainWindowFunctions then
 		mainWindowFunctions.OnBattleClosed(_, battleLobby:GetMyBattleID())
 	end
