@@ -3,7 +3,8 @@ local welcomePanelItems = {
         Header = "Tournament: The Great Pro-Am Showdown",
         Url = "https://www.beyondallreason.info/news/the-great-pro-am-showdown",
         Time = "2023-01-14T15:00:00", -- "NowTime",
-        Text = "1v1 - 48 Players - Single Stage - Double Elimination\nPlayers of all skill levels welcome!\n",
+        Text = "1v1 - 48 Players - Single Stage - Double Elimination\nPlayers of all skill levels welcome!\n \n",
+        Image = "LuaMenu/images/1vs1Tournament.png",
         UrlText = "Sign-Up"
     },
     {
