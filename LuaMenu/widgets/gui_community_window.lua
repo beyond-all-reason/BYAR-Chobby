@@ -207,7 +207,7 @@ end
 local function GetDateTimeDisplay(parentControl, xPosition, yPosition, timeString)
 	local localTimeString = Spring.Utilities.ArchaicUtcToLocal(timeString, i18n)
 	if localTimeString then
-		localTimeString = localTimeString .. " local time."
+		localTimeString = localTimeString .. " of your local time."
 	end
 	local utcTimeString = string.gsub(timeString, "T", " at ") .. " UTC"
 
