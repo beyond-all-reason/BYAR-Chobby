@@ -437,22 +437,22 @@ local function UpdateUserControlStatus(userName, userControls)
 	local imageControlCount = math.max(#userControls.statusImages, #imageFiles)
 
 	local statusImageOffset = userControls.nameStartY + userControls.nameActualLength + 3
-	if userControls.maxNameLength then
-		if statusImageOffset + 21*(#imageFiles) > userControls.maxNameLength then
-			statusImageOffset = userControls.maxNameLength - 21*(#imageFiles)
-		end
-
-		local nameSpace = userControls.maxNameLength - userControls.nameStartY - (userControls.maxNameLength - statusImageOffset)
-		local truncatedName = StringUtilities.TruncateStringIfRequiredAndDotDot(userName, userControls.tbName.font, nameSpace)
-
-		if truncatedName then
-			userControls.tbName:SetText(truncatedName)
-			userControls.nameTruncated = true
-		elseif userControls.nameTruncated then
-			userControls.tbName:SetText(userName)
-			userControls.nameTruncated = false
-		end
-	end
+    if userControls.maxNameLength then
+    	if statusImageOffset + 21*(#imageFiles) > userControls.maxNameLength then
+    		statusImageOffset = userControls.maxNameLength - 21*(#imageFiles)
+    	end
+    
+    	local nameSpace = userControls.maxNameLength - userControls.nameStartY - (userControls.maxNameLength - statusImageOffset)
+    	local truncatedName = StringUtilities.TruncateStringIfRequiredAndDotDot(userName, userControls.tbName.font, nameSpace)
+    
+    	if truncatedName then
+    		userControls.tbName:SetText(truncatedName)
+    		userControls.nameTruncated = true
+    	elseif userControls.nameTruncated then
+    		userControls.tbName:SetText(userName)
+    		userControls.nameTruncated = false
+    	end
+    end
 
 	for i = 1, imageControlCount do
 		if not userControls.statusImages[i] then
@@ -492,14 +492,13 @@ local function UpdateUserComboboxOptions(_, userName)
 end
 
 local function UpdateUserActivity(listener, userName)
-	Spring.Log(LOG_SECTION, LOG.NOTICE, "UpdateUserAcitivty for userName:",userName)
 	for i = 1, #userListList do
 		local userList = userListList[i]
 		local userControls = userList[userName]
 		if userControls then
 			userControls.mainControl.items = GetUserComboBoxOptions(userName, userControls.isInBattle, userControls,userControls.imTeamColor ~= nil, userControls.imSide ~= nil)
-			if userControls.skill then
-			    userControls.skill:SetText(GetUserSkill(userName, userControls))
+			if userControls.tbSkill then
+			    userControls.tbSkill:SetText(GetUserSkill(userName, userControls))
 			end
 
 			if userControls.imLevel then
@@ -548,36 +547,54 @@ local function UpdateUserBattleStatus(listener, userName)
 		local userList = userListList[i]
 		local data = userList[userName]
 		if data then
+			local offset = 0
 			if data.imSyncStatus then
 				data.imSyncStatus.file = GetUserSyncStatus(userName, data)
 				data.imSyncStatus:Invalidate()
+				offset = offset + 22
 			end
 
 			local battleStatus = data.lobby:GetUserBattleStatus(userName) or {}
 			local isPlaying = not battleStatus.isSpectator
-
+		
 			if data.imReadyStatus and not isSingleplayer then
 				data.imReadyStatus.file = GetUserReadyStatus(userName, data)
 				data.imReadyStatus:SetVisibility(isPlaying)
 				if isPlaying then
+					offset = offset + 1
 					data.imReadyStatus:Invalidate()
+					offset = offset + 21
 				end
 			end
 
-			if data.skill then
+			if data.imCountry then
+				offset = offset + 1
+				data.imCountry:SetPos(offset + 2)
+				offset = offset + 21
+			end
+			if data.imLevel then
+				offset = offset + 1
+				data.imLevel:SetPos(offset)
+				offset = offset + 21
+			end
+			if data.imClan then
+				offset = offset + 1
+				data.imClan:SetPos(offset)
+				offset = offset + 21
+			end
+
+			if data.tbSkill then
 				if battleStatus.skill then
-					data.skill:SetText(GetUserSkill(userName, data))
+					data.tbSkill:SetText(GetUserSkill(userName, data))
 				end
-				data.skill:SetVisibility(isPlaying)
+				if isPlaying then
+					offset = offset + 1
+					data.tbSkill:SetPos(offset)
+					offset = offset + 15
+				end
+				data.tbSkill:SetVisibility(isPlaying)
 			end
 
-			if data.imTeamColor then
-				data.imTeamColor.color = battleStatus.teamColor
-				data.imTeamColor:SetVisibility(isPlaying)
-				if isPlaying then
-					data.imTeamColor:Invalidate()
-				end
-			end
 			if data.imSide then
 				local sideSelected = battleStatus.side ~= nil
 				if sideSelected then
@@ -589,15 +606,28 @@ local function UpdateUserBattleStatus(listener, userName)
 				--if visChangeToTrue then
 				--	data.needReinitialization = true
 				--end
+				if isPlaying and sideSelected then
+					offset = offset + 2
+					data.imSide:SetPos(offset)
+					offset = offset + 22
+				end
 				data.imSide:SetVisibility(isPlaying and sideSelected)
+			end
+			if data.tbName then
+				data.tbName:SetPos(offset)
+				data.nameStartY = offset
+				offset = offset + data.nameActualLength
+			end
+
+			if data.imTeamColor then
+				data.imTeamColor.color = battleStatus.teamColor
+				-- data.imTeamColor:SetVisibility(isPlaying)
+				data.imTeamColor:SetVisibility(true)
 				if isPlaying then
-					if data.imTeamColor == nil then
-						--Spring.Echo("Warning: UpdateUserBattleStatus(): data.imTeamColor is nil for ", userName, battleStatus.isSpectator, battleStatus)
-					else
-						data.imTeamColor:Invalidate()
-					end
+					data.imTeamColor:Invalidate()
 				end
 			end
+
 			if data.lblHandicap then
 				local handicap = battleStatus.handicap
 				if handicap ~= nil then
@@ -965,11 +995,12 @@ local function GetUserControls(userName, opts)
 		if userControls.imReadyStatus and bs and bs.isSpectator then
 			local visible = false
 			userControls.imReadyStatus:SetVisibility(visible)
+			offset = offset - 1
 		else
 			--Spring.Utilities.TraceFullEcho(nil,nil,nil, "lobby:GetUserBattleStatus(userName) == nil", userName)
 			--offset = offset + 21
+			offset = offset + 21
 		end
-		offset = offset + 21
 	end
 
 	if not isSingleplayer then
@@ -1027,7 +1058,7 @@ local function GetUserControls(userName, opts)
 		local skill = GetUserSkill(userName, userControls) or ""
 
 		offset = offset + 1
-		userControls.skill = TextBox:New {
+		userControls.tbSkill = TextBox:New {
 			name = "skill",
 			x = offset,
 			y = offsetY + 4,
@@ -1039,11 +1070,11 @@ local function GetUserControls(userName, opts)
 			text = skill,
 		}
 		if visible == false then
-		 	userControls.skill:SetVisibility(visible)
+		 	userControls.tbSkill:SetVisibility(visible)
+			offset = offset - 1
 		else
-			-- offset = offset + 15
+			offset = offset + 15
 		end
-		offset = offset + 15
 	end
 
 	if showSide then
@@ -1065,10 +1096,10 @@ local function GetUserControls(userName, opts)
 		}
 		if battleStatus.isSpectator or file == nil then
 			userControls.imSide:Hide()
+			offset = offset - 2
 		else
-			-- offset = offset + 22
+			offset = offset + 22
 		end
-		offset = offset + 22
 	end
 
 	--offset = offset + 2
@@ -1083,7 +1114,6 @@ local function GetUserControls(userName, opts)
 		fontsize = Configuration:GetFont(2).size,
 		text = userName,
 	}
-	local userNameStart = offset
 	local truncatedName = StringUtilities.TruncateStringIfRequiredAndDotDot(userName, userControls.tbName.font, maxNameLength and (maxNameLength - offset))
 	userControls.nameStartY = offset
 	userControls.maxNameLength = maxNameLength
@@ -1117,6 +1147,7 @@ local function GetUserControls(userName, opts)
 		userControls.nameActualLength = userControls.nameActualLength + 25
 		if battleStatus.isSpectator then
 			userControls.imTeamColor:Hide()
+			offset = offset - 5
 		else
 			offset = offset + 20
 		end
@@ -1177,11 +1208,12 @@ local function GetUserControls(userName, opts)
 	if autoResize then
 		userControls.mainControl.OnResize = userControls.mainControl.OnResize or {}
 		userControls.mainControl.OnResize[#userControls.mainControl.OnResize + 1] = function (obj, sizeX, sizeY)
-			local maxWidth = sizeX - userNameStart - 40
+			local maxWidth = sizeX - userControls.nameStartY - 40
+			
 			local truncatedName = StringUtilities.GetTruncatedStringWithDotDot(userName, userControls.tbName.font, maxWidth)
 			userControls.tbName:SetText(truncatedName)
 
-			offset = userNameStart + userControls.tbName.font:GetTextWidth(userControls.tbName.text) + 3
+			offset = userControls.nameStartY + userControls.tbName.font:GetTextWidth(userControls.tbName.text) + 3
 			if userControls.imTeamColor then
 				offset = offset + 25
 			end
