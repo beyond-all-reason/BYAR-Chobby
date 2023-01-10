@@ -342,12 +342,15 @@ local function GetUserSkill(userName, userControl)
 	local userBattleInfo = userControl.lobby:GetUserBattleStatus(userName) or {}
 
 	if userControl.isSingleplayer or userBattleInfo.aiLib ~= nil then
-		Spring.Log(LOG_SECTION, LOG.NOTICE, "GetUserSkill: SinglePlayer or AI")
+		-- Spring.Log(LOG_SECTION, LOG.NOTICE, "GetUserSkill: SinglePlayer or AI")
 		return
 	end
 
 	if userInfo.skill then
-		return math.floor(userInfo.skill + 0.5)
+		-- Spring.Log(LOG_SECTION, LOG.NOTICE, "GetUserSkill:", math.floor(userInfo.skill + 0.5))
+		local skill = math.floor(userInfo.skill + 0.5)
+		if skill < 10 then skill = " " .. skill end
+		return skill
 	end
 end
 
@@ -489,25 +492,21 @@ local function UpdateUserComboboxOptions(_, userName)
 end
 
 local function UpdateUserActivity(listener, userName)
+	Spring.Log(LOG_SECTION, LOG.NOTICE, "UpdateUserAcitivty for userName:",userName)
 	for i = 1, #userListList do
 		local userList = userListList[i]
 		local userControls = userList[userName]
 		if userControls then
-			userControls.mainControl.items = GetUserComboBoxOptions(userName, userControls.isInBattle, userControls,
-			                                                        userControls.imTeamColor ~= nil, userControls.imSide ~= nil)
-			userControls.imLevel.file = GetUserRankImageName(userName, userControls)
-			userControls.imLevel:Invalidate()
+			userControls.mainControl.items = GetUserComboBoxOptions(userName, userControls.isInBattle, userControls,userControls.imTeamColor ~= nil, userControls.imSide ~= nil)
+			if userControls.skill then
+			    userControls.skill:SetText(GetUserSkill(userName, userControls))
+			end
 
-			userControls.skill.text = GetUserSkill(userName, userControls)
-			userControls.skillActualLength = userControls.skill.font:GetTextWidth(userControls.skill.text)
-			-- offset = offset + userControls.skillActualLength + 4
-			userControls.skill:Invalidate()
-
-			userControls.tbName.font.color = GetUserNameColor(userName, userControls)
-			userControls.tbName:Invalidate()
-
-
-			UpdateUserControlStatus(userName, userControls)
+			if userControls.imLevel then
+				userControls.imLevel.file = GetUserRankImageName(userName, userControls)
+				userControls.imLevel:Invalidate()
+				UpdateUserControlStatus(userName, userControls)
+			end
 		end
 	end
 end
@@ -565,6 +564,13 @@ local function UpdateUserBattleStatus(listener, userName)
 				end
 			end
 
+			if data.skill then
+				if battleStatus.skill then
+					data.skill:SetText(GetUserSkill(userName, data))
+				end
+				data.skill:SetVisibility(isPlaying)
+			end
+
 			if data.imTeamColor then
 				data.imTeamColor.color = battleStatus.teamColor
 				data.imTeamColor:SetVisibility(isPlaying)
@@ -577,6 +583,12 @@ local function UpdateUserBattleStatus(listener, userName)
 				if sideSelected then
 					data.imSide.file = WG.Chobby.Configuration:GetSideById(battleStatus.side).logo
 				end
+				--local visibleCur = data.imSide.IsVisibleDescendantByName("imSide")
+				--local visibleNew = isPlaying and sideSelected
+				--local visChangeToTrue = visibleNew and not visibleCur
+				--if visChangeToTrue then
+				--	data.needReinitialization = true
+				--end
 				data.imSide:SetVisibility(isPlaying and sideSelected)
 				if isPlaying then
 					if data.imTeamColor == nil then
@@ -950,10 +962,12 @@ local function GetUserControls(userName, opts)
 		}
 		local bs = lobby:GetUserBattleStatus(userName)
 
-		if bs then
-			userControls.imReadyStatus:SetVisibility(not (bs and bs.isSpectator))
+		if userControls.imReadyStatus and bs and bs.isSpectator then
+			local visible = false
+			userControls.imReadyStatus:SetVisibility(visible)
 		else
 			--Spring.Utilities.TraceFullEcho(nil,nil,nil, "lobby:GetUserBattleStatus(userName) == nil", userName)
+			--offset = offset + 21
 		end
 		offset = offset + 21
 	end
@@ -1007,22 +1021,27 @@ local function GetUserControls(userName, opts)
 	end
 
 	if showSkill then
-		local skill = GetUserSkill(userName, userControls)
-		if skill ~= "" then
-			offset = offset + 1
-			userControls.skill = TextBox:New {
-				name = "skill",
-				x = offset,
-				y = offsetY + 4,
-				right = 0,
-				bottom = 5,
-				align = "left",
-				parent = userControls.mainControl,
-				fontsize = Configuration:GetFont(1).size,
-				text = skill,
-			}
-			userControls.skillActualLength = userControls.skill.font:GetTextWidth(userControls.skill.text)
-			-- offset = offset + userControls.skillActualLength + 4
+		local bs = userControls.lobby:GetUserBattleStatus(userName) or {}
+		local visible = not (bs and bs.isSpectator) or false
+
+		local skill = GetUserSkill(userName, userControls) or ""
+
+		offset = offset + 1
+		userControls.skill = TextBox:New {
+			name = "skill",
+			x = offset,
+			y = offsetY + 4,
+			right = 0,
+			bottom = 5,
+			align = "left",
+			parent = userControls.mainControl,
+			fontsize = Configuration:GetFont(1).size,
+			text = skill,
+		}
+		if visible == false then
+		 	userControls.skill:SetVisibility(visible)
+		else
+			-- offset = offset + 15
 		end
 		offset = offset + 15
 	end
@@ -1044,10 +1063,12 @@ local function GetUserControls(userName, opts)
 			keepAspect = false,
 			file = file,
 		}
-		offset = offset + 22
 		if battleStatus.isSpectator or file == nil then
 			userControls.imSide:Hide()
+		else
+			-- offset = offset + 22
 		end
+		offset = offset + 22
 	end
 
 	--offset = offset + 2
@@ -1234,7 +1255,7 @@ function userHandler.GetBattleUser(userName, isSingleplayer)
 		autoResize     = true,
 		isInBattle     = true,
 		showReady      = true,
-		showRank       = false,
+		showRank       = true,
 		showSkill      = true,
 		showModerator  = true,
 		showFounder    = true,
