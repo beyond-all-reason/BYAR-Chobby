@@ -31,10 +31,10 @@ local welcomePanelItems = {
     },
 
     {
-        Header = "New PVE Map: Point of No Return v1.0",
+        Header = "New Map: Supreme Strait v1.1",
         Time = nil,-- "NowTime",
-        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/point_of_no_return_v1.0.png",
-        Text = "Welcome to the new PVE battlefield to fight against AI offering great defensive positions and hybrid land-water game style.\nAlso capable for FFA games.\nBy Nikuksis.",
+        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/supreme_strait_v1.1.png",
+        Text = "New 24x24 rework of a famous map, 8v8 capable.\nBy Nikuksis.",
     },
 
     {
