@@ -337,20 +337,47 @@ local function GetUserRankImageName(userName, userControl)
 	return image
 end
 
+-- returns skill, color
+-- returns nil, if no skill is known for userName (skill is set in Interface:_OnSetScriptTags)
+-- skill format: "XY" or " X" (leading whitespace)
+-- color by skillUncertainty, if unknown by SkillUncertainty=1 (stable)
 local function GetUserSkill(userName, userControl)
 	local userInfo = userControl.lobby:GetUser(userName) or {}
 	local userBattleInfo = userControl.lobby:GetUserBattleStatus(userName) or {}
 
 	if userControl.isSingleplayer or userBattleInfo.aiLib ~= nil then
-		-- Spring.Log(LOG_SECTION, LOG.NOTICE, "GetUserSkill: SinglePlayer or AI")
 		return
 	end
 
 	if userInfo.skill then
-		-- Spring.Log(LOG_SECTION, LOG.NOTICE, "GetUserSkill:", math.floor(userInfo.skill + 0.5))
 		local skill = math.floor(userInfo.skill + 0.5)
 		if skill < 10 then skill = " " .. skill end
-		return skill
+		
+		local sigma
+		if userInfo.skillUncertainty then
+			sigma = userInfo.skillUncertainty
+		else
+			sigma = 1
+		end
+		Spring.Log(LOG_SECTION, LOG.NOTICE, "Sigma:", sigma)
+		local skillUncertaintyColor
+		if tostring(sigma) == "3" then
+			skillUncertaintyColor = {190, 130, 130, 1}
+			skillUncertaintyColor = {0.66, 0.66, 0.66, 1}
+			Spring.Log(LOG_SECTION, LOG.NOTICE, "Taking 3")
+		elseif tostring(sigma) == "2" then
+			skillUncertaintyColor = {140, 140, 140, 1}
+			skillUncertaintyColor = {1, 1, 1, 1}
+			Spring.Log(LOG_SECTION, LOG.NOTICE, "Taking 2")
+		else
+			skillUncertaintyColor = {195, 195, 195, 1}
+			skillUncertaintyColor = {0.76, 0.76, 0.76, 1}
+			skillUncertaintyColor = {1, 1, 0, 1}
+			Spring.Log(LOG_SECTION, LOG.NOTICE, "Taking 1")
+		end
+		Spring.Log(LOG_SECTION, LOG.NOTICE, skillUncertaintyColor[1], skillUncertaintyColor[2])
+
+		return skill, skillUncertaintyColor
 	end
 end
 
@@ -1055,8 +1082,7 @@ local function GetUserControls(userName, opts)
 		local bs = userControls.lobby:GetUserBattleStatus(userName) or {}
 		local visible = not (bs and bs.isSpectator) or false
 
-		local skill = GetUserSkill(userName, userControls) or ""
-
+		local skill, skillColor = GetUserSkill(userName, userControls)
 		offset = offset + 1
 		userControls.tbSkill = TextBox:New {
 			name = "skill",
@@ -1069,11 +1095,15 @@ local function GetUserControls(userName, opts)
 			fontsize = Configuration:GetFont(1).size,
 			text = skill,
 		}
+
+		userControls.tbSkill.font.color = skillColor
+		userControls.tbSkill:Invalidate()
 		if visible == false then
 		 	userControls.tbSkill:SetVisibility(visible)
 			offset = offset - 1
 		else
 			offset = offset + 15
+
 		end
 	end
 
