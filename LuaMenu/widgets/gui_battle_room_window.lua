@@ -1525,33 +1525,8 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 	local player = {}
 	local team = {}
 
-	local function deepcopy(orig)
-		local orig_type = type(orig)
-		local copy
-		if orig_type == 'table' then
-			copy = {}
-			for orig_key, orig_value in next, orig, nil do
-				copy[deepcopy(orig_key)] = deepcopy(orig_value)
-			end
-			setmetatable(copy, deepcopy(getmetatable(orig)))
-		else -- number, string, boolean, etc
-			copy = orig
-		end
-		return copy
-	end
-
-
-	local function swapPlaced(panel1, panel2)
-
-	end
-
-	
-
 	local function PositionChildren(panel, minHeight)
 		local children = panel.children
-		-- order by skill descending
-		-- orderPanelsBySkill(children)
-
 
 		minHeight = minHeight - 10
 
@@ -1742,77 +1717,7 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 				label:SetCaption(humanName)
 			end
 
-			function teamData.debugObj(myObj)
-				Spring.Log(LOG_SECTION, LOG.NOTICE, "Debugging an object")
-				if type(myObj)=="table" or type(myObj)=="userdata" then
-					Spring.Log(LOG_SECTION, LOG.NOTICE, "myobj.name:"..myObj.name)
-					for k,v in pairs(myObj) do
-						Spring.Log(LOG_SECTION, LOG.NOTICE, "k="..tostring(k), "type(v)="..type(v), "v="..tostring(v))
-						if type(k) == "table" then
-							Spring.Log(LOG_SECTION, LOG.NOTICE, "show k")
-							teamData.debugObj(k)
-						end
-						if type(v) == "table" then
-							Spring.Log(LOG_SECTION, LOG.NOTICE, "show v")
-							teamData.debugObj(v)
-						end
-
-					end
-				else
-					Spring.Log(LOG_SECTION, LOG.NOTICE, "myObj Value=" .. tostring(myObj))
-				end
-			end
-
-			function teamData.orderPanelsBySkill(control)
-				--Spring.Log(LOG_SECTION, LOG.NOTICE, "#children", #children, "name:", children.name)
-				--teamData.debugObj(children)
-				if control.mainControl then
-					Spring.Log(LOG_SECTION, LOG.NOTICE, "control.name=", control.name)	
-					if control.mainControl.skill then
-						Spring.Log(LOG_SECTION, LOG.NOTICE, "control.mainControl,skill=", control.mainControl,skill)	
-					else
-						Spring.Log(LOG_SECTION, LOG.NOTICE, "control.mainControl no skill")
-					end
-				else
-					Spring.Log(LOG_SECTION, LOG.NOTICE, "control no mainControl")	
-				end
-
---				for i=1, #children, 1 do
---					Spring.Log(LOG_SECTION, LOG.NOTICE, "i="..tostring(i),"name:", children[i].name)
---					local maxIndx = i
---					local maxValu
---					if (not children[i].skill) then
---						Spring.Log(LOG_SECTION, LOG.NOTICE, "no skill found for i")
---						maxValu = 0
---					else
---						Spring.Log(LOG_SECTION, LOG.NOTICE, "skill of i="..tostring(children[i].skill))
---						maxValu = children[i].skill
---					end
---
---					for j=i+1, #children, 1 do
---						if children[j].skill then
---							if maxValu < children[j].skill then
---								Spring.Log(LOG_SECTION, LOG.NOTICE, "child j="..tostring(j).." is greater,skill="..tostring(children[j].skill))
---								max = j
---								maxValu = children[j].skill
---							else
---								Spring.Log(LOG_SECTION, LOG.NOTICE, "child j="..tostring(j).." is not greater,skill="..tostring(children[j].skill))
---							end
---						else
---							Spring.Log(LOG_SECTION, LOG.NOTICE, "child j="..tostring(j).." has no skill value")
---						end
---					end
-
-		--			if max ~= i
-		--				local higherValue = children[min]
-		--				children[min] = children[i]
-		--				children[i] = higherValue
-		--			end
---				end
-			end
-
 			function teamData.AddPlayer(name)
-				Spring.Log(LOG_SECTION, LOG.NOTICE, "AddPlayer=", name)
 				local playerData = GetPlayerData(name)
 				if playerData.team == teamIndex then
 					return
@@ -1828,7 +1733,6 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 				if not teamStack:GetChildByName(playerControl.name) then
 					teamStack:AddChild(playerControl)
 					playerControl:SetPos(nil, (#teamStack.children - 1)*SPACING)
-					--teamData.orderPanelsBySkill(playerData)
 					playerControl:Invalidate()
 
 					teamHolder:SetPos(nil, nil, nil, #teamStack.children*SPACING + 35)
@@ -1867,13 +1771,6 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 							end
 							if teamIndex == maxTeam then
 								teamData.RemoveTeam()
-								-- because it's only possible to remove the team on top of stack
-								-- we need to check, if next team on stack must also be removed
-								-- but always stay with 2 visible teams minimum: teamIndex 0 and 1
-								if (teamIndex-1 > 1) then
-									local teamObject = GetTeam(teamIndex-1)
-									teamObject.CheckRemoval()
-								end
 								return true
 							end
 						end
