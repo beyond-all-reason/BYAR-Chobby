@@ -995,6 +995,10 @@ local function GetLobbyTabControls()
 	children[#children + 1], offset = AddCheckboxSetting(offset, i18n("fixFlicker"), "fixFlicker", true, nil, i18n("fixFlicker_tooltip"))
 	children[#children + 1], offset = AddCheckboxSetting(offset, i18n("displayBots"), "displayBots", false, nil, i18n("displayBots_tooltip") )
 	children[#children + 1], offset = AddCheckboxSetting(offset, i18n("filterbattleroom"), "filterbattleroom", true, nil, i18n("filterbattleroom_tooltip"))
+	
+	children[#children + 1], offset = AddCheckboxSetting(offset, i18n("flushLogs"), "flushLogs",
+		Spring.GetConfigInt("LogFlushLevel") == 0,
+		function(newstate) Spring.SetConfigInt("LogFlushLevel", (newstate and 0) or 50) end, i18n("flushLogs_tooltip"))
 
 	--children[#children + 1], offset = AddCheckboxSetting(offset, i18n("keep_queues"), "rememberQueuesOnStart", false, nil, "Stay in matchmaker queues when a battle is launched.")
 

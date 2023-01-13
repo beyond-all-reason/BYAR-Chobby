@@ -189,6 +189,8 @@ return {
 		drawFullSpeed_tooltip = "Enabling this makes the lobby be drawn at your maximum FPS, which can cause excess CPU and GPU load, but can help if you are having issues with VSync",
 		fixFlicker = "Fix lobby flickering",
 		fixFlicker_tooltip = "At the cost of significant idle CPU load: Enable this if you experience flickering in the lobby.",
+		flushLogs = "Flush logs to disk",
+		flushLogs_tooltip = "Immediately flush infolog.txt to disk for debuggging.",
 		keep_queues = "Stay in MM queues on launch",
 		simplifiedSkirmishSetup = "Simple skirmish setup",
 		debugMode = "Debug mode",
