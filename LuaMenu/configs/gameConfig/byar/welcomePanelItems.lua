@@ -30,19 +30,19 @@ local welcomePanelItems = {
         Text = "Just select [Engine Test] in the launcher dropdown, and then play Skirmish and Multiplayer games. AMD testers especially needed. Report anything out of the ordinary to Discord!\n",
         UrlText = "BAR #engine channel on Discord"
     },
-
+ 
+    {
+        Header = "New Map: Pawn Retreat 1.0",
+        Time = nil,-- "NowTime",
+        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/pawn_retreat_1.0.png",
+        Text = "A team game map capable of 8v8 by Rebelnode.",
+    },
+    
     {
         Header = "New Map: Supreme Strait v1.1",
         Time = nil,-- "NowTime",
         Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/supreme_strait_v1.1.png",
         Text = "New 24x24 rework of a famous map, 8v8 capable.\nBy Nikuksis.",
-    },
-
-    {
-        Header = "New Map: Crystallized Plains 1.01",
-        Time = nil,-- "NowTime",
-        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/Crystallized_Plains_1.01.png",
-        Text = "A 1vs1 map by Moose with dry rock flats and many colorful pillars.",
     },
 
     {
