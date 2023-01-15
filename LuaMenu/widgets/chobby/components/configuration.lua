@@ -108,6 +108,28 @@ function Configuration:init()
 	self.buttonFocusColor = {0.34,0.52,1,0.3}
 	self.buttonSelectedColor = {0.1, 0.58, 0.90, 0.9}--{1.0, 1.0, 1.0, 1.0}
 
+	self.skillUncertaintyColors = {
+		["0"] = {1.0, 1.0, 0.0, 1.0},
+		["1"] = {0.9, 0.9, 0.0, 1.0},
+		["2"] = {1.0, 1.0, 1.0, 1.0},
+		["3"] = {0.66, 0.66, 0.66, 1.0},
+	}
+
+	self.testValue = "Halo Halo"
+	self.testValue2 = {
+		[1] = "blablubb",
+	}
+	self.testValue3 = {
+		[1] = {"bluuuu"},
+	}
+	self.testValue4 = {
+		[0] = {"bluuuu0"},
+	}
+	self.testValue5 = {
+		[1] = {4.5, 5.6},
+		[2] = {2.5, 2.6},
+	}
+
 	self.loadLocalWidgets = false
 	self.displayBots = false
 	self.filterbattleroom = true

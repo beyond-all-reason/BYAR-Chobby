@@ -342,6 +342,7 @@ end
 -- skill format: "XY" or " X" (leading whitespace)
 -- color by skillUncertainty, if unknown by SkillUncertainty=1 (stable)
 local function GetUserSkill(userName, userControl)
+	local config = WG.Chobby.Configuration
 	local userInfo = userControl.lobby:GetUser(userName) or {}
 	local userBattleInfo = userControl.lobby:GetUserBattleStatus(userName) or {}
 
@@ -353,32 +354,27 @@ local function GetUserSkill(userName, userControl)
 		local skill = math.floor(userInfo.skill + 0.5)
 		if skill < 10 then skill = " " .. skill end
 		
-		local sigma
-		if userInfo.skillUncertainty then
-			sigma = userInfo.skillUncertainty
-		else
-			sigma = 1
-		end
-		Spring.Log(LOG_SECTION, LOG.NOTICE, "Sigma:", sigma)
-		local skillUncertaintyColor
-		if tostring(sigma) == "3" then
-			skillUncertaintyColor = {190, 130, 130, 1}
-			skillUncertaintyColor = {0.66, 0.66, 0.66, 1}
-			Spring.Log(LOG_SECTION, LOG.NOTICE, "Taking 3")
-		elseif tostring(sigma) == "2" then
-			skillUncertaintyColor = {140, 140, 140, 1}
-			skillUncertaintyColor = {1, 1, 1, 1}
-			Spring.Log(LOG_SECTION, LOG.NOTICE, "Taking 2")
-		else
-			skillUncertaintyColor = {195, 195, 195, 1}
-			skillUncertaintyColor = {0.76, 0.76, 0.76, 1}
-			skillUncertaintyColor = {1, 1, 0, 1}
-			Spring.Log(LOG_SECTION, LOG.NOTICE, "Taking 1")
-		end
-		Spring.Log(LOG_SECTION, LOG.NOTICE, skillUncertaintyColor[1], skillUncertaintyColor[2])
 
-		return skill, skillUncertaintyColor
 	end
+	if userInfo.skillUncertainty then
+		-- change sigma to integer values to use array in configuration (may get type float in future or ranges change)
+		local sigma = math.floor(tonumber(userInfo.skillUncertainty)+0.5)
+		Spring.Log(LOG_SECTION, LOG.NOTICE, sigma)
+		if sigma > -1 and sigma < 4 then -- 0,1,2,3
+			skillUncertaintyColor = config.skillUncertaintyColors[sigma]
+		elseif sigma > 3 then
+			skillUncertaintyColor = config.skillUncertaintyColors[3]
+		else
+			skillUncertaintyColor = config.skillUncertaintyColors[0]
+		end
+
+		
+	else
+		Spring.Log(LOG_SECTION, LOG.NOTICE, "default")
+		skillUncertaintyColor = config.skillUncertaintyColors[1] -- fall back to 1 as long as it´s not read by lobby:setScripttags
+
+	end
+	return skill, skillUncertaintyColor
 end
 
 local function GetUserStatusImages(userName, isInBattle, userControl)

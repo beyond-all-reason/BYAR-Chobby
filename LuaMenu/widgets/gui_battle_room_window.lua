@@ -130,6 +130,40 @@ local OpenNewTeam
 
 local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUserName)
 	local config = WG.Chobby.Configuration
+
+	--local testArr = {
+	--	[1] = {0.1},
+	--	[2] = {0.2},
+	--	[3] = {0.3},
+	--}
+	--if testArr and testArr[1] then
+	--	Spring.Log("TEST", LOG.NOTICE, testArr["1"][1])
+	--end
+	--if testArr and testArr[3] then
+	--	Spring.Log("TEST", LOG.NOTICE, testArr["3"][1])
+	--end
+
+
+	--if config.testValue then
+	--	Spring.Log(LOG_SECTION, LOG.NOTICE, config.testValue)
+	--else
+	--	Spring.Log(LOG_SECTION, LOG.NOTICE, "testValue not exists")
+	--end
+	--if config.testValue2 and config.testValue2[1] then
+	--	Spring.Log(LOG_SECTION, LOG.NOTICE, config.testValue2[1])
+	--end
+	--if config.testValue3 and config.testValue3[1] and config.testValue3[1][1] then
+	--	Spring.Log(LOG_SECTION, LOG.NOTICE, config.testValue3[1][1])
+	--end
+	--if config.testValue4 and config.testValue4[0] and config.testValue4[0][1] then
+	--	Spring.Log(LOG_SECTION, LOG.NOTICE, config.testValue4[0][1])
+	--end
+	--if config.testValue5 and config.testValue5[2] and config.testValue5[2][2] then
+	--	Spring.Log(LOG_SECTION, LOG.NOTICE, config.testValue5[2][2])
+	--end
+	--if config.skillUncertaintyColors and config.skillUncertaintyColors[1] and config.skillUncertaintyColors[1][1] then
+	--	Spring.Log(LOG_SECTION, LOG.NOTICE, config.skillUncertaintyColors[1][1])
+	--end
 	local minimapBottomClearance = 160
 
 	local currentMapName
