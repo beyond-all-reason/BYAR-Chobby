@@ -1,12 +1,5 @@
 local welcomePanelItems = {
-    {
-        Header = "Tournament: The Great Pro-Am Showdown",
-        Url = "https://www.beyondallreason.info/news/the-great-pro-am-showdown",
-        Time = "2023-01-14T15:00:00", -- "NowTime",
-        Text = "1v1 - 48 Players - Single Stage - Double Elimination\nPlayers of all skill levels welcome!\n \n",
-        Image = "LuaMenu/images/1vs1Tournament.png",
-        UrlText = "Sign-Up"
-    },
+
     {
         Header = "Welcome to Beyond All Reason",
         Url = "https://discord.gg/N968ddE",
@@ -21,6 +14,15 @@ local welcomePanelItems = {
         Time = nil,-- "NowTime",
         Text = "Requiem has created some guides for new players. If you're new to the game and want to learn the basics via video we highly recommend you check them out.\n",
         UrlText = "Watch video guides"
+    },
+
+    {
+        Header = "Tournament: The Great Pro-Am Showdown has concluded!",
+        -- Url = "https://www.beyondallreason.info/news/the-great-pro-am-showdown",
+        Time = nil, -- "NowTime",
+        Text = " \nBow to the new grand master of the 1v1 format, [teh]Teddy!\n \n",
+        -- Image = "LuaMenu/images/1vs1Tournament.png",
+        -- UrlText = "Sign-Up"
     },
 
     {
