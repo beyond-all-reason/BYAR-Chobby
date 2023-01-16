@@ -1766,9 +1766,9 @@ local function GetSkillFromScriptTag(tag)
 	local status = {}
 	if (skillKey == "skill") then
 		status["skillOrigin"] = parseSkillOrigin(l,p,d)
-		status["skill"]       = value --stay with string, tonumber would change the value in spring lua i.e 10.23 -> 10.229999...
+		status["skill"]       = tostring(value) --stay with string, tonumber would change the value in spring lua i.e 10.23 -> 10.229999...
 	elseif (skillKey == "skilluncertainty") then
-		status["skillUncertainty"] = value
+		status["skillUncertainty"] = tostring(value) -- without tostring, we get [number] for value 1 and [string] for value 3, which is strange
 	else
 		Spring.Log(LOG_SECTION, LOG.NOTICE, "unsupported setScriptTags playerKey:", skillKey)
 		return
@@ -1798,7 +1798,7 @@ function Interface:_OnSetScriptTags(tagsTxt)
 			self.modoptions[k] = v
 		elseif string_starts(tag, scriptTagPlayers) then
 			local userNameLC, status = GetSkillFromScriptTag(tag:sub(scriptTagPlayersIndx))
-			local userName = self:FindBattleUserByLowerCase(userNameLC) --lobby:FindBattleUserByLowerCase
+			local userName = self:GetLowerCaseUser(userNameLC) --lobby:FindBattleUserByLowerCase
 			if (userName == nil) or (status == nil) then
 				Spring.Log(LOG_SECTION, LOG.WARNING, "Could not parse tag " .. tag)
 			else
