@@ -345,21 +345,24 @@ local function GetUserSkill(userName, userControl)
 	local config = WG.Chobby.Configuration
 	local userInfo = userControl.lobby:GetUser(userName) or {}
 	local userBattleInfo = userControl.lobby:GetUserBattleStatus(userName) or {}
+	local skill = 0
+	local skillUncertainty = 3
+	local skillUncertaintyColor
 
 	if userControl.isSingleplayer or userBattleInfo.aiLib ~= nil then
-		return
+		return skill, skillUncertainty
 	end
 
 	if userInfo.skill then
-		local skill = math.floor(userInfo.skill + 0.5)
+		skill = math.floor(userInfo.skill + 0.5)
 		if skill < 10 then skill = " " .. skill end
-		
-
+		skill = tostring(skill)
 	end
+
 	if userInfo.skillUncertainty then
 		-- change sigma to integer values to use array in configuration (may get type float in future or ranges change)
 		local sigma = math.floor(tonumber(userInfo.skillUncertainty)+0.5)
-		Spring.Log(LOG_SECTION, LOG.NOTICE, sigma)
+		--Spring.Log(LOG_SECTION, LOG.NOTICE, sigma)
 		if sigma > -1 and sigma < 4 then -- 0,1,2,3
 			skillUncertaintyColor = config.skillUncertaintyColors[sigma]
 		elseif sigma > 3 then
@@ -367,10 +370,8 @@ local function GetUserSkill(userName, userControl)
 		else
 			skillUncertaintyColor = config.skillUncertaintyColors[0]
 		end
-
-		
 	else
-		Spring.Log(LOG_SECTION, LOG.NOTICE, "default")
+		--Spring.Log(LOG_SECTION, LOG.NOTICE, "default")
 		skillUncertaintyColor = config.skillUncertaintyColors[1] -- fall back to 1 as long as it´s not read by lobby:setScripttags
 
 	end
@@ -520,9 +521,9 @@ local function UpdateUserActivity(listener, userName)
 		local userControls = userList[userName]
 		if userControls then
 			userControls.mainControl.items = GetUserComboBoxOptions(userName, userControls.isInBattle, userControls,userControls.imTeamColor ~= nil, userControls.imSide ~= nil)
-			if userControls.tbSkill then
-			    userControls.tbSkill:SetText(GetUserSkill(userName, userControls))
-			end
+			--if userControls.tbSkill then
+			--    userControls.tbSkill:SetText(GetUserSkill(userName, userControls))
+			--end
 
 			if userControls.imLevel then
 				userControls.imLevel.file = GetUserRankImageName(userName, userControls)
@@ -577,8 +578,10 @@ local function UpdateUserBattleStatus(listener, userName)
 				offset = offset + 22
 			end
 
-			local battleStatus = data.lobby:GetUserBattleStatus(userName) or {}
-			local isPlaying = not battleStatus.isSpectator
+			local bs = data.lobby:GetUserBattleStatus(userName) or {}
+			--local isPlaying = not battleStatus.isSpectator
+			local isPlaying = (bs and not bs.isSpectator) or false
+
 		
 			if data.imReadyStatus and not isSingleplayer then
 				data.imReadyStatus.file = GetUserReadyStatus(userName, data)
@@ -607,8 +610,13 @@ local function UpdateUserBattleStatus(listener, userName)
 			end
 
 			if data.tbSkill then
-				if battleStatus.skill then
-					data.tbSkill:SetText(GetUserSkill(userName, data))
+				local skill, skillColor = GetUserSkill(userName, data)
+				if skill then
+					data.tbSkill:SetText(skill)
+					if skillColor then
+						data.tbSkill.font.color = skillColor
+						data.tbSkill:Invalidate()
+					end
 				end
 				if isPlaying then
 					offset = offset + 1
@@ -619,9 +627,9 @@ local function UpdateUserBattleStatus(listener, userName)
 			end
 
 			if data.imSide then
-				local sideSelected = battleStatus.side ~= nil
+				local sideSelected = bs.side ~= nil
 				if sideSelected then
-					data.imSide.file = WG.Chobby.Configuration:GetSideById(battleStatus.side).logo
+					data.imSide.file = WG.Chobby.Configuration:GetSideById(bs.side).logo
 				end
 				--local visibleCur = data.imSide.IsVisibleDescendantByName("imSide")
 				--local visibleNew = isPlaying and sideSelected
@@ -643,7 +651,7 @@ local function UpdateUserBattleStatus(listener, userName)
 			end
 
 			if data.imTeamColor then
-				data.imTeamColor.color = battleStatus.teamColor
+				data.imTeamColor.color = bs.teamColor
 				-- data.imTeamColor:SetVisibility(isPlaying)
 				data.imTeamColor:SetVisibility(true)
 				if isPlaying then
@@ -652,16 +660,16 @@ local function UpdateUserBattleStatus(listener, userName)
 			end
 
 			if data.lblHandicap then
-				local handicap = battleStatus.handicap
+				local handicap = bs.handicap
 				if handicap ~= nil then
 					local handicaptxt = ''
-					if battleStatus.handicap == 0 then
+					if bs.handicap == 0 then
 						data.lblHandicap:SetVisibility(false)
 					else
-						if battleStatus.handicap > 0 then
-							handicaptxt = '+'..tostring(battleStatus.handicap)
+						if bs.handicap > 0 then
+							handicaptxt = '+'..tostring(bs.handicap)
 						else
-							handicaptxt = tostring(battleStatus.handicap)
+							handicaptxt = tostring(bs.handicap)
 						end
 						data.lblHandicap:SetCaption(handicaptxt)
 						data.lblHandicap:SetVisibility(true)
@@ -1075,10 +1083,15 @@ local function GetUserControls(userName, opts)
 	end
 
 	if showSkill then
-		local bs = userControls.lobby:GetUserBattleStatus(userName) or {}
-		local visible = not (bs and bs.isSpectator) or false
-
+		--Spring.Log(LOG_SECTION, LOG.NOTICE, "test1")
 		local skill, skillColor = GetUserSkill(userName, userControls)
+		--Spring.Log(LOG_SECTION, LOG.NOTICE, "test1")
+		--if skill then
+			--Spring.Log(LOG_SECTION, LOG.NOTICE, "skill", skill)
+		--end
+		--if skillColor and skillColor[1] then
+			--Spring.Log(LOG_SECTION, LOG.NOTICE, "skill/skillColor", skill, skillColor[1], skillColor[2], skillColor[3])
+		--end
 		offset = offset + 1
 		userControls.tbSkill = TextBox:New {
 			name = "skill",
@@ -1091,16 +1104,20 @@ local function GetUserControls(userName, opts)
 			fontsize = Configuration:GetFont(1).size,
 			text = skill,
 		}
-
+		
 		userControls.tbSkill.font.color = skillColor
 		userControls.tbSkill:Invalidate()
-		if visible == false then
-		 	userControls.tbSkill:SetVisibility(visible)
-			offset = offset - 1
-		else
-			offset = offset + 15
 
+		local bs = userControls.lobby:GetUserBattleStatus(userName) or {}
+		local isPlaying = (bs and not bs.isSpectator) or false
+
+		--Spring.Log(LOG_SECTION, LOG.NOTICE, "userName, bs, bs.isSpectator, isPlaying", userName, type(bs), bs.isSpectator, isPlaying, skill)
+		if isPlaying then
+			offset = offset + 15
+		else
+			offset = offset - 1
 		end
+		userControls.tbSkill:SetVisibility(isPlaying)
 	end
 
 	if showSide then
@@ -1313,7 +1330,7 @@ function userHandler.GetBattleUser(userName, isSingleplayer)
 		autoResize     = true,
 		isInBattle     = true,
 		showReady      = true,
-		showRank       = true,
+		showRank       = false,
 		showSkill      = true,
 		showModerator  = true,
 		showFounder    = true,
