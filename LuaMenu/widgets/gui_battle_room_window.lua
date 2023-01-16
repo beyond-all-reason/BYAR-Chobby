@@ -1513,6 +1513,15 @@ local function AddTeamButtons(parent, offX, joinFunc, aiFunc, unjoinable, disall
 	end
 end
 
+local function SortPlayersBySkill(a, b)
+	local sA = battleLobby:GetUser(a.name)
+	local sB = battleLobby:GetUser(b.name)
+	--Spring.Echo("battleLobbybattleLobby", sA, (sA and sA.queueOrder), (sB and sB.queueOrder))
+	local joinA = tonumber((sA and sA.skill) or 0)
+	local joinB = tonumber((sB and sB.skill) or 0)
+	return joinA > joinB
+end
+
 local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 
 	local SPACING = 24
@@ -1700,6 +1709,23 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 				preserveChildrenOrder = true,
 			}
 
+			local function UpdatePlayerPositions()
+				if teamIndex ~= -1 then
+					table.sort(teamStack.children, SortPlayersBySkill)
+				end
+				local position = 1
+
+				for i = 1, #teamStack.children do
+					teamStack.children[i]:SetPos(nil, position)
+					teamStack.children[i]:Invalidate()
+					position = position + SPACING
+				end
+			
+				teamHolder:SetPos(nil, nil, nil, position + 35)
+				PositionChildren(parentStack, parentScroll.height)
+				teamHolder:Invalidate()
+			end
+
 			if teamIndex == -1 then
 				-- Empty spectator team is created. Position children to prevent flicker.
 				PositionChildren(parentStack, parentScroll.height)
@@ -1766,12 +1792,7 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 				end
 				if not teamStack:GetChildByName(playerControl.name) then
 					teamStack:AddChild(playerControl)
-					playerControl:SetPos(nil, (#teamStack.children - 1)*SPACING)
-					playerControl:Invalidate()
-
-					teamHolder:SetPos(nil, nil, nil, #teamStack.children*SPACING + 35)
-					PositionChildren(parentStack, parentScroll.height)
-					teamHolder:Invalidate()
+					UpdatePlayerPositions()
 				end
 			end
 
@@ -1819,21 +1840,15 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 					return
 				end
 				playerData.team = false
-				local index = 1
-				local timeToMove = false
-				while index <= #teamStack.children do
-					if timeToMove then
-						teamStack.children[index]:SetPos(nil, (index - 1)*SPACING)
-						teamStack.children[index]:Invalidate()
-					elseif teamStack.children[index].name == name then
-						teamStack:RemoveChild(teamStack.children[index])
-						index = index - 1
-						timeToMove = true
-					end
-					index = index + 1
-				end
-				teamHolder:SetPos(nil, nil, nil, #teamStack.children*SPACING + 35)
 
+				local playerControl = teamStack:GetChildByName(name)
+				if not playerControl then
+					return
+				end
+
+				teamStack:RemoveChild(playerControl)
+				UpdatePlayerPositions()
+				
 				if name == battleLobby:GetMyUserName() then
 					local joinTeam = teamHolder:GetChildByName("joinTeamButton")
 					if joinTeam then
