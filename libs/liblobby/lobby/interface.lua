@@ -49,7 +49,7 @@ local function GetLobbyName()
 end
 
 function Interface:Login(user, password, cpu, localIP, lobbyVersion)
-	-- overwrite lobbyVersion by local function, since it´s not provided by caller right now or given as "Chobby"
+	-- overwrite lobbyVersion by local function, since itÂ´s not provided by caller right now or given as "Chobby"
 	lobbyVersion = GetLobbyName()
 
 	self:super("Login", user, password, cpu, localIP, lobbyVersion)
