@@ -338,7 +338,7 @@ local function GetUserRankImageName(userName, userControl)
 end
 
 -- returns skill, skillUncertaintyColor
--- default to skill=3, sigma = 0, if no skill is known for userName (skill wasn´t set yet in Interface:_OnSetScriptTags)
+-- default to skill=3, sigma = 0, if no skill is known for userName (skill wasnÂ´t set yet in Interface:_OnSetScriptTags)
 -- skill format: "XX" or " X" (leading whitespace)
 -- takes skillUncertaintyColors values from configuration.lua
 local function GetUserSkill(userName, userControl)
@@ -359,7 +359,7 @@ local function GetUserSkill(userName, userControl)
 	end
 
 	if userInfo.skillUncertainty then
-		-- sigma must be rounded to int; it´s used as array index
+		-- sigma must be rounded to int; itÂ´s used as array index
 		local sigma = math.floor(userInfo.skillUncertainty+0.5)
 		if sigma > -1 and sigma < 4 then -- 0,1,2,3
 			skillUncertaintyColor = config.skillUncertaintyColors[sigma]
@@ -369,7 +369,7 @@ local function GetUserSkill(userName, userControl)
 			skillUncertaintyColor = config.skillUncertaintyColors[0]
 		end
 	else
-		skillUncertaintyColor = config.skillUncertaintyColors[1] -- fall back to 1 as long as it´s not read by lobby:setScripttags
+		skillUncertaintyColor = config.skillUncertaintyColors[1] -- fall back to 1 as long as itÂ´s not read by lobby:setScripttags
 	end
 	return skill, skillUncertaintyColor
 end
@@ -457,22 +457,22 @@ local function UpdateUserControlStatus(userName, userControls)
 	local imageControlCount = math.max(#userControls.statusImages, #imageFiles)
 
 	local statusImageOffset = userControls.nameStartY + userControls.nameActualLength + 3
-    if userControls.maxNameLength then
-    	if statusImageOffset + 21*(#imageFiles) > userControls.maxNameLength then
-    		statusImageOffset = userControls.maxNameLength - 21*(#imageFiles)
-    	end
-    
-    	local nameSpace = userControls.maxNameLength - userControls.nameStartY - (userControls.maxNameLength - statusImageOffset)
-    	local truncatedName = StringUtilities.TruncateStringIfRequiredAndDotDot(userName, userControls.tbName.font, nameSpace)
-    
-    	if truncatedName then
-    		userControls.tbName:SetText(truncatedName)
-    		userControls.nameTruncated = true
-    	elseif userControls.nameTruncated then
-    		userControls.tbName:SetText(userName)
-    		userControls.nameTruncated = false
-    	end
-    end
+	if userControls.maxNameLength then
+		if statusImageOffset + 21*(#imageFiles) > userControls.maxNameLength then
+			statusImageOffset = userControls.maxNameLength - 21*(#imageFiles)
+		end
+
+		local nameSpace = userControls.maxNameLength - userControls.nameStartY - (userControls.maxNameLength - statusImageOffset)
+		local truncatedName = StringUtilities.TruncateStringIfRequiredAndDotDot(userName, userControls.tbName.font, nameSpace)
+
+		if truncatedName then
+			userControls.tbName:SetText(truncatedName)
+			userControls.nameTruncated = true
+		elseif userControls.nameTruncated then
+			userControls.tbName:SetText(userName)
+			userControls.nameTruncated = false
+		end
+	end
 
 	for i = 1, imageControlCount do
 		if not userControls.statusImages[i] then
@@ -516,16 +516,17 @@ local function UpdateUserActivity(listener, userName)
 		local userList = userListList[i]
 		local userControls = userList[userName]
 		if userControls then
-			userControls.mainControl.items = GetUserComboBoxOptions(userName, userControls.isInBattle, userControls,userControls.imTeamColor ~= nil, userControls.imSide ~= nil)
-			--if userControls.tbSkill then
-			--    userControls.tbSkill:SetText(GetUserSkill(userName, userControls))
-			--end
-
+			userControls.mainControl.items = GetUserComboBoxOptions(userName, userControls.isInBattle, userControls,
+			                                                        userControls.imTeamColor ~= nil, userControls.imSide ~= nil)
 			if userControls.imLevel then
 				userControls.imLevel.file = GetUserRankImageName(userName, userControls)
 				userControls.imLevel:Invalidate()
-				UpdateUserControlStatus(userName, userControls)
 			end
+
+			userControls.tbName.font.color = GetUserNameColor(userName, userControls)
+			userControls.tbName:Invalidate()
+
+			UpdateUserControlStatus(userName, userControls)
 		end
 	end
 end
@@ -575,7 +576,6 @@ local function UpdateUserBattleStatus(listener, userName)
 			end
 
 			local bs = data.lobby:GetUserBattleStatus(userName) or {}
-			--local isPlaying = not battleStatus.isSpectator
 			local isPlaying = (bs and not bs.isSpectator) or false
 
 		
@@ -627,12 +627,6 @@ local function UpdateUserBattleStatus(listener, userName)
 				if sideSelected then
 					data.imSide.file = WG.Chobby.Configuration:GetSideById(bs.side).logo
 				end
-				--local visibleCur = data.imSide.IsVisibleDescendantByName("imSide")
-				--local visibleNew = isPlaying and sideSelected
-				--local visChangeToTrue = visibleNew and not visibleCur
-				--if visChangeToTrue then
-				--	data.needReinitialization = true
-				--end
 				if isPlaying and sideSelected then
 					offset = offset + 2
 					data.imSide:SetPos(offset)
@@ -648,11 +642,8 @@ local function UpdateUserBattleStatus(listener, userName)
 
 			if data.imTeamColor then
 				data.imTeamColor.color = bs.teamColor
-				-- data.imTeamColor:SetVisibility(isPlaying)
-				data.imTeamColor:SetVisibility(true)
-				if isPlaying then
-					data.imTeamColor:Invalidate()
-				end
+				data.imTeamColor:SetVisibility(isPlaying)
+				data.imTeamColor:Invalidate()
 			end
 
 			if data.lblHandicap then
