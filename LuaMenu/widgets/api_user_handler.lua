@@ -337,32 +337,30 @@ local function GetUserRankImageName(userName, userControl)
 	return image
 end
 
--- returns skill, color
--- returns nil, if no skill is known for userName (skill is set in Interface:_OnSetScriptTags)
--- skill format: "XY" or " X" (leading whitespace)
--- color by skillUncertainty, if unknown by SkillUncertainty=1 (stable)
+-- returns skill, skillUncertaintyColor
+-- default to skill=3, sigma = 0, if no skill is known for userName (skill wasn´t set yet in Interface:_OnSetScriptTags)
+-- skill format: "XX" or " X" (leading whitespace)
+-- takes skillUncertaintyColors values from configuration.lua
 local function GetUserSkill(userName, userControl)
 	local config = WG.Chobby.Configuration
 	local userInfo = userControl.lobby:GetUser(userName) or {}
 	local userBattleInfo = userControl.lobby:GetUserBattleStatus(userName) or {}
 	local skill = 0
-	local skillUncertainty = 3
-	local skillUncertaintyColor
+	local sigma = 3
 
 	if userControl.isSingleplayer or userBattleInfo.aiLib ~= nil then
-		return skill, skillUncertainty
+		return skill, config.skillUncertaintyColors[sigma]
 	end
 
 	if userInfo.skill then
 		skill = math.floor(userInfo.skill + 0.5)
-		if skill < 10 then skill = " " .. skill end
+		if skill < 10 and skill > -10 then skill = " " .. skill end
 		skill = tostring(skill)
 	end
 
 	if userInfo.skillUncertainty then
-		-- change sigma to integer values to use array in configuration (may get type float in future or ranges change)
-		local sigma = math.floor(tonumber(userInfo.skillUncertainty)+0.5)
-		--Spring.Log(LOG_SECTION, LOG.NOTICE, sigma)
+		-- sigma must be rounded to int; it´s used as array index
+		local sigma = math.floor(userInfo.skillUncertainty+0.5)
 		if sigma > -1 and sigma < 4 then -- 0,1,2,3
 			skillUncertaintyColor = config.skillUncertaintyColors[sigma]
 		elseif sigma > 3 then
@@ -371,9 +369,7 @@ local function GetUserSkill(userName, userControl)
 			skillUncertaintyColor = config.skillUncertaintyColors[0]
 		end
 	else
-		--Spring.Log(LOG_SECTION, LOG.NOTICE, "default")
 		skillUncertaintyColor = config.skillUncertaintyColors[1] -- fall back to 1 as long as it´s not read by lobby:setScripttags
-
 	end
 	return skill, skillUncertaintyColor
 end
