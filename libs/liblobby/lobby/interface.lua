@@ -1776,7 +1776,7 @@ function Interface:_OnSetScriptTags(tagsTxt)
 			self.modoptions[k] = v
 		elseif string_starts(tag, scriptTagPlayers) then
 			local userNameLC, status = GetSkillFromScriptTag(tag:sub(scriptTagPlayersIndx))
-			local userName = self:FindBattleUserByLowerCase(userNameLC) --lobby:FindBattleUserByLowerCase
+			local userName = self:GetLowerCaseUser(userNameLC) --lobby:FindBattleUserByLowerCase
 			--Spring.Log(LOG_SECTION, LOG.NOTICE, "Found user: " .. tag, userNameLC, userName, status.skill, status.skillUncertainty)
 			if (userName == nil) or (status == nil) then
 				Spring.Log(LOG_SECTION, LOG.WARNING, "Could not parse tag " .. tag)
