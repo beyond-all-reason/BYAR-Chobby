@@ -130,40 +130,6 @@ local OpenNewTeam
 
 local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUserName)
 	local config = WG.Chobby.Configuration
-
-	--local testArr = {
-	--	[1] = {0.1},
-	--	[2] = {0.2},
-	--	[3] = {0.3},
-	--}
-	--if testArr and testArr[1] then
-	--	Spring.Log("TEST", LOG.NOTICE, testArr["1"][1])
-	--end
-	--if testArr and testArr[3] then
-	--	Spring.Log("TEST", LOG.NOTICE, testArr["3"][1])
-	--end
-
-
-	--if config.testValue then
-	--	Spring.Log(LOG_SECTION, LOG.NOTICE, config.testValue)
-	--else
-	--	Spring.Log(LOG_SECTION, LOG.NOTICE, "testValue not exists")
-	--end
-	--if config.testValue2 and config.testValue2[1] then
-	--	Spring.Log(LOG_SECTION, LOG.NOTICE, config.testValue2[1])
-	--end
-	--if config.testValue3 and config.testValue3[1] and config.testValue3[1][1] then
-	--	Spring.Log(LOG_SECTION, LOG.NOTICE, config.testValue3[1][1])
-	--end
-	--if config.testValue4 and config.testValue4[0] and config.testValue4[0][1] then
-	--	Spring.Log(LOG_SECTION, LOG.NOTICE, config.testValue4[0][1])
-	--end
-	--if config.testValue5 and config.testValue5[2] and config.testValue5[2][2] then
-	--	Spring.Log(LOG_SECTION, LOG.NOTICE, config.testValue5[2][2])
-	--end
-	--if config.skillUncertaintyColors and config.skillUncertaintyColors[1] and config.skillUncertaintyColors[1][1] then
-	--	Spring.Log(LOG_SECTION, LOG.NOTICE, config.skillUncertaintyColors[1][1])
-	--end
 	local minimapBottomClearance = 160
 
 	local currentMapName
@@ -1516,7 +1482,6 @@ end
 local function SortPlayersBySkill(a, b)
 	local sA = battleLobby:GetUser(a.name)
 	local sB = battleLobby:GetUser(b.name)
-	--Spring.Echo("battleLobbybattleLobby", sA, (sA and sA.queueOrder), (sB and sB.queueOrder))
 	local joinA = tonumber((sA and sA.skill) or 0)
 	local joinB = tonumber((sB and sB.skill) or 0)
 	return joinA > joinB
@@ -2760,7 +2725,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 
 	--spadsStatusPanel = 
 	SetupSpadsStatusPanel() -- git stash for scumbags
-	spadsStatusPanel:SetVisibility(false) -- start hidden
+	spadsStatusPanel:SetVisibility(not isSingleplayer) -- start hidden
 
 	local votePanel = Control:New {
 		x = 0,
