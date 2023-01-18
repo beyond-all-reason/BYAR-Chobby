@@ -1010,14 +1010,14 @@ local function GetUserControls(userName, opts)
 		}
 		local bs = lobby:GetUserBattleStatus(userName)
 
-		if userControls.imReadyStatus and bs and bs.isSpectator then
-			local visible = false
-			userControls.imReadyStatus:SetVisibility(visible)
-			offset = offset - 1
-		else
-			--Spring.Utilities.TraceFullEcho(nil,nil,nil, "lobby:GetUserBattleStatus(userName) == nil", userName)
-			--offset = offset + 21
-			offset = offset + 21
+		if bs then
+			userControls.imReadyStatus:SetVisibility(not (bs and bs.isSpectator))
+			if bs.isSpectator then
+				offset = offset - 1
+			else
+				--Spring.Utilities.TraceFullEcho(nil,nil,nil, "lobby:GetUserBattleStatus(userName) == nil", userName)
+				offset = offset + 21
+			end
 		end
 	end
 
@@ -1070,15 +1070,7 @@ local function GetUserControls(userName, opts)
 	end
 
 	if showSkill then
-		--Spring.Log(LOG_SECTION, LOG.NOTICE, "test1")
 		local skill, skillColor = GetUserSkill(userName, userControls)
-		--Spring.Log(LOG_SECTION, LOG.NOTICE, "test1")
-		--if skill then
-			--Spring.Log(LOG_SECTION, LOG.NOTICE, "skill", skill)
-		--end
-		--if skillColor and skillColor[1] then
-			--Spring.Log(LOG_SECTION, LOG.NOTICE, "skill/skillColor", skill, skillColor[1], skillColor[2], skillColor[3])
-		--end
 		offset = offset + 1
 		userControls.tbSkill = TextBox:New {
 			name = "skill",
@@ -1091,14 +1083,12 @@ local function GetUserControls(userName, opts)
 			fontsize = Configuration:GetFont(1).size,
 			text = skill,
 		}
-		
 		userControls.tbSkill.font.color = skillColor
 		userControls.tbSkill:Invalidate()
 
 		local bs = userControls.lobby:GetUserBattleStatus(userName) or {}
 		local isPlaying = (bs and not bs.isSpectator) or false
 
-		--Spring.Log(LOG_SECTION, LOG.NOTICE, "userName, bs, bs.isSpectator, isPlaying", userName, type(bs), bs.isSpectator, isPlaying, skill)
 		if isPlaying then
 			offset = offset + 15
 		else
@@ -1132,7 +1122,7 @@ local function GetUserControls(userName, opts)
 		end
 	end
 
-	--offset = offset + 2
+	offset = offset + 2
 	userControls.tbName = TextBox:New {
 		name = "tbName",
 		x = offset,
