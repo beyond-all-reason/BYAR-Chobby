@@ -115,20 +115,8 @@ function Configuration:init()
 		[3] = {0.40, 0.30, 0.064, 1.0},
 	}
 
-	self.testValue = "Halo Halo"
-	self.testValue2 = {
-		[1] = "blablubb",
-	}
-	self.testValue3 = {
-		[1] = {"bluuuu"},
-	}
-	self.testValue4 = {
-		[0] = {"bluuuu0"},
-	}
-	self.testValue5 = {
-		[1] = {4.5, 5.6},
-		[2] = {2.5, 2.6},
-	}
+	self.showRank = false
+	self.showSkill = true
 
 	self.loadLocalWidgets = false
 	self.displayBots = false
