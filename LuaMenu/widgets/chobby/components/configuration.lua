@@ -115,8 +115,8 @@ function Configuration:init()
 		[3] = {0.40, 0.30, 0.064, 1.0},
 	}
 
-	self.showRank = false
-	self.showSkill = true
+	self.showRank = true
+	self.showSkill = false
 
 	self.loadLocalWidgets = false
 	self.displayBots = false
