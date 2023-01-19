@@ -683,7 +683,7 @@ local options={
 		key="assistdronesenabled",
 		name="Assist Drones",
 		type="list",
-		def="pve_only",
+		def="disabled",
 		section="options",
 		items={
 			{key="enabled", name="Enabled"},
@@ -716,7 +716,7 @@ local options={
 		key="commanderbuildersenabled",
 		name="Base Construction Turret",
 		type="list",
-		def="pve_only",
+		def="disabled",
 		section="options",
 		items={
 			{key="enabled", name="Enabled"},
@@ -1490,6 +1490,7 @@ local options={
 		type    = "string",
 		def     = "",
 	},
+
 	{
 		key     = "defaultdecals",
 		name    = "Default Decals",
