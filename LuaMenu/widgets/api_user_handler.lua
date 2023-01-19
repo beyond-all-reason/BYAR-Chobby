@@ -337,6 +337,43 @@ local function GetUserRankImageName(userName, userControl)
 	return image
 end
 
+-- returns skill, skillUncertaintyColor
+-- default to skill=3, sigma = 0, if no skill is known for userName (skill wasn´t set yet in Interface:_OnSetScriptTags)
+-- skill format: "XX" or " X" (leading whitespace)
+-- takes skillUncertaintyColors values from configuration.lua
+local function GetUserSkill(userName, userControl)
+	local config = WG.Chobby.Configuration
+	local userInfo = userControl.lobby:GetUser(userName) or {}
+	local userBattleInfo = userControl.lobby:GetUserBattleStatus(userName) or {}
+	local skill = 0
+	local sigma = 3
+
+	if userControl.isSingleplayer or userBattleInfo.aiLib ~= nil then
+		return skill, config.skillUncertaintyColors[sigma]
+	end
+
+	if userInfo.skill then
+		skill = math.floor(userInfo.skill + 0.5)
+		if skill < 10 and skill > -10 then skill = " " .. skill end
+		skill = tostring(skill)
+	end
+
+	if userInfo.skillUncertainty then
+		-- sigma must be rounded to int; it´s used as array index
+		local sigma = math.floor(userInfo.skillUncertainty+0.5)
+		if sigma > -1 and sigma < 4 then -- 0,1,2,3
+			skillUncertaintyColor = config.skillUncertaintyColors[sigma]
+		elseif sigma > 3 then
+			skillUncertaintyColor = config.skillUncertaintyColors[3]
+		else
+			skillUncertaintyColor = config.skillUncertaintyColors[0]
+		end
+	else
+		skillUncertaintyColor = config.skillUncertaintyColors[1] -- fall back to 1 as long as it´s not read by lobby:setScripttags
+	end
+	return skill, skillUncertaintyColor
+end
+
 local function GetUserStatusImages(userName, isInBattle, userControl)
 	local userInfo = userControl.lobby:GetUser(userName) or {}
 	local images = {}
@@ -481,8 +518,10 @@ local function UpdateUserActivity(listener, userName)
 		if userControls then
 			userControls.mainControl.items = GetUserComboBoxOptions(userName, userControls.isInBattle, userControls,
 			                                                        userControls.imTeamColor ~= nil, userControls.imSide ~= nil)
-			userControls.imLevel.file = GetUserRankImageName(userName, userControls)
-			userControls.imLevel:Invalidate()
+			if userControls.imLevel then
+				userControls.imLevel.file = GetUserRankImageName(userName, userControls)
+				userControls.imLevel:Invalidate()
+			end
 
 			userControls.tbName.font.color = GetUserNameColor(userName, userControls)
 			userControls.tbName:Invalidate()
@@ -529,54 +568,95 @@ local function UpdateUserBattleStatus(listener, userName)
 		local userList = userListList[i]
 		local data = userList[userName]
 		if data then
+			local offset = 0
 			if data.imSyncStatus then
 				data.imSyncStatus.file = GetUserSyncStatus(userName, data)
 				data.imSyncStatus:Invalidate()
+				offset = offset + 22
 			end
 
-			local battleStatus = data.lobby:GetUserBattleStatus(userName) or {}
-			local isPlaying = not battleStatus.isSpectator
+			local bs = data.lobby:GetUserBattleStatus(userName) or {}
+			local isPlaying = (bs and not bs.isSpectator) or false
 
+		
 			if data.imReadyStatus and not isSingleplayer then
 				data.imReadyStatus.file = GetUserReadyStatus(userName, data)
 				data.imReadyStatus:SetVisibility(isPlaying)
 				if isPlaying then
+					offset = offset + 1
 					data.imReadyStatus:Invalidate()
+					offset = offset + 21
 				end
 			end
 
-			if data.imTeamColor then
-				data.imTeamColor.color = battleStatus.teamColor
-				data.imTeamColor:SetVisibility(isPlaying)
-				if isPlaying then
-					data.imTeamColor:Invalidate()
-				end
+			if data.imCountry then
+				offset = offset + 1
+				data.imCountry:SetPos(offset + 2)
+				offset = offset + 21
 			end
-			if data.imSide then
-				local sideSelected = battleStatus.side ~= nil
-				if sideSelected then
-					data.imSide.file = WG.Chobby.Configuration:GetSideById(battleStatus.side).logo
-				end
-				data.imSide:SetVisibility(isPlaying and sideSelected)
-				if isPlaying then
-					if data.imTeamColor == nil then
-						--Spring.Echo("Warning: UpdateUserBattleStatus(): data.imTeamColor is nil for ", userName, battleStatus.isSpectator, battleStatus)
-					else
-						data.imTeamColor:Invalidate()
+			if data.imLevel then
+				offset = offset + 1
+				data.imLevel:SetPos(offset)
+				offset = offset + 21
+			end
+			if data.imClan then
+				offset = offset + 1
+				data.imClan:SetPos(offset)
+				offset = offset + 21
+			end
+
+			if data.tbSkill then
+				local skill, skillColor = GetUserSkill(userName, data)
+				if skill then
+					data.tbSkill:SetText(skill)
+					if skillColor then
+						data.tbSkill.font.color = skillColor
+						data.tbSkill:Invalidate()
 					end
 				end
+				if isPlaying then
+					offset = offset + 1
+					data.tbSkill:SetPos(offset)
+					offset = offset + 15
+				end
+				data.tbSkill:SetVisibility(isPlaying)
 			end
+
+			if data.imSide then
+				local sideSelected = bs.side ~= nil
+				if sideSelected then
+					data.imSide.file = WG.Chobby.Configuration:GetSideById(bs.side).logo
+				end
+				if isPlaying and sideSelected then
+					offset = offset + 2
+					data.imSide:SetPos(offset)
+					offset = offset + 22
+				end
+				data.imSide:SetVisibility(isPlaying and sideSelected)
+			end
+			if data.tbName then
+				data.tbName:SetPos(offset)
+				data.nameStartY = offset
+				offset = offset + data.nameActualLength
+			end
+
+			if data.imTeamColor then
+				data.imTeamColor.color = bs.teamColor
+				data.imTeamColor:SetVisibility(isPlaying)
+				data.imTeamColor:Invalidate()
+			end
+
 			if data.lblHandicap then
-				local handicap = battleStatus.handicap
+				local handicap = bs.handicap
 				if handicap ~= nil then
 					local handicaptxt = ''
-					if battleStatus.handicap == 0 then
+					if bs.handicap == 0 then
 						data.lblHandicap:SetVisibility(false)
 					else
-						if battleStatus.handicap > 0 then
-							handicaptxt = '+'..tostring(battleStatus.handicap)
+						if bs.handicap > 0 then
+							handicaptxt = '+'..tostring(bs.handicap)
 						else
-							handicaptxt = tostring(battleStatus.handicap)
+							handicaptxt = tostring(bs.handicap)
 						end
 						data.lblHandicap:SetCaption(handicaptxt)
 						data.lblHandicap:SetVisibility(true)
@@ -627,6 +707,8 @@ local function GetUserControls(userName, opts)
 	local showTeamColor      = opts.showTeamColor
 	local showSide           = opts.showSide
 	local showHandicap		 = opts.showHandicap
+	local showRank           = opts.showRank
+	local showSkill          = opts.showSkill
 
 	local userControls = reinitialize or {}
 
@@ -930,10 +1012,13 @@ local function GetUserControls(userName, opts)
 
 		if bs then
 			userControls.imReadyStatus:SetVisibility(not (bs and bs.isSpectator))
-		else
-			--Spring.Utilities.TraceFullEcho(nil,nil,nil, "lobby:GetUserBattleStatus(userName) == nil", userName)
+			if bs.isSpectator then
+				offset = offset - 1
+			else
+				--Spring.Utilities.TraceFullEcho(nil,nil,nil, "lobby:GetUserBattleStatus(userName) == nil", userName)
+				offset = offset + 21
+			end
 		end
-		offset = offset + 21
 	end
 
 	if not isSingleplayer then
@@ -951,18 +1036,20 @@ local function GetUserControls(userName, opts)
 		offset = offset + 21
 	end
 
-	offset = offset + 1
-	userControls.imLevel = Image:New {
-		name = "imLevel",
-		x = offset,
-		y = offsetY + 1,
-		width = 19,
-		height = 19,
-		parent = userControls.mainControl,
-		keepAspect = false,
-		file = GetUserRankImageName(userName, userControls),
-	}
-	offset = offset + 21
+	if showRank then
+		offset = offset + 1
+		userControls.imLevel = Image:New {
+			name = "imLevel",
+			x = offset,
+			y = offsetY + 1,
+			width = 19,
+			height = 19,
+			parent = userControls.mainControl,
+			keepAspect = false,
+			file = GetUserRankImageName(userName, userControls),
+		}
+		offset = offset + 21
+	end
 
 	local clanImage, needDownload = GetUserClanImage(userName, userControls)
 	if clanImage then
@@ -982,6 +1069,34 @@ local function GetUserControls(userName, opts)
 		offset = offset + 21
 	end
 
+	if showSkill then
+		local skill, skillColor = GetUserSkill(userName, userControls)
+		offset = offset + 1
+		userControls.tbSkill = TextBox:New {
+			name = "skill",
+			x = offset,
+			y = offsetY + 4,
+			right = 0,
+			bottom = 5,
+			align = "left",
+			parent = userControls.mainControl,
+			fontsize = Configuration:GetFont(1).size,
+			text = skill,
+		}
+		userControls.tbSkill.font.color = skillColor
+		userControls.tbSkill:Invalidate()
+
+		local bs = userControls.lobby:GetUserBattleStatus(userName) or {}
+		local isPlaying = (bs and not bs.isSpectator) or false
+
+		if isPlaying then
+			offset = offset + 15
+		else
+			offset = offset - 1
+		end
+		userControls.tbSkill:SetVisibility(isPlaying)
+	end
+
 	if showSide then
 		local battleStatus = userControls.lobby:GetUserBattleStatus(userName) or {}
 		offset = offset + 2
@@ -999,9 +1114,11 @@ local function GetUserControls(userName, opts)
 			keepAspect = false,
 			file = file,
 		}
-		offset = offset + 22
 		if battleStatus.isSpectator or file == nil then
 			userControls.imSide:Hide()
+			offset = offset - 2
+		else
+			offset = offset + 22
 		end
 	end
 
@@ -1017,7 +1134,6 @@ local function GetUserControls(userName, opts)
 		fontsize = Configuration:GetFont(2).size,
 		text = userName,
 	}
-	local userNameStart = offset
 	local truncatedName = StringUtilities.TruncateStringIfRequiredAndDotDot(userName, userControls.tbName.font, maxNameLength and (maxNameLength - offset))
 	userControls.nameStartY = offset
 	userControls.maxNameLength = maxNameLength
@@ -1051,6 +1167,7 @@ local function GetUserControls(userName, opts)
 		userControls.nameActualLength = userControls.nameActualLength + 25
 		if battleStatus.isSpectator then
 			userControls.imTeamColor:Hide()
+			offset = offset - 5
 		else
 			offset = offset + 20
 		end
@@ -1111,11 +1228,12 @@ local function GetUserControls(userName, opts)
 	if autoResize then
 		userControls.mainControl.OnResize = userControls.mainControl.OnResize or {}
 		userControls.mainControl.OnResize[#userControls.mainControl.OnResize + 1] = function (obj, sizeX, sizeY)
-			local maxWidth = sizeX - userNameStart - 40
+			local maxWidth = sizeX - userControls.nameStartY - 40
+			
 			local truncatedName = StringUtilities.GetTruncatedStringWithDotDot(userName, userControls.tbName.font, maxWidth)
 			userControls.tbName:SetText(truncatedName)
 
-			offset = userNameStart + userControls.tbName.font:GetTextWidth(userControls.tbName.text) + 3
+			offset = userControls.nameStartY + userControls.tbName.font:GetTextWidth(userControls.tbName.text) + 3
 			if userControls.imTeamColor then
 				offset = offset + 25
 			end
@@ -1189,6 +1307,8 @@ function userHandler.GetBattleUser(userName, isSingleplayer)
 		autoResize     = true,
 		isInBattle     = true,
 		showReady      = true,
+		showRank       = WG.Chobby.Configuration.showRank,
+		showSkill      = WG.Chobby.Configuration.showSkill,
 		showModerator  = true,
 		showFounder    = true,
 		showTeamColor  = not WG.Chobby.Configuration.gameConfig.disableColorChoosing,
