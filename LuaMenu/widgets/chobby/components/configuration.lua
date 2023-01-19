@@ -653,6 +653,8 @@ function Configuration:GetConfigData()
 		nextCampaignSaveNumber = self.nextCampaignSaveNumber,
 		steamReleasePopupSeen = self.steamReleasePopupSeen,
 		campaignConfigName = self.campaignConfigName,
+		showSkill = self.showSkill,
+		showRank = self.showRank,
 	}
 end
 
