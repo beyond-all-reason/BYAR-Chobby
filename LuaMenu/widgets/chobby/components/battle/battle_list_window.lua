@@ -233,6 +233,15 @@ function BattleListWindow:init(parent)
 	end
 	lobby:AddListener("OnS_Battle_Update_lobby_title", self.onS_Battle_Update_lobby_title)
 
+	self.onFriendRequestList = function(listener)
+		if self.listenerUpdateDisabled then
+			return
+		end
+		self:OnFriendRequestList()
+		self:SoftUpdate()
+	end
+	lobby:AddListener("OnFriendRequestList", self.onFriendRequestList)
+
 	local function onConfigurationChange(listener, key, value)
 		if key == "displayBadEngines2" then
 			update()
@@ -261,6 +270,8 @@ function BattleListWindow:RemoveListeners()
 	lobby:RemoveListener("OnBattleIngameUpdate", self.onBattleIngameUpdate)
 	lobby:RemoveListener("OnConfigurationChange", self.onConfigurationChange)
 	lobby:RemoveListener("DownloadFinished", self.downloadFinished)
+	--lobby:RemoveListener("DownloadFinished", self.downloadFinished)
+	--lobby:RemoveListener("DownloadFinished", self.downloadFinished)
 end
 
 function BattleListWindow:UpdateAllBattleIDs()
@@ -561,57 +572,138 @@ function BattleListWindow:MakeJoinBattle(battleID, battle)
 	if battle.passworded then
 		local imgPassworded = Image:New {
 			name = "password",
-			x = height + 45,
+			x = height + 45 + 64,
 			width = 15,
 			height = 15,
-			y = 20,
+			y = 36,
+			height = 15,
+			margin = {0, 0, 0, 0},
+			file = "LuaMenu/images/key.png",
+			parent = parentButton,
+		}
+	end
+
+	--Spring.Utilities.TableEcho(battle)
+	--[[
+	[t=00:00:07.612634][f=-000001] TableEcho = {
+		[t=00:00:07.612642][f=-000001]     spectatorCount = 1
+		[t=00:00:07.612647][f=-000001]     founder = [teh]cluster1[06]
+		[t=00:00:07.612654][f=-000001]     engineName = spring
+		[t=00:00:07.612659][f=-000001]     ip = 78.131.95.172
+		[t=00:00:07.612664][f=-000001]     battleID = 149
+		[t=00:00:07.612669][f=-000001]     users = {
+		[t=00:00:07.612673][f=-000001]         1 = [teh]cluster1[06]
+		[t=00:00:07.612687][f=-000001]         2 = Wulpes
+		[t=00:00:07.612691][f=-000001]     },
+		[t=00:00:07.612695][f=-000001]     gameName = Beyond All Reason test-21994-30a8663
+		[t=00:00:07.612701][f=-000001]     passworded = true
+		[t=00:00:07.612705][f=-000001]     isRunning = false
+		[t=00:00:07.612710][f=-000001]     mapName = Timna Island 1.0
+		[t=00:00:07.612714][f=-000001]     locked = false
+		[t=00:00:07.612718][f=-000001]     title = martasman - Private Battle
+		[t=00:00:07.612723][f=-000001]     port = 53206
+		[t=00:00:07.612732][f=-000001]     engineVersion = 105.1.1-1354-g72b2d55 BAR105
+		[t=00:00:07.612738][f=-000001]     maxPlayers = 16
+	]]--
+
+	local rankimg = Configuration.gameConfig.rankFunction(nil, 1, nil, nil,nil )
+	--WG.UserHandler.GetUserRankImage()
+	-- Configuration.gameConfig.rankFunction(nil, mybestrank, nil, nil,nil ),
+	local imgAvgRank = Image:New {
+		name = "imgAvgRank",
+		x = height + 45 + 16,
+		width = 15,
+		height = 15,
+		y = 36,
+		height = 15,
+		margin = {0, 0, 0, 0},
+		file = rankimg,
+		parent = parentButton,
+	}
+	imgAvgRank:SetVisibility(false)
+
+	local imgIsRunning = Image:New {
+		name = "imgIsRunning",
+		x = height + 45 + 32,
+		width = 15,
+		height = 15,
+		y = 36,
+		height = 15,
+		margin = {0, 0, 0, 0},
+		file = "LuaMenu/images/ingame.png",
+		parent = parentButton,
+	}
+	imgIsRunning:SetVisibility(battle.isRunning == true)
+
+	
+	local imgLocked = Image:New {
+			name = "imgLocked",
+			x = height + 45 + 48,
+			width = 15,
+			height = 15,
+			y = 36,
 			height = 15,
 			margin = {0, 0, 0, 0},
 			file = CHOBBY_IMG_DIR .. "lock.png",
 			parent = parentButton,
 		}
-	end
+	imgLocked:SetVisibility(battle.locked == true)
 
-	if not Configuration.gameConfig.hideGameExistanceDisplay then
-		local imHaveGame = Image:New {
-			name = "imHaveGame",
-			x = height + 45,
-			width = 15,
-			height = 15,
-			y = 20,
-			height = 15,
-			file = (VFS.HasArchive(battle.gameName) and IMAGE_DLREADY or IMAGE_DLUNREADY),
-			parent = parentButton,
-		}
-	end
-
-	local lblGame = Label:New {
-		name = "gameCaption",
-		x = height + 65,
-		right = 0,
-		y = 20,
-		height = 15,
-		valign = 'center',
-		caption = self:_MakeGameCaption(battle),
-		objectOverrideFont = myFont2,
-		parent = parentButton,
-	}
-
-	local imHaveMap = Image:New {
-		name = "imHaveMap",
-		x = height + 45,
+	--[[
+	local imgHasFriend = Image:New {
+		name = "imgHasFriend",
+		x = height + 45 + 32,
 		width = 15,
 		height = 15,
 		y = 36,
 		height = 15,
-		file = (VFS.HasArchive(battle.mapName) and IMAGE_DLREADY or IMAGE_DLUNREADY),
+		margin = {0, 0, 0, 0},
+		file = CHOBBY_IMG_DIR .. "lock.png",
 		parent = parentButton,
 	}
+	]]--
+
+	-- if not Configuration.gameConfig.hideGameExistanceDisplay then
+	-- 	local imHaveGame = Image:New {
+	-- 		name = "imHaveGame",
+	-- 		x = height + 45,
+	-- 		width = 15,
+	-- 		height = 15,
+	-- 		y = 20,
+	-- 		height = 15,
+	-- 		file = (VFS.HasArchive(battle.gameName) and IMAGE_DLREADY or IMAGE_DLUNREADY),
+	-- 		parent = parentButton,
+	-- 	}
+	-- end
+
+	-- local lblGame = Label:New {
+	-- 	name = "gameCaption",
+	-- 	x = height + 65,
+	-- 	right = 0,
+	-- 	y = 20,
+	-- 	height = 15,
+	-- 	valign = 'center',
+	-- 	caption = self:_MakeGameCaption(battle),
+	-- 	objectOverrideFont = myFont2,
+	-- 	parent = parentButton,
+	-- }
+
+	-- local imHaveMap = Image:New {
+	-- 	name = "imHaveMap",
+	-- 	x = height + 45,
+	-- 	width = 15,
+	-- 	height = 15,
+	-- 	y = 36,
+	-- 	height = 15,
+	-- 	file = (VFS.HasArchive(battle.mapName) and IMAGE_DLREADY or IMAGE_DLUNREADY),
+	-- 	parent = parentButton,
+	-- }
+
 	local lblMap = Label:New {
 		name = "mapCaption",
 		x = height + 65,
 		right = 0,
-		y = 36,
+		y = 22, --36
 		height = 15,
 		valign = 'center',
 		caption = battle.mapName:gsub("_", " "),
@@ -803,7 +895,7 @@ function BattleListWindow:UpdateButtonColor(battleID)
 		if battle.locked then
 			battlebuttonstyle =  {0.90, 0.10, 0.10, 0.65} --red
 		else
-			if lobby:GetBattlePlayerCount(battleID) < 1 then
+			if (lobby:GetBattlePlayerCount(battleID) < 1) and (battle.isRunning == false) then
 					battlebuttonstyle = {0.10, 0.10, 0.95, 0.65} --blue
 			else
 				if battle.isRunning then
@@ -821,6 +913,12 @@ function BattleListWindow:UpdateButtonColor(battleID)
 			break
 		end
 	end
+
+	local imgLocked = items.battleButton:GetChildByName("imgLocked")
+	if imgLocked then
+		imgLocked:SetVisibility(battle.locked == true)
+	end
+
 	--Spring.Echo("BattleListWindow:UpdateButtonColor",battleID,battlebuttonstyle, items.battleButton.backgroundColor,battle.isRunning ,battle.passworded, lobby:GetBattlePlayerCount(battleID))
 
 	if colorChanged then
@@ -830,6 +928,42 @@ function BattleListWindow:UpdateButtonColor(battleID)
 		items.battleButton:Invalidate()
 	end
 end
+
+function BattleListWindow:UpdateRankIcon(battleID, battle, items)
+	battle = battle or lobby:GetBattle(battleID)
+	if battle == nil then return end
+	local users = battle.users
+	local avgRank = 0
+	local numplayers = 0
+
+	local items = items or self:GetRowItems(battleID)
+	if not items then return end
+	local imgAvgRank = items.battleButton:GetChildByName("imgAvgRank")
+
+	if users then
+		for i, userName in ipairs(users) do
+			--local userInfo = lobby:TryGetUser(userName)
+			local userInfo = lobby:GetUser(userName)
+			if userInfo and userInfo.level and userInfo.isBot ~= true then
+				avgRank = avgRank + userInfo.level
+				numplayers = numplayers + 1
+				--Spring.Echo("RANKY", battleID, userName, userInfo.level)
+			end
+			--Spring.Echo("RANKY", battleID, userName, userInfo and userInfo.level)
+			--Spring.Utilities.TableEcho(userInfo)
+		end
+	end
+	--Spring.Echo("UpdateRankIcon", battleID, numplayers, avgRank)
+
+	if numplayers > 0 then
+		avgRank = math.round(avgRank/numplayers)--
+	end
+	imgAvgRank:SetVisibility(numplayers>0)
+	local rankimg = Configuration.gameConfig.rankFunction(nil, avgRank , nil, nil,nil )
+	imgAvgRank.file = rankimg
+	imgAvgRank:Invalidate()
+end
+
 
 function BattleListWindow:RecalculateOrder(id)
 	if lobby.commandBuffer then
@@ -854,15 +988,15 @@ function BattleListWindow:UpdateSync(battleID)
 		return
 	end
 
-	local imHaveMap = items.battleButton:GetChildByName("imHaveMap")
-	if imHaveMap ~= nil then
-		imHaveMap.file = (VFS.HasArchive(battle.mapName) and IMAGE_DLREADY or IMAGE_DLUNREADY)
-	end
+	-- local imHaveMap = items.battleButton:GetChildByName("imHaveMap")
+	-- if imHaveMap ~= nil then
+	-- 	imHaveMap.file = (VFS.HasArchive(battle.mapName) and IMAGE_DLREADY or IMAGE_DLUNREADY)
+	-- end
 
-	local imHaveGame = items.battleButton:GetChildByName("imHaveGame")
-	if imHaveGame ~= nil then
-		imHaveGame.file = (VFS.HasArchive(battle.gameName) and IMAGE_DLREADY or IMAGE_DLUNREADY)
-	end
+	-- local imHaveGame = items.battleButton:GetChildByName("imHaveGame")
+	-- if imHaveGame ~= nil then
+	-- 	imHaveGame.file = (VFS.HasArchive(battle.gameName) and IMAGE_DLREADY or IMAGE_DLUNREADY)
+	-- end
 end
 
 function BattleListWindow:UpdateTimers()
@@ -899,6 +1033,10 @@ function BattleListWindow:_MakeGameCaption(battle)
 	return 'BAR-'..gameCaption
 end
 
+function BattleListWindow:UpdateBattleRank(battleID)
+	local avgRank = items.battleButton:GetChildByName("avgRankImg")
+end
+
 function BattleListWindow:JoinedBattle(battleID)
 	local battle = lobby:GetBattle(battleID)
 	if not (Configuration.displayBadEngines2 or Configuration:IsValidEngineVersion(battle.engineVersion)) then
@@ -920,6 +1058,7 @@ function BattleListWindow:JoinedBattle(battleID)
 		playersOnMapCaption:SetCaption(playerCount .. ((playerCount == 1 and " player on " ) or " players on ") .. battle.mapName:gsub("_", " "))
 	end
 
+	self:UpdateRankIcon(battleID, battle, items)
 	self:UpdateButtonColor(battleID)
 	self:RecalculateOrder(battleID)
 end
@@ -945,6 +1084,7 @@ function BattleListWindow:LeftBattle(battleID)
 		playersOnMapCaption:SetCaption(playerCount .. ((playerCount == 1 and " player on " ) or " players on ") .. battle.mapName:gsub("_", " "))
 	end
 
+	self:UpdateRankIcon(battleID, battle, items)
 	self:UpdateButtonColor(battleID)
 	self:RecalculateOrder(battleID)
 end
@@ -963,11 +1103,11 @@ function BattleListWindow:OnUpdateBattleInfo(battleID)
 
 	local lblTitle = items.battleButton:GetChildByName("lblTitle")
 	local mapCaption = items.battleButton:GetChildByName("mapCaption")
-	local imHaveMap = items.battleButton:GetChildByName("imHaveMap")
+	--local imHaveMap = items.battleButton:GetChildByName("imHaveMap")
 	local minimapImage = items.battleButton:GetChildByName("minimap"):GetChildByName("minimapImage")
 	local password = items.battleButton:GetChildByName("password")
 
-	if imHaveMap then
+	if imHaveMap or true then
 		-- Password Update
 		if password and not battle.passworded then
 			password:Dispose()
@@ -993,24 +1133,27 @@ function BattleListWindow:OnUpdateBattleInfo(battleID)
 		minimapImage:Invalidate()
 
 		mapCaption:SetCaption(battle.mapName:gsub("_", " "))
-		if VFS.HasArchive(battle.mapName) then
-			imHaveMap.file = IMAGE_DLREADY
-		else
-			imHaveMap.file = IMAGE_DLUNREADY
-		end
-		imHaveMap:Invalidate()
+		-- if VFS.HasArchive(battle.mapName) then
+		-- 	imHaveMap.file = IMAGE_DLREADY
+		-- else
+		-- 	imHaveMap.file = IMAGE_DLUNREADY
+		-- end
+		-- imHaveMap:Invalidate()
 
 
-		local imHaveGame = items.battleButton:GetChildByName("imHaveGame")
-		if imHaveGame ~= nil then
-			imHaveGame.file = (VFS.HasArchive(battle.gameName) and IMAGE_DLREADY or IMAGE_DLUNREADY)
-		end
+		-- local imHaveGame = items.battleButton:GetChildByName("imHaveGame")
+		-- if imHaveGame ~= nil then
+		-- 	imHaveGame.file = (VFS.HasArchive(battle.gameName) and IMAGE_DLREADY or IMAGE_DLUNREADY)
+		-- end
 
-		local gameCaption = items.battleButton:GetChildByName("gameCaption")
-		gameCaption:SetCaption(self:_MakeGameCaption(battle))
+		--local gameCaption = items.battleButton:GetChildByName("gameCaption")
+		--gameCaption:SetCaption(self:_MakeGameCaption(battle))
 
 		local playersCaption = items.battleButton:GetChildByName("playersCaption")
 		playersCaption:SetCaption(lobby:GetBattlePlayerCount(battleID) .. "/" .. battle.maxPlayers)
+		self:UpdateRankIcon(battleID, battle, items)
+
+
 	else
 		-- Resets title and truncates.
 		local lblTitle = items.battleButton:GetChildByName("lblTitle")
@@ -1049,8 +1192,22 @@ function BattleListWindow:OnBattleIngameUpdate(battleID, isRunning)
 	end
 	runningImage:Invalidate()
 
+	local imgIsRunning = items.battleButton:GetChildByName("imgIsRunning")
+	if imgIsRunning then
+		imgIsRunning:SetVisibility(battle.isRunning == true)
+	end
+
 	self:UpdateButtonColor(battleID)
 	self:RecalculateOrder(battleID)
+end
+
+function BattleListWindow:OnFriendRequestList()
+	--Spring.Echo("BattleListWindow:OnFriendRequestList")
+	if self.itemNames then 
+		for battleID, item in pairs(self.itemNames) do
+			self:UpdateRankIcon(battleID, nil, item)
+		end
+	end
 end
 
 
