@@ -1203,6 +1203,8 @@ end
 
 function BattleListWindow:OnFriendRequestList()
 	--Spring.Echo("BattleListWindow:OnFriendRequestList")
+	collectgarbage("collect")
+	collectgarbage("collect")
 	if self.itemNames then 
 		for battleID, item in pairs(self.itemNames) do
 			self:UpdateRankIcon(battleID, nil, item)
