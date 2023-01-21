@@ -57,8 +57,22 @@ git clone https://github.com/beyond-all-reason/Beyond-All-Reason.git BAR.sdd
 
 ## How to make new launcher releases:
 
+Note: Windows executables are signed, this procedure can be done only by one of the developers that have code signing cerificate.
+
 1. Modify a file in the `dist_cfg` folder (https://github.com/beyond-all-reason/BYAR-Chobby/tree/master/dist_cfg) on the `master` branch to trigger a launcher build. It should start a new action here: https://github.com/beyond-all-reason/BYAR-Chobby/actions
 2. Wait until the build **completely** finishes (the action should be green and have a check), otherwise you might create an incomplete release.
-3. Make a release by finding the latest Draft here https://github.com/beyond-all-reason/BYAR-Chobby/releases , open it, click `Edit draft` and then `Publish Release`
-4. Send new download links to .exe and .AppImage to BAR discord #website so download links on website can be updated.
-5. Note that pr-downloader is fetched from https://github.com/beyond-all-reason/spring-launcher
+3. Make a pre-release by finding the latest Draft here https://github.com/beyond-all-reason/BYAR-Chobby/releases, open it:
+   - click `Edit draft`
+   - Mark it as "pre-release"
+   - then `Publish Release`
+4. Use `build/sign_release.py` to sign the new launcher binary, e.g.
+
+   ```
+   python ./build/sign_release.py --signtool 'C:\Program Files (x86)\Windows Kits\10\bin\10.0.19041.0\x64\signtool.exe' v1.1832.0
+   ```
+
+5. Edit release:
+   - replace the Windows executable and `latest.yml` file with the singed version and new generated `latest.yml`
+   - untick pre-release and mark it as latest release
+6. Send new download links to .exe and .AppImage to BAR discord #website so download links on website can be updated.
+7. Note that pr-downloader is fetched from https://github.com/beyond-all-reason/spring-launcher
