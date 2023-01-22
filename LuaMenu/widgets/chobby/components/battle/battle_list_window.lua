@@ -1425,6 +1425,7 @@ function BattleListWindow:OpenHostWindow()
 			if string.sub(battle.title,1,string.len(requestedregion)) == requestedregion and
 				lobby:GetBattlePlayerCount(battle.battleID) == 0 and 
 				battle.spectatorCount == 1 and
+				battle.isRunning ~= true and -- this is needed after server restarts
 				Configuration:IsValidEngineVersion(battle.engineVersion) then
 
 				targetbattle = battle.battleID
