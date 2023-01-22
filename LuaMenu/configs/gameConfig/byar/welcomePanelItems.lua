@@ -34,10 +34,10 @@ local welcomePanelItems = {
     },
 
     {
-        Header = "New Map: Supreme Strait v1.1",
+        Header = "New Map: Supreme Strait v1.3",
         Time = nil,-- "NowTime",
-        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/supreme_strait_v1.1.png",
-        Text = "New 24x24 rework of a famous map, 8v8 capable.\nBy Nikuksis.",
+        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/supreme_strait_v1.3.png",
+        Text = "New 24x24 rework of a famous map, 8v8 capable.\nUpdated to v1.3!\nBy Nikuksis.",
     },
 
     {
