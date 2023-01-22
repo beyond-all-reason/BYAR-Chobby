@@ -1344,7 +1344,7 @@ function BattleListWindow:OpenHostWindow()
 		local requestedregion = typeCombo.items[typeCombo.selected]
 		--Spring.Echo("Looking for empty host in region", requestedregion)
 		if userWantsPrivateBattle then
-			local privateclusters = {EU = '[teh]cluster1', US = '[teh]clusterUS', AU = '[teh]clusterAU', DE = '[teh]clusterEU2',}
+			local privateclusters = {EU = '[teh]cluster1', US = '[teh]clusterUS', AU = '[teh]clusterAU', DE = '[teh]clusterEU2',EU2 = '[teh]clusterEU3',}
 			local targetCluster = privateclusters[requestedregion]
 			local mypassword = nil
 			local function listenForPrivateBattle(listener, userName, message, msgDate)
@@ -1365,7 +1365,7 @@ function BattleListWindow:OpenHostWindow()
 			local function delayedWatchRooms()
 				if trytime < 1 then
 					lobby:RemoveListener("OnSaidPrivate", listenForPrivateBattle)
-					errorLabel:SetCaption("Unable to spin up a private battle right now.")
+					errorLabel:SetCaption("Unable to spin up a private battle right now. Try a different region.")
 					return
 				end
 				local myplayername = lobby:GetMyUserName() or ''
