@@ -621,7 +621,7 @@ local function UpdateUserBattleStatus(listener, userName)
 				if isPlaying then
 					offset = offset + 1
 					data.tbSkill:SetPos(offset)
-					offset = offset + 19
+					offset = offset + 20
 				end
 			end
 
@@ -1087,7 +1087,7 @@ local function GetUserControls(userName, opts)
 		userControls.tbSkill.font.color = skillColor
 		userControls.tbSkill:Invalidate()
 		if isPlaying then
-			offset = offset + 19
+			offset = offset + 20
 		else
 			offset = offset - 1
 		end
