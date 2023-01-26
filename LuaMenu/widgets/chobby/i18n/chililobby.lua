@@ -202,6 +202,13 @@ return {
 		filterbattleroom = "Filter bot chatter",
 		filterbattleroom_tooltip = "Battleroom management bots are quite verbose, enable this if you want to see every debug message that the bots do (for SPADS)",
 
+		showRank = "Show rank icons",
+		showRanktooltip = "Requires a restart, Displays the rank icon next to the players name in the battleroom",
+		showSkill = "Show OpenSkill values",
+		showSkilltooltip = "Requires a restart, Displays the OpenSkill value next to the players name in the battleroom",
+		showCountry = "Show country flags",
+		showCountrytooltip = "Requires a restart, Displays the country flag next to the players name in the battleroom",
+
 		-- gui_battle_room_window.lua
 
 		ready_tooltip = "Click to become unready. This will prevent the game from starting!",
