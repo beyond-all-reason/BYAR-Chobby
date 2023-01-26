@@ -888,6 +888,10 @@ local function GetLobbyTabControls()
 
 	children[#children + 1], offset = AddCheckboxSetting(offset, i18n("autoLaunchAsSpectator"), "autoLaunchAsSpectator", true)
 
+	children[#children + 1], offset = AddCheckboxSetting(offset, i18n("showRank"), "showRank", true, nil, i18n("showRanktooltip"))
+	children[#children + 1], offset = AddCheckboxSetting(offset, i18n("showSkill"), "showSkill", true, nil, i18n("showSkilltooltip"))
+	children[#children + 1], offset = AddCheckboxSetting(offset, i18n("showCountry"), "showCountry", true, nil, i18n("showCountrytooltip"))
+
 	local randomSkirmishOption = Spring.GetConfigInt("randomSkirmishSetup", 1)
 	if randomSkirmishOption == 1 then
 		Configuration.randomSkirmishSetup = true

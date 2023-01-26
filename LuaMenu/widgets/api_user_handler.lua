@@ -126,23 +126,23 @@ end
 
 local function GetUserCountryImage(userName, userControl)
 	local userInfo = userControl.lobby:GetUser(userName) or {}
-	local userBattleInfo = userControl.lobby:GetUserBattleStatus(userName) or {}
+	local bs = userControl.lobby:GetUserBattleStatus(userName) or {}
 	if userInfo.country then
 		return CountryShortnameToFlag(userInfo.country)
 	end
-	if not userBattleInfo.aiLib then
+	if not bs.aiLib then
 		return IMAGE_FLAG_UNKNOWN
 	end
 end
 
 local function GetUserSyncStatus(userName, userControl)
-	local userBattleInfo = userControl.lobby:GetUserBattleStatus(userName) or {}
-	if userBattleInfo.aiLib then
+	local bs = userControl.lobby:GetUserBattleStatus(userName) or {}
+	if bs.aiLib then
 		return
 	end
-	if userBattleInfo.sync == 1 then
+	if bs.sync == 1 then
 		return IMAGE_DLREADY
-	elseif userBattleInfo.sync == 2 then
+	elseif bs.sync == 2 then
 		return IMAGE_DLUNREADY
 	else
 		return IMAGE_UNKNOWN_SYNC
@@ -150,11 +150,11 @@ local function GetUserSyncStatus(userName, userControl)
 end
 
 local function GetUserReadyStatus(userName, userControl)
-	local userBattleInfo = userControl.lobby:GetUserBattleStatus(userName) or {}
-	if userBattleInfo.aiLib then
+	local bs = userControl.lobby:GetUserBattleStatus(userName) or {}
+	if bs.aiLib then
 		return
 	end
-	if userBattleInfo.isReady then
+	if bs.isReady then
 		return IMAGE_READY
 	else
 		return IMAGE_UNREADY
@@ -169,7 +169,7 @@ end
 
 local function GetUserComboBoxOptions(userName, isInBattle, userControl, showTeamColor, showSide)
 	local userInfo = userControl.lobby:GetUser(userName) or {}
-	local userBattleInfo = userControl.lobby:GetUserBattleStatus(userName) or {}
+	local bs = userControl.lobby:GetUserBattleStatus(userName) or {}
 	local myUserName = userControl.lobby:GetMyUserName()
 	local comboOptions = {}
 
@@ -178,7 +178,7 @@ local function GetUserComboBoxOptions(userName, isInBattle, userControl, showTea
 
 	local Configuration = WG.Chobby.Configuration
 
-	if (not userBattleInfo.aiLib) and userName ~= myUserName then
+	if (not bs.aiLib) and userName ~= myUserName then
 		comboOptions[#comboOptions + 1] = "Message"
 
 		if (not isInBattle) and userInfo.battleID then
@@ -237,16 +237,13 @@ local function GetUserComboBoxOptions(userName, isInBattle, userControl, showTea
 		end
 	end
 
-
-
-
 	if userName == myUserName and userInfo.accountID and Configuration.gameConfig.link_userPage ~= nil then
 		-- Only add for myself since the same thing is added in the previous block
 		comboOptions[#comboOptions + 1] = "User Page"
 	end
 
-	if (userName == myUserName or userBattleInfo.aiLib) and
-		not userBattleInfo.isSpectator then
+	if (userName == myUserName or bs.aiLib) and
+		not bs.isSpectator then
 		if showTeamColor then
 			comboOptions[#comboOptions + 1] = "Change Color"
 		end
@@ -257,29 +254,29 @@ local function GetUserComboBoxOptions(userName, isInBattle, userControl, showTea
 
 
 	-- Change team of anyone with !force
-	if  Configuration.gameConfig.spadsLobbyFeatures and not userBattleInfo.isSpectator and (isInBattle or userBattleInfo.aiLib) then
+	if  Configuration.gameConfig.spadsLobbyFeatures and not bs.isSpectator and (isInBattle or bs.aiLib) then
 		comboOptions[#comboOptions + 1] = "Change Team"
 	end
 
 	-- Set the handicap value of anyone with !force
-	if  Configuration.gameConfig.spadsLobbyFeatures and not userBattleInfo.isSpectator and (isInBattle or userBattleInfo.aiLib) then
+	if  Configuration.gameConfig.spadsLobbyFeatures and not bs.isSpectator and (isInBattle or bs.aiLib) then
 		comboOptions[#comboOptions + 1] = "Add Bonus"
 	end
 
 	-- Ring: not bot and is in same battle
-	if not userInfo.isBot and Configuration.gameConfig.spadsLobbyFeatures and isInBattle and (not userBattleInfo.aiLib) then
+	if not userInfo.isBot and Configuration.gameConfig.spadsLobbyFeatures and isInBattle and (not bs.aiLib) then
 		comboOptions[#comboOptions + 1] = "Ring"
 	end
 
 	-- Spec: in same battle, is not AI and is not spec:
 	if Configuration.gameConfig.spadsLobbyFeatures and
-		isInBattle and not userBattleInfo.isSpectator and not userBattleInfo.aiLib then
+		isInBattle and not bs.isSpectator and not bs.aiLib then
 		comboOptions[#comboOptions + 1] = "Force Spectator"
 	end
 
 	-- Spec: in same battle, is not AI and is not spec:
 	if Configuration.gameConfig.spadsLobbyFeatures and
-		isInBattle and not userBattleInfo.isSpectator and not userBattleInfo.aiLib then
+		isInBattle and not bs.isSpectator and not bs.aiLib then
 		comboOptions[#comboOptions + 1] = "Make Boss"
 	end
 
@@ -287,17 +284,17 @@ local function GetUserComboBoxOptions(userName, isInBattle, userControl, showTea
 	-- Let everyone start kick votes, but dont let they try to kick spads lobby bottomSpacing
 	if Configuration.gameConfig.spadsLobbyFeatures then
 		if userName ~= myUserName and not userInfo.isBot and
-			(isInBattle or (userBattleInfo.aiLib and userBattleInfo.owner == myUserName)) then
+			(isInBattle or (bs.aiLib and bs.owner == myUserName)) then
 			comboOptions[#comboOptions + 1] = "Kick"
 		end
 	else
 		if userName ~= myUserName and
-			(isInBattle or (userBattleInfo.aiLib and userBattleInfo.owner == myUserName)) then
+			(isInBattle or (bs.aiLib and bs.owner == myUserName)) then
 			comboOptions[#comboOptions + 1] = "Kick"
 		end
 	end
 
-	if userName ~= myUserName and not userInfo.isBot and not userBattleInfo.aiLib then
+	if userName ~= myUserName and not userInfo.isBot and not bs.aiLib then
 		comboOptions[#comboOptions + 1] = "Report User"
 	end
 
@@ -327,13 +324,13 @@ end
 
 local function GetUserRankImageName(userName, userControl)
 	local userInfo = userControl.lobby:GetUser(userName) or {}
-	local userBattleInfo = userControl.lobby:GetUserBattleStatus(userName) or {}
+	local bs = userControl.lobby:GetUserBattleStatus(userName) or {}
 
-	if userControl.isSingleplayer and not userBattleInfo.aiLib then
+	if userControl.isSingleplayer and not bs.aiLib then
 		return IMAGE_PLAYER
 	end
 
-	local image = GetUserRankImage(userInfo, userInfo.isBot or userBattleInfo.aiLib)
+	local image = GetUserRankImage(userInfo, userInfo.isBot or bs.aiLib)
 	return image
 end
 
@@ -344,11 +341,11 @@ end
 local function GetUserSkill(userName, userControl)
 	local config = WG.Chobby.Configuration
 	local userInfo = userControl.lobby:GetUser(userName) or {}
-	local userBattleInfo = userControl.lobby:GetUserBattleStatus(userName) or {}
+	local bs = userControl.lobby:GetUserBattleStatus(userName) or {}
 	local skill = 0
 	local sigma = 3
 
-	if userControl.isSingleplayer or userBattleInfo.aiLib ~= nil then
+	if userControl.isSingleplayer or bs.aiLib ~= nil then
 		return skill, config.skillUncertaintyColors[sigma]
 	end
 
@@ -709,6 +706,7 @@ local function GetUserControls(userName, opts)
 	local showHandicap		 = opts.showHandicap
 	local showRank           = opts.showRank
 	local showSkill          = opts.showSkill
+	local showCountry        = opts.showCountry
 
 	local userControls = reinitialize or {}
 
@@ -980,8 +978,11 @@ local function GetUserControls(userName, opts)
 	if comboBoxOnly then
 		return userControls
 	end
+	
+	local bs = lobby:GetUserBattleStatus(userName)
+	local isPlaying = (bs and not bs.isSpectator) or false
 
-	if isInBattle and not suppressSync then
+	if isInBattle and not suppressSync and (bs and bs.sync and bs.sync == 2) then
 		offset = offset + 1
 		userControls.imSyncStatus = Image:New {
 			name = "imSyncStatus",
@@ -996,7 +997,7 @@ local function GetUserControls(userName, opts)
 		offset = offset + 21
 	end
 
-	if showReady then
+	if showReady and (bs and bs.sync and bs.sync ~= 2) then
 		offset = offset + 1
 		userControls.imReadyStatus = Image:New {
 			name = "imReadyStatus",
@@ -1021,19 +1022,21 @@ local function GetUserControls(userName, opts)
 		end
 	end
 
-	if not isSingleplayer then
-		offset = offset + 1
-		userControls.imCountry = Image:New {
-			name = "imCountry",
-			x = offset + 2,
-			y = offsetY + 4,
-			width = 16,
-			height = 11,
-			parent = userControls.mainControl,
-			keepAspect = true,
-			file = GetUserCountryImage(userName, userControls),
-		}
-		offset = offset + 21
+	if showCountry then
+		if not isSingleplayer then
+			offset = offset + 1
+			userControls.imCountry = Image:New {
+				name = "imCountry",
+				x = offset + 2,
+				y = offsetY + 4,
+				width = 16,
+				height = 11,
+				parent = userControls.mainControl,
+				keepAspect = true,
+				file = GetUserCountryImage(userName, userControls),
+			}
+			offset = offset + 21
+		end
 	end
 
 	if showRank then
@@ -1049,6 +1052,29 @@ local function GetUserControls(userName, opts)
 			file = GetUserRankImageName(userName, userControls),
 		}
 		offset = offset + 21
+	end
+	if showSkill then
+		local skill, skillColor = GetUserSkill(userName, userControls)
+		offset = offset + 1
+		userControls.tbSkill = TextBox:New {
+			name = "skill",
+			x = offset,
+			y = offsetY + 4,
+			right = 0,
+			bottom = 5,
+			align = "left",
+			parent = userControls.mainControl,
+			fontsize = Configuration:GetFont(1).size,
+			text = skill,
+		}
+		userControls.tbSkill.font.color = skillColor
+		userControls.tbSkill:Invalidate()
+		if isPlaying then
+			offset = offset + 15
+		else
+			offset = offset - 1
+		end
+		userControls.tbSkill:SetVisibility(isPlaying)
 	end
 
 	local clanImage, needDownload = GetUserClanImage(userName, userControls)
@@ -1069,39 +1095,10 @@ local function GetUserControls(userName, opts)
 		offset = offset + 21
 	end
 
-	if showSkill then
-		local skill, skillColor = GetUserSkill(userName, userControls)
-		offset = offset + 1
-		userControls.tbSkill = TextBox:New {
-			name = "skill",
-			x = offset,
-			y = offsetY + 4,
-			right = 0,
-			bottom = 5,
-			align = "left",
-			parent = userControls.mainControl,
-			fontsize = Configuration:GetFont(1).size,
-			text = skill,
-		}
-		userControls.tbSkill.font.color = skillColor
-		userControls.tbSkill:Invalidate()
-
-		local bs = userControls.lobby:GetUserBattleStatus(userName) or {}
-		local isPlaying = (bs and not bs.isSpectator) or false
-
-		if isPlaying then
-			offset = offset + 15
-		else
-			offset = offset - 1
-		end
-		userControls.tbSkill:SetVisibility(isPlaying)
-	end
-
 	if showSide then
-		local battleStatus = userControls.lobby:GetUserBattleStatus(userName) or {}
 		offset = offset + 2
 		local file = nil
-		if battleStatus.side ~= nil then
+		if bs.side ~= nil then
 			file = WG.Chobby.Configuration:GetSideById(battleStatus.side or 0).logo
 		end
 		userControls.imSide = Image:New {
@@ -1114,7 +1111,7 @@ local function GetUserControls(userName, opts)
 			keepAspect = false,
 			file = file,
 		}
-		if battleStatus.isSpectator or file == nil then
+		if bs.isSpectator or file == nil then
 			userControls.imSide:Hide()
 			offset = offset - 2
 		else
@@ -1151,7 +1148,6 @@ local function GetUserControls(userName, opts)
 	offset = offset + userControls.nameActualLength
 
 	if showTeamColor then
-		local battleStatus = userControls.lobby:GetUserBattleStatus(userName) or {}
 		offset = offset + 5
 		userControls.imTeamColor = Image:New {
 			name = "imTeamColor",
@@ -1162,10 +1158,10 @@ local function GetUserControls(userName, opts)
 			parent = userControls.mainControl,
 			keepAspect = false,
 			file = "LuaMenu/widgets/chili/skins/Evolved/glassBk.png",
-			color = battleStatus.teamColor
+			color = bs.teamColor
 		}
 		userControls.nameActualLength = userControls.nameActualLength + 25
-		if battleStatus.isSpectator then
+		if bs.isSpectator then
 			userControls.imTeamColor:Hide()
 			offset = offset - 5
 		else
@@ -1174,10 +1170,9 @@ local function GetUserControls(userName, opts)
 	end
 
 	if showHandicap then
-		local battleStatus = userControls.lobby:GetUserBattleStatus(userName) or {}
 		local handicaptxt = ''
-		if battleStatus.handicap and battleStatus.handicap > 0 then
-			handicaptxt = '+'..tostring(battleStatus.handicap)
+		if bs.handicap and bs.handicap > 0 then
+			handicaptxt = '+'..tostring(bs.handicap)
 		end
 		userControls.lblHandicap = Label:New{
 			name = "lblHandicap",
@@ -1309,10 +1304,12 @@ function userHandler.GetBattleUser(userName, isSingleplayer)
 		showReady      = true,
 		showRank       = WG.Chobby.Configuration.showRank,
 		showSkill      = WG.Chobby.Configuration.showSkill,
+		showCountry    = WG.Chobby.Configuration.showCountry,
+		showSync       = WG.Chobby.Configuration.showSync,
 		showModerator  = true,
 		showFounder    = true,
 		showTeamColor  = not WG.Chobby.Configuration.gameConfig.disableColorChoosing,
-		showSide       = WG.Chobby.Configuration:GetSideData() ~= nil,
+		showSide       = false,
 		showHandicap   = WG.Chobby.Configuration.gameConfig.showHandicap,
 	})
 end

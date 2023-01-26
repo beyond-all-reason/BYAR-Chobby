@@ -115,8 +115,9 @@ function Configuration:init()
 		[3] = {0.40, 0.30, 0.064, 1.0},
 	}
 
-	self.showRank = false
-	self.showSkill = true
+	self.showRank    = true
+	self.showSkill   = false
+	self.showCountry = false
 
 	self.loadLocalWidgets = false
 	self.displayBots = false
@@ -653,6 +654,9 @@ function Configuration:GetConfigData()
 		nextCampaignSaveNumber = self.nextCampaignSaveNumber,
 		steamReleasePopupSeen = self.steamReleasePopupSeen,
 		campaignConfigName = self.campaignConfigName,
+		showSkill   = self.showSkill,
+		showRank    = self.showRank,
+		showCountry = self.showCountry,
 	}
 end
 
