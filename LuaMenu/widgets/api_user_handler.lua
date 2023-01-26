@@ -346,7 +346,7 @@ local function GetUserSkill(userName, userControl)
 	local sigma = 3
 
 	if userControl.isSingleplayer or bs.aiLib ~= nil then
-		return skill, config.skillUncertaintyColors[sigma]
+		return "  ", config.skillUncertaintyColors[sigma]
 	end
 
 	if userInfo.skill then
@@ -565,17 +565,20 @@ local function UpdateUserBattleStatus(listener, userName)
 		local userList = userListList[i]
 		local data = userList[userName]
 		if data then
-			local offset = 0
-			if data.imSyncStatus then
-				data.imSyncStatus.file = GetUserSyncStatus(userName, data)
-				data.imSyncStatus:Invalidate()
-				offset = offset + 22
-			end
 
 			local bs = data.lobby:GetUserBattleStatus(userName) or {}
 			local isPlaying = (bs and not bs.isSpectator) or false
 
-		
+			local offset = 0
+			if data.imSyncStatus then
+				data.imSyncStatus.file = GetUserSyncStatus(userName, data)
+				data.imSyncStatus:SetVisibility(isPlaying)
+				if isPlaying then
+					data.imSyncStatus:Invalidate()
+					offset = offset + 22
+				end
+			end
+
 			if data.imReadyStatus and not isSingleplayer then
 				data.imReadyStatus.file = GetUserReadyStatus(userName, data)
 				data.imReadyStatus:SetVisibility(isPlaying)
@@ -592,9 +595,12 @@ local function UpdateUserBattleStatus(listener, userName)
 				offset = offset + 21
 			end
 			if data.imLevel then
-				offset = offset + 1
-				data.imLevel:SetPos(offset)
-				offset = offset + 21
+				data.tbSkill:SetVisibility(isPlaying)
+				if isPlaying then
+					offset = offset + 1
+					data.imLevel:SetPos(offset)
+					offset = offset + 21
+				end
 			end
 			if data.imClan then
 				offset = offset + 1
@@ -603,6 +609,7 @@ local function UpdateUserBattleStatus(listener, userName)
 			end
 
 			if data.tbSkill then
+				data.tbSkill:SetVisibility(isPlaying)
 				local skill, skillColor = GetUserSkill(userName, data)
 				if skill then
 					data.tbSkill:SetText(skill)
@@ -614,13 +621,13 @@ local function UpdateUserBattleStatus(listener, userName)
 				if isPlaying then
 					offset = offset + 1
 					data.tbSkill:SetPos(offset)
-					offset = offset + 15
+					offset = offset + 19
 				end
-				data.tbSkill:SetVisibility(isPlaying)
 			end
 
 			if data.imSide then
 				local sideSelected = bs.side ~= nil
+				data.imSide:SetVisibility(isPlaying and sideSelected)
 				if sideSelected then
 					data.imSide.file = WG.Chobby.Configuration:GetSideById(bs.side).logo
 				end
@@ -629,7 +636,6 @@ local function UpdateUserBattleStatus(listener, userName)
 					data.imSide:SetPos(offset)
 					offset = offset + 22
 				end
-				data.imSide:SetVisibility(isPlaying and sideSelected)
 			end
 			if data.tbName then
 				data.tbName:SetPos(offset)
@@ -994,7 +1000,12 @@ local function GetUserControls(userName, opts)
 			keepAspect = true,
 			file = GetUserSyncStatus(userName, userControls),
 		}
-		offset = offset + 21
+		userControls.imSyncStatus:SetVisibility(isPlaying)
+		if isPlaying then
+			offset = offset + 21
+		else
+			offset = offset - 1
+		end
 	end
 
 	if showReady and (bs and bs.sync and bs.sync ~= 2) then
@@ -1051,7 +1062,12 @@ local function GetUserControls(userName, opts)
 			keepAspect = false,
 			file = GetUserRankImageName(userName, userControls),
 		}
-		offset = offset + 21
+		userControls.imLevel:SetVisibility(isPlaying)
+		if isPlaying then
+			offset = offset + 21
+		else
+			offset = offset - 1
+		end
 	end
 	if showSkill then
 		local skill, skillColor = GetUserSkill(userName, userControls)
@@ -1067,14 +1083,14 @@ local function GetUserControls(userName, opts)
 			fontsize = Configuration:GetFont(1).size,
 			text = skill,
 		}
+		userControls.tbSkill:SetVisibility(isPlaying)
 		userControls.tbSkill.font.color = skillColor
 		userControls.tbSkill:Invalidate()
 		if isPlaying then
-			offset = offset + 15
+			offset = offset + 19
 		else
 			offset = offset - 1
 		end
-		userControls.tbSkill:SetVisibility(isPlaying)
 	end
 
 	local clanImage, needDownload = GetUserClanImage(userName, userControls)
