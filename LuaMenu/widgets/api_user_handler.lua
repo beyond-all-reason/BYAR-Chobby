@@ -1095,7 +1095,7 @@ local function GetUserControls(userName, opts)
 		offset = offset + 21
 	end
 
-	if showSide then
+	if bs and showSide then
 		offset = offset + 2
 		local file = nil
 		if bs.side ~= nil then
@@ -1169,7 +1169,7 @@ local function GetUserControls(userName, opts)
 		end
 	end
 
-	if showHandicap then
+	if bs and showHandicap then
 		local handicaptxt = ''
 		if bs.handicap and bs.handicap > 0 then
 			handicaptxt = '+'..tostring(bs.handicap)
