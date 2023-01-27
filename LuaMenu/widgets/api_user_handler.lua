@@ -595,7 +595,7 @@ local function UpdateUserBattleStatus(listener, userName)
 				offset = offset + 21
 			end
 			if data.imLevel then
-				data.tbSkill:SetVisibility(isPlaying)
+				data.imLevel:SetVisibility(isPlaying)
 				if isPlaying then
 					offset = offset + 1
 					data.imLevel:SetPos(offset)
