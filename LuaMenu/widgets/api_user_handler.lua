@@ -570,21 +570,24 @@ local function UpdateUserBattleStatus(listener, userName)
 			local isPlaying = (bs and not bs.isSpectator) or false
 
 			local offset = 0
+			local displaySync = isPlaying and bs.sync and bs.sync == 2 -- 2 = Sync Status Downloading
 			if data.imSyncStatus then
-				data.imSyncStatus.file = GetUserSyncStatus(userName, data)
-				data.imSyncStatus:SetVisibility(isPlaying)
-				if isPlaying then
-					data.imSyncStatus:Invalidate()
-					offset = offset + 22
+				data.imSyncStatus:SetVisibility(displaySync)
+				if displaySync then
+					data.imSyncStatus.file = GetUserSyncStatus(userName, data)
+					offset = offset + 1
+					data.imSyncStatus:SetPos(offset)
+					offset = offset + 21
 				end
 			end
 
+			local displayReady = isPlaying and not displaySync	
 			if data.imReadyStatus and not isSingleplayer then
-				data.imReadyStatus.file = GetUserReadyStatus(userName, data)
-				data.imReadyStatus:SetVisibility(isPlaying)
-				if isPlaying then
+				data.imReadyStatus:SetVisibility(displayReady)
+				if displayReady then
+					data.imReadyStatus.file = GetUserReadyStatus(userName, data)
 					offset = offset + 1
-					data.imReadyStatus:Invalidate()
+					data.imReadyStatus:SetPos(offset)
 					offset = offset + 21
 				end
 			end
@@ -729,6 +732,17 @@ local function GetUserControls(userName, opts)
 	userControls.hideStatusIngame  = opts.hideStatusIngame
 	userControls.hideStatusAway    = opts.hideStatusAway
 	userControls.dropdownWhitelist = opts.dropdownWhitelist
+
+	local myBattleID = userControls.lobby:GetMyBattleID()
+	local userInfo = userControls.lobby:GetUser(userName) or {}
+	local isPlayerInBattle = userInfo and userInfo.battleID == myBattleID
+	local bs = lobby:GetUserBattleStatus(userName)
+	local isPlaying = (bs and not bs.isSpectator) or false
+	if isPlayerInBattle then
+		local isPlaying = (bs and not bs.isSpectator) or false
+	else
+		local isPlaying = false
+	end
 
 	if reinitialize then
 		userControls.mainControl:ClearChildren()
@@ -985,10 +999,8 @@ local function GetUserControls(userName, opts)
 		return userControls
 	end
 	
-	local bs = lobby:GetUserBattleStatus(userName)
-	local isPlaying = (bs and not bs.isSpectator) or false
-
-	if isInBattle and not suppressSync and (bs and bs.sync and bs.sync == 2) then
+	local displaySync = isPlaying and (bs and bs.sync and bs.sync == 2) -- 2 = Sync Status Downloading
+	if isInBattle and not suppressSync then
 		offset = offset + 1
 		userControls.imSyncStatus = Image:New {
 			name = "imSyncStatus",
@@ -1000,15 +1012,16 @@ local function GetUserControls(userName, opts)
 			keepAspect = true,
 			file = GetUserSyncStatus(userName, userControls),
 		}
-		userControls.imSyncStatus:SetVisibility(isPlaying)
-		if isPlaying then
+		userControls.imSyncStatus:SetVisibility(displaySync)
+		if displaySync then
 			offset = offset + 21
 		else
 			offset = offset - 1
 		end
 	end
 
-	if showReady and (bs and bs.sync and bs.sync ~= 2) then
+	local displayReady = isPlaying and not displaySync
+	if showReady then
 		offset = offset + 1
 		userControls.imReadyStatus = Image:New {
 			name = "imReadyStatus",
@@ -1020,16 +1033,11 @@ local function GetUserControls(userName, opts)
 			keepAspect = true,
 			file = GetUserReadyStatus(userName, userControls),
 		}
-		local bs = lobby:GetUserBattleStatus(userName)
-
-		if bs then
-			userControls.imReadyStatus:SetVisibility(not (bs and bs.isSpectator))
-			if bs.isSpectator then
-				offset = offset - 1
-			else
-				--Spring.Utilities.TraceFullEcho(nil,nil,nil, "lobby:GetUserBattleStatus(userName) == nil", userName)
-				offset = offset + 21
-			end
+		userControls.imReadyStatus:SetVisibility(displayReady)
+		if displayReady then
+			offset = offset + 21
+		else
+			offset = offset - 1
 		end
 	end
 
