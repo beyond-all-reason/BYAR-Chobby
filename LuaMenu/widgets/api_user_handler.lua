@@ -335,40 +335,36 @@ local function GetUserRankImageName(userName, userControl)
 end
 
 -- returns skill, skillUncertaintyColor
--- default to skill=3, sigma = 0, if no skill is known for userName (skill wasn´t set yet in Interface:_OnSetScriptTags)
+-- default to skill="  ", sigma = 0, if no skill is known for userName (skill wasn´t set yet in Interface:_OnSetScriptTags)
 -- skill format: "XX" or " X" (leading whitespace)
 -- takes skillUncertaintyColors values from configuration.lua
 local function GetUserSkill(userName, userControl)
 	local config = WG.Chobby.Configuration
-	local userInfo = userControl.lobby:GetUser(userName) or {}
-	local bs = userControl.lobby:GetUserBattleStatus(userName) or {}
-	local skill = 0
-	local sigma = 3
+	local skill = "  "
+	local sigma = 0
 
-	if userControl.isSingleplayer or bs.aiLib ~= nil then
+	local bs = userControl.lobby:GetUserBattleStatus(userName) or {}
+	if userControl.isSingleplayer or bs.aiLib ~= nil or userControl.showSkillOpt == 1 then
 		return "  ", config.skillUncertaintyColors[sigma]
 	end
 
+	local userInfo = userControl.lobby:GetUser(userName) or {}
 	if userInfo.skill then
 		skill = math.floor(userInfo.skill + 0.5)
 		if skill < 10 and skill > -10 then skill = " " .. skill end
 		skill = tostring(skill)
 	end
-
-	if userInfo.skillUncertainty then
+	
+	if userControl.showSkillOpt == 3 and userInfo.skillUncertainty then
 		-- sigma must be rounded to int; it´s used as array index
-		local sigma = math.floor(userInfo.skillUncertainty+0.5)
-		if sigma > -1 and sigma < 4 then -- 0,1,2,3
-			skillUncertaintyColor = config.skillUncertaintyColors[sigma]
-		elseif sigma > 3 then
-			skillUncertaintyColor = config.skillUncertaintyColors[3]
-		else
-			skillUncertaintyColor = config.skillUncertaintyColors[0]
+		sigma = math.floor(userInfo.skillUncertainty+0.5)
+		if sigma > 3 then
+			sigma = 3
+		elseif sigma < 0 then
+			sigma = 0
 		end
-	else
-		skillUncertaintyColor = config.skillUncertaintyColors[1] -- fall back to 1 as long as it´s not read by lobby:setScripttags
 	end
-	return skill, skillUncertaintyColor
+	return skill, config.skillUncertaintyColors[sigma]
 end
 
 local function GetUserStatusImages(userName, isInBattle, userControl)
@@ -592,40 +588,41 @@ local function UpdateUserBattleStatus(listener, userName)
 				end
 			end
 
-			if data.imCountry then
-				offset = offset + 1
-				data.imCountry:SetPos(offset + 2)
-				offset = offset + 21
-			end
-			if data.imLevel then
-				data.imLevel:SetVisibility(isPlaying)
-				if isPlaying then
+			if not data.isSingleplayer then
+				-- Country: show if configured to show
+				data.imCountry:SetVisibility(data.showCountry)
+				if data.showCountry then	
+					offset = offset + 1
+					data.imCountry:SetPos(offset + 2)
+					offset = offset + 21
+				end
+
+				-- Rank: show if configured to show
+				data.imLevel:SetVisibility(data.showRank)
+				if data.showRank then
 					offset = offset + 1
 					data.imLevel:SetPos(offset)
 					offset = offset + 21
 				end
+
+				-- Skill: show only in battlelist (limited by spring lobby protocol, skill not available for users outside of own battle)
+				local showSkill = isPlaying and data.showSkillOpt > 1
+				data.tbSkill:SetVisibility(showSkill)
+				if showSkill then
+					offset = offset + 1
+					data.tbSkill:SetPos(offset)
+					offset = offset + 20
+					local skill, skillColor = GetUserSkill(userName, data)
+					data.tbSkill:SetText(skill)
+					data.tbSkill.font.color = skillColor
+					data.tbSkill:Invalidate()
+				end
 			end
+
 			if data.imClan then
 				offset = offset + 1
 				data.imClan:SetPos(offset)
 				offset = offset + 21
-			end
-
-			if data.tbSkill then
-				data.tbSkill:SetVisibility(isPlaying)
-				local skill, skillColor = GetUserSkill(userName, data)
-				if skill then
-					data.tbSkill:SetText(skill)
-					if skillColor then
-						data.tbSkill.font.color = skillColor
-						data.tbSkill:Invalidate()
-					end
-				end
-				if isPlaying then
-					offset = offset + 1
-					data.tbSkill:SetPos(offset)
-					offset = offset + 20
-				end
 			end
 
 			if data.imSide then
@@ -640,15 +637,32 @@ local function UpdateUserBattleStatus(listener, userName)
 					offset = offset + 22
 				end
 			end
-			if data.tbName then
-				data.tbName:SetPos(offset)
-				data.nameStartY = offset
-				offset = offset + data.nameActualLength
+
+			offset = offset + 2
+			data.tbName:SetPos(offset)
+			data.nameStartY = offset
+			local truncatedName = StringUtilities.TruncateStringIfRequiredAndDotDot(userName, data.tbName.font, maxNameLength and (maxNameLength - offset))
+			data.nameStartY = offset
+			data.maxNameLength = maxNameLength
+
+			local nameColor = GetUserNameColor(userName, data)
+			if nameColor then
+				data.tbName.font.color = nameColor
+				data.tbName:Invalidate()
 			end
+			if truncatedName then
+				data.tbName:SetText(truncatedName)
+				data.nameTruncated = true
+			end
+			data.nameActualLength = data.tbName.font:GetTextWidth(data.tbName.text)
+			offset = offset + data.nameActualLength
 
 			if data.imTeamColor then
 				data.imTeamColor.color = bs.teamColor
 				data.imTeamColor:SetVisibility(isPlaying)
+				offset = offset + 5
+				data.imTeamColor:SetPos(offset)
+				offset = offset + 20
 				data.imTeamColor:Invalidate()
 			end
 
@@ -674,6 +688,7 @@ local function UpdateUserBattleStatus(listener, userName)
 				end
 				data.lblHandicap:Invalidate()
 			end
+			UpdateUserControlStatus(userName, data) -- moves status images right of userName according to nameStartY and nameActualLength
 		end
 	end
 end
@@ -713,9 +728,6 @@ local function GetUserControls(userName, opts)
 	local showTeamColor      = opts.showTeamColor
 	local showSide           = opts.showSide
 	local showHandicap		 = opts.showHandicap
-	local showRank           = opts.showRank
-	local showSkill          = opts.showSkill
-	local showCountry        = opts.showCountry
 
 	local userControls = reinitialize or {}
 
@@ -732,6 +744,10 @@ local function GetUserControls(userName, opts)
 	userControls.hideStatusIngame  = opts.hideStatusIngame
 	userControls.hideStatusAway    = opts.hideStatusAway
 	userControls.dropdownWhitelist = opts.dropdownWhitelist
+	userControls.showSkillOpt	   = opts.showSkillOpt or 1 -- default to 1=no
+	userControls.showRank          = opts.showRank or false
+	userControls.showCountry       = opts.showCountry or false
+	userControls.isSingleplayer    = opts.isSingleplayer or false -- is needed by UpdateUserBattleStatus
 
 	local myBattleID = userControls.lobby:GetMyBattleID()
 	local userInfo = userControls.lobby:GetUser(userName) or {}
@@ -1040,25 +1056,27 @@ local function GetUserControls(userName, opts)
 			offset = offset - 1
 		end
 	end
-
-	if showCountry then
-		if not isSingleplayer then
-			offset = offset + 1
-			userControls.imCountry = Image:New {
-				name = "imCountry",
-				x = offset + 2,
-				y = offsetY + 4,
-				width = 16,
-				height = 11,
-				parent = userControls.mainControl,
-				keepAspect = true,
-				file = GetUserCountryImage(userName, userControls),
-			}
-			offset = offset + 21
-		end
+	
+	offset = offset + 1
+	userControls.imCountry = Image:New {
+		name = "imCountry",
+		x = offset + 2,
+		y = offsetY + 4,
+		width = 16,
+		height = 11,
+		parent = userControls.mainControl,
+		keepAspect = true,
+		file = GetUserCountryImage(userName, userControls),
+	}
+	userControls.imCountry:SetVisibility(userControls.showCountry)
+	if userControls.showCountry then
+		offset = offset + 21
+	else
+		offset = offset - 1
 	end
 
-	if showRank then
+	if not isSingleplayer then
+		
 		offset = offset + 1
 		userControls.imLevel = Image:New {
 			name = "imLevel",
@@ -1070,14 +1088,15 @@ local function GetUserControls(userName, opts)
 			keepAspect = false,
 			file = GetUserRankImageName(userName, userControls),
 		}
-		userControls.imLevel:SetVisibility(isPlaying)
-		if isPlaying then
+		userControls.imLevel:SetVisibility(userControls.showRank)
+		if userControls.showRank then
 			offset = offset + 21
 		else
 			offset = offset - 1
 		end
-	end
-	if showSkill then
+
+		-- skill only available when we are inside battle
+		local showSkill = isPlaying and userControls.showSkillOpt > 1 -- 1: no 2: Yes 3: Detailed
 		local skill, skillColor = GetUserSkill(userName, userControls)
 		offset = offset + 1
 		userControls.tbSkill = TextBox:New {
@@ -1091,10 +1110,10 @@ local function GetUserControls(userName, opts)
 			fontsize = Configuration:GetFont(1).size,
 			text = skill,
 		}
-		userControls.tbSkill:SetVisibility(isPlaying)
 		userControls.tbSkill.font.color = skillColor
 		userControls.tbSkill:Invalidate()
-		if isPlaying then
+		userControls.tbSkill:SetVisibility(showSkill)
+		if showSkill then
 			offset = offset + 20
 		else
 			offset = offset - 1
@@ -1265,6 +1284,21 @@ local function GetUserControls(userName, opts)
 		end
 	end
 
+	local function OnConfigurationChange(listener, key, value)
+		if key == "showCountry" then
+			userControls.showCountry = value
+			UpdateUserBattleStatus(_, userName)
+		elseif key == "showRank" then
+			userControls.showRank = value
+			UpdateUserBattleStatus(_, userName)
+		elseif key == "showSkillOpt" then
+			userControls.showSkillOpt = value
+			UpdateUserBattleStatus(_, userName)
+		end
+	end
+
+	Configuration:AddListener("OnConfigurationChange", OnConfigurationChange)
+
 	-- This is always checked against main lobby.
 	userControls.needReinitialization = lobby.status ~= "connected"
 
@@ -1326,9 +1360,9 @@ function userHandler.GetBattleUser(userName, isSingleplayer)
 		autoResize     = true,
 		isInBattle     = true,
 		showReady      = true,
-		showRank       = WG.Chobby.Configuration.showRank,
-		showSkill      = WG.Chobby.Configuration.showSkill,
 		showCountry    = WG.Chobby.Configuration.showCountry,
+		showRank       = WG.Chobby.Configuration.showRank,
+		showSkillOpt   = WG.Chobby.Configuration.showSkillOpt,
 		showSync       = WG.Chobby.Configuration.showSync,
 		showModerator  = true,
 		showFounder    = true,
@@ -1344,6 +1378,8 @@ function userHandler.GetTooltipUser(userName)
 		suppressSync   = true,
 		showModerator  = true,
 		showFounder    = true,
+		showCountry    = WG.Chobby.Configuration.showCountry,
+		showRank       = WG.Chobby.Configuration.showRank,
 	})
 end
 
@@ -1362,6 +1398,7 @@ function userHandler.GetChannelUser(userName)
 	return _GetUser(channelUsers, userName, {
 		maxNameLength  = WG.Chobby.Configuration.chatMaxNameLength,
 		showModerator  = true,
+		showCountry    = true,
 	})
 end
 

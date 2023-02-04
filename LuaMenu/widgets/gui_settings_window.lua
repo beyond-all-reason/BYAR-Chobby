@@ -887,10 +887,47 @@ local function GetLobbyTabControls()
 	end)
 
 	children[#children + 1], offset = AddCheckboxSetting(offset, i18n("autoLaunchAsSpectator"), "autoLaunchAsSpectator", true)
-
-	children[#children + 1], offset = AddCheckboxSetting(offset, i18n("showRank"), "showRank", true, nil, i18n("showRanktooltip"))
-	children[#children + 1], offset = AddCheckboxSetting(offset, i18n("showSkill"), "showSkill", true, nil, i18n("showSkilltooltip"))
 	children[#children + 1], offset = AddCheckboxSetting(offset, i18n("showCountry"), "showCountry", true, nil, i18n("showCountrytooltip"))
+	children[#children + 1], offset = AddCheckboxSetting(offset, i18n("showRank"), "showRank", true, nil, i18n("showRanktooltip"))
+	children[#children + 1] = Label:New {
+		x = 20,
+		y = offset + TEXT_OFFSET,
+		width = 90,
+		height = 40,
+		valign = "top",
+		align = "left",
+		objectOverrideFont = settingsFont2,
+		caption = i18n("showSkill"),
+	}
+	local showSkillOptions = {"No", "Yes", "Detailed"}
+	local selectedShowSkillOption = 1
+	for k,v in ipairs(showSkillOptions) do
+		if v == Configuration.showSkillOpt then
+			selectedShowSkillOption = k
+		end
+	end
+
+	children[#children + 1] = ComboBox:New {
+		x = COMBO_X,
+		y = offset,
+		width = COMBO_WIDTH,
+		right = 18,
+		height = 30,
+		items = {"No", "Yes", "Detailed"},
+		objectOverrideFont = settingsFont2,
+		itemFontSize = Configuration:GetFont(2).size,
+		selected = Configuration.showSkillOpt or 1,
+		OnSelect = {
+			function (obj)
+				if freezeSettings then
+					return
+				end
+				Configuration:SetConfigValue("showSkillOpt", obj.selected)
+			end
+		},
+		tooltip = i18n("showSkillOpttooltip"),
+	}
+	offset = offset + ITEM_OFFSET
 
 	local randomSkirmishOption = Spring.GetConfigInt("randomSkirmishSetup", 1)
 	if randomSkirmishOption == 1 then
