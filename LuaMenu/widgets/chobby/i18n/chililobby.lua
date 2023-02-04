@@ -204,11 +204,11 @@ return {
 		filterbattleroom_tooltip = "Battleroom management bots are quite verbose, enable this if you want to see every debug message that the bots do (for SPADS)",
 
 		showRank = "Show rank icons",
-		showRanktooltip = "Requires a restart, Displays the rank icon next to the players name in the battleroom",
+		showRanktooltip = "Displays the rank icon next to the players name in the battleroom",
 		showSkill = "Show OpenSkill values",
-		showSkilltooltip = "Requires a restart, Displays the OpenSkill value next to the players name in the battleroom",
+		showSkillOpttooltip = "Displays the OpenSkill value next to the players name in the battleroom. On Detailed OS-uncertainty is reflected by color saturation of OS-value.",
 		showCountry = "Show country flags",
-		showCountrytooltip = "Requires a restart, Displays the country flag next to the players name in the battleroom",
+		showCountrytooltip = "Displays the country flag next to the players name in the battleroom",
 
 		-- gui_battle_room_window.lua
 
