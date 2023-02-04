@@ -116,7 +116,7 @@ function Configuration:init()
 	}
 
 	self.showRank    = true
-	self.showSkill   = false
+	self.showSkillOpt = 1 -- 1: No 2: Yes 3: Detailed (with Uncertainty)
 	self.showCountry = false
 
 	self.loadLocalWidgets = false
@@ -655,6 +655,7 @@ function Configuration:GetConfigData()
 		steamReleasePopupSeen = self.steamReleasePopupSeen,
 		campaignConfigName = self.campaignConfigName,
 		showSkill   = self.showSkill,
+		showSkillOpt   = self.showSkillOpt,
 		showRank    = self.showRank,
 		showCountry = self.showCountry,
 	}
