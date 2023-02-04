@@ -1138,11 +1138,12 @@ local function GetUserControls(userName, opts)
 		offset = offset + 21
 	end
 
-	if bs and showSide then
+	if showSide then
 		offset = offset + 2
 		local file = nil
+		bs = bs or {}
 		if bs.side ~= nil then
-			file = WG.Chobby.Configuration:GetSideById(battleStatus.side or 0).logo
+			file = WG.Chobby.Configuration:GetSideById(bs.side or 0).logo
 		end
 		userControls.imSide = Image:New {
 			name = "imSide",
@@ -1367,7 +1368,7 @@ function userHandler.GetBattleUser(userName, isSingleplayer)
 		showModerator  = true,
 		showFounder    = true,
 		showTeamColor  = not WG.Chobby.Configuration.gameConfig.disableColorChoosing,
-		showSide       = false,
+		showSide       = WG.Chobby.Configuration:GetSideData() ~= nil,
 		showHandicap   = WG.Chobby.Configuration.gameConfig.showHandicap,
 	})
 end
