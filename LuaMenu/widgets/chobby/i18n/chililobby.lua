@@ -136,6 +136,9 @@ return {
 		skip_tutorial = "Skip Tutorial",
 		rejoin = "Rejoin",
 		abandon = "Abandon",
+		resume = "Resume",
+		end_game = "End Game",
+		return_to_game = "Return",
 
 		tooltip_is_spectator = "You will spectate this game.",
 		tooltip_become_spectator = "Press to watch the game as a spectator.",
