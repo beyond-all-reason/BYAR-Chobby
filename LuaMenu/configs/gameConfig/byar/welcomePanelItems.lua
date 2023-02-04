@@ -17,6 +17,14 @@ local welcomePanelItems = {
     },
 
     {
+        Header = "New Map: The Halite Maze v1.2",
+        Time = nil,-- "NowTime",
+        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/the_halite_maze_v1.2.png",
+        Text = "New 12x8 duel map has arrived. Small rocky maze and sparse metal, beware of sneaky attacks!",
+    },
+
+
+    {
         Header = "Tournament: The Great Pro-Am Showdown has concluded!",
         -- Url = "https://www.beyondallreason.info/news/the-great-pro-am-showdown",
         Time = nil, -- "NowTime",
