@@ -752,7 +752,7 @@ local function GetUserControls(userName, opts)
 	local myBattleID = userControls.lobby:GetMyBattleID()
 	local userInfo = userControls.lobby:GetUser(userName) or {}
 	local isPlayerInBattle = userInfo and userInfo.battleID == myBattleID
-	local bs = lobby:GetUserBattleStatus(userName)
+	local bs = userControls.lobby:GetUserBattleStatus(userName)
 	local isPlaying = (bs and not bs.isSpectator) or false
 	if isPlayerInBattle then
 		local isPlaying = (bs and not bs.isSpectator) or false
