@@ -131,6 +131,7 @@ function Configuration:init()
 	self.multiplayerLaunchNewSpring = false
 	self.myAccountID = false
 	self.lastAddedAiName = false
+	self.multiplayerDifferentEngine = true
 
 	self.noNaiveConfigOverride = {
 		settingsMenuValues = true,
@@ -628,6 +629,7 @@ function Configuration:GetConfigData()
 		displayBadEngines2 = self.displayBadEngines2,
 		useWrongEngine = self.useWrongEngine,
 		multiplayerLaunchNewSpring = self.multiplayerLaunchNewSpring,
+		multiplayerDifferentEngine = self.multiplayerDifferentEngine,
 		doNotSetAnySpringSettings = self.doNotSetAnySpringSettings,
 		agressivelySetBorderlessWindowed = self.agressivelySetBorderlessWindowed,
 		fixedSettingsOverride = self.fixedSettingsOverride,

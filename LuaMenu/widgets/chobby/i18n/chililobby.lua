@@ -202,7 +202,8 @@ return {
 		displayBots_tooltip = "Shows various bots (TS ranking bot SLDB, battleroom host bots, user account management bots) in the chat channels if you need to interacti with them (you dont, unless you are developing)",
 		filterbattleroom = "Filter bot chatter",
 		filterbattleroom_tooltip = "Battleroom management bots are quite verbose, enable this if you want to see every debug message that the bots do (for SPADS)",
-
+		showTestingEngines = "Show Battles with Test Engine Versions",
+		showTestingEnginestooltip = "You need to start the launcher with Engine-Testing config to get latest engine before you can use different engines. Testing versions will open new window.",
 		showRank = "Show rank icons",
 		showRanktooltip = "Displays the rank icon next to the players name in the battleroom",
 		showSkill = "Show OpenSkill values",
