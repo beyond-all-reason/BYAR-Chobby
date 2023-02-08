@@ -64,6 +64,7 @@ local IMAGE_READY        = IMAGE_DIR .. "ready.png"
 local IMAGE_UNREADY      = IMAGE_DIR .. "unready.png"
 local IMAGE_DLREADY      = IMAGE_DIR .. "downloadready.png"
 local IMAGE_DLUNREADY    = IMAGE_DIR .. "downloadnotready.png"
+local IMAGE_DOWNLOAD     = IMAGE_DIR .. "download.png"
 local IMAGE_UNKNOWN_SYNC = IMAGE_DIR .. "unknown_sync.png"
 local IMAGE_ONLINE       = IMAGE_DIR .. "online.png"
 local IMAGE_OFFLINE      = IMAGE_DIR .. "offline.png"
@@ -449,7 +450,8 @@ local function getUserStatusImage(userName, userControls)
 			end
 		elseif userControls.isPlaying then
 			if not userControls.suppressSync and (bs and bs.sync and bs.sync == 2) then
-				statusImage = IMAGE_DLUNREADY
+				--statusImage = IMAGE_DLUNREADY
+				statusImage = IMAGE_DOWNLOAD
 			else
 				statusImage = GetUserReadyStatus(userName, userControls)
 			end
@@ -1061,7 +1063,7 @@ local function GetUserControls(userName, opts)
 		return userControls
 	end
 
-	if not isSingleplayer and isInBattle then
+	if not isSingleplayer and isInBattle and not suppressSync then
 		offset = offset + 1
 		userControls.imStatus = Image:New {
 			name = "imStatus",
