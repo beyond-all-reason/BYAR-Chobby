@@ -1061,7 +1061,7 @@ local function GetUserControls(userName, opts)
 		return userControls
 	end
 
-	if not isSingleplayer then
+	if not isSingleplayer and isInBattle then
 		offset = offset + 1
 		userControls.imStatus = Image:New {
 			name = "imStatus",
