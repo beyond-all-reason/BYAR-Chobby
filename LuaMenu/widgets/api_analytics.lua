@@ -385,6 +385,23 @@ local function ParseInfolog(infologpath)
 	return nil -- nil if nothing bad happened
 end
 
+local function GetDesyncGameStates()
+	local filenames = VFS.DirList('.') -- ipairs
+	for i=1, #filenames do
+		local filename = filenames[i]
+		--Spring.Echo("GetDesyncGameStates",filename)
+		if string.find("clientgamestate", string.lower(filename), nil, true) then
+			if onetimeEvents["reportedcrashes"][filename] ~= nil then -- we already reported this one
+				Spring.Echo("Already processed an error in ", filename)
+			else
+				Spring.Echo("Found a desync dump", filename )
+				local infolog = VFS.LoadFile(filename)
+				local compressedlog = Spring.Utilities.Base64Encode(VFS.ZlibCompress(infolog))
+				Analytics.SendCrashReportOneTimeEvent(filename, "SyncError", filename, compressedlog, false)
+			end
+		end
+	end
+end
 
 
 local function GetInfologs()
@@ -553,6 +570,7 @@ function DelayedInitialize()
 	Analytics.SendOnetimeEvent("graphics:tesselation", ((IsTesselationShaderSupported() and 1) or 0))
 	WG.Delay(LateHWInfo,15)
 	WG.Delay(GetInfologs,17)
+	WG.Delay(GetDesyncGameStates, 25)
 
 
 end
