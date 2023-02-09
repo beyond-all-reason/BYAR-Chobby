@@ -378,6 +378,38 @@ local function ParseInfolog(infologpath)
 				return "LuaUI", line, infolog
 			end
 
+			-- look for [t=00:33:31.687065][f=-000001] [Game::ClientReadNet][LOGMSG] sender="[VR]ASPITY" string="[PreGame::GameDataReceived][map-checksums]
+    --server=a82a750dea79b92416b2ead3539f83fed94bfa0f47388e3c6f4920be26c23d8ea43c122756d31dc52fed0a0cae1a84e6c990651ca382a11370a41c86a5e42035
+    --client=a09a7e4ffe6e8d8ebef211bfd90535ff53fe75f95d7b364540942f1904d701a096838746185a0f5f86fd5666abbe7d876b96742eb8d3ef5d5f39eb41ce46da98"
+			-- even better to look for
+			-- Warning: [PreGame::GameDataReceived] Archive Neurope_Remake 4.2 (checksum cc091213cdd23a15692e7a48e544359ebf8dadee8c7e8052da05c888a73389efaddaa1aec237b56db6b30d0ff351046f780f75a0c5aabf80be54239a0a0dc2bf) differs from the host's copy (checksum 7c4a6b5eab51a8267c46657eba90cd798d52279ed342726bbe1792776e7f6c919e5b2f2bb41abb026c9fd9d00ef9fffb208a08b679167dda3ded3ad70fae680b). This may be caused by a corrupted download or there may even be two different versions in circulation. Make sure you and the host have installed the chosen archive and its dependencies and consider redownloading it.
+			--[t=00:06:15.608100][f=-000001] Warning: [PreGame::GameDataReceived] Archive cbae29574a0be199788ccbf069893f08.sdp (checksum 6c219e06f97ada5da8058661932177d2b66c288109753e29334805c33b45582d266f9b8b8cc0506dfa1ca731be88f91a76bd40e0e8b9edecebb1209a41043189) differs from the host's copy (checksum ef4acd0211707eb8f0346e6d86eb0c0a571383d18416fdb9c8d5f899e7ebda51468edda0b2f743a3f9699327bae0e96eb046fa2768024ccaa7b9bbf7f814b858). This may be caused by a corrupted download or there may even be two different versions in circulation. Make sure you and the host have installed the chosen archive and its dependencies and consider redownloading it.
+			if string.find(line, 'differs from the host\'s copy (checksum ', nil, true) then
+				local archiveError = EscapeSlashesAndQuotes(line)
+				local _,startpos = string.find(line,'[PreGame::GameDataReceived] Archive ', nil, true)
+				local endpos = string.find(line,' (checksum', nil, true)
+				local whicharchive = "unknown archive"
+				if startpos and endpos then 
+					whicharchive = string.sub(line,startpos+1,endpos-1)
+				end
+				Analytics.SendRepeatEvent("lobby:archiveerror", {errorcode = archiveError})
+				if WG.Chotify then 
+					if string.find(whicharchive,'.sdp',nil,true) then
+						WG.Chotify:Post({
+							title = "Corrupted Game Archive",
+							body = "Please delete the BAR/data/pool/ and BAR/data/pkgs/ folders and restart the game launcher!",
+							time = 60,
+						})
+					else
+						WG.Chotify:Post({
+							title = "Corrupted Map Archive",
+							body = "Please delete the ".. whicharchive.." map from your BAR/data/maps folder and restart the game",
+							time = 60,
+						})
+					end
+				end
+			end
+
 		end
 	else
 		Spring.Echo("Failed to open:", infologpath)
