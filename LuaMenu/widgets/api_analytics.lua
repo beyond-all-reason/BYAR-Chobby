@@ -390,14 +390,20 @@ local function GetDesyncGameStates()
 	for i=1, #filenames do
 		local filename = filenames[i]
 		--Spring.Echo("GetDesyncGameStates",filename)
-		if string.find("clientgamestate", string.lower(filename), nil, true) then
+		if string.find(string.lower(filename), "clientgamestate", nil, true) then
 			if onetimeEvents["reportedcrashes"][filename] ~= nil then -- we already reported this one
 				Spring.Echo("Already processed an error in ", filename)
 			else
 				Spring.Echo("Found a desync dump", filename )
 				local infolog = VFS.LoadFile(filename)
+				if string.len(infolog) > 4000000 then 
+					infolog = string.sub(infolog,1,4000000)
+				end
+				local t0 = Spring.GetTimer()
 				local compressedlog = Spring.Utilities.Base64Encode(VFS.ZlibCompress(infolog))
+				local t1 = Spring.GetTimer()
 				Analytics.SendCrashReportOneTimeEvent(filename, "SyncError", filename, compressedlog, false)
+				Spring.Echo("Dump done in ", Spring.DiffTimers(Spring.GetTimer(), t1), Spring.DiffTimers(t1,t0))
 			end
 		end
 	end
