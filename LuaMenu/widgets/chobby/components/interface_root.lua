@@ -387,7 +387,7 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 	end
 
 	local function MakeExitPopup()
-		ConfirmationPopup(ConfirmationPopup.dispose, nil, nil, 315, 100, i18n("return_to_game"), i18n("exit"), ExitSpring)
+		ConfirmationPopup(ExitSpring, "Are you sure you want to quit?", nil, 315, 200)
 		return true
 	end
 
@@ -972,7 +972,7 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 
 		OnClick = {
 			function ()
-				ConfirmationPopup(ConfirmationPopup.dispose, nil, nil, 315, 100, i18n("resume"), i18n("end_game"), LeaveGameFunction)
+				ConfirmationPopup(LeaveGameFunction, "Are you sure you want to leave the game?", nil, 315, 200)
 			end
 		}
 	}
