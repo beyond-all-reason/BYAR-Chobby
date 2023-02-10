@@ -91,6 +91,7 @@ return {
 ['ReRaghnarok 1']={Width=20, Height=20, Is1v1=1, IsTeam=1, IsFFA=1, IsCertified=nil, Special=nil, Flat=1, Hills=1, Water=nil, IsInPool=1, PlayerCount=nil,TeamCount=nil,Author='Raghna', InfoText=nil},
 ['Ravaged_v2']={Width=8, Height=8, Is1v1=1, IsTeam=nil, IsFFA=nil, IsCertified=nil, Special=nil, Flat=1, Hills=nil, Water=nil, IsInPool=1, PlayerCount=nil,TeamCount=nil,Author='Beherith', InfoText=nil},
 ['Red Comet Remake 1.8']={Width=12, Height=8, Is1v1=1, IsTeam=nil, IsFFA=nil, IsCertified=1, Special=nil, Flat=1, Hills=nil, Water=nil, IsInPool=1, PlayerCount=nil,TeamCount=nil,Author='IceXuick', InfoText=nil},
+['Red Triangle Remake v1.2']={Width=18, Height=18, Is1v1=1, IsTeam=nil, IsFFA=1, IsCertified=1, Special=nil, Flat=nil, Hills=nil, Water=1, IsInPool=1, PlayerCount='9',TeamCount='3',Author='Nikuksis', InfoText='Red planet triangle.'},
 ['Red Rock Desert v1']={Width=14, Height=16, Is1v1=1, IsTeam=1, IsFFA=nil, IsCertified=1, Special=nil, Flat=1, Hills=nil, Water=1, IsInPool=1, PlayerCount='10',TeamCount='2',Author='Johannes', InfoText=nil},
 ['Requiem Outpost 1.0']={Width=24, Height=12, Is1v1=1, IsTeam=1, IsFFA=nil, IsCertified=1, Special=nil, Flat=1, Hills=1, Water=nil, IsInPool=1, PlayerCount='5',TeamCount='2',Author='IceXuick', InfoText='Survival map.'},
 ['Rifted_V2']={Width=16, Height=16, Is1v1=1, IsTeam=1, IsFFA=nil, IsCertified=1, Special=nil, Flat=1, Hills=nil, Water=nil, IsInPool=1, PlayerCount=nil,TeamCount=nil,Author='Beherith', InfoText=nil},

@@ -17,10 +17,10 @@ local welcomePanelItems = {
     },
 
     {
-        Header = "New Map: The Halite Maze v1.2",
+        Header = "New Map: Red Triangle Remake v1.2",
         Time = nil,-- "NowTime",
-        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/the_halite_maze_v1.2.png",
-        Text = "New 12x8 duel map has arrived. Small rocky maze and sparse metal, beware of sneaky attacks!",
+        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/red_triangle_remake_v1.2.png",
+        Text = "BAR Remake of old Total Annihilation classic map is now live!\nRemake by Nikuksis.",
     },
 
 
@@ -39,13 +39,6 @@ local welcomePanelItems = {
         Time = nil,-- "NowTime",
         Text = "Just select [Engine Test] in the launcher dropdown, and then play Skirmish and Multiplayer games. AMD testers especially needed. Report anything out of the ordinary to Discord!\n",
         UrlText = "BAR #engine channel on Discord"
-    },
-
-    {
-        Header = "New Map: Supreme Strait v1.3",
-        Time = nil,-- "NowTime",
-        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/supreme_strait_v1.3.png",
-        Text = "New 24x24 rework of a famous map, 8v8 capable.\nUpdated to v1.3!\nBy Nikuksis.",
     },
 
     {
