@@ -1155,6 +1155,44 @@ function Interface:RemoveQueueUser(name, userNames)
 	return self
 end
 
+-- return false, if devider wasn´t found
+local function myExplode(div, str)
+	local tags = explode(div, str)
+	if tags == str then
+		return false
+	end
+	return tags
+end
+
+-- parse following servermessage:
+-- s.battle.queue_status 573	moshman	PRO_rANDY	Karunel	mastere	Panalo	Erun	blackadam	acow_bar	PRO_GaMi
+function Interface:_OnSBattleQueueStatus(battleId, playerNamesStr)
+	-- basic input validation
+	battleId = tonumber(battleId)
+	if battleId == nil or battleId < 1 then
+		Spring.LOG(LOG_SECTION, LOG_WARNING, "[SERVERMESSAGE]s.battle.queue_status has invalid battleId")
+	end
+	local players = explode("\t", playerNamesStr)
+	if players == nil or players == "" then
+		Spring.LOG(LOG_SECTION, LOG_WARNING, "[SERVERMESSAGE]s.battle.queue_status without players")
+		return
+	end
+
+	-- parse players
+	-- first read = top queued
+	local queuedPlayers = {}
+	for _, playerStr in pairs(explode("\t", playerNamesStr)) do
+		table.insert(queuedPlayers, playerStr)
+	end
+
+	for k, v in pairs(queuedPlayers) do
+		Spring.Echo(tostring(k) .. ": " .. tostring(v))
+	end
+
+end
+Interface.commands["s.battle.queue_status"] = Interface._OnSBattleQueueStatus
+Interface.commandPattern["s.battle.queue_status"] = "(%S+)\t(.*)"
+
 ------------
 ------------
 -- TODO
