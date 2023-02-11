@@ -1,4 +1,11 @@
 local welcomePanelItems = {
+    {
+        Header = "Help BAR",
+        Url = "https://www.rockpapershotgun.com/vote-now-for-your-favourite-strategy-games-of-all-time",
+        Time = nil,-- "NowTime",
+        Text = "Attention all BAR enjoyers! Help BAR shine in just 3 minutes! Rock Paper Shotgun is holding a vote for the best RTS games and we need your help. Click the link in the title to cast your vote now before Feb. 15th 5pm GMT. Thank you for supporting BAR!\n",
+        UrlText = "Help"
+    },
 
     {
         Header = "Welcome to Beyond All Reason",
