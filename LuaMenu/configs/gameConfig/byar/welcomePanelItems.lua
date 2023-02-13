@@ -24,10 +24,24 @@ local welcomePanelItems = {
     },
 
     {
+        Header = "New Map: Theta Crystals v0.8",
+        Time = nil,-- "NowTime",
+        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/theta_crystals_0.8.png",
+        Text = "A new BAR Team map. Color palette based on Crystallized Plains by Moose.\nPlease play & test it! Remake by Phalange.",
+    },
+
+    {
         Header = "New Map: Red Triangle Remake v1.2",
         Time = nil,-- "NowTime",
         Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/red_triangle_remake_v1.2.png",
         Text = "BAR Remake of old Total Annihilation classic map is now live!\nRemake by Nikuksis.",
+    },
+
+    {
+        Header = "New Map: Crystallized Plains 1.01",
+        Time = nil,-- "NowTime",
+        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/Crystallized_Plains_1.01.png",
+        Text = "A 1vs1 map by Moose with dry rock flats and many colorful pillars.",
     },
 
 
@@ -46,13 +60,6 @@ local welcomePanelItems = {
         Time = nil,-- "NowTime",
         Text = "Just select [Engine Test] in the launcher dropdown, and then play Skirmish and Multiplayer games. AMD testers especially needed. Report anything out of the ordinary to Discord!\n",
         UrlText = "BAR #engine channel on Discord"
-    },
-
-    {
-        Header = "New Map: Crystallized Plains 1.01",
-        Time = nil,-- "NowTime",
-        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/Crystallized_Plains_1.01.png",
-        Text = "A 1vs1 map by Moose with dry rock flats and many colorful pillars.",
     },
 
     {
