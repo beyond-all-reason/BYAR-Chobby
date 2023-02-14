@@ -1487,6 +1487,42 @@ local function SortPlayersBySkill(a, b)
 	return joinA > joinB
 end
 
+local function SortPlayersByQueued(a, b)
+	local sA = battleLobby:GetUser(a.name)
+	local sB = battleLobby:GetUser(b.name)
+	local queuePosA = tonumber((sA and sA.queuedPos) or 0)
+	local queuePosB = tonumber((sB and sB.queuedPos) or 0)
+	Spring.Echo("type of a.name:"..type(a.name) .. " ="..tostring(a.name))
+	Spring.Echo("type of b.name:"..type(b.name) .. " ="..tostring(b.name))
+	Spring.Echo("type of queuePosA:"..type(queuePosA) .. " ="..tostring(queuePosA))
+	Spring.Echo("type of queusPosB:"..type(queuePosB) .. " ="..tostring(queuePosB))
+	Spring.Echo("sort result=" .. tostring(
+		((queuePosA > 0 and queuePosB > 0) and queuePosA < queuePosB) or 
+		((queuePosA > 0 and queuePosB == 0) and true) or 
+		((queuePosA == 0 and queuePosB > 0) and false) or
+		"no"))
+	if queuePosA > 0 and queuePosB > 0 then
+		return queuePosA < queuePosB
+	end
+	if queuePosA > 0 and queuePosB == 0 then
+		return true
+	end
+	if queuePosA == 0 and queuePosB > 0 then
+		return false
+	end
+	if string.lower(a.name) < string.lower(b.name) then
+		return true
+	end
+	return false
+	--if 
+	--return (
+	--	((queuePosA > 0 and queuePosB > 0) and queuePosA < queuePosB) or 
+	--	((queuePosA > 0 and queuePosB == 0) and true) or 
+	--	((queuePosA == 0 and queuePosB > 0) and false) or
+	--	
+	--	string.lower(a.name) < string.lower(b.name))
+end
+
 local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 
 	local SPACING = 24
@@ -1534,11 +1570,13 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 	local team = {}
 
 	local function PositionChildren(panel, minHeight)
+		Spring.Echo("PositionChildren mingHeight: " .. tostring(minHeight))
 		local children = panel.children
 
 		minHeight = minHeight - 10
 
 		local childrenCount = #children
+		Spring.Echo("PositionChildren #children: " .. tostring(#children))
 		local bottomBuffer = 0
 
 		local totalHeight = 0
@@ -1597,6 +1635,10 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 
 			local humanName, parentStack, parentScroll
 			if teamIndex == -1 then
+				humanName = "Queue"
+				parentStack = spectatorStackPanel
+				parentScroll = spectatorScrollPanel
+			elseif teamIndex == -2 then
 				humanName = "Spectators"
 				parentStack = spectatorStackPanel
 				parentScroll = spectatorScrollPanel
@@ -1634,7 +1676,7 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 				caption = humanName,
 				parent = teamHolder,
 			}
-			if teamIndex ~= -1 then
+			if teamIndex ~= -1 and teamIndex ~= -2 then
 				local seperator = Line:New {
 					x = 0,
 					y = 25,
@@ -1675,9 +1717,20 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 			}
 
 			local function UpdatePlayerPositions()
-				if teamIndex ~= -1 then
+				if teamIndex ~= -1 and teamIndex ~= -2 then
 					table.sort(teamStack.children, SortPlayersBySkill)
+				else
+					table.sort(teamStack.children, SortPlayersByQueued)
+					
+					for k,v in pairs(teamStack.children) do
+						if type(v) == "table" then
+							Spring.Echo(tostring(k).. " > ".. tostring(v.name))
+						else
+							Spring.Echo(tostring(k) .. " >> " .. tostring(v))
+						end
+					end
 				end
+
 				local position = 1
 
 				for i = 1, #teamStack.children do
@@ -1691,9 +1744,10 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 				teamHolder:Invalidate()
 			end
 
-			if teamIndex == -1 then
+			if teamIndex == -1 or teamIndex == -2 then
 				-- Empty spectator team is created. Position children to prevent flicker.
 				PositionChildren(parentStack, parentScroll.height)
+				teamHolder:SetVisibility(false)
 			end
 
 			local teamData = {}
@@ -1757,6 +1811,7 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 				end
 				if not teamStack:GetChildByName(playerControl.name) then
 					teamStack:AddChild(playerControl)
+					teamHolder:SetVisibility(true)
 					UpdatePlayerPositions()
 				end
 			end
@@ -1822,6 +1877,11 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 				end
 
 				teamData.CheckRemoval()
+				Spring.Echo("RemoveTeam, children: " .. tostring(#teamStack.children) .. " : " .. tostring(#teamStack.children))
+				if #teamStack.children == 0 then
+					Spring.Echo("teamStack 0")
+					teamHolder:SetVisibility(false)
+				end
 				PositionChildren(parentStack, parentScroll.height)
 			end
 
@@ -1844,7 +1904,9 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 		end
 	end
 
-	GetTeam(-1) -- Make Spectator heading appear
+	GetTeam(-1) -- Make Queue heading appear
+	GetTeam(-2) -- Make Spectator heading appear
+
 	GetTeam(0) -- Always show two teams in custom battles
 	if not (disallowCustomTeams and disallowBots) then
 		GetTeam(1)
@@ -1887,7 +1949,13 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 
 	function externalFunctions.UpdateUserTeamStatus(userName, allyNumber, isSpectator)
 		if isSpectator then
-			allyNumber = -1
+			allyNumber = -2
+			local userInfo = lobby:TryGetUser(userName)
+			if (userInfo and userInfo.queuedPos) then
+				Spring.Echo("queuedPos: " .. tostring(userInfo.queuedPos))
+				allyNumber = userInfo.queuedPos and -1 or -2
+			end
+			Spring.Echo("UpdateUserTeamStatus userName:" .. userName .. " alyNumber:" .. tostring(allyNumber))
 		end
 		local playerData = GetPlayerData(userName)
 		if playerData.team == allyNumber then

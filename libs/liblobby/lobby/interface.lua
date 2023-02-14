@@ -1166,32 +1166,44 @@ end
 
 -- parse following servermessage:
 -- s.battle.queue_status 573	moshman	PRO_rANDY	Karunel	mastere	Panalo	Erun	blackadam	acow_bar	PRO_GaMi
-function Interface:_OnSBattleQueueStatus(battleId, playerNamesStr)
+-- s.battle.queue_status\t<battleID>\t<userName1>\t<userName2>...
+function Interface:_OnSBattleQueueStatus(battleId, userNamesChain)
+	Spring.Echo("_OnSBattleQueueStatus battleId:"..battleId.." userNamesChain:"..userNamesChain)
+	
 	-- basic input validation
 	battleId = tonumber(battleId)
 	if battleId == nil or battleId < 1 then
 		Spring.LOG(LOG_SECTION, LOG_WARNING, "[SERVERMESSAGE]s.battle.queue_status has invalid battleId")
-	end
-	local players = explode("\t", playerNamesStr)
-	if players == nil or players == "" then
-		Spring.LOG(LOG_SECTION, LOG_WARNING, "[SERVERMESSAGE]s.battle.queue_status without players")
 		return
 	end
-
-	-- parse players
-	-- first read = top queued
-	local queuedPlayers = {}
-	for _, playerStr in pairs(explode("\t", playerNamesStr)) do
-		table.insert(queuedPlayers, playerStr)
+	local userNames = explode("\t", userNamesChain)
+	
+	local queuedUserNames = {}
+	if userNames == nil or userNames == "" or userNames[1] == nil and userNames[1] == "" then
+		Spring.Echo("[SERVERMESSAGE]Empty Queue" .. tostring(userNames) .. " : " .. tostring(userNames[1]) .. " : " .. tostring(userNames[2]))
+	else
+		-- parse userNames
+		-- first read = top queued
+		local numUsers = 0
+		for pos, userName in pairs(userNames) do
+			if userName ~= nil and userName ~= "" then
+				numUsers = numUsers + 1
+				queuedUserNames[userName] = numUsers
+			else
+				Spring.Echo("error userName for pos: " .. tostring(pos))
+			end
+		end
 	end
+	Spring.Echo("numUsers:"..tostring(numUsers))
 
-	for k, v in pairs(queuedPlayers) do
+	for k, v in pairs(queuedUserNames) do
 		Spring.Echo(tostring(k) .. ": " .. tostring(v))
 	end
+	self:_OnUpdateBattleQueue(queuedUserNames)
 
 end
 Interface.commands["s.battle.queue_status"] = Interface._OnSBattleQueueStatus
-Interface.commandPattern["s.battle.queue_status"] = "(%S+)\t(.*)"
+Interface.commandPattern["s.battle.queue_status"] = "(%d+)%s*(.*)"
 
 ------------
 ------------
