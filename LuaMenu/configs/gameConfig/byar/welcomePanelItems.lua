@@ -24,17 +24,17 @@ local welcomePanelItems = {
     },
 
     {
+        Header = "New Map: Red River Remake v1.1",
+        Time = nil,-- "NowTime",
+        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/red_river_remake_v1.1.png",
+        Text = "BAR Remakes of old Total Annihilation classic maps continues with a new 20x28 map!\nRemake by Nikuksis.",
+    },
+
+    {
         Header = "New Map: Theta Crystals v0.8",
         Time = nil,-- "NowTime",
         Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/theta_crystals_0.8.png",
         Text = "A new BAR Team map. Color palette based on Crystallized Plains by Moose.\nPlease play & test it! Remake by Phalange.",
-    },
-
-    {
-        Header = "New Map: Red Triangle Remake v1.2",
-        Time = nil,-- "NowTime",
-        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/red_triangle_remake_v1.2.png",
-        Text = "BAR Remake of old Total Annihilation classic map is now live!\nRemake by Nikuksis.",
     },
 
     {
