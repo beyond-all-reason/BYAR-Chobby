@@ -411,7 +411,8 @@ local function GetDesyncGameStates()
 		local filename = filenames[i]
 		--Spring.Echo("GetDesyncGameStates",filename)
 		if string.find(string.lower(filename), "clientgamestate", nil, true) then
-			if onetimeEvents["reportedcrashes"][filename] ~= nil then -- we already reported this one
+			-- REVERT THIS CHECK INA DAY OR TWO
+			if false and onetimeEvents["reportedcrashes"][filename] ~= nil then -- we already reported this one
 				Spring.Echo("Already processed an error in ", filename)
 			else
 				Spring.Echo("Found a desync dump", filename )
