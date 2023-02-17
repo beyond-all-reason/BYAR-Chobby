@@ -419,8 +419,8 @@ local function GetDesyncGameStates()
 				if infolog == nil then
 					Spring.Echo("Failed to load desync dump", filename)
 				end
-				if string.len(infolog) > 4000000 then 
-					infolog = string.sub(infolog,1,4000000)
+				if string.len(infolog) > 16000000 then 
+					infolog = string.sub(infolog,1,16000000)
 				end
 				local t0 = Spring.GetTimer()
 				infolog = ascii(infolog)
