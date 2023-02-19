@@ -22,6 +22,13 @@ local welcomePanelItems = {
         Text = "Requiem has created some guides for new players. If you're new to the game and want to learn the basics via video we highly recommend you check them out.\n",
         UrlText = "Watch video guides"
     },
+    
+    {
+        Header = "New Map: Eight Horses 1.0,
+        Time = nil,-- "NowTime",
+        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/eight_horses_1.0.png",
+        Text = "A new 8v8 map by RebelNode. Guide your horse through this barren landscape, but be vary of enemy horses pushing your way.",
+    },
 
     {
         Header = "New Map: Red River Remake v1.1",
