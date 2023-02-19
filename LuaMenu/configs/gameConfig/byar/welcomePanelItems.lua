@@ -22,6 +22,14 @@ local welcomePanelItems = {
         Text = "Requiem has created some guides for new players. If you're new to the game and want to learn the basics via video we highly recommend you check them out.\n",
         UrlText = "Watch video guides"
     },
+    
+    
+    {
+        Header = "New Map: Pawn Retreat 1.2",
+        Time = nil,-- "NowTime",
+        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/pawn_retreat_1.2.png",
+        Text = "A new team game map capable of 8v8 by RebelNode.",
+    },
 
     {
         Header = "New Map: Red River Remake v1.1",
