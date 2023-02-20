@@ -22,26 +22,26 @@ local welcomePanelItems = {
         Text = "Requiem has created some guides for new players. If you're new to the game and want to learn the basics via video we highly recommend you check them out.\n",
         UrlText = "Watch video guides"
     },
-
+    
     {
-        Header = "New Map: Red River Remake v1.1",
+        Header = "New Map: Eight Horses 1.0",
         Time = nil,-- "NowTime",
-        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/red_river_remake_v1.1.png",
-        Text = "BAR Remakes of old Total Annihilation classic maps continues with a new 20x28 map!\nRemake by Nikuksis.",
+        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/eight_horses_1.0.png",
+        Text = "A new 8v8 map by RebelNode. Guide your horse through this barren landscape, but be vary of enemy horses pushing your way.",
+    },
+    
+    {
+        Header = "New Map: Ancient Vault 1.0",
+        Time = nil,-- "NowTime",
+        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/ancient_vault_v1.0.png",
+        Text = "A new PVE or team game map by Nikuksis.\nUse North vs South boxes for PVE battle or West vs East for a team game.\nTry to catch your prize from an abandoned vault.",
     },
 
     {
-        Header = "New Map: Theta Crystals v0.8",
+        Header = "New Map: Pawn Retreat 1.2",
         Time = nil,-- "NowTime",
-        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/theta_crystals_0.8.png",
-        Text = "A new BAR Team map. Color palette based on Crystallized Plains by Moose.\nPlease play & test it! Remake by Phalange.",
-    },
-
-    {
-        Header = "New Map: Crystallized Plains 1.01",
-        Time = nil,-- "NowTime",
-        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/Crystallized_Plains_1.01.png",
-        Text = "A 1vs1 map by Moose with dry rock flats and many colorful pillars.",
+        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/pawn_retreat_1.2.png",
+        Text = "A new team game map capable of 8v8 by RebelNode.",
     },
 
 
