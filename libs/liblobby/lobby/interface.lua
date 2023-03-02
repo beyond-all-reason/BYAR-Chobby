@@ -1155,55 +1155,47 @@ function Interface:RemoveQueueUser(name, userNames)
 	return self
 end
 
--- return false, if devider wasn´t found
-local function myExplode(div, str)
-	local tags = explode(div, str)
-	if tags == str then
-		return false
-	end
-	return tags
-end
-
 -- parse following servermessage:
--- s.battle.queue_status 573	moshman	PRO_rANDY	Karunel	mastere	Panalo	Erun	blackadam	acow_bar	PRO_GaMi
--- s.battle.queue_status\t<battleID>\t<userName1>\t<userName2>...
+-- s.battle.queue_status\s<battleID>\t<userName1>\t<userName2>...
 function Interface:_OnSBattleQueueStatus(battleId, userNamesChain)
 	Spring.Echo("_OnSBattleQueueStatus battleId:"..battleId.." userNamesChain:"..userNamesChain)
 	
 	-- basic input validation
 	battleId = tonumber(battleId)
 	if battleId == nil or battleId < 1 then
-		Spring.LOG(LOG_SECTION, LOG_WARNING, "[SERVERMESSAGE]s.battle.queue_status has invalid battleId")
+		Spring.LOG(LOG_SECTION, LOG_WARNING, "s.battle.queue_status with invalid battleId received:", tostring(battleId))
 		return
 	end
 	local userNames = explode("\t", userNamesChain)
 	
 	local queuedUserNames = {}
-	if userNames == nil or userNames == "" or userNames[1] == nil and userNames[1] == "" then
-		Spring.Echo("[SERVERMESSAGE]Empty Queue" .. tostring(userNames) .. " : " .. tostring(userNames[1]) .. " : " .. tostring(userNames[2]))
-	else
-		-- parse userNames
-		-- first read = top queued
-		local numUsers = 0
-		for pos, userName in pairs(userNames) do
-			if userName ~= nil and userName ~= "" then
-				numUsers = numUsers + 1
-				queuedUserNames[userName] = numUsers
-			else
-				Spring.Echo("error userName for pos: " .. tostring(pos))
-			end
+
+	-- validate, if each userName has at least more than 0 characters(empty queue = first and only userName is empty)
+	for pos, userName in pairs(userNames) do
+		if userName ~= nil and userName ~= "" then
+			--queuedUserNames[userName] = numUsers
+			table.insert(queuedUserNames, userName)
+		else
+			Spring.Echo("error userName for pos: " .. tostring(pos))
 		end
 	end
-	Spring.Echo("numUsers:"..tostring(numUsers))
 
-	for k, v in pairs(queuedUserNames) do
-		Spring.Echo(tostring(k) .. ": " .. tostring(v))
+	Spring.Echo("numUsers:"..tostring(#queuedUserNames))
+
+--for k, v in pairs(queuedUserNames) do
+--	Spring.Echo(tostring(k) .. ": " .. tostring(v))
+--	-- local status = {}
+--	-- status.queuPos = tostring(v)
+--	-- local userName = v
+--	-- self:_OnUpdateUserBattleStatus(userName, status)
+--end
+	if #queuedUserNames > 0 then
+		self:_OnUpdateBattleQueue(battleId, queuedUserNames)
 	end
-	self:_OnUpdateBattleQueue(queuedUserNames)
 
 end
 Interface.commands["s.battle.queue_status"] = Interface._OnSBattleQueueStatus
-Interface.commandPattern["s.battle.queue_status"] = "(%d+)%s*(.*)"
+Interface.commandPattern["s.battle.queue_status"] = "(%d+)%s*(.*)" -- * on %s because the part right of %d can be total empty for an empty queue
 
 ------------
 ------------

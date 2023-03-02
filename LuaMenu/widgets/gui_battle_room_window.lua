@@ -3009,7 +3009,8 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 
 	-- Lobby interface
 	local function OnUpdateUserBattleStatus(listener, username, status)
-
+		-- Spring.Utilities.TraceFullEcho()
+		Spring.Echo("OnUpdateUserBattleStatus username:" .. tostring(username))
 		if username ~= battleLobby.myUserName then return end
 
 		WG.Chobby.Configuration:SetConfigValue("lastGameSpectatorState", status.isSpectator)
@@ -3038,6 +3039,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	end
 
 	local function OnUpdateUserTeamStatus(listener, userName, allyNumber, isSpectator)
+		Spring.Echo("room:OnUpdateUserTeamStatus userName:" .. tostring(userName) .. " allyNumber:" .. tostring(allyNumber) .. " isSpectator:" .. tostring(isSpectator))
 		--votePanel.VoteButtonVisible(isSpectator == false)
 		infoHandler.UpdateUserTeamStatus(userName, allyNumber, isSpectator)
 		playerHandler.UpdateUserTeamStatus(userName, allyNumber, isSpectator)
