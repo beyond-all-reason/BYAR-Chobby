@@ -17,26 +17,25 @@ local welcomePanelItems = {
     },
     
     {
-        Header = "New Map: Eight Horses 1.0",
+        Header = "New Map: Starwatcher 0.7",
         Time = nil,-- "NowTime",
-        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/eight_horses_1.0.png",
-        Text = "A new 8v8 map by RebelNode. Guide your horse through this barren landscape, but be vary of enemy horses pushing your way.",
+        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/starwatcher_0.7.png",
+        Text = "A new 8v8 map by Phalange. Sandy slopes are vehicle passable. Most ridges are bots passable.",
     },
     
     {
-        Header = "New Map: Ancient Vault 1.0",
+        Header = "New OTA map remake: The Cold Place",
         Time = nil,-- "NowTime",
-        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/ancient_vault_v1.0.png",
-        Text = "A new PVE or team game map by Nikuksis.\nUse North vs South boxes for PVE battle or West vs East for a team game.\nTry to catch your prize from an abandoned vault.",
+        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/the_cold_place_BAR_v1.1.png",
+        Text = "New vision of old classic map. Up to 6 players, Teams or 3-way FFA map.\nBy Nikuksis.",
     },
-
+    
     {
-        Header = "New Map: Pawn Retreat 1.2",
+        Header = "Ancient Vault updated to v1.2",
         Time = nil,-- "NowTime",
-        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/pawn_retreat_1.2.png",
-        Text = "A new team game map capable of 8v8 by RebelNode.",
+        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/ancient_vault_v1.2.png",
+        Text = "All wrecks are now ressurectable, though they need some metal for repair.",
     },
-
 
     {
         Header = "Tournament: The Great Pro-Am Showdown has concluded!",
