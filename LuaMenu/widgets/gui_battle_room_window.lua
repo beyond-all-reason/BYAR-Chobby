@@ -3024,7 +3024,9 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		Spring.Echo("OnUpdateUserBattleStatus username:" .. tostring(username))
 		if username ~= battleLobby.myUserName then return end
 
-		WG.Chobby.Configuration:SetConfigValue("lastGameSpectatorState", status.isSpectator)
+		if status.isSpectator then
+			WG.Chobby.Configuration:SetConfigValue("lastGameSpectatorState", status.isSpectator)
+		end
 
 		if battleLobby.name ~= "singleplayer" then
             readyButton:SetEnabled(not status.isSpectator)

@@ -151,20 +151,21 @@ end
 -- Battle commands
 ------------------------
 
+-- 2023-03-08 Fireball: stop interface from changing battleStatus - just call onUpdateUserBattleStatus and make lobby do the job
 local function UpdateAndCreateMerge(userData, status)
 	local battleStatus = {}
 	local updated = false
 	if status.isReady ~= nil then
 		updated = updated or userData.isReady ~= status.isReady
 		battleStatus.isReady = status.isReady
-		userData.isReady     = status.isReady
+		-- userData.isReady     = status.isReady
 	else
 		battleStatus.isReady = userData.isReady -- self:GetMyIsReady()
 	end
 	if status.teamNumber ~= nil then
 		updated = updated or userData.teamNumber ~= status.teamNumber
 		battleStatus.teamNumber = status.teamNumber
-		userData.teamNumber     = status.teamNumber
+		-- userData.teamNumber     = status.teamNumber
 	else
 		battleStatus.teamNumber = userData.teamNumber or 0 -- self:GetMyTeamNumber() or 0
 	end
@@ -179,35 +180,35 @@ local function UpdateAndCreateMerge(userData, status)
 			end
 		end
 		battleStatus.teamColor = status.teamColor
-		userData.teamColor     = status.teamColor
+		-- userData.teamColor     = status.teamColor
 	else
 		battleStatus.teamColor = userData.teamColor -- self:GetMyTeamColor()
 	end
 	if status.allyNumber ~= nil then
 		updated = updated or userData.allyNumber ~= status.allyNumber
 		battleStatus.allyNumber = status.allyNumber
-		userData.allyNumber     = status.allyNumber
+		-- userData.allyNumber     = status.allyNumber
 	else
 		battleStatus.allyNumber = userData.allyNumber or 0 -- self:GetMyAllyNumber() or 0
 	end
 	if status.isSpectator ~= nil then
 		updated = updated or userData.isSpectator ~= status.isSpectator
 		battleStatus.isSpectator = status.isSpectator
-		userData.isSpectator     = status.isSpectator
+		-- userData.isSpectator     = status.isSpectator
 	else
 		battleStatus.isSpectator = userData.isSpectator -- self:GetMyIsSpectator()
 	end
 	if status.sync ~= nil then
 		updated = updated or userData.sync ~= status.sync
 		battleStatus.sync = status.sync
-		userData.sync     = status.sync
+		-- userData.sync     = status.sync
 	else
 		battleStatus.sync = userData.sync -- self:GetMySync()
 	end
 	if status.side ~= nil then
 		updated = updated or userData.side ~= status.side
 		battleStatus.side = status.side
-		userData.side     = status.side
+		-- userData.side     = status.side
 	else
 		battleStatus.side = userData.side or 0 -- self:GetMySide() or 0
 	end
@@ -339,11 +340,7 @@ function Interface:SetBattleStatus(status)
 	-- they get confirmed from the server, otherwise we end up sending different info
 	-- 2020/02/12: Problem partially fixed by ignoring battleStatus that result in no update
 	-- 2021/01/21: Which had the unfortunate side effect of not sending the first REQUESTBATTLESTATUS response
-	-- 2023/03/03 Fireball: This function (called SetBattleStatus at the time of writing) mixed up 2 purposes:
-	-- 1. 
-	-- This function was stopped from precessing before, when not called during RequestBattleStatus.
-	--                      So made it a dummy. Remaining 
-	--                      Instead, handle whole answer inside this function (and not 2 times here and in gui_battle_room_window ... leading to 2 answers in perspective of server)
+
 	local myUserName = self:GetMyUserName()
 	if not self.userBattleStatus[myUserName] then
 		self.userBattleStatus[myUserName] = {}
@@ -1729,7 +1726,7 @@ function Interface:_OnRequestBattleStatus()
 	-- 6.3.23 Fireball: moved the action from the only listener to OnRequestBattleStatus in whole chobby from gui_battle_room_window.lua to here
 	--                  and don´t call listeners of OnRequestBattleStatus anymore
 	local battleStatus = self.userBattleStatus[self:GetMyUserName()] -- chobby doesn´t delete battleStatus on leaveBattle - maybe we find sth. left from prior session for this host, which we can make use of
-
+	self._requestedBattleStatus = true -- allow SetBattleStatus
 	if battleStatus then
 		Spring.Echo("battleStatus.isSpectator or (WG.Chobby.Configuration.lastGameSpectatorState or false)", battleStatus.isSpectator or (WG.Chobby.Configuration.lastGameSpectatorState or false))
 	Spring.Echo("battleStatus.isSpectator or WG.Chobby.Configuration.lastGameSpectatorState or false", battleStatus.isSpectator or WG.Chobby.Configuration.lastGameSpectatorState or false)
@@ -1761,8 +1758,6 @@ function Interface:_OnRequestBattleStatus()
 			-- },
 		})
 	end
-	-- cancel prohibiton to use SetBattleStatus for others
-	self._requestedBattleStatus = true
 end
 Interface.commands["REQUESTBATTLESTATUS"] = Interface._OnRequestBattleStatus
 
