@@ -324,7 +324,11 @@ function Interface:LeaveBattle()
 end
 
 function Interface:SetBattleStatus(status)
+	for k,v in pairs(status) do
+		Spring.Echo("SetBattleStatus param status k:", k, " v:", v)
+	end
 	if not self._requestedBattleStatus then
+		Spring.Echo("SetBattleStatus canceld")	
 		return
 	end
 	self:super("SetBattleStatus", status)
@@ -1721,12 +1725,17 @@ Interface.commandPattern["REMOVESTARTRECT"] = "(%d+)"
 -- This request is sent once by the server, directly after hosting or joining a battle
 -- since we do not have any battleStatus(in most cases), we generate a default one
 function Interface:_OnRequestBattleStatus()
+	Spring.Echo("_OnRequestBattleStatus: WG.Chobby.Configuration.lastGameSpectatorState: ", WG.Chobby.Configuration.lastGameSpectatorState)
 	-- 6.3.23 Fireball: moved the action from the only listener to OnRequestBattleStatus in whole chobby from gui_battle_room_window.lua to here
 	--                  and don´t call listeners of OnRequestBattleStatus anymore
 	local battleStatus = self.userBattleStatus[self:GetMyUserName()] -- chobby doesn´t delete battleStatus on leaveBattle - maybe we find sth. left from prior session for this host, which we can make use of
+
 	if battleStatus then
+		Spring.Echo("battleStatus.isSpectator or (WG.Chobby.Configuration.lastGameSpectatorState or false)", battleStatus.isSpectator or (WG.Chobby.Configuration.lastGameSpectatorState or false))
+	Spring.Echo("battleStatus.isSpectator or WG.Chobby.Configuration.lastGameSpectatorState or false", battleStatus.isSpectator or WG.Chobby.Configuration.lastGameSpectatorState or false)
+		Spring.Echo("_OnRequestBattleStatus: battleStatus true")
 		self:SetBattleStatus({
-			isSpectator = battleStatus.isSpectator or WG.Chobby.Configuration.lastGameSpectatorState or false,
+			isSpectator = battleStatus.isSpectator or (WG.Chobby.Configuration.lastGameSpectatorState or false),
 			isReady = false,
 			side = battleStatus.side == nil and WG.Chobby.Configuration.lastFactionChoice or battleStatus.side ,
 			sync = (haveMapAndGame and 1) or 2, -- 0 = unknown, 1 = synced, 2 = unsynced
@@ -1738,6 +1747,7 @@ function Interface:_OnRequestBattleStatus()
 			-- },
 		})
 	else
+		Spring.Echo("_OnRequestBattleStatus: battleStatus false", (WG.Chobby.Configuration.lastGameSpectatorState or false))
 		self:SetBattleStatus({
 			isSpectator = (WG.Chobby.Configuration.lastGameSpectatorState or false),
 			isReady = false,
