@@ -564,6 +564,7 @@ function Configuration:SetConfigData(data)
 end
 
 function Configuration:GetConfigData()
+	Spring.Echo("self.autoLaunchAsSpectator: ", self.autoLaunchAsSpectator)
 	return {
 		autoLaunchAsSpectator = self.autoLaunchAsSpectator,
 		serverAddress = self.serverAddress,

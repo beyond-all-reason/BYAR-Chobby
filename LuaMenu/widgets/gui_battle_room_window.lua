@@ -1271,10 +1271,13 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	end
 
 	function externalFunctions.JoinedBattle(joinedBattleId, userName)
+		Spring.Echo("room:Ext:JoinedBattle joinedBattleId: " .. tostring(joinedBattleId) .. " userName: " .. tostring(userName) .. " battleID: " .. tostring(battleID))
 		if battleID ~= joinedBattleId or userName == battleLobby:GetMyUserName() then
+		-- if battleID ~= joinedBattleId then
+			Spring.Echo("Ext:JoinedBattle battleID ~= joinedBattleId or UserName == myUserNAme")
 			return
 		else
-			--Spring.Echo('JoinedBattle(joinedBattleId, userName)',joinedBattleId, userName)
+			Spring.Echo('Ext:JoinedBattle(joinedBattleId, userName)',joinedBattleId, userName)
 
 			local iAmFirstPlayer = true
 			local playersthatarentme = 0
@@ -1488,10 +1491,12 @@ local function SortPlayersBySkill(a, b)
 end
 
 local function SortPlayersByQueued(a, b)
-	local sA = battleLobby:GetUser(a.name)
-	local sB = battleLobby:GetUser(b.name)
-	local queuePosA = tonumber((sA and sA.queuedPos) or 0)
-	local queuePosB = tonumber((sB and sB.queuedPos) or 0)
+	-- local sA = battleLobby:GetUser(a.name)
+	local sA = battleLobby:GetUserBattleStatus(a.name)
+	-- local sB = battleLobby:GetUser(b.name)
+	local sB = battleLobby:GetUserBattleStatus(b.name)
+	local queuePosA = tonumber((sA and sA.queuePos) or 0)
+	local queuePosB = tonumber((sB and sB.queuePos) or 0)
 	Spring.Echo("type of a.name:"..type(a.name) .. " ="..tostring(a.name))
 	Spring.Echo("type of b.name:"..type(b.name) .. " ="..tostring(b.name))
 	Spring.Echo("type of queuePosA:"..type(queuePosA) .. " ="..tostring(queuePosA))
@@ -1623,6 +1628,7 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 	end
 
 	local function GetTeam(teamIndex)
+		Spring.Echo("Room:GetTeam teamIndex received: " .. tostring(teamIndex))	
 		teamIndex = teamIndex or -1
 		if not team[teamIndex] then
 			if teamIndex == emptyTeamIndex then
@@ -1720,6 +1726,7 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 				if teamIndex ~= -1 and teamIndex ~= -2 then
 					table.sort(teamStack.children, SortPlayersBySkill)
 				else
+					Spring.Echo("Sorting teamIndex: " .. tostring(teamIndex))
 					table.sort(teamStack.children, SortPlayersByQueued)
 					
 					for k,v in pairs(teamStack.children) do
@@ -1797,8 +1804,10 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 			end
 
 			function teamData.AddPlayer(name)
+				Spring.Echo("teamData.Addplayer teamIndex: " .. tostring(teamIndex) .. " name: " .. tostring(name) )
 				local playerData = GetPlayerData(name)
 				if playerData.team == teamIndex then
+					Spring.Echo("teamData.Addplayer team: " .. tostring(playerData.team) .. " = teamIndex, return")
 					return
 				end
 				playerData.team = teamIndex
@@ -1887,6 +1896,7 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 
 			team[teamIndex] = teamData
 		end
+		Spring.Echo("Room:GetTeam teamIndex returned: " .. tostring(teamIndex))	
 		return team[teamIndex]
 	end
 
@@ -1951,9 +1961,10 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 		if isSpectator then
 			allyNumber = -2
 			local userInfo = lobby:TryGetUser(userName)
-			if (userInfo and userInfo.queuedPos) then
-				Spring.Echo("queuedPos: " .. tostring(userInfo.queuedPos))
-				allyNumber = userInfo.queuedPos and -1 or -2
+			local battleStatus = battleLobby:GetUserBattleStatus(userName)
+			if (battleStatus ~= nil and battleStatus.queuePos and battleStatus.queuePos > 0) then
+				Spring.Echo("queuePos: " .. tostring(battleStatus.queuePos))
+				allyNumber = -1
 			end
 			Spring.Echo("UpdateUserTeamStatus userName:" .. userName .. " alyNumber:" .. tostring(allyNumber))
 		end
@@ -3067,8 +3078,10 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	end
 
 	local function OnJoinedBattle(listener, joinedBattleId, userName)
+		Spring.Echo("Room:OnJoinedBattle joinedBattleId: " .. tostring(joinedBattleId) .. " userName: " .. tostring(userName))
 		infoHandler.JoinedBattle(joinedBattleId, userName)
 		lastUserToChangeStartBoxes = battleLobby:GetBattle(joinedBattleId).founder
+		Spring.Echo("lastUserToChangeStartBoxes (founder): " .. tostring(lastUserToChangeStartBoxes) )
 	end
 
 	local function OnRemoveAi(listener, botName)

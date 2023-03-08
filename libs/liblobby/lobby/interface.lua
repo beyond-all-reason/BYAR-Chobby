@@ -335,6 +335,11 @@ function Interface:SetBattleStatus(status)
 	-- they get confirmed from the server, otherwise we end up sending different info
 	-- 2020/02/12: Problem partially fixed by ignoring battleStatus that result in no update
 	-- 2021/01/21: Which had the unfortunate side effect of not sending the first REQUESTBATTLESTATUS response
+	-- 2023/03/03 Fireball: This function (called SetBattleStatus at the time of writing) mixed up 2 purposes:
+	-- 1. 
+	-- This function was stopped from precessing before, when not called during RequestBattleStatus.
+	--                      So made it a dummy. Remaining 
+	--                      Instead, handle whole answer inside this function (and not 2 times here and in gui_battle_room_window ... leading to 2 answers in perspective of server)
 	local myUserName = self:GetMyUserName()
 	if not self.userBattleStatus[myUserName] then
 		self.userBattleStatus[myUserName] = {}
@@ -343,11 +348,25 @@ function Interface:SetBattleStatus(status)
 	local battleStatus, updated = UpdateAndCreateMerge(userData, status)
 
 	--next(status) will return nil if status is empty table, which it is when it is called from REQUESTBATTLESTATUS
+	Spring.Echo("responding ? next(status)==nil? " .. tostring(next(status) == nil) .. " updated? " .. tostring(updated))
+	if next(status) ~= nil then
+		for k,v in pairs(status) do
+			if type(v) ~= "table" then
+				Spring.Echo("Status key:", k, " value: ", v)
+			else
+				for k2, v2 in pairs(v) do
+					Spring.Echo("Status key2:", k2, " value2:",v2)
+				end
+			end
+		end
+	end
 	if next(status) and not updated then
+		Spring.Echo("Aborting ")
 		return self
 	end
 	local battleStatusString = EncodeBattleStatus(battleStatus)
 
+	Spring.Echo("Randomize teamcolor")
 	local teamColor = battleStatus.teamColor or { math.random(), math.random(), math.random(), 1 }
 	teamColor = EncodeTeamColor(teamColor)
 	self:_SendCommand(concat("MYBATTLESTATUS", battleStatusString, teamColor))
@@ -1699,10 +1718,41 @@ end
 Interface.commands["REMOVESTARTRECT"] = Interface._OnRemoveStartRect
 Interface.commandPattern["REMOVESTARTRECT"] = "(%d+)"
 
+-- This request is sent once by the server, directly after hosting or joining a battle
+-- since we do not have any battleStatus(in most cases), we generate a default one
 function Interface:_OnRequestBattleStatus()
+	-- 6.3.23 Fireball: moved the action from the only listener to OnRequestBattleStatus in whole chobby from gui_battle_room_window.lua to here
+	--                  and don´t call listeners of OnRequestBattleStatus anymore
+	local battleStatus = self.userBattleStatus[self:GetMyUserName()] -- chobby doesn´t delete battleStatus on leaveBattle - maybe we find sth. left from prior session for this host, which we can make use of
+	if battleStatus then
+		self:SetBattleStatus({
+			isSpectator = battleStatus.isSpectator or WG.Chobby.Configuration.lastGameSpectatorState or false,
+			isReady = false,
+			side = battleStatus.side == nil and WG.Chobby.Configuration.lastFactionChoice or battleStatus.side ,
+			sync = (haveMapAndGame and 1) or 2, -- 0 = unknown, 1 = synced, 2 = unsynced
+			-- tamColor = PickRandomColor()
+			-- teamColor = {
+			-- 	math.random() * 0.7 + 0.1,
+			-- 	math.random() * 0.7 + 0.1,
+			-- 	math.random() * 0.7 + 0.1,
+			-- },
+		})
+	else
+		self:SetBattleStatus({
+			isSpectator = (WG.Chobby.Configuration.lastGameSpectatorState or false),
+			isReady = false,
+			side = (WG.Chobby.Configuration.lastFactionChoice or 0) ,
+			sync = (haveMapAndGame and 1) or 2, -- 0 = unknown, 1 = synced, 2 = unsynced
+			-- tamColor = PickRandomColor()
+			-- teamColor = {
+			-- 	math.random() * 0.7 + 0.1,
+			-- 	math.random() * 0.7 + 0.1,
+			-- 	math.random() * 0.7 + 0.1,
+			-- },
+		})
+	end
+	-- cancel prohibiton to use SetBattleStatus for others
 	self._requestedBattleStatus = true
-	self:_CallListeners("OnRequestBattleStatus")
-	self:SetBattleStatus({})
 end
 Interface.commands["REQUESTBATTLESTATUS"] = Interface._OnRequestBattleStatus
 
