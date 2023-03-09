@@ -348,6 +348,7 @@ function Interface:SetBattleStatus(status)
 	local userData = self.userBattleStatus[myUserName]
 	local battleStatus, updated = UpdateAndCreateMerge(userData, status)
 
+
 	--next(status) will return nil if status is empty table, which it is when it is called from REQUESTBATTLESTATUS
 	Spring.Echo("responding ? next(status)==nil? " .. tostring(next(status) == nil) .. " updated? " .. tostring(updated))
 	if next(status) ~= nil then
@@ -360,6 +361,9 @@ function Interface:SetBattleStatus(status)
 				end
 			end
 		end
+	end
+	if updated then
+		self:_OnUpdateUserBattleStatus(myUserName, status)
 	end
 	if next(status) and not updated then
 		Spring.Echo("Aborting ")
