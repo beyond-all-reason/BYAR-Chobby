@@ -626,24 +626,24 @@ function Lobby:_OnUpdateUserStatus(userName, status)
 end
 
 function Lobby:_OnUpdateBattleQueue(battleId, userNamesQueued)
-	-- Spring.Echo("_OnUpdateBattleQueue")
+	Spring.Echo("_OnUpdateBattleQueue")
 	
 	for _, battleUserName in pairs(self.battles[battleId].users) do -- all users in battle
 		local userInQueue = false
 		local queueStatusOld = self.userBattleStatus[battleUserName] and self.userBattleStatus[battleUserName].queuePos or -1
-		-- Spring.Echo("battleUserName:" .. tostring(battleUserName) .. " queueStatusOld = " .. tostring(queueStatusOld))
+		Spring.Echo("battleUserName:" .. tostring(battleUserName) .. " queueStatusOld = " .. tostring(queueStatusOld))
 
 		for posNew, userNameQueued in pairs(userNamesQueued) do -- test each battleUser if in the received queueList
-			-- Spring.Echo("posNew: " .. tostring(posNew) .. " userNameQueued:" .. tostring(userNameQueued) .. " battleUserName:" .. tostring(battleUserName))
+			Spring.Echo("posNew: " .. tostring(posNew) .. " userNameQueued:" .. tostring(userNameQueued) .. " battleUserName:" .. tostring(battleUserName))
 			if battleUserName == userNameQueued then
-				-- Spring.Echo("_OnUpdateBattleQueue userNameQueued found in battle:".. tostring(userNameQueued))
+				Spring.Echo("_OnUpdateBattleQueue userNameQueued found in battle:".. tostring(userNameQueued))
 				if queueStatusOld ~= posNew then
-					-- Spring.Echo("_OnUpdateBattleQueue Updating queue status of user " .. tostring(battleUserName) .. " from pos:" .. tostring(queueStatusOld) .. " to:" .. tostring(posNew) .. " and Call _OnUpdateUserBattleStatus")
+					Spring.Echo("_OnUpdateBattleQueue Updating queue status of user " .. tostring(battleUserName) .. " from pos:" .. tostring(queueStatusOld) .. " to:" .. tostring(posNew) .. " and Call _OnUpdateUserBattleStatus")
 					self:_OnUpdateUserBattleStatus(battleUserName, {queuePos = posNew})
 					userInQueue = true
 					break
 				else
-					-- Spring.Echo("_OnUpdateBattleQueue Not Updating user in queue, same pos " .. battleUserName .. " pos " .. tostring(posNew))
+					Spring.Echo("_OnUpdateBattleQueue Not Updating user in queue, same pos " .. battleUserName .. " pos " .. tostring(posNew))
 					userInQueue = true
 					break;
 				end
@@ -651,10 +651,10 @@ function Lobby:_OnUpdateBattleQueue(battleId, userNamesQueued)
 		end
 		if userInQueue == false then
 			if queueStatusOld > 0 then
-				-- Spring.Echo("_OnUpdateBattleQueue Removing user from queue " .. battleUserName .. " former pos:" .. tostring(queueStatusOld))
+				Spring.Echo("_OnUpdateBattleQueue Removing user from queue " .. battleUserName .. " former pos:" .. tostring(queueStatusOld))
 				self:_OnUpdateUserBattleStatus(battleUserName, {queuePos = 0})
-			--else
-				-- Spring.Echo("_OnUpdateBattleQueue Not Updating user,which is has no new queue pos and had none before " .. battleUserName .. " pos " .. tostring(statusOld.queuePos))
+			else
+				Spring.Echo("_OnUpdateBattleQueue Not Updating user,which is has no new queue pos and had none before " .. battleUserName .. " pos " .. tostring(queueStatusOld))
 			end
 		end
 	end
