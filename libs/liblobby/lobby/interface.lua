@@ -362,9 +362,9 @@ function Interface:SetBattleStatus(status)
 			end
 		end
 	end
-	if updated then
-		self:_OnUpdateUserBattleStatus(myUserName, status)
-	end
+	--if updated then
+	--	self:_OnUpdateUserBattleStatus(myUserName, status)
+	--end
 	if next(status) and not updated then
 		Spring.Echo("Aborting ")
 		return self

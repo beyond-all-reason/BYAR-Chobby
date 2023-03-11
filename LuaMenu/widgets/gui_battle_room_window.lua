@@ -858,6 +858,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 				local battleStatus = battleLobby:GetUserBattleStatus(myUserName) or {}
 				if battleStatus.isSpectator then
 					battleLobby:SayBattle('$leaveq')
+					battleLobby:_OnUpdateUserBattleStatus(battleLobby:GetMyUserName(), {queuePos = 0})
 				end
 				battleLobby:SetBattleStatus({
 					isSpectator = true,
@@ -1771,7 +1772,7 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 					joinTeamButton:Dispose()
 				end
 
-				if teamIndex ~= -1 then
+				if teamIndex ~= -1 and teamIndex ~= -2 then
 					AddTeamButtons(
 						teamHolder,
 						90,
@@ -1805,6 +1806,9 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 
 			function teamData.AddPlayer(name)
 				Spring.Echo("teamData.Addplayer teamIndex: " .. tostring(teamIndex) .. " name: " .. tostring(name) )
+				if (teamIndex == 0) then
+					Spring.Utilities.TraceFullEcho()
+				end
 				local playerData = GetPlayerData(name)
 				if playerData.team == teamIndex then
 					Spring.Echo("teamData.Addplayer team: " .. tostring(playerData.team) .. " = teamIndex, return")
@@ -1836,7 +1840,7 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 			end
 
 			function teamData.CheckRemoval()
-				if teamStack:IsEmpty() and teamIndex ~= -1 then
+				if teamStack:IsEmpty() and teamIndex ~= -1 and teamIndex ~= -2 then
 					local removeHolder = false
 
 					if disallowCustomTeams then
@@ -1969,6 +1973,7 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 			Spring.Echo("UpdateUserTeamStatus userName:" .. userName .. " alyNumber:" .. tostring(allyNumber))
 		end
 		local playerData = GetPlayerData(userName)
+		Spring.Echo("UpdateUserTeamStatus playerData.team:" .. tostring(playerData.team))
 		if playerData.team == allyNumber then
 			return
 		end
