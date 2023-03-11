@@ -1390,36 +1390,35 @@ function LoginWindow:OnConnected()
 	lobby:AddListener("OnAgreementEnd", self.onAgreementEnd)
 end
 
-
-
-
 function LoginWindow:createAgreementWindow()
 	self.agreementWindow = Window:New {
-		x = 600,
-		y = 200,
-		width = 650,
-		height = 530,
-		caption = "User agreement",
+		classname = "main_window",
+		x = "33.3%",
+		y = "15%",
+		right = "33.3%",
+		bottom = "15%",
+		caption = "\nUser agreement",
+		captionColor = {1.0, 1.0, 1.0, 1.0},
+		font = Configuration:GetFont(3),
+		OnClick = self.BringToFront,
 		resizable = false,
 		draggable = false,
 		parent = WG.Chobby.lobbyInterfaceHolder,
 	}
 
 	self.tbAgreement = TextBox:New {
-		x = 1,
-		width = "100%",
-		y = 1,
-		height = "100%",
+		x = "2%",
+		right = "2%",
+		y = "3%",
 		text = self.agreementText,
-		objectOverrideFont = myFont2,
+		font = Configuration:GetFont(2),
 	}
 
 	ScrollPanel:New {
-		x = 1,
-
-		right = 7,
-		y = 1,
-		height = 390,
+		x = "2%",
+		right = "2%",
+		y = 48,
+		bottom = 270,
 		children = {
 			self.tbAgreement
 		},
@@ -1428,9 +1427,9 @@ function LoginWindow:createAgreementWindow()
 
 	if self.emailRequired then
 		self.txtVerif = TextBox:New {
-			x = 1,
+			x = "2%",
 			width = 200,
-			y = 405,
+			bottom = 100,
 			height = 35,
 			text = i18n("Email Verification Code") .. ":",
 			fontsize = Configuration:GetFont(2).size,
@@ -1439,23 +1438,56 @@ function LoginWindow:createAgreementWindow()
 		}
 		self.ebVerif = EditBox:New {
 			x = 200,
-			width = 650-250,
-			y = 395,
+			right = "3%",
+			bottom = 96,
 			height = 35,
 			text = "",
-			objectOverrideFont = myFont2,
+			font = Configuration:GetFont(2),
 			useIME = false,
 			parent = self.agreementWindow,
 		}
 	end
 
+	local button = Button:New {
+		x = "2%",
+		height = 60,
+		right = "2%",
+		bottom = 204,
+		caption = "Terms of service",
+		classname = "link_button",
+		font = WG.Chobby.Configuration:GetFont(3),
+		OnClick = {
+			function ()
+				WG.BrowserHandler.OpenUrl("https://server3.beyondallreason.info/privacy_policy")
+			end
+		},
+		parent = self.agreementWindow,
+	}
+
+	local button = Button:New {
+		x = "2%",
+		height = 60,
+		right = "2%",
+		bottom = 140,
+		caption = "Code of conduct",
+		classname = "link_button",
+		font = WG.Chobby.Configuration:GetFont(3),
+		OnClick = {
+			function ()
+				WG.BrowserHandler.OpenUrl("https://www.beyondallreason.info/code-of-conduct")
+			end
+		},
+		parent = self.agreementWindow,
+	}
+
 	self.btnYes = Button:New {
-		x = 1,
+		x = "2%",
 		width = 135,
-		y = 430,
+		bottom = "1%",
 		height = 70,
-		caption = "Accept",
-		objectOverrideFont = myFont3,
+		caption = i18n("accept"),
+		font = Configuration:GetFont(3),
+		classname = "action_button",
 		OnClick = {
 			function()
 				local verificationCode = ""
@@ -1468,12 +1500,13 @@ function LoginWindow:createAgreementWindow()
 		parent = self.agreementWindow,
 	}
 	self.btnNo = Button:New {
-		x = 240,
+		right = "2%",
 		width = 135,
-		y = 430,
+		bottom = "1%",
 		height = 70,
-		caption = "Decline",
-		objectOverrideFont = myFont3,
+		caption = i18n("decline"),
+		font = Configuration:GetFont(3),
+		classname = "negative_button",
 		OnClick = {
 			function()
 				self:declineAgreement()

@@ -2329,9 +2329,9 @@ local function SetupSpadsStatusPanel(battle, battleID)
 		},
 		autoBalance = {
 			current = "off",
-			allowed = {"off","on","advanced"},
+			allowed = {"off","advanced"},
 			caption = "Autobalance",
-			tooltip = "Balance teams and fix IDs automatically. Use Coop preset to play vs AIs",
+			tooltip = "Balance teams and fix IDs automatically.\nUse Coop preset to play vs AIs.",
 			spadscommand = "!autobalance",
 		},
 		balanceMode = {

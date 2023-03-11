@@ -1294,7 +1294,7 @@ function BattleListWindow:OpenHostWindow()
 		itemHeight = 22,
 		text = "",
 		objectOverrideFont = myFont2,
-		items = Configuration.hostRegions,
+		items = Configuration.hostRegions, --self.hostRegions = {"DE","EU","EU2","US","AU"}
 		itemFontSize = Configuration:GetFont(2).size,
 		selected = 1,
 		tooltip = "You may choose any region you wish, BAR is not sensitive to latency.",
@@ -1341,10 +1341,10 @@ function BattleListWindow:OpenHostWindow()
 	local function HostBattle()
 		WG.BattleRoomWindow.LeaveBattle()
 		--Attempting to host game at 
-		local requestedregion = typeCombo.items[typeCombo.selected]
+		local requestedregion = typeCombo.items[typeCombo.selected] ---self.hostRegions = {"DE","EU","EU2","US","AU"}
 		--Spring.Echo("Looking for empty host in region", requestedregion)
 		if userWantsPrivateBattle then
-			local privateclusters = {EU = '[teh]cluster1', US = '[teh]clusterUS', AU = '[teh]clusterAU', DE = '[teh]clusterEU2',EU2 = '[teh]clusterEU3',}
+			local privateclusters = {EU = '[teh]cluster1', US = '[teh]clusterUS2', AU = '[teh]clusterAU', DE = '[teh]clusterEU2',EU2 = '[teh]clusterEU3',}
 			local targetCluster = privateclusters[requestedregion]
 			local mypassword = nil
 			local function listenForPrivateBattle(listener, userName, message, msgDate)
