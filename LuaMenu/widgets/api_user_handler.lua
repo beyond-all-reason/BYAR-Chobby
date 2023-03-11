@@ -604,7 +604,7 @@ local function UpdateUserBattleStatus(listener, userName)
 		if userControls then
 
 			local bs = userControls.lobby:GetUserBattleStatus(userName) or {}
-			userControls.isPlaying = (bs and not bs.isSpectator) or false
+			userControls.isPlaying = bs and bs.isSpectator == false
 			
 			local offset = 0
 
@@ -806,7 +806,16 @@ local function GetUserControls(userName, opts)
 	local myBattleID = userControls.lobby:GetMyBattleID()
 	local userInfo = userControls.lobby:GetUser(userName) or {}
 	local bs = userControls.lobby:GetUserBattleStatus(userName)
-	userControls.isPlaying = (bs and not bs.isSpectator) or false
+	if (bs and bs.isSpectator == nil) then
+		Spring.Echo("userName: ", userName, " bs.isSpectator == nil")
+	elseif (bs and bs.isSpectator == true) then
+		Spring.Echo("userName: ", userName, "bs.isSpectator == true")
+	elseif (bs and bs.isSpectator == false) then
+		Spring.Echo("userName: ", userName, "bs.isSpectator == false")
+	else
+		Spring.Echo("userName: ", userName, "no bs")
+	end
+	userControls.isPlaying = bs and bs.isSpectator == false
 
 	if reinitialize then
 		userControls.mainControl:ClearChildren()

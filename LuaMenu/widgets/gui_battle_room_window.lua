@@ -1630,7 +1630,7 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 
 	local function GetTeam(teamIndex)
 		Spring.Echo("Room:GetTeam teamIndex received: " .. tostring(teamIndex))	
-		teamIndex = teamIndex or -1
+		teamIndex = teamIndex or -2 -- default to -2 = Spectator team
 		if not team[teamIndex] then
 			if teamIndex == emptyTeamIndex then
 				local checkTeam = teamIndex + 1
