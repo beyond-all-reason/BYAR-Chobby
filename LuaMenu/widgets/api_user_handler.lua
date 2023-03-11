@@ -608,6 +608,20 @@ local function UpdateUserBattleStatus(listener, userName)
 			
 			local offset = 0
 
+			if userControls.tbqueuePos then
+				userControls.isInQueue = bs and bs.queuePos and bs.queuePos > 0 or false
+				userControls.tbqueuePos:SetVisibility(userControls.isInQueue)
+				if userControls.isInQueue then
+					local queuePos = bs.queuePos
+					queuePos = queuePos .. "."
+					offset = offset + 2
+					userControls.tbqueuePos:SetPos(offset)
+					offset = offset + 23
+					userControls.tbqueuePos:SetText(queuePos)
+					userControls.tbqueuePos:Invalidate()
+				end
+			end
+
 			if userControls.imStatus then
 				UpdateUserStatusImage(userName, userControls)
 				if userControls.isPlaying then
@@ -806,16 +820,9 @@ local function GetUserControls(userName, opts)
 	local myBattleID = userControls.lobby:GetMyBattleID()
 	local userInfo = userControls.lobby:GetUser(userName) or {}
 	local bs = userControls.lobby:GetUserBattleStatus(userName)
-	if (bs and bs.isSpectator == nil) then
-		Spring.Echo("userName: ", userName, " bs.isSpectator == nil")
-	elseif (bs and bs.isSpectator == true) then
-		Spring.Echo("userName: ", userName, "bs.isSpectator == true")
-	elseif (bs and bs.isSpectator == false) then
-		Spring.Echo("userName: ", userName, "bs.isSpectator == false")
-	else
-		Spring.Echo("userName: ", userName, "no bs")
-	end
+
 	userControls.isPlaying = bs and bs.isSpectator == false
+	userControls.isInQueue = bs and bs.queuePos and bs.queuePos > 0 or false
 
 	if reinitialize then
 		userControls.mainControl:ClearChildren()
@@ -1135,8 +1142,33 @@ local function GetUserControls(userName, opts)
 		end
 	end
 	--]]
-	
-	offset = offset + 1
+
+	if not isSingleplayer then
+		offset = offset + 2
+		local queuePos = bs and bs.queuePos or 0
+		queuePos = queuePos .. "."
+		userControls.tbqueuePos = TextBox:New {
+			name = "queuePos",
+			x = offset,
+			y = offsetY + 4,
+			right = 0,
+			bottom = 5,
+			align = "left",
+			parent = userControls.mainControl,
+			fontsize = Configuration:GetFont(1).size,
+			text = tostring(queuePos),
+		}
+		-- userControls.tbqueuePos.font.color = skillColor
+		userControls.tbqueuePos:Invalidate()
+		userControls.tbqueuePos:SetVisibility(userControls.isInQueue)
+		if userControls.isInQueue then
+			offset = offset + 23
+		else
+			offset = offset - 2
+		end
+	end
+
+	local offset = offset + 1
 	userControls.imCountry = Image:New {
 		name = "imCountry",
 		x = offset + 2,
