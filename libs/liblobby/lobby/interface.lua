@@ -1182,44 +1182,23 @@ end
 -- parse following servermessage:
 -- s.battle.queue_status\s<battleID>\t<userName1>\t<userName2>...
 function Interface:_OnSBattleQueueStatus(battleId, userNamesChain)
-	Spring.Echo("_OnSBattleQueueStatus battleId:"..battleId.." userNamesChain:"..userNamesChain)
+	Spring.Echo("_OnSBattleQueueStatus battleId:"..battleId.." userNamesChain:"..userNamesChain, "type of battleId", type(battleId))
 	
-	-- basic input validation
+	-- validate battleId
 	battleId = tonumber(battleId)
-	if battleId == nil or battleId < 1 then
-		Spring.LOG(LOG_SECTION, LOG_WARNING, "s.battle.queue_status with invalid battleId received: ", tostring(battleId))
-		return
-	elseif battleId ~= self:GetMyBattleID() then
-		Spring.LOG(LOG_SECTION, LOG_WARNING, "s.battle.queue_status for other battle received: ", tostring(battleId))
+	if not self:GetMyBattleID() or self:GetMyBattleID() ~= battleId then
+		Spring.Log(LOG_SECTION, LOG.WARNING, "Received s.battle.queue_status with invalid battleId: ", tostring(battleId))
 		return
 	end
-	local userNames = explode("\t", userNamesChain)
-	
-	local queuedUserNames = {}
 
-	-- validate, if each userName has at least more than 0 characters(empty queue = first and only userName is empty)
-	for pos, userName in pairs(userNames) do
-		if userName ~= nil and userName ~= "" then
-			--queuedUserNames[userName] = numUsers
-			table.insert(queuedUserNames, userName)
-		else
-			Spring.Echo("error userName for pos: " .. tostring(pos))
-		end
+	local queuedUserNames = {}
+	if userNamesChain ~= "" then -- because our explode returns a table with 1 element from empty string
+		queuedUserNames = explode("\t", userNamesChain)
 	end
 
 	Spring.Echo("numUsers:"..tostring(#queuedUserNames))
 
---for k, v in pairs(queuedUserNames) do
---	Spring.Echo(tostring(k) .. ": " .. tostring(v))
---	-- local status = {}
---	-- status.queuPos = tostring(v)
---	-- local userName = v
---	-- self:_OnUpdateUserBattleStatus(userName, status)
---end
-	if #queuedUserNames > 0 then
-		self:_OnUpdateBattleQueue(battleId, queuedUserNames)
-	end
-
+	self:_OnUpdateBattleQueue(battleId, queuedUserNames) -- always update, empty queue must be propagated too
 end
 Interface.commands["s.battle.queue_status"] = Interface._OnSBattleQueueStatus
 Interface.commandPattern["s.battle.queue_status"] = "(%d+)%s*(.*)" -- * on %s because the part right of %d can be total empty for an empty queue

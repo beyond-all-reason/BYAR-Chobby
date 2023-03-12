@@ -1962,23 +1962,21 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 	end
 
 	function externalFunctions.UpdateUserTeamStatus(userName, allyNumber, isSpectator)
+		local teamNew = allyNumber
 		if isSpectator then
-			allyNumber = -2
-			local userInfo = lobby:TryGetUser(userName)
-			local battleStatus = battleLobby:GetUserBattleStatus(userName)
-			if (battleStatus ~= nil and battleStatus.queuePos and battleStatus.queuePos > 0) then
-				Spring.Echo("queuePos: " .. tostring(battleStatus.queuePos))
-				allyNumber = -1
+			local battleStatus = battleLobby:GetUserBattleStatus(userName) or {}
+			if (battleStatus.queuePos and battleStatus.queuePos > 0) then
+				teamNew = -1 -- virtual team "Queue"
+			else
+				teamNew = -2 -- virtual team "Spectator"
 			end
-			Spring.Echo("UpdateUserTeamStatus userName:" .. userName .. " alyNumber:" .. tostring(allyNumber))
 		end
 		local playerData = GetPlayerData(userName)
-		Spring.Echo("UpdateUserTeamStatus playerData.team:" .. tostring(playerData.team))
-		if playerData.team == allyNumber then
-			return
+		if playerData.team == teamNew then
+			return -- team didn´t change, so don´t update
 		end
 		RemovePlayerFromTeam(userName)
-		AddPlayerToTeam(allyNumber, userName)
+		AddPlayerToTeam(teamNew, userName)
 	end
 
 	function externalFunctions.LeftBattle(leftBattleID, userName)
