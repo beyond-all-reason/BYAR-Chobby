@@ -1187,7 +1187,10 @@ function Interface:_OnSBattleQueueStatus(battleId, userNamesChain)
 	-- basic input validation
 	battleId = tonumber(battleId)
 	if battleId == nil or battleId < 1 then
-		Spring.LOG(LOG_SECTION, LOG_WARNING, "s.battle.queue_status with invalid battleId received:", tostring(battleId))
+		Spring.LOG(LOG_SECTION, LOG_WARNING, "s.battle.queue_status with invalid battleId received: ", tostring(battleId))
+		return
+	elseif battleId ~= self:GetMyBattleID() then
+		Spring.LOG(LOG_SECTION, LOG_WARNING, "s.battle.queue_status for other battle received: ", tostring(battleId))
 		return
 	end
 	local userNames = explode("\t", userNamesChain)
