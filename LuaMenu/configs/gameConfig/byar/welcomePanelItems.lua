@@ -17,26 +17,19 @@ local welcomePanelItems = {
     },
     
     {
+        Header = "New Map: Carrot Mountains v1.0",
+        Time = nil,-- "NowTime",
+        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/carrot_mountains_v1.0.png",
+        Text = "A tribute to OTA Yerrot Mountains by Nikuksis.",
+    },
+    
+    {
         Header = "New Map: Starwatcher 0.7",
         Time = nil,-- "NowTime",
         Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/starwatcher_0.7.png",
         Text = "A new 8v8 map by Phalange. Sandy slopes are vehicle passable. Most ridges are bots passable.",
     },
-    
-    {
-        Header = "New OTA map remake: The Cold Place",
-        Time = nil,-- "NowTime",
-        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/the_cold_place_BAR_v1.1.png",
-        Text = "New vision of old classic map. Up to 6 players, Teams or 3-way FFA map.\nBy Nikuksis.",
-    },
-    
-    {
-        Header = "Ancient Vault updated to v1.2",
-        Time = nil,-- "NowTime",
-        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/ancient_vault_v1.2.png",
-        Text = "All wrecks are now ressurectable, though they need some metal for repair.",
-    },
-
+	
     {
         Header = "Tournament: The Great Pro-Am Showdown has concluded!",
         -- Url = "https://www.beyondallreason.info/news/the-great-pro-am-showdown",
