@@ -32,7 +32,9 @@ if randomSkirmishEnabled == 1 then
 					enemyAI[#enemyAI+1] = {shortName = randomAI}
 				end
 			end
-			skirmishTable = {map = map, enemyAI = enemyAI, friendlyAI = friendlyAI,}
+			local startboxes = {[0] = {66, 66, 133, 133}, [1] = {166, 166, 199, 199}, }
+			skirmishTable = {map = map, enemyAI = enemyAI, friendlyAI = friendlyAI,startboxes = startboxes}
+			
 		end
 	end
 

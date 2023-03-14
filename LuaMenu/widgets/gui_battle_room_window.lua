@@ -904,6 +904,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 
 	rightInfo.OnResize = {
 		function (obj, xSize, ySize)
+			-- Spring.Utilities.TraceFullEcho(nil,nil,nil,"rightInfo.OnResize", xSize, ySize )
 			if xSize + minimapBottomClearance < ySize then
 				minimapPanel._relativeBounds.left = 0
 				minimapPanel._relativeBounds.right = 0
@@ -1325,6 +1326,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		-- Spring.Log("Chobby AddStartRect",LOG.WARNING,"AddStartRect", allyNo, left, top, right, bottom,minimapPanel.width,minimapPanel.height)
 		-- FIXME: minimap.width is sometimes only 10 at this point :/
 		-- it doesnt even know how big it is right nowhere
+		-- Spring.Utilities.TraceFullEcho()
 
 		local minimapPanelMaxSize = math.max(minimapPanel.width,minimapPanel.height) -1
 		local ox = math.floor(left * minimapPanelMaxSize / 200)
@@ -1441,6 +1443,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	MaybeDownloadGame(battle)
 	MaybeDownloadMap(battle)
 	UpdateArchiveStatus(true)
+	externalFunctions.rightInfo = rightInfo
 
 	return externalFunctions
 end
@@ -3600,6 +3603,17 @@ function BattleRoomWindow.GetSingleplayerControl(setupData)
 							1, -- Default side for enemy AI is Cortex
 							GetStarterEnemyAIColorAssignment(i))
 					end
+					if singleplayerDefault.startboxes then 
+						for startboxindex, startboxcoords in pairs(singleplayerDefault.startboxes) do 
+							--Spring.Utilities.TraceFullEcho(100,100,100,"INIT BOXEN", battleWindow, mainWindowFunctions)
+							--Spring.Utilities.TableEcho(mainWindowFunctions)
+							local infoHandler = mainWindowFunctions.GetInfoHandler()
+							--Spring.Utilities.TableEcho(infoHandler)
+							infoHandler.AddStartRect(startboxindex, startboxcoords[1], startboxcoords[2],startboxcoords[3],startboxcoords[4])
+							infoHandler.rightInfo:Invalidate()
+							infoHandler.UpdateStartRectPositionsInMinimap()
+						end
+					end
 				end
 			end
 		},
@@ -3675,6 +3689,10 @@ local function DelayedInitialize()
 		end
 	end
 	WG.Chobby.Configuration:AddListener("OnConfigurationChange", onConfigurationChange)
+
+	local infoHandler = mainWindowFunctions.GetInfoHandler()
+	infoHandler.rightInfo:Invalidate()
+	infoHandler.UpdateStartRectPositionsInMinimap()
 end
 
 function widget:Initialize()
