@@ -2246,9 +2246,9 @@ local function SetupSpadsStatusPanel(battle, battleID)
 		},
 		preset = {
 			current = "team",
-			allowed = {"team","ffa","coop","duel","tourney"},
+			allowed = {"team","ffa","coop","duel","tourney","custom"},
 			caption = "Preset",
-			tooltip = "Team - Game of multiple Teams\nFFA - Free-For-All\nCoop - Humans vs AI\nDuel - 1v1",
+			tooltip = "Team - Game of multiple Teams\nFFA - Free-For-All\nCoop - Humans vs AI\nDuel - 1v1\nCustom - For custom battles",
 			spadscommand = "!preset",
 		},
 		autoBalance = {
