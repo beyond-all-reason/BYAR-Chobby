@@ -74,7 +74,7 @@ function Configuration:init()
 	self.battleFilterLocked = false
 	self.battleFilterRedundant = true
 	self.battleFilterRedundantRegions = {"EU - ", "USA - ", "AUS - ","EU - ENGINE TESTING ","US - ","AU - ", "UK - "}
-	self.hostRegions = {"DE","EU","EU2","US","AU"}
+	self.hostRegions = {"DE","EU","EU2","US","US2","AU"}
 
 	self.manualBorderless = {
 		game = {},

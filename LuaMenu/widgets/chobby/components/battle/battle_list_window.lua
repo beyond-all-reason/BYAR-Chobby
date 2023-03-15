@@ -1346,7 +1346,7 @@ function BattleListWindow:OpenHostWindow()
 		--Attempting to host game at 
 		local requestedregion = typeCombo.items[typeCombo.selected] ---self.hostRegions = {"DE","EU","EU2","US","AU"}
 		--Spring.Echo("Looking for empty host in region", requestedregion)
-		local privateclusters = {EU = '[teh]cluster1', US = '[teh]clusterUS2', AU = '[teh]clusterAU', DE = '[teh]clusterEU2',EU2 = '[teh]clusterEU3',}
+		local privateclusters = {EU = '[teh]cluster1', US = '[teh]clusterUS2', US2 = '[teh]clusterUS', AU = '[teh]clusterAU', DE = '[teh]clusterEU2',EU2 = '[teh]clusterEU3',}
 		local targetCluster = privateclusters[requestedregion]
 
 		if userWantsPrivateBattle then
@@ -1414,7 +1414,7 @@ function BattleListWindow:OpenHostWindow()
 			return
 		else
 
-
+			targetCluster = targetCluster .. '['
 
 			local targetbattle = nil
 			-- try to get empty matching one
