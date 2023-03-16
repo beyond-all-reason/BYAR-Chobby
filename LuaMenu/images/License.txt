@@ -1,0 +1,23 @@
+All of the following textures in folder (/LuaMenu/images/) were made for Beyond All Reason by IceXuick
+all rights reserved (CC BY NC ND)
+
+away.png
+battel.png
+connection.png
+download.png
+downloadnotready.png
+downloadready.png
+ingame.png
+link.png
+lock.png
+minimapNotFound.png
+offline.png
+online.png
+playing.png
+ready.png
+runningBattle.png
+solo.png
+spectating.png
+startboxsplit*.png (all)
+unknown_sync.png
+unready.png
