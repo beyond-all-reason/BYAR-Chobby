@@ -23,7 +23,7 @@ local offscreenFps = 1
 
 local activeFps = 40
 local activeFullspeedFps = 70	-- reset in init()
-local awayTime = 60
+local awayTime = 300
 
 local isIdle = false
 local isSleep = false
