@@ -37,6 +37,7 @@ return {
 		autoLogin = "Login automatically",
 		authenticateSteam = "Authenticate with Steam",
 		play_offline = "Play offline",
+		keys = "Keys",
 		-- gui_battle_status_panel
 		spectating_game_status = "Spectating",
 		playing_game_status = "Playing",
@@ -227,6 +228,9 @@ return {
 		type_to_filter = "Type to filter",
 		maincaption_multiplayer = "Select a Map. Only Certified and Classic in Online.",
 		maincaption_singleplayer = "Select a Map. Certified maps are recommended.",
+
+		-- gui_keys_panel.lua
+		maincaption_keys = "Key Bindings",
 
 		-- chat_windows.lua
 		server = "Server",
