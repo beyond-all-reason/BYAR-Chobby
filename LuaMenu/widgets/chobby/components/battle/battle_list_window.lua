@@ -833,9 +833,11 @@ function BattleListWindow:FilterRedundantBattle(battle, id)
 	]] --
 end
 
-function BattleListWindow:CompareItems(id1, id2)
+function BattleListWindow:CompareItems(id1, id2) 
+	-- Returns true if id1 should be before id2
 	-- Sort:
-	-- 1. public unlocked battles by player count
+	-- 0. Public, not running battles with > 0 players
+	-- 1. public, running unlocked battles by player count
 	-- 2. public locked battles by player count
 	-- 3. unlocked private battles, alphabetically
 	-- 4. locked private battles, alphabetically
@@ -845,32 +847,45 @@ function BattleListWindow:CompareItems(id1, id2)
 	-- sorted list of params to check by?
 
 	local battle1, battle2 = lobby:GetBattle(id1), lobby:GetBattle(id2)
-	if id1 and id2 then
-		if not (battle1 and battle2) then
-			return false -- just for sanity
-		end
-
-		if battle1.passworded ~= battle2.passworded then 
-			return battle2.passworded --
+	if id1 and id2 and battle1 and battle2 then -- validity check
+		if battle1.passworded ~= battle2.passworded then
+			return battle2.passworded
 		elseif battle1.passworded == true and battle2.passworded == true then
-			return string.lower(battle1.title) < string.lower(battle2.title )
+			if battle1.locked ~= battle2.locked then
+				return battle2.locked
+			else
+				-- Sort passworded battles by title
+				return string.lower(battle1.title) < string.lower(battle2.title )
+			end
 		end
+		-- neither are passworded
 
-
-		if battle1.locked ~= battle2.locked then 
+		-- Dump locked next
+		if battle1.locked ~= battle2.locked then
 			return battle2.locked
 		end
-
+		
 		local countOne = lobby:GetBattlePlayerCount(id1)
 		local countTwo = lobby:GetBattlePlayerCount(id2)
+		-- Put empty rooms at the back of the list
+		if countOne == 0 and countTwo ~= 0 then -- id1 is empty
+			return false
+		elseif countOne ~= 0 and countTwo == 0 then  -- id2 is empty
+			return true
+		end
+
+
+		-- Put running after open
+		if battle1.isRunning ~= battle2.isRunning then
+			return battle2.isRunning
+		end
+		
+		-- Sort by player count
 		if countOne ~= countTwo then
 			return countOne > countTwo
 		end
 
-		if battle1.isRunning ~= battle2.isRunning then 
-			return battle1.isRunning 
-		end
-		return id1 > id2 -- stabalize the sort.
+		return id1 > id2 -- stabilize the sort.
 	else
 		Spring.Echo("battle1", id1, battle1, battle1 and battle1.users)
 		Spring.Echo("battle2", id2, battle2, battle2 and battle2.users)
