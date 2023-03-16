@@ -1058,7 +1058,7 @@ local function GetLobbyTabControls()
 		tooltip = "Old Server is road-flag.bnr.la, new is server3.beyondallreason.info. Changing this will log you out of current server, click Login in top right to reconnect to new one, Temporarily we are on : server3.beyondallreason.info",
 	}
 
-	local barservers = {"server3.beyondallreason.info","road-flag.bnr.la"}
+	local barservers = {"server3.beyondallreason.info","bar.teifion.co.uk"}
 
 	if WG.Chobby.Configuration.devMode then
 		barservers[#barservers + 1] = "localhost"
