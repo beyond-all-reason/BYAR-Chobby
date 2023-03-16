@@ -15,15 +15,21 @@ local welcomePanelItems = {
         Text = "Requiem has created some guides for new players. If you're new to the game and want to learn the basics via video we highly recommend you check them out.\n",
         UrlText = "Watch video guides"
     },
-
+    
     {
-        Header = "New Map: The Halite Maze v1.2",
+        Header = "New Map: Carrot Mountains v1.0",
         Time = nil,-- "NowTime",
-        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/the_halite_maze_v1.2.png",
-        Text = "New 12x8 duel map has arrived. Small rocky maze and sparse metal, beware of sneaky attacks!",
+        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/carrot_mountains_v1.0.png",
+        Text = "A tribute to OTA Yerrot Mountains by Nikuksis.",
     },
-
-
+    
+    {
+        Header = "New Map: Starwatcher 0.7",
+        Time = nil,-- "NowTime",
+        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/starwatcher_0.7.png",
+        Text = "A new 8v8 map by Phalange. Sandy slopes are vehicle passable. Most ridges are bots passable.",
+    },
+	
     {
         Header = "Tournament: The Great Pro-Am Showdown has concluded!",
         -- Url = "https://www.beyondallreason.info/news/the-great-pro-am-showdown",
@@ -39,20 +45,6 @@ local welcomePanelItems = {
         Time = nil,-- "NowTime",
         Text = "Just select [Engine Test] in the launcher dropdown, and then play Skirmish and Multiplayer games. AMD testers especially needed. Report anything out of the ordinary to Discord!\n",
         UrlText = "BAR #engine channel on Discord"
-    },
-
-    {
-        Header = "New Map: Supreme Strait v1.3",
-        Time = nil,-- "NowTime",
-        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/supreme_strait_v1.3.png",
-        Text = "New 24x24 rework of a famous map, 8v8 capable.\nUpdated to v1.3!\nBy Nikuksis.",
-    },
-
-    {
-        Header = "New Map: Crystallized Plains 1.01",
-        Time = nil,-- "NowTime",
-        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/Crystallized_Plains_1.01.png",
-        Text = "A 1vs1 map by Moose with dry rock flats and many colorful pillars.",
     },
 
     {

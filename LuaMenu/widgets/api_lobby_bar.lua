@@ -28,7 +28,7 @@ function widget:Initialize()
 		local battle = self:GetBattle(battleID)
 		if battle then
 			self:JoinAsSpec()
-			self:ConnectToBattle(self.useSpringRestart, battle.ip, battle.port, nil, self:GetScriptPassword())
+			self:ConnectToBattle(self.useSpringRestart, battle.ip, battle.port, nil, self:GetScriptPassword(), nil, nil, nil, battle.engineVersion)
 		end
 
 		return self

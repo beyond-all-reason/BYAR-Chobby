@@ -833,9 +833,11 @@ function BattleListWindow:FilterRedundantBattle(battle, id)
 	]] --
 end
 
-function BattleListWindow:CompareItems(id1, id2)
+function BattleListWindow:CompareItems(id1, id2) 
+	-- Returns true if id1 should be before id2
 	-- Sort:
-	-- 1. public unlocked battles by player count
+	-- 0. Public, not running battles with > 0 players
+	-- 1. public, running unlocked battles by player count
 	-- 2. public locked battles by player count
 	-- 3. unlocked private battles, alphabetically
 	-- 4. locked private battles, alphabetically
@@ -845,32 +847,45 @@ function BattleListWindow:CompareItems(id1, id2)
 	-- sorted list of params to check by?
 
 	local battle1, battle2 = lobby:GetBattle(id1), lobby:GetBattle(id2)
-	if id1 and id2 then
-		if not (battle1 and battle2) then
-			return false -- just for sanity
-		end
-
-		if battle1.passworded ~= battle2.passworded then 
-			return battle2.passworded --
+	if id1 and id2 and battle1 and battle2 then -- validity check
+		if battle1.passworded ~= battle2.passworded then
+			return battle2.passworded
 		elseif battle1.passworded == true and battle2.passworded == true then
-			return string.lower(battle1.title) < string.lower(battle2.title )
+			if battle1.locked ~= battle2.locked then
+				return battle2.locked
+			else
+				-- Sort passworded battles by title
+				return string.lower(battle1.title) < string.lower(battle2.title )
+			end
 		end
+		-- neither are passworded
 
-
-		if battle1.locked ~= battle2.locked then 
+		-- Dump locked next
+		if battle1.locked ~= battle2.locked then
 			return battle2.locked
 		end
-
+		
 		local countOne = lobby:GetBattlePlayerCount(id1)
 		local countTwo = lobby:GetBattlePlayerCount(id2)
+		-- Put empty rooms at the back of the list
+		if countOne == 0 and countTwo ~= 0 then -- id1 is empty
+			return false
+		elseif countOne ~= 0 and countTwo == 0 then  -- id2 is empty
+			return true
+		end
+
+
+		-- Put running after open
+		if battle1.isRunning ~= battle2.isRunning then
+			return battle2.isRunning
+		end
+		
+		-- Sort by player count
 		if countOne ~= countTwo then
 			return countOne > countTwo
 		end
 
-		if battle1.isRunning ~= battle2.isRunning then 
-			return battle1.isRunning 
-		end
-		return id1 > id2 -- stabalize the sort.
+		return id1 > id2 -- stabilize the sort.
 	else
 		Spring.Echo("battle1", id1, battle1, battle1 and battle1.users)
 		Spring.Echo("battle2", id2, battle2, battle2 and battle2.users)
@@ -1243,7 +1258,7 @@ function BattleListWindow:OpenHostWindow()
 		caption = "",
 		name = "hostBattle",
 		parent = WG.Chobby.lobbyInterfaceHolder,
-		width = 400,
+		width = 500,
 		height = 400,
 		resizable = false,
 		draggable = false,
@@ -1269,7 +1284,9 @@ function BattleListWindow:OpenHostWindow()
 		--multiline = true,
 		valign = "top",
 		height = 150,
-		text = "You can host a game by requesting an empty battle room. You can lock the battle rooms (!lock) to prevent anyone from joining, otherwise anyone can join your game.",--i18n("game_name") .. ":",
+		--text = "You can host a game by requesting an empty battle room. You can lock the battle rooms (!lock) to prevent anyone from joining, otherwise anyone can join your game.",--i18n("game_name") .. ":",
+		text = "Choose whether you want a public or a private custom battle where you are the boss and only you may change game settings. Only leaving the remove will remove the boss. Anyone may join public battles, but private battles are password protected.",
+		--i18n("game_name") .. ":",
 		objectOverrideFont = myFont2,
 		parent = hostBattleWindow,
 	}
@@ -1294,7 +1311,8 @@ function BattleListWindow:OpenHostWindow()
 		itemHeight = 22,
 		text = "",
 		objectOverrideFont = myFont2,
-		items = Configuration.hostRegions,
+				text = "",
+		items = Configuration.hostRegions, --self.hostRegions = {"DE","EU","EU2","US","AU"}
 		itemFontSize = Configuration:GetFont(2).size,
 		selected = 1,
 		tooltip = "You may choose any region you wish, BAR is not sensitive to latency.",
@@ -1341,11 +1359,12 @@ function BattleListWindow:OpenHostWindow()
 	local function HostBattle()
 		WG.BattleRoomWindow.LeaveBattle()
 		--Attempting to host game at 
-		local requestedregion = typeCombo.items[typeCombo.selected]
+		local requestedregion = typeCombo.items[typeCombo.selected] ---self.hostRegions = {"DE","EU","EU2","US","AU"}
 		--Spring.Echo("Looking for empty host in region", requestedregion)
+		local privateclusters = {EU = '[teh]cluster1', US = '[teh]clusterUS2', US2 = '[teh]clusterUS', AU = '[teh]clusterAU', DE = '[teh]clusterEU2',EU2 = '[teh]clusterEU3',}
+		local targetCluster = privateclusters[requestedregion]
+
 		if userWantsPrivateBattle then
-			local privateclusters = {EU = '[teh]cluster1', US = '[teh]clusterUS', AU = '[teh]clusterAU', DE = '[teh]clusterEU2',EU2 = '[teh]clusterEU3',}
-			local targetCluster = privateclusters[requestedregion]
 			local mypassword = nil
 			local function listenForPrivateBattle(listener, userName, message, msgDate)
 				--Spring.Echo("listenForPrivateBattle",listener, userName, message, msgDate)
@@ -1408,55 +1427,56 @@ function BattleListWindow:OpenHostWindow()
 			end
 
 			return
-		end
-
-
-
-		local targetbattle = nil
-		-- try to get empty matching one
-		local battles = lobby:GetBattles()
-		local tmp = {}
-		for _, battle in pairs(battles) do
-			table.insert(tmp, battle)
-		end
-		battles = tmp
-		if requestedregion == 'DE' then requestedregion = "EU - 2" end -- nasty
-		for _, battle in pairs(battles) do
-			if string.sub(battle.title,1,string.len(requestedregion)) == requestedregion and
-				lobby:GetBattlePlayerCount(battle.battleID) == 0 and 
-				battle.spectatorCount == 1 and
-				battle.isRunning ~= true and -- this is needed after server restarts
-				Configuration:IsValidEngineVersion(battle.engineVersion) then
-
-				targetbattle = battle.battleID
-				break
-			else
-				--Spring.Echo('tryhostbattle',battle, battle.battleID, battle.title, lobby:GetBattlePlayerCount(battle.battleID),Configuration:IsValidEngineVersion(battle.engineVersion) )
-			end
-
-		end
-
-		if targetbattle == nil then
-			--Spring.Echo("Failed to find a battle")
-			errorLabel:SetCaption("Could not find a suitable battle room!\nPlease try again.")
 		else
-			errorLabel:SetCaption("")
-			if WG.Analytics then
-				WG.Analytics.SendRepeatEvent("lobby:multiplayer:hostgame", {
-					hostregion = requestedregion
-				})
+
+			targetCluster = targetCluster .. '['
+
+			local targetbattle = nil
+			-- try to get empty matching one
+			local battles = lobby:GetBattles()
+			local tmp = {}
+			for _, battle in pairs(battles) do
+				table.insert(tmp, battle)
 			end
-			Configuration:SetConfigValue("lastGameSpectatorState", false) -- assume that private hoster wants to play, needed so he can boss self!
-					
-			--Spring.Echo("Found a battle")
-			local function bossSelf() 
-				local myplayername = lobby:GetMyUserName() or ''
-				lobby:SayBattle("!boss " .. myplayername)
+			battles = tmp
+			--if requestedregion == 'DE' then requestedregion = "EU - 2" end -- nasty
+			-- targetCluster
+			for _, battle in pairs(battles) do
+				if string.find(battle.founder, targetCluster, nil, true) and
+					battle.spectatorCount == 1 and
+					battle.isRunning ~= true and -- this is needed after server restarts
+					lobby:GetBattlePlayerCount(battle.battleID) == 0 and 
+					Configuration:IsValidEngineVersion(battle.engineVersion) then
+						targetbattle = battle.battleID
+					break
+				else
+					Spring.Echo('tryhostbattle',battle, battle.battleID, battle.title, battle.founder, targetCluster, lobby:GetBattlePlayerCount(battle.battleID),Configuration:IsValidEngineVersion(battle.engineVersion) )
+				end
 			end
 
-			self:JoinBattle(lobby:GetBattle(targetbattle))
-			WG.Delay(bossSelf, 1)
-			hostBattleWindow:Dispose()
+			if targetbattle == nil then
+				--Spring.Echo("Failed to find a battle")
+				errorLabel:SetCaption("Could not find a suitable battle room in your selected region!\nPlease try another.")
+			else
+				errorLabel:SetCaption("")
+				if WG.Analytics then
+					WG.Analytics.SendRepeatEvent("lobby:multiplayer:hostgame", {
+						hostregion = requestedregion
+					})
+				end
+				Configuration:SetConfigValue("lastGameSpectatorState", false) -- assume that private hoster wants to play, needed so he can boss self!
+						
+				--Spring.Echo("Found a battle")
+				local function bossSelf() 
+					local myplayername = lobby:GetMyUserName() or ''
+					lobby:SayBattle("!boss " .. myplayername)
+					lobby:SayBattle("!preset custom")
+				end
+
+				self:JoinBattle(lobby:GetBattle(targetbattle))
+				WG.Delay(bossSelf, 1)
+				hostBattleWindow:Dispose()
+			end
 		end
 	end
 

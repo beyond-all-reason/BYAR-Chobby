@@ -385,6 +385,57 @@ local function ParseInfolog(infologpath)
 	return nil -- nil if nothing bad happened
 end
 
+local function ascii(s)
+	-- this function is an abomination born from the fact that lua cant gsub the 0x00 ascii character
+	local res = {}
+	local validchars = 0
+	local invalidchars = 0
+	for i=1, string.len(s) do 
+		local sub = string.sub(s,i,i)
+		local val = string.byte(sub) 
+		if (val >= 9) and (val <= 127) then 
+			validchars = validchars + 1 
+			res[validchars] = sub
+		else
+			--print ("invalid character, number is ", val) 
+			invalidchars = invalidchars + 1 
+		end
+	end
+	return table.concat(res)
+end
+
+
+local function GetDesyncGameStates()
+	local filenames = VFS.DirList('.') -- ipairs
+	for i=1, #filenames do
+		local filename = filenames[i]
+		--Spring.Echo("GetDesyncGameStates",filename)
+		if string.find(string.lower(filename), "clientgamestate", nil, true) then
+			if onetimeEvents["reportedcrashes"][filename] ~= nil then -- we already reported this one
+				Spring.Echo("Already processed an error in ", filename)
+			else
+				Spring.Echo("Found a desync dump", filename )
+				local infolog = VFS.LoadFile(filename)
+				if infolog == nil then
+					Spring.Echo("Failed to load desync dump", filename)
+				end
+				if string.len(infolog) > 16000000 then 
+					infolog = string.sub(infolog,1,16000000)
+				end
+				local t0 = Spring.GetTimer()
+				infolog = ascii(infolog)
+				local compressedlog = Spring.Utilities.Base64Encode(VFS.ZlibCompress(infolog))
+				local t1 = Spring.GetTimer()
+				--local validate = io.open("tempdump.txt",'w')
+				--validate:write(compressedlog)
+				--validate:close()
+				--Spring.Echo("Crash Dump Header is",string.sub(compressedlog, 1, 1000))
+				Analytics.SendCrashReportOneTimeEvent(filename, "SyncError", filename, compressedlog, false)
+				Spring.Echo("Dump done in ", Spring.DiffTimers(Spring.GetTimer(), t1), Spring.DiffTimers(t1,t0))
+			end
+		end
+	end
+end
 
 
 local function GetInfologs()
@@ -553,6 +604,7 @@ function DelayedInitialize()
 	Analytics.SendOnetimeEvent("graphics:tesselation", ((IsTesselationShaderSupported() and 1) or 0))
 	WG.Delay(LateHWInfo,15)
 	WG.Delay(GetInfologs,17)
+	WG.Delay(GetDesyncGameStates, 25)
 
 
 end

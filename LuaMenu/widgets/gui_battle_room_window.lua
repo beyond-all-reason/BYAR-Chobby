@@ -904,6 +904,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 
 	rightInfo.OnResize = {
 		function (obj, xSize, ySize)
+			-- Spring.Utilities.TraceFullEcho(nil,nil,nil,"rightInfo.OnResize", xSize, ySize )
 			if xSize + minimapBottomClearance < ySize then
 				minimapPanel._relativeBounds.left = 0
 				minimapPanel._relativeBounds.right = 0
@@ -1325,6 +1326,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		-- Spring.Log("Chobby AddStartRect",LOG.WARNING,"AddStartRect", allyNo, left, top, right, bottom,minimapPanel.width,minimapPanel.height)
 		-- FIXME: minimap.width is sometimes only 10 at this point :/
 		-- it doesnt even know how big it is right nowhere
+		-- Spring.Utilities.TraceFullEcho()
 
 		local minimapPanelMaxSize = math.max(minimapPanel.width,minimapPanel.height) -1
 		local ox = math.floor(left * minimapPanelMaxSize / 200)
@@ -1441,6 +1443,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	MaybeDownloadGame(battle)
 	MaybeDownloadMap(battle)
 	UpdateArchiveStatus(true)
+	externalFunctions.rightInfo = rightInfo
 
 	return externalFunctions
 end
@@ -2243,16 +2246,16 @@ local function SetupSpadsStatusPanel(battle, battleID)
 		},
 		preset = {
 			current = "team",
-			allowed = {"team","ffa","coop","duel","tourney"},
+			allowed = {"team","ffa","coop","duel","tourney","custom"},
 			caption = "Preset",
-			tooltip = "Team - Game of multiple Teams\nFFA - Free-For-All\nCoop - Humans vs AI\nDuel - 1v1",
+			tooltip = "Team - Game of multiple Teams\nFFA - Free-For-All\nCoop - Humans vs AI\nDuel - 1v1\nCustom - For custom battles",
 			spadscommand = "!preset",
 		},
 		autoBalance = {
 			current = "off",
-			allowed = {"off","on","advanced"},
+			allowed = {"off","advanced"},
 			caption = "Autobalance",
-			tooltip = "Balance teams and fix IDs automatically. Use Coop preset to play vs AIs",
+			tooltip = "Balance teams and fix IDs automatically.\nUse Coop preset to play vs AIs.",
 			spadscommand = "!autobalance",
 		},
 		balanceMode = {
@@ -3084,36 +3087,36 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	end
 
 	local function ParseSpadsMessage(userName, message) -- return hidemessage bool
-	-- should only be called on messages from founder (host)
-	local myUserName = battleLobby:GetMyUserName()
-	local iAmMentioned = (string.find(message,myUserName,nil,true) ~= nil)
-	--Spring.Echo("Parsing", userName, message, myUserName,iAmMentioned)
+		-- should only be called on messages from founder (host)
+		local myUserName = battleLobby:GetMyUserName()
+		local iAmMentioned = (string.find(message,myUserName,nil,true) ~= nil)
+		--Spring.Echo("Parsing", userName, message, myUserName,iAmMentioned)
 
-	if iAmMentioned then return false end
+		if iAmMentioned then return false end
 
-	-- filter some basic things that are 'private' to me
-	if string.match(message, "you cannot vote currently, there is no vote in progress.$") then return true end
+		-- filter some basic things that are 'private' to me
+		if string.match(message, "you cannot vote currently, there is no vote in progress.$") then return true end
 
-	if string.match(message, ", there is already a vote in progress, please wait for it to finish before calling another one.$") then return true end
+		if string.match(message, ", there is already a vote in progress, please wait for it to finish before calling another one.$") then return true end
 
-	if string.match(message, ", please wait .* more second.s. before calling another vote .vote flood protection..$") then return true end
+		if string.match(message, ", please wait .* more second.s. before calling another vote .vote flood protection..$") then return true end
 
-	if string.match(message, ".* you have already voted for current vote.$") then return true end
+		if string.match(message, ".* you have already voted for current vote.$") then return true end
 
-	if string.match(message, ". Away vote mode for .*$") then return true end
+		if string.match(message, ". Away vote mode for .*$") then return true end
 
-	-- TODO: prepare for BarManager
-	-- i can still multi-vote!
-	if string.match(message, ". Hi .*! Current battle type is .*.$") then return false end
+		-- TODO: prepare for BarManager
+		-- i can still multi-vote!
+		if string.match(message, ". Hi .*! Current battle type is .*.$") then return false end
 
-	if string.match(message, ". BattleStatus = .*") then
-		initBattleStatusPanel(pyPartition(message,'"', true))
-		return true
-	end
+		if string.match(message, ". BattleStatus = .*") then
+			initBattleStatusPanel(pyPartition(message,'"', true))
+			return true
+		end
 
-	if string.match(message, "Player .* has already been added in game") then return true end
-
-	return false -- false if it should be displayed to user, true if not
+		if string.match(message, "Player .* has already been added in game") then return true end
+		
+		return false -- false if it should be displayed to user, true if not
 	end
 
 	local function ParseUserMessage(userName,message) -- returns hidemessage bool
@@ -3510,7 +3513,7 @@ function BattleRoomWindow.GetSingleplayerControl(setupData)
 
 		OnParent = {
 			function(obj)
-
+				--Spring.Utilities.TraceFullEcho()
 				if multiplayerWrapper then
 					WG.BattleStatusPanel.RemoveBattleTab()
 
@@ -3521,6 +3524,13 @@ function BattleRoomWindow.GetSingleplayerControl(setupData)
 					WG.LibLobby.lobby:LeaveBattle()
 					multiplayerWrapper = nil
 				elseif mainWindow then
+					--Spring.Echo("mainWindo exists", mainWindowFunctions, mainWindowFunctions.GetInfoHandler())
+					if mainWindowFunctions and mainWindowFunctions.GetInfoHandler() then
+						local infoHandler = mainWindowFunctions.GetInfoHandler()
+						--Spring.Utilities.TableEcho(infoHandler)
+						infoHandler.rightInfo:Invalidate()
+						infoHandler.UpdateStartRectPositionsInMinimap()
+					end
 					return
 				end
 
@@ -3538,6 +3548,7 @@ function BattleRoomWindow.GetSingleplayerControl(setupData)
 
 				local battleWindow, functions = InitializeControls(1, battleLobby, 70, setupData)
 				mainWindowFunctions = functions
+				--Spring.Echo("battleWindow, functions, mainWindow", battleWindow, functions, mainWindow)
 				if not battleWindow then
 					return
 				end
@@ -3600,7 +3611,33 @@ function BattleRoomWindow.GetSingleplayerControl(setupData)
 							1, -- Default side for enemy AI is Cortex
 							GetStarterEnemyAIColorAssignment(i))
 					end
+					if singleplayerDefault.startboxes then 
+						for startboxindex, startboxcoords in pairs(singleplayerDefault.startboxes) do 
+							--Spring.Utilities.TraceFullEcho(100,100,100,"INIT BOXEN", battleWindow, mainWindowFunctions)
+							--Spring.Utilities.TableEcho(mainWindowFunctions)
+							local infoHandler = mainWindowFunctions.GetInfoHandler()
+							--Spring.Utilities.TableEcho(infoHandler)
+							infoHandler.AddStartRect(startboxindex, startboxcoords[1], startboxcoords[2],startboxcoords[3],startboxcoords[4])
+							infoHandler.rightInfo:Invalidate()
+							infoHandler.UpdateStartRectPositionsInMinimap()
+						end
+					end
 				end
+				local function updateMinimapstartBoxesDelayed()
+					if mainWindowFunctions and mainWindowFunctions.GetInfoHandler() then 
+						local infoHandler = mainWindowFunctions.GetInfoHandler()
+						--Spring.Utilities.TableEcho(infoHandler)
+						infoHandler.rightInfo:Invalidate()
+						infoHandler.UpdateStartRectPositionsInMinimap()
+						--Spring.Echo("Updating infoHandler.rightInfo:UpdateClientArea()")
+						infoHandler.rightInfo:UpdateClientArea()
+					end
+				end
+
+				if WG.Delay then
+					WG.Delay(updateMinimapstartBoxesDelayed, 0.5)
+				end
+
 			end
 		},
 	}
@@ -3675,6 +3712,14 @@ local function DelayedInitialize()
 		end
 	end
 	WG.Chobby.Configuration:AddListener("OnConfigurationChange", onConfigurationChange)
+
+	if mainWindowFunctions and mainWindowFunctions.GetInfoHandler() then
+		local infoHandler = mainWindowFunctions.GetInfoHandler()
+		infoHandler.rightInfo:Invalidate()
+		infoHandler.UpdateStartRectPositionsInMinimap()
+	else
+		--Spring.Echo("Cannot find mainWindowFunctions in battle room window",mainWindowFunctions)
+	end
 end
 
 function widget:Initialize()

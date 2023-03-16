@@ -74,7 +74,7 @@ function Configuration:init()
 	self.battleFilterLocked = false
 	self.battleFilterRedundant = true
 	self.battleFilterRedundantRegions = {"EU - ", "USA - ", "AUS - ","EU - ENGINE TESTING ","US - ","AU - ", "UK - "}
-	self.hostRegions = {"DE","EU","EU2","US","AU"}
+	self.hostRegions = {"DE","EU","EU2","US","US2","AU"}
 
 	self.manualBorderless = {
 		game = {},
@@ -131,6 +131,7 @@ function Configuration:init()
 	self.multiplayerLaunchNewSpring = false
 	self.myAccountID = false
 	self.lastAddedAiName = false
+	self.multiplayerDifferentEngine = true
 
 	self.noNaiveConfigOverride = {
 		settingsMenuValues = true,
@@ -628,6 +629,7 @@ function Configuration:GetConfigData()
 		displayBadEngines2 = self.displayBadEngines2,
 		useWrongEngine = self.useWrongEngine,
 		multiplayerLaunchNewSpring = self.multiplayerLaunchNewSpring,
+		multiplayerDifferentEngine = self.multiplayerDifferentEngine,
 		doNotSetAnySpringSettings = self.doNotSetAnySpringSettings,
 		agressivelySetBorderlessWindowed = self.agressivelySetBorderlessWindowed,
 		fixedSettingsOverride = self.fixedSettingsOverride,

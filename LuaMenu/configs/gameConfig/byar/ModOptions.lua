@@ -582,13 +582,21 @@ local options={
 		def    = false,
 		section= "options",
 	},
+
 	{
 		key    = 'teamcolors_anonymous_mode',
 		name   = 'Anonymous Mode',
-		desc   = 'All your enemies are colored with the same color so you cannot recognize them. Forces Dynamic TeamColors to be enabled',
-		type   = 'bool',
+		desc   = 'Anonimizes players in the match so you have harder time telling who is who.',
+		type   = 'list',
 		section = 'options',
-		def  = false,
+		def  = "disabled",
+		items={
+			{key="disabled", name="Disabled", desc="Anonymous Mode disabled."},
+			{key="allred", name="Force SimpleColors", desc="All players have simple colors enabled, enemies cannot be recognized from each other."},
+			{key="global", name="Shuffle Globally", desc="Player colors order is shuffled globally, everyone see the same colors"},
+			{key="local", name="Shuffle Locally", desc="Player colors order is shuffled locally, everyone see different colors"},
+			--{key="disco", name="Shuffle Locally - DiscoMode", desc="Player colors order is shuffled locally, everyone see different colors that change every once a while randomly"},
+		}
 	},
 
 	{

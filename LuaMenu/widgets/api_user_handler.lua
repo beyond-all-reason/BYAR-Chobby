@@ -64,6 +64,7 @@ local IMAGE_READY        = IMAGE_DIR .. "ready.png"
 local IMAGE_UNREADY      = IMAGE_DIR .. "unready.png"
 local IMAGE_DLREADY      = IMAGE_DIR .. "downloadready.png"
 local IMAGE_DLUNREADY    = IMAGE_DIR .. "downloadnotready.png"
+local IMAGE_DOWNLOAD     = IMAGE_DIR .. "download.png"
 local IMAGE_UNKNOWN_SYNC = IMAGE_DIR .. "unknown_sync.png"
 local IMAGE_ONLINE       = IMAGE_DIR .. "online.png"
 local IMAGE_OFFLINE      = IMAGE_DIR .. "offline.png"
@@ -375,15 +376,17 @@ local function GetUserStatusImages(userName, isInBattle, userControl)
 		images[#images + 1] = IMAGE_PARTY_INVITE
 	end
 
-	if userInfo.isInGame or (userInfo.battleID and not isInBattle) and not userControl.hideStatusIngame then
-		if userInfo.isInGame then
-			if userInfo.battleID == nil and WG.Chobby.Configuration.gameConfig.showSinglePlayerIngame then
-				images[#images + 1] = IMAGE_SOLO
+	if not isInBattle then
+		if userInfo.isInGame or (userInfo.battleID and not isInBattle) and not userControl.hideStatusIngame then
+			if userInfo.isInGame then
+				if userInfo.battleID == nil and WG.Chobby.Configuration.gameConfig.showSinglePlayerIngame then
+					images[#images + 1] = IMAGE_SOLO
+				else
+					images[#images + 1] = IMAGE_INGAME
+				end
 			else
-				images[#images + 1] = IMAGE_INGAME
+				images[#images + 1] = IMAGE_BATTLE
 			end
-		else
-			images[#images + 1] = IMAGE_BATTLE
 		end
 	end
 
@@ -427,6 +430,43 @@ local function GetUserStatus(userName, isInBattle, userControl)
 		return IMAGE_AFK, "afk", {0.5, 0.5, 1, 1}
 	else
 		return IMAGE_ONLINE, "online", {1, 1, 1, 1}
+	end
+end
+
+local function getUserStatusImage(userName, userControls)
+	local bs = userControls.lobby:GetUserBattleStatus(userName) or {}
+	local userInfo = userControls.lobby:GetUser(userName) or {}
+	
+	-- 1. Check if someone is ingame - If yes, swords, if not, go to point 2.
+	-- 2. Check if someone is synced - If not, red download arrow, if yes, go to point 3.
+	-- 3. Check if someone is ready - if not, red cross, if yes, green checkmark
+	local statusImage = IMAGE_UNKNOWN_SYNC
+	if userControls.isInBattle then
+		if userInfo.isInGame then
+			if userInfo.battleID == nil and WG.Chobby.Configuration.gameConfig.showSinglePlayerIngame then
+				statusImage = IMAGE_SOLO
+			else
+				statusImage = IMAGE_INGAME
+			end
+		elseif userControls.isPlaying then
+			if not userControls.suppressSync and (bs and bs.sync and bs.sync == 2) then
+				--statusImage = IMAGE_DLUNREADY
+				statusImage = IMAGE_DOWNLOAD
+			else
+				statusImage = GetUserReadyStatus(userName, userControls)
+			end
+		end
+	end
+	return statusImage
+end
+
+local function UpdateUserStatusImage(userName, userControls)
+	if userControls.imStatus then
+		userControls.imStatus:SetVisibility(userControls.isPlaying)
+		if userControls.isPlaying then
+			userControls.imStatus.file = getUserStatusImage(userName, userControls)
+			--userControls.imStatus:Invalidate()
+		end
 	end
 end
 
@@ -519,6 +559,7 @@ local function UpdateUserActivity(listener, userName)
 			userControls.tbName.font.color = GetUserNameColor(userName, userControls)
 			userControls.tbName:Invalidate()
 
+			UpdateUserStatusImage(userName, userControls)
 			UpdateUserControlStatus(userName, userControls)
 		end
 	end
@@ -559,136 +600,149 @@ local function UpdateUserBattleStatus(listener, userName)
 	UpdateUserComboboxOptions(_, userName)
 	for i = 1, #userListList do
 		local userList = userListList[i]
-		local data = userList[userName]
-		if data then
+		local userControls = userList[userName]
+		if userControls then
 
-			local bs = data.lobby:GetUserBattleStatus(userName) or {}
-			local isPlaying = (bs and not bs.isSpectator) or false
-
+			local bs = userControls.lobby:GetUserBattleStatus(userName) or {}
+			userControls.isPlaying = (bs and not bs.isSpectator) or false
+			
 			local offset = 0
-			local displaySync = isPlaying and bs.sync and bs.sync == 2 -- 2 = Sync Status Downloading
-			if data.imSyncStatus then
-				data.imSyncStatus:SetVisibility(displaySync)
+
+			if userControls.imStatus then
+				UpdateUserStatusImage(userName, userControls)
+				if userControls.isPlaying then
+					offset = offset + 1
+					userControls.imStatus:SetPos(offset)
+					offset = offset + 21
+				end
+			end
+
+			--[[
+			local offset = 0
+			local displaySync = userControls.isPlaying and bs.sync and bs.sync == 2 -- 2 = Sync Status Downloading
+			if userControls.imSyncStatus then
+				userControls.imSyncStatus:SetVisibility(displaySync)
 				if displaySync then
-					data.imSyncStatus.file = GetUserSyncStatus(userName, data)
+					userControls.imSyncStatus.file = GetUserSyncStatus(userName, userControls)
 					offset = offset + 1
-					data.imSyncStatus:SetPos(offset)
+					userControls.imSyncStatus:SetPos(offset)
 					offset = offset + 21
 				end
 			end
 
-			local displayReady = isPlaying and not displaySync	
-			if data.imReadyStatus and not isSingleplayer then
-				data.imReadyStatus:SetVisibility(displayReady)
+			local displayReady = userControls.isPlaying and not displaySync	
+			if userControls.imReadyStatus and not isSingleplayer then
+				userControls.imReadyStatus:SetVisibility(displayReady)
 				if displayReady then
-					data.imReadyStatus.file = GetUserReadyStatus(userName, data)
+					userControls.imReadyStatus.file = GetUserReadyStatus(userName, userControls)
 					offset = offset + 1
-					data.imReadyStatus:SetPos(offset)
+					userControls.imReadyStatus:SetPos(offset)
 					offset = offset + 21
 				end
 			end
+			--]]
 
-			if not data.isSingleplayer then
+			if not userControls.isSingleplayer then
 				-- Country: show if configured to show
-				data.imCountry:SetVisibility(data.showCountry)
-				if data.showCountry then	
+				userControls.imCountry:SetVisibility(userControls.showCountry)
+				if userControls.showCountry then	
 					offset = offset + 1
-					data.imCountry:SetPos(offset + 2)
+					userControls.imCountry:SetPos(offset + 2)
 					offset = offset + 21
 				end
 
 				-- Rank: show if configured to show
-				data.imLevel:SetVisibility(data.showRank)
-				if data.showRank then
+				userControls.imLevel:SetVisibility(userControls.showRank)
+				if userControls.showRank then
 					offset = offset + 1
-					data.imLevel:SetPos(offset)
+					userControls.imLevel:SetPos(offset)
 					offset = offset + 21
 				end
 
 				-- Skill: show only in battlelist (limited by spring lobby protocol, skill not available for users outside of own battle)
-				local showSkill = isPlaying and data.showSkillOpt > 1
-				data.tbSkill:SetVisibility(showSkill)
+				local showSkill = userControls.isPlaying and userControls.showSkillOpt > 1
+				userControls.tbSkill:SetVisibility(showSkill)
 				if showSkill then
 					offset = offset + 1
-					data.tbSkill:SetPos(offset)
+					userControls.tbSkill:SetPos(offset)
 					offset = offset + 20
-					local skill, skillColor = GetUserSkill(userName, data)
-					data.tbSkill:SetText(skill)
-					data.tbSkill.font.color = skillColor
-					data.tbSkill:Invalidate()
+					local skill, skillColor = GetUserSkill(userName, userControls)
+					userControls.tbSkill:SetText(skill)
+					userControls.tbSkill.font.color = skillColor
+					userControls.tbSkill:Invalidate()
 				end
 			end
 
-			if data.imClan then
+			if userControls.imClan then
 				offset = offset + 1
-				data.imClan:SetPos(offset)
+				userControls.imClan:SetPos(offset)
 				offset = offset + 21
 			end
 
-			if data.imSide then
+			if userControls.imSide then
 				local sideSelected = bs.side ~= nil
-				data.imSide:SetVisibility(isPlaying and sideSelected)
+				userControls.imSide:SetVisibility(userControls.isPlaying and sideSelected)
 				if sideSelected then
-					data.imSide.file = WG.Chobby.Configuration:GetSideById(bs.side).logo
+					userControls.imSide.file = WG.Chobby.Configuration:GetSideById(bs.side).logo
 				end
-				if isPlaying and sideSelected then
+				if userControls.isPlaying and sideSelected then
 					offset = offset + 2
-					data.imSide:SetPos(offset)
+					userControls.imSide:SetPos(offset)
 					offset = offset + 22
 				end
 			end
 
 			offset = offset + 2
-			data.tbName:SetPos(offset)
-			data.nameStartY = offset
-			local truncatedName = StringUtilities.TruncateStringIfRequiredAndDotDot(userName, data.tbName.font, maxNameLength and (maxNameLength - offset))
-			data.nameStartY = offset
-			data.maxNameLength = maxNameLength
+			userControls.tbName:SetPos(offset)
+			userControls.nameStartY = offset
+			local truncatedName = StringUtilities.TruncateStringIfRequiredAndDotDot(userName, userControls.tbName.font, maxNameLength and (maxNameLength - offset))
+			userControls.nameStartY = offset
+			userControls.maxNameLength = maxNameLength
 
-			local nameColor = GetUserNameColor(userName, data)
+			local nameColor = GetUserNameColor(userName, userControls)
 			if nameColor then
-				data.tbName.font.color = nameColor
-				data.tbName:Invalidate()
+				userControls.tbName.font.color = nameColor
+				userControls.tbName:Invalidate()
 			end
 			if truncatedName then
-				data.tbName:SetText(truncatedName)
-				data.nameTruncated = true
+				userControls.tbName:SetText(truncatedName)
+				userControls.nameTruncated = true
 			end
-			data.nameActualLength = data.tbName.font:GetTextWidth(data.tbName.text)
-			offset = offset + data.nameActualLength
+			userControls.nameActualLength = userControls.tbName.font:GetTextWidth(userControls.tbName.text)
+			offset = offset + userControls.nameActualLength
 
-			if data.imTeamColor then
-				data.imTeamColor.color = bs.teamColor
-				data.imTeamColor:SetVisibility(isPlaying)
+			if userControls.imTeamColor then
+				userControls.imTeamColor.color = bs.teamColor
+				userControls.imTeamColor:SetVisibility(userControls.isPlaying)
 				offset = offset + 5
-				data.imTeamColor:SetPos(offset)
+				userControls.imTeamColor:SetPos(offset)
 				offset = offset + 20
-				data.imTeamColor:Invalidate()
+				userControls.imTeamColor:Invalidate()
 			end
 
-			if data.lblHandicap then
+			if userControls.lblHandicap then
 				local handicap = bs.handicap
 				if handicap ~= nil then
 					local handicaptxt = ''
 					if bs.handicap == 0 then
-						data.lblHandicap:SetVisibility(false)
+						userControls.lblHandicap:SetVisibility(false)
 					else
 						if bs.handicap > 0 then
 							handicaptxt = '+'..tostring(bs.handicap)
 						else
 							handicaptxt = tostring(bs.handicap)
 						end
-						data.lblHandicap:SetCaption(handicaptxt)
-						data.lblHandicap:SetVisibility(true)
+						userControls.lblHandicap:SetCaption(handicaptxt)
+						userControls.lblHandicap:SetVisibility(true)
 					end
 				end
-				if not isPlaying then
+				if not userControls.isPlaying then
 					-- If the player is spectating, don't show handicap label regardless of its value.
-					data.lblHandicap:SetVisibility(false)
+					userControls.lblHandicap:SetVisibility(false)
 				end
-				data.lblHandicap:Invalidate()
+				userControls.lblHandicap:Invalidate()
 			end
-			UpdateUserControlStatus(userName, data) -- moves status images right of userName according to nameStartY and nameActualLength
+			UpdateUserControlStatus(userName, userControls) -- moves status images right of userName according to nameStartY and nameActualLength
 		end
 	end
 end
@@ -751,14 +805,8 @@ local function GetUserControls(userName, opts)
 
 	local myBattleID = userControls.lobby:GetMyBattleID()
 	local userInfo = userControls.lobby:GetUser(userName) or {}
-	local isPlayerInBattle = userInfo and userInfo.battleID == myBattleID
-	local bs = lobby:GetUserBattleStatus(userName)
-	local isPlaying = (bs and not bs.isSpectator) or false
-	if isPlayerInBattle then
-		local isPlaying = (bs and not bs.isSpectator) or false
-	else
-		local isPlaying = false
-	end
+	local bs = userControls.lobby:GetUserBattleStatus(userName)
+	userControls.isPlaying = (bs and not bs.isSpectator) or false
 
 	if reinitialize then
 		userControls.mainControl:ClearChildren()
@@ -1014,8 +1062,29 @@ local function GetUserControls(userName, opts)
 	if comboBoxOnly then
 		return userControls
 	end
-	
-	local displaySync = isPlaying and (bs and bs.sync and bs.sync == 2) -- 2 = Sync Status Downloading
+
+	if not isSingleplayer and isInBattle and not suppressSync then
+		offset = offset + 1
+		userControls.imStatus = Image:New {
+			name = "imStatus",
+			x = offset,
+			y = offsetY + 1,
+			width = 21,
+			height = 19,
+			parent = userControls.mainControl,
+			keepAspect = true,
+			file = getUserStatusImage(userName, userControls),
+		}
+		userControls.imStatus:SetVisibility(userControls.isPlaying)
+		if userControls.isPlaying then
+			offset = offset + 21
+		else
+			offset = offset - 1
+		end
+	end
+
+	--[[
+	local displaySync = userControls.isPlaying and (bs and bs.sync and bs.sync == 2) -- 2 = Sync Status Downloading
 	if isInBattle and not suppressSync then
 		offset = offset + 1
 		userControls.imSyncStatus = Image:New {
@@ -1036,7 +1105,7 @@ local function GetUserControls(userName, opts)
 		end
 	end
 
-	local displayReady = isPlaying and not displaySync
+	local displayReady = userControls.isPlaying and not displaySync
 	if showReady then
 		offset = offset + 1
 		userControls.imReadyStatus = Image:New {
@@ -1056,6 +1125,7 @@ local function GetUserControls(userName, opts)
 			offset = offset - 1
 		end
 	end
+	--]]
 	
 	offset = offset + 1
 	userControls.imCountry = Image:New {
@@ -1096,7 +1166,7 @@ local function GetUserControls(userName, opts)
 		end
 
 		-- skill only available when we are inside battle
-		local showSkill = isPlaying and userControls.showSkillOpt > 1 -- 1: no 2: Yes 3: Detailed
+		local showSkill = userControls.isPlaying and userControls.showSkillOpt > 1 -- 1: no 2: Yes 3: Detailed
 		local skill, skillColor = GetUserSkill(userName, userControls)
 		offset = offset + 1
 		userControls.tbSkill = TextBox:New {
@@ -1138,11 +1208,12 @@ local function GetUserControls(userName, opts)
 		offset = offset + 21
 	end
 
-	if bs and showSide then
+	if showSide then
 		offset = offset + 2
 		local file = nil
+		bs = bs or {}
 		if bs.side ~= nil then
-			file = WG.Chobby.Configuration:GetSideById(battleStatus.side or 0).logo
+			file = WG.Chobby.Configuration:GetSideById(bs.side or 0).logo
 		end
 		userControls.imSide = Image:New {
 			name = "imSide",
@@ -1367,7 +1438,7 @@ function userHandler.GetBattleUser(userName, isSingleplayer)
 		showModerator  = true,
 		showFounder    = true,
 		showTeamColor  = not WG.Chobby.Configuration.gameConfig.disableColorChoosing,
-		showSide       = false,
+		showSide       = WG.Chobby.Configuration:GetSideData() ~= nil,
 		showHandicap   = WG.Chobby.Configuration.gameConfig.showHandicap,
 	})
 end

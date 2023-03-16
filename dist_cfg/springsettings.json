@@ -55,7 +55,7 @@
     "ReflectiveWater": 3,
     "ScrollWheelSpeed": -20,
     "Shadows": 1,
-    "ShadowMapSize": 4096,
+    "ShadowMapSize": 2048,
     "ShowClock": 0,
     "ShowFps": 0,
     "ShowSpeed": 0,
