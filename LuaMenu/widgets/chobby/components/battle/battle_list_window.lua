@@ -159,7 +159,11 @@ function BattleListWindow:init(parent)
 
 	self:SetMinItemWidth(320)
 	self.columns = 3
+<<<<<<< HEAD
 	self.itemHeight = 80
+=======
+	self.itemHeight = 40
+>>>>>>> New Server Browser V2
 	self.itemPadding = 1
 
 	local function UpdateTimersDelay()
@@ -508,27 +512,29 @@ function BattleListWindow:MakeJoinBattle(battleID, battle)
 
 	local lblTitle = Label:New {
 		name = "lblTitle",
-		x = height + 3,
+		x = 23,
 		y = 0,
-		right = 0,
+		right = "60%",
 		height = 20,
 		valign = 'center',
 		objectOverrideFont = myFont2,
+		--caption = battle.title .. " | " .. battle.mapName:gsub("_", " "),
 		caption = battle.title,
 		parent = parentButton,
 		OnResize = {
 			function (obj, xSize, ySize)
+				--obj:SetCaption(StringUtilities.GetTruncatedStringWithDotDot(battle.title .. " | " .. battle.mapName:gsub("_", " "), obj.font, obj.width))
 				obj:SetCaption(StringUtilities.GetTruncatedStringWithDotDot(battle.title, obj.font, obj.width))
 			end
 		}
 	}
 	local minimap = Panel:New {
 		name = "minimap",
-		x = 3,
-		y = 3,
-		width = height - 6,
-		height = height - 6,
-		padding = {1,1,1,1},
+		x = "47%",
+		y = 0,
+		width = height,
+		height = height,
+		padding = {0,0,0,0},
 		parent = parentButton,
 	}
 
@@ -545,25 +551,28 @@ function BattleListWindow:MakeJoinBattle(battleID, battle)
 		checkFileExists = needDownload,
 		parent = minimap,
 	}
-	local runningImage = Image:New {
-		name = "runningImage",
-		x = 0,
-		y = 0,
-		right = 0,
-		bottom = 0,
-		keepAspect = false,
-		file = (battle.isRunning and BATTLE_RUNNING) or BATTLE_NOT_RUNNING,
-		parent = minimap,
-	}
-	runningImage:BringToFront()
+	-- local runningImage = Image:New {
+	-- 	name = "runningImage",
+	-- 	x = 0,
+	-- 	y = 0,
+	-- 	right = 0,
+	-- 	bottom = 0,
+	-- 	keepAspect = false,
+	-- 	--file = (battle.isRunning and BATTLE_RUNNING) or BATTLE_NOT_RUNNING,
+	-- 	file = "LuaMenu/images/ingame.png",
+	-- 	parent = minimap,
+	-- }
+	-- runningImage:SetVisibility(battle.isRunning == true)
+	-- runningImage:BringToFront()
 
 	local lblPlayers = Label:New {
 		name = "playersCaption",
-		x = height + 3,
+		x = "95%",
 		width = 50,
-		y = 18,
-		height = 22,
-		valign = 'bottom',
+		y = 0,
+		height = 20,
+		align = "right",
+		valign = 'center',
 		objectOverrideFont = myFont2,
 		caption = lobby:GetBattlePlayerCount(battleID) .. "/" .. battle.maxPlayers,
 		parent = parentButton,
@@ -572,11 +581,10 @@ function BattleListWindow:MakeJoinBattle(battleID, battle)
 	if battle.passworded then
 		local imgPassworded = Image:New {
 			name = "password",
-			x = height + 45 + 64,
-			width = 15,
-			height = 15,
-			y = 36,
-			height = 15,
+			x = "86%",
+			width = 18,
+			height = 18,
+			y = 0,
 			margin = {0, 0, 0, 0},
 			file = "LuaMenu/images/key.png",
 			parent = parentButton,
@@ -611,11 +619,10 @@ function BattleListWindow:MakeJoinBattle(battleID, battle)
 	-- Configuration.gameConfig.rankFunction(nil, mybestrank, nil, nil,nil ),
 	local imgAvgRank = Image:New {
 		name = "imgAvgRank",
-		x = height + 45 + 16,
-		width = 15,
-		height = 15,
-		y = 36,
-		height = 15,
+		x = "92%",
+		width = 20,
+		height = 20,
+		y = 0,
 		margin = {0, 0, 0, 0},
 		file = rankimg,
 		parent = parentButton,
@@ -624,11 +631,10 @@ function BattleListWindow:MakeJoinBattle(battleID, battle)
 
 	local imgIsRunning = Image:New {
 		name = "imgIsRunning",
-		x = height + 45 + 32,
-		width = 15,
-		height = 15,
-		y = 36,
-		height = 15,
+		x = 0, -- Apparently deleting this breaks some things, so let's throw it 10000 pixels to the left, lmao.
+		width = 20,
+		height = 20,
+		y = 0,
 		margin = {0, 0, 0, 0},
 		file = "LuaMenu/images/ingame.png",
 		parent = parentButton,
@@ -638,11 +644,10 @@ function BattleListWindow:MakeJoinBattle(battleID, battle)
 	
 	local imgLocked = Image:New {
 			name = "imgLocked",
-			x = height + 45 + 48,
-			width = 15,
-			height = 15,
-			y = 36,
-			height = 15,
+			x = "89%",
+			width = 20,
+			height = 20,
+			y = 0,
 			margin = {0, 0, 0, 0},
 			file = CHOBBY_IMG_DIR .. "lock.png",
 			parent = parentButton,
@@ -701,10 +706,12 @@ function BattleListWindow:MakeJoinBattle(battleID, battle)
 
 	local lblMap = Label:New {
 		name = "mapCaption",
-		x = height + 65,
-		right = 0,
-		y = 22, --36
-		height = 15,
+		--x = height - 10000, -- Apparently deleting this breaks some things, so let's throw it 10000 pixels to the left, lmao.
+		x = "50%",
+		right = "15%",
+		y = 0, --36
+		height = 20,
+		--align = "right",
 		valign = 'center',
 		caption = battle.mapName:gsub("_", " "),
 		objectOverrideFont = myFont2,
