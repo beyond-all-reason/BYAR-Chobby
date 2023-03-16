@@ -23,7 +23,7 @@ function BattleListWindow:init(parent)
 			--x = 260,
 			y = 7,
 			right = 95,
-			width = 400,
+			width = 200,
 			height = 45,
 			caption = i18n("open_mp_game"),
 			objectOverrideFont = myFont3,
@@ -157,9 +157,9 @@ function BattleListWindow:init(parent)
 	end
 	WG.Delay(UpdateCheckboxes, 0.2)
 
-	self:SetMinItemWidth(10000)
+	self:SetMinItemWidth(320)
 	self.columns = 3
-	self.itemHeight = 60
+	self.itemHeight = 80
 	self.itemPadding = 1
 
 	local function UpdateTimersDelay()
@@ -514,21 +514,21 @@ function BattleListWindow:MakeJoinBattle(battleID, battle)
 		height = 20,
 		valign = 'center',
 		objectOverrideFont = myFont2,
-		caption = battle.title .. " | " .. battle.mapName:gsub("_", " "),
+		caption = battle.title,
 		parent = parentButton,
 		OnResize = {
 			function (obj, xSize, ySize)
-				obj:SetCaption(StringUtilities.GetTruncatedStringWithDotDot(battle.title .. " | " .. battle.mapName:gsub("_", " "), obj.font, obj.width))
+				obj:SetCaption(StringUtilities.GetTruncatedStringWithDotDot(battle.title, obj.font, obj.width))
 			end
 		}
 	}
 	local minimap = Panel:New {
 		name = "minimap",
-		x = 0,
-		y = 0,
-		width = height,
-		height = height,
-		padding = {0,0,0,0},
+		x = 3,
+		y = 3,
+		width = height - 6,
+		height = height - 6,
+		padding = {1,1,1,1},
 		parent = parentButton,
 	}
 
@@ -572,10 +572,11 @@ function BattleListWindow:MakeJoinBattle(battleID, battle)
 	if battle.passworded then
 		local imgPassworded = Image:New {
 			name = "password",
-			x = height + 45 + 46,
-			width = 18,
-			height = 18,
-			y = 20,
+			x = height + 45 + 64,
+			width = 15,
+			height = 15,
+			y = 36,
+			height = 15,
 			margin = {0, 0, 0, 0},
 			file = "LuaMenu/images/key.png",
 			parent = parentButton,
@@ -610,10 +611,11 @@ function BattleListWindow:MakeJoinBattle(battleID, battle)
 	-- Configuration.gameConfig.rankFunction(nil, mybestrank, nil, nil,nil ),
 	local imgAvgRank = Image:New {
 		name = "imgAvgRank",
-		x = height + 45 + 6,
-		width = 20,
-		height = 20,
-		y = 18,
+		x = height + 45 + 16,
+		width = 15,
+		height = 15,
+		y = 36,
+		height = 15,
 		margin = {0, 0, 0, 0},
 		file = rankimg,
 		parent = parentButton,
@@ -622,10 +624,11 @@ function BattleListWindow:MakeJoinBattle(battleID, battle)
 
 	local imgIsRunning = Image:New {
 		name = "imgIsRunning",
-		x = height - 10000, -- Apparently deleting this breaks some things, so let's throw it 10000 pixels to the left, lmao.
-		width = 20,
-		height = 20,
-		y = 18,
+		x = height + 45 + 32,
+		width = 15,
+		height = 15,
+		y = 36,
+		height = 15,
 		margin = {0, 0, 0, 0},
 		file = "LuaMenu/images/ingame.png",
 		parent = parentButton,
@@ -635,10 +638,11 @@ function BattleListWindow:MakeJoinBattle(battleID, battle)
 	
 	local imgLocked = Image:New {
 			name = "imgLocked",
-			x = height + 45 + 26,
-			width = 20,
-			height = 20,
-			y = 18,
+			x = height + 45 + 48,
+			width = 15,
+			height = 15,
+			y = 36,
+			height = 15,
 			margin = {0, 0, 0, 0},
 			file = CHOBBY_IMG_DIR .. "lock.png",
 			parent = parentButton,
@@ -697,7 +701,7 @@ function BattleListWindow:MakeJoinBattle(battleID, battle)
 
 	local lblMap = Label:New {
 		name = "mapCaption",
-		x = height - 10000, -- Apparently deleting this breaks some things, so let's throw it 10000 pixels to the left, lmao.
+		x = height + 65,
 		right = 0,
 		y = 22, --36
 		height = 15,
