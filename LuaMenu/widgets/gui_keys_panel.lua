@@ -16,23 +16,31 @@ end
 
 local keysWindow
 
-local IMG_KeysDefault = LUA_DIRNAME .. "images/keyboard_shortcuts/keyboardShortcutsDefault.png"
-local IMG_KeysCtrl    = LUA_DIRNAME .. "images/keyboard_shortcuts/keyboardShortcutsCtrl.png"
-local IMG_KeysAlt     = LUA_DIRNAME .. "images/keyboard_shortcuts/keyboardShortcutsAlt.png"
+local images = {}
+images[1] = LUA_DIRNAME .. "images/keybinds_defaults/BAR_Keyboard_Shortcuts.png"
+images[2] = LUA_DIRNAME .. "images/keybinds_defaults/BAR_Keyboard_Shortcuts_CTRL.png"
+images[3] = LUA_DIRNAME .. "images/keybinds_defaults/BAR_Keyboard_Shortcuts_ALT.png"
+images[4] = LUA_DIRNAME .. "images/keybinds_defaults/BAR_Keyboard_Shortcuts_GRID.png"
+images[5] = LUA_DIRNAME .. "images/keybinds_defaults/BAR_Keyboard_Shortcuts_GRID_CTRL.png"
+images[6] = LUA_DIRNAME .. "images/keybinds_defaults/BAR_Keyboard_Shortcuts_GRID_ALT.png"
+
+local imgCaptions = {}
+imgCaptions[1] = "Default Keys"
+imgCaptions[2] = "CTRL Keys"    
+imgCaptions[3] = "ALT Keys" 
+imgCaptions[4] = "Grid Keys"
+imgCaptions[5] = "Grid CTRL Keys"
+imgCaptions[6] = "Grid ALT Keys"
+
+local imgAspectRatio = 1.78
 
 local listFont2
 
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 -- Utilities
-local function ShowImgDef()
-	keysWindow.SetImage(IMG_KeysDefault)
-end
-local function ShowImgCtrl()
-	keysWindow.SetImage(IMG_KeysCtrl)
-end
-local function ShowImgAlt()
-	keysWindow.SetImage(IMG_KeysAlt)
+local function ShowImg(image)
+	keysWindow.SetImage(image)
 end
 
 --------------------------------------------------------------------------------
@@ -41,32 +49,17 @@ end
 
 local function InitializeControls()
 	local Configuration = WG.Chobby.Configuration
-
     listFont2 = Font:New(Configuration:GetFont(2))
 
-    local vsx, vsy = Spring.GetViewSizes()
 	local keysWindow = Window:New {
 		classname = "main_window",
 		parent = WG.Chobby.lobbyInterfaceHolder,
-		width = WG.Chobby.lobbyInterfaceHolder.width -10,
-		height = WG.Chobby.lobbyInterfaceHolder.height -10,
+		width = WG.Chobby.lobbyInterfaceHolder.width - 100,
+		height = (WG.Chobby.lobbyInterfaceHolder.width - 100) / imgAspectRatio,
 		resizable = false,
 		draggable = false,
 		padding = {0, 0, 0, 0},
 	}
-
-	WG.Chobby.lobbyInterfaceHolder.OnResize = WG.Chobby.lobbyInterfaceHolder.OnResize or {}
-	WG.Chobby.lobbyInterfaceHolder.OnResize[#WG.Chobby.lobbyInterfaceHolder.OnResize +1] = function()
-		local newh = WG.Chobby.lobbyInterfaceHolder.height - 10
-		local newy = WG.Chobby.lobbyInterfaceHolder.height - 10
-		keysWindow:SetPos(
-			nil,
-			newy,
-			nil,
-			newh)
-	end
-
-	local labelbottomY = 22+21
 
 	local function CloseFunc()
 		keysWindow:Hide()
@@ -76,42 +69,27 @@ local function InitializeControls()
 	-- Buttons
 	-------------------------
 	
-	local offsetX = 20
-	local btnDefault = Button:New {
-		x = offsetX,
-		y = 13,
-		width = 80,
-		height = 35,
-		caption = "default",
-		objectOverrideFont = listFont2,
-		classname = "negative_button",
-		parent = keysWindow,
-		OnClick = {ShowImgDef},
-	}
-	offsetX = offsetX + 83
-	local btnCtrl = Button:New {
-		x = offsetX,
-		y = 13,
-		width = 80,
-		height = 35,
-		caption = "Ctrl",
-		objectOverrideFont = listFont2,
-		classname = "negative_button",
-		parent = keysWindow,
-		OnClick = {ShowImgCtrl},
-	}
-	offsetX = offsetX + 83
-	local btnAlt = Button:New {
-		x = offsetX,
-		y = 13,
-		width = 80,
-		height = 35,
-		caption = "Alt",
-		objectOverrideFont = listFont2,
-		classname = "negative_button",
-		parent = keysWindow,
-		OnClick = {ShowImgAlt},
-	}
+	local offsetX = 100
+	local imgBtns = {}
+	for i, img in ipairs(images) do
+		imgBtns[imgCaptions[i]] = Button:New {
+			x = offsetX,
+			y = 13,
+			width = 180,
+			height = 35,
+			caption = imgCaptions[i],
+			objectOverrideFont = listFont2,
+			classname = "negative_button",
+			parent = keysWindow,
+			backgroundColor = {0.8, 0.8, 1, 0.4},
+			OnClick = {
+				function()
+					ShowImg(img)
+				end
+			},
+		}
+		offsetX = offsetX + 180
+	end
 
 	local btnClose = Button:New {
 		right = 18,
@@ -138,12 +116,42 @@ local function InitializeControls()
 		x = 1,
 		y = buttonsHeight+3,
 		name = "imKeys",
-		width = WG.Chobby.lobbyInterfaceHolder.width - 10,
-		height = WG.Chobby.lobbyInterfaceHolder.height - (buttonsHeight+3) - 10,
+		width = WG.Chobby.lobbyInterfaceHolder.width -120,
+		height = (WG.Chobby.lobbyInterfaceHolder.width -120) / imgAspectRatio,
 		parent = keysWindow,
 		keepAspect = true,
-		file = IMG_KeysDefault,
+		file = images[1],
 	}
+
+	WG.Chobby.lobbyInterfaceHolder.OnResize = WG.Chobby.lobbyInterfaceHolder.OnResize or {}
+	WG.Chobby.lobbyInterfaceHolder.OnResize[#WG.Chobby.lobbyInterfaceHolder.OnResize +1] = function()
+
+		local neww = WG.Chobby.lobbyInterfaceHolder.width -100
+		local newx = (WG.Chobby.lobbyInterfaceHolder.width-neww) / 2
+
+		local newh = (WG.Chobby.lobbyInterfaceHolder.width - 100) / imgAspectRatio
+		local newy = (WG.Chobby.lobbyInterfaceHolder.height - newh) / 2
+
+		keysWindow:SetPos(
+			newx,
+			newy,
+			neww,
+			newh
+		)
+
+		local neww = WG.Chobby.lobbyInterfaceHolder.width -120
+		local newx = (WG.Chobby.lobbyInterfaceHolder.width-neww) / 2
+
+		local newh = (WG.Chobby.lobbyInterfaceHolder.width - 120) / imgAspectRatio
+		local newy = (WG.Chobby.lobbyInterfaceHolder.height - newh) / 2
+
+		imKeys:SetPos(
+			newx,
+			newy,
+			neww,
+			newh
+		)
+	end
 
 	-------------------------
 	-- External Funcs
