@@ -159,11 +159,7 @@ function BattleListWindow:init(parent)
 
 	self:SetMinItemWidth(320)
 	self.columns = 3
-<<<<<<< HEAD
-	self.itemHeight = 80
-=======
 	self.itemHeight = 40
->>>>>>> New Server Browser V2
 	self.itemPadding = 1
 
 	local function UpdateTimersDelay()
