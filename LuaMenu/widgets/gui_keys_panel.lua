@@ -17,7 +17,7 @@ end
 local keysWindow
 
 local IMG_KeysDefault = LUA_DIRNAME .. "images/keyboard_shortcuts/keyboardShortcutsDefault.png"
-local IMG_KeysCtrl    = LUA_DIRNAME .. "images/keyboard_shortcuts/keyboardShortcutsDefault.png"
+local IMG_KeysCtrl    = LUA_DIRNAME .. "images/keyboard_shortcuts/keyboardShortcutsCtrl.png"
 local IMG_KeysAlt     = LUA_DIRNAME .. "images/keyboard_shortcuts/keyboardShortcutsAlt.png"
 
 local listFont2
