@@ -62,7 +62,6 @@ local function GoToProfilePage()
 end
 
 local function ShowKeys()
-	Spring.Echo("status: showKeys")
 	WG.KeysPanel.Show()
 end
 
