@@ -485,7 +485,7 @@ local function UpdateUserControlStatus(userName, userControls)
 		--userControls.tbName:Invalidate()
 		userControls.imStatusLarge.file = imgFile
 		userControls.imStatusLarge:Invalidate()
-		userControls.lblStatusLarge.font.color = fontColor
+		--userControls.lblStatusLarge.font.color = fontColor
 		userControls.lblStatusLarge:SetCaption(i18n(status .. "_status"))
 	elseif not userControls.statusImages then
 		return
@@ -1307,6 +1307,7 @@ local function GetUserControls(userName, opts)
 		}
 	end
 
+	--Spring.Utilities.TraceEcho(userName,"hide", hideStatus == true,"large",large == true) 
 	if not hideStatus then
 		userControls.statusImages = {}
 		UpdateUserControlStatus(userName, userControls)
@@ -1333,12 +1334,13 @@ local function GetUserControls(userName, opts)
 				valign = 'center',
 				parent = userControls.mainControl,
 				caption = i18n(status .. "_status"),
-				font = Configuration:GetFont(1),
+				--font = Configuration:GetFont(1),
+				objectOverrideFont = myFont1,
 			}
-			userControls.lblStatusLarge.font.color = fontColor
-			userControls.lblStatusLarge:Invalidate()
+			--userControls.lblStatusLarge.font.color = fontColor
+			--userControls.lblStatusLarge:Invalidate()
 			--userControls.tbName.font.color = fontColor
-			userControls.tbName:Invalidate()
+			--userControls.tbName:Invalidate()
 		end
 	end
 
