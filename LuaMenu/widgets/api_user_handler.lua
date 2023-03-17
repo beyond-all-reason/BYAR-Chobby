@@ -673,7 +673,7 @@ local function UpdateUserBattleStatus(listener, userName)
 					offset = offset + 20
 					local skill, skillColor = GetUserSkill(userName, userControls)
 					userControls.tbSkill:SetText(skill)
-					userControls.tbSkill.font.color = skillColor
+					--userControls.tbSkill.font.color = skillColor
 					userControls.tbSkill:Invalidate()
 				end
 			end
@@ -1142,7 +1142,10 @@ local function GetUserControls(userName, opts)
 		parent = userControls.mainControl,
 		keepAspect = true,
 		file = GetUserCountryImage(userName, userControls),
+		--noFont = true,
+		objectOverrideFont = myFont1,
 	}
+	userControls.imCountry.font = nil
 	userControls.imCountry:SetVisibility(userControls.showCountry)
 	if userControls.showCountry then
 		offset = offset + 21
@@ -1162,7 +1165,10 @@ local function GetUserControls(userName, opts)
 			parent = userControls.mainControl,
 			keepAspect = false,
 			file = GetUserRankImageName(userName, userControls),
+			--noFont = true,
+			objectOverrideFont = myFont1,
 		}
+		userControls.imLevel.font = nil
 		userControls.imLevel:SetVisibility(userControls.showRank)
 		if userControls.showRank then
 			offset = offset + 21
@@ -1182,11 +1188,12 @@ local function GetUserControls(userName, opts)
 			bottom = 5,
 			align = "left",
 			parent = userControls.mainControl,
-			fontsize = Configuration:GetFont(1).size,
+			--fontsize = Configuration:GetFont(1).size,
+			objectOverrideFont = myFont1,
 			text = skill,
 		}
-		userControls.tbSkill.font.color = skillColor
-		userControls.tbSkill:Invalidate()
+		--userControls.tbSkill.font.color = skillColor
+		--userControls.tbSkill:Invalidate()
 		userControls.tbSkill:SetVisibility(showSkill)
 		if showSkill then
 			offset = offset + 20
