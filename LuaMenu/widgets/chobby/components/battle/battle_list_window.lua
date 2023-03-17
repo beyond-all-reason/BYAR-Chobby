@@ -547,19 +547,19 @@ function BattleListWindow:MakeJoinBattle(battleID, battle)
 		checkFileExists = needDownload,
 		parent = minimap,
 	}
-	-- local runningImage = Image:New {
-	-- 	name = "runningImage",
-	-- 	x = 0,
-	-- 	y = 0,
-	-- 	right = 0,
-	-- 	bottom = 0,
-	-- 	keepAspect = false,
-	-- 	--file = (battle.isRunning and BATTLE_RUNNING) or BATTLE_NOT_RUNNING,
-	-- 	file = "LuaMenu/images/ingame.png",
-	-- 	parent = minimap,
-	-- }
-	-- runningImage:SetVisibility(battle.isRunning == true)
-	-- runningImage:BringToFront()
+	local runningImage = Image:New {
+		name = "runningImage",
+		x = -100000,
+		y = 0,
+		right = 0,
+		bottom = 0,
+		keepAspect = false,
+		--file = (battle.isRunning and BATTLE_RUNNING) or BATTLE_NOT_RUNNING,
+		file = "LuaMenu/images/ingame.png",
+		parent = minimap,
+	}
+	runningImage:SetVisibility(battle.isRunning == true)
+	--runningImage:BringToFront()
 
 	local lblPlayers = Label:New {
 		name = "playersCaption",
