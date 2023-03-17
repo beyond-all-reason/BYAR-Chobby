@@ -506,11 +506,23 @@ function BattleListWindow:MakeJoinBattle(battleID, battle)
 		tooltip = "battle_tooltip_" .. battleID,
 	}
 
+	local imgIsRunning = Image:New {
+		name = "imgIsRunning",
+		x = 0, -- Apparently deleting this breaks some things, so let's throw it 10000 pixels to the left, lmao.
+		width = 20,
+		height = 20,
+		y = 0,
+		margin = {0, 0, 0, 0},
+		file = "LuaMenu/images/ingame.png",
+		parent = parentButton,
+	}
+	imgIsRunning:SetVisibility(battle.isRunning == true)
+
 	local lblTitle = Label:New {
 		name = "lblTitle",
 		x = 23,
 		y = 0,
-		right = "60%",
+		right = "55%",
 		height = 20,
 		valign = 'center',
 		objectOverrideFont = myFont2,
@@ -561,150 +573,11 @@ function BattleListWindow:MakeJoinBattle(battleID, battle)
 	runningImage:SetVisibility(battle.isRunning == true)
 	--runningImage:BringToFront()
 
-	local lblPlayers = Label:New {
-		name = "playersCaption",
-		x = "95%",
-		width = 50,
-		y = 0,
-		height = 20,
-		align = "right",
-		valign = 'center',
-		objectOverrideFont = myFont2,
-		caption = lobby:GetBattlePlayerCount(battleID) .. "/" .. battle.maxPlayers,
-		parent = parentButton,
-	}
-
-	if battle.passworded then
-		local imgPassworded = Image:New {
-			name = "password",
-			x = "86%",
-			width = 18,
-			height = 18,
-			y = 0,
-			margin = {0, 0, 0, 0},
-			file = "LuaMenu/images/key.png",
-			parent = parentButton,
-		}
-	end
-
-	--Spring.Utilities.TableEcho(battle)
-	--[[
-	[t=00:00:07.612634][f=-000001] TableEcho = {
-		[t=00:00:07.612642][f=-000001]     spectatorCount = 1
-		[t=00:00:07.612647][f=-000001]     founder = [teh]cluster1[06]
-		[t=00:00:07.612654][f=-000001]     engineName = spring
-		[t=00:00:07.612659][f=-000001]     ip = 78.131.95.172
-		[t=00:00:07.612664][f=-000001]     battleID = 149
-		[t=00:00:07.612669][f=-000001]     users = {
-		[t=00:00:07.612673][f=-000001]         1 = [teh]cluster1[06]
-		[t=00:00:07.612687][f=-000001]         2 = Wulpes
-		[t=00:00:07.612691][f=-000001]     },
-		[t=00:00:07.612695][f=-000001]     gameName = Beyond All Reason test-21994-30a8663
-		[t=00:00:07.612701][f=-000001]     passworded = true
-		[t=00:00:07.612705][f=-000001]     isRunning = false
-		[t=00:00:07.612710][f=-000001]     mapName = Timna Island 1.0
-		[t=00:00:07.612714][f=-000001]     locked = false
-		[t=00:00:07.612718][f=-000001]     title = martasman - Private Battle
-		[t=00:00:07.612723][f=-000001]     port = 53206
-		[t=00:00:07.612732][f=-000001]     engineVersion = 105.1.1-1354-g72b2d55 BAR105
-		[t=00:00:07.612738][f=-000001]     maxPlayers = 16
-	]]--
-
-	local rankimg = Configuration.gameConfig.rankFunction(nil, 1, nil, nil,nil )
-	--WG.UserHandler.GetUserRankImage()
-	-- Configuration.gameConfig.rankFunction(nil, mybestrank, nil, nil,nil ),
-	local imgAvgRank = Image:New {
-		name = "imgAvgRank",
-		x = "92%",
-		width = 20,
-		height = 20,
-		y = 0,
-		margin = {0, 0, 0, 0},
-		file = rankimg,
-		parent = parentButton,
-	}
-	imgAvgRank:SetVisibility(false)
-
-	local imgIsRunning = Image:New {
-		name = "imgIsRunning",
-		x = 0, -- Apparently deleting this breaks some things, so let's throw it 10000 pixels to the left, lmao.
-		width = 20,
-		height = 20,
-		y = 0,
-		margin = {0, 0, 0, 0},
-		file = "LuaMenu/images/ingame.png",
-		parent = parentButton,
-	}
-	imgIsRunning:SetVisibility(battle.isRunning == true)
-
-	
-	local imgLocked = Image:New {
-			name = "imgLocked",
-			x = "89%",
-			width = 20,
-			height = 20,
-			y = 0,
-			margin = {0, 0, 0, 0},
-			file = CHOBBY_IMG_DIR .. "lock.png",
-			parent = parentButton,
-		}
-	imgLocked:SetVisibility(battle.locked == true)
-
-	--[[
-	local imgHasFriend = Image:New {
-		name = "imgHasFriend",
-		x = height + 45 + 32,
-		width = 15,
-		height = 15,
-		y = 36,
-		height = 15,
-		margin = {0, 0, 0, 0},
-		file = CHOBBY_IMG_DIR .. "lock.png",
-		parent = parentButton,
-	}
-	]]--
-
-	-- if not Configuration.gameConfig.hideGameExistanceDisplay then
-	-- 	local imHaveGame = Image:New {
-	-- 		name = "imHaveGame",
-	-- 		x = height + 45,
-	-- 		width = 15,
-	-- 		height = 15,
-	-- 		y = 20,
-	-- 		height = 15,
-	-- 		file = (VFS.HasArchive(battle.gameName) and IMAGE_DLREADY or IMAGE_DLUNREADY),
-	-- 		parent = parentButton,
-	-- 	}
-	-- end
-
-	-- local lblGame = Label:New {
-	-- 	name = "gameCaption",
-	-- 	x = height + 65,
-	-- 	right = 0,
-	-- 	y = 20,
-	-- 	height = 15,
-	-- 	valign = 'center',
-	-- 	caption = self:_MakeGameCaption(battle),
-	-- 	objectOverrideFont = myFont2,
-	-- 	parent = parentButton,
-	-- }
-
-	-- local imHaveMap = Image:New {
-	-- 	name = "imHaveMap",
-	-- 	x = height + 45,
-	-- 	width = 15,
-	-- 	height = 15,
-	-- 	y = 36,
-	-- 	height = 15,
-	-- 	file = (VFS.HasArchive(battle.mapName) and IMAGE_DLREADY or IMAGE_DLUNREADY),
-	-- 	parent = parentButton,
-	-- }
-
 	local lblMap = Label:New {
 		name = "mapCaption",
 		--x = height - 10000, -- Apparently deleting this breaks some things, so let's throw it 10000 pixels to the left, lmao.
-		x = "50%",
-		right = "15%",
+		x = "51%",
+		right = "18%",
 		y = 0, --36
 		height = 20,
 		--align = "right",
@@ -717,6 +590,66 @@ function BattleListWindow:MakeJoinBattle(battleID, battle)
 				obj:SetCaption(StringUtilities.GetTruncatedStringWithDotDot(battle.mapName:gsub("_", " "), obj.font, xSize or obj.width))
 			end
 		}
+	}
+
+	if battle.passworded then
+		local imgPassworded = Image:New {
+			name = "password",
+			x = "82%",
+			width = "4%",
+			height = 18,
+			y = 0,
+			align = "right",
+		valign = 'center',
+			margin = {0, 0, 0, 0},
+			file = "LuaMenu/images/key.png",
+			parent = parentButton,
+		}
+	end
+
+	local imgLocked = Image:New {
+		name = "imgLocked",
+		x = "86%",
+		width = "4%",
+		height = 20,
+		y = 0,
+		align = "right",
+		valign = 'center',
+		margin = {0, 0, 0, 0},
+		file = CHOBBY_IMG_DIR .. "lock.png",
+		parent = parentButton,
+	}
+	imgLocked:SetVisibility(battle.locked == true)
+
+	local rankimg = Configuration.gameConfig.rankFunction(nil, 1, nil, nil,nil )
+	--WG.UserHandler.GetUserRankImage()
+	-- Configuration.gameConfig.rankFunction(nil, mybestrank, nil, nil,nil ),
+	local imgAvgRank = Image:New {
+		name = "imgAvgRank",
+		x = "90%",
+		width = "4%",
+		height = 20,
+		y = 0,
+		align = "right",
+		valign = 'center',
+		margin = {0, 0, 0, 0},
+		file = rankimg,
+		parent = parentButton,
+	}
+	imgAvgRank:SetVisibility(false)
+
+	local lblPlayers = Label:New {
+		name = "playersCaption",
+		x = 50,
+		right = 0,
+		width = 50,
+		y = 0,
+		height = 20,
+		align = "right",
+		valign = 'center',
+		objectOverrideFont = myFont2,
+		caption = lobby:GetBattlePlayerCount(battleID) .. "/" .. battle.maxPlayers,
+		parent = parentButton,
 	}
 
 	return parentButton
