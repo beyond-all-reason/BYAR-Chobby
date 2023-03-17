@@ -783,28 +783,49 @@ function ChatWindows:GetChannelConsole(chanName)
 		}
 
 		self.ignoreTabClick = true
-		self.tabPanel:AddTab(
-			{
-				name = chanName,
-				caption = caption,
-				font = Configuration:GetFont(fontSize),
-				tooltip = tooltip,
-				children = {
-					Control:New {
-						x = 0, y = 0, right = Configuration.userListWidth, bottom = 0,
-						padding={0,0,0,0}, itemPadding={0,0,0,0}, itemMargin={0,0,0,0},
-						children = { channelConsole.panel, },
-					},
-					Control:New {
-						width = Configuration.userListWidth, y = 0, right = 0, bottom = 0,
-						padding={0,0,0,7}, itemPadding={0,0,0,0}, itemMargin={0,0,0,0},
-						children = { userListPanel.panel, },
-					},
-					closeChannelButton,
-				}
-			},
-			false
-		)
+		if chanName == "main" then 
+			self.tabPanel:AddTab(
+				{
+					name = chanName,
+					caption = caption,
+					font = Configuration:GetFont(fontSize),
+					tooltip = tooltip,
+					children = {
+						Control:New {
+							x = 0, y = 0, right = 0, bottom = 0,
+							padding={0,0,0,0}, itemPadding={0,0,0,0}, itemMargin={0,0,0,0},
+							children = { channelConsole.panel, },
+						},
+						--closeChannelButton,
+					}
+				},
+				false
+			)	
+		else			
+			self.tabPanel:AddTab(
+				{
+					name = chanName,
+					caption = caption,
+					font = Configuration:GetFont(fontSize),
+					tooltip = tooltip,
+					children = {
+						Control:New {
+							x = 0, y = 0, right = Configuration.userListWidth, bottom = 0,
+							padding={0,0,0,0}, itemPadding={0,0,0,0}, itemMargin={0,0,0,0},
+							children = { channelConsole.panel, },
+						},
+						Control:New {
+							width = Configuration.userListWidth, y = 0, right = 0, bottom = 0,
+							padding={0,0,0,7}, itemPadding={0,0,0,0}, itemMargin={0,0,0,0},
+							children = { userListPanel.panel, },
+						},
+						closeChannelButton,
+					}
+				},
+				false
+			)
+		end
+
 
 		closeChannelButton:BringToFront()
 
