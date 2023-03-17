@@ -75,7 +75,7 @@ local function tracePerWidget(node)
 				if obj.font then
 					fonts = fonts + 1
 					--local fontname = string.match(obj.font.font or "", "(%d+)/?$") -- remove all before trailing slash
-					local fontname = string.sub(obj.font.font or "", -10) -- remove all before trailing slash
+					local fontname = string.sub(obj.font.font or "nil", -10) -- remove all before trailing slash
 					
 					fontinfo = ("Font:(%s[%i])"):format(fontname, obj.font.size or "0")
 				end
@@ -85,7 +85,8 @@ local function tracePerWidget(node)
 					positioninfo = ("Pos(%i:%i)"):format(obj.x  or 0, obj.y or 0)
 				end 
 
-				local caption = ("%s: %s; \"%s\" %s %s"):format(
+				local caption = ("%s->%s: %s; \"%s\" %s %s"):format(
+					(obj.parent and obj.parent.name) or "orph",
 					obj.classname,
 					obj.name,
 					obj.caption or "",
