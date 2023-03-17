@@ -750,10 +750,13 @@ function ChatWindows:GetChannelConsole(chanName)
 
 		Configuration.channels[chanName] = true
 
-
-		local userListPanel = UserListPanel(function() return lobby:GetChannel(chanName) end, 22, true)
+		local userListPanel
+		if chanName == 'main' then 
+			userListPanel = UserListPanel(function() return {}  end, 22, true)
+		else
+			userListPanel = UserListPanel(function() return lobby:GetChannel(chanName) end, 22, true)
+		end
 		self.userListPanels[chanName] = userListPanel
-
 		local caption = "#" .. chanName
 		local tooltip = nil
 		local origCaption = caption
