@@ -520,10 +520,11 @@ function BattleListWindow:MakeJoinBattle(battleID, battle)
 
 	local lblTitle = Label:New {
 		name = "lblTitle",
-		x = 23,
+		x = "4%",
 		y = 0,
 		right = "55%",
 		height = 20,
+		align = "left",
 		valign = 'center',
 		objectOverrideFont = myFont2,
 		--caption = battle.title .. " | " .. battle.mapName:gsub("_", " "),
@@ -577,7 +578,7 @@ function BattleListWindow:MakeJoinBattle(battleID, battle)
 		name = "mapCaption",
 		--x = height - 10000, -- Apparently deleting this breaks some things, so let's throw it 10000 pixels to the left, lmao.
 		x = "51%",
-		right = "18%",
+		right = "14%",
 		y = 0, --36
 		height = 20,
 		--align = "right",
@@ -595,31 +596,31 @@ function BattleListWindow:MakeJoinBattle(battleID, battle)
 	if battle.passworded then
 		local imgPassworded = Image:New {
 			name = "password",
-			x = "82%",
+			x = "86%",
 			width = "4%",
 			height = 18,
 			y = 0,
 			align = "right",
-		valign = 'center',
+			valign = 'center',
 			margin = {0, 0, 0, 0},
 			file = "LuaMenu/images/key.png",
 			parent = parentButton,
 		}
+	else
+		local imgLocked = Image:New {
+			name = "imgLocked",
+			x = "86%",
+			width = "4%",
+			height = 20,
+			y = 0,
+			align = "right",
+			valign = 'center',
+			margin = {0, 0, 0, 0},
+			file = CHOBBY_IMG_DIR .. "lock.png",
+			parent = parentButton,
+		}
+		imgLocked:SetVisibility(battle.locked == true)
 	end
-
-	local imgLocked = Image:New {
-		name = "imgLocked",
-		x = "86%",
-		width = "4%",
-		height = 20,
-		y = 0,
-		align = "right",
-		valign = 'center',
-		margin = {0, 0, 0, 0},
-		file = CHOBBY_IMG_DIR .. "lock.png",
-		parent = parentButton,
-	}
-	imgLocked:SetVisibility(battle.locked == true)
 
 	local rankimg = Configuration.gameConfig.rankFunction(nil, 1, nil, nil,nil )
 	--WG.UserHandler.GetUserRankImage()
