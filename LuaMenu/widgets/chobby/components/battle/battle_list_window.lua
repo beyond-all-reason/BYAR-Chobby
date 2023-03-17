@@ -1191,6 +1191,70 @@ end
 
 
 function BattleListWindow:OpenHostWindow()
+	-- Enumerate all known clusters and their number of children
+	local regions = {'EU','US','AU'}
+	local clusters = {
+		['[teh]cluster1'] = {limit = 80, current = 0, online = false, region = 'EU'},
+		['[teh]clusterEU2'] = {limit = 70, current = 0, online = false, region = 'EU'},
+		['[teh]clusterEU3'] = {limit = 30, current = 0, online = false, region = 'EU'},
+		['[teh]clusterEU4'] = {limit = 70, current = 0, online = false, region = 'EU'},
+		['[teh]clusterUS'] = {limit = 70, current = 0, online = false, region = 'US'},
+		['[teh]clusterUS2'] = {limit = 50, current = 0, online = false, region = 'US'},
+		['[teh]clusterAU'] = {limit = 90, current = 0, online = false, region = 'AU'},
+	}
+
+	local numusers = 0
+	local users = lobby:GetUsers()
+	for name, _ in pairs(users) do
+		if string.find(name,"[teh]cluster", nil, true) then
+			-- shorten it
+			--Spring.Echo(name)
+			if clusters[name] then -- cluster manager
+				clusters[name].online = true
+			else-- instance
+				manager = name:sub(1,-5)
+				if clusters[manager] then
+					clusters[manager].current = clusters[manager].current + 1
+				end
+			end
+		end
+	end
+
+	-- return a cluster manager name and error code
+	local function TryGetRegion(targetregion)
+		local emptiness = {} -- key is manager name, value is fullness
+		local sum = 0
+		for manager, data in pairs(clusters) do 
+			if data.region == targetregion and data.online then 
+				emptiness[manager] = 1.0 - data.current/data.limit
+				sum = sum + emptiness[manager]
+				Spring.Echo("Manager", manager, data.current,  data.limit, emptiness[manager], sum)
+			end
+		end
+
+		-- choose 
+		local r = math.random() * sum
+		local tot = 0
+		for manager,prob in pairs(emptiness) do
+			tot = tot + prob
+			if r <= tot then
+				Spring.Echo("Found a manager for this request", manager, tot, prob, r)
+				return manager, nil
+			end
+		end
+		if next(emptiness) == nil then
+			Spring.Echo( "No cluster managers for", targetregion)
+			return '[teh]clusterEU2' , "No cluster managers"
+		else
+			Spring.Echo("Couldnt find host in ", targetregion)
+			for manager,prob in pairs(emptiness) do
+				return manager, "no free hosts"
+			end
+		end
+	end
+
+	local currentInstances = {}
+
 	local hostBattleWindow = Window:New {
 		caption = "",
 		name = "hostBattle",
@@ -1228,7 +1292,6 @@ function BattleListWindow:OpenHostWindow()
 		parent = hostBattleWindow,
 	}
 
-
 	local typeLabel = Label:New {
 		x = 0,
 		right = "49%",
@@ -1249,7 +1312,7 @@ function BattleListWindow:OpenHostWindow()
 		text = "",
 		objectOverrideFont = myFont2,
 				text = "",
-		items = Configuration.hostRegions, --self.hostRegions = {"DE","EU","EU2","US","AU"}
+		items = regions, -- Configuration.hostRegions, --self.hostRegions = {"DE","EU","EU2","US","AU"}
 		itemFontSize = Configuration:GetFont(2).size,
 		selected = 1,
 		tooltip = "You may choose any region you wish, BAR is not sensitive to latency.",
@@ -1298,11 +1361,10 @@ function BattleListWindow:OpenHostWindow()
 		--Attempting to host game at 
 		local requestedregion = typeCombo.items[typeCombo.selected] ---self.hostRegions = {"DE","EU","EU2","US","AU"}
 		--Spring.Echo("Looking for empty host in region", requestedregion)
-		local privateclusters = {EU = '[teh]cluster1', US = '[teh]clusterUS2', US2 = '[teh]clusterUS', AU = '[teh]clusterAU', DE = '[teh]clusterEU2',EU2 = '[teh]clusterEU3',}
-		local targetCluster = privateclusters[requestedregion]
+		local targetCluster, errmsg = TryGetRegion(requestedregion)
 
 		if userWantsPrivateBattle then
-			local mypassword = nil
+			local mypassword = ""
 			local function listenForPrivateBattle(listener, userName, message, msgDate)
 				--Spring.Echo("listenForPrivateBattle",listener, userName, message, msgDate)
 				if userName == targetCluster and string.find(message,"Starting a new private instance in", nil, true) then 
@@ -1365,7 +1427,6 @@ function BattleListWindow:OpenHostWindow()
 
 			return
 		else
-
 			targetCluster = targetCluster .. '['
 
 			local targetbattle = nil
@@ -1382,12 +1443,15 @@ function BattleListWindow:OpenHostWindow()
 				if string.find(battle.founder, targetCluster, nil, true) and
 					battle.spectatorCount == 1 and
 					battle.isRunning ~= true and -- this is needed after server restarts
+					battle.passworded ~= true and
+					battle.locked ~= true and
 					lobby:GetBattlePlayerCount(battle.battleID) == 0 and 
 					Configuration:IsValidEngineVersion(battle.engineVersion) then
+						-- TODO: THIS MIGHT STILL JOIN "MANAGED" BATTLES WITH MANAGER BOTS
 						targetbattle = battle.battleID
 					break
 				else
-					Spring.Echo('tryhostbattle',battle, battle.battleID, battle.title, battle.founder, targetCluster, lobby:GetBattlePlayerCount(battle.battleID),Configuration:IsValidEngineVersion(battle.engineVersion) )
+					--Spring.Echo('tryhostbattle',battle, battle.battleID, battle.title, battle.founder, targetCluster, lobby:GetBattlePlayerCount(battle.battleID),Configuration:IsValidEngineVersion(battle.engineVersion) )
 				end
 			end
 
