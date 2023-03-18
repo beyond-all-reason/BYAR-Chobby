@@ -21,6 +21,7 @@ local Chili
 local window0
 local tree0
 local label0
+local label1
 
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
@@ -127,6 +128,14 @@ function widget:Initialize()
 				align = "right", valign = "bottom",
 				caption = "Lua MemUsage: 0MB",
 
+			},			
+			Chili.Label:New{
+				name = "lbl_inspector_memdelta",
+				x=0, right = 50,
+				y=25, bottom=-50,
+				align = "right", valign = "bottom",
+				caption = "Lua Memdelta: 0MB",
+
 			},
 			Chili.Button:New{
 				right = 0, width = 50,
@@ -137,7 +146,7 @@ function widget:Initialize()
 			},
 			Chili.ScrollPanel:New{
 				x=0, right=0,
-				y=25, bottom=20,
+				y=50, bottom=20,
 				children = {
 					Chili.TreeView:New{
 						name = "tree_inspector";
@@ -182,6 +191,7 @@ function widget:Initialize()
 
 	tree0 = window0:GetObjectByName("tree_inspector")
 	label0 = window0:GetObjectByName("lbl_inspector_memusage")
+	label1 = window0:GetObjectByName("lbl_inspector_memdelta")
 
 	trace(Chili.Screen0.children, tree0.root)
 end
@@ -193,9 +203,22 @@ function widget:Shutdown()
 end
 
 local updatecount = 0
+local lastupdatetime = Spring.GetTimer()
+local lastmemusagesec = 0
+local lastmemusageframe = 0
+local memdelta = 0
 function widget:Update()
 	updatecount = updatecount + 1
 	local curUsage, gcLimit = gcinfo()
 	local caption = ("O/F: %d/%d Frame:%i Lua MemUsage: %.2fMB"):format(objects, fonts,updatecount, curUsage / 1024)
 	label0:SetCaption(caption)
+
+	if Spring.DiffTimers(Spring.GetTimer(), lastupdatetime) > 1 then 
+		memdelta = curUsage - lastmemusagesec
+		lastmemusagesec = curUsage
+		lastupdatetime = Spring.GetTimer()
+	end
+	label1:SetCaption(("Mem usage delta = %d KB/s %d KB/f"):format(memdelta, curUsage - lastmemusageframe))
+	lastmemusageframe = curUsage
+
 end
