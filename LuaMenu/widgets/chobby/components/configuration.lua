@@ -271,6 +271,7 @@ function Configuration:init()
 			self.channels[channelName] = true
 		end
 	end
+	self.staticTooltipPositions = true
 
 	self.language = "en"
 	self.languages = {
