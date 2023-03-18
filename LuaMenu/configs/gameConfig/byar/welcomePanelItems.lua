@@ -90,6 +90,7 @@ local welcomePanelItems = {
             "$explain \n" ..
             "Gives you a nice breakdown of how the autobalance works in your current battleroom.\n" ..
             " \n",
+            "For a full list of commands, use !help and $help in any multiplayer room."
     },
 }
 
