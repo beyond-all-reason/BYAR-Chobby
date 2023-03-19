@@ -3024,37 +3024,82 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		btnInviteFriends:SetVisibility(newVisibile)
 	end
 
-	-- Lobby interface
+	-- 23/03/19 Fireball update: only react, when dependent status.properties are present = were updated for this current event
+	-- reacts to isSpectator and isReady changes for myUserName only
 	local function OnUpdateUserBattleStatus(listener, username, status)
 		-- Spring.Utilities.TraceFullEcho()
 		Spring.Echo("OnUpdateUserBattleStatus username:" .. tostring(username))
-		if username ~= battleLobby.myUserName then return end
+		if username ~= battleLobby.myUserName then
+			return
+		end
 
+		-- 23/03/19 Fireball Todo: lastGameSpectatorState now depends on isSpectator and isQueue
+		--                         battleroom should not be responsible for updating configurations of lobby properties
 		if status.isSpectator then
 			WG.Chobby.Configuration:SetConfigValue("lastGameSpectatorState", status.isSpectator)
 		end
 
+		local usedStatus = {}
+		usedStatus.isSpectator = status.isSpectator ~= nil and status.isSpectator
+		local readyEnabled = status.isSpectator ~= nil and status.isSpectator == false
+
 		if battleLobby.name ~= "singleplayer" then
-            readyButton:SetEnabled(not status.isSpectator)
-			readyButton:SetCaption(i18n("ready"))
-			readyButtonCheckArrow.file = nil
-			readyButtonCheckArrow:Invalidate()
+			local tooltipCandidate = ""
+			if status.isSpectator == nil and status.isReady == nil then
+				return
+			elseif status.isSpectator ~= nil and status.isReady ==nil then
+				if status.isSpectator then -- react only to change from player to spectator; if we are player, reacting to isReady is sufficent; ready can´t change, when we are spec
+					readyButton:SetEnabled(false)
+					readyButtonCheckArrow.file = nil
+					readyButtonCheckArrow:Invalidate()
+					readyButton:StyleOff()
+					-- readyButton.tooltip = i18n("unready_notplaying_tooltip")
+					tooltipCandidate = i18n("unready_notplaying_tooltip")
+				end
+			elseif status.isReady ~= nil then
+				readyButton:SetEnabled(true)
 				if status.isReady then
-                	readyButton:StyleReady()
-					readyButton.tooltip = i18n("ready_tooltip")
+					readyButton:StyleReady()
+					tooltipCandidate = i18n("ready_tooltip")
+					-- readyButton.tooltip = i18n("ready_tooltip")
 					readyButtonCheckArrow.file = IMG_CHECKARROW
 					readyButtonCheckArrow:Invalidate()
-            	elseif status.isSpectator then
-					readyButton:StyleOff()
-					readyButton.tooltip = i18n("unready_notplaying_tooltip")
 				else
 					readyButton:StyleUnready()
-                	readyButton.tooltip = i18n("unready_tooltip")
+					-- readyButton.tooltip = i18n("unready_tooltip")
+					tooltipCandidate = i18n("unready_tooltip")
         		end
+			end
+			-- 23/03/19 Fireball: better set isRunning-tooltip once, when isRunning state changes somewhere else
 			if battle.isRunning then
 				readyButton.tooltip = i18n("inprogress_tooltip")
+			else
+				readyButton.tooltip = tooltipCandidate
 			end
-        end
+		end
+
+		-- if battleLobby.name ~= "singleplayer" then
+        --     readyButton:SetEnabled(not status.isSpectator)
+		-- 	readyButton:SetCaption(i18n("ready"))
+		-- 	readyButtonCheckArrow.file = nil
+		-- 	readyButtonCheckArrow:Invalidate()
+		-- 		if status.isReady then
+        --         	readyButton:StyleReady()
+		-- 			readyButton.tooltip = i18n("ready_tooltip")
+		-- 			readyButtonCheckArrow.file = IMG_CHECKARROW
+		-- 			readyButtonCheckArrow:Invalidate()
+        --     	elseif status.isSpectator then
+		-- 			readyButton:StyleOff()
+		-- 			readyButton.tooltip = i18n("unready_notplaying_tooltip")
+		-- 		else
+		-- 			readyButton:StyleUnready()
+        --         	readyButton.tooltip = i18n("unready_tooltip")
+        -- 		end
+		-- 	
+		-- 	if battle.isRunning then
+		-- 		readyButton.tooltip = i18n("inprogress_tooltip")
+		-- 	end
+        -- end
 	end
 
 	local function OnUpdateUserTeamStatus(listener, userName, allyNumber, isSpectator)
