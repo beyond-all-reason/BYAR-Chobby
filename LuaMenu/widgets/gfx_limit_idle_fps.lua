@@ -173,12 +173,12 @@ function widget:Update()
 			collectgarbage("collect")
 			local notgarbagemem = gcinfo()
 			local newgarbagelimit = math.min(1000000, notgarbagemem + basememlimit) -- peak 1 GB
-			Spring.Echo(string.format("Chobby Using %d MB RAM > %d MB limit, performing garbage collection to %d MB and adjusting limit to %d MB",
+			local msg = string.format("Chobby Using %d MB RAM > %d MB limit, performing garbage collection to %d MB and adjusting limit to %d MB",
 				math.floor(ramuse/1000), 
 				math.floor(garbagelimit/1000), 
 				math.floor(notgarbagemem/1000),
 				math.floor(newgarbagelimit/1000) ) 
-			)
+			Spring.Log("Chobby", LOG.NOTICE, msg)
 			garbagelimit = newgarbagelimit
 		end
 	end
