@@ -78,6 +78,10 @@ local USER_CH_TOOLTIP_PREFIX = "user_chat_s_"
 
 local UserLevelToImageConfFunction
 
+local myFont1
+local myFont2
+local myFont3
+
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 -- Globally Applicable Utilities
@@ -316,7 +320,8 @@ local function GetUserComboBoxOptions(userName, isInBattle, userControl, showTea
 			y = 0,
 			width = 100,
 			height = 30,
-			font = Configuration:GetFont(1),
+			--font = Configuration:GetFont(1),
+			objectOverrideFont = myFont1,
 			caption = "No Actions",
 		}
 	end
@@ -476,11 +481,11 @@ local function UpdateUserControlStatus(userName, userControls)
 	end
 	if userControls.imStatusLarge then
 		local imgFile, status, fontColor = GetUserStatus(userName, isInBattle, userControls)
-		userControls.tbName.font.color = fontColor
-		userControls.tbName:Invalidate()
+		--userControls.tbName.font.color = fontColor
+		--userControls.tbName:Invalidate()
 		userControls.imStatusLarge.file = imgFile
 		userControls.imStatusLarge:Invalidate()
-		userControls.lblStatusLarge.font.color = fontColor
+		--userControls.lblStatusLarge.font.color = fontColor
 		userControls.lblStatusLarge:SetCaption(i18n(status .. "_status"))
 	elseif not userControls.statusImages then
 		return
@@ -496,7 +501,7 @@ local function UpdateUserControlStatus(userName, userControls)
 		end
 
 		local nameSpace = userControls.maxNameLength - userControls.nameStartY - (userControls.maxNameLength - statusImageOffset)
-		local truncatedName = StringUtilities.TruncateStringIfRequiredAndDotDot(userName, userControls.tbName.font, nameSpace)
+		local truncatedName = StringUtilities.TruncateStringIfRequiredAndDotDot(userName, myFont1, nameSpace)
 
 		if truncatedName then
 			userControls.tbName:SetText(truncatedName)
@@ -556,8 +561,8 @@ local function UpdateUserActivity(listener, userName)
 				userControls.imLevel:Invalidate()
 			end
 
-			userControls.tbName.font.color = GetUserNameColor(userName, userControls)
-			userControls.tbName:Invalidate()
+			--userControls.tbName.font.color = GetUserNameColor(userName, userControls)
+			--userControls.tbName:Invalidate()
 
 			UpdateUserStatusImage(userName, userControls)
 			UpdateUserControlStatus(userName, userControls)
@@ -682,7 +687,7 @@ local function UpdateUserBattleStatus(listener, userName)
 					offset = offset + 20
 					local skill, skillColor = GetUserSkill(userName, userControls)
 					userControls.tbSkill:SetText(skill)
-					userControls.tbSkill.font.color = skillColor
+					--userControls.tbSkill.font.color = skillColor
 					userControls.tbSkill:Invalidate()
 				end
 			end
@@ -709,20 +714,20 @@ local function UpdateUserBattleStatus(listener, userName)
 			offset = offset + 2
 			userControls.tbName:SetPos(offset)
 			userControls.nameStartY = offset
-			local truncatedName = StringUtilities.TruncateStringIfRequiredAndDotDot(userName, userControls.tbName.font, maxNameLength and (maxNameLength - offset))
+			local truncatedName = StringUtilities.TruncateStringIfRequiredAndDotDot(userName, myFont1, maxNameLength and (maxNameLength - offset))
 			userControls.nameStartY = offset
 			userControls.maxNameLength = maxNameLength
 
-			local nameColor = GetUserNameColor(userName, userControls)
-			if nameColor then
-				userControls.tbName.font.color = nameColor
-				userControls.tbName:Invalidate()
-			end
+			--local nameColor = GetUserNameColor(userName, userControls)
+			--if nameColor then
+			--	userControls.tbName.font.color = nameColor
+			--	userControls.tbName:Invalidate()
+			--end
 			if truncatedName then
 				userControls.tbName:SetText(truncatedName)
 				userControls.nameTruncated = true
 			end
-			userControls.nameActualLength = userControls.tbName.font:GetTextWidth(userControls.tbName.text)
+			userControls.nameActualLength = myFont1:GetTextWidth(userControls.tbName.text)
 			offset = offset + userControls.nameActualLength
 
 			if userControls.imTeamColor then
@@ -1178,7 +1183,10 @@ local function GetUserControls(userName, opts)
 		parent = userControls.mainControl,
 		keepAspect = true,
 		file = GetUserCountryImage(userName, userControls),
+		--noFont = true,
+		objectOverrideFont = myFont1,
 	}
+	userControls.imCountry.font = nil
 	userControls.imCountry:SetVisibility(userControls.showCountry)
 	if userControls.showCountry then
 		offset = offset + 21
@@ -1198,7 +1206,10 @@ local function GetUserControls(userName, opts)
 			parent = userControls.mainControl,
 			keepAspect = false,
 			file = GetUserRankImageName(userName, userControls),
+			--noFont = true,
+			objectOverrideFont = myFont1,
 		}
+		userControls.imLevel.font = nil
 		userControls.imLevel:SetVisibility(userControls.showRank)
 		if userControls.showRank then
 			offset = offset + 21
@@ -1218,11 +1229,12 @@ local function GetUserControls(userName, opts)
 			bottom = 5,
 			align = "left",
 			parent = userControls.mainControl,
-			fontsize = Configuration:GetFont(1).size,
+			--fontsize = Configuration:GetFont(1).size,
+			objectOverrideFont = myFont1,
 			text = skill,
 		}
-		userControls.tbSkill.font.color = skillColor
-		userControls.tbSkill:Invalidate()
+		--userControls.tbSkill.font.color = skillColor
+		--userControls.tbSkill:Invalidate()
 		userControls.tbSkill:SetVisibility(showSkill)
 		if showSkill then
 			offset = offset + 20
@@ -1275,7 +1287,9 @@ local function GetUserControls(userName, opts)
 	end
 
 	offset = offset + 2
-	userControls.tbName = TextBox:New {
+
+	-- This is also used for top name tag
+	userControls.tbName = TextBox:New { 
 		name = "tbName",
 		x = offset,
 		y = offsetY + 4,
@@ -1283,23 +1297,25 @@ local function GetUserControls(userName, opts)
 		bottom = 4,
 		align = "left",
 		parent = userControls.mainControl,
-		fontsize = Configuration:GetFont(2).size,
+		--fontsize = Configuration:GetFont(2).size,
+		
+		objectOverrideFont = myFont1,
 		text = userName,
 	}
-	local truncatedName = StringUtilities.TruncateStringIfRequiredAndDotDot(userName, userControls.tbName.font, maxNameLength and (maxNameLength - offset))
+	local truncatedName = StringUtilities.TruncateStringIfRequiredAndDotDot(userName, myFont1, maxNameLength and (maxNameLength - offset))
 	userControls.nameStartY = offset
 	userControls.maxNameLength = maxNameLength
 
-	local nameColor = GetUserNameColor(userName, userControls)
-	if nameColor then
-		userControls.tbName.font.color = nameColor
-		userControls.tbName:Invalidate()
-	end
+	--local nameColor = GetUserNameColor(userName, userControls)
+	--if nameColor then
+	--	userControls.tbName.font.color = nameColor
+	--	userControls.tbName:Invalidate()
+	--end
 	if truncatedName then
 		userControls.tbName:SetText(truncatedName)
 		userControls.nameTruncated = true
 	end
-	userControls.nameActualLength = userControls.tbName.font:GetTextWidth(userControls.tbName.text)
+	userControls.nameActualLength = myFont1:GetTextWidth(userControls.tbName.text)
 	offset = offset + userControls.nameActualLength
 
 	if showTeamColor then
@@ -1339,6 +1355,7 @@ local function GetUserControls(userName, opts)
 		}
 	end
 
+	--Spring.Utilities.TraceEcho(userName,"hide", hideStatus == true,"large",large == true) 
 	if not hideStatus then
 		userControls.statusImages = {}
 		UpdateUserControlStatus(userName, userControls)
@@ -1365,12 +1382,13 @@ local function GetUserControls(userName, opts)
 				valign = 'center',
 				parent = userControls.mainControl,
 				caption = i18n(status .. "_status"),
-				font = Configuration:GetFont(1),
+				--font = Configuration:GetFont(1),
+				objectOverrideFont = myFont1,
 			}
-			userControls.lblStatusLarge.font.color = fontColor
-			userControls.lblStatusLarge:Invalidate()
-			userControls.tbName.font.color = fontColor
-			userControls.tbName:Invalidate()
+			--userControls.lblStatusLarge.font.color = fontColor
+			--userControls.lblStatusLarge:Invalidate()
+			--userControls.tbName.font.color = fontColor
+			--userControls.tbName:Invalidate()
 		end
 	end
 
@@ -1380,10 +1398,10 @@ local function GetUserControls(userName, opts)
 		userControls.mainControl.OnResize[#userControls.mainControl.OnResize + 1] = function (obj, sizeX, sizeY)
 			local maxWidth = sizeX - userControls.nameStartY - 40
 			
-			local truncatedName = StringUtilities.GetTruncatedStringWithDotDot(userName, userControls.tbName.font, maxWidth)
+			local truncatedName = StringUtilities.GetTruncatedStringWithDotDot(userName, myFont1, maxWidth)
 			userControls.tbName:SetText(truncatedName)
 
-			offset = userControls.nameStartY + userControls.tbName.font:GetTextWidth(userControls.tbName.text) + 3
+			offset = userControls.nameStartY + myFont1:GetTextWidth(userControls.tbName.text) + 3
 			if userControls.imTeamColor then
 				offset = offset + 25
 			end
@@ -1626,6 +1644,10 @@ end
 
 local function DelayedInitialize()
 	local Configuration = WG.Chobby.Configuration
+	
+	myFont1 = Font:New(Configuration:GetFont(1))
+	myFont2 = Font:New(Configuration:GetFont(2))
+	myFont3 = Font:New(Configuration:GetFont(3))
 	UserLevelToImageConfFunction = Configuration.gameConfig.rankFunction
 
 	local function onConfigurationChange(listener, key, value)

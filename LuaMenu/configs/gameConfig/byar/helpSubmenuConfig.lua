@@ -82,6 +82,27 @@ local communityLines = {
 		end
 	},
 	{
+		"Official Twitter.",
+		"Twitter",
+		function ()
+			WG.BrowserHandler.OpenUrl("https://twitter.com/BAR_RTS")
+		end
+	},
+	{
+		"Official Instagram.",
+		"Instagram",
+		function ()
+			WG.BrowserHandler.OpenUrl("https://www.instagram.com/beyondallreasonrts")
+		end
+	},
+	{
+		"Twitch channel.",
+		"Twitch",
+		function ()
+			WG.BrowserHandler.OpenUrl("https://www.twitch.tv/beyondallreasonofficial")
+		end
+	},
+	{
 		"Youtube channel.",
 		"Youtube",
 		function ()

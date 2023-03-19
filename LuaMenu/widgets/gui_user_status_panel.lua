@@ -61,6 +61,10 @@ local function GoToProfilePage()
 	end
 end
 
+local function ShowKeys()
+	WG.KeysPanel.Show()
+end
+
 local function Quit()
 	Spring.Echo("Quitting...")
 	Spring.Quit()
@@ -92,9 +96,12 @@ end
 -- end
 
 local function InitializeControls(window)
+	local menuX = 0
+
+	menuX = menuX + 3
 	btnLogout = Button:New {
 		y = 2,
-		right = 3,
+		right = menuX,
 		width = 108,
 		height = 38,
 		caption = i18n("login"),
@@ -102,11 +109,13 @@ local function InitializeControls(window)
 		font = WG.Chobby.Configuration:GetFont(2),
 		OnClick = {Logout}
 	}
+	menuX = menuX + 108
 
 	if WG.Chobby.Configuration.gameConfig.link_homePage ~= nil then
+		menuX = menuX + 3
 		btnProfile = Button:New {
 			y = 2,
-			right = 114,
+			right = menuX,
 			width = 108,
 			height = 38,
 			caption = i18n("home"),
@@ -114,7 +123,20 @@ local function InitializeControls(window)
 			font = WG.Chobby.Configuration:GetFont(2),
 			OnClick = {GoToProfilePage}
 		}
+		menuX = menuX + 108
 	end
+
+	menuX = menuX + 3
+	btnKeys = Button:New {
+		y = 2,
+		right = menuX,
+		width = 108,
+		height = 38,
+		caption = i18n("keys"),
+		parent = window,
+		font = WG.Chobby.Configuration:GetFont(2),
+		OnClick = {ShowKeys}
+	}
 
 	connectivityText = TextBox:New {
 		name = "connectivityText",
