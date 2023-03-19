@@ -160,7 +160,7 @@ local function UpdateAndCreateMerge(userData, status)
 		battleStatus.isReady = status.isReady
 		-- userData.isReady     = status.isReady
 	else
-		battleStatus.isReady = userData.isReady -- self:GetMyIsReady()
+		battleStatus.isReady = userData.isReady == true-- self:GetMyIsReady()
 	end
 	if status.teamNumber ~= nil then
 		updated = updated or userData.teamNumber ~= status.teamNumber
@@ -325,6 +325,7 @@ function Interface:LeaveBattle()
 end
 
 function Interface:SetBattleStatus(status)
+	--Spring.Utilities.TraceFullEcho()
 	for k,v in pairs(status) do
 		Spring.Echo("SetBattleStatus param status k:", k, " v:", v)
 	end
@@ -342,10 +343,21 @@ function Interface:SetBattleStatus(status)
 	-- 2021/01/21: Which had the unfortunate side effect of not sending the first REQUESTBATTLESTATUS response
 
 	local myUserName = self:GetMyUserName()
+	local userData = self.userBattleStatus[myUserName] or {}
 	if not self.userBattleStatus[myUserName] then
-		self.userBattleStatus[myUserName] = {}
+		Spring.Echo("SetBattleStatus: userBattleStatus not exists")
+	else
+		for k,v in pairs(userData) do
+			if type(v) ~= "table" then
+				Spring.Echo("SetBattleStatus: battleStatus content k:" ..tostring(k) .. " v:" .. tostring(v))
+			else
+				for k2, v2 in pairs(v) do
+					Spring.Echo("SetBattleStatus: Status key2:", k2, " value2:",v2)
+				end
+			end
+		end
 	end
-	local userData = self.userBattleStatus[myUserName]
+	
 	local battleStatus, updated = UpdateAndCreateMerge(userData, status)
 
 
@@ -369,12 +381,22 @@ function Interface:SetBattleStatus(status)
 		Spring.Echo("Aborting ")
 		return self
 	end
+	for k,v in pairs(battleStatus) do
+		if type(v) ~= "table" then
+			Spring.Echo("SetBattleStatus after: battleStatus content k:" ..tostring(k) .. " v:" .. tostring(v))
+		else
+			for k2, v2 in pairs(v) do
+				Spring.Echo("SetBattleStatus after: Status key2:", k2, " value2:",v2)
+			end
+		end
+	end
 	local battleStatusString = EncodeBattleStatus(battleStatus)
-
+	
 	Spring.Echo("Randomize teamcolor")
 	local teamColor = battleStatus.teamColor or { math.random(), math.random(), math.random(), 1 }
 	teamColor = EncodeTeamColor(teamColor)
 	self:_SendCommand(concat("MYBATTLESTATUS", battleStatusString, teamColor))
+	self:_OnUpdateUserBattleStatus(myUserName, battleStatus)
 	return self
 end
 
@@ -1705,6 +1727,17 @@ end
 Interface.commands["REMOVESTARTRECT"] = Interface._OnRemoveStartRect
 Interface.commandPattern["REMOVESTARTRECT"] = "(%d+)"
 
+function getSyncStatus(battle)
+	if not battle then
+		Spring.Echo("not battle")
+		return 0
+	end
+	local haveGame = VFS.HasArchive(battle.gameName)
+	local haveMap = VFS.HasArchive(battle.mapName)
+	Spring.Echo("haveGame, haveMap", haveGame, haveMap)
+	return (haveGame and haveMap) and 1 or 2
+end
+
 -- This request is sent once by the server, directly after hosting or joining a battle
 -- since we do not have any battleStatus(in most cases), we generate a default one
 function Interface:_OnRequestBattleStatus()
@@ -1721,7 +1754,7 @@ function Interface:_OnRequestBattleStatus()
 			isSpectator = battleStatus.isSpectator or (WG.Chobby.Configuration.lastGameSpectatorState or false),
 			isReady = false,
 			side = battleStatus.side == nil and WG.Chobby.Configuration.lastFactionChoice or battleStatus.side ,
-			sync = (haveMapAndGame and 1) or 2, -- 0 = unknown, 1 = synced, 2 = unsynced
+			sync = battleStatus.sync or getSyncStatus(self:GetBattle(self:GetMyBattleID())),
 			-- tamColor = PickRandomColor()
 			-- teamColor = {
 			-- 	math.random() * 0.7 + 0.1,
@@ -1735,7 +1768,7 @@ function Interface:_OnRequestBattleStatus()
 			isSpectator = (WG.Chobby.Configuration.lastGameSpectatorState or false),
 			isReady = false,
 			side = (WG.Chobby.Configuration.lastFactionChoice or 0) ,
-			sync = (haveMapAndGame and 1) or 2, -- 0 = unknown, 1 = synced, 2 = unsynced
+			sync = getSyncStatus(self:GetBattle(self:GetMyBattleID())),
 			-- tamColor = PickRandomColor()
 			-- teamColor = {
 			-- 	math.random() * 0.7 + 0.1,
