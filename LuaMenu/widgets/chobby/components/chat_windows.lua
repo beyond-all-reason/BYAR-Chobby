@@ -32,6 +32,10 @@ function ChatWindows:init()
 	)
 
 	self.onJoined = function(listener, chanName, userName)
+		if chanName ~= self.currentTab then
+			return
+		end
+
 		if self.currentTab and self.userListPanels[self.currentTab] then
 			self.userListPanels[self.currentTab]:OnJoined(userName)
 		end
@@ -39,6 +43,10 @@ function ChatWindows:init()
 	lobby:AddListener("OnJoined", self.onJoined)
 
 	self.onLeft = function(listener, chanName, userName)
+		if chanName ~= self.currentTab then
+			return
+		end
+
 		if self.currentTab and self.userListPanels[self.currentTab] then
 			self.userListPanels[self.currentTab]:OnLeft(userName)
 		end
