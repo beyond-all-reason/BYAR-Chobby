@@ -1,2 +1,3 @@
 /dist_cfg
 /.git
+/profile
