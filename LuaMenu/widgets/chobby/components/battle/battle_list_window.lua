@@ -303,11 +303,33 @@ function BattleListWindow:Update()
 end
 
 function BattleListWindow:SoftUpdate()
-	if Configuration.battleFilterRedundant then
-		self:UpdateAllBattleIDs()
+	-- UpdateFilters is quite heavy, because it sorts all the battles on the
+	-- list, so instead of just calling SoftUpdate functionality directly,
+	-- we use debounce technicue to coalesce soft updates that are happening
+	-- close to each other in time into single invocation.
+
+	self.lastSoftUpdate = os.clock()
+
+	local battleList = self
+
+	local function RealSoftUpdate()
+		if os.clock() - battleList.lastSoftUpdate < 0.1 then
+			WG.Delay(RealSoftUpdate, 0.2)
+			return
+		end
+
+		if Configuration.battleFilterRedundant then
+			battleList:UpdateAllBattleIDs()
+		end
+		battleList:UpdateFilters()
+		battleList:UpdateInfoPanel()
+		battleList.softUpdateTimerRunning = false
 	end
-	self:UpdateFilters()
-	self:UpdateInfoPanel()
+
+	if not self.softUpdateTimerRunning then
+		WG.Delay(RealSoftUpdate, 0.2)
+		self.softUpdateTimerRunning = true
+	end
 end
 
 function BattleListWindow:UpdateInfoPanel()
