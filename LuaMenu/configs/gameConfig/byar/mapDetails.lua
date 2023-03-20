@@ -93,7 +93,7 @@ return {
 ['Plethora_of_Ponds_V1']={Width=20, Height=20, Is1v1=1, IsTeam=1, IsFFA=nil, IsCertified=1, Special=nil, Flat=1, Hills=nil, Water=1, IsInPool=1, PlayerCount=nil,TeamCount=nil,Author='NOiZE', InfoText=nil},
 ['Quicksilver Remake 1.24']={Width=12, Height=12, Is1v1=1, IsTeam=nil, IsFFA=nil, IsCertified=1, Special=nil, Flat=1, Hills=nil, Water=1, IsInPool=1, PlayerCount=nil,TeamCount=nil,Author='IceXuick', InfoText=nil},
 ['ReRaghnarok 1']={Width=20, Height=20, Is1v1=1, IsTeam=1, IsFFA=1, IsCertified=nil, Special=nil, Flat=1, Hills=1, Water=nil, IsInPool=1, PlayerCount=nil,TeamCount=nil,Author='Raghna', InfoText=nil},
-['Ravaged_v2']={Width=8, Height=8, Is1v1=1, IsTeam=nil, IsFFA=nil, IsCertified=nil, Special=nil, Flat=1, Hills=nil, Water=nil, IsInPool=1, PlayerCount=nil,TeamCount=nil,Author='Beherith', InfoText=nil},
+['Ravaged Remake v1.1']={Width=10, Height=10, Is1v1=1, IsTeam=nil, IsFFA=nil, IsCertified=nil, Special=nil, Flat=nil, Hills=1, Water=nil, IsInPool=1, PlayerCount=nil,TeamCount=nil,Author=' (original by Beherith)', InfoText='10x10 Duel 1v1/2v2 map.'},
 ['Red Comet Remake 1.8']={Width=12, Height=8, Is1v1=1, IsTeam=nil, IsFFA=nil, IsCertified=1, Special=nil, Flat=1, Hills=nil, Water=nil, IsInPool=1, PlayerCount=nil,TeamCount=nil,Author='IceXuick', InfoText=nil},
 ['Red River Remake v1.2']={Width=20, Height=28, Is1v1=nil, IsTeam=1, IsFFA=1, IsCertified=1, Special=nil, Flat=1, Hills=nil, Water=1, IsInPool=1, PlayerCount='16',TeamCount='2',Author='Nikuksis', InfoText='Fight for the red planet river.'},
 ['Red Triangle Remake v1.3']={Width=18, Height=18, Is1v1=1, IsTeam=nil, IsFFA=1, IsCertified=1, Special=nil, Flat=nil, Hills=nil, Water=1, IsInPool=1, PlayerCount='9',TeamCount='3',Author='Nikuksis', InfoText='Red planet triangle.'},
