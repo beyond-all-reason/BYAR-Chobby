@@ -1,5 +1,5 @@
 -- Sometimes this gets cashed, hence the variable..
-local ENABLED = true
+local ENABLED = false
 local CAPTURE_COMMANDS = true
 local STREAM_COMMANDS = false
 local AUTO_QUIT = false
