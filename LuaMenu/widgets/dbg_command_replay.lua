@@ -1,5 +1,5 @@
 -- Sometimes this gets cached, hence the variable..
-local ENABLED = true
+local ENABLED = false
 local AUTO_QUIT_ON_FINISH = false
 local REPLAY_START_TIME = 1.0
 

@@ -1,5 +1,5 @@
 -- Sometimes this gets cached, hence the variable..
-local ENABLED = true
+local ENABLED = false
 
 function widget:GetInfo()
 	return {
