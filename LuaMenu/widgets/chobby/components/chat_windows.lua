@@ -791,7 +791,7 @@ function ChatWindows:GetChannelConsole(chanName)
 		}
 
 		self.ignoreTabClick = true
-		if chanName == "main" then 
+		if chanName == "main" then
 			self.tabPanel:AddTab(
 				{
 					name = chanName,
@@ -808,8 +808,8 @@ function ChatWindows:GetChannelConsole(chanName)
 					}
 				},
 				false
-			)	
-		else			
+			)
+		else
 			self.tabPanel:AddTab(
 				{
 					name = chanName,
