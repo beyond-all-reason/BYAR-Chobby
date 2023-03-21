@@ -939,15 +939,15 @@ local function testEncodeDecode()
 								error = true
 								Spring.Log(LOG_SECTION, LOG.NOTICE,
 									bStatus.isReady,
-									bStatus.teamNumber, 
-									bStatus.allyNumber, 
+									bStatus.teamNumber,
+									bStatus.allyNumber,
 									bStatus.isSpectator,
 									bStatus.sync,
 									bStatus.side)
 								Spring.Log(LOG_SECTION, LOG.NOTICE,
 									retBStatus.isReady,
-									retBStatus.teamNumber, 
-									retBStatus.allyNumber, 
+									retBStatus.teamNumber,
+									retBStatus.allyNumber,
 									retBStatus.isSpectator,
 									retBStatus.sync,
 									retBStatus.side)
@@ -996,7 +996,7 @@ function Interface:_OnJoinFailed(chanName, reason)
 	self:super("_OnJoinFailed", chanName, reason)
 end
 Interface.commands["JOINFAILED"] = Interface._OnJoinFailed
-Interface.commandPattern["JOINFAILED"] = "(%S+)%s+(.*)" -- fix regex to match official protocol 
+Interface.commandPattern["JOINFAILED"] = "(%S+)%s+(.*)" -- fix regex to match official protocol
 
 function Interface:_OnLeft(chanName, userName, reason)
 	self:super("_OnLeft", chanName, userName, reason)
@@ -1748,7 +1748,7 @@ local function parseSkillOrigin(l, p, d)
 -- skillformat , skillOrigin
 -- 1. (6)     , Lobby Rank
 -- 2. 6.34    , SLDB
--- 3. #6.34#  , SLDB_Degraded 
+-- 3. #6.34#  , SLDB_Degraded
 -- 4. [6.34]  , Plugin
 -- 5. [#6.34#], Plugin_Degraded
 -- Note: playername is delivered in lower case by protocol rules, see https://springrts.com/dl/LobbyProtocol/ProtocolDescription.html#SETSCRIPTTAGS:client
@@ -1887,7 +1887,7 @@ Interface.jsonCommands["LISTQUEUES"] = Interface._OnListQueues
 function Interface:_OnS_Battle_Update_lobby_title(battleID, newbattletitle)
 	--self:super("_OnS_Battle_Update_lobby_title", tonumber(battleID), newbattletitle)
 	battleID = tonumber(battleID)
-	if battleID then 
+	if battleID then
 		self:_CallListeners("OnS_Battle_Update_lobby_title", battleID, newbattletitle)
 		--Spring.Echo("Interface:_OnS_Battle_Update_lobby_title",battleID, newbattletitle)
 	end
