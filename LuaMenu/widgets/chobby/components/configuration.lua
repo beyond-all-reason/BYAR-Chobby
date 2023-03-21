@@ -466,7 +466,7 @@ end
 local function screenSizeKey()
 	local vsx, vsy = Spring.Orig.GetViewSizes()
 	-- Scale down to avoid using different keys for only slightly different view sizes.
-	return math.floor(vsx / 500) .. "x" .. math.floor(vsy / 250)  
+	return math.floor(vsx / 500) .. "x" .. math.floor(vsy / 250)
 end
 
 function Configuration:SetUiScale(newScale)
