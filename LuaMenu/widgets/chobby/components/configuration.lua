@@ -814,7 +814,12 @@ function Configuration:AllowNotification(playerName, playerList)
 	return true
 end
 
+local minimapSmallImageCache = {}
 function Configuration:GetMinimapSmallImage(mapName)
+	if minimapSmallImageCache[mapName] then
+		return minimapSmallImageCache[mapName], false
+	end
+	local found = false
 	if not self.gameConfig.minimapThumbnailPath then
 		return LUA_DIRNAME .. "images/minimapNotFound1.png"
 	end
@@ -822,11 +827,12 @@ function Configuration:GetMinimapSmallImage(mapName)
 	local filePath = self.gameConfig.minimapThumbnailPath .. mapName .. ".png"
 	if not VFS.FileExists(filePath) then
 		filePath = "LuaMenu/Images/Minimaps/" .. mapName .. ".jpg"
-	end
-	if not VFS.FileExists(filePath) then
-	 	Spring.Log("Chobby", LOG.WARNING,"GetMinimapSmallImage not found for",mapName)
-	 	filePath = "LuaMenu/Images/minimapNotFound.png"
-	end
+		if not VFS.FileExists(filePath) then
+			Spring.Log("Chobby", LOG.WARNING,"GetMinimapSmallImage not found for",mapName)
+			filePath = "LuaMenu/Images/minimapNotFound.png"
+		else found = true end
+	else found = true end
+
 --[[ 	if WG.WrapperLoopback and WG.WrapperLoopback.DownloadImage and (not VFS.FileExists(filePath)) then
 		if not self.minimapThumbDownloads[mapName] then
 			Spring.CreateDir("LuaMenu/Images/MinimapThumbnails")
@@ -835,7 +841,11 @@ function Configuration:GetMinimapSmallImage(mapName)
 		end
 		return filePath, true
 	end ]]
-	return filePath, not VFS.FileExists(filePath)
+	
+	if found then
+		minimapSmallImageCache[mapName] = filePath
+	end
+	return filePath, not found
 end
 
 function Configuration:GetMinimapImage(mapName)
