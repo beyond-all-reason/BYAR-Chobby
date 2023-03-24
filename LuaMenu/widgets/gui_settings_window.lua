@@ -1055,10 +1055,10 @@ local function GetLobbyTabControls()
 		objectOverrideFont = settingsFont2,
 		--font = Configuration:GetFont(2),
 		caption = "Choose Server:",
-		tooltip = "Old Server is road-flag.bnr.la, new is server3.beyondallreason.info. Changing this will log you out of current server, click Login in top right to reconnect to new one, Temporarily we are on : server3.beyondallreason.info",
+		tooltip = "Old Server is server3.beyondallreason.info, new one is server4.beyondallreason.info. Changing this will log you out of current server, click Login in top right to reconnect to new one, Temporarily we are on : server3.beyondallreason.info",
 	}
 
-	local barservers = {"server3.beyondallreason.info","bar.teifion.co.uk"}
+	local barservers = {"server3.beyondallreason.info","server4.beyondallreason.info","bar.teifion.co.uk"}
 
 	if WG.Chobby.Configuration.devMode then
 		barservers[#barservers + 1] = "localhost"
