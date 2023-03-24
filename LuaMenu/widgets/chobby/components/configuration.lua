@@ -530,21 +530,17 @@ function Configuration:SetConfigData(data)
 	-- Fix old memory
 	self.game_settings.UnitIconDist = nil
 
-	if self.serverAddress == "zero-k.com" then
-		self.serverAddress = "zero-k.info"
-	end
-
 	--THIS IS FOR WHEN WE PULL THE PLUG, AUTOMATICALLY SWITCH OVER TO TEISERVER
 	if self.serverAddress == "road-flag.bnr.la" then
-		self.serverAddress = "server3.beyondallreason.info"
+		self.serverAddress = "server4.beyondallreason.info"
 	end
 
-	if self.serverAddress ~= "server3.beyondallreason.info" then
-		self.serverAddress = "server3.beyondallreason.info"
+	if self.serverAddress == "server3.beyondallreason.info" then
+		self.serverAddress = "server4.beyondallreason.info"
 	end
 
-	if self.serverAddress ~= "server3.beyondallreason.info" then
-		self.serverAddress = "server3.beyondallreason.info" -- TEMPORARILY
+	if self.serverAddress ~= "server4.beyondallreason.info" then
+		self.serverAddress = "server4.beyondallreason.info"
 	end
 
 	local newSpringsettings, onlyIfMissingSettings = VFS.Include(LUA_DIRNAME .. "configs/springsettings/springsettingsChanges.lua")

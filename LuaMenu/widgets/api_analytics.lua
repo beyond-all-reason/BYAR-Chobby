@@ -33,7 +33,6 @@ local ANALYTICS_EVENT_ERROR = "analyticsEventError_"
 
 -- Do not send analytics for dev versions as they will likely be nonsense.
 local ACTIVE = true -- means that we either have an unauthed or an authed connection to server.
-						-- Temporarily for server3.beyondallreason.info
 
 local lobby = nil
 local isConnected = false
@@ -95,7 +94,7 @@ end
 
 local socket = socket
 local client
-local host = "server3.beyondallreason.info"
+local host = "server4.beyondallreason.info"
 local port = 8200
 
 local buffer = ""
@@ -569,7 +568,7 @@ function DelayedInitialize()
 	Spring.Log("Analytics", LOG.NOTICE, "Using port: ", port)
 	MachineHash()
 	if ACTIVE then 
-		ACTIVE = SocketConnect("server3.beyondallreason.info", port)
+		ACTIVE = SocketConnect(host, port)
 	end
 	if not ACTIVE then return end
 
