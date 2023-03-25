@@ -1220,10 +1220,11 @@ function BattleListWindow:OpenHostWindow()
 		['[teh]clusterEU2'] = {limit = 70, current = 0, online = false, region = 'EU'},
 		['[teh]clusterEU3'] = {limit = 30, current = 0, online = false, region = 'EU'},
 		['[teh]clusterEU4'] = {limit = 70, current = 0, online = false, region = 'EU'},
-		['[teh]clusterUS'] = {limit = 70, current = 0, online = false, region = 'US'},
-		['[teh]clusterUS2'] = {limit = 50, current = 0, online = false, region = 'US'},
-		['[teh]clusterAU'] = {limit = 90, current = 0, online = false, region = 'AU'},
 		['[teh]clusterEU5'] = {limit = 200, current = 0, online = false, region = 'EU'},
+		['[teh]clusterUS'] = {limit = 70, current = 0, online = false, region = 'US'},
+		['[teh]clusterUS2'] = {limit = 60, current = 0, online = false, region = 'US'},
+		['[teh]clusterUS3'] = {limit = 70, current = 0, online = false, region = 'US'},
+		['[teh]clusterAU'] = {limit = 90, current = 0, online = false, region = 'AU'},
 	}
 
 	local numusers = 0
