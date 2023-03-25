@@ -36,7 +36,7 @@
                 "start_args": ["--menu", "rapid://byar-chobby:test"],
                 "engine": "105.1.1-1544-g058c8ea bar",
                 "springsettings": {
-                    "RapidTagResolutionOrder": "repos-cdn.beyondallreason.dev"
+                    "RapidTagResolutionOrder": "repos-cdn.beyondallreason.dev;repos.beyondallreason.dev"
                 }
             }
         },
@@ -76,7 +76,7 @@
                 "start_args": ["--menu", "rapid://byar-chobby:test"],
                 "engine": "105.1.1-1544-g058c8ea bar",
                 "springsettings": {
-                    "RapidTagResolutionOrder": "repos-cdn.beyondallreason.dev"
+                    "RapidTagResolutionOrder": "repos-cdn.beyondallreason.dev;repos.beyondallreason.dev"
                 }
             }
         },
@@ -87,6 +87,9 @@
                 "platform": "linux"
             },
             "config_url": "https://launcher-config.beyondallreason.dev/config.json",
+            "env_variables": {
+                "PRD_RAPID_REPO_MASTER": "https://repos.beyondallreason.dev/repos.gz"
+            },
             "auto_download": true,
             "downloads": {
                 "games": ["byar:test", "chobby:test", "byar-chobby:test"],
@@ -104,7 +107,7 @@
                 "start_args": ["--menu", "rapid://byar-chobby:test"],
                 "engine": "105.1.1-1544-g058c8ea bar",
                 "springsettings": {
-                    "RapidTagResolutionOrder": "repos.springrts.com"
+                    "RapidTagResolutionOrder": "repos.beyondallreason.dev"
                 }
             }
         },
@@ -115,6 +118,9 @@
                 "platform": "win32"
             },
             "config_url": "https://launcher-config.beyondallreason.dev/config.json",
+            "env_variables": {
+                "PRD_RAPID_REPO_MASTER": "https://repos.beyondallreason.dev/repos.gz"
+            },
             "silent": false,
             "auto_download": true,
             "downloads": {
@@ -133,7 +139,7 @@
                 "start_args": ["--menu", "rapid://byar-chobby:test"],
 				"engine": "105.1.1-1544-g058c8ea bar",
                 "springsettings": {
-                    "RapidTagResolutionOrder": "repos.springrts.com"
+                    "RapidTagResolutionOrder": "repos.beyondallreason.dev"
                 }
             }
         },
@@ -172,7 +178,7 @@
                 "start_args": ["--menu", "rapid://byar-chobby:test"],
                 "engine": "105.1.1-1631-gd7a51c9 bar",
                 "springsettings": {
-                    "RapidTagResolutionOrder": "repos-cdn.beyondallreason.dev"
+                    "RapidTagResolutionOrder": "repos-cdn.beyondallreason.dev;repos.beyondallreason.dev"
                 }
             }
         },
@@ -212,7 +218,7 @@
                 "start_args": ["--menu", "rapid://byar-chobby:test"],
                 "engine": "105.1.1-1631-gd7a51c9 bar",
                 "springsettings": {
-                    "RapidTagResolutionOrder": "repos-cdn.beyondallreason.dev"
+                    "RapidTagResolutionOrder": "repos-cdn.beyondallreason.dev;repos.beyondallreason.dev"
                 }
             }
         },
