@@ -13,10 +13,6 @@
 
 local welcomePanelItems = {
     {
-        Header = "ATTENTION: Server move today!",
-        Text = "Today at 1PM GMT, we will be moving over to server4.beyondallreason.info for added capacity. You can select a server in Settings->Lobby if things go wrong.",
-    },
-    {
         Header = "Welcome to Beyond All Reason",
         Text = "Welcome back Commander. We hope you are ready for epic single player and multiplayer battles. Check out our Discord and join the community!\n",
     },
