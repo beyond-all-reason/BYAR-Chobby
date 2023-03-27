@@ -858,7 +858,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 				local battleStatus = battleLobby:GetUserBattleStatus(myUserName) or {}
 				if battleStatus.isSpectator then
 					battleLobby:SayBattle('$leaveq')
-					battleLobby:_OnUpdateUserBattleStatus(battleLobby:GetMyUserName(), {queuePos = 0})
+					battleLobby:_OnUpdateUserBattleStatus(battleLobby:GetMyUserName(), {queuePos = 0}) -- we proactive change our queuePos; because we don´t reliable receicve s.battle.queue_status on fast clicking play/spectate
 				end
 				battleLobby:SetBattleStatus({
 					isSpectator = true,
@@ -1273,13 +1273,10 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	end
 
 	function externalFunctions.JoinedBattle(joinedBattleId, userName)
-		Spring.Echo("room:Ext:JoinedBattle joinedBattleId: " .. tostring(joinedBattleId) .. " userName: " .. tostring(userName) .. " battleID: " .. tostring(battleID))
 		if battleID ~= joinedBattleId or userName == battleLobby:GetMyUserName() then
-		-- if battleID ~= joinedBattleId then
-			Spring.Echo("Ext:JoinedBattle battleID ~= joinedBattleId or UserName == myUserNAme")
 			return
 		else
-			Spring.Echo('Ext:JoinedBattle(joinedBattleId, userName)',joinedBattleId, userName)
+			--Spring.Echo('Ext:JoinedBattle(joinedBattleId, userName)',joinedBattleId, userName)
 
 			local iAmFirstPlayer = true
 			local playersthatarentme = 0
@@ -1501,15 +1498,15 @@ local function SortPlayersByQueued(a, b)
 	local sB = battleLobby:GetUserBattleStatus(b.name)
 	local queuePosA = tonumber((sA and sA.queuePos) or 0)
 	local queuePosB = tonumber((sB and sB.queuePos) or 0)
-	Spring.Echo("type of a.name:"..type(a.name) .. " ="..tostring(a.name))
-	Spring.Echo("type of b.name:"..type(b.name) .. " ="..tostring(b.name))
-	Spring.Echo("type of queuePosA:"..type(queuePosA) .. " ="..tostring(queuePosA))
-	Spring.Echo("type of queusPosB:"..type(queuePosB) .. " ="..tostring(queuePosB))
-	Spring.Echo("sort result=" .. tostring(
-		((queuePosA > 0 and queuePosB > 0) and queuePosA < queuePosB) or 
-		((queuePosA > 0 and queuePosB == 0) and true) or 
-		((queuePosA == 0 and queuePosB > 0) and false) or
-		"no"))
+	-- Spring.Echo("type of a.name:"..type(a.name) .. " ="..tostring(a.name))
+	-- Spring.Echo("type of b.name:"..type(b.name) .. " ="..tostring(b.name))
+	-- Spring.Echo("type of queuePosA:"..type(queuePosA) .. " ="..tostring(queuePosA))
+	-- Spring.Echo("type of queusPosB:"..type(queuePosB) .. " ="..tostring(queuePosB))
+	-- Spring.Echo("sort result=" .. tostring(
+	--	((queuePosA > 0 and queuePosB > 0) and queuePosA < queuePosB) or 
+	--	((queuePosA > 0 and queuePosB == 0) and true) or 
+	--	((queuePosA == 0 and queuePosB > 0) and false) or
+	--	"no"))
 	if queuePosA > 0 and queuePosB > 0 then
 		return queuePosA < queuePosB
 	end
@@ -1519,6 +1516,7 @@ local function SortPlayersByQueued(a, b)
 	if queuePosA == 0 and queuePosB > 0 then
 		return false
 	end
+	-- order normal spectator list by name
 	if string.lower(a.name) < string.lower(b.name) then
 		return true
 	end
@@ -1579,13 +1577,13 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 	local team = {}
 
 	local function PositionChildren(panel, minHeight)
-		Spring.Echo("PositionChildren mingHeight: " .. tostring(minHeight))
+		-- Spring.Echo("PositionChildren mingHeight: " .. tostring(minHeight))
 		local children = panel.children
 
 		minHeight = minHeight - 10
 
 		local childrenCount = #children
-		Spring.Echo("PositionChildren #children: " .. tostring(#children))
+		-- Spring.Echo("PositionChildren #children: " .. tostring(#children))
 		local bottomBuffer = 0
 
 		local totalHeight = 0
@@ -1632,7 +1630,7 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 	end
 
 	local function GetTeam(teamIndex)
-		Spring.Echo("Room:GetTeam teamIndex received: " .. tostring(teamIndex))	
+		-- Spring.Echo("Room:GetTeam teamIndex received: " .. tostring(teamIndex))	
 		teamIndex = teamIndex or -2 -- default to -2 = Spectator team
 		if not team[teamIndex] then
 			if teamIndex == emptyTeamIndex then
@@ -1730,16 +1728,16 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 				if teamIndex ~= -1 and teamIndex ~= -2 then
 					table.sort(teamStack.children, SortPlayersBySkill)
 				else
-					Spring.Echo("Sorting teamIndex: " .. tostring(teamIndex))
+					-- Spring.Echo("Sorting teamIndex: " .. tostring(teamIndex))
 					table.sort(teamStack.children, SortPlayersByQueued)
 					
-					for k,v in pairs(teamStack.children) do
-						if type(v) == "table" then
-							Spring.Echo(tostring(k).. " > ".. tostring(v.name))
-						else
-							Spring.Echo(tostring(k) .. " >> " .. tostring(v))
-						end
-					end
+					-- for k,v in pairs(teamStack.children) do
+					-- 	if type(v) == "table" then
+					-- 		Spring.Echo(tostring(k).. " > ".. tostring(v.name))
+					-- 	else
+					-- 		Spring.Echo(tostring(k) .. " >> " .. tostring(v))
+					-- 	end
+					-- end
 				end
 
 				local position = 1
@@ -1808,13 +1806,13 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 			end
 
 			function teamData.AddPlayer(name)
-				Spring.Echo("teamData.Addplayer teamIndex: " .. tostring(teamIndex) .. " name: " .. tostring(name) )
-				if (teamIndex == 0) then
-					Spring.Utilities.TraceFullEcho()
-				end
+				-- Spring.Echo("teamData.Addplayer teamIndex: " .. tostring(teamIndex) .. " name: " .. tostring(name) )
+				-- if (teamIndex == 0) then
+				-- 	Spring.Utilities.TraceFullEcho()
+				-- end
 				local playerData = GetPlayerData(name)
 				if playerData.team == teamIndex then
-					Spring.Echo("teamData.Addplayer team: " .. tostring(playerData.team) .. " = teamIndex, return")
+					-- Spring.Echo("teamData.Addplayer team: " .. tostring(playerData.team) .. " = teamIndex, return")
 					return
 				end
 				playerData.team = teamIndex
@@ -1893,9 +1891,9 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 				end
 
 				teamData.CheckRemoval()
-				Spring.Echo("RemoveTeam, children: " .. tostring(#teamStack.children) .. " : " .. tostring(#teamStack.children))
+				-- Spring.Echo("RemoveTeam, children: " .. tostring(#teamStack.children) .. " : " .. tostring(#teamStack.children))
 				if #teamStack.children == 0 then
-					Spring.Echo("teamStack 0")
+					-- Spring.Echo("teamStack 0")
 					teamHolder:SetVisibility(false)
 				end
 				PositionChildren(parentStack, parentScroll.height)
@@ -1903,7 +1901,7 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 
 			team[teamIndex] = teamData
 		end
-		Spring.Echo("Room:GetTeam teamIndex returned: " .. tostring(teamIndex))	
+		-- Spring.Echo("Room:GetTeam teamIndex returned: " .. tostring(teamIndex))	
 		return team[teamIndex]
 	end
 
@@ -3025,23 +3023,19 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	end
 
 	-- 23/03/19 Fireball update: only react, when dependent status.properties are present = were updated for this current event
-	-- reacts to isSpectator and isReady changes for myUserName only
+	-- only reacts if its aiming for myUserNamereacts
+	-- reacts to: isSpectator, isReady
 	local function OnUpdateUserBattleStatus(listener, username, status)
-		-- Spring.Utilities.TraceFullEcho()
-		Spring.Echo("OnUpdateUserBattleStatus username:" .. tostring(username))
 		if username ~= battleLobby.myUserName then
 			return
 		end
 
-		-- 23/03/19 Fireball Todo: lastGameSpectatorState now depends on isSpectator and isQueue
+		-- 23/03/19 Fireball Todo: lastGameSpectatorState now depends on isSpectator and isQueue (we can be a spectator and same time wanting to be player -> lastGameSpectatorState true)
 		--                         battleroom should not be responsible for updating configurations of lobby properties
+		--                         better: implement this config update in lobby:_OnUpdateUserBattleStatus
 		if status.isSpectator then
 			WG.Chobby.Configuration:SetConfigValue("lastGameSpectatorState", status.isSpectator)
 		end
-
-		local usedStatus = {}
-		usedStatus.isSpectator = status.isSpectator ~= nil and status.isSpectator
-		local readyEnabled = status.isSpectator ~= nil and status.isSpectator == false
 
 		if battleLobby.name ~= "singleplayer" then
 			local tooltipCandidate = ""
@@ -3070,40 +3064,17 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 					tooltipCandidate = i18n("unready_tooltip")
         		end
 			end
-			-- 23/03/19 Fireball: better set isRunning-tooltip once, when isRunning state changes somewhere else
+			-- 23/03/19 Fireball ToDo: better set isRunning-tooltip once, when isRunning state changes somewhere else, it´s not belonging to OnUpdateBattleStatus
 			if battle.isRunning then
 				readyButton.tooltip = i18n("inprogress_tooltip")
 			else
 				readyButton.tooltip = tooltipCandidate
 			end
 		end
-
-		-- if battleLobby.name ~= "singleplayer" then
-        --     readyButton:SetEnabled(not status.isSpectator)
-		-- 	readyButton:SetCaption(i18n("ready"))
-		-- 	readyButtonCheckArrow.file = nil
-		-- 	readyButtonCheckArrow:Invalidate()
-		-- 		if status.isReady then
-        --         	readyButton:StyleReady()
-		-- 			readyButton.tooltip = i18n("ready_tooltip")
-		-- 			readyButtonCheckArrow.file = IMG_CHECKARROW
-		-- 			readyButtonCheckArrow:Invalidate()
-        --     	elseif status.isSpectator then
-		-- 			readyButton:StyleOff()
-		-- 			readyButton.tooltip = i18n("unready_notplaying_tooltip")
-		-- 		else
-		-- 			readyButton:StyleUnready()
-        --         	readyButton.tooltip = i18n("unready_tooltip")
-        -- 		end
-		-- 	
-		-- 	if battle.isRunning then
-		-- 		readyButton.tooltip = i18n("inprogress_tooltip")
-		-- 	end
-        -- end
 	end
 
 	local function OnUpdateUserTeamStatus(listener, userName, allyNumber, isSpectator)
-		Spring.Echo("room:OnUpdateUserTeamStatus userName:" .. tostring(userName) .. " allyNumber:" .. tostring(allyNumber) .. " isSpectator:" .. tostring(isSpectator))
+		-- Spring.Echo("room:OnUpdateUserTeamStatus userName:" .. tostring(userName) .. " allyNumber:" .. tostring(allyNumber) .. " isSpectator:" .. tostring(isSpectator))
 		--votePanel.VoteButtonVisible(isSpectator == false)
 		infoHandler.UpdateUserTeamStatus(userName, allyNumber, isSpectator)
 		playerHandler.UpdateUserTeamStatus(userName, allyNumber, isSpectator)
@@ -3131,10 +3102,8 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	end
 
 	local function OnJoinedBattle(listener, joinedBattleId, userName)
-		Spring.Echo("Room:OnJoinedBattle joinedBattleId: " .. tostring(joinedBattleId) .. " userName: " .. tostring(userName))
 		infoHandler.JoinedBattle(joinedBattleId, userName)
 		lastUserToChangeStartBoxes = battleLobby:GetBattle(joinedBattleId).founder
-		Spring.Echo("lastUserToChangeStartBoxes (founder): " .. tostring(lastUserToChangeStartBoxes) )
 	end
 
 	local function OnRemoveAi(listener, botName)

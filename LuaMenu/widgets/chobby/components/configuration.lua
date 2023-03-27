@@ -565,7 +565,6 @@ function Configuration:SetConfigData(data)
 end
 
 function Configuration:GetConfigData()
-	Spring.Echo("self.autoLaunchAsSpectator: ", self.autoLaunchAsSpectator)
 	return {
 		autoLaunchAsSpectator = self.autoLaunchAsSpectator,
 		serverAddress = self.serverAddress,
@@ -673,7 +672,6 @@ function Configuration:SetConfigValue(key, value)
 	if self[key] == value then
 		return
 	end
-	Spring.Echo("SetConfigValue key", key, value)
 	self[key] = value
 	if key == "useSpringRestart" then
 		lobby.useSpringRestart = value

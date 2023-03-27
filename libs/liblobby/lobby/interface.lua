@@ -151,7 +151,7 @@ end
 -- Battle commands
 ------------------------
 
--- 2023-03-08 Fireball: stop interface from changing battleStatus - just call onUpdateUserBattleStatus and make lobby do the job
+-- 2023-03-08 Fireball: stop sneaky changes to lobby´s battleStatus properties here - listeners depend on lobby´s event OnUpdateUserBattleStatus
 local function UpdateAndCreateMerge(userData, status)
 	local battleStatus = {}
 	local updated = false

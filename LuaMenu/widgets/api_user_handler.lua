@@ -609,12 +609,12 @@ local function UpdateUserBattleStatus(listener, userName)
 		if userControls then
 
 			local bs = userControls.lobby:GetUserBattleStatus(userName) or {}
-			userControls.isPlaying = bs and bs.isSpectator == false
+			userControls.isPlaying = bs.isSpectator == false
 			
 			local offset = 0
 
 			if userControls.tbqueuePos then
-				userControls.isInQueue = bs and bs.queuePos and bs.queuePos > 0 or false
+				userControls.isInQueue = bs.queuePos and bs.queuePos > 0 or false
 				userControls.tbqueuePos:SetVisibility(userControls.isInQueue)
 				if userControls.isInQueue then
 					local queuePos = bs.queuePos
@@ -824,10 +824,10 @@ local function GetUserControls(userName, opts)
 
 	local myBattleID = userControls.lobby:GetMyBattleID()
 	local userInfo = userControls.lobby:GetUser(userName) or {}
-	local bs = userControls.lobby:GetUserBattleStatus(userName)
+	local bs = userControls.lobby:GetUserBattleStatus(userName) or {}
 
-	userControls.isPlaying = bs and bs.isSpectator == false
-	userControls.isInQueue = bs and bs.queuePos and bs.queuePos > 0 or false
+	userControls.isPlaying = bs.isSpectator == false
+	userControls.isInQueue = bs.queuePos and bs.queuePos > 0 or false
 
 	if reinitialize then
 		userControls.mainControl:ClearChildren()
@@ -1160,7 +1160,7 @@ local function GetUserControls(userName, opts)
 			bottom = 5,
 			align = "left",
 			parent = userControls.mainControl,
-			fontsize = Configuration:GetFont(1).size,
+			-- fontsize = Configuration:GetFont(1).size,
 			text = tostring(queuePos),
 		}
 		-- userControls.tbqueuePos.font.color = skillColor
