@@ -383,7 +383,7 @@ local function GetNewsEntry(parentHolder, index, headingSize, timeAsTooltip, top
 				controls.image = Image:New{
 					name = "news" .. index,
 					x = 4, -- Fireball: Why not textpos(=6) ?
-					y = offset + 6,
+					y = offset + headFormat.vSpacing,
 					width = headFormat.imageSize,
 					height = headFormat.imageSize,
 					keepAspect = true,
@@ -397,18 +397,18 @@ local function GetNewsEntry(parentHolder, index, headingSize, timeAsTooltip, top
 				controls.image:Invalidate()
 				controls.image:SetVisibility(true)
 			end
-			offset = offset + 6 + headFormat.imageSize
+			offset = offset + headFormat.vSpacing + headFormat.imageSize
 		elseif controls.image then
 			controls.image:SetVisibility(false)
 		end
 
 		if entryData.atTime and not timeAsTooltip then
 			if not controls.dateTime then
-				controls.dateTime = GetDateTimeDisplay(holder, textPos, offset + 6, entryData.atTime)
+				controls.dateTime = GetDateTimeDisplay(holder, textPos, offset + headFormat.vSpacing, entryData.atTime)
 			else
 				controls.dateTime.SetVisibility(true)
 			end
-			offset = offset + 6 + controls.dateTime.GetHeight()
+			offset = offset + headFormat.vSpacing + controls.dateTime.GetHeight()
 		elseif controls.dateTime then
 			controls.dateTime.SetVisibility(false)
 		end
@@ -417,7 +417,7 @@ local function GetNewsEntry(parentHolder, index, headingSize, timeAsTooltip, top
 			if not controls.text then
 				controls.text = TextBox:New{
 					x = textPos,
-					y = offset + 6,
+					y = offset + headFormat.vSpacing,
 					right = 4,
 					height = 120,
 					align = "left",
@@ -429,11 +429,11 @@ local function GetNewsEntry(parentHolder, index, headingSize, timeAsTooltip, top
 			else
 				controls.text:SetText(entryData.text)
 				controls.text:SetVisibility(true)
-				controls.text:SetPos(textPos, offset + 6)
+				controls.text:SetPos(textPos, offset + headFormat.vSpacing)
 				controls.text._relativeBounds.right = 4
 				controls.text:UpdateClientArea(false)
 			end
-			offset = offset + 6 + controls.text.height
+			offset = offset + headFormat.vSpacing + controls.text.height
 		elseif controls.text then
 			controls.text:SetVisibility(false)
 		end
@@ -474,12 +474,12 @@ local function GetNewsEntry(parentHolder, index, headingSize, timeAsTooltip, top
 		end
 
 		if controls.linkButton and controls.linkButton.visible then
-			offset = math.max(offset, offsetImage) + 6
+			offset = math.max(offset, offsetImage) + headFormat.vSpacing
 			controls.linkButton:SetPos(nil, offset)
 			offset = offset + controls.linkButton.height
+		else
+			offset = math.max(offset, offsetImage)	
 		end
-
-		offset = math.max(offset, offsetImage)
 
 		holder:SetPos(nil, parentPosition, nil, offset)
 		return parentPosition + offset + headFormat.paragraphSpacing
