@@ -119,8 +119,8 @@ function ListWindow:Clear()
 	self.listPanel:ClearChildren()
 	self.scrollChildren = 0
 	self.itemNames = {}
-	self.itemPanelMapping = {}
-	self.orderPanelMapping = {}
+	self.itemPanelMapping = {} -- {id = panel{Index = placeinlist, id = id, inFilter = bool}}, maps 
+	self.orderPanelMapping = {} -- {index = panel{Index = placeinlist, id = id, inFilter = bool}}
 end
 
 function ListWindow:AddRow(items, id)
@@ -156,7 +156,7 @@ function ListWindow:AddRow(items, id)
 	}
 
 	local index = self.scrollChildren + 1
-	local x,y,width,height = self:CalulatePosition(index)
+	local x,y,width,height = self:CalculatePosition(index)
 	local w = Control:New {
 		x = x,
 		width = width,
@@ -175,6 +175,7 @@ function ListWindow:AddRow(items, id)
 	self.orderPanelMapping[index] = w
 
 	w.inFilter = self:ItemInFilter(id)
+	w:SetVisibility(w.inFilter)
 	self:RecalculateOrder(id)
 end
 
@@ -188,7 +189,7 @@ function ListWindow:GetRowItems(id)
 	return self.itemNames[id]
 end
 
-function ListWindow:CalulatePosition(index)
+function ListWindow:CalculatePosition(index)
 	local xAcross = ((index - 1)%self.columns)/self.columns
 	local row = math.floor((index - 1)/self.columns)
 
@@ -200,7 +201,7 @@ function ListWindow:CalulatePosition(index)
 end
 
 function ListWindow:RecalculatePosition(index)
-	local x,y,width,height = self:CalulatePosition(index)
+	local x,y,width,height = self:CalculatePosition(index)
 
 	local child = self.orderPanelMapping[index]
 
@@ -219,12 +220,61 @@ function ListWindow:ItemInFilter(id)
 	return true
 end
 
+function ListWindow:SetPosition(panel, index)
+	local x,y, width, height = self:CalculatePosition(index)
+	panel._relativeBounds.left = x
+	panel._relativeBounds.width = width
+	panel:SetPos(nil,y, nil, adjustFeatureHeight)
+	panel:UpdateClientArea()
+end
+
 function ListWindow:UpdateFilters()
-	for i = 1, self.scrollChildren do
-		self.orderPanelMapping[i].inFilter = self:ItemInFilter(self.orderPanelMapping[i].id)
+	-- this updates all the elements	
+	-- should only be really called when filter parameters change, 
+	-- but is now fast enough to not really care about that
+	-- dont even sort filtered out items
+	-- filtered item positions are also set to the end of the list.
+
+	-- refresh filtered items
+	local infilters = {} -- array of visible IDs
+	local numinfilters = 0
+	local invisible = {} -- array of invisible IDs
+	local numinvisible = 0
+	for index, panel in ipairs(self.orderPanelMapping) do
+		local oldFilter = panel.inFilter
+		panel.inFilter = self:ItemInFilter(panel.id)
+		if panel.inFilter then
+			numinfilters = numinfilters + 1
+			infilters[numinfilters] = panel.id
+		else
+			numinvisible = numinvisible + 1
+			invisible[numinvisible] = panel.id
+		end
+
+		if oldFilter ~= panel.inFilter then -- only update on status change
+			panel:SetVisibility(panel.inFilter)
+		end
 	end
-	for id, _ in pairs(self.itemPanelMapping) do
-		self:RecalculateOrder(id)
+
+	-- Create a localized lambda sort function and sort the visible ones
+	local listWindow = self
+	local lambda = function (id1, id2)
+		return listWindow:CompareItems(id1,id2)
+	end
+	table.sort(infilters, lambda)
+
+	-- add the invisible ones to the end of the sorted list
+	for i = 1, numinvisible do
+		infilters[numinfilters+i] = invisible[i]
+	end
+	-- set the position of all of them one by one if it has changed
+	for newindex, id in ipairs(infilters) do
+		local panel = self.itemPanelMapping[id]
+		if panel.index ~= newindex then
+			self:SetPosition(panel, newindex)
+			self.orderPanelMapping[newindex] = panel
+			panel.index = newindex
+		end
 	end
 end
 

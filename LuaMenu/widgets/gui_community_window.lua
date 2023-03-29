@@ -213,7 +213,7 @@ local function GetDateTimeDisplay(parentControl, xPosition, yPosition, timeStrin
 
 	local localStart = TextBox:New{
 		x = xPosition,
-		y = yPosition + 6,
+		y = yPosition,
 		right = 4,
 		height = 22,
 		align = "left",
@@ -226,7 +226,7 @@ local function GetDateTimeDisplay(parentControl, xPosition, yPosition, timeStrin
 
 	local countdown = TextBox:New{
 		x = xPosition,
-		y = yPosition + 26,
+		y = yPosition + localStart.height,
 		right = 4,
 		height = 22,
 		align = "left",
@@ -245,8 +245,12 @@ local function GetDateTimeDisplay(parentControl, xPosition, yPosition, timeStrin
 	}
 
 	function externalFunctions.SetPosition(newY)
-		localStart:SetPos(nil, newY + 6)
-		countdown:SetPos(nil, newY + 26)
+		localStart:SetPos(nil, newY)
+		countdown:SetPos(nil, newY + localStart.height)
+	end
+
+	function externalFunctions.GetHeight()
+		return localStart.height + countdown.height
 	end
 
 	function externalFunctions.SetVisibility(visible)
@@ -283,6 +287,7 @@ local headingFormats = {
 		topHeadingOffset = 60,
 		imageSize = 120,
 		buttonBot = 6,
+		vSpacing = 6,
 	},
 	[4] = {
 		buttonSize = 40,
@@ -295,9 +300,14 @@ local headingFormats = {
 		topHeadingOffset = 80,
 		imageSize = 120,
 		buttonBot = 10,
+		vSpacing = 6,
 	},
 }
 
+-- 2023/03/28 Fireball: we always use "headingFormats[2]"
+--						we never use "showBulletHeading"
+--						in result "freeHeading" and "heading" is same
+--						i simplified this function to use always "heading" and deleted bullets
 local function GetNewsEntry(parentHolder, index, headingSize, timeAsTooltip, topHeading, showBulletHeading)
 	local linkString
 	local controls = {}
@@ -315,31 +325,18 @@ local function GetNewsEntry(parentHolder, index, headingSize, timeAsTooltip, top
 
 	local externalFunctions = {}
 
+	-- Fireball: vPositioning doesn´t matter here, overwritten by DoResize as soon as the control was created
 	function externalFunctions.AddEntry(entryData, parentPosition)
 		local textPos = 6
 		local headingPos = 2
 		local offset = 0
-
-		if showBulletHeading then
-			if not controls.bullet then
-				controls.bullet = Image:New{
-					x = 2,
-					y = offset + 5,
-					width = 16,
-					height = 16,
-					file = IMG_BULLET,
-					parent = holder,
-				}
-			end
-			headingPos = 18
-		end
 
 		if entryData.link then
 			linkString = entryData.link
 			if not controls.linkButton then
 				controls.linkButton = Button:New {
 					x = 2,
-					y = offset + 6,
+					y = offset + 6, -- Fireball: doesn´t matter, overwritten by DoResize, this is totally wrong
 					width = 280,
 					--right = 400,
 					align = "left",
@@ -359,67 +356,25 @@ local function GetNewsEntry(parentHolder, index, headingSize, timeAsTooltip, top
 			else
 				controls.linkButton:SetVisibility(true)
 			end
-
-			if not controls.heading then
-				controls.heading = TextBox:New{
-					x = 4,
-					y = headFormat.inButton,
-					right = 4,
-					height = headFormat.height,
-					align = "center",
-					valign = "top",
-					text = entryData.heading,
-					objectOverrideFont = myFont7,
-					parent = holder,
-				}
-			else
-				controls.heading:SetText(entryData.heading)
-			end
-
-			-- Possibly looks nicer without link image.
-			--[[ if not showBulletHeading then
-				if not controls.linkImage then
-					controls.linkImage = Image:New {
-						x = 0,
-						y = 5,
-						width = headFormat.linkSize,
-						height = headFormat.linkSize,
-						keepAspect = true,
-						file = IMG_LINK,
-						parent = controls.linkButton,
-					}
-				end
-
-				local length = controls.heading.font:GetTextWidth(entryData.heading)
-				controls.linkImage:SetPos(length + 8)
-			end ]]
-
-			if controls.freeHeading then
-				controls.freeHeading:SetVisibility(false)
-			end
-		else
-			if not controls.freeHeading then
-				controls.freeHeading = TextBox:New{
-					x = headingPos + 4,
-					y = offset + 12,
-					right = 4,
-					height = headFormat.height,
-					align = "left",
-					valign = "top",
-					text = entryData.heading,
-					objectOverrideFont = myFont7,
-					parent = holder,
-				}
-			else
-				controls.freeHeading:SetText(entryData.heading)
-				controls.freeHeading:SetVisibility(true)
-			end
-
-			if controls.linkButton then
-				controls.linkButton:SetVisibility(false)
-			end
 		end
-		offset = offset + 40
+
+		if not controls.heading then
+			controls.heading = TextBox:New{
+				x = 4, -- Fireball: Why not textpos(=6) ?
+				y = headFormat.inButton,	-- Fireball: doesn´t matter, overwritten by DoResize
+				right = 4,
+				height = headFormat.height,
+				align = "center", -- Fireball: What do we want to center here ? the heading is shown aligned to the left and it´s good. is this working at all ?
+				valign = "top",
+				text = entryData.heading,
+				objectOverrideFont = myFont7,
+				parent = holder,
+			}
+		else
+			controls.heading:SetText(entryData.heading)
+		end
+
+		offset = offset + controls.heading.height
 
 		if entryData.imageFile then
 			textPos = headFormat.imageSize + 12
@@ -427,8 +382,8 @@ local function GetNewsEntry(parentHolder, index, headingSize, timeAsTooltip, top
 			if not controls.image then
 				controls.image = Image:New{
 					name = "news" .. index,
-					x = 4,
-					y = offset + 6,
+					x = 4, -- Fireball: Why not textpos(=6) ?
+					y = offset + headFormat.vSpacing,
 					width = headFormat.imageSize,
 					height = headFormat.imageSize,
 					keepAspect = true,
@@ -442,17 +397,18 @@ local function GetNewsEntry(parentHolder, index, headingSize, timeAsTooltip, top
 				controls.image:Invalidate()
 				controls.image:SetVisibility(true)
 			end
+			offset = offset + headFormat.vSpacing + headFormat.imageSize
 		elseif controls.image then
 			controls.image:SetVisibility(false)
 		end
 
 		if entryData.atTime and not timeAsTooltip then
 			if not controls.dateTime then
-				controls.dateTime = GetDateTimeDisplay(holder, textPos, offset, entryData.atTime)
+				controls.dateTime = GetDateTimeDisplay(holder, textPos, offset + headFormat.vSpacing, entryData.atTime)
 			else
 				controls.dateTime.SetVisibility(true)
 			end
-			offset = offset + 45
+			offset = offset + headFormat.vSpacing + controls.dateTime.GetHeight()
 		elseif controls.dateTime then
 			controls.dateTime.SetVisibility(false)
 		end
@@ -461,7 +417,7 @@ local function GetNewsEntry(parentHolder, index, headingSize, timeAsTooltip, top
 			if not controls.text then
 				controls.text = TextBox:New{
 					x = textPos,
-					y = offset + 6,
+					y = offset + headFormat.vSpacing,
 					right = 4,
 					height = 120,
 					align = "left",
@@ -473,10 +429,11 @@ local function GetNewsEntry(parentHolder, index, headingSize, timeAsTooltip, top
 			else
 				controls.text:SetText(entryData.text)
 				controls.text:SetVisibility(true)
-				controls.text:SetPos(textPos, offset + 6)
+				controls.text:SetPos(textPos, offset + headFormat.vSpacing)
 				controls.text._relativeBounds.right = 4
 				controls.text:UpdateClientArea(false)
 			end
+			offset = offset + headFormat.vSpacing + controls.text.height
 		elseif controls.text then
 			controls.text:SetVisibility(false)
 		end
@@ -493,47 +450,39 @@ local function GetNewsEntry(parentHolder, index, headingSize, timeAsTooltip, top
 
 		local offset = 0
 
-		if controls.bullet then
-			controls.bullet:SetPos(nil, offset + 5)
-		end
-
 		local headingSize
 		if controls.heading and controls.heading.visible then
 			headingSize = (#controls.heading.physicalLines)*headFormat.fontSize
 			controls.heading:SetPos(nil, nil, nil, headingSize)
-		elseif controls.freeHeading then
-			headingSize = (#controls.freeHeading.physicalLines)*headFormat.fontSize
-			controls.freeHeading:SetPos(nil, nil, nil, headingSize)
 		end
 		offset = offset + headingSize + headFormat.spacing
 
+		local offsetImage = 0
 		if controls.image and controls.image.visible then
-			controls.image:SetPos(nil, offset + 6)
+			controls.image:SetPos(nil, offset + headFormat.vSpacing)
+			offsetImage = offset + headFormat.vSpacing + headFormat.imageSize
 		end
+
 		if controls.dateTime and controls.dateTime.visible then
-			controls.dateTime.SetPosition(offset)
-			offset = offset + 46
+			controls.dateTime.SetPosition(offset + headFormat.vSpacing)
+			offset = offset + headFormat.vSpacing + controls.dateTime.GetHeight()
 		end
+
 		if controls.text and controls.text.visible then
-			controls.text:SetPos(nil, offset + 6)
+			controls.text:SetPos(nil, offset + headFormat.vSpacing)
+			offset = offset + headFormat.vSpacing + controls.text.height
 		end
 
 		if controls.linkButton and controls.linkButton.visible then
-			offset = offset + controls.text.height + 20
+			offset = math.max(offset, offsetImage) + headFormat.vSpacing
 			controls.linkButton:SetPos(nil, offset)
+			offset = offset + controls.linkButton.height
+		else
+			offset = math.max(offset, offsetImage)	
 		end
 
-		if controls.text and controls.text.height <= 20 then
-			offset = offset + 20
-		end
-
-		local offsetSize = (controls.text and (#controls.text.physicalLines)*18) or 6
-		if controls.image and controls.image.visible and ((not controls.text) or (offsetSize < headFormat.imageSize - (controls.dateTime and 46 or 0))) then
-			offsetSize = headFormat.imageSize - (controls.dateTime and 46 or 0)
-		end
-
-		holder:SetPos(nil, parentPosition, nil, offset + offsetSize + 10)
-		return parentPosition + offset + offsetSize + headFormat.paragraphSpacing
+		holder:SetPos(nil, parentPosition, nil, offset)
+		return parentPosition + offset + headFormat.paragraphSpacing
 	end
 
 	function externalFunctions.UpdateCountdown()

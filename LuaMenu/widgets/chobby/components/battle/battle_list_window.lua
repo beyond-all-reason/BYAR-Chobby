@@ -303,11 +303,33 @@ function BattleListWindow:Update()
 end
 
 function BattleListWindow:SoftUpdate()
-	if Configuration.battleFilterRedundant then
-		self:UpdateAllBattleIDs()
+	-- UpdateFilters is quite heavy, because it sorts all the battles on the
+	-- list, so instead of just calling SoftUpdate functionality directly,
+	-- we use debounce technicue to coalesce soft updates that are happening
+	-- close to each other in time into single invocation.
+
+	self.lastSoftUpdate = os.clock()
+
+	local battleList = self
+
+	local function RealSoftUpdate()
+		if os.clock() - battleList.lastSoftUpdate < 0.1 then
+			WG.Delay(RealSoftUpdate, 0.2)
+			return
+		end
+
+		if Configuration.battleFilterRedundant then
+			battleList:UpdateAllBattleIDs()
+		end
+		battleList:UpdateFilters()
+		battleList:UpdateInfoPanel()
+		battleList.softUpdateTimerRunning = false
 	end
-	self:UpdateFilters()
-	self:UpdateInfoPanel()
+
+	if not self.softUpdateTimerRunning then
+		WG.Delay(RealSoftUpdate, 0.2)
+		self.softUpdateTimerRunning = true
+	end
 end
 
 function BattleListWindow:UpdateInfoPanel()
@@ -770,7 +792,7 @@ function BattleListWindow:FilterRedundantBattle(battle, id)
 	]] --
 end
 
-function BattleListWindow:CompareItems(id1, id2) 
+function BattleListWindow:CompareItems(id1, id2)
 	-- Returns true if id1 should be before id2
 	-- Sort:
 	-- 0. Public, not running battles with > 0 players
@@ -778,9 +800,9 @@ function BattleListWindow:CompareItems(id1, id2)
 	-- 2. public locked battles by player count
 	-- 3. unlocked private battles, alphabetically
 	-- 4. locked private battles, alphabetically
-	-- 
+	--
 	-- 1.& 2.: If player count is identical, order those by RunningState (not running first)
-	
+
 	-- sorted list of params to check by?
 
 	local battle1, battle2 = lobby:GetBattle(id1), lobby:GetBattle(id2)
@@ -801,7 +823,7 @@ function BattleListWindow:CompareItems(id1, id2)
 		if battle1.locked ~= battle2.locked then
 			return battle2.locked
 		end
-		
+
 		local countOne = lobby:GetBattlePlayerCount(id1)
 		local countTwo = lobby:GetBattlePlayerCount(id2)
 		-- Put empty rooms at the back of the list
@@ -816,7 +838,7 @@ function BattleListWindow:CompareItems(id1, id2)
 		if battle1.isRunning ~= battle2.isRunning then
 			return battle2.isRunning
 		end
-		
+
 		-- Sort by player count
 		if countOne ~= countTwo then
 			return countOne > countTwo
@@ -1157,7 +1179,7 @@ function BattleListWindow:OnFriendRequestList()
 	--Spring.Echo("BattleListWindow:OnFriendRequestList")
 	collectgarbage("collect")
 	collectgarbage("collect")
-	if self.itemNames then 
+	if self.itemNames then
 		for battleID, item in pairs(self.itemNames) do
 			self:UpdateRankIcon(battleID, nil, item)
 		end
@@ -1198,8 +1220,10 @@ function BattleListWindow:OpenHostWindow()
 		['[teh]clusterEU2'] = {limit = 70, current = 0, online = false, region = 'EU'},
 		['[teh]clusterEU3'] = {limit = 30, current = 0, online = false, region = 'EU'},
 		['[teh]clusterEU4'] = {limit = 70, current = 0, online = false, region = 'EU'},
+		['[teh]clusterEU5'] = {limit = 200, current = 0, online = false, region = 'EU'},
 		['[teh]clusterUS'] = {limit = 70, current = 0, online = false, region = 'US'},
-		['[teh]clusterUS2'] = {limit = 50, current = 0, online = false, region = 'US'},
+		['[teh]clusterUS2'] = {limit = 60, current = 0, online = false, region = 'US'},
+		['[teh]clusterUS3'] = {limit = 70, current = 0, online = false, region = 'US'},
 		['[teh]clusterAU'] = {limit = 90, current = 0, online = false, region = 'AU'},
 	}
 
@@ -1224,15 +1248,15 @@ function BattleListWindow:OpenHostWindow()
 	local function TryGetRegion(targetregion)
 		local emptiness = {} -- key is manager name, value is fullness
 		local sum = 0
-		for manager, data in pairs(clusters) do 
-			if data.region == targetregion and data.online then 
+		for manager, data in pairs(clusters) do
+			if data.region == targetregion and data.online then
 				emptiness[manager] = 1.0 - data.current/data.limit
 				sum = sum + emptiness[manager]
 				Spring.Echo("Manager", manager, data.current,  data.limit, emptiness[manager], sum)
 			end
 		end
 
-		-- choose 
+		-- choose
 		local r = math.random() * sum
 		local tot = 0
 		for manager,prob in pairs(emptiness) do
@@ -1358,7 +1382,7 @@ function BattleListWindow:OpenHostWindow()
 
 	local function HostBattle()
 		WG.BattleRoomWindow.LeaveBattle()
-		--Attempting to host game at 
+		--Attempting to host game at
 		local requestedregion = typeCombo.items[typeCombo.selected] ---self.hostRegions = {"DE","EU","EU2","US","AU"}
 		--Spring.Echo("Looking for empty host in region", requestedregion)
 		local targetCluster, errmsg = TryGetRegion(requestedregion)
@@ -1367,7 +1391,7 @@ function BattleListWindow:OpenHostWindow()
 			local mypassword = ""
 			local function listenForPrivateBattle(listener, userName, message, msgDate)
 				--Spring.Echo("listenForPrivateBattle",listener, userName, message, msgDate)
-				if userName == targetCluster and string.find(message,"Starting a new private instance in", nil, true) then 
+				if userName == targetCluster and string.find(message,"Starting a new private instance in", nil, true) then
 					local pwindex = string.find(message,"password=", nil, true)
 					mypassword = string.sub(message, pwindex + 9, pwindex + 9 + 3)
 					Spring.Echo("Got the password:", mypassword)
@@ -1445,7 +1469,7 @@ function BattleListWindow:OpenHostWindow()
 					battle.isRunning ~= true and -- this is needed after server restarts
 					battle.passworded ~= true and
 					battle.locked ~= true and
-					lobby:GetBattlePlayerCount(battle.battleID) == 0 and 
+					lobby:GetBattlePlayerCount(battle.battleID) == 0 and
 					Configuration:IsValidEngineVersion(battle.engineVersion) then
 						-- TODO: THIS MIGHT STILL JOIN "MANAGED" BATTLES WITH MANAGER BOTS
 						targetbattle = battle.battleID
@@ -1466,9 +1490,9 @@ function BattleListWindow:OpenHostWindow()
 					})
 				end
 				Configuration:SetConfigValue("lastGameSpectatorState", false) -- assume that private hoster wants to play, needed so he can boss self!
-						
+
 				--Spring.Echo("Found a battle")
-				local function bossSelf() 
+				local function bossSelf()
 					local myplayername = lobby:GetMyUserName() or ''
 					lobby:SayBattle("!boss " .. myplayername)
 					lobby:SayBattle("!preset custom")
@@ -1522,7 +1546,7 @@ function BattleListWindow:JoinBattle(battle)
 	if not battle.passworded then
 		WG.BattleRoomWindow.LeaveBattle()
 
-		local removeListeners 
+		local removeListeners
 
 		local function onJoinBattle(listener)
 			removeListeners()
@@ -1533,7 +1557,7 @@ function BattleListWindow:JoinBattle(battle)
 			removeListeners()
 		end
 
-		removeListeners = function ()    
+		removeListeners = function ()
 			lobby:RemoveListener("OnJoinBattleFailed", onJoinBattleFailed)
 			lobby:RemoveListener("OnJoinBattle", onJoinBattle)
 		end

@@ -954,7 +954,7 @@ local function GetLobbyTabControls()
 	}
 	children[#children + 1] = randomSkirmishSetup
 	offset = offset + ITEM_OFFSET
-	
+
 	local autoLogin = Checkbox:New {
 		x = 20,
 		width = CHECK_WIDTH,
@@ -1037,7 +1037,7 @@ local function GetLobbyTabControls()
 	children[#children + 1], offset = AddCheckboxSetting(offset, i18n("fixFlicker"), "fixFlicker", true, nil, i18n("fixFlicker_tooltip"))
 	children[#children + 1], offset = AddCheckboxSetting(offset, i18n("displayBots"), "displayBots", false, nil, i18n("displayBots_tooltip") )
 	children[#children + 1], offset = AddCheckboxSetting(offset, i18n("filterbattleroom"), "filterbattleroom", true, nil, i18n("filterbattleroom_tooltip"))
-	
+
 	children[#children + 1], offset = AddCheckboxSetting(offset, i18n("flushLogs"), "flushLogs",
 		Spring.GetConfigInt("LogFlushLevel") == 0,
 		function(newstate) Spring.SetConfigInt("LogFlushLevel", (newstate and 0) or 50) end, i18n("flushLogs_tooltip"))
@@ -1055,10 +1055,10 @@ local function GetLobbyTabControls()
 		objectOverrideFont = settingsFont2,
 		--font = Configuration:GetFont(2),
 		caption = "Choose Server:",
-		tooltip = "Old Server is road-flag.bnr.la, new is server3.beyondallreason.info. Changing this will log you out of current server, click Login in top right to reconnect to new one, Temporarily we are on : server3.beyondallreason.info",
+		tooltip = "Old Server is server3.beyondallreason.info, new one is server4.beyondallreason.info. Changing this will log you out of current server, click Login in top right to reconnect to new one, Currently we are on : server4.beyondallreason.info",
 	}
 
-	local barservers = {"server3.beyondallreason.info","bar.teifion.co.uk"}
+	local barservers = {"server4.beyondallreason.info","server3.beyondallreason.info","bar.teifion.co.uk"}
 
 	if WG.Chobby.Configuration.devMode then
 		barservers[#barservers + 1] = "localhost"
@@ -1076,7 +1076,7 @@ local function GetLobbyTabControls()
 		--font = Configuration:GetFont(2),
 		itemFontSize = Configuration:GetFont(2).size,
 		selected = Configuration:GetServerAddress(),
-		tooltip = "Old Server is road-flag.bnr.la, new is server3.beyondallreason.info. Changing this will log you out of current server, click Login in top right to reconnect to new one. Temporarily we are on: server3.beyondallreason.info",
+		tooltip = "Old Server is server3.beyondallreason.info, new is server4.beyondallreason.info. Changing this will log you out of current server, click Login in top right to reconnect to new one. Currently we are on: server4.beyondallreason.info",
 		OnSelect = {
 			function (obj, num)
 				if freezeSettings then -- so that it doesnt run when started, fucking yay
