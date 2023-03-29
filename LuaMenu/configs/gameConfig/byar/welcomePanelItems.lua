@@ -13,14 +13,6 @@
 
 local welcomePanelItems = {
     {
-        Header = "Alpha Championship Cup #3",
-        Image = "LuaMenu/images/1vs1Tournament.png",
-        Url = "https://www.beyondallreason.info/news/bar-alpha-championship-3-is-on-the-way",
-        Time = "2023-04-08T14:00:00",
-        Text = "See the brackets for upcoming championship and join the tourney or see the official stream on 8th of April!\n",
-        UrlText = "Sign-Up"
-    },
-    {
         Header = "Welcome to Beyond All Reason",
         Text = "Welcome back Commander. We hope you are ready for epic single player and multiplayer battles. Check out our Discord and join the community!\n",
     },
