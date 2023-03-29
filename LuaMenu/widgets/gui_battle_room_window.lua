@@ -1492,21 +1492,11 @@ local function SortPlayersBySkill(a, b)
 end
 
 local function SortPlayersByQueued(a, b)
-	-- local sA = battleLobby:GetUser(a.name)
 	local sA = battleLobby:GetUserBattleStatus(a.name)
-	-- local sB = battleLobby:GetUser(b.name)
 	local sB = battleLobby:GetUserBattleStatus(b.name)
 	local queuePosA = tonumber((sA and sA.queuePos) or 0)
 	local queuePosB = tonumber((sB and sB.queuePos) or 0)
-	-- Spring.Echo("type of a.name:"..type(a.name) .. " ="..tostring(a.name))
-	-- Spring.Echo("type of b.name:"..type(b.name) .. " ="..tostring(b.name))
-	-- Spring.Echo("type of queuePosA:"..type(queuePosA) .. " ="..tostring(queuePosA))
-	-- Spring.Echo("type of queusPosB:"..type(queuePosB) .. " ="..tostring(queuePosB))
-	-- Spring.Echo("sort result=" .. tostring(
-	--	((queuePosA > 0 and queuePosB > 0) and queuePosA < queuePosB) or 
-	--	((queuePosA > 0 and queuePosB == 0) and true) or 
-	--	((queuePosA == 0 and queuePosB > 0) and false) or
-	--	"no"))
+
 	if queuePosA > 0 and queuePosB > 0 then
 		return queuePosA < queuePosB
 	end
@@ -1521,13 +1511,6 @@ local function SortPlayersByQueued(a, b)
 		return true
 	end
 	return false
-	--if 
-	--return (
-	--	((queuePosA > 0 and queuePosB > 0) and queuePosA < queuePosB) or 
-	--	((queuePosA > 0 and queuePosB == 0) and true) or 
-	--	((queuePosA == 0 and queuePosB > 0) and false) or
-	--	
-	--	string.lower(a.name) < string.lower(b.name))
 end
 
 local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
@@ -1577,13 +1560,11 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 	local team = {}
 
 	local function PositionChildren(panel, minHeight)
-		-- Spring.Echo("PositionChildren mingHeight: " .. tostring(minHeight))
 		local children = panel.children
 
 		minHeight = minHeight - 10
 
 		local childrenCount = #children
-		-- Spring.Echo("PositionChildren #children: " .. tostring(#children))
 		local bottomBuffer = 0
 
 		local totalHeight = 0
@@ -1630,7 +1611,6 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 	end
 
 	local function GetTeam(teamIndex)
-		-- Spring.Echo("Room:GetTeam teamIndex received: " .. tostring(teamIndex))	
 		teamIndex = teamIndex or -2 -- default to -2 = Spectator team
 		if not team[teamIndex] then
 			if teamIndex == emptyTeamIndex then
@@ -1730,14 +1710,6 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 				else
 					-- Spring.Echo("Sorting teamIndex: " .. tostring(teamIndex))
 					table.sort(teamStack.children, SortPlayersByQueued)
-					
-					-- for k,v in pairs(teamStack.children) do
-					-- 	if type(v) == "table" then
-					-- 		Spring.Echo(tostring(k).. " > ".. tostring(v.name))
-					-- 	else
-					-- 		Spring.Echo(tostring(k) .. " >> " .. tostring(v))
-					-- 	end
-					-- end
 				end
 
 				local position = 1
@@ -1806,13 +1778,8 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 			end
 
 			function teamData.AddPlayer(name)
-				-- Spring.Echo("teamData.Addplayer teamIndex: " .. tostring(teamIndex) .. " name: " .. tostring(name) )
-				-- if (teamIndex == 0) then
-				-- 	Spring.Utilities.TraceFullEcho()
-				-- end
 				local playerData = GetPlayerData(name)
 				if playerData.team == teamIndex then
-					-- Spring.Echo("teamData.Addplayer team: " .. tostring(playerData.team) .. " = teamIndex, return")
 					return
 				end
 				playerData.team = teamIndex
@@ -1841,7 +1808,7 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 			end
 
 			function teamData.CheckRemoval()
-				if teamStack:IsEmpty() and teamIndex ~= -1 and teamIndex ~= -2 then
+				if teamStack:IsEmpty() and teamIndex ~= -2 then
 					local removeHolder = false
 
 					if disallowCustomTeams then
@@ -1862,6 +1829,9 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 								teamData.RemoveTeam()
 								return true
 							end
+						elseif teamIndex == -1 then
+							teamHolder:SetVisibility(false)
+							return true
 						end
 					end
 				end
@@ -1870,7 +1840,7 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 
 			function teamData.RemovePlayer(name)
 				local playerData = GetPlayerData(name)
-				if playerData.team ~= teamIndex then
+				if playerData.team ~= teamIndex or playerData.team == false then
 					return
 				end
 				playerData.team = false
@@ -1891,17 +1861,11 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 				end
 
 				teamData.CheckRemoval()
-				-- Spring.Echo("RemoveTeam, children: " .. tostring(#teamStack.children) .. " : " .. tostring(#teamStack.children))
-				if #teamStack.children == 0 then
-					-- Spring.Echo("teamStack 0")
-					teamHolder:SetVisibility(false)
-				end
 				PositionChildren(parentStack, parentScroll.height)
 			end
 
 			team[teamIndex] = teamData
 		end
-		-- Spring.Echo("Room:GetTeam teamIndex returned: " .. tostring(teamIndex))	
 		return team[teamIndex]
 	end
 
@@ -1976,7 +1940,9 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 		if playerData.team == teamNew then
 			return -- team didn´t change, so don´t update
 		end
-		RemovePlayerFromTeam(userName)
+		if playerData.team ~= false then
+			RemovePlayerFromTeam(userName)
+		end
 		AddPlayerToTeam(teamNew, userName)
 	end
 
@@ -3028,13 +2994,6 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	local function OnUpdateUserBattleStatus(listener, username, status)
 		if username ~= battleLobby.myUserName then
 			return
-		end
-
-		-- 23/03/19 Fireball Todo: lastGameSpectatorState now depends on isSpectator and isQueue (we can be a spectator and same time wanting to be player -> lastGameSpectatorState true)
-		--                         battleroom should not be responsible for updating configurations of lobby properties
-		--                         better: implement this config update in lobby:_OnUpdateUserBattleStatus
-		if status.isSpectator then
-			WG.Chobby.Configuration:SetConfigValue("lastGameSpectatorState", status.isSpectator)
 		end
 
 		if battleLobby.name ~= "singleplayer" then

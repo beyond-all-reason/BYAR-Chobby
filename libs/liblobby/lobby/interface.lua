@@ -325,12 +325,7 @@ function Interface:LeaveBattle()
 end
 
 function Interface:SetBattleStatus(status)
-	--Spring.Utilities.TraceFullEcho()
-	for k,v in pairs(status) do
-		Spring.Echo("SetBattleStatus param status k:", k, " v:", v)
-	end
 	if not self._requestedBattleStatus then
-		Spring.Echo("SetBattleStatus canceld")	
 		return
 	end
 	self:super("SetBattleStatus", status)
@@ -344,55 +339,13 @@ function Interface:SetBattleStatus(status)
 
 	local myUserName = self:GetMyUserName()
 	local userData = self.userBattleStatus[myUserName] or {}
-	if not self.userBattleStatus[myUserName] then
-		Spring.Echo("SetBattleStatus: userBattleStatus not exists")
-	else
-		for k,v in pairs(userData) do
-			if type(v) ~= "table" then
-				Spring.Echo("SetBattleStatus: battleStatus content k:" ..tostring(k) .. " v:" .. tostring(v))
-			else
-				for k2, v2 in pairs(v) do
-					Spring.Echo("SetBattleStatus: Status key2:", k2, " value2:",v2)
-				end
-			end
-		end
-	end
-	
 	local battleStatus, updated = UpdateAndCreateMerge(userData, status)
 
-
 	--next(status) will return nil if status is empty table, which it is when it is called from REQUESTBATTLESTATUS
-	Spring.Echo("responding ? next(status)==nil? " .. tostring(next(status) == nil) .. " updated? " .. tostring(updated))
-	if next(status) ~= nil then
-		for k,v in pairs(status) do
-			if type(v) ~= "table" then
-				Spring.Echo("Status key:", k, " value: ", v)
-			else
-				for k2, v2 in pairs(v) do
-					Spring.Echo("Status key2:", k2, " value2:",v2)
-				end
-			end
-		end
-	end
-	--if updated then
-	--	self:_OnUpdateUserBattleStatus(myUserName, status)
-	--end
 	if next(status) and not updated then
-		Spring.Echo("Aborting ")
 		return self
 	end
-	for k,v in pairs(battleStatus) do
-		if type(v) ~= "table" then
-			Spring.Echo("SetBattleStatus after: battleStatus content k:" ..tostring(k) .. " v:" .. tostring(v))
-		else
-			for k2, v2 in pairs(v) do
-				Spring.Echo("SetBattleStatus after: Status key2:", k2, " value2:",v2)
-			end
-		end
-	end
 	local battleStatusString = EncodeBattleStatus(battleStatus)
-	
-	Spring.Echo("Randomize teamcolor")
 	local teamColor = battleStatus.teamColor or { math.random(), math.random(), math.random(), 1 }
 	teamColor = EncodeTeamColor(teamColor)
 	self:_SendCommand(concat("MYBATTLESTATUS", battleStatusString, teamColor))
@@ -1741,26 +1694,19 @@ end
 -- This request is sent once by the server, directly after hosting or joining a battle
 -- since we do not have any battleStatus(in most cases), we generate a default one
 function Interface:_OnRequestBattleStatus()
-	Spring.Echo("_OnRequestBattleStatus: WG.Chobby.Configuration.lastGameSpectatorState: ", WG.Chobby.Configuration.lastGameSpectatorState)
 	-- 6.3.23 Fireball: moved the action from the only listener to OnRequestBattleStatus in whole chobby from gui_battle_room_window.lua to here
 	--                  and don´t call listeners of OnRequestBattleStatus anymore
+	Spring.Echo("_OnRequestBattleStatus: WG.Chobby.Configuration.lastGameSpectatorState: ", WG.Chobby.Configuration.lastGameSpectatorState)
 	local battleStatus = self.userBattleStatus[self:GetMyUserName()] -- chobby doesn´t delete battleStatus on leaveBattle - maybe we find sth. left from prior session for this host, which we can make use of
-	self._requestedBattleStatus = true -- allow SetBattleStatus
+	self._requestedBattleStatus = true -- allow SetBattleStatus again
 	if battleStatus then
-		Spring.Echo("battleStatus.isSpectator or (WG.Chobby.Configuration.lastGameSpectatorState or false)", battleStatus.isSpectator or (WG.Chobby.Configuration.lastGameSpectatorState or false))
-	Spring.Echo("battleStatus.isSpectator or WG.Chobby.Configuration.lastGameSpectatorState or false", battleStatus.isSpectator or WG.Chobby.Configuration.lastGameSpectatorState or false)
 		Spring.Echo("_OnRequestBattleStatus: battleStatus true")
+		Spring.Echo("battleStatus.isSpectator == nil and (WG.Chobby.Configuration.lastGameSpectatorState or false) or battleStatus.isSpectator", battleStatus.isSpectator == nil and (WG.Chobby.Configuration.lastGameSpectatorState or false) or battleStatus.isSpectator)
 		self:SetBattleStatus({
-			isSpectator = battleStatus.isSpectator or (WG.Chobby.Configuration.lastGameSpectatorState or false),
+			isSpectator = battleStatus.isSpectator == nil and (WG.Chobby.Configuration.lastGameSpectatorState or false) or battleStatus.isSpectator,
 			isReady = false,
 			side = battleStatus.side == nil and WG.Chobby.Configuration.lastFactionChoice or battleStatus.side ,
 			sync = battleStatus.sync or getSyncStatus(self:GetBattle(self:GetMyBattleID())),
-			-- tamColor = PickRandomColor()
-			-- teamColor = {
-			-- 	math.random() * 0.7 + 0.1,
-			-- 	math.random() * 0.7 + 0.1,
-			-- 	math.random() * 0.7 + 0.1,
-			-- },
 		})
 	else
 		Spring.Echo("_OnRequestBattleStatus: battleStatus false", (WG.Chobby.Configuration.lastGameSpectatorState or false))
@@ -1769,12 +1715,6 @@ function Interface:_OnRequestBattleStatus()
 			isReady = false,
 			side = (WG.Chobby.Configuration.lastFactionChoice or 0) ,
 			sync = getSyncStatus(self:GetBattle(self:GetMyBattleID())),
-			-- tamColor = PickRandomColor()
-			-- teamColor = {
-			-- 	math.random() * 0.7 + 0.1,
-			-- 	math.random() * 0.7 + 0.1,
-			-- 	math.random() * 0.7 + 0.1,
-			-- },
 		})
 	end
 end
