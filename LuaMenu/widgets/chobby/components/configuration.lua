@@ -19,6 +19,8 @@ function Configuration:init()
 		fileConfig.game = "zk"
 	end
 
+	WG.Server.address = "server4.beyondallreason.info"
+
 	--self.serverAddress = "localhost"
 	self.serverAddress = WG.Server.address
 	self.serverPort =  WG.Server.port
