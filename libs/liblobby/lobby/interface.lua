@@ -1157,7 +1157,7 @@ end
 -- parse following servermessage:
 -- s.battle.queue_status\s<battleID>\t<userName1>\t<userName2>...
 function Interface:_OnSBattleQueueStatus(battleId, userNamesChain)
-	Spring.Echo("_OnSBattleQueueStatus battleId:"..battleId.." userNamesChain:"..userNamesChain, "type of battleId", type(battleId))
+	-- Spring.Echo("_OnSBattleQueueStatus battleId:"..battleId.." userNamesChain:"..userNamesChain, "type of battleId", type(battleId))
 	
 	-- validate battleId
 	battleId = tonumber(battleId)
