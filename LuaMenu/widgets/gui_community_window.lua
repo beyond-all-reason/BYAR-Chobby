@@ -481,7 +481,7 @@ local function GetNewsEntry(parentHolder, index, headingSize, timeAsTooltip, top
 			offset = math.max(offset, offsetImage)	
 		end
 
-		holder:SetPos(nil, parentPosition, nil, offset)
+		holder:SetPos(nil, parentPosition, nil, offset+10)
 		return parentPosition + offset + headFormat.paragraphSpacing
 	end
 
