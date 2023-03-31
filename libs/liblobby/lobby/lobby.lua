@@ -630,7 +630,7 @@ function Lobby:_OnUpdateBattleQueue(battleId, userNamesQueued)
 	
 	for _, battleUserName in pairs(self.battles[battleId].users) do -- all users in battle
 		local userInQueue = false
-		local queueStatusOld = self.userBattleStatus[battleUserName] and self.userBattleStatus[battleUserName].queuePos or -1
+		local queueStatusOld = self.userBattleStatus[battleUserName] and self.userBattleStatus[battleUserName].queuePos or 0
 		Spring.Echo("battleUserName:" .. tostring(battleUserName) .. " queueStatusOld = " .. tostring(queueStatusOld))
 
 		for posNew, userNameQueued in pairs(userNamesQueued) do -- test each battleUser if in the received queueList

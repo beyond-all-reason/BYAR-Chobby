@@ -969,7 +969,21 @@ end
 Interface.commands["SAIDBATTLE"] = Interface._OnSaidBattle
 Interface.commandPattern["SAIDBATTLE"] = "(%S+)%s+(.*)"
 
+local function startsWith(targetstring, pattern) 
+	if string.len(pattern) <= string.len(targetstring) and pattern == string.sub(targetstring,1, string.len(pattern)) then
+		return true, string.sub(targetstring, string.len(pattern) + 1)
+	else
+		return false
+	end
+end
+
 function Interface:_OnSaidBattleEx(userName, message)
+	local JoinQueue_PREFIX = "You are now in the join-queue at position"
+	local doesStartWith, coordinatorMessage = startsWith(message, JoinQueue_PREFIX)
+	if doesStartWith then
+		Spring.Echo("_OnSaidBattleEx c.battle.queue_status")
+		self:_SendCommand(concat("c.battle.queue_status"))
+	end
 	self:super("_OnSaidBattleEx", userName, message)
 end
 Interface.commands["SAIDBATTLEEX"] = Interface._OnSaidBattleEx
