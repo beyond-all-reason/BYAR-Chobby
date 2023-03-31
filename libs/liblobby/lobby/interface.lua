@@ -152,6 +152,7 @@ end
 ------------------------
 
 -- 2023-03-08 Fireball: stop sneaky changes to lobby´s battleStatus properties here - listeners depend on lobby´s event OnUpdateUserBattleStatus
+--                      instead call _OnUpdateUserBattleStatus in SetBattleStatus, which sets the new values and spreads them correctly
 local function UpdateAndCreateMerge(userData, status)
 	local battleStatus = {}
 	local updated = false
@@ -336,7 +337,6 @@ function Interface:SetBattleStatus(status)
 	-- they get confirmed from the server, otherwise we end up sending different info
 	-- 2020/02/12: Problem partially fixed by ignoring battleStatus that result in no update
 	-- 2021/01/21: Which had the unfortunate side effect of not sending the first REQUESTBATTLESTATUS response
-
 	local myUserName = self:GetMyUserName()
 	local userData = self.userBattleStatus[myUserName] or {}
 	local battleStatus, updated = UpdateAndCreateMerge(userData, status)
@@ -346,6 +346,7 @@ function Interface:SetBattleStatus(status)
 		return self
 	end
 	local battleStatusString = EncodeBattleStatus(battleStatus)
+
 	local teamColor = battleStatus.teamColor or { math.random(), math.random(), math.random(), 1 }
 	teamColor = EncodeTeamColor(teamColor)
 	self:_SendCommand(concat("MYBATTLESTATUS", battleStatusString, teamColor))
@@ -981,7 +982,6 @@ function Interface:_OnSaidBattleEx(userName, message)
 	local JoinQueue_PREFIX = "You are now in the join-queue at position"
 	local doesStartWith, coordinatorMessage = startsWith(message, JoinQueue_PREFIX)
 	if doesStartWith then
-		Spring.Echo("_OnSaidBattleEx c.battle.queue_status")
 		self:_SendCommand(concat("c.battle.queue_status"))
 	end
 	self:super("_OnSaidBattleEx", userName, message)
@@ -1185,7 +1185,7 @@ function Interface:_OnSBattleQueueStatus(battleId, userNamesChain)
 		queuedUserNames = explode("\t", userNamesChain)
 	end
 
-	Spring.Echo("numUsers:"..tostring(#queuedUserNames))
+	-- Spring.Echo("numUsers:"..tostring(#queuedUserNames))
 
 	self:_OnUpdateBattleQueue(battleId, queuedUserNames) -- always update, empty queue must be propagated too
 end
@@ -1696,26 +1696,26 @@ Interface.commandPattern["REMOVESTARTRECT"] = "(%d+)"
 
 function getSyncStatus(battle)
 	if not battle then
-		Spring.Echo("not battle")
+		-- Spring.Echo("not battle")
 		return 0
 	end
 	local haveGame = VFS.HasArchive(battle.gameName)
 	local haveMap = VFS.HasArchive(battle.mapName)
-	Spring.Echo("haveGame, haveMap", haveGame, haveMap)
+	-- Spring.Echo("haveGame, haveMap", haveGame, haveMap)
 	return (haveGame and haveMap) and 1 or 2
 end
 
--- This request is sent once by the server, directly after hosting or joining a battle
--- since we do not have any battleStatus(in most cases), we generate a default one
+-- 2023/03/23 Fireball: This request is sent once by the server, directly after hosting or joining a battle
+--                      since we do not have any battleStatus(in most cases), we generate a default one
 function Interface:_OnRequestBattleStatus()
 	-- 6.3.23 Fireball: moved the action from the only listener to OnRequestBattleStatus in whole chobby from gui_battle_room_window.lua to here
 	--                  and don´t call listeners of OnRequestBattleStatus anymore
-	Spring.Echo("_OnRequestBattleStatus: WG.Chobby.Configuration.lastGameSpectatorState: ", WG.Chobby.Configuration.lastGameSpectatorState)
+	-- Spring.Echo("_OnRequestBattleStatus: WG.Chobby.Configuration.lastGameSpectatorState: ", WG.Chobby.Configuration.lastGameSpectatorState)
 	local battleStatus = self.userBattleStatus[self:GetMyUserName()] -- chobby doesn´t delete battleStatus on leaveBattle - maybe we find sth. left from prior session for this host, which we can make use of
 	self._requestedBattleStatus = true -- allow SetBattleStatus again
 	if battleStatus then
-		Spring.Echo("_OnRequestBattleStatus: battleStatus true")
-		Spring.Echo("battleStatus.isSpectator == nil and (WG.Chobby.Configuration.lastGameSpectatorState or false) or battleStatus.isSpectator", battleStatus.isSpectator == nil and (WG.Chobby.Configuration.lastGameSpectatorState or false) or battleStatus.isSpectator)
+		-- Spring.Echo("_OnRequestBattleStatus: battleStatus true")
+		-- Spring.Echo("battleStatus.isSpectator == nil and (WG.Chobby.Configuration.lastGameSpectatorState or false) or battleStatus.isSpectator", battleStatus.isSpectator == nil and (WG.Chobby.Configuration.lastGameSpectatorState or false) or battleStatus.isSpectator)
 		self:SetBattleStatus({
 			isSpectator = battleStatus.isSpectator == nil and (WG.Chobby.Configuration.lastGameSpectatorState or false) or battleStatus.isSpectator,
 			isReady = false,
@@ -1723,7 +1723,7 @@ function Interface:_OnRequestBattleStatus()
 			sync = battleStatus.sync or getSyncStatus(self:GetBattle(self:GetMyBattleID())),
 		})
 	else
-		Spring.Echo("_OnRequestBattleStatus: battleStatus false", (WG.Chobby.Configuration.lastGameSpectatorState or false))
+		-- Spring.Echo("_OnRequestBattleStatus: battleStatus false", (WG.Chobby.Configuration.lastGameSpectatorState or false))
 		self:SetBattleStatus({
 			isSpectator = (WG.Chobby.Configuration.lastGameSpectatorState or false),
 			isReady = false,
