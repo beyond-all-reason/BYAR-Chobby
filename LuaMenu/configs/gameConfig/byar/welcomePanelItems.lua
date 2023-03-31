@@ -31,6 +31,12 @@ local welcomePanelItems = {
         Text = "Requiem has created some guides for new players. If you're new to the game and want to learn the basics via video we highly recommend you check them out.\n",
         UrlText = "Link to video guides"
     },
+	
+    {
+        Header = "New Map: Sulphur Springs v1.0",
+        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/sulphur_springs_v1.0.png",
+        Text = "A new map for a team games released!\nWest vs South balanced so please use the default boxes.\nBy Nikuksis.",
+    },
     
     {
         Header = "New Map: Hades Ponds 0.7",
@@ -38,11 +44,6 @@ local welcomePanelItems = {
         Text = "A new team-game map by Phalange.",
     },
     
-    {
-        Header = "New Map: Carrot Mountains v1.0",
-        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/carrot_mountains_v1.0.png",
-        Text = "A tribute to OTA Yerrot Mountains by Nikuksis.",
-    },
 
     {
         Header = "Please help us test new engines!",
