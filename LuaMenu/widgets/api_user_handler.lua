@@ -827,7 +827,7 @@ local function GetUserControls(userName, opts)
 	local bs = userControls.lobby:GetUserBattleStatus(userName) or {}
 
 	userControls.isPlaying = bs.isSpectator == false
-	userControls.isInQueue = bs.queuePos and bs.queuePos > 0 or false
+	userControls.isInQueue = bs.queuePos and bs.queuePos > 0
 
 	if reinitialize then
 		userControls.mainControl:ClearChildren()
