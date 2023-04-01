@@ -161,7 +161,7 @@ local function UpdateAndCreateMerge(userData, status)
 		battleStatus.isReady = status.isReady
 		-- userData.isReady     = status.isReady
 	else
-		battleStatus.isReady = userData.isReady == true-- self:GetMyIsReady()
+		battleStatus.isReady = userData.isReady -- self:GetMyIsReady()
 	end
 	if status.teamNumber ~= nil then
 		updated = updated or userData.teamNumber ~= status.teamNumber
@@ -980,9 +980,9 @@ end
 
 function Interface:_OnSaidBattleEx(userName, message)
 	local JoinQueue_PREFIX = "You are now in the join-queue at position"
-	local doesStartWith, coordinatorMessage = startsWith(message, JoinQueue_PREFIX)
+	local doesStartWith = startsWith(message, JoinQueue_PREFIX)
 	if doesStartWith then
-		self:_SendCommand(concat("c.battle.queue_status"))
+		self:_SendCommand(concat("c.battle.queue_status")) -- request the whole join-queue again, because server doesn´t always send s.battle.queue_status or sends it before the change took affect
 	end
 	self:super("_OnSaidBattleEx", userName, message)
 end
@@ -1176,12 +1176,12 @@ function Interface:_OnSBattleQueueStatus(battleId, userNamesChain)
 	-- validate battleId
 	battleId = tonumber(battleId)
 	if not self:GetMyBattleID() or self:GetMyBattleID() ~= battleId then
-		Spring.Log(LOG_SECTION, LOG.WARNING, "Received s.battle.queue_status with invalid battleId: ", tostring(battleId))
+		Spring.Log(LOG_SECTION, LOG.WARNING, "Received s.battle.queue_status with battleId for another battle: ", tostring(battleId))
 		return
 	end
 
 	local queuedUserNames = {}
-	if userNamesChain ~= "" then -- because our explode returns a table with 1 element from empty string
+	if userNamesChain ~= "" then -- because our explode returns a table with 1 element when join-queue is empty
 		queuedUserNames = explode("\t", userNamesChain)
 	end
 
@@ -1710,12 +1710,10 @@ end
 function Interface:_OnRequestBattleStatus()
 	-- 6.3.23 Fireball: moved the action from the only listener to OnRequestBattleStatus in whole chobby from gui_battle_room_window.lua to here
 	--                  and don´t call listeners of OnRequestBattleStatus anymore
-	-- Spring.Echo("_OnRequestBattleStatus: WG.Chobby.Configuration.lastGameSpectatorState: ", WG.Chobby.Configuration.lastGameSpectatorState)
+	
 	local battleStatus = self.userBattleStatus[self:GetMyUserName()] -- chobby doesn´t delete battleStatus on leaveBattle - maybe we find sth. left from prior session for this host, which we can make use of
 	self._requestedBattleStatus = true -- allow SetBattleStatus again
 	if battleStatus then
-		-- Spring.Echo("_OnRequestBattleStatus: battleStatus true")
-		-- Spring.Echo("battleStatus.isSpectator == nil and (WG.Chobby.Configuration.lastGameSpectatorState or false) or battleStatus.isSpectator", battleStatus.isSpectator == nil and (WG.Chobby.Configuration.lastGameSpectatorState or false) or battleStatus.isSpectator)
 		self:SetBattleStatus({
 			isSpectator = battleStatus.isSpectator == nil and (WG.Chobby.Configuration.lastGameSpectatorState or false) or battleStatus.isSpectator,
 			isReady = false,
@@ -1723,7 +1721,6 @@ function Interface:_OnRequestBattleStatus()
 			sync = battleStatus.sync or getSyncStatus(self:GetBattle(self:GetMyBattleID())),
 		})
 	else
-		-- Spring.Echo("_OnRequestBattleStatus: battleStatus false", (WG.Chobby.Configuration.lastGameSpectatorState or false))
 		self:SetBattleStatus({
 			isSpectator = (WG.Chobby.Configuration.lastGameSpectatorState or false),
 			isReady = false,
