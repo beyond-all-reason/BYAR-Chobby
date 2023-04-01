@@ -1224,6 +1224,7 @@ function BattleListWindow:OpenHostWindow()
 		['[teh]clusterUS'] = {limit = 70, current = 0, online = false, region = 'US'},
 		['[teh]clusterUS2'] = {limit = 60, current = 0, online = false, region = 'US'},
 		['[teh]clusterUS3'] = {limit = 70, current = 0, online = false, region = 'US'},
+		['[teh]clusterUS4'] = {limit = 150, current = 0, online = false, region = 'US'},
 		['[teh]clusterAU'] = {limit = 90, current = 0, online = false, region = 'AU'},
 	}
 
