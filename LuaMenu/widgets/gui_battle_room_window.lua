@@ -1623,7 +1623,7 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 
 			local humanName, parentStack, parentScroll
 			if teamIndex == -1 then
-				humanName = "Queue"
+				humanName = "Join-Queue"
 				parentStack = spectatorStackPanel
 				parentScroll = spectatorScrollPanel
 			elseif teamIndex == -2 then
@@ -1931,7 +1931,7 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 		if isSpectator then
 			local battleStatus = battleLobby:GetUserBattleStatus(userName) or {}
 			if (battleStatus.queuePos and battleStatus.queuePos > 0) then
-				teamNew = -1 -- virtual team "Queue"
+				teamNew = -1 -- virtual team "Join-Queue"
 			else
 				teamNew = -2 -- virtual team "Spectator"
 			end
