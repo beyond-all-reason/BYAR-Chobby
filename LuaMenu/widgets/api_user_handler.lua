@@ -609,21 +609,21 @@ local function UpdateUserBattleStatus(listener, userName)
 		if userControls then
 
 			local bs = userControls.lobby:GetUserBattleStatus(userName) or {}
-			userControls.isPlaying = bs.isSpectator == false
+			userControls.isPlaying = bs.isSpectator ~= nil and bs.isSpectator == false or false
 			
 			local offset = 0
 
-			if userControls.tbqueuePos then
+			if userControls.tbQueuePos then
 				userControls.isInQueue = bs.queuePos and bs.queuePos > 0
-				userControls.tbqueuePos:SetVisibility(userControls.isInQueue)
+				userControls.tbQueuePos:SetVisibility(userControls.isInQueue)
 				if userControls.isInQueue then
 					local queuePos = bs.queuePos
 					queuePos = queuePos .. "."
 					offset = offset + 2
-					userControls.tbqueuePos:SetPos(offset)
+					userControls.tbQueuePos:SetPos(offset)
 					offset = offset + 23
-					userControls.tbqueuePos:SetText(queuePos)
-					userControls.tbqueuePos:Invalidate()
+					userControls.tbQueuePos:SetText(queuePos)
+					userControls.tbQueuePos:Invalidate()
 				end
 			end
 
@@ -826,8 +826,8 @@ local function GetUserControls(userName, opts)
 	local userInfo = userControls.lobby:GetUser(userName) or {}
 	local bs = userControls.lobby:GetUserBattleStatus(userName) or {}
 
-	userControls.isPlaying = bs.isSpectator == false
-	userControls.isInQueue = bs.queuePos and bs.queuePos > 0
+	userControls.isPlaying = bs.isSpectator ~= nil and bs.isSpectator == false or false
+	userControls.isInQueue = bs.queuePos and bs.queuePos > 0 or false
 
 	if reinitialize then
 		userControls.mainControl:ClearChildren()
@@ -1152,7 +1152,7 @@ local function GetUserControls(userName, opts)
 		offset = offset + 2
 		local queuePos = bs and bs.queuePos or 0
 		queuePos = queuePos .. "."
-		userControls.tbqueuePos = TextBox:New {
+		userControls.tbQueuePos = TextBox:New {
 			name = "queuePos",
 			x = offset,
 			y = offsetY + 4,
@@ -1163,9 +1163,9 @@ local function GetUserControls(userName, opts)
 			-- fontsize = Configuration:GetFont(1).size,
 			text = tostring(queuePos),
 		}
-		-- userControls.tbqueuePos.font.color = skillColor
-		userControls.tbqueuePos:Invalidate()
-		userControls.tbqueuePos:SetVisibility(userControls.isInQueue)
+		-- userControls.tbQueuePos.font.color = skillColor
+		userControls.tbQueuePos:Invalidate()
+		userControls.tbQueuePos:SetVisibility(userControls.isInQueue)
 		if userControls.isInQueue then
 			offset = offset + 23
 		else
