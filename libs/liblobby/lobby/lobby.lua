@@ -997,7 +997,7 @@ local function getDiffAndSetNewValuesToTable(origin, update)
 				changed = true
 			end
 		else
-			Spring.Echo("uVal:", uVal, " oVal:", oVal, uVal ~= oVal)
+			-- Spring.Echo("uVal:", uVal, " oVal:", oVal, uVal ~= oVal)
 			changed = changed or (uVal ~= oVal)
 		end
 
@@ -1017,18 +1017,6 @@ end
 -- Example: _OnUpdateUserBattleStatus("gajop", {isReady=false, teamNumber=1})
 function Lobby:_OnUpdateUserBattleStatus(userName, status)
 	local statusNew = status
-	Spring.Echo("_OnUpdateUserBattleStatus for userName:" .. tostring(userName))
-	local numParams = 0
-	for k,v in pairs(statusNew) do
-		Spring.Echo("_OnUpdateUserBattleStatus paramNew:" .. tostring(k) .. " v:" .. tostring(v))
-		numParams = numParams + 1
-	end
-	Spring.Echo("_OnUpdateUserBattleStatus received " .. tostring(numParams) .. " params")
-	if statusNew == nil then
-		Spring.Echo("update BattleStatus statusNew= nil")
-	else
-		Spring.Echo("update BattleStatus statusNew: ", statusNew)
-	end
 
 	if (statusNew.owner == nil and not self.users[userName]) or
 	   (statusNew.owner ~= nil and not self.users[statusNew.owner]) then
@@ -1040,24 +1028,10 @@ function Lobby:_OnUpdateUserBattleStatus(userName, status)
 	end
 
 	local battleStatus = self.userBattleStatus[userName]
-	Spring.Echo("Lobby:_OnUpdateUserBattleStatus old battleStatus existing ? " .. tostring(next(battleStatus) ~= nil))
-
-	if (next(battleStatus)) then
-		for k,v in pairs(battleStatus) do
-			Spring.Echo("old battleStatus content k:"..tostring(k) .. " v:" .. tostring(v))
-		end
-	else
-		Spring.Echo("old battleStatus content empty")
-	end
 
 	local battleStatusDiff, changed = getDiffAndSetNewValuesToTable(battleStatus, statusNew) -- use battleStatusDiff instead of statusNew to only propagate battleStatus properties, that really changed or which are new properties
-	 Spring.Echo("changed: " .. tostring(changed))
 
 	if changed then
-		Spring.Echo("Lobby:_OnUpdateUserBattleStatus changed battleStatus:")
-		for k,v in pairs(battleStatusDiff) do
-		Spring.Echo("battleStatusDiff content k:"..tostring(k) .. " v:" .. tostring(v))
-		end
 		self:_CallListeners("OnUpdateUserBattleStatus", userName, battleStatusDiff)
 
 		if battleStatusDiff.allyNumber or battleStatusDiff.isSpectator ~= nil or battleStatusDiff.queuePos then
