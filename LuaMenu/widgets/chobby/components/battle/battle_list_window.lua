@@ -301,23 +301,42 @@ function BattleListWindow:Update()
 
 	self:SoftUpdate()
 end
-
-function BattleListWindow:SoftUpdate()
+local lastUpdate = Spring.GetTimer()
+function BattleListWindow:SoftUpdate(battleID)
 	-- UpdateFilters is quite heavy, because it sorts all the battles on the
 	-- list, so instead of just calling SoftUpdate functionality directly,
 	-- we use debounce technicue to coalesce soft updates that are happening
 	-- close to each other in time into single invocation.
-
-	self.lastSoftUpdate = os.clock()
-
 	local battleList = self
+	--if (battleID) then
+	--	battleList:UpdateItem(battleID)
+	--	battleList:UpdateInfoPanel()
+	--	return
+	--end
+
+	local now = Spring.GetTimer()
+
+	if Spring.DiffTimers(now, lastUpdate) > 5 then
+		Spring.Echo("BattleListWindow:SoftUpdate")
+		--tracy.ZoneBeginN("RealSoftUpdate")
+		if Configuration.battleFilterRedundant then
+			battleList:UpdateAllBattleIDs()
+		end
+		battleList:UpdateFilters()
+		battleList:UpdateInfoPanel()
+		battleList.softUpdateTimerRunning = false
+		lastUpdate = now
+		--tracy.ZoneEnd()
+	end
+	
+	--[[
+	self.lastSoftUpdate = os.clock()
 
 	local function RealSoftUpdate()
 		if os.clock() - battleList.lastSoftUpdate < 0.1 then
 			WG.Delay(RealSoftUpdate, 0.2)
 			return
 		end
-
 		if Configuration.battleFilterRedundant then
 			battleList:UpdateAllBattleIDs()
 		end
@@ -330,6 +349,7 @@ function BattleListWindow:SoftUpdate()
 		WG.Delay(RealSoftUpdate, 0.2)
 		self.softUpdateTimerRunning = true
 	end
+	]]--
 end
 
 function BattleListWindow:UpdateInfoPanel()
@@ -526,6 +546,7 @@ function BattleListWindow:MakeJoinBattle(battleID, battle)
 			end
 		},
 		tooltip = "battle_tooltip_" .. battleID,
+		useDLists = true,
 	}
 
 	local imgIsRunning = Image:New {
@@ -938,12 +959,21 @@ function BattleListWindow:UpdateRankIcon(battleID, battle, items)
 	imgAvgRank:Invalidate()
 end
 
-
+local lastRecalculateOrder = Spring.GetTimer()
+local recalculateQueue = {}
 function BattleListWindow:RecalculateOrder(id)
 	if lobby.commandBuffer then
 		return
 	end
-	self:super("RecalculateOrder", id)
+	if Spring.DiffTimers(Spring.GetTimer(), lastRecalculateOrder) > 3 then
+		for id, _ in ipairs(recalculateQueue) do
+			self:super("RecalculateOrder", id)
+		end
+		recalculateQueue = {}
+		lastRecalculateOrder = Spring.GetTimer()
+	else
+		recalculateQueue[id] = true
+	end
 end
 
 function BattleListWindow:UpdateSync(battleID)
