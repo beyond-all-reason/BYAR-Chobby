@@ -651,45 +651,6 @@ function Lobby:_OnUpdateBattleQueue(battleId, userNamesQueued)
 		end
 	end
 	return
-
---	-- remove users not in current queue
---	for userName,pos in pairs(self.userNamesQueued) do
---		if not userNamesQueued[userName] then
---			self.users[userName].queuedPos = nil
---			self:_OnUpdateUserBattleStatus(userName, {})
---		end
---	end
---
---	-- update and add
---	for userName,pos in pairs(userNamesQueued) do
---		if self.users[userName] then
---			if self.users[userName].queuedPos then
---				self.users[userName].queuedPos = pos
---				self.userNamesQueued[userName] = pos
---			else
---				self.users[userName].queuedPos = pos
---				self.userNamesQueued[userName] = pos
---			end
---			self:_OnUpdateUserBattleStatus(userName, {})
---		else
---			Spring.Log(LOG_SECTION, LOG_WARNING, "Queued user does not exist: " .. userName)
---		end
---	end
---	self.userNamesQueued = userNamesQueued
---
---	-- debug
---	for k,v in pairs(self.userNamesQueued) do
---		Spring.Echo("_OnUpdateBattleQueue " ..  tostring(k) .. " > " .. tostring(v))
---	end
---
---	for k,v in pairs(self.users) do
---		if v.queuedPos then
---			Spring.Echo("user.queuedPos:"..tostring(k).." >" .. tostring(v.queuedPos))
---		end
---	end
---
---
---	self:_CallListeners("OnUpdateBattleQueue", self.userNamesQueued)
 end
 
 ------------------------
