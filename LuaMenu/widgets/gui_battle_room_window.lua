@@ -2993,46 +2993,47 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	end
 
 	-- 23/03/19 Fireball update: only react, when dependent status.properties are present = were updated for this current event
-	-- only reacts if its aiming for myUserNamereacts
+	-- only reacts if its aiming for myUserName
 	-- reacts to: isSpectator, isReady
 	local function OnUpdateUserBattleStatus(listener, username, status)
-		if username ~= battleLobby.myUserName then
+		if username ~= battleLobby.myUserName or battleLobby.name == "singleplayer" then
 			return
 		end
 
-		if battleLobby.name ~= "singleplayer" then
-			local tooltipCandidate = ""
-			if status.isSpectator == nil and status.isReady == nil then
-				return
-			elseif status.isSpectator ~= nil and status.isReady ==nil then
-				if status.isSpectator then -- react only to change from player to spectator; if we are player, reacting to isReady is sufficent; ready can´t change, when we are spec
-					readyButton:SetEnabled(false)
-					readyButtonCheckArrow.file = nil
-					readyButtonCheckArrow:Invalidate()
-					readyButton:StyleOff()
-					-- readyButton.tooltip = i18n("unready_notplaying_tooltip")
-					tooltipCandidate = i18n("unready_notplaying_tooltip")
-				end
-			elseif status.isReady ~= nil then
-				readyButton:SetEnabled(true)
-				if status.isReady then
-					readyButton:StyleReady()
-					tooltipCandidate = i18n("ready_tooltip")
-					-- readyButton.tooltip = i18n("ready_tooltip")
-					readyButtonCheckArrow.file = IMG_CHECKARROW
-					readyButtonCheckArrow:Invalidate()
-				else
-					readyButton:StyleUnready()
-					-- readyButton.tooltip = i18n("unready_tooltip")
-					tooltipCandidate = i18n("unready_tooltip")
-        		end
+		local tooltipCandidate = ""
+
+		if status.isSpectator == nil and status.isReady == nil then
+			return
+		elseif status.isSpectator ~= nil and status.isReady == nil then
+			if status.isSpectator then -- react only to change from player to spectator; if we are player, reacting to isReady is sufficent; ready can´t change, when we are spec
+				readyButton:SetEnabled(false)
+				readyButtonCheckArrow.file = nil
+				readyButtonCheckArrow:Invalidate()
+				readyButton:StyleOff()
+				-- readyButton.tooltip = i18n("unready_notplaying_tooltip")
+				tooltipCandidate = i18n("unready_notplaying_tooltip")
 			end
-			-- 23/03/19 Fireball ToDo: better set isRunning-tooltip once, when isRunning state changes somewhere else, it´s not belonging to OnUpdateBattleStatus
-			if battle.isRunning then
-				readyButton.tooltip = i18n("inprogress_tooltip")
+		elseif status.isReady ~= nil then
+			readyButton:SetEnabled(true)
+			if status.isReady then
+				readyButton:StyleReady()
+				tooltipCandidate = i18n("ready_tooltip")
+				-- readyButton.tooltip = i18n("ready_tooltip")
+				readyButtonCheckArrow.file = IMG_CHECKARROW
+				readyButtonCheckArrow:Invalidate()
 			else
-				readyButton.tooltip = tooltipCandidate
-			end
+				readyButtonCheckArrow.file = nil
+				readyButtonCheckArrow:Invalidate()
+				readyButton:StyleUnready()
+				-- readyButton.tooltip = i18n("unready_tooltip")
+				tooltipCandidate = i18n("unready_tooltip")
+        	end
+		end
+		-- 23/03/19 Fireball ToDo: better set isRunning-tooltip once, when isRunning state changes somewhere else, it´s not belonging to OnUpdateBattleStatus
+		if battle.isRunning then
+			readyButton.tooltip = i18n("inprogress_tooltip")
+		else
+			readyButton.tooltip = tooltipCandidate
 		end
 	end
 
