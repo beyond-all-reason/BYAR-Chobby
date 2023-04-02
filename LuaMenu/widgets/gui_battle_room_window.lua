@@ -2997,7 +2997,6 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		end
 
 		local tooltipCandidate = ""
-
 		if status.isSpectator == nil and status.isReady == nil then
 			return
 		elseif status.isSpectator ~= nil and status.isReady == nil then
@@ -3008,20 +3007,28 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 				readyButton:StyleOff()
 				-- readyButton.tooltip = i18n("unready_notplaying_tooltip")
 				tooltipCandidate = i18n("unready_notplaying_tooltip")
+			else
+				readyButton:SetEnabled(true)
+				readyButton:StyleUnready()
+				-- readyButton.tooltip = i18n("unready_tooltip")
+				readyButtonCheckArrow.file = nil
+				readyButtonCheckArrow:Invalidate()
+				tooltipCandidate = i18n("unready_tooltip")
 			end
-		elseif status.isReady ~= nil then
+		end
+		if status.isReady ~= nil then
 			readyButton:SetEnabled(true)
 			if status.isReady then
 				readyButton:StyleReady()
-				tooltipCandidate = i18n("ready_tooltip")
 				-- readyButton.tooltip = i18n("ready_tooltip")
 				readyButtonCheckArrow.file = IMG_CHECKARROW
 				readyButtonCheckArrow:Invalidate()
+				tooltipCandidate = i18n("ready_tooltip")
 			else
-				readyButtonCheckArrow.file = nil
-				readyButtonCheckArrow:Invalidate()
 				readyButton:StyleUnready()
 				-- readyButton.tooltip = i18n("unready_tooltip")
+				readyButtonCheckArrow.file = nil
+				readyButtonCheckArrow:Invalidate()
 				tooltipCandidate = i18n("unready_tooltip")
         	end
 		end
