@@ -33,8 +33,8 @@ local welcomePanelItems = {
     },
 	
     {
-        Header = "New Map: Sulphur Springs v1.0",
-        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/sulphur_springs_v1.0.png",
+        Header = "New Map: Sulphur Springs v1.1",
+        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/sulphur_springs_v1.1.png",
         Text = "A new map for a team games released!\nWest vs South balanced so please use the default boxes.\nBy Nikuksis.",
     },
     
