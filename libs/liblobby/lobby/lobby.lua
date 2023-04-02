@@ -1032,6 +1032,11 @@ function Lobby:_OnUpdateUserBattleStatus(userName, status)
 	local battleStatusDiff, changed = getDiffAndSetNewValuesToTable(battleStatus, statusNew) -- use battleStatusDiff instead of statusNew to only propagate battleStatus properties, that really changed or which are new properties
 
 	if changed then
+		if battleStatusDiff.isSpectator ~= nil and battleStatusDiff.isSpectator == false and battleStatus.queuePos and battleStatus.queuePos ~= 0 then
+			battleStatus.queuePos = 0 -- always change queuePos to 0, if we switch from spec to player = prevent showing queuePos e.g. in playerbattelist, if we didn´t receive the queue-update from server yet
+			battleStatusDiff.queuePos = 0
+		end
+
 		self:_CallListeners("OnUpdateUserBattleStatus", userName, battleStatusDiff)
 
 		if battleStatusDiff.allyNumber or battleStatusDiff.isSpectator ~= nil or battleStatusDiff.queuePos then
