@@ -615,8 +615,7 @@ local function UpdateUserBattleStatus(listener, userName)
 				userControls.isInQueue = bs.queuePos and bs.queuePos > 0 or false
 				userControls.tbQueuePos:SetVisibility(userControls.isInQueue)
 				if userControls.isInQueue then
-					local queuePos = bs.queuePos
-					queuePos = queuePos .. "."
+					local queuePos = bs.queuePos .. "."
 					offset = offset + 2
 					userControls.tbQueuePos:SetPos(offset)
 					offset = offset + 23
