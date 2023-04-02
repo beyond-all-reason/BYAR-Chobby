@@ -224,12 +224,18 @@ local function GetBattleInfoHolder(parent, battleID)
 	end
 	lobby:AddListener("OnUpdateUserTeamStatus", OnUpdateUserTeamStatus)
 
-	onUpdateUserTeamStatus = function(listener, userName, allyNumber, isSpectator)
+	onUpdateUserTeamStatus = function(listener, userName, allyNumber, isSpectator, queuePos)
 		if userName == lobby:GetMyUserName() then
-			if isSpectator then
-				lblPlayerStatus:SetCaption("Spectator")
-				imPlayerStatus.file = IMG_STATUS_SPECTATOR
-				imPlayerStatus:Invalidate()
+			if isSpectator ~= nil and isSpectator then
+				if queuePos and queuePos > 0 then
+					lblPlayerStatus:SetCaption("Join-Queue")
+					imPlayerStatus.file = IMG_STATUS_SPECTATOR
+					imPlayerStatus:Invalidate()
+				else
+					lblPlayerStatus:SetCaption("Spectator")
+					imPlayerStatus.file = IMG_STATUS_SPECTATOR
+					imPlayerStatus:Invalidate()
+				end
 			else
 				lblPlayerStatus:SetCaption("Player")
 				imPlayerStatus.file = IMG_STATUS_PLAYER
