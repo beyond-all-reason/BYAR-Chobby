@@ -607,22 +607,11 @@ local function UpdateUserBattleStatus(listener, userName)
 		local userList = userListList[i]
 		local userControls = userList[userName]
 		if userControls then
+
 			local bs = userControls.lobby:GetUserBattleStatus(userName) or {}
-			userControls.isPlaying = bs.isSpectator ~= nil and bs.isSpectator == false or false
+			userControls.isPlaying = (bs and not bs.isSpectator) or false
 			
 			local offset = 0
-			if userControls.tbQueuePos then
-				userControls.isInQueue = bs.queuePos and bs.queuePos > 0 or false
-				userControls.tbQueuePos:SetVisibility(userControls.isInQueue)
-				if userControls.isInQueue then
-					local queuePos = bs.queuePos .. "."
-					offset = offset + 2
-					userControls.tbQueuePos:SetPos(offset)
-					offset = offset + 23
-					userControls.tbQueuePos:SetText(queuePos)
-					userControls.tbQueuePos:Invalidate()
-				end
-			end
 
 			if userControls.imStatus then
 				UpdateUserStatusImage(userName, userControls)
@@ -798,7 +787,6 @@ local function GetUserControls(userName, opts)
 	local showTeamColor      = opts.showTeamColor
 	local showSide           = opts.showSide
 	local showHandicap		 = opts.showHandicap
-	local showJoinQueue		 = opts.showJoinQueue
 
 	local userControls = reinitialize or {}
 
@@ -822,10 +810,8 @@ local function GetUserControls(userName, opts)
 
 	local myBattleID = userControls.lobby:GetMyBattleID()
 	local userInfo = userControls.lobby:GetUser(userName) or {}
-	local bs = userControls.lobby:GetUserBattleStatus(userName) or {}
-
-	userControls.isPlaying = bs.isSpectator ~= nil and bs.isSpectator == false or false
-	userControls.isInQueue = bs.queuePos and bs.queuePos > 0 or false
+	local bs = userControls.lobby:GetUserBattleStatus(userName)
+	userControls.isPlaying = (bs and not bs.isSpectator) or false
 
 	if reinitialize then
 		userControls.mainControl:ClearChildren()
@@ -1145,33 +1131,8 @@ local function GetUserControls(userName, opts)
 		end
 	end
 	--]]
-
-	if not isSingleplayer and showJoinQueue then
-		offset = offset + 2
-		local queuePos = bs and bs.queuePos or 0
-		queuePos = queuePos .. "."
-		userControls.tbQueuePos = TextBox:New {
-			name = "queuePos",
-			x = offset,
-			y = offsetY + 4,
-			right = 0,
-			bottom = 5,
-			align = "left",
-			parent = userControls.mainControl,
-			-- fontsize = Configuration:GetFont(1).size,
-			objectOverrideFont = myFont1,
-			text = tostring(queuePos),
-		}
-		userControls.tbQueuePos:Invalidate()
-		userControls.tbQueuePos:SetVisibility(userControls.isInQueue)
-		if userControls.isInQueue then
-			offset = offset + 23
-		else
-			offset = offset - 2
-		end
-	end
-
-	local offset = offset + 1
+	
+	offset = offset + 1
 	userControls.imCountry = Image:New {
 		name = "imCountry",
 		x = offset + 2,
@@ -1497,7 +1458,6 @@ function userHandler.GetBattleUser(userName, isSingleplayer)
 		showTeamColor  = not WG.Chobby.Configuration.gameConfig.disableColorChoosing,
 		showSide       = WG.Chobby.Configuration:GetSideData() ~= nil,
 		showHandicap   = WG.Chobby.Configuration.gameConfig.showHandicap,
-		showJoinQueue  = true,
 	})
 end
 
