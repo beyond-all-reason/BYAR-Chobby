@@ -1040,7 +1040,7 @@ function Lobby:_OnUpdateUserBattleStatus(userName, status)
 		self:_CallListeners("OnUpdateUserBattleStatus", userName, battleStatusDiff)
 
 		if battleStatusDiff.allyNumber or battleStatusDiff.isSpectator ~= nil or battleStatusDiff.queuePos then
-			self:_CallListeners("OnUpdateUserTeamStatus", userName, battleStatus.allyNumber, battleStatus.isSpectator)
+			self:_CallListeners("OnUpdateUserTeamStatus", userName, battleStatus.allyNumber, battleStatus.isSpectator, battleStatus.queuePos)
 		end
 	end
 end
