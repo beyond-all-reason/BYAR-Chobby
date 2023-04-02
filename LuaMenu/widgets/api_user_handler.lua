@@ -34,19 +34,19 @@ local notificationUsers = {}
 local clanDownloadBegun = {}
 
 local userListList = {
-	battleUsers,
-	tooltipUsers,
-	singleplayerUsers,
-	channelUsers,
-	debriefingUsers,
-	partyUsers,
-	popupUsers,
-	statusUsers,
-	profileUsers,
-	ladderUsers,
-	friendUsers,
-	friendRequestUsers,
-	notificationUsers,
+	{battleUsers, "battleUsers",},
+	{tooltipUsers, "tooltipUsers",},
+	{singleplayerUsers,"singleplayerUsers",},
+	{channelUsers, "channelUsers",},
+	{debriefingUsers,"debriefingUsers",},
+	{partyUsers,"partyUsers",},
+	{popupUsers,"popupUsers",},
+	{statusUsers,"statusUsers",},
+	{profileUsers,"profileUsers",},
+	{ladderUsers,"ladderUsers",},
+	{friendUsers,"friendUsers",},
+	{friendRequestUsers,"friendRequestUsers",},
+	{notificationUsers,"notificationUsers",},
 }
 
 local IMAGE_DIR          = LUA_DIRNAME .. "images/"
@@ -540,7 +540,7 @@ end
 
 local function UpdateUserComboboxOptions(_, userName)
 	for i = 1, #userListList do
-		local userList = userListList[i]
+		local userList = userListList[i][1]
 		local data = userList[userName]
 		if data then
 			data.mainControl.items = GetUserComboBoxOptions(userName, data.isInBattle, data,
@@ -551,7 +551,7 @@ end
 
 local function UpdateUserActivity(listener, userName)
 	for i = 1, #userListList do
-		local userList = userListList[i]
+		local userList = userListList[i][1]
 		local userControls = userList[userName]
 		if userControls then
 			userControls.mainControl.items = GetUserComboBoxOptions(userName, userControls.isInBattle, userControls,
@@ -604,28 +604,35 @@ end
 local function UpdateUserBattleStatus(listener, userName)
 	UpdateUserComboboxOptions(_, userName)
 	for i = 1, #userListList do
-		local userList = userListList[i]
+		local userList = userListList[i][1]
 		local userControls = userList[userName]
 		if userControls then
+			Spring.Echo("userListList: ", userListList[i][2])
 
 			local bs = userControls.lobby:GetUserBattleStatus(userName) or {}
 			userControls.isPlaying = bs.isSpectator ~= nil and bs.isSpectator == false or false
 			
 			local offset = 0
-
+			--Spring.Utilities.TraceFullEcho()
+			Spring.Echo("api update for ",userName," : tbQueuePos exists:", userControls.tbQueuePos and true or false, " isInQueue:", bs.queuePos and bs.queuePos > 0 or false, " bs.queuePos:", bs.queuePos and bs.queuePos or false)
 			if userControls.tbQueuePos then
-				userControls.isInQueue = bs.queuePos and bs.queuePos > 0
+				userControls.isInQueue = bs.queuePos and bs.queuePos > 0 or false
+				Spring.Echo("isInQueue:", userControls.isInQueue)
 				userControls.tbQueuePos:SetVisibility(userControls.isInQueue)
 				if userControls.isInQueue then
+					Spring.Echo("inside if isInQueue")
 					local queuePos = bs.queuePos
 					queuePos = queuePos .. "."
+					Spring.Echo("local queuePos = ", queuePos)
 					offset = offset + 2
 					userControls.tbQueuePos:SetPos(offset)
 					offset = offset + 23
 					userControls.tbQueuePos:SetText(queuePos)
+					--userControls.tbQueuePos:SetVisibility(userControls.isInQueue)
 					userControls.tbQueuePos:Invalidate()
 				end
 			end
+			Spring.Echo("offset after tbQueuePos:", offset)
 
 			if userControls.imStatus then
 				UpdateUserStatusImage(userName, userControls)
@@ -768,7 +775,7 @@ end
 
 local function UpdateUserCountry(listener, userName)
 	for i = 1, #userListList do
-		local userList = userListList[i]
+		local userList = userListList[i][1]
 		local data = userList[userName]
 		if data and data.imCountry then
 			data.imCountry.file = GetUserCountryImage(userName, data)
@@ -801,6 +808,7 @@ local function GetUserControls(userName, opts)
 	local showTeamColor      = opts.showTeamColor
 	local showSide           = opts.showSide
 	local showHandicap		 = opts.showHandicap
+	local showJoinQueue		 = opts.showJoinQueue
 
 	local userControls = reinitialize or {}
 
@@ -828,6 +836,7 @@ local function GetUserControls(userName, opts)
 
 	userControls.isPlaying = bs.isSpectator ~= nil and bs.isSpectator == false or false
 	userControls.isInQueue = bs.queuePos and bs.queuePos > 0 or false
+	Spring.Echo("isInQueue", userControls.isInQueue)
 
 	if reinitialize then
 		userControls.mainControl:ClearChildren()
@@ -1148,10 +1157,11 @@ local function GetUserControls(userName, opts)
 	end
 	--]]
 
-	if not isSingleplayer then
+	if not isSingleplayer and showJoinQueue then
 		offset = offset + 2
 		local queuePos = bs and bs.queuePos or 0
 		queuePos = queuePos .. "."
+		Spring.Echo("api new queueControl for ",userName," :", queuePos)
 		userControls.tbQueuePos = TextBox:New {
 			name = "queuePos",
 			x = offset,
@@ -1161,6 +1171,7 @@ local function GetUserControls(userName, opts)
 			align = "left",
 			parent = userControls.mainControl,
 			-- fontsize = Configuration:GetFont(1).size,
+			objectOverrideFont = myFont1,
 			text = tostring(queuePos),
 		}
 		-- userControls.tbQueuePos.font.color = skillColor
@@ -1499,6 +1510,7 @@ function userHandler.GetBattleUser(userName, isSingleplayer)
 		showTeamColor  = not WG.Chobby.Configuration.gameConfig.disableColorChoosing,
 		showSide       = WG.Chobby.Configuration:GetSideData() ~= nil,
 		showHandicap   = WG.Chobby.Configuration.gameConfig.showHandicap,
+		showJoinQueue  = true,
 	})
 end
 

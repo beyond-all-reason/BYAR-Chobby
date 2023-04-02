@@ -627,22 +627,27 @@ end
 
 function Lobby:_OnUpdateBattleQueue(battleId, userNamesQueued)
 	for _, battleUserName in pairs(self.battles[battleId].users) do -- all users in battle
+		Spring.Echo("battleUserName", battleUserName)
 		local userInQueue = false
 		local queueStatusOld = self.userBattleStatus[battleUserName] and self.userBattleStatus[battleUserName].queuePos or 0
 
 		for posNew, userNameQueued in pairs(userNamesQueued) do -- test each battleUser if in the received queueList
 			if battleUserName == userNameQueued then
-				if queueStatusOld ~= posNew then
+				Spring.Echo("queuStatusOld, posNew", queueStatusOld, posNew)
+				if queueStatusOld ~= posNew or true then
+					Spring.Echo("Call _OnUpdateUserBattleStatus")
 					self:_OnUpdateUserBattleStatus(battleUserName, {queuePos = posNew})
 					userInQueue = true
 					break
 				else
+					Spring.Echo("Don´t Call _OnUpdateUserBattleStatus")
 					userInQueue = true
 					break;
 				end
 			end
 		end
 		if userInQueue == false then
+			Spring.Echo("userInQueue false, battleUserName, queueStatusOld", battleUserName, queueStatusOld)
 			if queueStatusOld > 0 then
 				self:_OnUpdateUserBattleStatus(battleUserName, {queuePos = 0})
 			-- else
@@ -1025,6 +1030,13 @@ function Lobby:_OnUpdateUserBattleStatus(userName, status)
 	end
 	if not self.userBattleStatus[userName] then
 		self.userBattleStatus[userName] = {}
+		Spring.Echo("Lobby: no battlestatus for user ", userName, " .New battlestatus created.")
+	else
+		for k,v in pairs(self.userBattleStatus[userName]) do
+			if type(v) ~= "table" then
+				Spring.Echo("before k,v", k,v)
+			end
+		end
 	end
 
 	local battleStatus = self.userBattleStatus[userName]
@@ -1032,11 +1044,19 @@ function Lobby:_OnUpdateUserBattleStatus(userName, status)
 	local battleStatusDiff, changed = getDiffAndSetNewValuesToTable(battleStatus, statusNew) -- use battleStatusDiff instead of statusNew to only propagate battleStatus properties, that really changed or which are new properties
 
 	if changed then
+		Spring.Echo("_OnUpdateUserBattleStatus changed true")
+		for k,v in pairs(battleStatusDiff) do
+			if type(v) ~= "table" then
+				Spring.Echo("k,v", k,v)
+			end
+		end
 		self:_CallListeners("OnUpdateUserBattleStatus", userName, battleStatusDiff)
 
 		if battleStatusDiff.allyNumber or battleStatusDiff.isSpectator ~= nil or battleStatusDiff.queuePos then
 			self:_CallListeners("OnUpdateUserTeamStatus", userName, battleStatus.allyNumber, battleStatus.isSpectator)
 		end
+	else
+		Spring.Echo("_OnUpdateUserBattleStatus changed false")
 	end
 end
 

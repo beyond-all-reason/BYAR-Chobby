@@ -1185,6 +1185,10 @@ function Interface:_OnSBattleQueueStatus(battleId, userNamesChain)
 		queuedUserNames = explode("\t", userNamesChain)
 	end
 
+	for pos, userName in pairs(queuedUserNames) do
+		Spring.Echo("pos, userName",pos, userName)
+	end
+
 	-- Spring.Echo("numUsers:"..tostring(#queuedUserNames))
 
 	self:_OnUpdateBattleQueue(battleId, queuedUserNames) -- always update, empty queue must be propagated too

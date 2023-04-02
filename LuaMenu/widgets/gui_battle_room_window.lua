@@ -1791,6 +1791,7 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 					end
 				end
 				if not teamStack:GetChildByName(playerControl.name) then
+					Spring.Echo("HERE")
 					teamStack:AddChild(playerControl)
 					teamHolder:SetVisibility(true)
 					UpdatePlayerPositions()
@@ -1927,6 +1928,7 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 	end
 
 	function externalFunctions.UpdateUserTeamStatus(userName, allyNumber, isSpectator)
+		Spring.Echo("UpdateUserTeamStatus")
 		local teamNew = allyNumber
 		if isSpectator then
 			local battleStatus = battleLobby:GetUserBattleStatus(userName) or {}
@@ -1935,11 +1937,13 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 			else
 				teamNew = -2 -- virtual team "Spectator"
 			end
+			Spring.Echo("UpdateUserTeamStatus teamNew", teamNew, battleLobby:GetUserBattleStatus(userName) and true or false)
 		end
 		local playerData = GetPlayerData(userName)
-		if playerData.team == teamNew then
-			return -- team didn´t change, so don´t update
-		end
+		Spring.Echo("playerData.team", playerData.team)
+		--if playerData.team == teamNew then
+		--	return -- team didn´t change, so don´t update
+		--end
 		if playerData.team ~= false then
 			RemovePlayerFromTeam(userName)
 		end
