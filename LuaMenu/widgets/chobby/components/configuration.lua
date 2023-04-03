@@ -240,6 +240,7 @@ function Configuration:init()
 	self.debugMode = false
 	self.devMode = (VFS.FileExists("devmode.txt") and true) or false
 	self.enableProfiler = false
+	self.enableCacheRapidPool = false
 	self.showCampaignButton = false
 	self.showPlanetUnlocks = false
 	self.showPlanetEnemyUnits = false
@@ -602,6 +603,7 @@ function Configuration:GetConfigData()
 		debugMode = self.debugMode,
 		debugAutoWin = self.debugAutoWin,
 		enableProfiler = self.enableProfiler,
+		enableCacheRapidPool= self.enableCacheRapidPool,
 		showCampaignButton = self.showCampaignButton,
 		showPlanetUnlocks = self.showPlanetUnlocks,
 		showPlanetEnemyUnits = self.showPlanetEnemyUnits,
