@@ -1042,6 +1042,12 @@ local function GetLobbyTabControls()
 		Spring.GetConfigInt("LogFlushLevel") == 0,
 		function(newstate) Spring.SetConfigInt("LogFlushLevel", (newstate and 0) or 50) end, i18n("flushLogs_tooltip"))
 
+	local enableCacheRapidPoolFunc = function(newState)
+		Spring.Echo("Toggling Cache Rapid Pool to", newState)
+		widgetHandler:ToggleWidget("Cache Rapid Pool")
+	end
+
+	children[#children + 1], offset = AddCheckboxSetting(offset, "Cache Rapid Pool", "enableCacheRapidPool", false, enableCacheRapidPoolFunc)
 	--children[#children + 1], offset = AddCheckboxSetting(offset, i18n("keep_queues"), "rememberQueuesOnStart", false, nil, "Stay in matchmaker queues when a battle is launched.")
 
 
