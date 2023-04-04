@@ -1277,7 +1277,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		if battleID ~= joinedBattleId or userName == battleLobby:GetMyUserName() then
 			return
 		else
-			--Spring.Echo('Ext:JoinedBattle(joinedBattleId, userName)',joinedBattleId, userName)
+			--Spring.Echo('JoinedBattle(joinedBattleId, userName)',joinedBattleId, userName)
 
 			local iAmFirstPlayer = true
 			local playersthatarentme = 0
