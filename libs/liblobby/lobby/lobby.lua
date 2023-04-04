@@ -14,6 +14,7 @@ end
 function Lobby:_Clean()
 	self.users = {}
 	self.userNamesLC = {} -- lookup table for (user name in lower Case) => userName
+	self.userNamesQueued = {}
 	self.userBySteamID = {}
 	self.userCount = 0
 
@@ -625,6 +626,34 @@ function Lobby:_OnUpdateUserStatus(userName, status)
 	end
 end
 
+function Lobby:_OnUpdateBattleQueue(battleId, userNamesQueued)
+	for _, battleUserName in pairs(self.battles[battleId].users) do -- all users in battle
+		local userInQueue = false
+		local queueStatusOld = self.userBattleStatus[battleUserName] and self.userBattleStatus[battleUserName].queuePos or 0
+
+		for posNew, userNameQueued in pairs(userNamesQueued) do -- test each battleUser if in the received queueList
+			if battleUserName == userNameQueued then
+				if queueStatusOld ~= posNew or true then
+					self:_OnUpdateUserBattleStatus(battleUserName, {queuePos = posNew})
+					userInQueue = true
+					break
+				else
+					userInQueue = true
+					break;
+				end
+			end
+		end
+		if userInQueue == false then
+			if queueStatusOld > 0 then
+				self:_OnUpdateUserBattleStatus(battleUserName, {queuePos = 0})
+			-- else
+				-- Spring.Echo("_OnUpdateBattleQueue Not Updating user,which is has no new queue pos and had none before " .. battleUserName .. " pos " .. tostring(queueStatusOld))
+			end
+		end
+	end
+	return
+end
+
 ------------------------
 -- Friend
 ------------------------
@@ -913,14 +942,46 @@ function Lobby:_OnUpdateBattleInfo(battleID, battleInfo)
 	self:_CallListeners("OnUpdateBattleInfo", battleID, battleInfo)
 end
 
+-- compare 2 tables and return diff
+-- also update table properties of 1st table !
+local function getDiffAndSetNewValuesToTable(origin, update)
+	local diff = {}
+	local changed = false
+	for uKey, uVal in pairs(update) do
+		local changedSub = false
+		local oVal = rawget(origin, uKey)
+		
+		if type(uVal) == "table" then
+			if type(oVal) == "table" then -- use recursion if value is table and key exists in origin table
+				_, changedSub = getDiffAndSetNewValuesToTable(oVal, uVal)
+				changed = changed or changedSub
+			else
+				changed = true
+			end
+		else
+			-- Spring.Echo("uVal:", uVal, " oVal:", oVal, uVal ~= oVal)
+			changed = changed or (uVal ~= oVal)
+		end
+
+		if changed then
+			rawset(diff, uKey, uVal)
+			rawset(origin, uKey, uVal) -- this is the place where origin is updated, e.g. userData in _UpUpdateUserBattleStatus, which is self.userBattleStatus
+		end
+	end
+	return diff, changed
+end
+
 -- Updates the specified status keys
--- BattleStatus keys can be: isReady, teamNumber, allyNumber, isSpectator, handicap, sync, side
--- chobby uses addiotional keys as status: teamColor
+-- BattleStatus keys Spring protocol: isReady, teamNumber, allyNumber, isSpectator, handicap, sync, side
+-- additional keys used by chobby: teamColor
+-- additional keys in bar infrastructure: queuePos
 -- Bots/AIs have additional keys inside chobby: owner~=nil, aiLib~=nil, aiOptions, aiVersion
 -- Example: _OnUpdateUserBattleStatus("gajop", {isReady=false, teamNumber=1})
 function Lobby:_OnUpdateUserBattleStatus(userName, status)
-	if (status.owner == nil and not self.users[userName]) or
-	   (status.owner ~= nil and not self.users[status.owner]) then
+	local statusNew = status
+
+	if (statusNew.owner == nil and not self.users[userName]) or
+	   (statusNew.owner ~= nil and not self.users[statusNew.owner]) then
 		Spring.Log(LOG_SECTION, LOG.ERROR, "Tried to update non connected user in battle: ", userName)
 		return
 	end
@@ -928,46 +989,21 @@ function Lobby:_OnUpdateUserBattleStatus(userName, status)
 		self.userBattleStatus[userName] = {}
 	end
 
-	local userData = self.userBattleStatus[userName]
+	local battleStatus = self.userBattleStatus[userName]
 
-	-- If userData.allyNumber is present then an update must occur.
-	local changedAllyTeam = userData.allyNumber or (status.allyNumber ~= userData.allyNumber)
-	local changedSpectator = (status.isSpectator ~= userData.isSpectator)
+	local battleStatusDiff, changed = getDiffAndSetNewValuesToTable(battleStatus, statusNew) -- use battleStatusDiff instead of statusNew to only propagate battleStatus properties, that really changed or which are new properties
 
-	userData.allyNumber = status.allyNumber or userData.allyNumber
-	userData.teamNumber = status.teamNumber or userData.teamNumber
-	if status.isSpectator ~= nil then
-		userData.isSpectator = status.isSpectator
-	end
-	if status.isReady ~= nil then
-		userData.isReady = status.isReady
-	end
-	userData.sync       = status.sync  or userData.sync
-	userData.side       = status.side  or userData.side
-	userData.aiLib      = status.aiLib or userData.aiLib
-	userData.aiVersion  = status.aiVersion or userData.aiVersion
-	userData.aiOptions  = status.aiOptions or userData.aiOptions
-	userData.owner      = status.owner or userData.owner
-	userData.teamColor  = status.teamColor or userData.teamColor
-	userData.handicap   = status.handicap
+	if changed then
+		if battleStatusDiff.isSpectator ~= nil and battleStatusDiff.isSpectator == false and battleStatus.queuePos and battleStatus.queuePos ~= 0 then
+			battleStatus.queuePos = 0 -- always change queuePos to 0, if we switch from spec to player = prevent showing queuePos e.g. in playerbattelist, if we didn�t receive the queue-update from server yet
+			battleStatusDiff.queuePos = 0
+		end
 
-	status.allyNumber   = userData.allyNumber
-	status.teamNumber   = userData.teamNumber
-	status.isSpectator  = userData.isSpectator
-	status.sync         = userData.sync
-	status.side         = userData.side
-	status.aiLib        = userData.aiLib
-	status.aiVersion    = userData.aiVersion
-	status.aiOptions    = userData.aiOptions
-	status.owner        = userData.owner
-	status.teamColor    = userData.teamColor
-	status.handicap 	= userName.handicap
+		self:_CallListeners("OnUpdateUserBattleStatus", userName, battleStatusDiff)
 
-	self:_CallListeners("OnUpdateUserBattleStatus", userName, status)
-
-	if changedSpectator or changedAllyTeam then
-		--Spring.Echo("OnUpdateUserTeamStatus", changedAllyTeam, changedSpectator, "spectator", status.isSpectator, userData.isSpectator, "ally Team", status.allyNumber, userData.allyNumber)
-		self:_CallListeners("OnUpdateUserTeamStatus", userName, status.allyNumber, status.isSpectator)
+		if battleStatusDiff.allyNumber or battleStatusDiff.isSpectator ~= nil or battleStatusDiff.queuePos then
+			self:_CallListeners("OnUpdateUserTeamStatus", userName, battleStatus.allyNumber, battleStatus.isSpectator, battleStatus.queuePos)
+		end
 	end
 end
 
