@@ -2996,6 +2996,8 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 			return
 		end
 
+		--Spring.Echo("isSpec nil?", status.isSpectator == nil, "isReady nil?", status.isReady == nil, "isSpec, isReady:", status.isSpectator, status.isReady)
+
 		local tooltipCandidate = ""
 		if status.isSpectator ~= nil then
 			readyButton:SetEnabled(not status.isSpectator)
@@ -3007,18 +3009,16 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 			end
 		end
 		if not status.isSpectator then
-			if status.isReady ~= nil then
-				if status.isReady then
-					readyButton:StyleReady()
-					readyButtonCheckArrow.file = IMG_CHECKARROW
-					readyButtonCheckArrow:Invalidate()
-					tooltipCandidate = i18n("ready_tooltip")
-				else
-					readyButton:StyleUnready()
-					readyButtonCheckArrow.file = nil
-					readyButtonCheckArrow:Invalidate()
-					tooltipCandidate = i18n("unready_tooltip")
-				end
+			if status.isReady ~= nil and status.isReady then
+				readyButton:StyleReady()
+				readyButtonCheckArrow.file = IMG_CHECKARROW
+				readyButtonCheckArrow:Invalidate()
+				tooltipCandidate = i18n("ready_tooltip")
+			else
+				readyButton:StyleUnready()
+				readyButtonCheckArrow.file = nil
+				readyButtonCheckArrow:Invalidate()
+				tooltipCandidate = i18n("unready_tooltip")
 			end
         end
 
