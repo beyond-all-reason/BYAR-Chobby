@@ -1506,15 +1506,11 @@ local function SortPlayersByQueued(a, b)
 
 	if queuePosA ~= queuePosB then
 		return queuePosA < queuePosB
-	end
 	-- sort normal spectator list by name, founder top
-	if a.name == founder or b.name == founder then
+	elseif a.name == founder or b.name == founder then
 		return a.name == founder
 	end
-	if string.lower(a.name) < string.lower(b.name) then
-		return true
-	end
-	return false
+	return string.lower(a.name) < string.lower(b.name)
 end
 
 local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
