@@ -858,6 +858,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 				local battleStatus = battleLobby:GetUserBattleStatus(myUserName) or {}
 				if battleStatus.isSpectator then
 					battleLobby:SayBattle('$leaveq')
+					battleLobby:_OnUpdateUserBattleStatus(battleLobby:GetMyUserName(), {queuePos = 0}) -- we proactive change our queuePos; because we don´t reliable receicve s.battle.queue_status on fast clicking play/spectate
 				end
 				battleLobby:SetBattleStatus({
 					isSpectator = true,
@@ -867,7 +868,9 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 				SetButtonStateSpectating()
 
 				WG.Analytics.SendOnetimeEvent("lobby:multiplayer:custom:spectate")
-				WG.Chobby.Configuration:SetConfigValue("lastGameSpectatorState", true)
+				if WG.Chobby.Configuration.useLastGameSpectatorState == 1 then
+					WG.Chobby.Configuration:SetConfigValue("lastGameSpectatorState", true)
+				end
 			end
 		},
 		parent = rightInfo,
@@ -894,7 +897,9 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 				SetButtonStatePlaying()
 
 				WG.Analytics.SendOnetimeEvent("lobby:multiplayer:custom:play")
-				WG.Chobby.Configuration:SetConfigValue("lastGameSpectatorState", false)
+				if WG.Chobby.Configuration.useLastGameSpectatorState == 1 then
+					WG.Chobby.Configuration:SetConfigValue("lastGameSpectatorState", false)
+				end
 			end
 		},
 		parent = rightInfo,
@@ -1175,6 +1180,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		if battleID == updatedBattleID then
 			if isRunning then
 				btnStartBattle:SetCaption(i18n("rejoin"))
+				readyButton.tooltip = i18n("inprogress_tooltip")
 			else
 				btnStartBattle:SetCaption(i18n("start"))
 			end
@@ -1490,6 +1496,23 @@ local function SortPlayersBySkill(a, b)
 	return joinA > joinB
 end
 
+local function SortPlayersByQueued(a, b)
+	local sA = battleLobby:GetUserBattleStatus(a.name)
+	local sB = battleLobby:GetUserBattleStatus(b.name)
+	local queuePosA = tonumber((sA and sA.queuePos) or 0)
+	local queuePosB = tonumber((sB and sB.queuePos) or 0)
+	local battle = battleLobby:GetBattle(battleLobby:GetMyBattleID()) or {}
+	local founder = battle.founder
+
+	if queuePosA ~= queuePosB then
+		return queuePosA < queuePosB
+	-- sort normal spectator list by name, founder top
+	elseif a.name == founder or b.name == founder then
+		return a.name == founder
+	end
+	return string.lower(a.name) < string.lower(b.name)
+end
+
 local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 
 	local SPACING = 24
@@ -1588,7 +1611,7 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 	end
 
 	local function GetTeam(teamIndex)
-		teamIndex = teamIndex or -1
+		teamIndex = teamIndex or -2 -- default to -2 = Spectator team
 		if not team[teamIndex] then
 			if teamIndex == emptyTeamIndex then
 				local checkTeam = teamIndex + 1
@@ -1600,6 +1623,10 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 
 			local humanName, parentStack, parentScroll
 			if teamIndex == -1 then
+				humanName = "Join-Queue"
+				parentStack = spectatorStackPanel
+				parentScroll = spectatorScrollPanel
+			elseif teamIndex == -2 then
 				humanName = "Spectators"
 				parentStack = spectatorStackPanel
 				parentScroll = spectatorScrollPanel
@@ -1637,7 +1664,7 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 				caption = humanName,
 				parent = teamHolder,
 			}
-			if teamIndex ~= -1 then
+			if teamIndex ~= -1 and teamIndex ~= -2 then
 				local seperator = Line:New {
 					x = 0,
 					y = 25,
@@ -1678,9 +1705,13 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 			}
 
 			local function UpdatePlayerPositions()
-				if teamIndex ~= -1 then
+				if teamIndex ~= -1 and teamIndex ~= -2 then
 					table.sort(teamStack.children, SortPlayersBySkill)
+				else
+					-- Spring.Echo("Sorting teamIndex: " .. tostring(teamIndex))
+					table.sort(teamStack.children, SortPlayersByQueued)
 				end
+
 				local position = 1
 
 				for i = 1, #teamStack.children do
@@ -1694,9 +1725,10 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 				teamHolder:Invalidate()
 			end
 
-			if teamIndex == -1 then
+			if teamIndex == -1 or teamIndex == -2 then
 				-- Empty spectator team is created. Position children to prevent flicker.
 				PositionChildren(parentStack, parentScroll.height)
+				teamHolder:SetVisibility(false)
 			end
 
 			local teamData = {}
@@ -1713,7 +1745,7 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 					joinTeamButton:Dispose()
 				end
 
-				if teamIndex ~= -1 then
+				if teamIndex ~= -1 and teamIndex ~= -2 then
 					AddTeamButtons(
 						teamHolder,
 						90,
@@ -1760,6 +1792,7 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 				end
 				if not teamStack:GetChildByName(playerControl.name) then
 					teamStack:AddChild(playerControl)
+					teamHolder:SetVisibility(true)
 					UpdatePlayerPositions()
 				end
 			end
@@ -1775,7 +1808,7 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 			end
 
 			function teamData.CheckRemoval()
-				if teamStack:IsEmpty() and teamIndex ~= -1 then
+				if teamStack:IsEmpty() and teamIndex ~= -2 then
 					local removeHolder = false
 
 					if disallowCustomTeams then
@@ -1796,6 +1829,9 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 								teamData.RemoveTeam()
 								return true
 							end
+						elseif teamIndex == -1 then
+							teamHolder:SetVisibility(false)
+							return true
 						end
 					end
 				end
@@ -1804,7 +1840,7 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 
 			function teamData.RemovePlayer(name)
 				local playerData = GetPlayerData(name)
-				if playerData.team ~= teamIndex then
+				if playerData.team ~= teamIndex or playerData.team == false then
 					return
 				end
 				playerData.team = false
@@ -1847,7 +1883,9 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 		end
 	end
 
-	GetTeam(-1) -- Make Spectator heading appear
+	GetTeam(-1) -- Make Queue heading appear
+	GetTeam(-2) -- Make Spectator heading appear
+
 	GetTeam(0) -- Always show two teams in custom battles
 	if not (disallowCustomTeams and disallowBots) then
 		GetTeam(1)
@@ -1888,16 +1926,22 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 		end
 	end
 
-	function externalFunctions.UpdateUserTeamStatus(userName, allyNumber, isSpectator)
+	function externalFunctions.UpdateUserTeamStatus(userName, teamNew, isSpectator, queuePos)
 		if isSpectator then
-			allyNumber = -1
+			if (queuePos and queuePos > 0) then
+				teamNew = -1 -- virtual team "Join-Queue"
+			else
+				teamNew = -2 -- virtual team "Spectator"
+			end
 		end
 		local playerData = GetPlayerData(userName)
-		if playerData.team == allyNumber then
-			return
+		if playerData.team == teamNew then
+			return -- team didn´t change, so don´t update
 		end
-		RemovePlayerFromTeam(userName)
-		AddPlayerToTeam(allyNumber, userName)
+		if playerData.team ~= false then
+			RemovePlayerFromTeam(userName)
+		end
+		AddPlayerToTeam(teamNew, userName)
 	end
 
 	function externalFunctions.LeftBattle(leftBattleID, userName)
@@ -2942,40 +2986,50 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		btnInviteFriends:SetVisibility(newVisibile)
 	end
 
-	-- Lobby interface
+	-- 23/03/19 Fireball update: only react, when dependent status.properties are present = were updated for this current event
+	-- reacts to: isSpectator, isReady
 	local function OnUpdateUserBattleStatus(listener, username, status)
+		if username ~= battleLobby.myUserName or battleLobby.name == "singleplayer" or (status.isSpectator == nil and status.isReady == nil) then
+			return
+		end
 
-		if username ~= battleLobby.myUserName then return end
+		--Spring.Echo("isSpec nil?", status.isSpectator == nil, "isReady nil?", status.isReady == nil, "isSpec, isReady:", status.isSpectator, status.isReady)
 
-		WG.Chobby.Configuration:SetConfigValue("lastGameSpectatorState", status.isSpectator)
-
-		if battleLobby.name ~= "singleplayer" then
-            readyButton:SetEnabled(not status.isSpectator)
-			readyButton:SetCaption(i18n("ready"))
-			readyButtonCheckArrow.file = nil
-			readyButtonCheckArrow:Invalidate()
-				if status.isReady then
-                	readyButton:StyleReady()
-					readyButton.tooltip = i18n("ready_tooltip")
-					readyButtonCheckArrow.file = IMG_CHECKARROW
-					readyButtonCheckArrow:Invalidate()
-            	elseif status.isSpectator then
-					readyButton:StyleOff()
-					readyButton.tooltip = i18n("unready_notplaying_tooltip")
-				else
-					readyButton:StyleUnready()
-                	readyButton.tooltip = i18n("unready_tooltip")
-        		end
-			if battle.isRunning then
-				readyButton.tooltip = i18n("inprogress_tooltip")
+		local tooltipCandidate = ""
+		if status.isSpectator ~= nil then
+			readyButton:SetEnabled(not status.isSpectator)
+			if status.isSpectator then
+				readyButtonCheckArrow.file = nil
+				readyButtonCheckArrow:Invalidate()
+				readyButton:StyleOff()
+				tooltipCandidate = i18n("unready_notplaying_tooltip")
+			end
+		end
+		if not status.isSpectator then
+			if status.isReady ~= nil and status.isReady then
+				readyButton:StyleReady()
+				readyButtonCheckArrow.file = IMG_CHECKARROW
+				readyButtonCheckArrow:Invalidate()
+				tooltipCandidate = i18n("ready_tooltip")
+			else
+				readyButton:StyleUnready()
+				readyButtonCheckArrow.file = nil
+				readyButtonCheckArrow:Invalidate()
+				tooltipCandidate = i18n("unready_tooltip")
 			end
         end
+
+		-- 23/04/04 Fireball: moved readyButton tooltip change on battle.isRunning to BattleIngameUpdate
+		if not battle.isRunning then
+			readyButton.tooltip = tooltipCandidate
+		end
 	end
 
-	local function OnUpdateUserTeamStatus(listener, userName, allyNumber, isSpectator)
+	local function OnUpdateUserTeamStatus(listener, userName, allyNumber, isSpectator, queuePos)
+		-- Spring.Echo("room:OnUpdateUserTeamStatus userName:" .. tostring(userName) .. " allyNumber:" .. tostring(allyNumber) .. " isSpectator:" .. tostring(isSpectator))
 		--votePanel.VoteButtonVisible(isSpectator == false)
 		infoHandler.UpdateUserTeamStatus(userName, allyNumber, isSpectator)
-		playerHandler.UpdateUserTeamStatus(userName, allyNumber, isSpectator)
+		playerHandler.UpdateUserTeamStatus(userName, allyNumber, isSpectator, queuePos)
 	end
 
 	local function OnBattleIngameUpdate(listener, updatedBattleID, isRunning)

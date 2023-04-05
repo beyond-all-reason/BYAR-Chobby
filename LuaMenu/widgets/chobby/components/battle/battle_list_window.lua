@@ -1382,7 +1382,7 @@ function BattleListWindow:OpenHostWindow()
 	end
 
 	local function HostBattle()
-		WG.BattleRoomWindow.LeaveBattle()
+		
 		--Attempting to host game at
 		local requestedregion = typeCombo.items[typeCombo.selected] ---self.hostRegions = {"DE","EU","EU2","US","AU"}
 		--Spring.Echo("Looking for empty host in region", requestedregion)
@@ -1430,8 +1430,9 @@ function BattleListWindow:OpenHostWindow()
 				if myprivatebattleID ~= nil then
 					trytime = -1
 
-					Configuration:SetConfigValue("lastGameSpectatorState", false) -- assume that private hoster wants to play, needed so he can boss self!
-					lobby:JoinBattle(myprivatebattleID, mypassword)
+					WG.BattleRoomWindow.LeaveBattle()
+					-- Configuration:SetConfigValue("lastGameSpectatorState", false) -- assume that private hoster wants to play, needed so he can boss self!
+					lobby:JoinBattle(myprivatebattleID, mypassword, _, true) -- forcePlayer = true
 					lobby:RemoveListener("OnSaidPrivate", listenForPrivateBattle)
 
 					local function bossSelf()
@@ -1490,7 +1491,7 @@ function BattleListWindow:OpenHostWindow()
 						hostregion = requestedregion
 					})
 				end
-				Configuration:SetConfigValue("lastGameSpectatorState", false) -- assume that private hoster wants to play, needed so he can boss self!
+				-- Configuration:SetConfigValue("lastGameSpectatorState", false) -- assume that private hoster wants to play, needed so he can boss self!
 
 				--Spring.Echo("Found a battle")
 				local function bossSelf()
@@ -1499,7 +1500,7 @@ function BattleListWindow:OpenHostWindow()
 					lobby:SayBattle("!preset custom")
 				end
 
-				self:JoinBattle(lobby:GetBattle(targetbattle))
+				self:JoinBattle(lobby:GetBattle(targetbattle), _, _, true)
 				WG.Delay(bossSelf, 1)
 				hostBattleWindow:Dispose()
 			end
@@ -1541,7 +1542,7 @@ function BattleListWindow:OpenHostWindow()
 	local popupHolder = PriorityPopup(hostBattleWindow, CancelFunc, HostBattle)
 end
 
-function BattleListWindow:JoinBattle(battle)
+function BattleListWindow:JoinBattle(battle, _, _, joinAsPlayer)
 	-- We can be force joined to an invalid engine version. This widget is not
 	-- the place to deal with this case.
 	if not battle.passworded then
@@ -1566,7 +1567,7 @@ function BattleListWindow:JoinBattle(battle)
 		lobby:AddListener("OnJoinBattleFailed", onJoinBattleFailed)
 		lobby:AddListener("OnJoinBattle", onJoinBattle)
 
-		lobby:JoinBattle(battle.battleID)
+		lobby:JoinBattle(battle.battleID, _, _, joinAsPlayer)
 	else
 		local tryJoin, passwordWindow
 

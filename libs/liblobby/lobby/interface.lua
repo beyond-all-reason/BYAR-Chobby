@@ -11,6 +11,8 @@ Interface.jsonCommands = {}
 -- define command format with pattern (regex)
 Interface.commandPattern = {}
 
+local forcePlayer = false
+
 -------------------------------------------------
 -- BEGIN Client commands
 -------------------------------------------------
@@ -151,20 +153,22 @@ end
 -- Battle commands
 ------------------------
 
+-- 2023-03-08 Fireball: stop sneaky changes to lobby´s battleStatus properties here - listeners depend on lobby´s event OnUpdateUserBattleStatus
+--                      instead call _OnUpdateUserBattleStatus in SetBattleStatus, which sets the new values and spreads them correctly
 local function UpdateAndCreateMerge(userData, status)
 	local battleStatus = {}
 	local updated = false
 	if status.isReady ~= nil then
 		updated = updated or userData.isReady ~= status.isReady
 		battleStatus.isReady = status.isReady
-		userData.isReady     = status.isReady
+		-- userData.isReady     = status.isReady
 	else
 		battleStatus.isReady = userData.isReady -- self:GetMyIsReady()
 	end
 	if status.teamNumber ~= nil then
 		updated = updated or userData.teamNumber ~= status.teamNumber
 		battleStatus.teamNumber = status.teamNumber
-		userData.teamNumber     = status.teamNumber
+		-- userData.teamNumber     = status.teamNumber
 	else
 		battleStatus.teamNumber = userData.teamNumber or 0 -- self:GetMyTeamNumber() or 0
 	end
@@ -179,35 +183,35 @@ local function UpdateAndCreateMerge(userData, status)
 			end
 		end
 		battleStatus.teamColor = status.teamColor
-		userData.teamColor     = status.teamColor
+		-- userData.teamColor     = status.teamColor
 	else
 		battleStatus.teamColor = userData.teamColor -- self:GetMyTeamColor()
 	end
 	if status.allyNumber ~= nil then
 		updated = updated or userData.allyNumber ~= status.allyNumber
 		battleStatus.allyNumber = status.allyNumber
-		userData.allyNumber     = status.allyNumber
+		-- userData.allyNumber     = status.allyNumber
 	else
 		battleStatus.allyNumber = userData.allyNumber or 0 -- self:GetMyAllyNumber() or 0
 	end
 	if status.isSpectator ~= nil then
 		updated = updated or userData.isSpectator ~= status.isSpectator
 		battleStatus.isSpectator = status.isSpectator
-		userData.isSpectator     = status.isSpectator
+		-- userData.isSpectator     = status.isSpectator
 	else
 		battleStatus.isSpectator = userData.isSpectator -- self:GetMyIsSpectator()
 	end
 	if status.sync ~= nil then
 		updated = updated or userData.sync ~= status.sync
 		battleStatus.sync = status.sync
-		userData.sync     = status.sync
+		-- userData.sync     = status.sync
 	else
 		battleStatus.sync = userData.sync -- self:GetMySync()
 	end
 	if status.side ~= nil then
 		updated = updated or userData.side ~= status.side
 		battleStatus.side = status.side
-		userData.side     = status.side
+		-- userData.side     = status.side
 	else
 		battleStatus.side = userData.side or 0 -- self:GetMySide() or 0
 	end
@@ -308,7 +312,10 @@ function Interface:RejoinBattle(battleID)
 	return self
 end
 
-function Interface:JoinBattle(battleID, password, scriptPassword)
+-- 2023/04/04 Fireball: Added joinAsPlayer to bypass lastGameSpectatorState
+function Interface:JoinBattle(battleID, password, scriptPassword, joinAsPlayer)
+	forcePlayer = joinAsPlayer and true or false -- used by Interfac:_OnRequestBattleStatus
+
 	scriptPassword = scriptPassword or (tostring(math.floor(math.random() * 65536)) .. tostring(math.floor(math.random() * 65536)))
 	password = password or "empty"
 	self.changedTeamIDOnceAfterJoin = false
@@ -336,10 +343,7 @@ function Interface:SetBattleStatus(status)
 	-- 2020/02/12: Problem partially fixed by ignoring battleStatus that result in no update
 	-- 2021/01/21: Which had the unfortunate side effect of not sending the first REQUESTBATTLESTATUS response
 	local myUserName = self:GetMyUserName()
-	if not self.userBattleStatus[myUserName] then
-		self.userBattleStatus[myUserName] = {}
-	end
-	local userData = self.userBattleStatus[myUserName]
+	local userData = self.userBattleStatus[myUserName] or {}
 	local battleStatus, updated = UpdateAndCreateMerge(userData, status)
 
 	--next(status) will return nil if status is empty table, which it is when it is called from REQUESTBATTLESTATUS
@@ -351,6 +355,7 @@ function Interface:SetBattleStatus(status)
 	local teamColor = battleStatus.teamColor or { math.random(), math.random(), math.random(), 1 }
 	teamColor = EncodeTeamColor(teamColor)
 	self:_SendCommand(concat("MYBATTLESTATUS", battleStatusString, teamColor))
+	self:_OnUpdateUserBattleStatus(myUserName, battleStatus)
 	return self
 end
 
@@ -970,7 +975,20 @@ end
 Interface.commands["SAIDBATTLE"] = Interface._OnSaidBattle
 Interface.commandPattern["SAIDBATTLE"] = "(%S+)%s+(.*)"
 
+local function startsWith(targetstring, pattern) 
+	if string.len(pattern) <= string.len(targetstring) and pattern == string.sub(targetstring,1, string.len(pattern)) then
+		return true, string.sub(targetstring, string.len(pattern) + 1)
+	else
+		return false
+	end
+end
+
 function Interface:_OnSaidBattleEx(userName, message)
+	local JoinQueue_PREFIX = "You are now in the join-queue at position"
+	local doesStartWith = startsWith(message, JoinQueue_PREFIX)
+	if doesStartWith then
+		self:_SendCommand(concat("c.battle.queue_status")) -- request the whole join-queue again, because server doesn´t always send s.battle.queue_status or sends it before the change took affect
+	end
 	self:super("_OnSaidBattleEx", userName, message)
 end
 Interface.commands["SAIDBATTLEEX"] = Interface._OnSaidBattleEx
@@ -1154,6 +1172,28 @@ function Interface:RemoveQueueUser(name, userNames)
 	self:_SendCommand(concat("REMOVEQUEUEUSER", {name=name, userNames=userNames}))
 	return self
 end
+
+-- parse following servermessage:
+-- s.battle.queue_status\s<battleID>\t<userName1>\t<userName2>...
+function Interface:_OnSBattleQueueStatus(battleId, userNamesChain)
+	-- Spring.Echo("_OnSBattleQueueStatus battleId:"..battleId.." userNamesChain:"..userNamesChain, "type of battleId", type(battleId))
+	
+	-- validate battleId
+	battleId = tonumber(battleId)
+	if not self:GetMyBattleID() or self:GetMyBattleID() ~= battleId then
+		Spring.Log(LOG_SECTION, LOG.WARNING, "Received s.battle.queue_status with battleId for another battle: ", tostring(battleId))
+		return
+	end
+
+	local queuedUserNames = {}
+	if userNamesChain ~= "" then -- because our explode returns a table with 1 element when join-queue is empty
+		queuedUserNames = explode("\t", userNamesChain)
+	end
+
+	self:_OnUpdateBattleQueue(battleId, queuedUserNames) -- always update, empty queue must be propagated too
+end
+Interface.commands["s.battle.queue_status"] = Interface._OnSBattleQueueStatus
+Interface.commandPattern["s.battle.queue_status"] = "(%d+)%s*(.*)" -- * on %s because the part right of %d can be total empty for an empty queue
 
 ------------
 ------------
@@ -1657,10 +1697,51 @@ end
 Interface.commands["REMOVESTARTRECT"] = Interface._OnRemoveStartRect
 Interface.commandPattern["REMOVESTARTRECT"] = "(%d+)"
 
+function getSyncStatus(battle)
+	if not battle then
+		return 0
+	end
+
+	local haveGame = VFS.HasArchive(battle.gameName)
+	local haveMap = VFS.HasArchive(battle.mapName)
+	-- Spring.Echo("haveGame, haveMap", haveGame, haveMap)
+	return (haveGame and haveMap) and 1 or 2 -- 1: Sync 2: Unsync
+end
+
+-- 2023/03/23 Fireball: This request is sent once by the server, directly after hosting or joining a battle
+--                      since we do not have any battleStatus(in most cases), we generate a default one
 function Interface:_OnRequestBattleStatus()
-	self._requestedBattleStatus = true
-	self:_CallListeners("OnRequestBattleStatus")
-	self:SetBattleStatus({})
+	-- 2023/03/06 Fireball: moved the action from the only listener to OnRequestBattleStatus in whole chobby from gui_battle_room_window.lua to here
+	--                      and don´t call listeners of OnRequestBattleStatus anymore
+	
+	local battleStatus = self.userBattleStatus[self:GetMyUserName()] -- 2023/03/23 Fireball: chobby doesn´t delete battleStatus on leaveBattle - maybe we find sth. left from prior session for this host, which we can make use of
+	self._requestedBattleStatus = true -- allow SetBattleStatus again
+
+	local defaultSpec = true
+	if forcePlayer then -- 2023/04/04 Fireball: forcePlayer is set by Interface:JoinBattle; the only use case is forcing player while hosting a battle	
+		defaultSpec = false
+		forcePlayer = false -- 2023/04/04 set it to false after usage
+	else
+		defaultSpec = WG.Chobby.Configuration.lastGameSpectatorState 
+	end
+	if battleStatus then
+		if battleStatus.isSpectator ~= nil then
+			defaultSpec = battleStatus.isSpectator
+		end
+		self:SetBattleStatus({
+			isSpectator =  defaultSpec,
+			isReady = false,
+			side = battleStatus.side or WG.Chobby.Configuration.lastFactionChoice,
+			sync = getSyncStatus(self:GetBattle(self:GetMyBattleID())),
+		})
+	else
+		self:SetBattleStatus({
+			isSpectator = defaultSpec,
+			isReady = false,
+			side = (WG.Chobby.Configuration.lastFactionChoice or 0) ,
+			sync = getSyncStatus(self:GetBattle(self:GetMyBattleID())),
+		})
+	end
 end
 Interface.commands["REQUESTBATTLESTATUS"] = Interface._OnRequestBattleStatus
 

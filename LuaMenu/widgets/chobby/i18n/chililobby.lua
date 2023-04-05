@@ -208,6 +208,8 @@ return {
 		showRanktooltip = "Displays the rank icon next to the players name in the battleroom",
 		showSkill = "Show OpenSkill values",
 		showSkillOpttooltip = "Displays the OpenSkill value next to the players name in the battleroom. On Detailed OS-uncertainty is reflected by color saturation of OS-value.",
+		useLastGameSpectatorState = "Battle join state",
+		useLastGameSpectatorStateTooltip = "Set the initial Player/Spectator state when joining battles.",
 		showCountry = "Show country flags",
 		showCountrytooltip = "Displays the country flag next to the players name in the battleroom",
 
