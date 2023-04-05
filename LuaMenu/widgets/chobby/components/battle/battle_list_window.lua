@@ -1501,7 +1501,7 @@ function BattleListWindow:OpenHostWindow()
 				end
 
 				self:JoinBattle(lobby:GetBattle(targetbattle), _, _, true)
-				WG.Delay(bossSelf, 1) -- 2023/04/05 Fireball: don´t try 
+				WG.Delay(bossSelf, 1)
 				hostBattleWindow:Dispose()
 			end
 		end
