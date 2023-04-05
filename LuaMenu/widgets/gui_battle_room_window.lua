@@ -1501,17 +1501,16 @@ local function SortPlayersByQueued(a, b)
 	local sB = battleLobby:GetUserBattleStatus(b.name)
 	local queuePosA = tonumber((sA and sA.queuePos) or 0)
 	local queuePosB = tonumber((sB and sB.queuePos) or 0)
+	local battle = battleLobby:GetBattle(battleLobby:GetMyBattleID()) or {}
+	local founder = battle.founder
 
-	if queuePosA > 0 and queuePosB > 0 then
+	if queuePosA ~= queuePosB then
 		return queuePosA < queuePosB
 	end
-	if queuePosA > 0 and queuePosB == 0 then
-		return true
+	-- sort normal spectator list by name, founder top
+	if a.name == founder or b.name == founder then
+		return a.name == founder
 	end
-	if queuePosA == 0 and queuePosB > 0 then
-		return false
-	end
-	-- order normal spectator list by name
 	if string.lower(a.name) < string.lower(b.name) then
 		return true
 	end
