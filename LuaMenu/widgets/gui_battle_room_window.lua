@@ -1926,8 +1926,7 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 		end
 	end
 
-	function externalFunctions.UpdateUserTeamStatus(userName, allyNumber, isSpectator)
-		local teamNew = allyNumber
+	function externalFunctions.UpdateUserTeamStatus(userName, teamNew, isSpectator)
 		if isSpectator then
 			local battleStatus = battleLobby:GetUserBattleStatus(userName) or {}
 			if (battleStatus.queuePos and battleStatus.queuePos > 0) then
