@@ -1926,10 +1926,9 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 		end
 	end
 
-	function externalFunctions.UpdateUserTeamStatus(userName, teamNew, isSpectator)
+	function externalFunctions.UpdateUserTeamStatus(userName, teamNew, isSpectator, queuePos)
 		if isSpectator then
-			local battleStatus = battleLobby:GetUserBattleStatus(userName) or {}
-			if (battleStatus.queuePos and battleStatus.queuePos > 0) then
+			if (queuePos and queuePos > 0) then
 				teamNew = -1 -- virtual team "Join-Queue"
 			else
 				teamNew = -2 -- virtual team "Spectator"
@@ -3026,11 +3025,11 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		end
 	end
 
-	local function OnUpdateUserTeamStatus(listener, userName, allyNumber, isSpectator)
+	local function OnUpdateUserTeamStatus(listener, userName, allyNumber, isSpectator, queuePos)
 		-- Spring.Echo("room:OnUpdateUserTeamStatus userName:" .. tostring(userName) .. " allyNumber:" .. tostring(allyNumber) .. " isSpectator:" .. tostring(isSpectator))
 		--votePanel.VoteButtonVisible(isSpectator == false)
 		infoHandler.UpdateUserTeamStatus(userName, allyNumber, isSpectator)
-		playerHandler.UpdateUserTeamStatus(userName, allyNumber, isSpectator)
+		playerHandler.UpdateUserTeamStatus(userName, allyNumber, isSpectator, queuePos)
 	end
 
 	local function OnBattleIngameUpdate(listener, updatedBattleID, isRunning)
