@@ -231,13 +231,11 @@ local function GetBattleInfoHolder(parent, battleID)
 		if isSpectator then
 			if queuePos and queuePos > 0 then
 				lblPlayerStatus:SetCaption("Join-Queue")
-				imPlayerStatus.file = IMG_STATUS_SPECTATOR
-				imPlayerStatus:Invalidate()
 			else
 				lblPlayerStatus:SetCaption("Spectator")
-				imPlayerStatus.file = IMG_STATUS_SPECTATOR
-				imPlayerStatus:Invalidate()
 			end
+			imPlayerStatus.file = IMG_STATUS_SPECTATOR
+			imPlayerStatus:Invalidate()
 		else
 			lblPlayerStatus:SetCaption("Player")
 			imPlayerStatus.file = IMG_STATUS_PLAYER
