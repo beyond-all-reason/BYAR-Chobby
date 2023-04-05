@@ -267,7 +267,7 @@ function Configuration:init()
 	self.drawAtFullSpeed = false
 	self.fixFlicker = true
 	self.lastFactionChoice = 0
-	self.lastGameSpectatorState = true
+	self.lastGameSpectatorState = false
 	self.lobbyIdleSleep = false
 	self.rememberQueuesOnStart = false
 	self.channels = {}
