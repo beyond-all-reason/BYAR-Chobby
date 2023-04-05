@@ -1937,9 +1937,9 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 			end
 		end
 		local playerData = GetPlayerData(userName)
-		--if playerData.team == teamNew then
-		--	return -- team didn´t change, so don´t update
-		--end
+		if playerData.team == teamNew then
+			return -- team didn´t change, so don´t update
+		end
 		if playerData.team ~= false then
 			RemovePlayerFromTeam(userName)
 		end
