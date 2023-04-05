@@ -899,13 +899,6 @@ local function GetLobbyTabControls()
 		objectOverrideFont = settingsFont2,
 		caption = i18n("useLastGameSpectatorState"),
 	}
-	local useLastGameSpectatorStateOptions = {"Remember Last", "Always Spectator", "Always Player"}
-	local selectedUseLastGameSpectatorStateOption = 1
-	for k,v in ipairs(useLastGameSpectatorStateOptions) do
-		if v == Configuration.useLastGameSpectatorState then
-			selectedUseLastGameSpectatorStateOption = k
-		end
-	end
 	children[#children + 1] = ComboBox:New {
 		x = COMBO_X,
 		y = offset,
