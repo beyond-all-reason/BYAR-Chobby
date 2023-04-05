@@ -11,6 +11,8 @@ Interface.jsonCommands = {}
 -- define command format with pattern (regex)
 Interface.commandPattern = {}
 
+local forcePlayer = false
+
 -------------------------------------------------
 -- BEGIN Client commands
 -------------------------------------------------
@@ -310,7 +312,10 @@ function Interface:RejoinBattle(battleID)
 	return self
 end
 
-function Interface:JoinBattle(battleID, password, scriptPassword)
+-- 2023/04/04 Fireball: Added joinAsPlayer to bypass lastGameSpectatorState
+function Interface:JoinBattle(battleID, password, scriptPassword, joinAsPlayer)
+	forcePlayer = joinAsPlayer and true or false -- used by Interfac:_OnRequestBattleStatus
+
 	scriptPassword = scriptPassword or (tostring(math.floor(math.random() * 65536)) .. tostring(math.floor(math.random() * 65536)))
 	password = password or "empty"
 	self.changedTeamIDOnceAfterJoin = false
@@ -1694,33 +1699,44 @@ Interface.commandPattern["REMOVESTARTRECT"] = "(%d+)"
 
 function getSyncStatus(battle)
 	if not battle then
-		-- Spring.Echo("not battle")
 		return 0
 	end
+
 	local haveGame = VFS.HasArchive(battle.gameName)
 	local haveMap = VFS.HasArchive(battle.mapName)
 	-- Spring.Echo("haveGame, haveMap", haveGame, haveMap)
-	return (haveGame and haveMap) and 1 or 2
+	return (haveGame and haveMap) and 1 or 2 -- 1: Sync 2: Unsync
 end
 
 -- 2023/03/23 Fireball: This request is sent once by the server, directly after hosting or joining a battle
 --                      since we do not have any battleStatus(in most cases), we generate a default one
 function Interface:_OnRequestBattleStatus()
-	-- 6.3.23 Fireball: moved the action from the only listener to OnRequestBattleStatus in whole chobby from gui_battle_room_window.lua to here
-	--                  and don´t call listeners of OnRequestBattleStatus anymore
+	-- 2023/03/06 Fireball: moved the action from the only listener to OnRequestBattleStatus in whole chobby from gui_battle_room_window.lua to here
+	--                      and don´t call listeners of OnRequestBattleStatus anymore
 	
-	local battleStatus = self.userBattleStatus[self:GetMyUserName()] -- chobby doesn´t delete battleStatus on leaveBattle - maybe we find sth. left from prior session for this host, which we can make use of
+	local battleStatus = self.userBattleStatus[self:GetMyUserName()] -- 2023/03/23 Fireball: chobby doesn´t delete battleStatus on leaveBattle - maybe we find sth. left from prior session for this host, which we can make use of
 	self._requestedBattleStatus = true -- allow SetBattleStatus again
+
+	local defaultSpec = true
+	if forcePlayer then -- 2023/04/04 Fireball: forcePlayer is set by Interface:JoinBattle; the only use case is forcing player while hosting a battle	
+		defaultSpec = false
+		forcePlayer = false -- 2023/04/04 set it to false after usage
+	else
+		defaultSpec = WG.Chobby.Configuration.lastGameSpectatorState 
+	end
 	if battleStatus then
+		if battleStatus.isSpectator ~= nil then
+			defaultSpec = battleStatus.isSpectator
+		end
 		self:SetBattleStatus({
-			isSpectator = battleStatus.isSpectator == nil and (WG.Chobby.Configuration.lastGameSpectatorState or false) or battleStatus.isSpectator,
+			isSpectator =  defaultSpec,
 			isReady = false,
-			side = battleStatus.side == nil and WG.Chobby.Configuration.lastFactionChoice or battleStatus.side ,
-			sync = battleStatus.sync or getSyncStatus(self:GetBattle(self:GetMyBattleID())),
+			side = battleStatus.side or WG.Chobby.Configuration.lastFactionChoice,
+			sync = getSyncStatus(self:GetBattle(self:GetMyBattleID())),
 		})
 	else
 		self:SetBattleStatus({
-			isSpectator = (WG.Chobby.Configuration.lastGameSpectatorState or false),
+			isSpectator = defaultSpec,
 			isReady = false,
 			side = (WG.Chobby.Configuration.lastFactionChoice or 0) ,
 			sync = getSyncStatus(self:GetBattle(self:GetMyBattleID())),

@@ -868,7 +868,9 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 				SetButtonStateSpectating()
 
 				WG.Analytics.SendOnetimeEvent("lobby:multiplayer:custom:spectate")
-				WG.Chobby.Configuration:SetConfigValue("lastGameSpectatorState", true)
+				if WG.Chobby.Configuration.useLastGameSpectatorState == 1 then
+					WG.Chobby.Configuration:SetConfigValue("lastGameSpectatorState", true)
+				end
 			end
 		},
 		parent = rightInfo,
@@ -895,7 +897,9 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 				SetButtonStatePlaying()
 
 				WG.Analytics.SendOnetimeEvent("lobby:multiplayer:custom:play")
-				WG.Chobby.Configuration:SetConfigValue("lastGameSpectatorState", false)
+				if WG.Chobby.Configuration.useLastGameSpectatorState == 1 then
+					WG.Chobby.Configuration:SetConfigValue("lastGameSpectatorState", false)
+				end
 			end
 		},
 		parent = rightInfo,

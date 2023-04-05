@@ -121,6 +121,8 @@ function Configuration:init()
 	self.showSkillOpt = 1 -- 1: No 2: Yes 3: Detailed (with Uncertainty)
 	self.showCountry = false
 
+	self.useLastGameSpectatorState = 1 --1: Remember Last 2: Always Spectator 3: Always Player
+
 	self.loadLocalWidgets = false
 	self.displayBots = false
 	self.filterbattleroom = true
@@ -265,7 +267,7 @@ function Configuration:init()
 	self.drawAtFullSpeed = false
 	self.fixFlicker = true
 	self.lastFactionChoice = 0
-	self.lastGameSpectatorState = false
+	self.lastGameSpectatorState = true
 	self.lobbyIdleSleep = false
 	self.rememberQueuesOnStart = false
 	self.channels = {}
@@ -661,6 +663,7 @@ function Configuration:GetConfigData()
 		showSkillOpt   = self.showSkillOpt,
 		showRank    = self.showRank,
 		showCountry = self.showCountry,
+		useLastGameSpectatorState = self.useLastGameSpectatorState,
 	}
 end
 

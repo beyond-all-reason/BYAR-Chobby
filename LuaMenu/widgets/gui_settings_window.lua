@@ -888,6 +888,49 @@ local function GetLobbyTabControls()
 
 	children[#children + 1], offset = AddCheckboxSetting(offset, i18n("showTestingEngines"), "displayBadEngines2", false, nil, i18n("showTestingEnginestooltip"))
 	children[#children + 1], offset = AddCheckboxSetting(offset, i18n("autoLaunchAsSpectator"), "autoLaunchAsSpectator", true)
+
+	children[#children + 1] = Label:New {
+		x = 20,
+		y = offset + TEXT_OFFSET,
+		width = 90,
+		height = 40,
+		valign = "top",
+		align = "left",
+		objectOverrideFont = settingsFont2,
+		caption = i18n("useLastGameSpectatorState"),
+	}
+	local useLastGameSpectatorStateOptions = {"Remember Last", "Always Spectator", "Always Player"}
+	local selectedUseLastGameSpectatorStateOption = 1
+	for k,v in ipairs(useLastGameSpectatorStateOptions) do
+		if v == Configuration.useLastGameSpectatorState then
+			selectedUseLastGameSpectatorStateOption = k
+		end
+	end
+	children[#children + 1] = ComboBox:New {
+		x = COMBO_X,
+		y = offset,
+		width = COMBO_WIDTH,
+		right = 18,
+		height = 30,
+		items = {"Remember Last", "Always Spectator", "Always Player"},
+		objectOverrideFont = settingsFont2,
+		itemFontSize = Configuration:GetFont(2).size,
+		selected = Configuration.useLastGameSpectatorState or 1,
+		OnSelect = {
+			function (obj)
+				if freezeSettings then
+					return
+				end
+				Configuration:SetConfigValue("useLastGameSpectatorState", obj.selected)
+				if obj.selected ~= 1 then
+					Configuration:SetConfigValue("lastGameSpectatorState", obj.selected == 2 and true or false)
+				end
+			end
+		},
+		tooltip = i18n("useLastGameSpectatorStateTooltip"),
+	}
+	offset = offset + ITEM_OFFSET
+
 	children[#children + 1], offset = AddCheckboxSetting(offset, i18n("showCountry"), "showCountry", true, nil, i18n("showCountrytooltip"))
 	children[#children + 1], offset = AddCheckboxSetting(offset, i18n("showRank"), "showRank", true, nil, i18n("showRanktooltip"))
 	children[#children + 1] = Label:New {
