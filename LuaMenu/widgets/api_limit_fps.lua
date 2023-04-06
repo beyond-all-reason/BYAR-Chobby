@@ -49,7 +49,7 @@ end
 
 function widget:Initialize()
 	lastTimer = Spring.GetTimer();
-	LimitFps.ForceRedrawPeriod(4)
+	LimitFps.ForceRedrawPeriod(15)
 
 	WG.LimitFps = LimitFps
 end
