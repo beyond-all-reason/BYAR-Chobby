@@ -8,21 +8,19 @@ function widget:GetInfo()
 		date      = "2023.04.03",
 		license   = "GPL-v2",
 		layer     = -3000,
-		enabled   = false,
+		enabled   = true,
 	}
 end
 
 -- TODO:
--- Stop caching on game start
--- Display caching progress on bottom bar
--- Disable FPS limit while caching
--- Identify if files are already chached after running through first directory
--- Enable for all
--- Set default state as enabled
--- loading image needed
--- benchmark by running on pool dir 00
-
-
+-- X Stop caching on game start
+-- X Display caching progress on bottom bar
+-- X Disable FPS limit while caching
+-- X Identify if files are already chached after running through first directory
+-- X Enable for all
+-- X Set default state as enabled
+-- X loading image needed
+-- X benchmark by running on pool dir 00
 
 local worktime = 1/20 -- in seconds per update
 local poolbasepath = "pool/"
@@ -42,12 +40,12 @@ local loaded = 0
 local totaltime = 0
 local totalKB = 0
 local firstrun = true
+local firsttime = 0.25
 local garbage = 0
-
-local interfaceRoot
-local cachingImage
-local cachingImageOrder = {}
-local cachingImageCurrent = 0
+local cachingSpeed = 0
+local cachingLabel
+local lobby
+local localLobby
 
 function widget:Initialize()
 	Spring.Echo("Initializing Cache Rapid Pool")
@@ -62,40 +60,39 @@ function widget:Initialize()
 		end
 	end
 	current_pool = poolDirs[current_index]
-	--if VFS.FileExists(current_pool, VFS_RAW) ~= true then 
-	--	Spring.Echo("Unable to find rapid pool at", current_pool)
-	--	widgetHandler:RemoveWidget()
-	--end
-
-
-
-	for i = 0, 59 do
-		cachingImageOrder[i] = 'LuaMenu/images/cursordefend/cursordefend_'.. tostring(i)..'.png'
-		cachingImageOrder[118-i] = 'LuaMenu/images/cursordefend/cursordefend_'.. tostring(i)..'.png'
-	end
 end
 
+local function OnBattleAboutToStart()
+	Spring.Echo("Cache Rapid Pool: OnBattleAboutToStart, exiting")
+	widgetHandler:RemoveWidget()
+end
+
+
 function widget:Update()
-	interfaceRoot = WG and WG.Chobby and WG.Chobby.interfaceRoot
-	if interfaceRoot then
-		cachingImage = 	interfaceRoot.GetCachingImage()
-		--Spring.Echo("Found caching image",cachingImage)
+	if lobby == nil and WG.LibLobby then 
+		lobby = WG.LibLobby.lobby
+		lobby:AddListener("OnBattleAboutToStart", OnBattleAboutToStart)
 	end
-	if cachingImage then 
-		--if cachingImageCurrent %2 == 0 then
-		--	cachingImage.file = cachingImageOrder[22]
-		--else
-		--	cachingImage.file = cachingImageOrder[44]
-		--end
-		cachingImage.file = cachingImageOrder[cachingImageCurrent]
-		cachingImage:Invalidate()
-		--Spring.Echo("Found caching image",cachingImageOrder[cachingImageCurrent])
-		cachingImageCurrent = (cachingImageCurrent +1 ) % 118
+	if localLobby == nil and WG.LibLobby then 
+		localLobby = WG.LibLobby.localLobby
+		localLobby:AddListener("OnBattleAboutToStart", OnBattleAboutToStart)
+	end
+
+	local interfaceRoot = WG and WG.Chobby and WG.Chobby.interfaceRoot
+	if interfaceRoot then
+		--cachingImage = interfaceRoot.GetCachingImage()
+		cachingLabel = interfaceRoot.GetCachingLabel()
+	end
+	if cachingLabel then 
+		cachingLabel:SetCaption(string.format("Caching % 2d%% % 3dMB/s", (100* current_index)/maxpools, cachingSpeed))
+		cachingLabel:Invalidate()
 	end
 	local startTime = Spring.GetTimer()
 	local loadedNow = 0
 	local nowKB = 0
-	while (Spring.DiffTimers(Spring.GetTimer(), startTime) < worktime) do
+
+	local thisframetime = (firstrun and firsttime) or worktime
+	while (Spring.DiffTimers(Spring.GetTimer(), startTime) < thisframetime) do
 		if poolDirContents[current_pool] == false then -- fresh pool to work on	
 			poolDirContents[current_pool] = VFS.DirList(current_pool, '*.gz',VFS_RAW)
 			--Spring.Echo("Adding dir to work", current_pool, #poolDirContents[current_pool])
@@ -116,9 +113,9 @@ function widget:Update()
 					current_pool = poolDirs[current_index]
 				else
 					-- ran out of pools, remove self
-					Spring.Echo("Pool Cacher Done, total files loaded:", loaded)
+					--Spring.Echo("Cache Rapid Pool: Pool Cacher Done, total files loaded:", loaded)
 					widgetHandler:RemoveWidget()
-					break
+					return
 				end
 			end
 		end
@@ -132,19 +129,32 @@ function widget:Update()
 	local realTime = Spring.DiffTimers(Spring.GetTimer(), startTime)
 	totaltime = totaltime + realTime
 	totalKB = totalKB + nowKB
-	Spring.Echo(string.format("Pool Cacher loaded %d files (%d KB, %.2f MB/s) in %.2fs", loadedNow, nowKB, 0.001*nowKB/realTime, realTime))
+	cachingSpeed = 0.9 * (cachingSpeed) + 0.1 * (0.001*nowKB/realTime)
+
+
 	if firstrun then
-		if (0.001*nowKB/realTime) < thresholdHDD then
-			Spring.Echo("Cache Rapid Pool: Your load times are low, advise pre-caching")
+		if 0.001*nowKB/realTime < thresholdHDD then
+			Spring.Echo(string.format("Cache Rapid Pool: Your load speed %dMB/s, below %dMB/s advise pre-caching", 0.001*nowKB/realTime, thresholdHDD))
+		else
+			Spring.Echo(string.format("Cache Rapid Pool: Your load speed %dMB/s, above %dMB/s, cache already present", 0.001*nowKB/realTime, thresholdHDD))
+			widgetHandler:RemoveWidget()
 		end
 		firstrun = false
+	else
+		Spring.Echo(string.format("Cache Rapid Pool: loaded %d files (%d KB, %.2f MB/s) in %.2fs", loadedNow, nowKB, 0.001*nowKB/realTime, realTime))
 	end
 
 end
 
 function widget:Shutdown()
-	Spring.Echo(string.format("Pool Cacher Done with %d files (%d KB, %.2f MB/s) in %.2fs", loaded, totalKB, 0.001*totalKB/totaltime,  totaltime))
-	if cachingImage then 
-		cachingImage:SetVisibility(false)
+	Spring.Echo(string.format("Cache Rapid Pool: Done with %d files (%d KB, %.2f MB/s) in %.2fs", loaded, totalKB, 0.001*totalKB/totaltime,  totaltime))
+	if lobby then
+		lobby:RemoveListener("OnBattleAboutToStart", OnBattleAboutToStart)
+	end
+	if localLobby then
+		localLobby:RemoveListener("OnBattleAboutToStart", OnBattleAboutToStart)
+	end
+	if cachingLabel then
+		cachingLabel:SetVisibility(false)
 	end
 end
