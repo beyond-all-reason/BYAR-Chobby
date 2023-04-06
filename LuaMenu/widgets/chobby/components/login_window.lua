@@ -983,6 +983,17 @@ function LoginWindow:tryLogin()
 		end
 		lobby:AddListener("OnDisconnected", self.onDisconnected)
 
+		local function FollowRedirect()
+			lobby:Connect(Configuration:GetServerAddress(), Configuration:GetServerPort(), username, password, 3, nil, GetLobbyName())
+		end
+			
+		self.onRedirect = function(listener, newaddress)
+			lobby:Disconnect()
+			Configuration:SetConfigValue("serverAddress", newaddress)
+			WG.Delay(FollowRedirect, 3)
+		end
+
+		lobby:AddListener("OnRedirect", self.onRedirect)
 		lobby:Connect(Configuration:GetServerAddress(), Configuration:GetServerPort(), username, password, 3, nil, GetLobbyName())
 	else
 		lobby:Login(username, password, 3, nil, GetLobbyName())
