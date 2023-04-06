@@ -2993,12 +2993,15 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 			return
 		end
 
-		--Spring.Echo("isSpec nil?", status.isSpectator == nil, "isReady nil?", status.isReady == nil, "isSpec, isReady:", status.isSpectator, status.isReady)
+		Spring.Log(LOG_SECTION, LOG.NOTICE, "OnUpdateUserBattleStatus isSpec nil?", status.isSpectator == nil, "isReady nil?", status.isReady == nil, "isSpec:", status.isSpectator, "isReady:",status.isReady)
+		-- Spring.Utilities.TraceFullEcho()
 
 		local tooltipCandidate = ""
 		if status.isSpectator ~= nil then
+			Spring.Log(LOG_SECTION, LOG.NOTICE, status.isSpectator and "Disabling readyButton" or "Enabling readyButton")
 			readyButton:SetEnabled(not status.isSpectator)
 			if status.isSpectator then
+				Spring.Log(LOG_SECTION, LOG.NOTICE, "uncheck readyButton and StyleOff")
 				readyButtonCheckArrow.file = nil
 				readyButtonCheckArrow:Invalidate()
 				readyButton:StyleOff()
@@ -3007,11 +3010,13 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		end
 		if not status.isSpectator then
 			if status.isReady ~= nil and status.isReady then
+				Spring.Log(LOG_SECTION, LOG.NOTICE, "check readyButton and StyleReady")
 				readyButton:StyleReady()
 				readyButtonCheckArrow.file = IMG_CHECKARROW
 				readyButtonCheckArrow:Invalidate()
 				tooltipCandidate = i18n("ready_tooltip")
 			else
+				Spring.Log(LOG_SECTION, LOG.NOTICE, "uncheck readyButton and StyleUnready")
 				readyButton:StyleUnready()
 				readyButtonCheckArrow.file = nil
 				readyButtonCheckArrow:Invalidate()
