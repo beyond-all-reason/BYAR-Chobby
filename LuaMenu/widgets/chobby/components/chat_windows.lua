@@ -759,7 +759,7 @@ function ChatWindows:GetChannelConsole(chanName)
 		Configuration.channels[chanName] = true
 
 		local userListPanel
-		if chanName == 'main' then 
+		if chanName == 'main' or chanName == 'newbies' then
 			userListPanel = UserListPanel(function() return {}  end, 22, true)
 		else
 			userListPanel = UserListPanel(function() return lobby:GetChannel(chanName) end, 22, true)
