@@ -954,19 +954,20 @@ local function getDiffAndSetNewValuesToTable(origin, update)
 		if type(uVal) == "table" then
 			if type(oVal) == "table" then -- use recursion if value is table and key exists in origin table
 				_, changedSub = getDiffAndSetNewValuesToTable(oVal, uVal)
-				changed = changed or changedSub
+				--changed = changed or changedSub
 			else
-				changed = true
+				changedSub = true
 			end
 		else
 			-- Spring.Echo("uVal:", uVal, " oVal:", oVal, uVal ~= oVal)
-			changed = changed or (uVal ~= oVal)
+			changedSub = uVal ~= oVal
 		end
 
-		if changed then
+		if changedSub then
 			rawset(diff, uKey, uVal)
-			rawset(origin, uKey, uVal) -- this is the place where origin is updated, e.g. userData in _UpUpdateUserBattleStatus, which is self.userBattleStatus
+			rawset(origin, uKey, uVal) -- this is the place where origin is updated, e.g. battleStatus in _UpUpdateUserBattleStatus, which is self.userBattleStatus[userName]
 		end
+		changed = changed or changedSub
 	end
 	return diff, changed
 end
@@ -990,6 +991,7 @@ function Lobby:_OnUpdateUserBattleStatus(userName, status)
 	end
 
 	local battleStatus = self.userBattleStatus[userName]
+	-- local debugisReady = battleStatus.isReady
 
 	local battleStatusDiff, changed = getDiffAndSetNewValuesToTable(battleStatus, statusNew) -- use battleStatusDiff instead of statusNew to only propagate battleStatus properties, that really changed or which are new properties
 
@@ -998,6 +1000,11 @@ function Lobby:_OnUpdateUserBattleStatus(userName, status)
 			battleStatus.queuePos = 0 -- always change queuePos to 0, if we switch from spec to player = prevent showing queuePos e.g. in playerbattelist, if we didn�t receive the queue-update from server yet
 			battleStatusDiff.queuePos = 0
 		end
+
+		--if battleStatusDiff.isReady ~= nil then
+		--	Spring.Echo("isReady changed from", debugisReady, "to", battleStatusDiff.isReady)
+		--	Spring.Utilities.TraceFullEcho()
+		--end
 
 		self:_CallListeners("OnUpdateUserBattleStatus", userName, battleStatusDiff)
 

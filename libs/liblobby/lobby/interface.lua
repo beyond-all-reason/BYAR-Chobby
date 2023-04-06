@@ -355,7 +355,7 @@ function Interface:SetBattleStatus(status)
 	local teamColor = battleStatus.teamColor or { math.random(), math.random(), math.random(), 1 }
 	teamColor = EncodeTeamColor(teamColor)
 	self:_SendCommand(concat("MYBATTLESTATUS", battleStatusString, teamColor))
-	self:_OnUpdateUserBattleStatus(myUserName, battleStatus)
+	--self:_OnUpdateUserBattleStatus(myUserName, battleStatus) -- 2023/04/06 Fireball: don´t update here, but wait for CLIENTBATTLESTATUS to propagate this change
 	return self
 end
 
