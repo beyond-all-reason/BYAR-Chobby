@@ -12,7 +12,19 @@ function widget:GetInfo()
 	}
 end
 
-local worktime = 0.1 -- in seconds per update
+-- TODO:
+-- Stop caching on game start
+-- Display caching progress on bottom bar
+-- Disable FPS limit while caching
+-- Identify if files are already chached after running through first directory
+-- Enable for all
+-- Set default state as enabled
+-- loading image needed
+-- benchmark by running on pool dir 00
+
+
+
+local worktime = 1/20 -- in seconds per update
 local poolbasepath = "pool/"
 local poolDirs = {} -- ordered list of pool dirs
 local poolDirContents = {} -- table of pooldir to file contents, true for already managed, false for fresh
@@ -32,6 +44,11 @@ local totalKB = 0
 local firstrun = true
 local garbage = 0
 
+local interfaceRoot
+local cachingImage
+local cachingImageOrder = {}
+local cachingImageCurrent = 0
+
 function widget:Initialize()
 	Spring.Echo("Initializing Cache Rapid Pool")
 	local i = 0
@@ -49,9 +66,32 @@ function widget:Initialize()
 	--	Spring.Echo("Unable to find rapid pool at", current_pool)
 	--	widgetHandler:RemoveWidget()
 	--end
+
+
+
+	for i = 0, 59 do
+		cachingImageOrder[i] = 'LuaMenu/images/cursordefend/cursordefend_'.. tostring(i)..'.png'
+		cachingImageOrder[118-i] = 'LuaMenu/images/cursordefend/cursordefend_'.. tostring(i)..'.png'
+	end
 end
 
 function widget:Update()
+	interfaceRoot = WG and WG.Chobby and WG.Chobby.interfaceRoot
+	if interfaceRoot then
+		cachingImage = 	interfaceRoot.GetCachingImage()
+		--Spring.Echo("Found caching image",cachingImage)
+	end
+	if cachingImage then 
+		--if cachingImageCurrent %2 == 0 then
+		--	cachingImage.file = cachingImageOrder[22]
+		--else
+		--	cachingImage.file = cachingImageOrder[44]
+		--end
+		cachingImage.file = cachingImageOrder[cachingImageCurrent]
+		cachingImage:Invalidate()
+		--Spring.Echo("Found caching image",cachingImageOrder[cachingImageCurrent])
+		cachingImageCurrent = (cachingImageCurrent +1 ) % 118
+	end
 	local startTime = Spring.GetTimer()
 	local loadedNow = 0
 	local nowKB = 0
@@ -104,4 +144,7 @@ end
 
 function widget:Shutdown()
 	Spring.Echo(string.format("Pool Cacher Done with %d files (%d KB, %.2f MB/s) in %.2fs", loaded, totalKB, 0.001*totalKB/totaltime,  totaltime))
+	if cachingImage then 
+		cachingImage:SetVisibility(false)
+	end
 end

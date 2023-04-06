@@ -184,6 +184,17 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 		parent = holder_heading,
 	}
 
+	local cachingImage = Image:New {
+		y = 0,
+		x = 0,
+		width = 36,
+		height = 36,
+		--keepAspect = false,
+		file = "LuaMenu/images/cursordefend/cursordefend_0.png",
+		tooltip = "BAR is caching files to ensure a faster start",
+		parent = heading_image,
+	}
+
 	-----------------------------------
 	-- Top middle and top right status
 	-----------------------------------
@@ -1173,6 +1184,11 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 	function externalFunctions.GetBackgroundHolder()
 		return backgroundHolder
 	end
+
+	function externalFunctions.GetCachingImage()
+		return cachingImage
+	end
+
 
 	function externalFunctions.SetLobbyButtonEnabled(newEnabled)
 		Spring.Echo("SetLobbyButtonEnabled", newEnabled)
