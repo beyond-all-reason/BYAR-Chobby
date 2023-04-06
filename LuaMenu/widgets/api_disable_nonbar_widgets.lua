@@ -45,6 +45,7 @@ end
 local removedwidgets = {}
 
 function widget:Update()
+	widgetHandler:EnableWidget("Cache Rapid Pool")
 	for i, widgetname in ipairs(unusedwidgets) do 
 		
 		local wijjit = widgetHandler:FindByName(widgetname)

@@ -97,7 +97,7 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 		children = {},
 		preserveChildrenOrder = true
 	}
-
+	lobbyInterfaceHolder.drawTimer = Spring.GetTimer()
 	version_font = Configuration:GetFont(1)
 	version_font.color = {0.7,0.7,0.7,1} -- Grey color
 
@@ -184,6 +184,19 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 		parent = holder_heading,
 	}
 
+	local cachingLabel 	= Label:New {
+		name = "cachingLabel",
+		x = 4,
+		y = "98%",
+		width = 200,
+		height = 18,
+		--right = "2.25%",
+		parent = lobbyInterfaceHolder,
+		font = Configuration:GetFont(1),
+		caption = "Caching...",
+		align = "left",
+		valign = 'top',
+	}
 	-----------------------------------
 	-- Top middle and top right status
 	-----------------------------------
@@ -1172,6 +1185,14 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 
 	function externalFunctions.GetBackgroundHolder()
 		return backgroundHolder
+	end
+
+	function externalFunctions.GetCachingImage()
+		return cachingImage
+	end
+
+	function externalFunctions.GetCachingLabel()
+		return cachingLabel
 	end
 
 	function externalFunctions.SetLobbyButtonEnabled(newEnabled)

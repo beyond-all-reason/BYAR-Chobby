@@ -1311,7 +1311,7 @@ function BattleListWindow:OpenHostWindow()
 		valign = "top",
 		height = 150,
 		--text = "You can host a game by requesting an empty battle room. You can lock the battle rooms (!lock) to prevent anyone from joining, otherwise anyone can join your game.",--i18n("game_name") .. ":",
-		text = "Choose whether you want a public or a private custom battle where you are the boss and only you may change game settings. Only leaving the remove will remove the boss. Anyone may join public battles, but private battles are password protected.",
+		text = "Choose whether you want a public or a private custom battle where you are the boss and only you may change game settings. Only the boss leaving the room can unboss them. Anyone may join public battles, but private battles are password protected.",
 		--i18n("game_name") .. ":",
 		objectOverrideFont = myFont2,
 		parent = hostBattleWindow,
