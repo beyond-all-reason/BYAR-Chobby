@@ -22,6 +22,7 @@ local window0
 local tree0
 local label0
 local label1
+local label2
 
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
@@ -124,7 +125,7 @@ function widget:Initialize()
 			Chili.Label:New{
 				name = "lbl_inspector_memusage",
 				x=0, right = 50,
-				y=0, bottom=-25,
+				y=0, bottom=-20,
 				align = "right", valign = "bottom",
 				caption = "Lua MemUsage: 0MB",
 
@@ -132,9 +133,17 @@ function widget:Initialize()
 			Chili.Label:New{
 				name = "lbl_inspector_memdelta",
 				x=0, right = 50,
-				y=25, bottom=-50,
+				y=20, bottom=-40,
 				align = "right", valign = "bottom",
 				caption = "Lua Memdelta: 0MB",
+
+			},
+			Chili.Label:New{
+				name = "lbl_inspector_drawdata",
+				x=0, right = 50,
+				y=40, bottom=-60,
+				align = "right", valign = "bottom",
+				caption = "Lobbyinterfaceholder drawtime",
 
 			},
 			Chili.Button:New{
@@ -146,7 +155,7 @@ function widget:Initialize()
 			},
 			Chili.ScrollPanel:New{
 				x=0, right=0,
-				y=50, bottom=20,
+				y=60, bottom=20,
 				children = {
 					Chili.TreeView:New{
 						name = "tree_inspector";
@@ -192,6 +201,7 @@ function widget:Initialize()
 	tree0 = window0:GetObjectByName("tree_inspector")
 	label0 = window0:GetObjectByName("lbl_inspector_memusage")
 	label1 = window0:GetObjectByName("lbl_inspector_memdelta")
+	label2 = window0:GetObjectByName("lbl_inspector_drawdata")
 
 	trace(Chili.Screen0.children, tree0.root)
 end
@@ -218,7 +228,8 @@ function widget:Update()
 		lastmemusagesec = curUsage
 		lastupdatetime = Spring.GetTimer()
 	end
-	label1:SetCaption(("Mem usage delta = %d KB/s %d KB/f"):format(memdelta, curUsage - lastmemusageframe))
+	label1:SetCaption(("Mem usage delta = %04d KB/s %04d KB/f"):format(memdelta, curUsage - lastmemusageframe))
 	lastmemusageframe = curUsage
-
+	local lobbyinterfaceholder = WG.Chobby.lobbyInterfaceHolder
+	label2:SetCaption(("Draw Time = %3.2f ms"):format((lobbyinterfaceholder.drawTime or 0)*1000))
 end
