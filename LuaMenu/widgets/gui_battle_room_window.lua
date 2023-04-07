@@ -858,7 +858,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 				local battleStatus = battleLobby:GetUserBattleStatus(myUserName) or {}
 				if battleStatus.isSpectator and battleLobby.name ~= "singleplayer" then
 					battleLobby:SayBattle('$leaveq')
-					battleLobby:_OnUpdateUserBattleStatus(battleLobby:GetMyUserName(), {queuePos = 0}) -- we proactive change our queuePos; because we don�t reliable receicve s.battle.queue_status on fast clicking play/spectate
+					battleLobby:_OnUpdateUserBattleStatus(battleLobby:GetMyUserName(), {queuePos = 0}) -- we proactive change our queuePos; because we don't reliable receicve s.battle.queue_status on fast clicking play/spectate
 				end
 				battleLobby:SetBattleStatus({
 					isSpectator = true,
@@ -1936,7 +1936,7 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 		end
 		local playerData = GetPlayerData(userName)
 		if playerData.team == teamNew then
-			return -- team didn�t change, so don�t update
+			return -- team didn't change, so don't update
 		end
 		if playerData.team ~= false then
 			RemovePlayerFromTeam(userName)
