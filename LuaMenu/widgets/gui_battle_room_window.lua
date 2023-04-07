@@ -839,8 +839,13 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		btnSpectate.suppressButtonReaction = true
 		btnPlay.suppressButtonReaction = false
 
-		btnSpectate.tooltip = i18n("tooltip_is_spectator")
-		btnPlay.tooltip = i18n("tooltip_become_player")
+		if battleLobby.name ~= "singleplayer" then
+			btnSpectate.tooltip = i18n("tooltip_leave_queue")
+			btnPlay.tooltip = i18n("tooltip_join_queue")
+		else
+			btnSpectate.tooltip = i18n("tooltip_is_spectator")
+			btnPlay.tooltip = i18n("tooltip_become_player")
+		end
 
 		ButtonUtilities.SetCaption(btnSpectate, i18n("spectating"))
 	end

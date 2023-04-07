@@ -140,13 +140,16 @@ return {
 		rejoin = "Rejoin",
 		abandon = "Abandon",
 
-		tooltip_is_spectator = "You will spectate this game.",
-		tooltip_become_spectator = "Press to watch the game as a spectator.",
 		spectate = "Spectate",
 		spectating = "Spectating",
 
-		tooltip_is_player = "You will play in this game.",
+		tooltip_is_spectator = "You will spectate this game when it starts.",
+		tooltip_become_spectator = "Press to watch the game as a spectator.",
+		tooltip_is_player = "You will play in this game when it starts.",
 		tooltip_become_player = "Press to play in this game.",
+		tooltip_join_queue = "Enter the join-queue to play in this game.",
+		tooltip_leave_queue = "Spectate this game and remove yourself from the join-queue.",
+
 		play = "Play",
 		playing = "Playing",
 
