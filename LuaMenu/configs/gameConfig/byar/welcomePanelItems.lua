@@ -31,19 +31,12 @@ local welcomePanelItems = {
         Text = "Requiem has created some guides for new players. If you're new to the game and want to learn the basics via video we highly recommend you check them out.\n",
         UrlText = "Link to video guides"
     },
-	
-    {
-        Header = "New Map: Sulphur Springs v1.1",
-        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/sulphur_springs_v1.1.png",
-        Text = "A new map for a team games released!\nWest vs South balanced so please use the default boxes.\nBy Nikuksis.",
-    },
     
     {
-        Header = "New Map: Hades Ponds 0.7",
-        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/Hades_Ponds_0.7.png",
-        Text = "A new team-game map by Phalange.",
-    },
-    
+        Header = "New Map: Sphagnum Bog v1.1",
+        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/sphagnum_bog_v1.1.png",
+        Text = "New 1v1 - 3v3 map by Nikuksis.",
+    },    
 
     {
         Header = "Please help us test new engines!",
