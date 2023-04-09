@@ -33,6 +33,12 @@ local welcomePanelItems = {
     },
     
     {
+        Header = "New Map: High Noon Remake 1.0",
+        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/High_Noon_Remake_1.0.png",
+        Text = "New remake of the classic map by Phalange.",
+    },    
+    
+    {
         Header = "New Map: Sphagnum Bog v1.1",
         Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/sphagnum_bog_v1.1.png",
         Text = "New 1v1 - 3v3 map by Nikuksis.",
