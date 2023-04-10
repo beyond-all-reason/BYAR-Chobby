@@ -13,12 +13,11 @@
 
 local welcomePanelItems = {
     {
-        Header = "Alpha Championship Cup #3",
+        Header = "Alpha Championship Cup #3 Completed",
         Image = "LuaMenu/images/1vs1Tournament.png",
         Url = "https://www.beyondallreason.info/news/bar-alpha-championship-3-is-on-the-way",
-        Time = "2023-04-08T14:00:00",
-        Text = "See the brackets for upcoming championship and join the tourney or see the official stream on 8th of April!\n",
-        UrlText = "Sign-Up"
+        Text = "Congratulations to Grand Champion MightySheep!\n",
+        UrlText = "View Results"
     },
 
     {
