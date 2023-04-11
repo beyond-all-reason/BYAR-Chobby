@@ -1,5 +1,6 @@
 { 
     "title": "Beyond All Reason",
+    "log_upload_url": "https://log.beyondallreason.dev",
     "setups": [
         {
             "package": {
