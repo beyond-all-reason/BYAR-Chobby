@@ -16,7 +16,7 @@
             },
             "auto_download": true,
             "downloads": {
-                "games": ["byar:test", "chobby:test", "byar-chobby:test"],
+                "games": ["byar:test", "byar-chobby:test"],
                 "resources": [
                     {
                         "url": "https://pool-init.beyondallreason.dev/data.7z",
@@ -56,7 +56,7 @@
             "silent": false,
             "auto_download": true,
             "downloads": {
-                "games": ["byar:test", "chobby:test", "byar-chobby:test"],
+                "games": ["byar:test", "byar-chobby:test"],
                 "resources": [
                     {
                         "url": "https://pool-init.beyondallreason.dev/data.7z",
@@ -93,7 +93,7 @@
             },
             "auto_download": true,
             "downloads": {
-                "games": ["byar:test", "chobby:test", "byar-chobby:test"],
+                "games": ["byar:test", "byar-chobby:test"],
                 "resources": [
                     {
                         "url": "https://github.com/beyond-all-reason/spring/releases/download/spring_bar_%7BBAR105%7D105.1.1-1544-g058c8ea/spring_bar_.BAR105.105.1.1-1544-g058c8ea_linux-64-minimal-portable.7z",
@@ -125,7 +125,7 @@
             "silent": false,
             "auto_download": true,
             "downloads": {
-                "games": ["byar:test", "chobby:test", "byar-chobby:test"],
+                "games": ["byar:test", "byar-chobby:test"],
                 "resources": [
                     {
                         "url": "https://github.com/beyond-all-reason/spring/releases/download/spring_bar_%7BBAR105%7D105.1.1-1544-g058c8ea/spring_bar_.BAR105.105.1.1-1544-g058c8ea_windows-64-minimal-portable.7z",
@@ -158,7 +158,7 @@
             },
             "auto_download": true,
             "downloads": {
-                "games": ["byar:test", "chobby:test", "byar-chobby:test"],
+                "games": ["byar:test", "byar-chobby:test"],
                 "resources": [
                     {
                         "url": "https://pool-init.beyondallreason.dev/data.7z",
@@ -198,7 +198,7 @@
             "silent": false,
             "auto_download": true,
             "downloads": {
-                "games": ["byar:test", "chobby:test", "byar-chobby:test"],
+                "games": ["byar:test", "byar-chobby:test"],
                 "resources": [
                     {
                         "url": "https://pool-init.beyondallreason.dev/data.7z",
