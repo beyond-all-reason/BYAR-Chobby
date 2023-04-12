@@ -60,7 +60,7 @@ local options = {
 	{ -- string
 		key     = 'disabledunits',
 		name    = 'Disabled units',
-		desc    = 'Disable usage of specific units.\nSyntax: armwar+armpw+armlab\nSee our website for the internal unit names for each unit',
+		desc    = 'Disable usage of specific units.\nSyntax: armwar+armpw+armlab\nSee our website for the internal unit names for each unit, e.g.\nhttps://www.beyondallreason.info/unit/armlab is armlab',
 		type    = 'string',
 		def     = '',
 	},
