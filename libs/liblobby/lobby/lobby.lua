@@ -600,7 +600,7 @@ function Lobby:_OnRemoveUser(userName)
 	-- preserve isFriend/hasFriendRequest
 	local isFriend, hasFriendRequest = userInfo.isFriend, userInfo.hasFriendRequest
 	local persistentUserInfo = self:_GetPersistentUserInfo(userName)
-	self.users[userName] =persistentUserInfo
+	self.users[userName] = persistentUserInfo
 
 	if isFriend or hasFriendRequest then
 		userInfo = self:TryGetUser(userName)
@@ -851,6 +851,11 @@ function Lobby:_OnJoinedBattle(battleID, userName, scriptPassword)
 
 	local userInfo = self:TryGetUser(userName)
 	userInfo.battleID = battleID
+	if userInfo.isOffline == true then
+		Spring.Log(LOG_SECTION, LOG.ERROR,
+		"Lobby:_OnLeftBattle: Added unknown user " .. userName .. " to battle: " .. tostring(battleID))
+	end
+
 	self:_CallListeners("OnUpdateUserStatus", userName, {battleID = battleID})
 
 	self:_CallListeners("OnJoinedBattle", battleID, userName, scriptPassword)
@@ -880,7 +885,7 @@ function Lobby:_OnLeftBattle(battleID, userName)
 
 	if not (battleID and self.battles[battleID]) then
 		Spring.Log(LOG_SECTION, LOG.ERROR,
-			"Lobby:_OnLeftBattle: Tried to remove user from unknown battle: " .. tostring(battleID))
+			"Lobby:_OnLeftBattle: Tried to remove user " .. userName .. " from unknown battle: " .. tostring(battleID))
 		return
 	end
 
