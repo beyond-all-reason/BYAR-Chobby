@@ -127,13 +127,23 @@ p.warn {
   display: block;
 }
 
+.status:hover:has(label.error) {
+  z-index: 1000;
+  background-color: rgba(0,0,0,0.4);
+  -webkit-line-clamp: unset;
+  backdrop-filter: blur(10px);
+  word-break: normal;
+  border-radius: 6px;
+}
+
 .status {
   overflow: hidden;
   display: -webkit-box;
-  -webkit-line-clamp: 2;
+  -webkit-line-clamp: 1;
   -webkit-box-orient: vertical;
   word-break: break-all;
   line-height: 1.0;
+  padding: 2px 5px 5px 5px;
 }
 
 .progress-label {
@@ -173,7 +183,16 @@ p.warn {
 	cursor: default;
 }
 
-/* But enable text selection for the log */
+/* But enable text selection for the log, */
 #note-content > p {
 	-webkit-user-select: text;
+}
+
+/* and error messages */
+#lbl-progress-full.error {
+  -webkit-user-select: text;
+}
+
+#lbl-progress-full.error * {
+  -webkit-user-select: text;
 }
