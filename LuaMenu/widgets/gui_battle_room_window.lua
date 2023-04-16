@@ -839,8 +839,13 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		btnSpectate.suppressButtonReaction = true
 		btnPlay.suppressButtonReaction = false
 
-		btnSpectate.tooltip = i18n("tooltip_is_spectator")
-		btnPlay.tooltip = i18n("tooltip_become_player")
+		if battleLobby.name ~= "singleplayer" then
+			btnSpectate.tooltip = i18n("tooltip_leave_queue")
+			btnPlay.tooltip = i18n("tooltip_join_queue")
+		else
+			btnSpectate.tooltip = i18n("tooltip_is_spectator")
+			btnPlay.tooltip = i18n("tooltip_become_player")
+		end
 
 		ButtonUtilities.SetCaption(btnSpectate, i18n("spectating"))
 	end
@@ -856,9 +861,9 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		OnClick = {
 			function(obj)
 				local battleStatus = battleLobby:GetUserBattleStatus(myUserName) or {}
-				if battleStatus.isSpectator then
+				if battleStatus.isSpectator and battleLobby.name ~= "singleplayer" then
 					battleLobby:SayBattle('$leaveq')
-					battleLobby:_OnUpdateUserBattleStatus(battleLobby:GetMyUserName(), {queuePos = 0}) -- we proactive change our queuePos; because we don´t reliable receicve s.battle.queue_status on fast clicking play/spectate
+					battleLobby:_OnUpdateUserBattleStatus(battleLobby:GetMyUserName(), {queuePos = 0}) -- we proactive change our queuePos; because we don't reliable receicve s.battle.queue_status on fast clicking play/spectate
 				end
 				battleLobby:SetBattleStatus({
 					isSpectator = true,
@@ -1936,7 +1941,7 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 		end
 		local playerData = GetPlayerData(userName)
 		if playerData.team == teamNew then
-			return -- team didn´t change, so don´t update
+			return -- team didn't change, so don't update
 		end
 		if playerData.team ~= false then
 			RemovePlayerFromTeam(userName)
