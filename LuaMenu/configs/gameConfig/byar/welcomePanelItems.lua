@@ -32,15 +32,9 @@ local welcomePanelItems = {
     },
     
     {
-        Header = "New Map: Center Command BAR v1.0",
-        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/center_command_bar_v1.0.png",
-        Text = "A new life for an old classic\nBy Nikuksis.",
-    },    
-    
-    {
-        Header = "New Map: High Noon Remake 1.0",
-        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/High_Noon_Remake_1.0.png",
-        Text = "New remake of the classic map by Phalange.",
+        Header = "New Map: Gods of War Remake v1.1",
+        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/gods_of_war_remake_v1.1.png",
+        Text = "Another remake of OTA classic by Nikuksis",
     },    
 
     {
