@@ -17,6 +17,7 @@ function BattleListWindow:init(parent)
 	myFont3 = Font:New(Configuration:GetFont(3))
 
 	self:super("init", parent, "Play or watch a game", true, nil, nil, nil, 34)
+	self.name = "BattleListWindow"
 
 	if not Configuration.gameConfig.disableBattleListHostButton then
 		self.btnNewBattle = Button:New {
@@ -302,12 +303,29 @@ function BattleListWindow:Update()
 	self:SoftUpdate()
 end
 
+
 function BattleListWindow:SoftUpdate()
 	-- UpdateFilters is quite heavy, because it sorts all the battles on the
 	-- list, so instead of just calling SoftUpdate functionality directly,
-	-- we use debounce technicue to coalesce soft updates that are happening
-	-- close to each other in time into single invocation.
+	-- we only update, if we havent updated in 5 seconds.
+	-- Also note, that the previous implementation somehow ran on intermediate states, 
+	-- causeing severe bouncing of battles up and down
+	if self.lastSoftUpdate == nil then
+		self.lastSoftUpdate = Spring.GetTimer()
+	end
 
+	if Spring.DiffTimers(Spring.GetTimer(), self.lastSoftUpdate) > 5.0 then
+		self.lastSoftUpdate = Spring.GetTimer()
+		if Configuration.battleFilterRedundant then
+			self:UpdateAllBattleIDs()
+		end
+		self:UpdateFilters()
+		self:UpdateInfoPanel()
+	end
+
+	-- this method, for some godforsaken reason doesnt work as expected. 
+	-- It is kept here as a tomb for weary travellers to rest by.
+	--[[
 	self.lastSoftUpdate = os.clock()
 
 	local battleList = self
@@ -330,6 +348,7 @@ function BattleListWindow:SoftUpdate()
 		WG.Delay(RealSoftUpdate, 0.2)
 		self.softUpdateTimerRunning = true
 	end
+	]]--
 end
 
 function BattleListWindow:UpdateInfoPanel()
