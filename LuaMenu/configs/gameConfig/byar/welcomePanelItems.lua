@@ -32,8 +32,8 @@ local welcomePanelItems = {
     },
     
     {
-        Header = "New Map: Gods of War Remake v1.1",
-        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/gods_of_war_remake_v1.1.png",
+        Header = "New Map: Gods of War Remake v1.3",
+        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/gods_of_war_remake_v1.3.png",
         Text = "Another remake of OTA classic by Nikuksis",
     },    
 
