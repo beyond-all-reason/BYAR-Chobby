@@ -843,8 +843,9 @@ function BattleListWindow:CompareItems(id1, id2)
 			return battle2.locked
 		end
 
-		local countOne = lobby:GetBattlePlayerCount(id1)
-		local countTwo = lobby:GetBattlePlayerCount(id2)
+		-- Handle silly ass negative counts
+		local countOne = math.max(0, lobby:GetBattlePlayerCount(id1))
+		local countTwo = math.max(0, lobby:GetBattlePlayerCount(id2))
 		-- Put empty rooms at the back of the list
 		if countOne == 0 and countTwo ~= 0 then -- id1 is empty
 			return false
