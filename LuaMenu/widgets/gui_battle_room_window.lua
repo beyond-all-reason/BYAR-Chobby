@@ -817,6 +817,21 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 
 	local btnPlay
 	local btnSpectate
+	
+	local function SetButtonStateInQueue()
+		ButtonUtilities.SetButtonSelected(btnPlay)
+		ButtonUtilities.SetButtonDeselected(btnSpectate)
+
+		btnSpectate.suppressButtonReaction = false
+		btnPlay.suppressButtonReaction = true
+
+		btnPlay.tooltip = i18n("tooltip_in_queue")
+		ButtonUtilities.SetCaption(btnPlay, i18n("in_queue"))
+
+		btnSpectate.tooltip = i18n("tooltip_leave_queue")
+		ButtonUtilities.SetCaption(btnSpectate, i18n("leave_queue"))
+		
+	end
 
 	local function SetButtonStatePlaying()
 		ButtonUtilities.SetButtonDeselected(btnSpectate)
@@ -871,7 +886,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 				})
 
 				SetButtonStateSpectating()
-
+				
 				WG.Analytics.SendOnetimeEvent("lobby:multiplayer:custom:spectate")
 				if WG.Chobby.Configuration.useLastGameSpectatorState == 1 then
 					WG.Chobby.Configuration:SetConfigValue("lastGameSpectatorState", true)
@@ -899,7 +914,8 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 					side = (WG.Chobby.Configuration.lastFactionChoice or 0),
 					teamNumber = unusedTeamID})
 
-				SetButtonStatePlaying()
+				-- SetButtonStatePlaying()
+				-- SetButtonStateInQueue()
 
 				WG.Analytics.SendOnetimeEvent("lobby:multiplayer:custom:play")
 				if WG.Chobby.Configuration.useLastGameSpectatorState == 1 then
@@ -910,7 +926,9 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		parent = rightInfo,
 	}
 
+	Spring.Echo("debug_initialSetButtonStatePlayingbefore")
 	SetButtonStatePlaying()
+	Spring.Echo("debug_initialSetButtonStatePlayingafter")
 
 	rightInfo.OnResize = {
 		function (obj, xSize, ySize)
@@ -2992,9 +3010,9 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	end
 
 	-- 23/03/19 Fireball update: only react, when dependent status.properties are present = were updated for this current event
-	-- reacts to: isSpectator, isReady
+	-- reacts to: isSpectator, isReady, queuePos
 	local function OnUpdateUserBattleStatus(listener, username, status)
-		if username ~= battleLobby.myUserName or battleLobby.name == "singleplayer" or (status.isSpectator == nil and status.isReady == nil) then
+		if username ~= battleLobby.myUserName or battleLobby.name == "singleplayer" or (status.isSpectator == nil and status.isReady == nil and status.queuePos == nil) then
 			return
 		end
 

@@ -151,6 +151,8 @@ return {
 		tooltip_leave_queue = "Spectate this game and remove yourself from the join-queue.",
 
 		play = "Play",
+		join_queue = "Join Queue",
+		leave_queue = "Leave Queue",
 		playing = "Playing",
 
 		watch = "Watch",
