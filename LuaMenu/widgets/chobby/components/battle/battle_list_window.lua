@@ -307,14 +307,14 @@ end
 function BattleListWindow:SoftUpdate()
 	-- UpdateFilters is quite heavy, because it sorts all the battles on the
 	-- list, so instead of just calling SoftUpdate functionality directly,
-	-- we only update, if we havent updated in 5 seconds.
+	-- we only update, if we havent updated in 3 seconds.
 	-- Also note, that the previous implementation somehow ran on intermediate states, 
 	-- causeing severe bouncing of battles up and down
 	if self.lastSoftUpdate == nil then
 		self.lastSoftUpdate = Spring.GetTimer()
 	end
 
-	if Spring.DiffTimers(Spring.GetTimer(), self.lastSoftUpdate) > 5.0 then
+	if Spring.DiffTimers(Spring.GetTimer(), self.lastSoftUpdate) > 3 then
 		self.lastSoftUpdate = Spring.GetTimer()
 		if Configuration.battleFilterRedundant then
 			self:UpdateAllBattleIDs()
@@ -817,8 +817,7 @@ function BattleListWindow:CompareItems(id1, id2)
 	-- 0. Public, not running battles with > 0 players
 	-- 1. public, running unlocked battles by player count
 	-- 2. public locked battles by player count
-	-- 3. unlocked private battles, alphabetically
-	-- 4. locked private battles, alphabetically
+	-- 3. private battles, alphabetically
 	--
 	-- 1.& 2.: If player count is identical, order those by RunningState (not running first)
 
@@ -826,15 +825,22 @@ function BattleListWindow:CompareItems(id1, id2)
 
 	local battle1, battle2 = lobby:GetBattle(id1), lobby:GetBattle(id2)
 	if id1 and id2 and battle1 and battle2 then -- validity check
+		--Spring.Echo("id", id1, id2, "isrunning", battle1.isRunning, battle2.isRunning,
+		--	"pw", battle1.passworded, battle2.passworded,
+		--	'locked', battle1.locked, battle2.locked
+		--)
+
+
 		if battle1.passworded ~= battle2.passworded then
 			return battle2.passworded
 		elseif battle1.passworded == true and battle2.passworded == true then
-			if battle1.locked ~= battle2.locked then
-				return battle2.locked
-			else
+			--Spring.Echo(id1, battle1.locked, battle1.title, id2, battle2.locked, battle2.title)
+			--if battle1.locked ~= battle2.locked then
+			--	return battle2.locked
+			--else
 				-- Sort passworded battles by title
 				return string.lower(battle1.title) < string.lower(battle2.title )
-			end
+			--end
 		end
 		-- neither are passworded
 
@@ -846,10 +852,11 @@ function BattleListWindow:CompareItems(id1, id2)
 		-- Handle silly ass negative counts
 		local countOne = math.max(0, lobby:GetBattlePlayerCount(id1))
 		local countTwo = math.max(0, lobby:GetBattlePlayerCount(id2))
-		-- Put empty rooms at the back of the list
-		if countOne == 0 and countTwo ~= 0 then -- id1 is empty
+		--Spring.Echo(id1, countOne, id2, countTwo)
+		--Put empty rooms at the back of the list
+		if countOne == 0 and countTwo > 0 then -- id1 is empty
 			return false
-		elseif countOne ~= 0 and countTwo == 0 then  -- id2 is empty
+		elseif countOne > 0 and countTwo == 0 then  -- id2 is empty
 			return true
 		end
 

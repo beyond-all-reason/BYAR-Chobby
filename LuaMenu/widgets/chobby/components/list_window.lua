@@ -234,12 +234,13 @@ function ListWindow:UpdateFilters()
 	-- but is now fast enough to not really care about that
 	-- dont even sort filtered out items
 	-- filtered item positions are also set to the end of the list.
-
 	-- refresh filtered items
+	tracy.ZoneBeginN("ListWindow:UpdateFilters")
 	local infilters = {} -- array of visible IDs
 	local numinfilters = 0
 	local invisible = {} -- array of invisible IDs
 	local numinvisible = 0
+	local prevfilter = 0
 	for index, panel in ipairs(self.orderPanelMapping) do
 		local oldFilter = panel.inFilter
 		panel.inFilter = self:ItemInFilter(panel.id)
@@ -250,32 +251,87 @@ function ListWindow:UpdateFilters()
 			numinvisible = numinvisible + 1
 			invisible[numinvisible] = panel.id
 		end
-
+		if oldFilter then 
+			prevfilter = prevfilter + 1
+		end
 		if oldFilter ~= panel.inFilter then -- only update on status change
 			panel:SetVisibility(panel.inFilter)
 		end
 	end
+
+	-- get pre-filter items
+	--[[
+	if self.name == "BattleListWindow" then 
+		local lobby = WG.LibLobby.lobby
+		if lobby then 
+			for index, panel in ipairs(self.orderPanelMapping) do
+				if panel.inFilter then 
+					local battle = lobby:GetBattle(panel.id)
+					local playerCount = lobby:GetBattlePlayerCount(panel.id)
+					Spring.Echo("PRE", index, panel.id, battle.founder, battle.isRunning, playerCount, battle.passworded, battle.locked)
+				end
+			end
+		end
+	end
+	]]--
+
 
 	-- Create a localized lambda sort function and sort the visible ones
 	local listWindow = self
 	local lambda = function (id1, id2)
 		return listWindow:CompareItems(id1,id2)
 	end
-	table.sort(infilters, lambda)
+	
+	local comparisons
+	
+	tracy.ZoneBeginN("ListWindow:UpdateFilters:insertionSort")
+	infilters, comparisons =  Spring.Utilities.insertionSort(infilters, lambda, true,true)
+	tracy.ZoneEnd()
+	
+	
+	--tracy.ZoneBeginN("ListWindow:UpdateFilters:mergeSort")
+	--table.sort(infilters, lambda)
+	--tracy.ZoneEnd()
 
 	-- add the invisible ones to the end of the sorted list
 	for i = 1, numinvisible do
 		infilters[numinfilters+i] = invisible[i]
 	end
+	local numchanged = 0
+	local strchanged = ''
 	-- set the position of all of them one by one if it has changed
 	for newindex, id in ipairs(infilters) do
 		local panel = self.itemPanelMapping[id]
 		if panel.index ~= newindex then
 			self:SetPosition(panel, newindex)
 			self.orderPanelMapping[newindex] = panel
+			strchanged = strchanged .. panel.index .. '>' .. newindex .. ' '
+			numchanged = numchanged + 1 
 			panel.index = newindex
 		end
 	end
+
+	--[[
+	if self.name == "BattleListWindow" then 
+		local lobby = WG.LibLobby.lobby
+		if lobby then 
+			for index, panel in ipairs(self.orderPanelMapping) do
+				if panel.inFilter then 
+					local battle = lobby:GetBattle(panel.id)
+					local playerCount = lobby:GetBattlePlayerCount(panel.id)
+					Spring.Echo("POST", index, panel.id, battle.founder, battle.isRunning, playerCount, battle.passworded, battle.locked)
+				end
+			end
+		end
+	end
+
+	if self.name == "BattleListWindow" then 
+		--Spring.Utilities.TraceEcho(4)
+		Spring.Echo("UpdateFilters:", numchanged, prevfilter,numinfilters, numinvisible, strchanged,comparisons)
+	end
+	]]--
+	
+	tracy.ZoneEnd()
 end
 
 function ListWindow:SwapPlaces(panel1, panel2)
