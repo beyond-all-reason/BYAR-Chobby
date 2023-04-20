@@ -275,17 +275,28 @@ function ListWindow:UpdateFilters()
 	end
 	]]--
 
-
 	-- Create a localized lambda sort function and sort the visible ones
 	local listWindow = self
 	local lambda = function (id1, id2)
 		return listWindow:CompareItems(id1,id2)
 	end
 	
-	local comparisons
-	
 	tracy.ZoneBeginN("ListWindow:UpdateFilters:insertionSort")
-	infilters, comparisons =  Spring.Utilities.insertionSort(infilters, lambda, true,true)
+	local comparisons
+	--infilters, comparisons =  Spring.Utilities.insertionSort(infilters, lambda, true,true)
+
+	local len = #infilters
+	for j = 2, len do
+		local key = infilters[j]
+		local i = j - 1
+		while i > 0 and self:CompareItems(key, infilters[i]) do
+			infilters[i + 1] = infilters[i]
+			i = i - 1
+		end
+		infilters[i+1] = key
+	end
+
+
 	tracy.ZoneEnd()
 	
 	

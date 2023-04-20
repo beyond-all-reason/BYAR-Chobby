@@ -819,21 +819,21 @@ function BattleListWindow:CompareItems(id1, id2)
 	-- 2. public locked battles by player count
 	-- 3. private battles, alphabetically
 	--
-	-- 1.& 2.: If player count is identical, order those by RunningState (not running first)
 
 	-- sorted list of params to check by?
-
+	local lobby = WG.LibLobby.lobby
 	local battle1, battle2 = lobby:GetBattle(id1), lobby:GetBattle(id2)
 	if id1 and id2 and battle1 and battle2 then -- validity check
 		--Spring.Echo("id", id1, id2, "isrunning", battle1.isRunning, battle2.isRunning,
 		--	"pw", battle1.passworded, battle2.passworded,
 		--	'locked', battle1.locked, battle2.locked
 		--)
-
-
-		if battle1.passworded ~= battle2.passworded then
-			return battle2.passworded
-		elseif battle1.passworded == true and battle2.passworded == true then
+		local battle1passworded = (battle1.passworded == true )
+		local battle2passworded = (battle2.passworded == true )
+		
+		if battle1passworded ~= battle2passworded then
+			return battle2passworded
+		elseif battle1passworded  and battle2passworded then
 			--Spring.Echo(id1, battle1.locked, battle1.title, id2, battle2.locked, battle2.title)
 			--if battle1.locked ~= battle2.locked then
 			--	return battle2.locked
@@ -845,8 +845,10 @@ function BattleListWindow:CompareItems(id1, id2)
 		-- neither are passworded
 
 		-- Dump locked next
-		if battle1.locked ~= battle2.locked then
-			return battle2.locked
+		local battle1locked = (battle1.locked == true)
+		local battle2locked = (battle2.locked == true)
+		if battle1locked ~= battle2locked then
+			return battle2locked
 		end
 
 		-- Handle silly ass negative counts
@@ -855,11 +857,13 @@ function BattleListWindow:CompareItems(id1, id2)
 		--Spring.Echo(id1, countOne, id2, countTwo)
 		--Put empty rooms at the back of the list
 		-- unless they are running
-		local empty1 = (battle1.isRunning == false) and (countOne == 0)
-		local empty2 = (battle2.isRunning == false) and (countTwo == 0)
+		local battle1isRunning = (battle1.isRunning == true)
+		local battle2isRunning = (battle2.isRunning == true)
+		local empty1 = (battle1isRunning == false) and (countOne == 0)
+		local empty2 = (battle2isRunning == false) and (countTwo == 0)
 
 		if empty1 ~= empty2 then
-			return empty2
+			return (empty2 == true)
 		end
 		
 		if countOne == 0 and countTwo > 0 then -- id1 is empty
@@ -868,10 +872,9 @@ function BattleListWindow:CompareItems(id1, id2)
 			return true
 		end
 
-
 		-- Put running after open
-		if battle1.isRunning ~= battle2.isRunning then
-			return battle2.isRunning
+		if battle1isRunning ~= battle2isRunning then
+			return battle2isRunning
 		end
 
 		-- Sort by player count
