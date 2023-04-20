@@ -927,7 +927,7 @@ function Lobby:_OnUpdateBattleInfo(battleID, battleInfo)
 
 	if battleInfo.locked == true then -- Because (false or nil) == nil
 		battle.locked = true
-	elseif battleInfo.locked == false then
+	else
 		battle.locked = false
 	end
 
