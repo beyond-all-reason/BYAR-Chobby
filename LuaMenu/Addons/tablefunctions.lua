@@ -347,12 +347,12 @@ function Spring.Utilities.insertionSort(array, a_gt_b, inplace, reverse)
 		local key = sorted[j]
 		local i = j - 1
 		if reverse then
-			while a_gt_b(key, sorted[i]) and i > 0 do
+			while i > 0 and a_gt_b(key, sorted[i])  do
 				sorted[i + 1] = sorted[i]
 				i = i - 1
 			end
 		else
-			while a_gt_b(sorted[i], key) and i > 0 do
+			while i > 0 and a_gt_b(sorted[i], key) do
 				sorted[i + 1] = sorted[i]
 				i = i - 1
 			end
