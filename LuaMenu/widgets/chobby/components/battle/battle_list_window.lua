@@ -314,13 +314,13 @@ function BattleListWindow:SoftUpdate()
 		self.lastSoftUpdate = Spring.GetTimer()
 	end
 
+	self:UpdateInfoPanel()
 	if Spring.DiffTimers(Spring.GetTimer(), self.lastSoftUpdate) > 3 then
 		self.lastSoftUpdate = Spring.GetTimer()
 		if Configuration.battleFilterRedundant then
 			self:UpdateAllBattleIDs()
 		end
 		self:UpdateFilters()
-		self:UpdateInfoPanel()
 	end
 
 	-- this method, for some godforsaken reason doesnt work as expected. 
@@ -854,6 +854,14 @@ function BattleListWindow:CompareItems(id1, id2)
 		local countTwo = math.max(0, lobby:GetBattlePlayerCount(id2))
 		--Spring.Echo(id1, countOne, id2, countTwo)
 		--Put empty rooms at the back of the list
+		-- unless they are running
+		local empty1 = (battle1.isRunning == false) and (countOne == 0)
+		local empty2 = (battle2.isRunning == false) and (countTwo == 0)
+
+		if empty1 ~= empty2 then
+			return empty2
+		end
+		
 		if countOne == 0 and countTwo > 0 then -- id1 is empty
 			return false
 		elseif countOne > 0 and countTwo == 0 then  -- id2 is empty
