@@ -63,5 +63,5 @@ function widget:Update()
 		repetitions = repetitions + 1
 	end
 
-	lobby.bufferCommandsEnabled = lobby.commandsInBuffer > 0
+	lobby.bufferCommandsEnabled = lobby.commandsInBuffer and (lobby.commandsInBuffer > 0)
 end
