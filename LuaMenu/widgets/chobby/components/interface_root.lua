@@ -110,14 +110,6 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 		end
 	end
 
-	local chobbyrapidTag = 'chobby:test'
-	if chobbyrapidTag and VFS.GetNameFromRapidTag then
-		local rapidName = VFS.GetNameFromRapidTag(chobbyrapidTag)
-		if rapidName then
-			chobbyrapidTag = rapidName
-			chobbyrapidTag = string.gsub(chobbyrapidTag, "Chobby test%-", "")
-		end
-	end
 
 	local label_version = Label:New {
 		--x = "68.5%",
@@ -128,7 +120,7 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 		parent = lobbyInterfaceHolder,
 		font = version_font,
 		caption = "Game: " .. Configuration.gameConfig.ShortenNameString(Configuration:GetDefaultGameName()) .. "  Engine: " .. Configuration:GetTruncatedEngineVersion() .. "  "
-			.. 'Chobby: ' .. byarchobbyrapidTag .. " / " ..chobbyrapidTag ,
+			.. 'Chobby: ' .. byarchobbyrapidTag ,
 		align = "right",
 		valign = 'bottom',
 	}
