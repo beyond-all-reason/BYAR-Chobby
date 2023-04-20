@@ -305,3 +305,60 @@ function Spring.Utilities.CustomKeyToUsefulTable(dataRaw)
 		collectgarbage("collect")
 	end
 end
+
+-- Because Luas built in table.sort function is by default mergesort, which is always N*logN
+-- Insertion sort, however has a best case N, worst case N*N/2
+-- Very often, we are dealing with almost sorted tables, in which case insertion sort is 
+-- N*K, where K is the number of out-of-order elements. 
+function Spring.Utilities.insertionSort(array, a_gt_b, inplace, reverse)
+	if a_gt_b == nil then
+		a_gt_b = function(a,b) return a>b end
+	end
+	local comparisons = 0
+	local sorted
+	if inplace then
+		sorted = array
+	else
+		sorted = {}
+		for i, v in ipairs(array) do
+			sorted[i] = v
+		end
+	end
+
+	local len = #sorted
+	if len <= 1 then return sorted, 0 end -- single element or less tables are already sorted
+
+	-- validation:
+	local biggestkey = 0 
+	local numkeys = 0
+	local max = math.max
+	for k,v in pairs(array) do 
+		numkeys = numkeys+1
+		biggestkey = max(biggestkey, k)
+	end
+	if biggestkey ~= numkeys or len ~= numkeys then
+		Spring.Echo("Spring.Utilities.insertionSort received an invalid array", len, biggestkey, numkeys)
+		Spring.Utilities.TableEcho(array)
+		return array, nil
+	end
+
+
+	for j = 2, len do
+		local key = sorted[j]
+		local i = j - 1
+		if reverse then
+			while a_gt_b(key, sorted[i]) and i > 0 do
+				sorted[i + 1] = sorted[i]
+				i = i - 1
+			end
+		else
+			while a_gt_b(sorted[i], key) and i > 0 do
+				sorted[i + 1] = sorted[i]
+				i = i - 1
+			end
+		end
+		comparisons = comparisons + (j-i)
+		sorted[i + 1] = key
+	end
+	return sorted, comparisons
+end
