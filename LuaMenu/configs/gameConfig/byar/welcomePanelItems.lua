@@ -12,12 +12,13 @@
 
 
 local welcomePanelItems = {
-    {
-        Header = "Alpha Championship Cup #3 Completed",
-        Image = "LuaMenu/images/1vs1Tournament.png",
-        Url = "https://www.beyondallreason.info/news/bar-alpha-championship-3-is-on-the-way",
-        Text = "Congratulations to Grand Champion MightySheep!\n",
-        UrlText = "View Results"
+     {
+        Header = "PRO 4v4 Showdown Tournament",
+        Image = "LuaMenu/images/4v4Tournament.png",
+        Url = "https://www.beyondallreason.info/news/the-pro-4v4-showdown-tournament-is-coming-on-may-6th",
+        Time = "2023-05-06T14:00:00",
+        Text = "\nGet ready for the thrilling 4v4 pro tournament on May 6th, 2023, featuring legendary teams from BAR and TA worlds. Live-streamed on Twitch.!\n",
+        UrlText = "Sign-Up"
     },
 
     {
