@@ -12,7 +12,7 @@ function Lobby:init()
 end
 
 function Lobby:_Clean()
-	self.users = {}
+	self.users = {} -- {username = {battlestatustable}}
 	self.userNamesLC = {} -- lookup table for (user name in lower Case) => userName
 	self.userNamesQueued = {}
 	self.userBySteamID = {}
@@ -833,27 +833,30 @@ function Lobby:_OnJoinBattle(battleID, hashCode)
 end
 
 function Lobby:_OnJoinedBattle(battleID, userName, scriptPassword)
-	if not self.battles[battleID] then
+	local battle = self.battles[battleID]
+	if not battle then
 		Spring.Log(LOG_SECTION, LOG.WARNING, "_OnJoinedBattle nonexistent battle.")
 		return
 	end
 	local found = false
-	local users = self.battles[battleID].users
+	local users = battle.users
 	for i = 1, #users do
 		if users[i] == userName then
 			found = true
 			break
 		end
 	end
+	battle.spectatorCount = math.max(1, battle.spectatorCount or 1)
+
 	if not found then
-		table.insert(self.battles[battleID].users, userName)
+		table.insert(battle.users, userName)
 	end
 
 	local userInfo = self:TryGetUser(userName)
 	userInfo.battleID = battleID
 	if userInfo.isOffline == true then
 		Spring.Log(LOG_SECTION, LOG.ERROR,
-		"Lobby:_OnLeftBattle: Added unknown user " .. userName .. " to battle: " .. tostring(battleID))
+		"Lobby:_OnJoinedBattle: Added unknown user " .. userName .. " to battle: " .. tostring(battleID))
 	end
 
 	self:_CallListeners("OnUpdateUserStatus", userName, {battleID = battleID})
@@ -888,14 +891,17 @@ function Lobby:_OnLeftBattle(battleID, userName)
 			"Lobby:_OnLeftBattle: Tried to remove user " .. userName .. " from unknown battle: " .. tostring(battleID))
 		return
 	end
+	local battle = self.battles[battleID]
 
-	local battleUsers = self.battles[battleID].users
+	local battleUsers = battle.users
 	for i, v in pairs(battleUsers) do
 		if v == userName then
 			table.remove(battleUsers, i)
 			break
 		end
 	end
+
+	battle.spectatorCount = math.max(1, battle.spectatorCount or 1)
 
 	self.users[userName].battleID = nil
 	self:_CallListeners("OnUpdateUserStatus", userName, {battleID = false})
@@ -1636,9 +1642,21 @@ function Lobby:GetBattlePlayerCount(battleID)
 	end
 
 	if battle.playerCount then
-		return battle.playerCount
+		return math.max(0, battle.playerCount)
 	else
-		return #battle.users - battle.spectatorCount
+		-- right now, the number of players cannot ever be more than the number of users - 1 (spads is always a spec)
+		local playerCount = #battle.users - battle.spectatorCount
+		--[[
+			if battle.spectatorCount < 1 or playerCount > 16 or playerCount < 0 then 
+				local users = ""
+				for i, user in ipairs(battle.users) do
+					users = users .. "," .. user
+				end
+				local s = string.format("GetBattlePlayerCount(ID: %s) #users = %d, #specs = %d, #players = %d, %s", battleID, #battle.users, battle.spectatorCount, playerCount, users)
+				Spring.Echo(s)
+			end
+		]]--
+		return math.max(0, playerCount)
 	end
 end
 
