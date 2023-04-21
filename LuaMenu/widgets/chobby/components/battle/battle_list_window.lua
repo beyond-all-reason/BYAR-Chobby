@@ -271,8 +271,6 @@ function BattleListWindow:RemoveListeners()
 	lobby:RemoveListener("OnBattleIngameUpdate", self.onBattleIngameUpdate)
 	lobby:RemoveListener("OnConfigurationChange", self.onConfigurationChange)
 	lobby:RemoveListener("DownloadFinished", self.downloadFinished)
-	--lobby:RemoveListener("DownloadFinished", self.downloadFinished)
-	--lobby:RemoveListener("DownloadFinished", self.downloadFinished)
 end
 
 function BattleListWindow:UpdateAllBattleIDs()
@@ -1102,6 +1100,8 @@ function BattleListWindow:LeftBattle(battleID)
 end
 
 function BattleListWindow:OnUpdateBattleInfo(battleID)
+	-- Note that the parameters of UPDATEBATTLEINFO are :
+	-- UPDATEBATTLEINFO spectatorCount locked mapHash {mapName}
 	local battle = lobby:GetBattle(battleID)
 	if not (Configuration.displayBadEngines2 or Configuration:IsValidEngineVersion(battle.engineVersion)) then
 		return
@@ -1112,12 +1112,10 @@ function BattleListWindow:OnUpdateBattleInfo(battleID)
 		self:AddBattle(battleID)
 		return
 	end
-
-	local lblTitle = items.battleButton:GetChildByName("lblTitle")
-	local mapCaption = items.battleButton:GetChildByName("mapCaption")
-	--local imHaveMap = items.battleButton:GetChildByName("imHaveMap")
-	local minimapImage = items.battleButton:GetChildByName("minimap"):GetChildByName("minimapImage")
-	local password = items.battleButton:GetChildByName("password")
+	local battleButton = items.battleButton
+	local lblTitle = battleButton:GetChildByName("lblTitle")
+	--local imHaveMap = battleButton:GetChildByName("imHaveMap")
+	local password = battleButton:GetChildByName("password")
 
 	if imHaveMap or true then
 		-- Password Update
@@ -1126,25 +1124,29 @@ function BattleListWindow:OnUpdateBattleInfo(battleID)
 		elseif battle.passworded and not password then
 			local imgPassworded = Image:New {
 				name = "password",
-				x = items.battleButton.height + 28,
+				x = battleButton.height + 28,
 				y = 22,
 				height = 30,
 				width = 30,
 				margin = {0, 0, 0, 0},
 				file = CHOBBY_IMG_DIR .. "lock.png",
-				parent = items.battleButton,
+				parent = battleButton,
 			}
 		end
 
-
-
 		-- Resets title and truncates.
 		lblTitle.OnResize[1](lblTitle)
+		
+		-- Update minimap button if changed
+		if battleButton.previousMapName ~= battle.mapName then 
+			local minimapImage = battleButton:GetChildByName("minimap"):GetChildByName("minimapImage")
+			local mapCaption = battleButton:GetChildByName("mapCaption")
+			minimapImage.file, minimapImage.checkFileExists = Configuration:GetMinimapSmallImage(battle.mapName)
+			minimapImage:Invalidate()
+			mapCaption:SetCaption(battle.mapName:gsub("_", " "))
+			battleButton.previousMapName = battle.mapName
+		end
 
-		minimapImage.file, minimapImage.checkFileExists = Configuration:GetMinimapSmallImage(battle.mapName)
-		minimapImage:Invalidate()
-
-		mapCaption:SetCaption(battle.mapName:gsub("_", " "))
 		-- if VFS.HasArchive(battle.mapName) then
 		-- 	imHaveMap.file = IMAGE_DLREADY
 		-- else
@@ -1160,11 +1162,12 @@ function BattleListWindow:OnUpdateBattleInfo(battleID)
 
 		--local gameCaption = items.battleButton:GetChildByName("gameCaption")
 		--gameCaption:SetCaption(self:_MakeGameCaption(battle))
-
-		local playersCaption = items.battleButton:GetChildByName("playersCaption")
-		playersCaption:SetCaption(lobby:GetBattlePlayerCount(battleID) .. "/" .. battle.maxPlayers)
-		self:UpdateRankIcon(battleID, battle, items)
-
+		local newPlayerCount = lobby:GetBattlePlayerCount(battleID)
+		if battleButton.previousPlayerCount ~= newPlayerCount then 
+			local playersCaption = battleButton:GetChildByName("playersCaption")
+			playersCaption:SetCaption(newPlayerCount .. "/" .. battle.maxPlayers)
+			battleButton.previousPlayerCount = newPlayerCount
+		end
 
 	else
 		-- Resets title and truncates.
