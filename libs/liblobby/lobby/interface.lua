@@ -589,6 +589,11 @@ function Interface:_OnPong()
 end
 Interface.commands["PONG"] = Interface._OnPong
 
+function Interface:_OnQueued()
+	self:super("_OnQueued")
+end
+Interface.commands["QUEUED"] = Interface._OnQueued
+
 ------------------------
 -- User commands
 ------------------------

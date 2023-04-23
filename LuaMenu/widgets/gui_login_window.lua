@@ -180,10 +180,25 @@ local function InitializeListeners()
 		end
 	end
 
+	local queueTime = 2
+	local function OnQueued(listener)
+		currentLoginWindow.txtError:SetText("Waiting in Login Queue for "..tostring(queueTime) .. " seconds")
+		queueTime = queueTime + 2
+		if WG and WG.Delay then
+			local function login_queue_heartbeat()
+				if lobby then
+					lobby:SendCustomCommand("c.auth.login_queue_heartbeat")
+				end
+			end
+			WG.Delay(login_queue_heartbeat,2)
+		end
+	end
+
 	lobby:AddListener("OnRegistrationAccepted", OnRegistrationAccepted)
 	lobby:AddListener("OnRegistrationDenied", OnRegistrationDenied)
 	lobby:AddListener("OnAccepted", OnLoginAccepted)
 	lobby:AddListener("OnDenied", OnLoginDenied)
+	lobby:AddListener("OnQueued", OnQueued)
 
 	-- Stored register on connect
 	local function OnConnect()

@@ -549,6 +549,10 @@ function Lobby:_OnResetPasswordRequestDenied(errorMsg)
 	self:_CallListeners("OnResetPasswordRequestDenied", errorMsg)
 end
 
+function Lobby:_OnQueued()
+	self:_CallListeners("OnQueued")
+end
+
 ------------------------
 -- User commands
 ------------------------
