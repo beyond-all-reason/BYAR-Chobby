@@ -1083,7 +1083,7 @@ local function GetLobbyTabControls()
 		widgetHandler:ToggleWidget("Rapid Pool Cache")
 	end
 
-	children[#children + 1], offset = AddCheckboxSetting(offset, "Rapid Pool Cache", "enableCacheRapidPool", false, enableCacheRapidPoolFunc)
+	children[#children + 1], offset = AddCheckboxSetting(offset, "Rapid Pool Cache", "enableCacheRapidPool", true, enableCacheRapidPoolFunc)
 	--children[#children + 1], offset = AddCheckboxSetting(offset, i18n("keep_queues"), "rememberQueuesOnStart", false, nil, "Stay in matchmaker queues when a battle is launched.")
 
 
