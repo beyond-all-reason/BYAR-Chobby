@@ -820,6 +820,17 @@ function Lobby:_OnBattleOpened(battleID, battle)
 end
 
 function Lobby:_OnBattleClosed(battleID)
+
+	if not (battleID and self.battles[battleID]) then
+		Spring.Log(LOG_SECTION, LOG.ERROR, "Lobby:_OnBattleClosed: Tried to close unknown battle " .. tostrong(battleID))
+		return
+	end
+	local battle = self.battles[battleID]
+
+	local battleusers = ShallowCopy(battle.users) -- needs ShallowCopy because _OnLeftBattle is modifying self.battles[battleID].users
+	for _, userName in pairs(battleusers) do
+		self:_OnLeftBattle(battleID, userName)
+	end
 	self.battles[battleID] = nil
 	self.battleCount = self.battleCount - 1
 	self:_CallListeners("OnBattleClosed", battleID)
@@ -1462,9 +1473,6 @@ function Lobby:_OnDisconnected(reason, intentional)
 	end
 
 	for battleID, battle in pairs(self.battles) do
-		for _, useName in pairs(battle.users) do
-			self:_OnLeftBattle(battleID, useName)
-		end
 		self:_OnBattleClosed(battleID)
 	end
 
