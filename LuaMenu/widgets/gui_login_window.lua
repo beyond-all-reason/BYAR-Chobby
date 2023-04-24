@@ -180,17 +180,17 @@ local function InitializeListeners()
 		end
 	end
 
-	local queueTime = 2
+	local queueTime = 1
 	local function OnQueued(listener)
 		currentLoginWindow.txtError:SetText("Waiting in Login Queue for "..tostring(queueTime) .. " seconds")
-		queueTime = queueTime + 2
+		queueTime = queueTime + 1
 		if WG and WG.Delay then
 			local function login_queue_heartbeat()
 				if lobby then
 					lobby:SendCustomCommand("c.auth.login_queue_heartbeat")
 				end
 			end
-			WG.Delay(login_queue_heartbeat,2)
+			WG.Delay(login_queue_heartbeat,1)
 		end
 	end
 
