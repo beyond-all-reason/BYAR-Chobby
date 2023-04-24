@@ -182,7 +182,7 @@ local function InitializeListeners()
 
 	local queueTime = 1
 	local function OnQueued(listener)
-		currentLoginWindow.txtError:SetText("Waiting in Login Queue for "..tostring(queueTime) .. " seconds")
+		currentLoginWindow.txtError:SetText("Waiting in Login Queue for "..tostring(queueTime) .. " seconds (~7)")
 		queueTime = queueTime + 1
 		if WG and WG.Delay then
 			local function login_queue_heartbeat()
