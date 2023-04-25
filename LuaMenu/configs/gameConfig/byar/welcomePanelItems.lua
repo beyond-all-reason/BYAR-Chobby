@@ -33,9 +33,9 @@ local welcomePanelItems = {
     },
     
     {
-        Header = "New Map: Gods of War Remake v1.3",
-        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/gods_of_war_remake_v1.3.png",
-        Text = "Another remake of OTA classic by Nikuksis",
+        Header = "New Map: Thermal Shock v1.0",
+        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/thermal_shock_v1.0.png",
+        Text = "Team-play , 8v8 capable map. West vs South. Lava level is dropping slowly.\nMade by Nikuksis.",
     },    
 
     {
