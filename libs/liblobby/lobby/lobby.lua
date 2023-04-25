@@ -633,8 +633,22 @@ function Lobby:_OnUpdateUserStatus(userName, status)
 	end
 end
 
-function Lobby:_OnUpdateBattleQueue(battleId, userNamesQueued)
-	for _, battleUserName in pairs(self.battles[battleId].users) do -- all users in battle
+function Lobby:GuessCurrentBattleQueue(battleID, userNameJoinedPlayers)
+	local queueList = {} -- indexed table
+	local joinedQueuePos = 0
+	for _, battleUserName in pairs(self.battles[battleID].users) do -- all users in battle
+		local queueNr = self.userBattleStatus[battleUserName] and self.userBattleStatus[battleUserName].queuePos or 0
+		if queueNr > 0 then
+			queueList[queueNr] = battleUserName
+		end
+		if battleUserName == userNameJoinedPlayers then
+			joinedQueuePos = queueNr
+		end
+	end
+end
+
+function Lobby:_OnUpdateBattleQueue(battleID, userNamesQueued)
+	for _, battleUserName in pairs(self.battles[battleID].users) do -- all users in battle
 		local userInQueue = false
 		local queueStatusOld = self.userBattleStatus[battleUserName] and self.userBattleStatus[battleUserName].queuePos or 0
 
@@ -1026,7 +1040,8 @@ function Lobby:_OnUpdateUserBattleStatus(userName, status)
 
 	if changed then
 		if battleStatusDiff.isSpectator ~= nil and battleStatusDiff.isSpectator == false and battleStatus.queuePos and battleStatus.queuePos ~= 0 then
-			battleStatus.queuePos = 0 -- always change queuePos to 0, if we switch from spec to player = prevent showing queuePos e.g. in playerbattelist, if we didn�t receive the queue-update from server yet
+			battleStatus.queuePos = 0 -- always change queuePos to 0, if we switch from spec to player = prevent showing queuePos e.g. in playerbattelist, if we didn''t receive the queue-update from server yet
+
 			battleStatusDiff.queuePos = 0
 		end
 
