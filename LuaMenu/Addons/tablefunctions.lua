@@ -276,6 +276,64 @@ end
 
 Spring.Utilities.TraceEcho = TraceEcho
 
+
+-- Ok some notes on this StartCallHook
+-- When you enable StartCallHook, it will hook into every function call and return until you EndCallHook
+-- Printing the name of the function and the arguments on the top of the stack. 
+-- Goes maxdepth calls deep
+-- Prints maxwidth local variables
+-- DO NOT NEST THESE
+-- EXTREMELY VERBOSE
+
+Spring.Utilities.HookDepth = 0
+Spring.Utilities.HookDepthMax = 1000
+local function StartCallHook(maxdepth, maxwidth)
+	maxdepth = maxdepth or 10
+	maxwidth = maxwidth or 10
+	Spring.Utilities.HookDepthMax = maxdepth
+
+	local function enterhook(event, line)
+		if event == 'call' and Spring and Spring.Utilities then 
+			Spring.Utilities.HookDepth = Spring.Utilities.HookDepth + 1
+			if Spring and Spring.Utilities and Spring.Utilities.HookDepth and Spring.Utilities.HookDepthMax and debug and debug.getlocal and debug.getinfo and (Spring.Utilities.HookDepth < Spring.Utilities.HookDepthMax) then 
+				local locals = ''
+				--[[
+					for i = 1, maxwidth do 
+					local name, value = debug.getlocal(2,i)
+					if not name then 
+						break 
+					else
+						locals = locals .. ((name and tostring(name)) or "name?") .. "=" .. tostring(value) .. ", " 
+					end
+				end
+				]]--
+				local fmt = string.format("+%s %s (%s)", 
+						string.rep('>', Spring.Utilities.HookDepth), 
+						(debug.getinfo(2, 'n') and debug.getinfo(2, 'n').name) or "???", 
+						locals)
+				Spring.Echo(fmt)
+			end
+		elseif event == 'return'  then  
+			if Spring.Utilities.HookDepth < Spring.Utilities.HookDepthMax then 
+				local fmt = string.format('-%s %s', 
+					string.rep('<', Spring.Utilities.HookDepth), 
+					(debug.getinfo(2, 'n') and debug.getinfo(2, 'n').name) or "???")
+				Spring.Echo(fmt)
+			end
+			Spring.Utilities.HookDepth = math.max(Spring.Utilities.HookDepth -1, 0)
+		end
+	end
+	debug.sethook(enterhook, 'c r')
+end
+
+Spring.Utilities.StartCallHook = StartCallHook
+
+local function EndCallHook()
+	debug.sethook()
+end
+
+Spring.Utilities.EndCallHook = EndCallHook
+
 function Spring.Utilities.CustomKeyToUsefulTable(dataRaw)
 	if not dataRaw then
 		return
