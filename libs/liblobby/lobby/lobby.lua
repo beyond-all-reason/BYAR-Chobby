@@ -911,6 +911,11 @@ function Lobby:_OnLeftBattle(battleID, userName)
 	end
 	local battle = self.battles[battleID]
 
+	-- remove userName from userBattleStatus
+	if self.userBattleStatus[userName] then
+		self.userBattleStatus[userName] = nil
+	end
+
 	local battleUsers = battle.users
 	for i, v in pairs(battleUsers) do
 		if v == userName then
