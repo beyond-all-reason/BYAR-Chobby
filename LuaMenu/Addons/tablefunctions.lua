@@ -297,23 +297,28 @@ local function StartCallHook(maxdepth, maxwidth)
 			Spring.Utilities.HookDepth = Spring.Utilities.HookDepth + 1
 			if Spring and Spring.Utilities and Spring.Utilities.HookDepth and Spring.Utilities.HookDepthMax and debug and debug.getlocal and debug.getinfo and (Spring.Utilities.HookDepth < Spring.Utilities.HookDepthMax) then 
 				local locals = ''
-				--[[
-					for i = 1, maxwidth do 
+				local fname = (debug.getinfo(2, 'n') and debug.getinfo(2, 'n').name) or "???"
+				for i = 1, maxwidth do 
+					--Spring.Echo(fname,i,locals)
 					local name, value = debug.getlocal(2,i)
+					--Spring.Echo(name, value )
 					if not name then 
 						break 
 					else
-						locals = locals .. ((name and tostring(name)) or "name?") .. "=" .. tostring(value) .. ", " 
+						if name == 'self' then -- as this triggers a c stack overflow on tostring(value)
+							locals = locals .. "self, "
+						else
+							locals = locals .. ((name and tostring(name)) or "name?") .. "=" .. tostring(value) .. ", " 
+						end
 					end
 				end
-				]]--
 				local fmt = string.format("+%s %s (%s)", 
 						string.rep('>', Spring.Utilities.HookDepth), 
-						(debug.getinfo(2, 'n') and debug.getinfo(2, 'n').name) or "???", 
+						fname, 
 						locals)
 				Spring.Echo(fmt)
 			end
-		elseif event == 'return'  then  
+		elseif event == 'return' then  
 			if Spring.Utilities.HookDepth < Spring.Utilities.HookDepthMax then 
 				local fmt = string.format('-%s %s', 
 					string.rep('<', Spring.Utilities.HookDepth), 
@@ -330,6 +335,7 @@ Spring.Utilities.StartCallHook = StartCallHook
 
 local function EndCallHook()
 	debug.sethook()
+	Spring.Echo("EndCallHook",Spring.Utilities.HookDepth)
 end
 
 Spring.Utilities.EndCallHook = EndCallHook
