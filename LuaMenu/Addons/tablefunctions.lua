@@ -287,7 +287,7 @@ Spring.Utilities.TraceEcho = TraceEcho
 
 Spring.Utilities.HookDepth = 0
 Spring.Utilities.HookDepthMax = 1000
-local function StartCallHook(maxdepth, maxwidth)
+local function StartCallHook(maxdepth, maxwidth, hidereturns)
 	maxdepth = maxdepth or 10
 	maxwidth = maxwidth or 10
 	Spring.Utilities.HookDepthMax = maxdepth
@@ -319,16 +319,37 @@ local function StartCallHook(maxdepth, maxwidth)
 				Spring.Echo(fmt)
 			end
 		elseif event == 'return' then  
-			if Spring.Utilities.HookDepth < Spring.Utilities.HookDepthMax then 
-				local fmt = string.format('-%s %s', 
+			if not hidereturns and Spring.Utilities.HookDepth < Spring.Utilities.HookDepthMax then 
+				-- attempt to get name, value of last local (retval)
+				local i = 1
+				local penultimate = '?'
+				local retval = '?'
+				while (true) do
+					local name, value = debug.getlocal(2,i)
+					if name then
+						penultimate = retval 
+						if name == 'self' then 
+							retval = 'self'
+						else
+							retval = tostring(value)
+						end
+					else
+						break
+					end
+					i = i + 1
+				end
+
+				local fmt = string.format('-%s %s returns( %s or %s )', 
 					string.rep('<', Spring.Utilities.HookDepth), 
-					(debug.getinfo(2, 'n') and debug.getinfo(2, 'n').name) or "???")
+					(debug.getinfo(2, 'n') and debug.getinfo(2, 'n').name) or "???", penultimate, retval)
 				Spring.Echo(fmt)
+
 			end
 			Spring.Utilities.HookDepth = math.max(Spring.Utilities.HookDepth -1, 0)
 		end
 	end
 	debug.sethook(enterhook, 'c r')
+	return true
 end
 
 Spring.Utilities.StartCallHook = StartCallHook
