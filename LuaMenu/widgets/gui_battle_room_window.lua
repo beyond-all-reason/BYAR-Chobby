@@ -847,12 +847,14 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 
 	end
 	local function SetButtonStateSpectating()
+		-- playBtn
 		ButtonUtilities.SetButtonDeselected(btnPlay)
 		ButtonUtilities.SetCaption(btnPlay, i18n("play"))
-		ButtonUtilities.SetButtonSelected(btnSpectate)
-
-		btnSpectate.suppressButtonReaction = true
 		btnPlay.suppressButtonReaction = false
+		
+		-- SpecBtn
+		ButtonUtilities.SetButtonSelected(btnSpectate)
+		btnSpectate.suppressButtonReaction = true
 
 		if battleLobby.name ~= "singleplayer" then
 			btnSpectate.tooltip = i18n("tooltip_leave_queue")
@@ -884,7 +886,6 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 					isSpectator = true,
 					isReady = false
 				})
-
 				SetButtonStateSpectating()
 				
 				WG.Analytics.SendOnetimeEvent("lobby:multiplayer:custom:spectate")
@@ -3032,18 +3033,25 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 			end
 		end
 		if not status.isSpectator then
-			if status.isReady ~= nil and status.isReady then
-				Spring.Log(LOG_SECTION, LOG.NOTICE, "check readyButton and StyleReady")
-				readyButton:StyleReady()
-				readyButtonCheckArrow.file = IMG_CHECKARROW
-				readyButtonCheckArrow:Invalidate()
-				tooltipCandidate = i18n("ready_tooltip")
-			else
-				Spring.Log(LOG_SECTION, LOG.NOTICE, "uncheck readyButton and StyleUnready")
-				readyButton:StyleUnready()
-				readyButtonCheckArrow.file = nil
-				readyButtonCheckArrow:Invalidate()
-				tooltipCandidate = i18n("unready_tooltip")
+			if status.isReady ~= nil then
+				if status.isReady then
+					Spring.Log(LOG_SECTION, LOG.NOTICE, "check readyButton and StyleReady")
+					readyButton:StyleReady()
+					readyButtonCheckArrow.file = IMG_CHECKARROW
+					readyButtonCheckArrow:Invalidate()
+					tooltipCandidate = i18n("ready_tooltip")
+				else
+					Spring.Log(LOG_SECTION, LOG.NOTICE, "uncheck readyButton and StyleUnready")
+					readyButton:StyleUnready()
+					readyButtonCheckArrow.file = nil
+					readyButtonCheckArrow:Invalidate()
+					tooltipCandidate = i18n("unready_tooltip")
+				end
+			end
+			elseif status.queuePos ~= nil then -- queuePos can only be changed when isReady was not changed at the same time, since isReady can only be changed when not spec, so no queuePos
+				Spring.Log(LOG_SECTION, LOG.NOTICE, "queuePos changed to:", status.queuePos)
+				-- spectate button = unqueue
+				-- playbtn deactivated
 			end
         end
 
