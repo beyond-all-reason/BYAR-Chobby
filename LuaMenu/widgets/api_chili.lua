@@ -182,9 +182,17 @@ function widget:DrawGenesis()
 	end
 
 	gl.Color(1,1,1,1)
+	tracy.ZoneBeginN("FontHandler:Update")
 	tf.Update()
+	tracy.ZoneEnd()
+	
+	tracy.ZoneBeginN("TextureHandler:Update")
 	th.Update()
+	tracy.ZoneEnd()
+
+	tracy.ZoneBeginN("TaskHandler:Update")
 	tk.Update()
+	tracy.ZoneEnd()
 	gl.Color(1,1,1,1)
 end
 

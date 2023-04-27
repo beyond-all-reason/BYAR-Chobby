@@ -12,7 +12,7 @@ function Lobby:init()
 end
 
 function Lobby:_Clean()
-	self.users = {}
+	self.users = {} -- {username = {battlestatustable}}
 	self.userNamesLC = {} -- lookup table for (user name in lower Case) => userName
 	self.userNamesQueued = {}
 	self.userBySteamID = {}
@@ -260,12 +260,16 @@ end
 
 function Lobby:ConnectToBattle(useSpringRestart, battleIp, battlePort, clientPort, scriptPassword, myName, gameName, mapName, engineName, battleType)
 	if gameName and not VFS.HasArchive(gameName) then
-		WG.Chobby.InformationPopup("Cannont start game: missing game file '" .. gameName .. "'.")
+		local error = "Cannot start game: missing game file '" .. gameName .. "'."
+		Spring.Echo(error)
+		WG.Chobby.InformationPopup(error)
 		return
 	end
 
 	if mapName and not VFS.HasArchive(mapName) then
-		WG.Chobby.InformationPopup("Cannont start game: missing map file '" .. mapName .. "'.")
+		local error = "Cannot start game: missing map file '" .. mapName .. "'."
+		Spring.Echo(error)
+		WG.Chobby.InformationPopup(error)
 		return
 	end
 	local Config = WG.Chobby.Configuration
@@ -290,13 +294,14 @@ function Lobby:ConnectToBattle(useSpringRestart, battleIp, battlePort, clientPor
 
 			WG.WrapperLoopback.StartNewSpring(params)
 		else
-			WG.Chobby.InformationPopup("Cannont start game: wrong Spring engine version. The required version is '" .. engineName .. "', your version is '" .. Spring.Utilities.GetEngineVersion() .. "'.", {width = 420, height = 260})
+			local error = "Cannot start game: wrong Spring engine version. The required version is '" .. engineName .. "', your version is '" .. Spring.Utilities.GetEngineVersion() .. "'."
+			Spring.Echo("Error")
+			WG.Chobby.InformationPopup(error, {width = 420, height = 260})
 		end
 		return
 	end
-
+	Spring.Echo("Calling OnBattleAboutToStart Listeners...")
 	self:_CallListeners("OnBattleAboutToStart", battleType)
-
 	Spring.Echo("Game starts!")
 	if useSpringRestart then
 		local springURL = "spring://" .. self:GetMyUserName() .. ":" .. scriptPassword .. "@" .. battleIp .. ":" .. battlePort
@@ -304,13 +309,11 @@ function Lobby:ConnectToBattle(useSpringRestart, battleIp, battlePort, clientPor
 		Spring.Restart(springURL, "")
 	else
 		local scriptTxt = GenerateScriptTxt(battleIp, battlePort, clientPort, scriptPassword, myName)
-
 		Spring.Echo(scriptTxt)
 		--local scriptFileName = "scriptFile.txt"
 		--local scriptFile = io.open(scriptFileName, "w")
 		--scriptFile:write(scriptTxt)
 		--scriptFile:close()
-
 		Spring.Reload(scriptTxt)
 	end
 end
@@ -547,6 +550,10 @@ end
 
 function Lobby:_OnResetPasswordRequestDenied(errorMsg)
 	self:_CallListeners("OnResetPasswordRequestDenied", errorMsg)
+end
+
+function Lobby:_OnQueued()
+	self:_CallListeners("OnQueued")
 end
 
 ------------------------
@@ -820,6 +827,17 @@ function Lobby:_OnBattleOpened(battleID, battle)
 end
 
 function Lobby:_OnBattleClosed(battleID)
+
+	if not (battleID and self.battles[battleID]) then
+		Spring.Log(LOG_SECTION, LOG.ERROR, "Lobby:_OnBattleClosed: Tried to close unknown battle " .. tostrong(battleID))
+		return
+	end
+	local battle = self.battles[battleID]
+
+	local battleusers = ShallowCopy(battle.users) -- needs ShallowCopy because _OnLeftBattle is modifying self.battles[battleID].users
+	for _, userName in pairs(battleusers) do
+		self:_OnLeftBattle(battleID, userName)
+	end
 	self.battles[battleID] = nil
 	self.battleCount = self.battleCount - 1
 	self:_CallListeners("OnBattleClosed", battleID)
@@ -833,27 +851,30 @@ function Lobby:_OnJoinBattle(battleID, hashCode)
 end
 
 function Lobby:_OnJoinedBattle(battleID, userName, scriptPassword)
-	if not self.battles[battleID] then
+	local battle = self.battles[battleID]
+	if not battle then
 		Spring.Log(LOG_SECTION, LOG.WARNING, "_OnJoinedBattle nonexistent battle.")
 		return
 	end
 	local found = false
-	local users = self.battles[battleID].users
+	local users = battle.users
 	for i = 1, #users do
 		if users[i] == userName then
 			found = true
 			break
 		end
 	end
+	battle.spectatorCount = math.max(1, battle.spectatorCount or 1)
+
 	if not found then
-		table.insert(self.battles[battleID].users, userName)
+		table.insert(battle.users, userName)
 	end
 
 	local userInfo = self:TryGetUser(userName)
 	userInfo.battleID = battleID
 	if userInfo.isOffline == true then
 		Spring.Log(LOG_SECTION, LOG.ERROR,
-		"Lobby:_OnLeftBattle: Added unknown user " .. userName .. " to battle: " .. tostring(battleID))
+		"Lobby:_OnJoinedBattle: Added unknown user " .. userName .. " to battle: " .. tostring(battleID))
 	end
 
 	self:_CallListeners("OnUpdateUserStatus", userName, {battleID = battleID})
@@ -888,14 +909,22 @@ function Lobby:_OnLeftBattle(battleID, userName)
 			"Lobby:_OnLeftBattle: Tried to remove user " .. userName .. " from unknown battle: " .. tostring(battleID))
 		return
 	end
+	local battle = self.battles[battleID]
 
-	local battleUsers = self.battles[battleID].users
+	-- remove userName from userBattleStatus
+	if self.userBattleStatus[userName] then
+		self.userBattleStatus[userName] = nil
+	end
+
+	local battleUsers = battle.users
 	for i, v in pairs(battleUsers) do
 		if v == userName then
 			table.remove(battleUsers, i)
 			break
 		end
 	end
+
+	battle.spectatorCount = math.max(1, battle.spectatorCount or 1)
 
 	self.users[userName].battleID = nil
 	self:_CallListeners("OnUpdateUserStatus", userName, {battleID = false})
@@ -927,7 +956,7 @@ function Lobby:_OnUpdateBattleInfo(battleID, battleInfo)
 
 	if battleInfo.locked == true then -- Because (false or nil) == nil
 		battle.locked = true
-	elseif battleInfo.locked == false then
+	else
 		battle.locked = false
 	end
 
@@ -1456,9 +1485,6 @@ function Lobby:_OnDisconnected(reason, intentional)
 	end
 
 	for battleID, battle in pairs(self.battles) do
-		for _, useName in pairs(battle.users) do
-			self:_OnLeftBattle(battleID, useName)
-		end
 		self:_OnBattleClosed(battleID)
 	end
 
@@ -1636,9 +1662,21 @@ function Lobby:GetBattlePlayerCount(battleID)
 	end
 
 	if battle.playerCount then
-		return battle.playerCount
+		return math.max(0, battle.playerCount)
 	else
-		return #battle.users - battle.spectatorCount
+		-- right now, the number of players cannot ever be more than the number of users - 1 (spads is always a spec)
+		local playerCount = #battle.users - battle.spectatorCount
+		--[[
+			if battle.spectatorCount < 1 or playerCount > 16 or playerCount < 0 then 
+				local users = ""
+				for i, user in ipairs(battle.users) do
+					users = users .. "," .. user
+				end
+				local s = string.format("GetBattlePlayerCount(ID: %s) #users = %d, #specs = %d, #players = %d, %s", battleID, #battle.users, battle.spectatorCount, playerCount, users)
+				Spring.Echo(s)
+			end
+		]]--
+		return math.max(0, playerCount)
 	end
 end
 

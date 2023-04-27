@@ -276,6 +276,91 @@ end
 
 Spring.Utilities.TraceEcho = TraceEcho
 
+
+-- Ok some notes on this StartCallHook
+-- When you enable StartCallHook, it will hook into every function call and return until you EndCallHook
+-- Printing the name of the function and the arguments on the top of the stack. 
+-- Goes maxdepth calls deep
+-- Prints maxwidth local variables
+-- DO NOT NEST THESE
+-- EXTREMELY VERBOSE
+
+Spring.Utilities.HookDepth = 0
+Spring.Utilities.HookDepthMax = 1000
+local function StartCallHook(maxdepth, maxwidth, hidereturns)
+	maxdepth = maxdepth or 10
+	maxwidth = maxwidth or 10
+	Spring.Utilities.HookDepthMax = maxdepth
+
+	local function enterhook(event, line)
+		if event == 'call' and Spring and Spring.Utilities then 
+			Spring.Utilities.HookDepth = Spring.Utilities.HookDepth + 1
+			if Spring and Spring.Utilities and Spring.Utilities.HookDepth and Spring.Utilities.HookDepthMax and debug and debug.getlocal and debug.getinfo and (Spring.Utilities.HookDepth < Spring.Utilities.HookDepthMax) then 
+				local locals = ''
+				local fname = (debug.getinfo(2, 'n') and debug.getinfo(2, 'n').name) or "???"
+				for i = 1, maxwidth do 
+					--Spring.Echo(fname,i,locals)
+					local name, value = debug.getlocal(2,i)
+					--Spring.Echo(name, value )
+					if not name then 
+						break 
+					else
+						if name == 'self' then -- as this triggers a c stack overflow on tostring(value)
+							locals = locals .. "self, "
+						else
+							locals = locals .. ((name and tostring(name)) or "name?") .. "=" .. tostring(value) .. ", " 
+						end
+					end
+				end
+				local fmt = string.format("+%s %s (%s)", 
+						string.rep('>', Spring.Utilities.HookDepth), 
+						fname, 
+						locals)
+				Spring.Echo(fmt)
+			end
+		elseif event == 'return' then  
+			if not hidereturns and Spring.Utilities.HookDepth < Spring.Utilities.HookDepthMax then 
+				-- attempt to get name, value of last local (retval)
+				local i = 1
+				local penultimate = '?'
+				local retval = '?'
+				while (true) do
+					local name, value = debug.getlocal(2,i)
+					if name then
+						penultimate = retval 
+						if name == 'self' then 
+							retval = 'self'
+						else
+							retval = tostring(value)
+						end
+					else
+						break
+					end
+					i = i + 1
+				end
+
+				local fmt = string.format('-%s %s returns( %s or %s )', 
+					string.rep('<', Spring.Utilities.HookDepth), 
+					(debug.getinfo(2, 'n') and debug.getinfo(2, 'n').name) or "???", penultimate, retval)
+				Spring.Echo(fmt)
+
+			end
+			Spring.Utilities.HookDepth = math.max(Spring.Utilities.HookDepth -1, 0)
+		end
+	end
+	debug.sethook(enterhook, 'c r')
+	return true
+end
+
+Spring.Utilities.StartCallHook = StartCallHook
+
+local function EndCallHook()
+	debug.sethook()
+	Spring.Echo("EndCallHook",Spring.Utilities.HookDepth)
+end
+
+Spring.Utilities.EndCallHook = EndCallHook
+
 function Spring.Utilities.CustomKeyToUsefulTable(dataRaw)
 	if not dataRaw then
 		return
@@ -304,4 +389,61 @@ function Spring.Utilities.CustomKeyToUsefulTable(dataRaw)
 	if collectgarbage then
 		collectgarbage("collect")
 	end
+end
+
+-- Because Luas built in table.sort function is by default mergesort, which is always N*logN
+-- Insertion sort, however has a best case N, worst case N*N/2
+-- Very often, we are dealing with almost sorted tables, in which case insertion sort is 
+-- N*K, where K is the number of out-of-order elements. 
+function Spring.Utilities.insertionSort(array, a_gt_b, inplace, reverse)
+	if a_gt_b == nil then
+		a_gt_b = function(a,b) return a>b end
+	end
+	local comparisons = 0
+	local sorted
+	if inplace then
+		sorted = array
+	else
+		sorted = {}
+		for i, v in ipairs(array) do
+			sorted[i] = v
+		end
+	end
+
+	local len = #sorted
+	if len <= 1 then return sorted, 0 end -- single element or less tables are already sorted
+
+	-- validation:
+	local biggestkey = 0 
+	local numkeys = 0
+	local max = math.max
+	for k,v in pairs(array) do 
+		numkeys = numkeys+1
+		biggestkey = max(biggestkey, k)
+	end
+	if biggestkey ~= numkeys or len ~= numkeys then
+		Spring.Echo("Spring.Utilities.insertionSort received an invalid array", len, biggestkey, numkeys)
+		Spring.Utilities.TableEcho(array)
+		return array, nil
+	end
+
+
+	for j = 2, len do
+		local key = sorted[j]
+		local i = j - 1
+		if reverse then
+			while i > 0 and a_gt_b(key, sorted[i])  do
+				sorted[i + 1] = sorted[i]
+				i = i - 1
+			end
+		else
+			while i > 0 and a_gt_b(sorted[i], key) do
+				sorted[i + 1] = sorted[i]
+				i = i - 1
+			end
+		end
+		comparisons = comparisons + (j-i)
+		sorted[i + 1] = key
+	end
+	return sorted, comparisons
 end

@@ -522,7 +522,7 @@ local function GetBattleTooltip(battleID, battle)
 			battleTooltip.mainControl:AddChild(battleTooltip.debugText)
 		end
 
-		local text = "battleUD = " .. battleID
+		local text = "battleID = " .. battleID
 		for key, value in pairs(battle) do
 			text = text .. "\n" .. key .. " = " .. tostring(value)
 		end

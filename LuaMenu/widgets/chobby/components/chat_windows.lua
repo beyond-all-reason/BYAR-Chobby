@@ -791,7 +791,7 @@ function ChatWindows:GetChannelConsole(chanName)
 		}
 
 		self.ignoreTabClick = true
-		if chanName == "main" then
+		if chanName == "main" or chanName == "newbies" then
 			self.tabPanel:AddTab(
 				{
 					name = chanName,

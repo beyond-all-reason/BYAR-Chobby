@@ -589,6 +589,11 @@ function Interface:_OnPong()
 end
 Interface.commands["PONG"] = Interface._OnPong
 
+function Interface:_OnQueued()
+	self:super("_OnQueued")
+end
+Interface.commands["QUEUED"] = Interface._OnQueued
+
 ------------------------
 -- User commands
 ------------------------
@@ -788,8 +793,8 @@ function Interface:_OnBattleOpened(battleID, type, natType, founder, ip, port, m
 		title = title,
 		gameName = gameName,
 
-		spectatorCount = 0,
-		--playerCount = nil,
+		spectatorCount = 1, -- To handle the founder joining as a spec
+		--playerCount = 0, -- to handle the founder joining as a spec
 		isRunning = self.users[founder].isInGame,
 
 		-- Spring stuff
@@ -797,6 +802,7 @@ function Interface:_OnBattleOpened(battleID, type, natType, founder, ip, port, m
 		--type = tonumber(type)
 		--natType = tonumber(natType)
 	})
+	self:_OnJoinedBattle(battleID, founder, "") -- so that the founder joins the battle as a spectato
 end
 Interface.commands["BATTLEOPENED"] = Interface._OnBattleOpened
 Interface.commandPattern["BATTLEOPENED"] = "(%d+)%s+(%d)%s+(%d)%s+(%S+)%s+(%S+)%s+(%d+)%s+(%d+)%s+(%d+)%s+(%S+)%s+(%S+)%s*(.*)"
