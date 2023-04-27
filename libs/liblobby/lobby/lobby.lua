@@ -14,7 +14,7 @@ end
 function Lobby:_Clean()
 	self.users = {} -- {username = {battlestatustable}}
 	self.userNamesLC = {} -- lookup table for (user name in lower Case) => userName
-	self.userNamesQueued = {}
+	-- self.userNamesQueued = {}
 	self.userBySteamID = {}
 	self.userCount = 0
 
@@ -634,17 +634,32 @@ function Lobby:_OnUpdateUserStatus(userName, status)
 end
 
 function Lobby:GuessCurrentBattleQueue(battleID, userNameJoinedPlayers)
+	Spring.Echo("GuessCurrentBattleQueue", battleID, userNameJoinedPlayers)
+
 	local queueList = {} -- indexed table
-	local joinedQueuePos = 0
-	for _, battleUserName in pairs(self.battles[battleID].users) do -- all users in battle
+	local queuePosOfJoinedPlayer = 0
+	local battleUsers = self.battles[battleID].users
+	for _, battleUserName in pairs(battleUsers) do
 		local queueNr = self.userBattleStatus[battleUserName] and self.userBattleStatus[battleUserName].queuePos or 0
 		if queueNr > 0 then
 			queueList[queueNr] = battleUserName
 		end
 		if battleUserName == userNameJoinedPlayers then
-			joinedQueuePos = queueNr
+			queuePosOfJoinedPlayer = queueNr
 		end
 	end
+
+	Spring.Echo("GuessCurrentBattleQueue prior queuePos", queuePosOfJoinedPlayer)
+	
+	Spring.Echo("BattleUsers before")
+	Spring.Utilities.TableEcho(battleUsers)
+	-- remove user, who changed to player from known queuelist and update other queuelist users
+	table.remove(queueList, queuePosOfJoinedPlayer)
+	self:_OnUpdateBattleQueue(battleID, queueList)
+
+	Spring.Echo("BattleUsers after")
+	Spring.Utilities.TableEcho(battleUsers)
+
 end
 
 function Lobby:_OnUpdateBattleQueue(battleID, userNamesQueued)
@@ -654,7 +669,8 @@ function Lobby:_OnUpdateBattleQueue(battleID, userNamesQueued)
 
 		for posNew, userNameQueued in pairs(userNamesQueued) do -- test each battleUser if in the received queueList
 			if battleUserName == userNameQueued then
-				if queueStatusOld ~= posNew or true then
+				--if queueStatusOld ~= posNew or true then
+				if queueStatusOld ~= posNew then
 					self:_OnUpdateUserBattleStatus(battleUserName, {queuePos = posNew})
 					userInQueue = true
 					break
