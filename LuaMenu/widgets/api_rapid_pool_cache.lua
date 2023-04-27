@@ -43,6 +43,7 @@ local firstrun = true
 local firsttime = 0.25
 local garbage = 0
 local cachingSpeed = 0
+local dontspam = 0
 local cachingLabel
 local lobby
 local localLobby
@@ -141,7 +142,10 @@ function widget:Update()
 		end
 		firstrun = false
 	else
-		Spring.Echo(string.format("Rapid Pool Cache: loaded %d files (%d KB, %.2f MB/s) in %.2fs", loadedNow, nowKB, 0.001*nowKB/realTime, realTime))
+		if dontspam % 10 == 0 then
+			Spring.Echo(string.format("Rapid Pool Cache: loaded %d files (%d KB, %.2f MB/s) in %.2fs", loadedNow, nowKB, 0.001*nowKB/realTime, realTime))
+		end
+		dontspam = dontspam + 1
 	end
 
 end
