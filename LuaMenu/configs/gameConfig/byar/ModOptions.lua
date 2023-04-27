@@ -377,12 +377,12 @@ local options={
 		def="normal",
 		section="chicken_defense_options",
 		items={
+			{key="veryeasy", name="Very Easy", desc="Very Easy"},
+			{key="easy", name="Easy", desc="Easy"},
 			{key="normal", name="Normal", desc="Normal"},
 			{key="hard", name="Hard", desc="Hard"},
 			{key="veryhard", name="Very Hard", desc="Very Hard"},
-			{key="insane", name="Insane", desc="Insane"},
 			{key="epic", name="Epic", desc="Epic"},
-			{key="unbeatable", name="Unbeatable", desc="Unbeatable"},
 
 			{key="survival", name="Endless", desc="Endless Mode"}
 		}
@@ -408,7 +408,7 @@ local options={
 		def    = 1,
 		min    = 0.1,
 		max    = 3,
-		step   = 1,
+		step   = 0.1,
 		section= "chicken_defense_options",
 	},
 	{
@@ -536,11 +536,20 @@ local options={
 		section="options",
 	},
 	{
+		key    = "map_waterislava",
+		name   = "Water Is Lava",
+		desc   = "Turns water into Lava",
+		type   = "bool",
+		def    = false,
+		section= "options",
+	},
+	{
 		key    = "map_atmosphere",
 		name   = "Map Atmosphere and Ambient Sounds",
 		desc   = "",
 		type   = "bool",
 		def    = true,
+		hidden = true,
 		section= "options",
 	},
 	{
