@@ -589,6 +589,11 @@ function Interface:_OnPong()
 end
 Interface.commands["PONG"] = Interface._OnPong
 
+function Interface:_OnQueued()
+	self:super("_OnQueued")
+end
+Interface.commands["QUEUED"] = Interface._OnQueued
+
 ------------------------
 -- User commands
 ------------------------
@@ -788,8 +793,8 @@ function Interface:_OnBattleOpened(battleID, type, natType, founder, ip, port, m
 		title = title,
 		gameName = gameName,
 
-		spectatorCount = 0,
-		--playerCount = nil,
+		spectatorCount = 1, -- To handle the founder joining as a spec
+		--playerCount = 0, -- to handle the founder joining as a spec
 		isRunning = self.users[founder].isInGame,
 
 		-- Spring stuff
@@ -797,6 +802,7 @@ function Interface:_OnBattleOpened(battleID, type, natType, founder, ip, port, m
 		--type = tonumber(type)
 		--natType = tonumber(natType)
 	})
+	self:_OnJoinedBattle(battleID, founder, "") -- so that the founder joins the battle as a spectato
 end
 Interface.commands["BATTLEOPENED"] = Interface._OnBattleOpened
 Interface.commandPattern["BATTLEOPENED"] = "(%d+)%s+(%d)%s+(%d)%s+(%S+)%s+(%S+)%s+(%d+)%s+(%d+)%s+(%d+)%s+(%S+)%s+(%S+)%s*(.*)"
@@ -1175,13 +1181,13 @@ end
 
 -- parse following servermessage:
 -- s.battle.queue_status\s<battleID>\t<userName1>\t<userName2>...
-function Interface:_OnSBattleQueueStatus(battleId, userNamesChain)
-	-- Spring.Echo("_OnSBattleQueueStatus battleId:"..battleId.." userNamesChain:"..userNamesChain, "type of battleId", type(battleId))
-	
-	-- validate battleId
-	battleId = tonumber(battleId)
-	if not self:GetMyBattleID() or self:GetMyBattleID() ~= battleId then
-		Spring.Log(LOG_SECTION, LOG.WARNING, "Received s.battle.queue_status with battleId for another battle: ", tostring(battleId))
+function Interface:_OnSBattleQueueStatus(battleID, userNamesChain)
+	-- Spring.Echo("_OnSBattleQueueStatus battleID:"..battleID.." userNamesChain:"..userNamesChain, "type of battleID", type(battleID))
+
+	-- validate battleID
+	battleID = tonumber(battleID)
+	if not self:GetMyBattleID() or self:GetMyBattleID() ~= battleID then
+		Spring.Log(LOG_SECTION, LOG.WARNING, "Received s.battle.queue_status with battleID for another battle: ", tostring(battleID))
 		return
 	end
 
@@ -1190,7 +1196,7 @@ function Interface:_OnSBattleQueueStatus(battleId, userNamesChain)
 		queuedUserNames = explode("\t", userNamesChain)
 	end
 
-	self:_OnUpdateBattleQueue(battleId, queuedUserNames) -- always update, empty queue must be propagated too
+	self:_OnUpdateBattleQueue(battleID, queuedUserNames) -- always update, empty queue must be propagated too
 end
 Interface.commands["s.battle.queue_status"] = Interface._OnSBattleQueueStatus
 Interface.commandPattern["s.battle.queue_status"] = "(%d+)%s*(.*)" -- * on %s because the part right of %d can be total empty for an empty queue

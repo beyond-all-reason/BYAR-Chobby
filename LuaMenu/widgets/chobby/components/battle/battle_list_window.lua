@@ -17,6 +17,7 @@ function BattleListWindow:init(parent)
 	myFont3 = Font:New(Configuration:GetFont(3))
 
 	self:super("init", parent, "Play or watch a game", true, nil, nil, nil, 34)
+	self.name = "BattleListWindow"
 
 	if not Configuration.gameConfig.disableBattleListHostButton then
 		self.btnNewBattle = Button:New {
@@ -270,8 +271,6 @@ function BattleListWindow:RemoveListeners()
 	lobby:RemoveListener("OnBattleIngameUpdate", self.onBattleIngameUpdate)
 	lobby:RemoveListener("OnConfigurationChange", self.onConfigurationChange)
 	lobby:RemoveListener("DownloadFinished", self.downloadFinished)
-	--lobby:RemoveListener("DownloadFinished", self.downloadFinished)
-	--lobby:RemoveListener("DownloadFinished", self.downloadFinished)
 end
 
 function BattleListWindow:UpdateAllBattleIDs()
@@ -302,12 +301,29 @@ function BattleListWindow:Update()
 	self:SoftUpdate()
 end
 
+
 function BattleListWindow:SoftUpdate()
 	-- UpdateFilters is quite heavy, because it sorts all the battles on the
 	-- list, so instead of just calling SoftUpdate functionality directly,
-	-- we use debounce technicue to coalesce soft updates that are happening
-	-- close to each other in time into single invocation.
+	-- we only update, if we havent updated in 3 seconds.
+	-- Also note, that the previous implementation somehow ran on intermediate states, 
+	-- causeing severe bouncing of battles up and down
+	if self.lastSoftUpdate == nil then
+		self.lastSoftUpdate = Spring.GetTimer()
+	end
 
+	self:UpdateInfoPanel()
+	if Spring.DiffTimers(Spring.GetTimer(), self.lastSoftUpdate) > 3 then
+		self.lastSoftUpdate = Spring.GetTimer()
+		if Configuration.battleFilterRedundant then
+			self:UpdateAllBattleIDs()
+		end
+		self:UpdateFilters()
+	end
+
+	-- this method, for some godforsaken reason doesnt work as expected. 
+	-- It is kept here as a tomb for weary travellers to rest by.
+	--[[
 	self.lastSoftUpdate = os.clock()
 
 	local battleList = self
@@ -330,6 +346,7 @@ function BattleListWindow:SoftUpdate()
 		WG.Delay(RealSoftUpdate, 0.2)
 		self.softUpdateTimerRunning = true
 	end
+	]]--
 end
 
 function BattleListWindow:UpdateInfoPanel()
@@ -798,45 +815,64 @@ function BattleListWindow:CompareItems(id1, id2)
 	-- 0. Public, not running battles with > 0 players
 	-- 1. public, running unlocked battles by player count
 	-- 2. public locked battles by player count
-	-- 3. unlocked private battles, alphabetically
-	-- 4. locked private battles, alphabetically
+	-- 3. private battles, alphabetically
 	--
-	-- 1.& 2.: If player count is identical, order those by RunningState (not running first)
 
 	-- sorted list of params to check by?
-
+	local lobby = WG.LibLobby.lobby
 	local battle1, battle2 = lobby:GetBattle(id1), lobby:GetBattle(id2)
 	if id1 and id2 and battle1 and battle2 then -- validity check
-		if battle1.passworded ~= battle2.passworded then
-			return battle2.passworded
-		elseif battle1.passworded == true and battle2.passworded == true then
-			if battle1.locked ~= battle2.locked then
-				return battle2.locked
-			else
+		--Spring.Echo("id", id1, id2, "isrunning", battle1.isRunning, battle2.isRunning,
+		--	"pw", battle1.passworded, battle2.passworded,
+		--	'locked', battle1.locked, battle2.locked
+		--)
+		local battle1passworded = (battle1.passworded == true )
+		local battle2passworded = (battle2.passworded == true )
+		
+		if battle1passworded ~= battle2passworded then
+			return battle2passworded
+		elseif battle1passworded  and battle2passworded then
+			--Spring.Echo(id1, battle1.locked, battle1.title, id2, battle2.locked, battle2.title)
+			--if battle1.locked ~= battle2.locked then
+			--	return battle2.locked
+			--else
 				-- Sort passworded battles by title
 				return string.lower(battle1.title) < string.lower(battle2.title )
-			end
+			--end
 		end
 		-- neither are passworded
 
 		-- Dump locked next
-		if battle1.locked ~= battle2.locked then
-			return battle2.locked
+		local battle1locked = (battle1.locked == true)
+		local battle2locked = (battle2.locked == true)
+		if battle1locked ~= battle2locked then
+			return battle2locked
 		end
 
-		local countOne = lobby:GetBattlePlayerCount(id1)
-		local countTwo = lobby:GetBattlePlayerCount(id2)
-		-- Put empty rooms at the back of the list
-		if countOne == 0 and countTwo ~= 0 then -- id1 is empty
+		-- Handle silly ass negative counts
+		local countOne = math.max(0, lobby:GetBattlePlayerCount(id1))
+		local countTwo = math.max(0, lobby:GetBattlePlayerCount(id2))
+		--Spring.Echo(id1, countOne, id2, countTwo)
+		--Put empty rooms at the back of the list
+		-- unless they are running
+		local battle1isRunning = (battle1.isRunning == true)
+		local battle2isRunning = (battle2.isRunning == true)
+		local empty1 = (battle1isRunning == false) and (countOne == 0)
+		local empty2 = (battle2isRunning == false) and (countTwo == 0)
+
+		if empty1 ~= empty2 then
+			return (empty2 == true)
+		end
+		
+		if countOne == 0 and countTwo > 0 then -- id1 is empty
 			return false
-		elseif countOne ~= 0 and countTwo == 0 then  -- id2 is empty
+		elseif countOne > 0 and countTwo == 0 then  -- id2 is empty
 			return true
 		end
 
-
 		-- Put running after open
-		if battle1.isRunning ~= battle2.isRunning then
-			return battle2.isRunning
+		if battle1isRunning ~= battle2isRunning then
+			return battle2isRunning
 		end
 
 		-- Sort by player count
@@ -1064,6 +1100,8 @@ function BattleListWindow:LeftBattle(battleID)
 end
 
 function BattleListWindow:OnUpdateBattleInfo(battleID)
+	-- Note that the parameters of UPDATEBATTLEINFO are :
+	-- UPDATEBATTLEINFO spectatorCount locked mapHash {mapName}
 	local battle = lobby:GetBattle(battleID)
 	if not (Configuration.displayBadEngines2 or Configuration:IsValidEngineVersion(battle.engineVersion)) then
 		return
@@ -1074,12 +1112,10 @@ function BattleListWindow:OnUpdateBattleInfo(battleID)
 		self:AddBattle(battleID)
 		return
 	end
-
-	local lblTitle = items.battleButton:GetChildByName("lblTitle")
-	local mapCaption = items.battleButton:GetChildByName("mapCaption")
-	--local imHaveMap = items.battleButton:GetChildByName("imHaveMap")
-	local minimapImage = items.battleButton:GetChildByName("minimap"):GetChildByName("minimapImage")
-	local password = items.battleButton:GetChildByName("password")
+	local battleButton = items.battleButton
+	local lblTitle = battleButton:GetChildByName("lblTitle")
+	--local imHaveMap = battleButton:GetChildByName("imHaveMap")
+	local password = battleButton:GetChildByName("password")
 
 	if imHaveMap or true then
 		-- Password Update
@@ -1088,25 +1124,29 @@ function BattleListWindow:OnUpdateBattleInfo(battleID)
 		elseif battle.passworded and not password then
 			local imgPassworded = Image:New {
 				name = "password",
-				x = items.battleButton.height + 28,
+				x = battleButton.height + 28,
 				y = 22,
 				height = 30,
 				width = 30,
 				margin = {0, 0, 0, 0},
 				file = CHOBBY_IMG_DIR .. "lock.png",
-				parent = items.battleButton,
+				parent = battleButton,
 			}
 		end
 
-
-
 		-- Resets title and truncates.
 		lblTitle.OnResize[1](lblTitle)
+		
+		-- Update minimap button if changed
+		if battleButton.previousMapName ~= battle.mapName then 
+			local minimapImage = battleButton:GetChildByName("minimap"):GetChildByName("minimapImage")
+			local mapCaption = battleButton:GetChildByName("mapCaption")
+			minimapImage.file, minimapImage.checkFileExists = Configuration:GetMinimapSmallImage(battle.mapName)
+			minimapImage:Invalidate()
+			mapCaption:SetCaption(battle.mapName:gsub("_", " "))
+			battleButton.previousMapName = battle.mapName
+		end
 
-		minimapImage.file, minimapImage.checkFileExists = Configuration:GetMinimapSmallImage(battle.mapName)
-		minimapImage:Invalidate()
-
-		mapCaption:SetCaption(battle.mapName:gsub("_", " "))
 		-- if VFS.HasArchive(battle.mapName) then
 		-- 	imHaveMap.file = IMAGE_DLREADY
 		-- else
@@ -1122,11 +1162,12 @@ function BattleListWindow:OnUpdateBattleInfo(battleID)
 
 		--local gameCaption = items.battleButton:GetChildByName("gameCaption")
 		--gameCaption:SetCaption(self:_MakeGameCaption(battle))
-
-		local playersCaption = items.battleButton:GetChildByName("playersCaption")
-		playersCaption:SetCaption(lobby:GetBattlePlayerCount(battleID) .. "/" .. battle.maxPlayers)
-		self:UpdateRankIcon(battleID, battle, items)
-
+		local newPlayerCount = lobby:GetBattlePlayerCount(battleID)
+		if battleButton.previousPlayerCount ~= newPlayerCount then 
+			local playersCaption = battleButton:GetChildByName("playersCaption")
+			playersCaption:SetCaption(newPlayerCount .. "/" .. battle.maxPlayers)
+			battleButton.previousPlayerCount = newPlayerCount
+		end
 
 	else
 		-- Resets title and truncates.
