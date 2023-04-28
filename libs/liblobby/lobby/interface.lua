@@ -1181,13 +1181,13 @@ end
 
 -- parse following servermessage:
 -- s.battle.queue_status\s<battleID>\t<userName1>\t<userName2>...
-function Interface:_OnSBattleQueueStatus(battleId, userNamesChain)
-	-- Spring.Echo("_OnSBattleQueueStatus battleId:"..battleId.." userNamesChain:"..userNamesChain, "type of battleId", type(battleId))
-	
-	-- validate battleId
-	battleId = tonumber(battleId)
-	if not self:GetMyBattleID() or self:GetMyBattleID() ~= battleId then
-		Spring.Log(LOG_SECTION, LOG.WARNING, "Received s.battle.queue_status with battleId for another battle: ", tostring(battleId))
+function Interface:_OnSBattleQueueStatus(battleID, userNamesChain)
+	-- Spring.Echo("_OnSBattleQueueStatus battleID:"..battleID.." userNamesChain:"..userNamesChain, "type of battleID", type(battleID))
+
+	-- validate battleID
+	battleID = tonumber(battleID)
+	if not self:GetMyBattleID() or self:GetMyBattleID() ~= battleID then
+		Spring.Log(LOG_SECTION, LOG.WARNING, "Received s.battle.queue_status with battleID for another battle: ", tostring(battleID))
 		return
 	end
 
@@ -1196,7 +1196,7 @@ function Interface:_OnSBattleQueueStatus(battleId, userNamesChain)
 		queuedUserNames = explode("\t", userNamesChain)
 	end
 
-	self:_OnUpdateBattleQueue(battleId, queuedUserNames) -- always update, empty queue must be propagated too
+	self:_OnUpdateBattleQueue(battleID, queuedUserNames) -- always update, empty queue must be propagated too
 end
 Interface.commands["s.battle.queue_status"] = Interface._OnSBattleQueueStatus
 Interface.commandPattern["s.battle.queue_status"] = "(%d+)%s*(.*)" -- * on %s because the part right of %d can be total empty for an empty queue
