@@ -633,33 +633,23 @@ function Lobby:_OnUpdateUserStatus(userName, status)
 	end
 end
 
-function Lobby:GuessCurrentBattleQueue(battleID, userNameJoinedPlayers)
-	Spring.Echo("GuessCurrentBattleQueue", battleID, userNameJoinedPlayers)
+-- reorder remaining queueList (called when a spec changes to player)
+function Lobby:ReorderCurrentBattleQueue(userNameJoinedPlayers, oldQueuePos)
+	local battleID = self:GetMyBattleID()
 
-	local queueList = {} -- indexed table
-	local queuePosOfJoinedPlayer = 0
+	local queueListUpdated = {} -- indexed table of usernames in queue
+
 	local battleUsers = self.battles[battleID].users
 	for _, battleUserName in pairs(battleUsers) do
 		local queueNr = self.userBattleStatus[battleUserName] and self.userBattleStatus[battleUserName].queuePos or 0
-		if queueNr > 0 then
-			queueList[queueNr] = battleUserName
-		end
-		if battleUserName == userNameJoinedPlayers then
-			queuePosOfJoinedPlayer = queueNr
+		if queueNr > oldQueuePos then
+			queueListUpdated[queueNr-1] = battleUserName
+		elseif queueNr > 0 then
+			queueListUpdated[queueNr] = battleUserName
 		end
 	end
 
-	Spring.Echo("GuessCurrentBattleQueue prior queuePos", queuePosOfJoinedPlayer)
-	
-	Spring.Echo("BattleUsers before")
-	Spring.Utilities.TableEcho(battleUsers)
-	-- remove user, who changed to player from known queuelist and update other queuelist users
-	table.remove(queueList, queuePosOfJoinedPlayer)
-	self:_OnUpdateBattleQueue(battleID, queueList)
-
-	Spring.Echo("BattleUsers after")
-	Spring.Utilities.TableEcho(battleUsers)
-
+	self:_OnUpdateBattleQueue(battleID, queueListUpdated)
 end
 
 function Lobby:_OnUpdateBattleQueue(battleID, userNamesQueued)
@@ -680,12 +670,8 @@ function Lobby:_OnUpdateBattleQueue(battleID, userNamesQueued)
 				end
 			end
 		end
-		if userInQueue == false then
-			if queueStatusOld > 0 then
-				self:_OnUpdateUserBattleStatus(battleUserName, {queuePos = 0})
-			-- else
-				-- Spring.Echo("_OnUpdateBattleQueue Not Updating user,which is has no new queue pos and had none before " .. battleUserName .. " pos " .. tostring(queueStatusOld))
-			end
+		if userInQueue == false and queueStatusOld > 0 then
+			self:_OnUpdateUserBattleStatus(battleUserName, {queuePos = 0})
 		end
 	end
 	return
@@ -1056,25 +1042,27 @@ function Lobby:_OnUpdateUserBattleStatus(userName, status)
 
 	local battleStatus = self.userBattleStatus[userName]
 	-- local debugisReady = battleStatus.isReady
-
+	
+	local oldQueuePos = battleStatus.queuePos
 	local battleStatusDiff, changed = getDiffAndSetNewValuesToTable(battleStatus, statusNew) -- use battleStatusDiff instead of statusNew to only propagate battleStatus properties, that really changed or which are new properties
 
 	if changed then
 		if battleStatusDiff.isSpectator ~= nil and battleStatusDiff.isSpectator == false and battleStatus.queuePos and battleStatus.queuePos ~= 0 then
-			battleStatus.queuePos = 0 -- always change queuePos to 0, if we switch from spec to player = prevent showing queuePos e.g. in playerbattelist, if we didn''t receive the queue-update from server yet
-
+			battleStatus.queuePos = 0 -- always change queuePos to 0, if we switch from spec to player = prevent showing queuePos e.g. in playerbattelist, if we didn't receive the queue-update from server yet
 			battleStatusDiff.queuePos = 0
 		end
-
-		--if battleStatusDiff.isReady ~= nil then
-		--	Spring.Echo("isReady changed from", debugisReady, "to", battleStatusDiff.isReady)
-		--	Spring.Utilities.TraceFullEcho()
-		--end
 
 		self:_CallListeners("OnUpdateUserBattleStatus", userName, battleStatusDiff)
 
 		if battleStatusDiff.allyNumber or battleStatusDiff.isSpectator ~= nil or battleStatusDiff.queuePos then
 			self:_CallListeners("OnUpdateUserTeamStatus", userName, battleStatus.allyNumber, battleStatus.isSpectator, battleStatus.queuePos)
+		end
+
+		-- call ReorderCurrentBattleQueue last here, because it calls _OnUpdateUserBattleStatus again (for other users);
+		-- so we want listeners of this OnUpdateUserBattleStatus have finished before
+		-- reorder , because we don't necessarily receive an update of queuelist from server
+		if battleStatusDiff.isSpectator ~= nil and battleStatusDiff.isSpectator == false and battleStatusDiff.queuePos and battleStatusDiff.queuePos == 0 then
+			self:ReorderCurrentBattleQueue(userName, oldQueuePos) 
 		end
 	end
 end
