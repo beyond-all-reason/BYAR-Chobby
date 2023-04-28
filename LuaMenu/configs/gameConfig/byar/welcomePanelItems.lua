@@ -33,9 +33,9 @@ local welcomePanelItems = {
     },
     
     {
-        Header = "New Map: Thermal Shock v1.0",
-        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/thermal_shock_v1.0.png",
-        Text = "Team-play , 8v8 capable map. West vs South. Lava level is dropping slowly.\nMade by Nikuksis.",
+        Header = "New Map: Thermal Shock v1.1",
+        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/thermal_shock_v1.1.png",
+        Text = "Team-play 8v8 capable map. West vs South.\nUpdate 1.1: Added bridges over lava lake, fixed pathing around lava, temporary removed lava level change.\nMade by Nikuksis.",
     },    
 
     {
