@@ -2998,8 +2998,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 			return
 		end
 
-		Spring.Log(LOG_SECTION, LOG.NOTICE, "OnUpdateUserBattleStatus isSpec nil?", status.isSpectator == nil, "isReady nil?", status.isReady == nil, "isSpec:", status.isSpectator, "isReady:",status.isReady)
-		-- Spring.Utilities.TraceFullEcho()
+		Spring.Log(LOG_SECTION, LOG.DEBUG, "OnUpdateUserBattleStatus isSpec nil?", status.isSpectator == nil, "isReady nil?", status.isReady == nil, "isSpec:", status.isSpectator, "isReady:",status.isReady)
 
 		local tooltipCandidate = ""
 		if status.isSpectator ~= nil then
@@ -3028,6 +3027,10 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 				tooltipCandidate = i18n("unready_tooltip")
 			end
         end
+
+		if status.queuePos then
+			
+		end
 
 		-- 23/04/04 Fireball: moved readyButton tooltip change on battle.isRunning to BattleIngameUpdate
 		if not battle.isRunning then
