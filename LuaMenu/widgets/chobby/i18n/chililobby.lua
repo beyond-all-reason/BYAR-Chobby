@@ -142,6 +142,7 @@ return {
 
 		spectate = "Spectate",
 		spectating = "Spectating",
+		leave_queue = "Leave Queue",
 
 		tooltip_is_spectator = "You will spectate this game when it starts.",
 		tooltip_become_spectator = "Press to watch the game as a spectator.",
@@ -151,9 +152,9 @@ return {
 		tooltip_leave_queue = "Spectate this game and remove yourself from the join-queue.",
 
 		play = "Play",
-		join_queue = "Join Queue",
-		leave_queue = "Leave Queue",
 		playing = "Playing",
+		join_queue = "Join Queue",
+		queued = "Queued",
 
 		watch = "Watch",
 		matchmaking = "Matchmaking",
