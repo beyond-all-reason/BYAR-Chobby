@@ -824,7 +824,6 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		ButtonUtilities.SetCaption(btnSpectate, i18n("spectate"))
 		ButtonUtilities.SetButtonSelected(btnPlay)
 		ButtonUtilities.SetCaption(btnPlay, i18n("playing"))
-		--ButtonUtilities.SetCaption(btnPlay, "playing")
 
 		btnPlay.suppressButtonReaction = true
 		btnSpectate.suppressButtonReaction = false
@@ -838,7 +837,6 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		-- playBtn
 		ButtonUtilities.SetButtonDeselected(btnPlay)
 		ButtonUtilities.SetCaption(btnPlay, i18n("play"))
-		--ButtonUtilities.SetCaption(btnPlay, "play")
 		btnPlay.suppressButtonReaction = false
 		
 		-- SpecBtn
