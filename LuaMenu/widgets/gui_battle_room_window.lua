@@ -817,35 +817,34 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 
 	local btnPlay
 	local btnSpectate
-
+	
 	local function SetButtonStatePlaying()
+		-- Spring.Echo("SetButtonStatePlaying !!!")
 		ButtonUtilities.SetButtonDeselected(btnSpectate)
 		ButtonUtilities.SetCaption(btnSpectate, i18n("spectate"))
 		ButtonUtilities.SetButtonSelected(btnPlay)
 		ButtonUtilities.SetCaption(btnPlay, i18n("playing"))
 
-		btnPlay.suppressButtonReaction = true
-		btnSpectate.suppressButtonReaction = false
+		-- btnPlay.suppressButtonReaction = true -- not working (anymore ?)
+		-- btnSpectate.suppressButtonReaction = false
 
 		btnPlay.tooltip = i18n("tooltip_is_player")
 		btnSpectate.tooltip = i18n("tooltip_become_spectator")
 
 	end
 	local function SetButtonStateSpectating()
+		-- Spring.Echo("SetButtonStateSpectating !!!")
+		-- playBtn
 		ButtonUtilities.SetButtonDeselected(btnPlay)
 		ButtonUtilities.SetCaption(btnPlay, i18n("play"))
+		-- btnPlay.suppressButtonReaction = false -- not working (anymore ?)
+		
+		-- SpecBtn
 		ButtonUtilities.SetButtonSelected(btnSpectate)
+		-- btnSpectate.suppressButtonReaction = true -- not working (anymore ?)
 
-		btnSpectate.suppressButtonReaction = true
-		btnPlay.suppressButtonReaction = false
-
-		if battleLobby.name ~= "singleplayer" then
-			btnSpectate.tooltip = i18n("tooltip_leave_queue")
-			btnPlay.tooltip = i18n("tooltip_join_queue")
-		else
-			btnSpectate.tooltip = i18n("tooltip_is_spectator")
-			btnPlay.tooltip = i18n("tooltip_become_player")
-		end
+		btnSpectate.tooltip = i18n("tooltip_is_spectator")
+		btnPlay.tooltip = i18n("tooltip_become_player")
 
 		ButtonUtilities.SetCaption(btnSpectate, i18n("spectating"))
 	end
@@ -860,6 +859,9 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		font = config:GetFont(2),
 		OnClick = {
 			function(obj)
+				if btnSpectate.selected then
+					return
+				end
 				local battleStatus = battleLobby:GetUserBattleStatus(myUserName) or {}
 				if battleStatus.isSpectator and battleLobby.name ~= "singleplayer" then
 					battleLobby:SayBattle('$leaveq')
@@ -870,8 +872,10 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 					isReady = false
 				})
 
-				SetButtonStateSpectating()
-
+				if battleLobby.name == "singleplayer" then
+					SetButtonStateSpectating()
+				end
+				
 				WG.Analytics.SendOnetimeEvent("lobby:multiplayer:custom:spectate")
 				if WG.Chobby.Configuration.useLastGameSpectatorState == 1 then
 					WG.Chobby.Configuration:SetConfigValue("lastGameSpectatorState", true)
@@ -891,6 +895,9 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		font = config:GetFont(2),
 		OnClick = {
 			function(obj)
+				if btnPlay.selected then
+					return
+				end
 				local unusedTeamID = battleLobby:GetUnusedTeamID()
 				--Spring.Echo("unusedTeamID",unusedTeamID)
 				battleLobby:SetBattleStatus({
@@ -899,7 +906,9 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 					side = (WG.Chobby.Configuration.lastFactionChoice or 0),
 					teamNumber = unusedTeamID})
 
-				SetButtonStatePlaying()
+				if battleLobby.name == "singleplayer" then
+					SetButtonStatePlaying()
+				end
 
 				WG.Analytics.SendOnetimeEvent("lobby:multiplayer:custom:play")
 				if WG.Chobby.Configuration.useLastGameSpectatorState == 1 then
@@ -910,7 +919,89 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		parent = rightInfo,
 	}
 
+	-- Spring.Echo("debug_initialSetButtonStatePlayingbefore")
 	SetButtonStatePlaying()
+	-- Spring.Echo("debug_initialSetButtonStatePlayingafter")
+	
+	local function SetBtnPlayState(selected, caption)
+		-- Spring.Echo("SetBtnPlayState selected, caption", selected, caption)
+		if selected then
+			ButtonUtilities.SetButtonSelected(btnPlay)
+			if caption == "playing" then
+				btnPlay.tooltip = i18n("tooltip_is_player")
+			elseif caption == "queued" then
+				btnPlay.tooltip = i18n("tooltip_queued")
+			end
+		else
+			ButtonUtilities.SetButtonDeselected(btnPlay)
+			if caption == "play" then
+				btnPlay.tooltip = i18n("tooltip_become_player")
+			elseif caption == "join_queue" then
+				btnPlay.tooltip = i18n("tooltip_join_queue")
+			end
+		end
+		ButtonUtilities.SetCaption(btnPlay, i18n(caption))
+		btnPlay:Invalidate()
+	end
+
+	local function SetBtnSpecState(selected, caption)
+		-- Spring.Echo("SetBtnSpecState selected, caption", selected, caption)
+		if selected then
+			ButtonUtilities.SetButtonSelected(btnSpectate)
+			btnSpectate.tooltip = i18n("tooltip_is_spectator")
+		else
+			ButtonUtilities.SetButtonDeselected(btnSpectate)
+			if caption == "spectate" then
+				btnSpectate.tooltip = i18n("tooltip_become_spectator")
+			elseif caption == "leave_queue" then
+				btnSpectate.tooltip = i18n("tooltip_leave_queue")
+			end
+		end
+		ButtonUtilities.SetCaption(btnSpectate, i18n(caption))
+	end
+
+	function externalFunctions.SetBtnsPlaySpec(playSelected, playCaption, specSelected, specCaption, force)
+		-- local inputParamsPlay = {
+		-- 	playSelected = playSelected,
+		-- 	playCaption  = playCaption,
+		-- }
+		-- 
+		-- local inputParamsSpec = {
+		-- 	specSelected = specSelected,
+		-- 	specCaption  = specCaption,
+		-- }
+		
+		if not btnPlay then
+			-- Spring.Echo("SetBtnsPlaySpec btnPlay not initialized")
+			return
+		end
+
+		--local playBtnStatus = {
+		--	selected               = btnPlay.selected,
+		--	suppressButtonReaction = btnPlay.suppressButtonReaction,
+		--	tooltip                = btnPlay.tooltip,
+		--	caption                = btnPlay.oldCaption, -- strange behaviour, returns strange strings
+		--}
+		--
+		--local specBtnStatus = {
+		--	selected               = btnSpectate.selected,
+		--	suppressButtonReaction = btnSpectate.suppressButtonReaction,
+		--	tooltip                = btnSpectate.tooltip,
+		--	caption                = btnSpectate.oldCaption, -- strange behaviour, returns strange strings
+		--}
+
+		if btnPlay.selected ~= playSelected or btnPlay.oldCaption ~= playCaption or force then
+			-- Spring.Utilities.TableEcho(inputParamsPlay)
+			-- Spring.Utilities.TableEcho(playBtnStatus)
+			SetBtnPlayState(playSelected, playCaption)
+		end
+
+		if btnSpectate.selected ~= specSelected or btnSpectate.oldCaption ~= specCaption or force then
+			-- Spring.Utilities.TableEcho(inputParamsSpec)
+			-- Spring.Utilities.TableEcho(specBtnStatus)
+			SetBtnSpecState(specSelected, specCaption)
+		end
+	end
 
 	rightInfo.OnResize = {
 		function (obj, xSize, ySize)
@@ -1170,11 +1261,11 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	function externalFunctions.UpdateUserTeamStatus(userName, allyNumber, isSpectator)
 		if userName == myUserName then
 			if isSpectator then
-				SetButtonStateSpectating()
+				-- SetButtonStateSpectating()
 				startBoxPanel:Hide()
 				minimapPanel.disableChildrenHitTest = true --omg this is amazing
 			else
-				SetButtonStatePlaying()
+				-- SetButtonStatePlaying()
 				startBoxPanel:Show()
 				minimapPanel.disableChildrenHitTest = false
 			end
@@ -2992,40 +3083,114 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	end
 
 	-- 23/03/19 Fireball update: only react, when dependent status.properties are present = were updated for this current event
-	-- reacts to: isSpectator, isReady
+	-- reacts to: isSpectator, isReady, queuePos
 	local function OnUpdateUserBattleStatus(listener, username, status)
-		if username ~= battleLobby.myUserName or battleLobby.name == "singleplayer" or (status.isSpectator == nil and status.isReady == nil) then
+		local battleID = battleLobby:GetMyBattleID()
+		local maxPlayers = battleLobby.battles[battleID].maxPlayers
+		local playerCount = battleLobby:GetBattlePlayerCount(battleID)
+		local myBs = battleLobby:GetUserBattleStatus(battleLobby.myUserName) or {}
+		local iAmPlayer = myBs.isSpectator ~= nil and myBs.isSpectator == false
+		local iAmQueued = myBs.queuePos and myBs.queuePos > 0
+		-- Spring.Echo("OnUpdateUserBattleStatus battleID, maxPlayers, playerCount, iAmPlayer, iAmQueued", battleID, maxPlayers, playerCount, iAmPlayer, iAmQueued)
+		
+		-- somebody switched to player
+		if status.isSpectator ~= nil and status.isSpectator == false then
+			if not iAmPlayer then
+				if not iAmQueued then
+					if playerCount >= maxPlayers then
+						-- Spring.Echo("OnUpdateUserBattleStatus players full > SET play = join_queue")
+						infoHandler.SetBtnsPlaySpec(false, "join_queue", true, "spectating", false)
+					else
+						-- Spring.Echo("OnUpdateUserBattleStatus players not full > SET play = play")
+						infoHandler.SetBtnsPlaySpec(false, "play", true, "spectating", false)
+					end
+				else
+					-- Spring.Echo("OnUpdateUserBattleStatus SET play = queued; Spec = leave_queue")
+					infoHandler.SetBtnsPlaySpec(true, "queued", false, "Leave Queue", false)
+				end
+			end
+		end
+		if username ~= battleLobby.myUserName or battleLobby.name == "singleplayer" or (status.isSpectator == nil and status.isReady == nil and status.queuePos == nil) then
+			-- Spring.Echo("Canceled")
 			return
 		end
 
-		Spring.Log(LOG_SECTION, LOG.DEBUG, "OnUpdateUserBattleStatus isSpec nil?", status.isSpectator == nil, "isReady nil?", status.isReady == nil, "isSpec:", status.isSpectator, "isReady:",status.isReady)
+		
+		if status.isSpectator ~= nil then
+			-- we switched to player
+			if status.isSpectator == false then
+				-- Spring.Echo("OnUpdateUserBattleStatus[me] we became player > SET play = playing and spec = spectate")
+				infoHandler.SetBtnsPlaySpec(true, "playing", false, "spectate", true)
+
+			-- we switched to spec
+			else
+				-- Spring.Echo("OnUpdateUserBattleStatus[me] we became spec > SET play = play|join_queue and spec = spectating|leave_queue")
+				if not iAmQueued then
+					if playerCount >= maxPlayers then
+						-- Spring.Echo("OnUpdateUserBattleStatus[me] players full > SET play = join_queue")
+						infoHandler.SetBtnsPlaySpec(false, "join_queue", true, "spectating", true)
+					else
+						-- Spring.Echo("OnUpdateUserBattleStatus[me] players not full > SET play = play")
+						infoHandler.SetBtnsPlaySpec(false, "play", true, "spectating", true)
+					end
+				else
+					-- Spring.Echo("OnUpdateUserBattleStatus[me] SET play = Queued; Spec = leave_queue")
+					infoHandler.SetBtnsPlaySpec(true, "queued", false, "leave_queue", true)
+				end
+			end
+		end
+
+		if iAmQueued then
+			-- Spring.Echo("OnUpdateUserBattleStatus[me] SET play = Queued; Spec = leave_queue")
+			infoHandler.SetBtnsPlaySpec(true, "queued", false, "leave_queue")
+		elseif not iAmPlayer then
+			if playerCount >= maxPlayers then
+				-- Spring.Echo("OnUpdateUserBattleStatus[me] players full > SET play = join_queue")
+				infoHandler.SetBtnsPlaySpec(false, "join_queue", true, "spectating")
+			else
+				-- Spring.Echo("OnUpdateUserBattleStatus[me] players not full > SET play = play")
+				infoHandler.SetBtnsPlaySpec(false, "play", true, "spectating")
+			end
+		end
+
+
+
+		-- Spring.Log(LOG_SECTION, LOG.DEBUG, "OnUpdateUserBattleStatus isSpec nil?", status.isSpectator == nil, "isReady nil?", status.isReady == nil, "isSpec:", status.isSpectator, "isReady:",status.isReady)
 
 		local tooltipCandidate = ""
 		if status.isSpectator ~= nil then
-			Spring.Log(LOG_SECTION, LOG.NOTICE, status.isSpectator and "Disabling readyButton" or "Enabling readyButton")
+			-- Spring.Log(LOG_SECTION, LOG.NOTICE, status.isSpectator and "Disabling readyButton" or "Enabling readyButton")
 			readyButton:SetEnabled(not status.isSpectator)
 			if status.isSpectator then
-				Spring.Log(LOG_SECTION, LOG.NOTICE, "uncheck readyButton and StyleOff")
+				-- Spring.Log(LOG_SECTION, LOG.NOTICE, "uncheck readyButton and StyleOff")
 				readyButtonCheckArrow.file = nil
 				readyButtonCheckArrow:Invalidate()
 				readyButton:StyleOff()
 				tooltipCandidate = i18n("unready_notplaying_tooltip")
+			--else
+				-- battleLobby:GetBattlePlayerCount
 			end
 		end
 		if not status.isSpectator then
 			if status.isReady ~= nil and status.isReady then
-				Spring.Log(LOG_SECTION, LOG.NOTICE, "check readyButton and StyleReady")
+				-- Spring.Log(LOG_SECTION, LOG.NOTICE, "check readyButton and StyleReady")
 				readyButton:StyleReady()
 				readyButtonCheckArrow.file = IMG_CHECKARROW
 				readyButtonCheckArrow:Invalidate()
 				tooltipCandidate = i18n("ready_tooltip")
 			else
-				Spring.Log(LOG_SECTION, LOG.NOTICE, "uncheck readyButton and StyleUnready")
+				-- Spring.Log(LOG_SECTION, LOG.NOTICE, "uncheck readyButton and StyleUnready")
 				readyButton:StyleUnready()
 				readyButtonCheckArrow.file = nil
 				readyButtonCheckArrow:Invalidate()
 				tooltipCandidate = i18n("unready_tooltip")
 			end
+			
+			--if status.queuePos ~= nil then -- queuePos can only be changed when isReady was not changed at the same time, since isReady can only be changed when not spec, so no queuePos
+			--	Spring.Log(LOG_SECTION, LOG.NOTICE, "SET Spectate = LeaveQueue; deactivate play; queuePos changed to:", status.queuePos)
+			--	-- spectate button = unqueue
+			--	-- playbtn deactivated
+			--end
         end
 
 		if status.queuePos then
