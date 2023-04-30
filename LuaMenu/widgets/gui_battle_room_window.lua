@@ -941,7 +941,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 			end
 		end
 		ButtonUtilities.SetCaption(btnPlay, i18n(caption))
-		btnPlay:Invalidate()
+		btnPlay.suppressButtonReaction = selected
 	end
 
 	local function SetBtnSpecState(selected, caption)
@@ -958,6 +958,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 			end
 		end
 		ButtonUtilities.SetCaption(btnSpectate, i18n(caption))
+		btnSpectate.suppressButtonReaction = selected
 	end
 
 	function externalFunctions.SetBtnsPlaySpec(playSelected, playCaption, specSelected, specCaption, force)
