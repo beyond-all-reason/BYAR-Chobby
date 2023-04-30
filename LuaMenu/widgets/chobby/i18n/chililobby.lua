@@ -142,7 +142,7 @@ return {
 
 		spectate = "Spectate",
 		spectating = "Spectating",
-		leave_queue = "Leave Queue",
+		leave_queue = "Exit Queue",
 
 		tooltip_is_spectator = "You will spectate this game when it starts.",
 		tooltip_become_spectator = "Press to watch the game as a spectator.",
