@@ -69,7 +69,7 @@ return {
 		party = "Party",
 		accept = "Accept",
 		reject = "Reject",
-		ready = "Ready",
+		ready = "   Ready",
 		apply = "Apply",
 		enter_battle_password = "Enter Battle Password",
 		set_window_position = "Set Window Position",
