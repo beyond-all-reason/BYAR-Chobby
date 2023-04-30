@@ -65,7 +65,23 @@ function Interface:Disconnect()
 	self:_OnDisconnected(nil, true)
 end
 
+function Interface:TextEraseNewline(str)
+	-- if str == nil then
+	-- 	Spring.Utilities.TraceEcho()
+	-- end
+	-- Spring.Echo("str:", str)
+	local input_str = str
+	str = string.gsub(str, "\n", "")
+	str = string.gsub(str, "\r", "")
+	-- if input_str ~= str then
+	-- 	Spring.Echo("TextEraseNewline before:", input_str)
+	-- 	Spring.Echo("TextEraseNewline after:", str)
+	-- end
+	return str
+end
+
 function Interface:_SendCommand(command, sendMessageCount)
+	-- command = self:TextEraseNewline(command) -- produces errors with telemetry commands
 	if sendMessageCount then
 		self.messagesSentCount = self.messagesSentCount + 1
 		command = "#" .. self.messagesSentCount .. " " .. command

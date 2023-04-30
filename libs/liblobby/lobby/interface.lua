@@ -22,6 +22,9 @@ local forcePlayer = false
 ------------------------
 
 function Interface:Register(userName, password, email)
+	username = self:TextEraseNewline(userName)
+	password = self:TextEraseNewline(password)
+
 	self:super("Register", userName, password, email)
 	password = VFS.CalculateHash(password, 0)
 	self:_SendCommand(concat("REGISTER", userName, password, email))
@@ -51,6 +54,10 @@ local function GetLobbyName()
 end
 
 function Interface:Login(user, password, cpu, localIP, lobbyVersion)
+	-- erase newline-chars in case user copied over incorrectly
+	user = self:TextEraseNewline(user)
+	password = self:TextEraseNewline(password)
+
 	-- overwrite lobbyVersion by local function, since it´s not provided by caller right now or given as "Chobby"
 	lobbyVersion = GetLobbyName()
 
