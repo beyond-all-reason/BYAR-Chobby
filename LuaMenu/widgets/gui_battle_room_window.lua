@@ -825,8 +825,8 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		ButtonUtilities.SetButtonSelected(btnPlay)
 		ButtonUtilities.SetCaption(btnPlay, i18n("playing"))
 
-		-- btnPlay.suppressButtonReaction = true -- not working (anymore ?)
-		-- btnSpectate.suppressButtonReaction = false
+		btnPlay.suppressButtonReaction = true
+		btnSpectate.suppressButtonReaction = false
 
 		btnPlay.tooltip = i18n("tooltip_is_player")
 		btnSpectate.tooltip = i18n("tooltip_become_spectator")
@@ -837,11 +837,11 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		-- playBtn
 		ButtonUtilities.SetButtonDeselected(btnPlay)
 		ButtonUtilities.SetCaption(btnPlay, i18n("play"))
-		-- btnPlay.suppressButtonReaction = false -- not working (anymore ?)
+		btnPlay.suppressButtonReaction = false
 		
 		-- SpecBtn
 		ButtonUtilities.SetButtonSelected(btnSpectate)
-		-- btnSpectate.suppressButtonReaction = true -- not working (anymore ?)
+		btnSpectate.suppressButtonReaction = true
 
 		btnSpectate.tooltip = i18n("tooltip_is_spectator")
 		btnPlay.tooltip = i18n("tooltip_become_player")
