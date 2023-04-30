@@ -97,12 +97,12 @@ local function UpdateArchiveStatus(updateSync)
 			else
 				btnStartBattle.tooltip = i18n("startbtn_votestart_tooltip")
 			end
-			ButtonUtilities.SetButtonDeselected(btnStartBattle)
+			btnStartBattle.suppressButtonReaction = false
 		else
 			btnStartBattle.tooltip = i18n("startbtn_gettingcontent_tooltip")
 			btnStartBattle:StyleOff()
 			btnStartBattle:SetEnabled(false)
-			ButtonUtilities.SetButtonDeselected(btnStartBattle)
+			btnStartBattle.suppressButtonReaction = true
 		end
 
 	end
@@ -769,6 +769,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 
 		readyButton:SetEnabled(false)
 		readyButton:StyleOff()
+		readyButton.suppressButtonReaction = true
 	end
 
 	btnStartBattle = Button:New {
@@ -814,6 +815,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		},
 		parent = rightInfo,
 	}
+	ButtonUtilities.SetButtonDeselected(btnStartBattle)
 
 	local btnPlay
 	local btnSpectate
@@ -3086,6 +3088,10 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	-- 23/03/19 Fireball update: only react, when dependent status.properties are present = were updated for this current event
 	-- reacts to: isSpectator, isReady, queuePos
 	local function OnUpdateUserBattleStatus(listener, username, status)
+		
+		------------------------
+		-- Buttons Play and Spec
+	
 		local battleID = battleLobby:GetMyBattleID()
 		local maxPlayers = battleLobby.battles[battleID].maxPlayers
 		local playerCount = battleLobby:GetBattlePlayerCount(battleID)
@@ -3111,11 +3117,13 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 				end
 			end
 		end
+
 		if username ~= battleLobby.myUserName or battleLobby.name == "singleplayer" or (status.isSpectator == nil and status.isReady == nil and status.queuePos == nil) then
 			-- Spring.Echo("Canceled")
 			return
 		end
-
+		------------------------
+		-- (else) Update affects ME
 		
 		if status.isSpectator ~= nil then
 			-- we switched to player
@@ -3154,9 +3162,8 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 			end
 		end
 
-
-
-		-- Spring.Log(LOG_SECTION, LOG.DEBUG, "OnUpdateUserBattleStatus isSpec nil?", status.isSpectator == nil, "isReady nil?", status.isReady == nil, "isSpec:", status.isSpectator, "isReady:",status.isReady)
+		------------------------
+		-- Button Ready
 
 		local tooltipCandidate = ""
 		if status.isSpectator ~= nil then
@@ -3167,9 +3174,10 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 				readyButtonCheckArrow.file = nil
 				readyButtonCheckArrow:Invalidate()
 				readyButton:StyleOff()
+				readyButton.suppressButtonReaction = true
 				tooltipCandidate = i18n("unready_notplaying_tooltip")
-			--else
-				-- battleLobby:GetBattlePlayerCount
+			else
+				readyButton.suppressButtonReaction = false
 			end
 		end
 		if not status.isSpectator then
@@ -3186,17 +3194,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 				readyButtonCheckArrow:Invalidate()
 				tooltipCandidate = i18n("unready_tooltip")
 			end
-			
-			--if status.queuePos ~= nil then -- queuePos can only be changed when isReady was not changed at the same time, since isReady can only be changed when not spec, so no queuePos
-			--	Spring.Log(LOG_SECTION, LOG.NOTICE, "SET Spectate = LeaveQueue; deactivate play; queuePos changed to:", status.queuePos)
-			--	-- spectate button = unqueue
-			--	-- playbtn deactivated
-			--end
         end
-
-		if status.queuePos then
-			
-		end
 
 		-- 23/04/04 Fireball: moved readyButton tooltip change on battle.isRunning to BattleIngameUpdate
 		if not battle.isRunning then
