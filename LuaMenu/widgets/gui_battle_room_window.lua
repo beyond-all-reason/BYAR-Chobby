@@ -927,10 +927,18 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		-- Spring.Echo("SetBtnPlayState selected, caption", selected, caption)
 		if selected then
 			ButtonUtilities.SetButtonSelected(btnPlay)
-			btnPlay.tooltip = i18n("tooltip_is_player")
+			if caption == "playing" then
+				btnPlay.tooltip = i18n("tooltip_is_player")
+			elseif caption == "queued" then
+				btnPlay.tooltip = i18n("tooltip_queued")
+			end
 		else
 			ButtonUtilities.SetButtonDeselected(btnPlay)
-			btnPlay.tooltip = i18n("tooltip_become_player")
+			if caption == "play" then
+				btnPlay.tooltip = i18n("tooltip_become_player")
+			elseif caption == "join_queue" then
+				btnPlay.tooltip = i18n("tooltip_join_queue")
+			end
 		end
 		ButtonUtilities.SetCaption(btnPlay, i18n(caption))
 		btnPlay:Invalidate()
@@ -941,18 +949,18 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		if selected then
 			ButtonUtilities.SetButtonSelected(btnSpectate)
 			btnSpectate.tooltip = i18n("tooltip_is_spectator")
-			if caption == "spectating" then
-				btnSpectate.tooltip = i18n("tooltip_become_player")
+		else
+			ButtonUtilities.SetButtonDeselected(btnSpectate)
+			if caption == "spectate" then
+				btnSpectate.tooltip = i18n("tooltip_become_spectator")
 			elseif caption == "leave_queue" then
 				btnSpectate.tooltip = i18n("tooltip_leave_queue")
 			end
-		else
-			ButtonUtilities.SetButtonDeselected(btnSpectate)
 		end
 		ButtonUtilities.SetCaption(btnSpectate, i18n(caption))
 	end
 
-	function externalFunctions.SetBtnsPlaySpec(playSelected, playCaption, specSelected, specCaption)
+	function externalFunctions.SetBtnsPlaySpec(playSelected, playCaption, specSelected, specCaption, force)
 		-- local inputParamsPlay = {
 		-- 	playSelected = playSelected,
 		-- 	playCaption  = playCaption,
@@ -982,13 +990,13 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		--	caption                = btnSpectate.oldCaption, -- strange behaviour, returns strange strings
 		--}
 
-		if btnPlay.selected ~= playSelected or btnPlay.oldCaption ~= playCaption then
+		if btnPlay.selected ~= playSelected or btnPlay.oldCaption ~= playCaption or force then
 			-- Spring.Utilities.TableEcho(inputParamsPlay)
 			-- Spring.Utilities.TableEcho(playBtnStatus)
 			SetBtnPlayState(playSelected, playCaption)
 		end
 
-		if btnSpectate.selected ~= specSelected or btnSpectate.oldCaption ~= specCaption then
+		if btnSpectate.selected ~= specSelected or btnSpectate.oldCaption ~= specCaption or force then
 			-- Spring.Utilities.TableEcho(inputParamsSpec)
 			-- Spring.Utilities.TableEcho(specBtnStatus)
 			SetBtnSpecState(specSelected, specCaption)
@@ -3091,14 +3099,14 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 				if not iAmQueued then
 					if playerCount >= maxPlayers then
 						-- Spring.Echo("OnUpdateUserBattleStatus players full > SET play = join_queue")
-						infoHandler.SetBtnsPlaySpec(false, "join_queue", true, "spectating")
+						infoHandler.SetBtnsPlaySpec(false, "join_queue", true, "spectating", false)
 					else
 						-- Spring.Echo("OnUpdateUserBattleStatus players not full > SET play = play")
-						infoHandler.SetBtnsPlaySpec(false, "play", true, "spectating")
+						infoHandler.SetBtnsPlaySpec(false, "play", true, "spectating", false)
 					end
 				else
 					-- Spring.Echo("OnUpdateUserBattleStatus SET play = queued; Spec = leave_queue")
-					infoHandler.SetBtnsPlaySpec(true, "queued", false, "Leave Queue")
+					infoHandler.SetBtnsPlaySpec(true, "queued", false, "Leave Queue", false)
 				end
 			end
 		end
@@ -3112,7 +3120,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 			-- we switched to player
 			if status.isSpectator == false then
 				-- Spring.Echo("OnUpdateUserBattleStatus[me] we became player > SET play = playing and spec = spectate")
-				infoHandler.SetBtnsPlaySpec(true, "playing", false, "spectate")
+				infoHandler.SetBtnsPlaySpec(true, "playing", false, "spectate", true)
 
 			-- we switched to spec
 			else
@@ -3120,14 +3128,14 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 				if not iAmQueued then
 					if playerCount >= maxPlayers then
 						-- Spring.Echo("OnUpdateUserBattleStatus[me] players full > SET play = join_queue")
-						infoHandler.SetBtnsPlaySpec(false, "join_queue", true, "spectating")
+						infoHandler.SetBtnsPlaySpec(false, "join_queue", true, "spectating", true)
 					else
 						-- Spring.Echo("OnUpdateUserBattleStatus[me] players not full > SET play = play")
-						infoHandler.SetBtnsPlaySpec(false, "play", true, "spectating")
+						infoHandler.SetBtnsPlaySpec(false, "play", true, "spectating", true)
 					end
 				else
 					-- Spring.Echo("OnUpdateUserBattleStatus[me] SET play = Queued; Spec = leave_queue")
-					infoHandler.SetBtnsPlaySpec(true, "queued", false, "leave_queue")
+					infoHandler.SetBtnsPlaySpec(true, "queued", false, "leave_queue", true)
 				end
 			end
 		end

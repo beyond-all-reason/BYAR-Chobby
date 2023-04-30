@@ -146,10 +146,13 @@ return {
 
 		tooltip_is_spectator = "You will spectate this game when it starts.",
 		tooltip_become_spectator = "Press to watch the game as a spectator.",
+		tooltip_leave_queue = "Press to leave the join-queue and become a normal spectator.",
+		
 		tooltip_is_player = "You will play in this game when it starts.",
 		tooltip_become_player = "Press to play in this game.",
-		tooltip_join_queue = "Enter the join-queue to play in this game.",
-		tooltip_leave_queue = "Spectate this game and remove yourself from the join-queue.",
+		tooltip_join_queue = "Press to enter the join-queue.",
+		tooltip_leave_queue = "Press to leave the join-queue.",
+		tooltip_queued = "You are in the join-queue.",
 
 		play = "Play",
 		playing = "Playing",
