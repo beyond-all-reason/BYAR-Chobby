@@ -3130,6 +3130,11 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 			if status.isSpectator == false then
 				-- Spring.Echo("OnUpdateUserBattleStatus[me] we became player > SET play = playing and spec = spectate")
 				infoHandler.SetBtnsPlaySpec(true, "playing", false, "spectate", true)
+				-- if we were were in queuePos before switching to player, play a sound
+				if status.queuePos then
+					local Configuration = WG.Chobby.Configuration
+					Spring.PlaySoundFile("sounds/beep6.wav", Configuration.menuNotificationVolume or 1, "ui")
+				end
 
 			-- we switched to spec
 			else
