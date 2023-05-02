@@ -1050,8 +1050,6 @@ function Lobby:_OnUpdateUserBattleStatus(userName, status)
 		if battleStatusDiff.isSpectator ~= nil and battleStatusDiff.isSpectator == false and battleStatus.queuePos and battleStatus.queuePos ~= 0 then
 			battleStatus.queuePos = 0 -- always change queuePos to 0, if we switch from spec to player = prevent showing queuePos e.g. in playerbattelist, if we didn't receive the queue-update from server yet
 			battleStatusDiff.queuePos = 0
-			local Configuration = WG.Chobby.Configuration
-			Spring.PlaySoundFile("sounds/beep6.wav", Configuration.menuNotificationVolume or 1, "ui")
 		end
 
 		self:_CallListeners("OnUpdateUserBattleStatus", userName, battleStatusDiff)
