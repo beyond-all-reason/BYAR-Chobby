@@ -67,7 +67,9 @@ end
 
 --	From the flat array of players, build an array of teams
 local function buildTeams(players)
+	local Configuration = WG.Chobby.Configuration	
 	local teams = {}
+	local myAllyID, myteamID
 	for _, player in pairs(players) do
 		local team
 		if teams[player.allyTeamId + 1] == nil then
@@ -77,6 +79,15 @@ local function buildTeams(players)
 			team = teams[player.allyTeamId + 1]
 		end
 		table.insert(team, player)
+		if player.name == Configuration.userName then
+			myAllyID = player.allyTeamId + 1
+			myTeamID = #team
+		end
+	end
+	if myAllyID then
+		local playerMe = teams[myAllyID][myTeamID]
+		table.remove(teams[myAllyID], myTeamID)
+		table.insert(teams[myAllyID], 1, playerMe)
 	end
 	return teams
 end
