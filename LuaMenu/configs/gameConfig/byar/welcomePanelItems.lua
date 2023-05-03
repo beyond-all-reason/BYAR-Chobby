@@ -33,9 +33,9 @@ local welcomePanelItems = {
     },
     
     {
-        Header = "New Map: Thermal Shock v1.1",
-        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/thermal_shock_v1.1.png",
-        Text = "Team-play 8v8 capable map. West vs South.\nUpdate 1.1: Added bridges over lava lake, fixed pathing around lava, temporary removed lava level change.\nMade by Nikuksis.",
+        Header = "New Map: Faster Than Light 1.1",
+        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/faster_than_light_1.1.png",
+        Text = "1v1 windless space-platform map for competitive play.\nTight chokes favour positional strategy while raised platforms reward aggressive map control.\nMade by ShaunJS",
     },    
 
     {
