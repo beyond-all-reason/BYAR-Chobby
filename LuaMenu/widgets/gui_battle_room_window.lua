@@ -1558,7 +1558,7 @@ local function AddTeamButtons(parent, offX, joinFunc, aiFunc, unjoinable, disall
 		local addAiButton = Button:New {
 			name = "addAiButton",
 			x = offX,
-			y = 5,
+			y = 0, --5
 			height = 24,
 			width = 95,
 			font = WG.Chobby.Configuration:GetFont(2),
@@ -1574,7 +1574,7 @@ local function AddTeamButtons(parent, offX, joinFunc, aiFunc, unjoinable, disall
 		local joinTeamButton = Button:New {
 			name = "joinTeamButton",
 			x = offX,
-			y = 5,
+			y = 0, --5
 			height = 24,
 			width = 95,
 			font = WG.Chobby.Configuration:GetFont(2),
@@ -1680,7 +1680,7 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 			if totalHeight < minHeight then
 				totalHeight = minHeight
 			end
-			panel:SetPos(nil, nil, nil, totalHeight + 15)
+			panel:SetPos(nil, nil, nil, totalHeight + 0) -- +15
 			local runningHeight = 0
 			for i = 1, #children do
 				local child = children[i]
@@ -1757,7 +1757,7 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 				x = 5,
 				y = 0,
 				width = 120,
-				height = 30,
+				height = 25, --30
 				valign = "center",
 				font = WG.Chobby.Configuration:GetFont(2),
 				caption = humanName,
@@ -1766,7 +1766,7 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 			if teamIndex ~= -1 and teamIndex ~= -2 then
 				local seperator = Line:New {
 					x = 0,
-					y = 25,
+					y = 20, --25
 					right = 0,
 					height = 2,
 					parent = teamHolder
@@ -1794,7 +1794,7 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 			end
 			local teamStack = Control:New {
 				x = 0,
-				y = 31,
+				y = 26, --31
 				right = 0,
 				font = WG.Chobby.Configuration:GetFont(2),
 				bottom = 0,
@@ -1819,7 +1819,7 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 					position = position + SPACING
 				end
 			
-				teamHolder:SetPos(nil, nil, nil, position + 35)
+				teamHolder:SetPos(nil, nil, nil, position + 30) -- 35
 				PositionChildren(parentStack, parentScroll.height)
 				teamHolder:Invalidate()
 			end
