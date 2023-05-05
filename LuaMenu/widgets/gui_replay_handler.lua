@@ -145,12 +145,19 @@ local function playerWidget(playerInfo)
 end
 
 local function CreateReplayEntry(
-	replayPath, engineName, gameName, mapName, players, time
+	replayPath, engineName, gameName, mapName, players, time, winningAllyTeamIds
 )
 
 	local Configuration = WG.Chobby.Configuration
 	local mapNameTruncated = StringUtilities.GetTruncatedStringWithDotDot(mapName, myFont1, 180)
 	local fileName = string.sub(replayPath, 7)
+	local winningAllyTeamId = -2 -- old launcher does not send winningAllyTeamIds
+	if winningAllyTeamIds then
+		winningAllyTeamId = winningAllyTeamIds[1] and (winningAllyTeamIds[1] + 1) or -1
+	end
+	-- Spring.Echo("winningAllyTeamIds exists ?:", winningAllyTeamIds ~= nil)
+	-- Spring.Echo("winningAllyTeamId:", winningAllyTeamId)
+	
 	if string.sub(fileName, 0, 4) == "hide" then
 		return
 	end
@@ -264,6 +271,19 @@ local function CreateReplayEntry(
 		parent = replayPanel,
 	}
 
+	if winningAllyTeamId > -2 then
+		TextBox:New {
+			name = "replayMyResult",
+			x = 135, y = 99,
+			right = 0, height = 20,
+			valign = 'center',
+			objectoverridefont = myFont1,
+			--fontsize = Configuration:GetFont(1).size,
+			text = '',
+			parent = replayPanel,
+		}
+	end
+
 	-- Compute the teams/players lists
 
 	local userList = Chili.Control:New {
@@ -308,8 +328,11 @@ local function CreateReplayEntry(
 		yOffset = yOffset + PLAYER_HEIGHT
 
 		--	Then add each player on a subsequent line
-		for _, player in pairs(team) do
-
+		for allyTeamID, player in pairs(team) do
+			if winningAllyTeamId > -2 and player.name == Configuration.userName then
+				local result = winningAllyTeamId == -1 and "Unknown Result" or allyTeamID == winningAllyTeamId and "Won" or "Lost"
+				replayPanel:GetChildByName("replayMyResult"):SetText(result)
+			end
 			--	If there are too many players to display on one line, just add
 			--	an ellipsis and skip subsequent players for the team.
 			if yOffset + PLAYER_HEIGHT * 2 >= REPLAY_LIST_ENTRY_HEIGHT then
@@ -638,11 +661,11 @@ local function InitializeControls(parentControl)
 
 	local externalFunctions = {}
 
-	function externalFunctions.AddReplay(replayPath, engine, game, map, players, time)
+	function externalFunctions.AddReplay(replayPath, engine, game, map, players, time, winningAllyTeamIds)
 		--	Try to add the replay, show the stack trace in case of error
 		xpcall(
 			function ()
-				local control, sortData = CreateReplayEntry(replayPath, engine, game, map, players, time)
+				local control, sortData = CreateReplayEntry(replayPath, engine, game, map, players, time, winningAllyTeamIds)
 
 				if control then
 					replayList:AddItem(replayPath, control, sortData)
@@ -684,12 +707,12 @@ function ReplayHandler.GetControl()
 	return window
 end
 
-function ReplayHandler.ReadReplayInfoDone(path, engine, game, map, players, time)
+function ReplayHandler.ReadReplayInfoDone(path, engine, game, map, players, time, winningAllyTeamIds)
 	if not replayListWindow then
 		return
 	end
 
-	replayListWindow.AddReplay(path, engine, game, map, players, time)
+	replayListWindow.AddReplay(path, engine, game, map, players, time, winningAllyTeamIds)
 end
 
 --------------------------------------------------------------------------------
