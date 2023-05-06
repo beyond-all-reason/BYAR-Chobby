@@ -297,8 +297,8 @@ local function CreateReplayEntry(
 	local yOffset = 0
 
 	-- Iterate over the teams structure
-	for i, team in pairs(teams) do
-		if i > 1 then
+	for allyTeamID, team in pairs(teams) do
+		if allyTeamID > 1 then
 			yOffset = yOffset + 10
 		end
 
@@ -317,18 +317,18 @@ local function CreateReplayEntry(
 			valign = 'center',
 			--objectoverridefont = myFont1,
 			fontsize = Configuration:GetFont(1).size,
-			text = "Team " .. i,
+			text = "Team " .. allyTeamID,
 			parent = userList,
 			OnResize = {
 				function (obj, xSize, ySize)
-					obj:SetText(StringUtilities.GetTruncatedStringWithDotDot("Team " .. i, obj.font, obj.width))
+					obj:SetText(StringUtilities.GetTruncatedStringWithDotDot("Team " .. allyTeamID, obj.font, obj.width))
 				end
 			}
 		}
 		yOffset = yOffset + PLAYER_HEIGHT
 
 		--	Then add each player on a subsequent line
-		for allyTeamID, player in pairs(team) do
+		for _, player in pairs(team) do
 			if winningAllyTeamId > -2 and player.name == Configuration.userName then
 				local result = winningAllyTeamId == -1 and "Unknown Result" or allyTeamID == winningAllyTeamId and "Won" or "Lost"
 				replayPanel:GetChildByName("replayMyResult"):SetText(result)
