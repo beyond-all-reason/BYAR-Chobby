@@ -3610,7 +3610,8 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		})
 	end
 
-	local function OnS_Battle_Update_lobby_title(listener, changedbattleID, newbattletitle)
+	local function OnUpdateBattleTitle(listener, changedbattleID, newbattletitle)
+		Spring.Echo("battle_room: OnUpdateBattleTitle")
 		if battleID == changedbattleID then
 			UpdateBattleTitle()
 		end
@@ -3637,7 +3638,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	battleLobby:AddListener("OnEnableAllUnits", OnEnableAllUnits)
 	battleLobby:AddListener("OnDisableUnits", OnDisableUnits)
 	battleLobby:AddListener("OnRequestBattleStatus", OnRequestBattleStatus)
-	battleLobby:AddListener("OnS_Battle_Update_lobby_title", OnS_Battle_Update_lobby_title)
+	battleLobby:AddListener("OnUpdateBattleTitle", OnUpdateBattleTitle)
 
 	local function OnDisposeFunction()
 		emptyTeamIndex = 0
