@@ -1833,7 +1833,7 @@ local function parseSkillOrigin(l, p, d)
 	if p == "[" and d == "#" then return "Plugin_Degraded" end
 	if              d == ""  then return "SLDB" end
 	if              d == "#" then return "SLDB_Degraded" end
-	return "Unknown" -- to make function clean, shouldn´t be possible
+	return "Unknown" -- to make function clean, shouldn't be possible
   end
 
 -- interpret following scripttags
@@ -1978,15 +1978,10 @@ Interface.jsonCommands["LISTQUEUES"] = Interface._OnListQueues
 
 -- Teiserver Tachyon commands for BAR:
 
-function Interface:_OnS_Battle_Update_lobby_title(battleID, newbattletitle)
-	--self:super("_OnS_Battle_Update_lobby_title", tonumber(battleID), newbattletitle)
-	battleID = tonumber(battleID)
-	if battleID then
-		self:_CallListeners("OnS_Battle_Update_lobby_title", battleID, newbattletitle)
-		--Spring.Echo("Interface:_OnS_Battle_Update_lobby_title",battleID, newbattletitle)
-	end
+function Interface:_OnUpdateBattleTitle(battleID, battleTitle)
+	self:super("_OnUpdateBattleTitle", tonumber(battleID), battleTitle)
 end
-Interface.commands["s.battle.update_lobby_title"] = Interface._OnS_Battle_Update_lobby_title
+Interface.commands["s.battle.update_lobby_title"] = Interface._OnUpdateBattleTitle
 Interface.commandPattern["s.battle.update_lobby_title"] = "(%S+)%s+(.*)"
 
 function Interface:_OnS_Client_Errorlog()

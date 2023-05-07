@@ -992,6 +992,16 @@ function Lobby:_OnUpdateBattleInfo(battleID, battleInfo)
 	self:_CallListeners("OnUpdateBattleInfo", battleID, battleInfo)
 end
 
+function Lobby:_OnUpdateBattleTitle(battleID, battleTitle)
+	local battle = self.battles[battleID]
+	if not battle then
+		Spring.Log(LOG_SECTION, "warning", "_OnUpdateBattleTitle nonexistent battle.", battleID)
+		return
+	end
+	battle.title = battleTitle or battle.title
+	self:_CallListeners("OnUpdateBattleTitle", battleID, battleTitle)
+end
+
 -- compare 2 tables and return diff
 -- also update table properties of 1st table !
 local function getDiffAndSetNewValuesToTable(origin, update)

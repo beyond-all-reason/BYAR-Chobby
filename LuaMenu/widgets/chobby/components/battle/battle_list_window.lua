@@ -169,47 +169,31 @@ function BattleListWindow:init(parent)
 	end
 	WG.Delay(UpdateTimersDelay, 30)
 
-	self.listenerUpdateDisabled = false
 	self.onBattleOpened = function(listener, battleID)
-		if self.listenerUpdateDisabled then
-			return
-		end
 		self:AddBattle(battleID, lobby:GetBattle(battleID))
 		self:SoftUpdate()
 	end
 	lobby:AddListener("OnBattleOpened", self.onBattleOpened)
 
 	self.onBattleClosed = function(listener, battleID)
-		if self.listenerUpdateDisabled then
-			return
-		end
 		self:RemoveRow(battleID)
 		self:SoftUpdate()
 	end
 	lobby:AddListener("OnBattleClosed", self.onBattleClosed)
 
 	self.onJoinedBattle = function(listener, battleID)
-		if self.listenerUpdateDisabled then
-			return
-		end
 		self:JoinedBattle(battleID)
 		self:SoftUpdate()
 	end
 	lobby:AddListener("OnJoinedBattle", self.onJoinedBattle)
 
 	self.onLeftBattle = function(listener, battleID)
-		if self.listenerUpdateDisabled then
-			return
-		end
 		self:LeftBattle(battleID)
 		self:SoftUpdate()
 	end
 	lobby:AddListener("OnLeftBattle", self.onLeftBattle)
 
 	self.onUpdateBattleInfo = function(listener, battleID)
-		if self.listenerUpdateDisabled then
-			return
-		end
 		self:OnUpdateBattleInfo(battleID)
 		self:UpdateButtonColor(battleID)
 		self:SoftUpdate()
@@ -217,27 +201,18 @@ function BattleListWindow:init(parent)
 	lobby:AddListener("OnUpdateBattleInfo", self.onUpdateBattleInfo)
 
 	self.onBattleIngameUpdate = function(listener, battleID, isRunning)
-		if self.listenerUpdateDisabled then
-			return
-		end
 		self:OnBattleIngameUpdate(battleID, isRunning)
 		self:SoftUpdate()
 	end
 	lobby:AddListener("OnBattleIngameUpdate", self.onBattleIngameUpdate)
 
-	self.onS_Battle_Update_lobby_title = function(listener, battleID, newbattletitle)
-		if self.listenerUpdateDisabled then
-			return
-		end
-		self:OnS_Battle_Update_lobby_title(battleID, newbattletitle)
+	self.onUpdateBattleTitle = function(listener, battleID, newbattletitle)
+		self:OnUpdateBattleTitle(battleID, newbattletitle)
 		self:SoftUpdate()
 	end
-	lobby:AddListener("OnS_Battle_Update_lobby_title", self.onS_Battle_Update_lobby_title)
+	lobby:AddListener("OnUpdateBattleTitle", self.onUpdateBattleTitle)
 
 	self.onFriendRequestList = function(listener)
-		if self.listenerUpdateDisabled then
-			return
-		end
 		self:OnFriendRequestList()
 		self:SoftUpdate()
 	end
@@ -1227,9 +1202,7 @@ function BattleListWindow:OnFriendRequestList()
 	end
 end
 
-
-function BattleListWindow:OnS_Battle_Update_lobby_title(battleID, newbattletitle)
-	--Spring.Echo("function BattleListWindow:OnS_Battle_Update_lobby_title",battleID, newbattletitle)
+function BattleListWindow:OnUpdateBattleTitle(battleID, battleTitle)
 	local battle = lobby:GetBattle(battleID)
 	if not (Configuration.displayBadEngines2 or Configuration:IsValidEngineVersion(battle.engineVersion)) then
 		return
@@ -1240,10 +1213,8 @@ function BattleListWindow:OnS_Battle_Update_lobby_title(battleID, newbattletitle
 		return
 	end
 
-	battle.title = newbattletitle
-
 	local battletitlelable = items.battleButton:GetChildByName("lblTitle")
-	battletitlelable:SetCaption(StringUtilities.GetTruncatedStringWithDotDot(newbattletitle, battletitlelable.font, math.max(battletitlelable.width, 250) ))
+	battletitlelable:SetCaption(StringUtilities.GetTruncatedStringWithDotDot(battleTitle, battletitlelable.font, math.max(battletitlelable.width, 250) ))
 	battletitlelable:Invalidate()
 	items.battleButton:Invalidate()
 
