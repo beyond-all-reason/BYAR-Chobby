@@ -381,7 +381,7 @@ local function GetUserStatusImages(userName, isInBattle, userControl)
 		images[#images + 1] = IMAGE_PARTY_INVITE
 	end
 
-	if not isInBattle then
+	if not isInBattle or userControl.isPlaying == false then
 		if userInfo.isInGame or (userInfo.battleID and not isInBattle) and not userControl.hideStatusIngame then
 			if userInfo.isInGame then
 				if userInfo.battleID == nil and WG.Chobby.Configuration.gameConfig.showSinglePlayerIngame then
