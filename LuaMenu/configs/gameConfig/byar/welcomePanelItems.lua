@@ -12,13 +12,12 @@
 
 
 local welcomePanelItems = {
-     {
-        Header = "PRO 4v4 Showdown Tournament",
-        Image = "LuaMenu/images/4v4Tournament.png",
-        Url = "https://www.beyondallreason.info/news/the-pro-4v4-showdown-tournament-is-coming-on-may-6th",
-        Time = "2023-05-06T14:00:00",
-        Text = "\nGet ready for the thrilling 4v4 pro tournament on May 6th, 2023, featuring legendary teams from BAR and TA worlds. Live-streamed on Twitch.!\n",
-        UrlText = "Sign-Up"
+    {
+        Header = "PRO 4v4 Tournament concluded!",
+        Image = "LuaMenu/images/Group_141.png",
+        Url = "https://www.youtube.com/watch?v=_dq9Xwfh4h4",
+        Text = "\nCongratulations to the team BARcode!\nAs the dust slowly settles after the epic battles of 4v4 tourney, enjoy the tourney stream VOD! We really had a blast organising, casting an playing this one and sitting together with Chris Taylor (the creator of Total Annihilation) for a surprise interview.\n",
+        UrlText = "Watch"
     },
 
     {
