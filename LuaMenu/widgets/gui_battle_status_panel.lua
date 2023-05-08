@@ -201,6 +201,15 @@ local function GetBattleInfoHolder(parent, battleID)
 	end
 	lobby:AddListener("OnUpdateBattleInfo", OnUpdateBattleInfo)
 
+	local function OnUpdateBattleTitle(listeners, updatedBattleID, battleTitle)
+		if updatedBattleID ~= battleID then
+			return
+		end
+
+		externalFunctions.Resize(currentSmallMode)
+	end
+	lobby:AddListener("OnUpdateBattleTitle", OnUpdateBattleTitle)
+
 	local function OnBattleIngameUpdate(listeners, updatedBattleID)
 		if updatedBattleID ~= battleID then
 			return
