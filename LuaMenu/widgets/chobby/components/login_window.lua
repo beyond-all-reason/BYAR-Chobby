@@ -338,8 +338,8 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 	self.txtError = TextBox:New {
 		x = 15,
 		right = 15,
-		y = self.windowHeight - 216,
-		height = 90,
+		y = 140, --self.windowHeight - 400,
+		height = 400,
 		text = "",
 		fontsize = Configuration:GetFont(3).size,
 	}
