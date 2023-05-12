@@ -182,6 +182,46 @@ local function LoadGameByFilename(filename)
 		return
 	end
 
+	if saveData.engineVersion and (Engine.versionFull ~= saveData.engineVersion) then
+		-- Both should be "105.1.1-1723-gd990800 BAR105" or whatever
+		local ssfFileName = SAVE_DIR .. '/' .. filename .. ".ssf"
+		-- we have an engine version mismatch, try in a different engine!
+		Spring.Echo("Off-engine savegame found, attempting to start with: ",game,saveData.map, nil,nil, ssfFileName,saveData.engineVersion)
+		
+		--This one does not work because the player IDs will mismatch and spam errors
+		--WG.SteamCoopHandler.AttemptGameStart("replay", game,saveData.map, nil,nil, ssfFileName,saveData.engineVersion)
+		
+		local script = [[
+			[GAME]
+			{
+				SaveFile=__FILE__;
+				IsHost=1;
+				OnlyLocal=1;
+				MyPlayerName=__PLAYERNAME__;
+			}
+			]]
+		script = script:gsub("__FILE__", ssfFileName)
+		script = script:gsub("__PLAYERNAME__", saveData.playerName)
+
+		local scriptfilename = "engine_testing_start_script.txt"
+		local scriptfile = io.open(scriptfilename, 'w')
+		scriptfile:write(script)
+		scriptfile:close()
+
+		local params = {
+			StartScriptContent = script,
+			SpringSettings = WG.SettingsWindow.GetSettingsString(),
+			StartDemoName = scriptfilename,
+			Engine = string.gsub(saveData.engineVersion, "BAR105", "bar"),
+		}
+		
+		WG.WrapperLoopback.StartNewSpring(params)
+		
+		return
+	end
+	-- Gotta check engine version!
+	--engineVersion = "105.1.1-1723-gd990800 BAR105",
+
 	local success, err = pcall(
 		function()
 			--Spring.Log(widget:GetInfo().name, LOG.INFO, "Save file " .. path .. " loaded")
