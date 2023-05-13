@@ -279,7 +279,7 @@ function widget:TextEditing()
 end
 
 function widget:AllowDraw()
-	if (isIntel or isLinux or WG.Chobby.Configuration.fixFlicker) then return true end
+	if isIntel or isLinux then return true end	--or WG.Chobby.Configuration.fixFlicker then return true end
 	if isIdle then
 		if os.clock() > nextFrameTime then
 			if isOffscreen then

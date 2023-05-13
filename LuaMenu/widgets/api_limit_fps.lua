@@ -67,7 +67,7 @@ function widget:AllowDraw()
 	local oldFramesInBuffer = framesInBuffer
 	framesInBuffer = 1
 	local config = WG.Chobby.Configuration
-	if config.drawAtFullSpeed or steamFastRedraw or config.fixFlicker then
+	if config.drawAtFullSpeed or steamFastRedraw then -- or config.fixFlicker then
 		return true
 	end
 	if forceRedraw then
