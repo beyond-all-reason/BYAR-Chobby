@@ -72,7 +72,7 @@ local welcomePanelItems = {
 
     {
         Header = "Useful commands in Multiplayer!",
-        Text = "!boss nickname \n" ..
+        Text = "!boss [nickname] \n" ..
             "Boss someone (or yourself) in your battleroom so that person can set all the settings up without voting. You automatically become a boss of a room that you Host yourself.\n" ..
             " \n" ..
             "!forcestart \n" ..
@@ -84,8 +84,14 @@ local welcomePanelItems = {
             "!promote \n"  ..
             "Sends a little message on Discord on #looking-for-players channel that your room is waiting for people to join.\n" ..
             " \n" ..
-            "$rename \n"  ..
-            "Rename the battleroom you're currently in. Requires you to be the !boss of the battleroom to do so.\n" ..
+            "$rename [name] \n"  ..
+            "Renames the battleroom you're currently in. Requires you to be the !boss of the battleroom to do so.\n" ..
+            " \n" ..
+            "$setratinglevels [min] [max] \n"  ..
+            "Sets minimum and maximum skill rating allowed in the room.\n" ..
+            " \n" ..
+            "$resetratinglevels\n"  ..
+            "Removes skill rating limits from the room.\n" ..
             " \n" ..
             "$explain \n" ..
             "Gives you a nice breakdown of how the autobalance works in your current battleroom.\n" ..
