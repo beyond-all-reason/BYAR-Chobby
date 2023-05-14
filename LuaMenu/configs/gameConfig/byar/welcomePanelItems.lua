@@ -82,7 +82,7 @@ local welcomePanelItems = {
             "If you need to terminate the game you're currently playing for whatever reason, !stop will happily do it for you.\n" ..
             " \n" ..
             "!promote \n"  ..
-            "Sends a little message on Discord on #looking-for-players channel that your room is waiting for people to join.\n" ..
+            "Sends a little message on ingame main chat that your room is waiting for people to join.\n" ..
             " \n" ..
             "$rename [name] \n"  ..
             "Renames the battleroom you're currently in. Requires you to be the !boss of the battleroom to do so.\n" ..
