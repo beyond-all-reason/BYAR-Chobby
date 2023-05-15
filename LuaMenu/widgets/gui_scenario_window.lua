@@ -1089,23 +1089,31 @@ function widget:RecvLuaMsg(msg)
 	if string.find(msg, SCENARIO_COMPLETE_STRING) then
 		msg = string.sub(msg, 16)
 		local stats = Spring.Utilities.json.decode(msg)
+		--Spring.Utilities.TableEcho(stats)
 
-		local decodedscenopts = Spring.Utilities.json.decode(Spring.Utilities.
-		Base64Decode(stats.scenariooptions))
+		if stats.benchmarkcommand then
+			Spring.Echo("Recieved Benchmark Results")
+			--Spring.Utilities.TableEcho(stats)
+			if WG.Analytics and WG.Analytics.SendRepeatEvent then
+				WG.Analytics.SendRepeatEvent("system:benchmark", stats)
+			end
+		else
+			local decodedscenopts = Spring.Utilities.json.decode(Spring.Utilities.
+			Base64Decode(stats.scenariooptions))
 
-		Spring.Echo(decodedscenopts.scenarioid,decodedscenopts.version,stats.endtime,stats.metalUsed + stats.energyUsed/60.0,stats.won)
-		local won = (stats.won and stats.cheated ~= true ) or false
-		local resourcesused = (stats.metalUsed + stats.energyUsed/60.0) or 0 
-		if WG.Analytics and WG.Analytics.SendRepeatEvent then
-			WG.Analytics.SendRepeatEvent("game_start:singleplayer:scenario_end", {scenarioid = decodedscenopts.scenarioid, difficulty = decodedscenopts.difficulty, won = won, endtime = stats.endtime, resources = resourcesused })
+			Spring.Echo(decodedscenopts.scenarioid,decodedscenopts.version,stats.endtime,stats.metalUsed + stats.energyUsed/60.0,stats.won)
+			local won = (stats.won and stats.cheated ~= true ) or false
+			local resourcesused = (stats.metalUsed + stats.energyUsed/60.0) or 0 
+			if WG.Analytics and WG.Analytics.SendRepeatEvent then
+				WG.Analytics.SendRepeatEvent("game_start:singleplayer:scenario_end", {scenarioid = decodedscenopts.scenarioid, difficulty = decodedscenopts.difficulty, won = won, endtime = stats.endtime, resources = resourcesused })
+			end
+
+			if won then
+				SetScore(decodedscenopts.scenarioid,decodedscenopts.version,decodedscenopts.difficulty, stats.endtime,resourcesused,won)
+				widget:Initialize()
+				MakeScenarioScrollPanelChildren()
+			end
 		end
-
-		if won then
-			SetScore(decodedscenopts.scenarioid,decodedscenopts.version,decodedscenopts.difficulty, stats.endtime,resourcesused,won)
-			widget:Initialize()
-			MakeScenarioScrollPanelChildren()
-		end
-
 	end
 end
 
