@@ -90,6 +90,8 @@ local function CountryShortnameToFlag(shortname)
 	local fileName = LUA_DIRNAME .. "images/flags/" .. string.lower(shortname) .. ".png"
 	if VFS.FileExists(fileName) then
 		return fileName
+	else
+		return IMAGE_FLAG_UNKNOWN
 	end
 end
 
