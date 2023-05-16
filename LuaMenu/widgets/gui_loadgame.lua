@@ -214,7 +214,12 @@ local function LoadGameByFilename(filename)
 			StartDemoName = scriptfilename,
 			Engine = string.gsub(saveData.engineVersion, "BAR105", "bar"),
 		}
-		
+		if WG.Chobby and WG.Chobby.InformationPopup then
+			WG.Chobby.InformationPopup("The saved game uses a different engine, so it will be opened in a new window.")
+			Spring.SetConfigInt("Fullscreen", 1, false)
+			Spring.SetConfigInt("Fullscreen", 0, false)
+		end
+		Spring.PauseSoundStream()
 		WG.WrapperLoopback.StartNewSpring(params)
 		
 		return

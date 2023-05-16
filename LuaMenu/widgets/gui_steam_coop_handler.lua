@@ -400,6 +400,11 @@ function SteamCoopHandler.AttemptGameStart(gameType, gameName, mapName, scriptTa
 					Engine = engine,
 					SpringSettings = WG.SettingsWindow.GetSettingsString(),
 				}
+				if WG.Chobby and WG.Chobby.InformationPopup then
+					WG.Chobby.InformationPopup("The replay uses a different engine, so it will be opened in a new window.")
+					Spring.SetConfigInt("Fullscreen", 1, false)
+					Spring.SetConfigInt("Fullscreen", 0, false)
+				end
 				WG.WrapperLoopback.StartNewSpring(params)
 				Spring.PauseSoundStream()
 				return

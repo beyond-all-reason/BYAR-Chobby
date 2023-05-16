@@ -291,6 +291,12 @@ function Lobby:ConnectToBattle(useSpringRestart, battleIp, battlePort, clientPor
 				params.StartDemoName = scriptfilename
 				params.Engine = string.gsub(engineName, "BAR105", "bar")
 			end
+			if WG.Chobby and WG.Chobby.InformationPopup then
+				WG.Chobby.InformationPopup("This battle uses a different engine, so it will be opened in a new window.")
+				Spring.SetConfigInt("Fullscreen", 1, false)
+				Spring.SetConfigInt("Fullscreen", 0, false)
+			end
+			Spring.PauseSoundStream()
 
 			WG.WrapperLoopback.StartNewSpring(params)
 		else
