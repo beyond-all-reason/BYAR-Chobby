@@ -240,7 +240,7 @@ function Downloader:DownloadFinished(listener, downloadID)
 
 	if self.duplicateDownloads[self.downloads[downloadID].archiveName] then
 		if WG.WrapperLoopback and WG.WrapperLoopback.DownloadFile then
-			WG.WrapperLoopback.DownloadFile(self.downloads[downloadID].archiveName, ((self.downloads[downloadID].archiveType == "map") and "MAP") or "RAPID")
+			WG.WrapperLoopback.DownloadFile(self.downloads[downloadID].archiveName, ((self.downloads[downloadID].archiveType == "map") and "MAP") or "RAPID", "DownloadFinished")
 			Chotify:Post({
 				title = "Download Failed",
 				body = "Starting backup download for " .. (self.downloads[downloadID].archiveName or "???"),
@@ -272,7 +272,7 @@ function Downloader:DownloadFailed(listener, downloadID, errorID)
 	end
 
 	if self.wrapperAsFallback and WG.WrapperLoopback and WG.WrapperLoopback.DownloadFile then
-		WG.WrapperLoopback.DownloadFile(self.downloads[downloadID].archiveName, ((self.downloads[downloadID].archiveType == "map") and "MAP") or "RAPID")
+		WG.WrapperLoopback.DownloadFile(self.downloads[downloadID].archiveName, ((self.downloads[downloadID].archiveType == "map") and "MAP") or "RAPID", "DownloadFailed")
 		Chotify:Post({
 			title = "Download Failed",
 			body = "Starting backup download for " .. (self.downloads[downloadID].archiveName or "???"),
@@ -292,7 +292,13 @@ function Downloader:DownloadFailed(listener, downloadID, errorID)
 	self:UpdateQueue()
 end
 
-function Downloader:DownloadQueued(listener, downloadID, archiveName, archiveType)
-	self.downloads[downloadID] = { archiveName = archiveName, archiveType = archiveType, startTime = os.clock() }
+function Downloader:DownloadQueued(listener, downloadID, archiveName, archiveType, resource)
+	self.downloads[downloadID] = {
+		archiveName = archiveName,
+		archiveType = archiveType,
+		resource = resource,
+		startTime = os.clock() }
+	Spring.Echo("DownloadQueued")
+	Spring.Utilities.TableEcho(self.downloads)
 	self:UpdateQueue()
 end

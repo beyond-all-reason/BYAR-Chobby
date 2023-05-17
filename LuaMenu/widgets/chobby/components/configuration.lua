@@ -1045,9 +1045,9 @@ end
 
 function Configuration:IsValidEngineVersion(engineVersion)
 	local validengine = (engineVersion == Spring.Utilities.GetEngineVersion() or engineVersion == self:GetTruncatedEngineVersion())
-	--Spring.Echo(" Configuration:IsValidEngineVersion(engineVersion)",engineVersion, validengine)
-	--Spring.Echo(" Spring.Utilities.GetEngineVersion() ",Spring.Utilities.GetEngineVersion() )
-	--Spring.Echo(" self:GetTruncatedEngineVersion()",self:GetTruncatedEngineVersion())
+	Spring.Echo(" Configuration:IsValidEngineVersion(engineVersion)",engineVersion, validengine)
+	Spring.Echo(" Spring.Utilities.GetEngineVersion() ",Spring.Utilities.GetEngineVersion() )
+	Spring.Echo(" self:GetTruncatedEngineVersion()",self:GetTruncatedEngineVersion())
 	return validengine
 end
 
