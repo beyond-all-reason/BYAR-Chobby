@@ -57,7 +57,7 @@ end
 local downloads = {} -- index table
 
 -- FB 2023-05-14 downloads a file, type can be any of game, map
--- {resource,engine} not fully supported yet by launcher, though using resource here with workarounds already
+-- {resource,engine} not fully supported yet by launcher, though using resource here for engine downloads with workarounds!
 function WrapperLoopback.DownloadFile(name, type, resource, debug_wherewecomefrom)
 	Spring.Echo("WrapperLoopback DownloadFile")
 	if type:lower() == "resource" and not resource then
@@ -67,7 +67,7 @@ function WrapperLoopback.DownloadFile(name, type, resource, debug_wherewecomefro
 	end
 
 	table.insert(downloads, {
-		nameSent = type:lower() == "resource" and resource.destination or name, -- FB 2023-05-14: Workaround for now: With "resource" DownloadProgress & DownloadFinished return destination as name, so we just use destination as name here to be upward compatible
+		nameSent = type:lower() == "resource" and resource.destination or name, -- FB 2023-05-14: Workaround for now: With "resource" DownloadProgress & DownloadFinished return destination as name, so we just use destination as nameSent here to be forward compatible
 		name     = name,
 		type     = type,
 		typeSent = type:lower() == "rapid" and "game" or type:lower(),
@@ -113,24 +113,26 @@ local function GetDownloadByNameSent(nameSent)
 	return false, nil
 end
 
---local function escape_pattern(text)
---	Spring.Echo("text:", text, text:gsub("([^%w])", "%%%1"))
---    return text:gsub("([^%w])", "%%%1")
---end
-
--- Minus only
-local function escape_pattern(text)
-	Spring.Echo("text:", text, text:gsub("([%-])", "%%%1"))
+-- Replace all minutes (-) by (%-) so that it´s not used by string.find as special char
+-- example: "engine/105.1.1-1354-g72b2d55 bar" -> "engine/105.1.1%-1354%-g72b2d55 bar"
+local function EscapeMinusPattern(text)
     return text:gsub("([%-])", "%%%1")
 end
 
-local function GetDownloadInNameSent(nameSent)
-	Spring.Echo("GetDownloadInNameSent nameSent = ", nameSent, " downloads = ...")
+-- FB 2023-05-19: "resource"-downloads currently return no name in first DownloadFinished-command
+-- and then returns endless DownloadFinished-commands with name = errormessage including the fullpath, so we use that fullpath for now
+-- this function should work as well in future, as soon as launcher returns the original name of the download, which is for compatibility reason for now = destination ("engine/105.1.1-1354-g72b2d55 bar")
+-- example nameReceived(windows): "Skipping C:\Beyond-All-ReasonTest\data\engine\105.1.1-1354-g72b2d55 bar: already exists."
+-- ToDo:Test with linux: With linux it should be like "Skipping /home/userXY/dir/to/data/engine/105.1.1-1354-g72b2d55 bar: already exists."
+local function FindNameReceivedInDownloads(nameReceived)
+	Spring.Echo("FindNameReceivedInDownloads nameReceived = ", nameReceived, " downloads = ...")
 	Spring.Utilities.TableEcho(downloads)
+
 	for i, download in ipairs(downloads) do
-		Spring.Echo("i", i , " download.nameSent", download.nameSent, " escaped download.nameSent", escape_pattern(download.nameSent))
-		if nameSent:gsub("\\", "|"):gsub("//", "|"):find(escape_pattern(download.nameSent:gsub("//", "|"))) then
-			Spring.Echo("nameSent found at i=", i)
+		Spring.Echo("i", i , " download.nameSent", download.nameSent)
+		Spring.Echo("escaped download.nameSent", EscapeMinusPattern(download.nameSent))
+		if nameReceived:gsub("\\", "/"):find(EscapeMinusPattern(download.nameSent)) then -- replace backslashes(windows) with slashes, because that´s how we generated it in CoopHandler:local GetEnginePath()
+			Spring.Echo("nameReceived found at i=", i)
 			return download, i
 		end
 	end
@@ -169,32 +171,27 @@ local function DownloadFinished(command)
 	Spring.Echo("WrapperLoopback:local DownloadFinished command = ...")	
 	Spring.Utilities.TableEcho(command)
 	if not command.name then
-		Spring.Echo("DownloadFinished without name")
+		Spring.Echo("DownloadFinished without name") -- FB 2023-05-19: happens currenty with "resource"-downloads, don't log as error to prevent upload log popups
 		return false
 	end
 
+	-- use Skipping message to recognize finished download
+	-- example command.name = "Skipping C:\Beyond-All-ReasonTest\data\engine\105.1.1-1354-g72b2d55 bar: already exists."
 	if startsWith(command.name, SkippingFile_PREFIX) then
-		--command.name = command.name:gsub(SkippingFile_PREFIX, ""):gsub(SkippingFile_SUFFIX, "")
-		-- FB 2023-05-17: Send "abortDownload" to stop current launcher version from sending "DownloadFinished" repeatidly), when using "resource"-download
-		download, dlIndex = GetDownloadInNameSent(command.name)
+		download, dlIndex = FindNameReceivedInDownloads(command.name)
 		if dlIndex then
-			Spring.Echo("Received 'Skipped'-Download-Finished, sending abort for download= ")
+			Spring.Echo("Received 'Skipped'-Download-Finished, download= ...")
 			Spring.Utilities.TableEcho(download)
-			Spring.Echo("Sending name, type", download.nameSent, download.typeSent)
-			WG.Connector.Send("AbortDownload", {
-				name     = download.nameSent,
-				type     = download.typeSent,
-			})
 		end
 	else
-		download, dlIndex = GetDownloadByNameSent(command.name)		
+		download, dlIndex = FindNameReceivedInDownloads(command.name)		
 	end
 
 	if not download then
-		Spring.Echo("DownloadFinished, no download found with name", command.name) -- ERROR
+		Spring.Echo("DownloadFinished, no download found with name", command.name) -- FB 2023-05-19: Because resource downloads are producing endlesse repetitions of "Skipping..."-message, do not log as error to prevent upload log popups
 		return false
 	end
-	Spring.Echo("DownloadFinished, download found:")
+	Spring.Echo("DownloadFinished, download found, download = ...")
 	Spring.Utilities.TableEcho(download)
 	
 	WG.DownloadWrapperInterface.DownloadFinished(download.name, download.type, command.isSuccess, command.isAborted)
