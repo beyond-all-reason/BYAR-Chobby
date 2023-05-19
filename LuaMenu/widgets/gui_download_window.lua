@@ -192,6 +192,7 @@ local function CreateDownloadEntry(downloadData)
 	local externalFunctions = {}
 
 	function externalFunctions.SetProgress(sizeCurrent, sizeTotal)
+		Spring.Echo("DownloadWindow:SetProgress(of downloadentry) (sizeCurrent, sizeTotal)", sizeCurrent, sizeTotal)
 		if sizeCurrent == 0 then
 			return
 		end
@@ -359,8 +360,13 @@ local function InitializeControls(window)
 	WG.DownloadHandler.AddListener("DownloadQueueUpdate", DownloadQueueUpdate)
 
 	local function DownloadProgress(_, _, sizeCurrent, sizeTotal, name)
+		Spring.Echo("DownloadWindow:DownloadProgressListener downloads= ...")
+		Spring.Utilities.TableEcho(downloads)
 		if downloads[name] then
+			Spring.Echo("DownloadWindow:DownloadProgressListener found, call SetProgress")
 			downloads[name].SetProgress(sizeCurrent, sizeTotal)
+		else
+			Spring.Echo("DownloadWindow:DownloadProgressListener not found")
 		end
 	end
 

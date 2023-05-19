@@ -176,7 +176,7 @@ local function GetDownloadIndexByName(downloadList, downloadName)
 	Spring.Utilities.TableEcho(downloadList)
 	for i = 1, #downloadList do
 		local data = downloadList[i]
-		if data.name == downloadName or data.resource and data.resource.destination:gsub("\\","\\\\"):gsub("/", "//") == downloadName then
+		if data.name == downloadName then
 			Spring.Echo("found index",  i)
 			return i
 		end
@@ -405,7 +405,7 @@ function wrapperFunctions.DownloadFinished(name, fileType, success, aborted)
 end
 
 function wrapperFunctions.DownloadFileProgress(name, progress, totalLength)
-	Spring.Echo("DownloadFileProgress", name, progress, totalLength)
+	Spring.Echo("DownloadFileProgress (name, progress, totalLength)", name, progress, totalLength)
 	local index = GetDownloadIndexByName(downloadQueue, name)
 	Spring.Echo("Index", index)
 	if not index then
@@ -414,6 +414,7 @@ function wrapperFunctions.DownloadFileProgress(name, progress, totalLength)
 	end
 
 	totalLength = (tonumber(totalLength or 0) or 0)/1023^2
+	Spring.Echo("DownloadFileProgress, call Listeners('DownloadProgress', downloadQueue[index].id, totalLength*math.min(1, (tonumber(progress or 0) or 0)/100), totalLength, downloadQueue[index].name)",downloadQueue[index].id, totalLength*math.min(1, (tonumber(progress or 0) or 0)/100), totalLength, downloadQueue[index].name)
 	CallListeners("DownloadProgress", downloadQueue[index].id, totalLength*math.min(1, (tonumber(progress or 0) or 0)/100), totalLength, downloadQueue[index].name)
 end
 
@@ -431,13 +432,15 @@ function widget:Update()
 end
 
 function widget:DownloadProgress(downloadID, downloaded, total)
-	Spring.Echo("DownloadHandler widget.DownloadProgress")
+	Spring.Echo("DownloadHandler:DownloadProgress")
 	local index = GetDownloadBySpringDownloadID(downloadQueue, downloadID)
 	if not index then
+		Spring.Echo("DownloadHandler:DownloadProgress not index")
 		return
 	end
 	downloaded = downloaded / 1024 / 1024
 	total = total / 1024 / 1024
+	Spring.Echo("DownloadHandler:DownloadProgress callingListeners(downloadQueue[index].id, downloaded, total, downloadQueue[index].name)", downloadQueue[index].id, downloaded, total, downloadQueue[index].name)
 	CallListeners("DownloadProgress", downloadQueue[index].id, downloaded, total, downloadQueue[index].name)
 end
 
