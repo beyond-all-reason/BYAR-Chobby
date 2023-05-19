@@ -209,8 +209,8 @@ local function CheckDownloads(gameName, mapName, DoneFunc, gameList, engineVersi
 		end
 	end
 
-	local haveEngine = not engineVersion and haveEngineVersion(engineVersion)
-	Spring.Echo("haveEngine", haveEngine)
+	local haveEngine = not engineVersion or haveEngineVersion(engineVersion)
+	Spring.Echo("haveEngine", haveEngine, not engineVersion)
 	if not haveEngine then
 		if oneTimeResourceDl then
 			Spring.Echo("oneTimeResourceDl = true")
