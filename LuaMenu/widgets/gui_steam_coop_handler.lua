@@ -159,10 +159,10 @@ end
 --------------------------------------------------------------------------------
 -- Downloading
 
--- outcome example: "105.1.1-1354-g72b2d55 BAR105" -> "engine//105.1.1-1354-g72b2d55 bar"
+-- outcome example: "105.1.1-1354-g72b2d55 BAR105" -> "engine/105.1.1-1354-g72b2d55 bar"
 local function GetEnginePath(engineVersion)
-	Spring.Echo("GetEnginePath", ("engine//" .. engineVersion:gsub(" BAR105", " bar")):lower())
-	return ("engine//" .. engineVersion:gsub(" BAR105", " bar")):lower() -- maybe there are more special cases to take in mind here
+	Spring.Echo("GetEnginePath", ("engine/" .. engineVersion:gsub(" BAR105", " bar")):lower())
+	return ("engine/" .. engineVersion:gsub(" BAR105", " bar")):lower() -- maybe there are more special cases to take in mind here for very old demos or future ones!
 end
 
 local function haveEngineVersion(engineVersion)
@@ -183,7 +183,7 @@ local function GetEngineDownloadUrl(engineVersion)
 end
 
 -- gameList = nil
-local oneTimeResourceDl = false
+-- local oneTimeResourceDl = false
 local function CheckDownloads(gameName, mapName, DoneFunc, gameList, engineVersion)
 	Spring.Echo("CheckDownloads",gameName, mapName, DoneFunc, gameList, engineVersion)
 	local haveGame = (not gameName) or WG.Package.ArchiveExists(gameName)
@@ -212,10 +212,10 @@ local function CheckDownloads(gameName, mapName, DoneFunc, gameList, engineVersi
 	local haveEngine = not engineVersion or haveEngineVersion(engineVersion)
 	Spring.Echo("haveEngine", haveEngine, not engineVersion)
 	if not haveEngine then
-		if oneTimeResourceDl then
-			Spring.Echo("oneTimeResourceDl = true")
-			return
-		end
+		--if oneTimeResourceDl then
+		--	Spring.Echo("oneTimeResourceDl = true")
+		--	return
+		--end
 		Spring.Echo("Url", GetEngineDownloadUrl(engineVersion))
 		Spring.Echo("destination", GetEnginePath(engineVersion))
 		Spring.Echo("Engine ", engineVersion, " not existing, attempt to download...")
