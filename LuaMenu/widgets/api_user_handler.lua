@@ -754,7 +754,7 @@ local function UpdateUserBattleStatus(listener, userName)
 						userControls.lblHandicap:SetVisibility(true)
 					end
 				end
-				if not userControls.isPlaying then
+				if not userControls.isPlaying or handicap == nil then
 					-- If the player is spectating, don't show handicap label regardless of its value.
 					userControls.lblHandicap:SetVisibility(false)
 				end
