@@ -196,7 +196,6 @@ function round2(num, idp)
 end
 
 function Downloader:DownloadProgress(listener, downloadID, downloaded, total)
-	Spring.Echo("Downloader:DownloadProgress")
 	if not self.downloads[downloadID] then
 		return
 	end
