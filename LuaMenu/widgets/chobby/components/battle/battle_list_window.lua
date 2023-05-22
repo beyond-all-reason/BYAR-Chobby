@@ -333,7 +333,7 @@ function BattleListWindow:UpdateInfoPanel()
 	if noBattles then
 		self.infoPanel:SetVisibility(true)
 		self.infoPanel:BringToFront()
-		self.infoLabel:SetCaption("No battle rooms found, report this to us on Discord!\nIf the server was just restarted\nwait a few minutes.")
+		self.infoLabel:SetCaption("No battle rooms found. Please log in first!\nIf you think it's a problem, report this to us on Discord.\nIf the server was just restarted, wait a few minutes.")
 		return
 	end
 
