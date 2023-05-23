@@ -49,7 +49,7 @@ local function traceLost(node)
 
 	for i,obj in pairs(Chili.DebugHandler.allObjects) do
 		if obj.name ~= "wnd_inspector" then
-			if (not obj.parent)and(not obj:InheritsFrom("screen")) then
+			if (not obj.parent)and(not obj:InheritsFrom("screen")) and (obj.classname ~= "treeviewnode") then
 				local caption = ("%s: %s (redrawn: %i; disposed: %s)"):format(obj.classname, obj.name, obj._redrawCounter or 0, GetBooleanStr(obj.disposed))
 				local nodec = node:Add(caption)
 				trace(obj.children, nodec, 1, 1)
