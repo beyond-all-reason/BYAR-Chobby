@@ -508,6 +508,7 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 			name = "singleplayer",
 			tabs = Configuration.gameConfig.singleplayerConfig,
 			titleText = i18n("singleplayercoop"),
+			startWithTabOpen = 1,
 		},
 		{
 			name = "multiplayer",
@@ -515,6 +516,7 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 			tabs = multiPlayerTabs,
 			cleanupFunction = Configuration.leaveMultiplayerOnMainMenu and CleanMultiplayerState or nil,
 			twoline = true,
+			startWithTabOpen = 1,
 		},
 		{
 			name = "replays",
@@ -525,7 +527,8 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 		},
 		{
 			name = "help",
-			tabs = Configuration.gameConfig.helpSubmenuConfig
+			tabs = Configuration.gameConfig.helpSubmenuConfig,
+			startWithTabOpen = 1,
 		},
 	}
 
