@@ -116,7 +116,8 @@ end
 -- Replace all minutes (-) by (%-) so that it´s not used by string.find as special char
 -- example: "engine/105.1.1-1354-g72b2d55 bar" -> "engine/105.1.1%-1354%-g72b2d55 bar"
 local function EscapeMinusPattern(text)
-    return text:gsub("([%-])", "%%%1")
+	local txt = text:gsub("([%-])", "%%%1")
+	return txt
 end
 
 -- FB 2023-05-19: "resource"-downloads currently return no name in first DownloadFinished-command
