@@ -41,6 +41,7 @@ background-position: center;
 #lbl-check-for-updates {
   grid-area: checkupdates;
   align-self: end;
+  top: 4px;
 }
 .progress-area {
   grid-area: prog;
@@ -87,6 +88,7 @@ body::-webkit-scrollbar {
   max-width: 135px;
   /* font-size: 100%; */
   white-space: normal;
+  top: -18px;
 }
 
 #btn-progress:disabled {
