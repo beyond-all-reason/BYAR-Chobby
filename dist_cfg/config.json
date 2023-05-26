@@ -298,7 +298,7 @@
         "FullscreenEdgeMove": 1,
         "GrassDetail": 0,
         "GroundDecals": 2,
-        "GroundDetail": 150,
+        "GroundDetail": 200,
         "GroundScarAlphaFade": 1,
         "HangTimeout": 30,
         "HardwareCursor": 1,
