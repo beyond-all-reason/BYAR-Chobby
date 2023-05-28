@@ -15,7 +15,7 @@ local welcomePanelItems = {
     {
         Header = "Commander Update",
         Url = "https://www.beyondallreason.info/news/commander-update-details",
-        Text = "Commanders have been changed! They are now immune to the mighty D-Gun and their explosion does less damage.\n",
+        Text = "Commanders have been changed! They are now immune to the mighty D-Gun and their explosion does less damage. Their wreckage contains reduced metal value of 1250 (was 2000)\n",
         UrlText = "More info",
     },
     {
