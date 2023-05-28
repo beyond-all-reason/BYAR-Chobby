@@ -13,6 +13,12 @@
 
 local welcomePanelItems = {
     {
+        Header = "Commander Update",
+        Url = "https://www.beyondallreason.info/news/commander-update-details",
+        Text = "Commanders have been changed! They are now immune to the mighty D-Gun and their explosion does less damage.\n",
+        UrlText = "More info",
+    },
+    {
         Header = "PRO 4v4 Tournament concluded!",
         Image = "LuaMenu/images/Group_141.png",
         Url = "https://www.youtube.com/watch?v=_dq9Xwfh4h4",
