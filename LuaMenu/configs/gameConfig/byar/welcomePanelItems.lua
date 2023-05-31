@@ -38,9 +38,9 @@ local welcomePanelItems = {
     },
     
     {
-        Header = "New Map: Faster Than Light 1.1",
-        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/faster_than_light_1.1.png",
-        Text = "1v1 windless space-platform map for competitive play.\nTight chokes favour positional strategy while raised platforms reward aggressive map control.\nMade by ShaunJS",
+        Header = "New Map: Factions and Factious 0.9!",
+        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/Factions_and_Factious_0.9.png",
+        Text = "Up to 10 players FFA map.\nBy Phalange",
     },    
 
     {
