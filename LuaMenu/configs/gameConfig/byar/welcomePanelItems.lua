@@ -15,7 +15,7 @@ local welcomePanelItems = {
     {
         Header = "Season 0 has started!",
         Url = "https://www.beyondallreason.info/news/new-opportunities-ahead-season-zero-is-about-to-begin",
-        Text = "Rating uncertainty has been reset for everyone. You kept your old rating, but will gain/lose value faster than before.\n",
+        Text = "The OpenSkill uncertainty factor was reset for all players to its default value (the same as for new players). It's expected that your match rating (displayed in lobby) is lower than what it was before the reset, and likewise for your rank icon\n",
         UrlText = "More info",
     },
     {
