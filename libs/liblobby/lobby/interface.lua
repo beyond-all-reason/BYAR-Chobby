@@ -508,8 +508,8 @@ end
 Interface.commands["MOTD"] = Interface._OnMOTD
 Interface.commandPattern["MOTD"] = "([^\t]*)"
 
-function Interface:_OnAccepted()
-	self:super("_OnAccepted")
+function Interface:_OnAccepted(newName)
+	self:super("_OnAccepted", newName)
 end
 Interface.commands["ACCEPTED"] = Interface._OnAccepted
 Interface.commandPattern["ACCEPTED"] = "(%S+)"
