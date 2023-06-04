@@ -1803,11 +1803,10 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 				preserveChildrenOrder = true,
 			}
 
-			local labelTeamPlayerCountWidth = 35 -- about enough pixel space for 2 symbols for font 2
 			local labelTeamPlayerCount = Label:New {
-				x = teamHolder.width - labelTeamPlayerCountWidth,
+				x = -20, -- hand crafted
 				y = 0,
-				width = labelTeamPlayerCountWidth,
+				width = 40,
 				height = 25, -- same as label (for team names)
 				align = "right",
 				valign = "center",
@@ -1816,7 +1815,7 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 				parent = teamHolder,
 			}
 			local function UpdateTeamPlayerCount()
-				labelTeamPlayerCount.caption = tostring(#teamStack.children)
+				labelTeamPlayerCount.caption = string.format("%d", #teamStack.children)
 			end
 
 			local function UpdatePlayerPositions()
