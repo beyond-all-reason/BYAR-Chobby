@@ -1803,6 +1803,21 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 				preserveChildrenOrder = true,
 			}
 
+			local labelTeamPlayerCount = Label:New {
+				x = -20, -- hand crafted
+				y = 0,
+				width = 40,
+				height = 25, -- same as label (for team names)
+				align = "right",
+				valign = "center",
+				font = WG.Chobby.Configuration:GetFont(2),
+				caption = "0",
+				parent = teamHolder,
+			}
+			local function UpdateTeamPlayerCount()
+				labelTeamPlayerCount.caption = string.format("%d", #teamStack.children)
+			end
+
 			local function UpdatePlayerPositions()
 				if teamIndex ~= -1 and teamIndex ~= -2 then
 					table.sort(teamStack.children, SortPlayersBySkill)
@@ -1894,6 +1909,7 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 					teamHolder:SetVisibility(true)
 					UpdatePlayerPositions()
 				end
+				UpdateTeamPlayerCount()
 			end
 
 			function teamData.RemoveTeam()
@@ -1961,6 +1977,7 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 
 				teamData.CheckRemoval()
 				PositionChildren(parentStack, parentScroll.height)
+				UpdateTeamPlayerCount()
 			end
 
 			team[teamIndex] = teamData
