@@ -175,7 +175,12 @@ function widget:Initialize()
 					Chili.Button:New{
 						caption="visible objects",
 						classname = "option_button",
-						OnMouseUp = {function() tree0.root:Clear(); trace(Chili.Screen0.children, tree0.root) end},
+						OnMouseUp = {function() tree0.root:Clear(); 
+							for child in tree0.root.children do
+								child:Dispose()
+							end
+							
+							trace(Chili.Screen0.children, tree0.root) end},
 					},
 					Chili.Button:New{
 						caption="lost objects",
