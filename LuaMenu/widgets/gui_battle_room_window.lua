@@ -3628,7 +3628,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	end
 
 	local function OnUpdateBattleTitle(listener, changedbattleID, newbattletitle)
-		Spring.Echo("battle_room: OnUpdateBattleTitle")
+		--Spring.Echo("battle_room: OnUpdateBattleTitle")
 		if battleID == changedbattleID then
 			UpdateBattleTitle()
 		end
