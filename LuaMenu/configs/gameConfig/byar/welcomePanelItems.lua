@@ -12,6 +12,11 @@
 
 
 local welcomePanelItems = {
+
+    {
+        Header = "Welcome to Beyond All Reason",
+        Text = "Welcome back Commander. We hope you are ready for epic single player and multiplayer battles. Check out our Discord and join the community!\n",
+    },
     {
         Header = "Season 0 has started!",
         Url = "https://www.beyondallreason.info/news/new-opportunities-ahead-season-zero-is-about-to-begin",
@@ -31,23 +36,18 @@ local welcomePanelItems = {
         Text = "\nCongratulations to the team BARcode!\nAs the dust slowly settles after the epic battles of 4v4 tourney, enjoy the tourney stream VOD! We really had a blast organising, casting an playing this one and sitting together with Chris Taylor (the creator of Total Annihilation) for a surprise interview.\n",
         UrlText = "Watch"
     },
-
+    
     {
-        Header = "Welcome to Beyond All Reason",
-        Text = "Welcome back Commander. We hope you are ready for epic single player and multiplayer battles. Check out our Discord and join the community!\n",
-    },
+        Header = "New Map: Ascendancy 1.0!",
+        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/Ascendancy_v1.0.png",
+        Text = "Behold the tallest BAR mountain!\nA new 8v8 map by Nikuksis.",
+    },    
     {
         Header = "Guides for new players",
         Url = "https://www.youtube.com/channel/UCAByJ5NKeMmQ95EIWgBtbEw",
         Text = "Requiem has created some guides for new players. If you're new to the game and want to learn the basics via video we highly recommend you check them out.\n",
         UrlText = "Link to video guides"
     },
-    
-    {
-        Header = "New Map: Factions and Factious 0.9!",
-        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/Factions_and_Factious_0.9.png",
-        Text = "Up to 10 players FFA map.\nBy Phalange",
-    },    
 
     {
         Header = "Please help us test new engines!",
