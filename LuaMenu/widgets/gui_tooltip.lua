@@ -717,7 +717,7 @@ local function GetUserTooltip(userName, userInfo, userBattleInfo, inBattleroom)
 		elseif Configuration.showSkillOpt and Configuration.showSkillOpt > 1 and userInfo.skill and userInfo.skillUncertainty then
 			text = "OpenSkill: " .. userInfo.skill 
 			if Configuration.showSkillOpt == 3 then
-				text = text .. " ± ".. userInfo.skillUncertainty
+				text = text .. " (Ïƒ=".. userInfo.skillUncertainty .. ")"
 			end
 		else
 			text = "Level: " .. userInfo.level
