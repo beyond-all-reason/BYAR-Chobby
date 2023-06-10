@@ -38,9 +38,9 @@ local welcomePanelItems = {
     },
     
     {
-        Header = "New Map: Ascendancy 1.0!",
+        Header = "New Map: Ascendancy 1.1!",
         Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/Ascendancy_v1.0.png",
-        Text = "Behold the tallest BAR mountain!\nA new 8v8 map by Nikuksis.",
+        Text = "Behold the tallest BAR mountain!\nA new 8v8 map by Nikuksis.\nV1.1: Fixed ponds entrance, T3's can now enter and escape the water.",
     },    
     {
         Header = "Guides for new players",
