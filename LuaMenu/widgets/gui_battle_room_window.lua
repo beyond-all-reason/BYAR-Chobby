@@ -140,6 +140,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	local externalFunctions = {}
 
 	local btnMapLink = Button:New {
+		name = 'btnMapLink',
 		x = 3,
 		y = 0,
 		right = 3,
@@ -159,6 +160,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	}
 
 	local startBoxPanel = Control:New{
+		name = 'startBoxPanel',
 		x = 0,
 		y = 22,
 		width = "100%",
@@ -169,6 +171,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	-- the buttons needed are:
 	-- splitV , splitH, splitC1_2, splitC2_2, split4, add, remove
 	local btnSplitV = Button:New{
+		name = 'btnSplitV',
 		x = "0%",
 		bottom = 0,
 		width = "12%",
@@ -208,6 +211,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	}
 
 	local imSplitV = Image:New {
+		name = 'imSplitV',
 		x = 0,
 		y = 0,
 		right = 0,
@@ -219,6 +223,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	}
 
 	local btnSplitH = Button:New{
+		name = 'btnSplitH',
 		x = "12.5%",
 		bottom = 0,
 		width = '12%',
@@ -258,6 +263,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	}
 
 	local imSplitH = Image:New {
+		name = 'imSplitH',
 		x = 0,
 		y = 0,
 		right = 0,
@@ -269,6 +275,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	}
 
 	local btnSplitC1 = Button:New{
+		name = 'btnSplitC1',
 		x = "25%",
 		bottom = 0,
 		width = '12%',
@@ -308,6 +315,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	}
 
 	local imSplitC1 = Image:New {
+		name = 'imSplitC1',
 		x = 0,
 		y = 0,
 		right = 0,
@@ -319,6 +327,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	}
 
 	local btnSplitC2 = Button:New{
+		name = 'btnSplitC2',
 		x = "37.5%",
 		bottom = 0,
 		width = '12%',
@@ -358,6 +367,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	}
 
 	local imSplitC2 = Image:New {
+		name = 'imSplitC2',
 		x = 0,
 		y = 0,
 		right = 0,
@@ -370,6 +380,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 
 
 	local btnSplitC4 = Button:New{
+		name = 'btnSplitC4',
 		x = "50%",
 		bottom = 0,
 		width = '12%',
@@ -411,6 +422,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	}
 
 	local imSplitC4 = Image:New {
+		name = 'imSplitC4',
 		x = 0,
 		y = 0,
 		right = 0,
@@ -423,6 +435,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 
 
 	local btnSplitS4 = Button:New{
+		name = 'btnSplitS4',
 		x = "62.5%",
 		bottom = 0,
 		width = '12%',
@@ -464,6 +477,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	}
 
 	local imSplitS4 = Image:New {
+		name = 'imSplitS4',
 		x = 0,
 		y = 0,
 		right = 0,
@@ -476,6 +490,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 
 
 	local btnAddBox = Button:New{
+		name = 'btnAddBox',
 		x = "75%",
 		bottom = 0,
 		width = '12%',
@@ -503,6 +518,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	}
 
 	local imAddBox = Image:New {
+		name = 'imAddBox',
 		x = 0,
 		y = 0,
 		right = 0,
@@ -514,6 +530,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	}
 
 	local btnClearBox = Button:New{
+		name = 'btnClearBox',
 		x = "87.5%",
 		bottom = 0,
 		width = '12%',
@@ -543,6 +560,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	}
 
 	local imClearBox = Image:New {
+		name = 'imClearBox',
 		x = 0,
 		y = 0,
 		right = 0,
@@ -629,6 +647,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	end
 
 	local minimapPanel = Panel:New {
+		name = 'minimapPanel',
 		x = 0,
 		y = 0,
 		right = 0,
@@ -654,6 +673,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 
 	local mapImageFile, needDownload = config:GetMinimapImage(battle.mapName)
 	local imMinimap = Image:New {
+		name = 'imMinimap',
 		x = 0,
 		y = 0,
 		right = 0,
@@ -688,6 +708,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	]]--
 	if config.devMode then 
 		local comboboxstartpostype = ComboBox:New{
+			name = 'comboboxstartpostype',
 			x = 0,
 			bottom = 100,
 			right = 0,
@@ -705,7 +726,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 					for k,v in ipairs  {"Fixed", "Random", "Choose In Game", "Choose Before Game"} do
 						if selectedName == v then
 							battle.startPosType = k - 1
-							Spring.Echo("Selected startPosType", k,v, k-1,selectedName)
+							--Spring.Echo("Selected startPosType", k,v, k-1,selectedName)
 							return
 						end
 					end
@@ -728,6 +749,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 
 	if battleLobby.name ~= "singleplayer" then
 		readyButton = Button:New {
+			name = 'readyButton',
 			x = 0,
 			align = "right",
 			right = "50.5%",
@@ -750,6 +772,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		}
 
 		readyButtonCheck = Image:New {
+			name = 'readyButtonCheck',
 			--x = "5%",
 			y = 6,
 			right = "84%",
@@ -761,6 +784,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		}
 
 		readyButtonCheckArrow = Image:New {
+			name = 'readyButtonCheckArrow',
 			width = 16,
 			height = 16,
 			file = IMG_CHECKARROW,
@@ -773,6 +797,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	end
 
 	btnStartBattle = Button:New {
+		name = 'btnStartBattle',
 		x = ((battleLobby.name == "singleplayer") and 0 or "50.5%"),
 		right = 0,
 		bottom = 0,
@@ -852,6 +877,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	end
 
 	btnSpectate = Button:New { -- Some properties set by SetButtonStatePlaying() after both buttons are initialised.
+		name = 'btnSpectate',
 		x = "50.5%",
 		right = 0,
 		bottom = 51,
@@ -888,6 +914,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	}
 
 	btnPlay = Button:New { -- Some properties set by SetButtonStatePlaying() after both buttons are initialised.
+		name = 'btnPlay',	
 		x = 0,
 		right = "50.5%",
 		bottom = 51,
@@ -1079,6 +1106,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	leftOffset = leftOffset + 38
 
 	local btnPickMap = Button:New {
+		name = 'btnPickMap',
 		x = 5,
 		y = leftOffset,
 		height = 35,
@@ -1098,6 +1126,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 
 	WG.ModoptionsPanel.LoadModotpions(battle.gameName, battleLobby)
 	local btnModoptions = Button:New {
+		name = 'btnModoptions',
 		x = 5,
 		y = leftOffset,
 		height = 35,
@@ -1116,6 +1145,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	leftOffset = leftOffset + 40
 
 	local lblGame = Label:New {
+		name = 'lblGame',
 		x = 8,
 		y = leftOffset,
 		right = 3,
@@ -1131,6 +1161,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	leftOffset = leftOffset + 26
 
 	local imHaveGame = Image:New {
+		name = 'imHaveGame',
 		x = 8,
 		y = leftOffset,
 		width = 15,
@@ -1139,6 +1170,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		parent = leftInfo,
 	}
 	local lblHaveGame = Label:New {
+		name = 'lblHaveGame',
 		x = 28,
 		y = leftOffset,
 		caption = "",
@@ -1148,6 +1180,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	leftOffset = leftOffset + 25
 
 	local imHaveMap = Image:New {
+		name = 'imHaveMap',
 		x = 8,
 		y = leftOffset,
 		width = 15,
@@ -1156,6 +1189,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		parent = leftInfo,
 	}
 	local lblHaveMap = Label:New {
+		name = 'lblHaveMap',
 		x = 28,
 		y = leftOffset,
 		caption = "",
@@ -1165,6 +1199,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	leftOffset = leftOffset + 30
 
 	local modoptionsHolder = Control:New {
+		name = 'modoptionsHolder',
 		x = 0,
 		y = leftOffset,
 		right = 0,
@@ -1440,6 +1475,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		local oh = math.floor((bottom-top) * minimapPanelMaxSize / 200)
 		if currentStartRects[allyNo+1] then externalFunctions.RemoveStartRect(allyNo) end
 		local newStartRect = Window:New {
+			name = 'newStartRect'..tostring(allyNo + 1),
 
 			spadsSizes = {left = left,top = top,right = right,bottom = bottom, caption = tostring(allyNo + 1)},
 			x = ox,
@@ -1619,6 +1655,7 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 	local disallowBots = battle.disallowBots
 
 	local mainScrollPanel = ScrollPanel:New {
+		name = 'mainScrollPanel',
 		x = 0,
 		right = 0,
 		y = 1,
@@ -1628,6 +1665,7 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 	}
 
 	local mainStackPanel = Control:New {
+		name = 'mainStackPanel',
 		x = 0,
 		right = 0,
 		y = 0,
@@ -1637,6 +1675,7 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 	}
 	mainStackPanel._relativeBounds.bottom = nil
 	local spectatorScrollPanel = ScrollPanel:New {
+		name = 'spectatorScrollPanel',
 		x = 0,
 		right = 0,
 		y = 0,
@@ -1646,6 +1685,7 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 	}
 
 	local spectatorStackPanel = Control:New {
+		name = 'spectatorStackPanel',
 		x = 0,
 		right = 0,
 		y = 0,
@@ -1744,6 +1784,7 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 			end
 
 			local teamHolder = Control:New {
+				name = 'teamHolder',
 				name = teamIndex,
 				x = 0,
 				right = 0,
@@ -1754,6 +1795,7 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 			}
 
 			local label = Label:New {
+				name = 'label',
 				x = 5,
 				y = 0,
 				width = 120,
@@ -1765,6 +1807,7 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 			}
 			if teamIndex ~= -1 and teamIndex ~= -2 then
 				local seperator = Line:New {
+					name = 'seperator',
 					x = 0,
 					y = 20, --25
 					right = 0,
@@ -1793,6 +1836,7 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 				)
 			end
 			local teamStack = Control:New {
+				name = 'teamStack',
 				x = 0,
 				y = 26, --31
 				right = 0,
@@ -2085,6 +2129,7 @@ local function SetupVotePanel(votePanel, battle, battleID)
 	local currentMapName
 
 	local minimapPanel = Panel:New {
+		name = 'minimapPanel',
 		x = 0,
 		y = 0,
 		bottom = 0,
@@ -2093,6 +2138,7 @@ local function SetupVotePanel(votePanel, battle, battleID)
 		parent = votePanel,
 	}
 	local btnMinimap = Button:New {
+		name = 'btnMinimap',
 		x = 0,
 		y = 0,
 		right = 0,
@@ -2110,6 +2156,7 @@ local function SetupVotePanel(votePanel, battle, battleID)
 		},
 	}
 	local imMinimap = Image:New {
+		name = 'imMinimap',
 		x = 0,
 		y = 0,
 		right = 0,
@@ -2119,6 +2166,7 @@ local function SetupVotePanel(votePanel, battle, battleID)
 	}
 
 	local activePanel = Control:New {
+		name = 'activePanel',
 		x = 0,
 		y = 0,
 		right = 0,
@@ -2129,6 +2177,7 @@ local function SetupVotePanel(votePanel, battle, battleID)
 
 	local buttonNo
 	local buttonYes = Button:New {
+		name = 'buttonYes',
 		x = offset,
 		y = 0,
 		bottom = 0,
@@ -2150,6 +2199,7 @@ local function SetupVotePanel(votePanel, battle, battleID)
 		padding = {10,10,10,10},
 		children = {
 			Image:New {
+				name = 'buttonYes',
 				x = 0,
 				y = 0,
 				right = 0,
@@ -2163,6 +2213,7 @@ local function SetupVotePanel(votePanel, battle, battleID)
 	offset = offset + height
 
 	buttonNo = Button:New {
+		name = 'buttonNo',
 		x = offset,
 		y = 0,
 		bottom = 0,
@@ -2198,6 +2249,7 @@ local function SetupVotePanel(votePanel, battle, battleID)
 	offset = offset + 2
 
 	local voteName = Label:New {
+		name = 'voteName',
 		x = offset,
 		y = 4,
 		width = 50,
@@ -2208,6 +2260,7 @@ local function SetupVotePanel(votePanel, battle, battleID)
 	}
 
 	local voteProgressNo = Progressbar:New {
+		name = 'voteProgressNo',
 		x = offset,
 		y = height * 0.90,
 		right = 55,
@@ -2219,6 +2272,7 @@ local function SetupVotePanel(votePanel, battle, battleID)
 	}
 
 	local voteProgressYes = Progressbar:New {
+		name = 'voteProgressYes',
 		x = offset,
 		y = height * 0.80,
 		right = 55,
@@ -2230,6 +2284,7 @@ local function SetupVotePanel(votePanel, battle, battleID)
 	}
 
 	local voteCountLabel = Label:New {
+		name = 'voteCountLabel',
 		right = 5,
 		y = height * 0.5,
 		width = 50,
@@ -2249,6 +2304,7 @@ local function SetupVotePanel(votePanel, battle, battleID)
 	end
 
 	local voteResultLabel = Label:New {
+		name = 'voteResultLabel',
 		x = 5,
 		y = 4,
 		right = 0,
@@ -2482,10 +2538,11 @@ local function SetupSpadsStatusPanel(battle, battleID)
 	local rows = 3
 	local cols = 3
 	local i = 0
-	for _, k in ipairs(spadsSettingsOrder) do
+	for j, k in ipairs(spadsSettingsOrder) do
 		local sts = spadsSettingsTable[k]
 		local xpos = tostring(math.fmod(i,cols) * 100/cols) ..'%'
 		local stslabel = Label:New {
+			name = 'stslabel'..tostring(j),
 			x = tostring(math.fmod(i,cols) * 100/cols + 1) ..'%',
 			y = tostring(math.floor(i/cols) * 100/rows + 1) ..'%',
 			width = tostring(100.0/cols -2 ) ..'%',
@@ -2500,6 +2557,7 @@ local function SetupSpadsStatusPanel(battle, battleID)
 
 		local stsCBdefault = sts.current
 		local stsCB = ComboBox:New{
+			name = 'stsCB'..tostring(j),
 			x = tostring(50/cols + math.fmod(i,cols) * 100/cols + 1 ) ..'%',
 			y = tostring(math.floor(i/cols) * 100/rows + 1) ..'%',
 			width = tostring(50.0/cols - 2) ..'%',
@@ -2533,6 +2591,7 @@ local function SetupSpadsStatusPanel(battle, battleID)
 	end
 
 	local balanceButton = Button:New {
+		name = 'balanceButton',
 		x = '1%',
 		y = '68%',
 		width = '31%',
@@ -2550,6 +2609,7 @@ local function SetupSpadsStatusPanel(battle, battleID)
 	}
 
 	local lockButton = Button:New {
+		name = 'lockButton',
 		x = '34%',
 		y = '68%',
 		width = '31%',
@@ -2567,6 +2627,7 @@ local function SetupSpadsStatusPanel(battle, battleID)
 	}
 
 	local unlockButton = Button:New {
+		name = 'unlockButton',
 		x = '67%',
 		y = '68%',
 		width = '31%',
@@ -2598,6 +2659,7 @@ local function InitializeSetupPage(subPanel, screenHeight, pageConfig, nextPage,
 	subPanel:SetVisibility(not prevPage)
 
 	local lblBattleTitle = Label:New {
+		name = 'lblBattleTitle',
 		x = "40%",
 		right = "40%",
 		y = buttonScale,
@@ -2612,6 +2674,7 @@ local function InitializeSetupPage(subPanel, screenHeight, pageConfig, nextPage,
 	local buttons = {}
 
 	local nextButton = Button:New {
+		name = 'nextButton',
 		x = "36%",
 		right = "36%",
 		y = 2*buttonScale + 5 + (#pageConfig.options)*buttonScale,
@@ -2639,6 +2702,7 @@ local function InitializeSetupPage(subPanel, screenHeight, pageConfig, nextPage,
 	local tipTextBox
 	if pageConfig.tipText then
 		tipTextBox = TextBox:New {
+			name = 'tipTextBox',
 			x = "26%",
 			y = 3*buttonScale + 20 + (#pageConfig.options)*buttonScale,
 			right = "26%",
@@ -2652,6 +2716,7 @@ local function InitializeSetupPage(subPanel, screenHeight, pageConfig, nextPage,
 	end
 
 	local advButton = Button:New {
+		name = 'advButton',
 		x = "78%",
 		right = "5%",
 		bottom = "4%",
@@ -2672,6 +2737,7 @@ local function InitializeSetupPage(subPanel, screenHeight, pageConfig, nextPage,
 
 	if prevPage then
 		Button:New {
+			name = 'prevPage',
 			x = "5%",
 			right = "78%",
 			bottom = "4%",
@@ -2704,6 +2770,7 @@ local function InitializeSetupPage(subPanel, screenHeight, pageConfig, nextPage,
 			caption = pageConfig.options[i]
 		end
 		buttons[i] = Button:New {
+			name = 'pageConfig.options'..tostring(i),
 			x = x,
 			y = y,
 			right = right,
@@ -2736,6 +2803,7 @@ local function InitializeSetupPage(subPanel, screenHeight, pageConfig, nextPage,
 		if pageConfig.minimap then
 			local mapImageFile, needDownload = Configuration:GetMinimapImage(pageConfig.options[i])
 			local imMinimap = Image:New {
+				name = 'pageConfig.minimap'..tostring(i),
 				x = 0,
 				y = 0,
 				right = 0,
@@ -2776,6 +2844,7 @@ local function SetupEasySetupPanel(mainWindow, standardSubPanel, setupData)
 	local pages = {}
 	for i = 1, #pageConfigs do
 		pages[i] = Control:New {
+			name = 'pageConfigs'..tostring(i),
 			x = 0,
 			y = panelOffset,
 			right = 0,
@@ -2815,6 +2884,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	if isSingleplayer then BOTTOM_SPACING = 5 end
 
 	mainWindow = Control:New {
+		name = 'mainWindow',
 		x = 0,
 		y = 0,
 		width = "100%",
@@ -2824,6 +2894,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	}
 
 	local subPanel = Control:New {
+		name = 'subPanel',
 		x = 0,
 		y = 47,
 		right = 0,
@@ -2837,6 +2908,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	end
 
 	local topPanel = Control:New {
+		name = 'topPanel',
 		x = 0,
 		y = 0,
 		right = 0,
@@ -2846,6 +2918,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	}
 
 	local bottomPanel = Control:New {
+		name = 'bottomPanel',
 		x = 0,
 		y = topPoportion .. "%",
 		right = 0,
@@ -2855,6 +2928,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	}
 
 	local playerPanel = Control:New {
+		name = 'playerPanel',
 		x = 0,
 		y = 0,
 		right = "52%",
@@ -2864,6 +2938,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	}
 
 	local spectatorPanel = Control:New {
+		name = 'spectatorPanel',
 		x = "67%",
 		y = 0,
 		right = 0,
@@ -2877,6 +2952,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 
 
 	spadsStatusPanel = Control:New{
+		name = 'spadsStatusPanel',
 		x = 0,
 		right = "33%",
 		bottom = 0,
@@ -2891,6 +2967,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	spadsStatusPanel:SetVisibility(not isSingleplayer) -- start hidden
 
 	local votePanel = Control:New {
+		name = 'votePanel',
 		x = 0,
 		right = "33%",
 		bottom = 0,
@@ -2904,6 +2981,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	local votePanel = SetupVotePanel(votePanel)
 
 	local leftInfo = Control:New {
+		name = 'leftInfo',
 		x = "48%",
 		y = 0,
 		right = "33%",
@@ -2913,6 +2991,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	}
 
 	local rightInfo = Control:New {
+		name = 'rightInfo',
 		x = "67%",
 		y = 0,
 		right = 0,
@@ -2924,6 +3003,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	local infoHandler = SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, battleLobby:GetMyUserName())
 
 	local btnQuitBattle = Button:New {
+		name = 'btnQuitBattle',
 		right = 12,
 		y = 7,
 		width = 80,
@@ -2947,6 +3027,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	}
 
 	local btnInviteFriends = Button:New {
+		name = 'btnInviteFriends',
 		right = 101,
 		y = 7,
 		width = 180,
@@ -2983,6 +3064,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	local battleTypeCombo
 	if isHost then
 		battleTypeCombo = ComboBox:New {
+			name = 'battleTypeCombo',
 			x = 13,
 			width = 125,
 			y = 12,
@@ -3061,6 +3143,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	local battleRoomConsole = WG.Chobby.Console("Battleroom Chat", MessageListener, true, nil, true)
 
 	local chatPanel = Control:New {
+		name = 'chatPanel',
 		x = 0,
 		y = 0,
 		bottom = 0,
@@ -3717,6 +3800,7 @@ function BattleRoomWindow.ShowMultiplayerBattleRoom(battleID)
 	battleLobby = WG.LibLobby.lobby
 
 	multiplayerWrapper = Control:New {
+		name = 'multiplayerWrapper',
 		x = 0,
 		y = 0,
 		width = "100%",
