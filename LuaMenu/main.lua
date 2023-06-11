@@ -53,6 +53,7 @@ if tracy == nil then
 	tracy.ZoneBegin = function() return end
 	tracy.ZoneEnd = function() return end
 	tracy.Message = function() return end
+	tracy.stub = true
 end
 
 -------------------------------------------------------------------------------
