@@ -760,7 +760,8 @@ function ChatWindows:GetChannelConsole(chanName)
 
 		local userListPanel
 		if chanName == 'main' or chanName == 'newbies' then
-			userListPanel = UserListPanel(function() return {}  end, 22, true)
+			-- keep it nil like scum
+			-- userListPanel = UserListPanel(function() return {}  end, 22, true)
 		else
 			userListPanel = UserListPanel(function() return lobby:GetChannel(chanName) end, 22, true)
 		end
