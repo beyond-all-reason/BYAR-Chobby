@@ -953,6 +953,8 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	-- Spring.Echo("debug_initialSetButtonStatePlayingafter")
 	
 	local function SetBtnPlayState(selected, caption)
+		local myBs = battleLobby:GetUserBattleStatus(battleLobby.myUserName) or {}
+		local myQueuePos = myBs.queuePos or "?"
 		-- Spring.Echo("SetBtnPlayState selected, caption", selected, caption)
 		if selected then
 			ButtonUtilities.SetButtonSelected(btnPlay)
@@ -969,7 +971,9 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 				btnPlay.tooltip = i18n("tooltip_join_queue")
 			end
 		end
-		ButtonUtilities.SetCaption(btnPlay, i18n(caption))
+		local newCaption = i18n(caption)
+		newCaption = caption ~= "queued" and newCaption or (newCaption .. " " ..myQueuePos)
+		ButtonUtilities.SetCaption(btnPlay, newCaption)
 		btnPlay.suppressButtonReaction = selected
 	end
 
