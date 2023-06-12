@@ -52,11 +52,9 @@ local function StartTrack(trackName, volume)
 	if volume == 0 then
 		return
 	end
-	if false then 
-		Spring.StopSoundStream()
-		Spring.PlaySoundStream(trackName, volume)
-		Spring.SetSoundStreamVolume(volume)
-	end
+	Spring.StopSoundStream()
+	Spring.PlaySoundStream(trackName, volume)
+	Spring.SetSoundStreamVolume(volume)
 	playingTrack = true
 end
 
@@ -67,9 +65,7 @@ local function LoopTrack(trackName, trackNameIntro, volume)
 end
 
 local function StopTrack()
-	if false then 
-		Spring.StopSoundStream()
-	end
+	Spring.StopSoundStream()
 	playingTrack = false
 	loopTrack = nil
 end
@@ -97,7 +93,7 @@ local firstActivation = true
 local ingame = false
 
 function widget:Update()
-	if true then return end
+
 	if ingame or (WG.Chobby.Configuration.menuMusicVolume == 0 )then
 		return
 	end
@@ -194,14 +190,14 @@ function widget:Initialize()
 		return
 	end
 
-	for i = 1,100 do
+	for i = 1,1000 do
 		openTrackTest = randomTrackList[math.random(#randomTrackList)]
 		Spring.Echo("[LobbyMusicPlayer] OpenTrackTest path: "..openTrackTest)
 		if string.find(openTrackTest, "(intro)") or string.find(openTrackTest, "(INTRO)") then
 			openTrack = openTrackTest
 			break
 		end
-		if i == 100 then
+		if i == 1000 then
 			openTrack = randomTrackList[math.random(#randomTrackList)]
 		end
 	end
