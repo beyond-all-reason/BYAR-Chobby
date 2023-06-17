@@ -40,7 +40,7 @@ local welcomePanelItems = {
     {
         Header = "New Duel Map: Geyser Plains BAR v1.1!",
         Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/Geyser_Plains_BAR_v1.1.png",
-        Text = "Remaster of old classic tournament 1v1 map now available in BAR lobby!",
+        Text = "Remaster of an old classic tournament 1v1 map is now available in BAR lobby!",
     },    
     {
         Header = "Guides for new players",
