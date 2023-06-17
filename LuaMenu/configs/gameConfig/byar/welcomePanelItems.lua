@@ -38,9 +38,9 @@ local welcomePanelItems = {
     },
     
     {
-        Header = "New Map: Ascendancy 1.1!",
-        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/Ascendancy_v1.0.png",
-        Text = "Behold the tallest BAR mountain!\nA new 8v8 map by Nikuksis.\nV1.1: Fixed ponds entrance, T3's can now enter and escape the water.",
+        Header = "New Duel Map: Geyser Plains BAR v1.1!",
+        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/Geyser_Plains_BAR_v1.1.png",
+        Text = "Remaster of old classic tournament 1v1 map now available in BAR lobby!",
     },    
     {
         Header = "Guides for new players",
