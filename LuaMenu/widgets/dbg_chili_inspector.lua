@@ -78,7 +78,7 @@ local function tracePerWidget(node)
 				if obj.font then
 					fonts = fonts + 1
 					--local fontname = string.match(obj.font.font or "", "(%d+)/?$") -- remove all before trailing slash
-					local fontname = string.sub(obj.font.font or "nil", -10) -- remove all before trailing slash
+					local fontname = string.sub(obj.font.font or "", -10) -- remove all before trailing slash
 					
 					fontinfo = ("Font:(%s[%i])"):format(fontname, obj.font.size or "0")
 				end

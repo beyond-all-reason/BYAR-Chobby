@@ -127,7 +127,7 @@ local function PopulateCodexTree(parent, codexText, codexImage)
 							selectedButton = self
 						end
 					},
-					font = WG.Chobby.Configuration:GetFont(BUTTON_FONT)
+					objectOverrideFont = WG.Chobby.Configuration:GetFont(BUTTON_FONT)
 				}
 
 				ButtonUtilities.SetFontSizeScale(button, BUTTON_FONT)
@@ -194,7 +194,7 @@ local function InitializeControls(parentControl)
 		right = 5,
 		y = 17,
 		height = 20,
-		font = Configuration:GetFont(3),
+		objectOverrideFont = Configuration:GetFont(3),
 		caption = i18n("codex"),
 		parent = parentControl
 	}
@@ -205,7 +205,7 @@ local function InitializeControls(parentControl)
 		width = 80,
 		height = 45,
 		caption = i18n("close"),
-		font = Configuration:GetFont(3),
+		objectOverrideFont = Configuration:GetFont(3),
 		classname = "negative_button",
 		OnClick = {
 			function()
@@ -231,7 +231,7 @@ local function InitializeControls(parentControl)
 		width = "100%",
 		height = "100%",
 		text = "",
-		font = Configuration:GetFont(2),
+		objectOverrideFont = Configuration:GetFont(2),
 	}
 
 	local codexImagePanel = Panel:New{

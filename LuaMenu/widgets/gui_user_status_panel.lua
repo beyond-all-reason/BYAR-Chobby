@@ -106,7 +106,7 @@ local function InitializeControls(window)
 		height = 38,
 		caption = i18n("login"),
 		parent = window,
-		font = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		OnClick = {Logout}
 	}
 	menuX = menuX + 108
@@ -120,7 +120,7 @@ local function InitializeControls(window)
 			height = 38,
 			caption = i18n("home"),
 			parent = window,
-			font = WG.Chobby.Configuration:GetFont(2),
+			objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 			OnClick = {GoToProfilePage}
 		}
 		menuX = menuX + 108
@@ -134,7 +134,7 @@ local function InitializeControls(window)
 		height = 38,
 		caption = i18n("keys"),
 		parent = window,
-		font = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		OnClick = {ShowKeys}
 	}
 

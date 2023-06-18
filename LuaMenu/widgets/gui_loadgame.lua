@@ -35,8 +35,6 @@ local ScrollPanel
 local Label
 local Button
 
-local myFont3
-
 --------------------------------------------------------------------------------
 -- data
 --------------------------------------------------------------------------------
@@ -408,15 +406,13 @@ end
 local function InitializeControls(parent)
 	Configuration = WG.Chobby.Configuration
 
-	myFont3 = Font:New(Configuration:GetFont(3))
-
 	Label:New {
 		x = 15,
 		right = 5,
 		y = 14,
 		height = 20,
 		parent = parent,
-		objectOverrideFont = myFont3,
+		objectOverrideFont = Configuration:GetFont(3),
 		caption = i18n("load_saved_game"),
 	}
 
@@ -430,7 +426,7 @@ local function InitializeControls(parent)
 		y = 52,
 		bottom = 15,
 		parent = parent,
-		objectOverrideFont = myFont3,
+		objectOverrideFont = Configuration:GetFont(3),
 		resizable = false,
 		draggable = false,
 		padding = {0, 0, 0, 0},

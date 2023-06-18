@@ -27,7 +27,30 @@ function Configuration:init()
 
 	self.chatFontSize = 18
 
-	self.font = {
+	-- self.font = {
+	-- 	[0] = {font = "fonts/Poppins-Medium.otf", size = 17, outline = false, shadow = true},
+	-- 	[1] = {size = 15, outline = false, shadow = false},
+	-- 	[2] = {size = 17, outline = false, shadow = true},
+	-- 	[3] = {size = 20, outline = false, shadow = true},
+	-- 	[4] = {size = 24, outline = true,  shadow = false},
+	-- 	[5] = {size = 24, outline = false, shadow = true},
+	-- 	[6] = {size = 28, outline = true, shadow = false},
+	-- 	[7] = {size = 28, outline = false, shadow = true},
+	-- }
+
+	--self.fontName = "LuaMenu/widgets/chili/skins/Evolved/fonts/n019003l.pfb"
+	--self.fontRaw = {
+	-- 	[0] = {size = 17, shadow = true},
+	-- 	[1] = {size = 17, shadow = false},
+	-- 	[2] = {size = 17, shadow = true},
+	-- 	[3] = {size = 20, shadow = true},
+	-- 	[4] = {size = 24, shadow = false},
+	-- 	[5] = {size = 24, shadow = true},
+	-- 	[6] = {size = 28, shadow = false},
+	-- 	[7] = {size = 28, shadow = true},
+	--}
+	self.fontName = "fonts/Poppins-Regular.otf"
+	self.fontRaw = {
 		[0] = {font = "fonts/Poppins-Medium.otf", size = 17, outline = false, shadow = true},
 		[1] = {size = 15, outline = false, shadow = false},
 		[2] = {size = 17, outline = false, shadow = true},
@@ -37,6 +60,20 @@ function Configuration:init()
 		[6] = {size = 28, outline = true, shadow = false},
 		[7] = {size = 28, outline = false, shadow = true},
 	}
+		
+
+	self.fontSpecial = {}
+	self.font = {}
+	for i = 0, #self.fontRaw do
+		self.font[i] = Font:New {
+			size         = self.fontRaw[i].size,
+			font         = self.fontRaw[i].font or self.fontName,
+			-- color        = {1,1,1,1},
+			-- outlineColor = {0.05,0.05,0.05,0.9},
+			outline      = self.fontRaw[i].outline,
+			shadow       = self.fontRaw[i].shadow,
+		}
+	end
 
 	-- self.uiScale, WG.uiScale, and self.uiScalesForScreenSizes will be overridden in Configuration:SetConfigData;
 	-- We're setting default values here in case something tries to access it before we get there.
@@ -776,16 +813,84 @@ function Configuration:GetTick()
 	return self:GetSuccessColor() .. "O"
 end
 
-function Configuration:GetFont(sizeScale, fontName)
-	if fontName == nil then fontName = 'fonts/Poppins-Regular.otf' end
-	return {
-		size = self.font[sizeScale].size,
-		outline = self.font[sizeScale].outline,
-		shadow = self.font[sizeScale].shadow,
-		font = fontName,
-		-- color        = {1,1,1,1},
-		outlineColor = {0.05,0.05,0.05,0.7},
-	}
+-- function Configuration:GetFont(sizeScale, fontName)
+-- 	if fontName == nil then fontName = 'fonts/Poppins-Regular.otf' end
+-- 	return {
+-- 		size = self.font[sizeScale].size,
+-- 		outline = self.font[sizeScale].outline,
+-- 		shadow = self.font[sizeScale].shadow,
+-- 		font = fontName,
+-- 		-- color        = {1,1,1,1},
+-- 		outlineColor = {0.05,0.05,0.05,0.7},
+-- 	}
+-- end
+
+function Configuration:CheckFont(sizeScale)
+	if sizeScale ~= 2 then return end
+	local fontRaw = Configuration.fontRaw[sizeScale]
+	local font = Configuration.font[sizeScale]
+
+	local changed = ""
+	if fontRaw.size ~= font.size then changed = changed .. " +size=" .. font.size end
+	if fontRaw.font and fontRaw.font ~= font.font or font.font ~= "fonts/Poppins-Regular.otf" then changed = changed .. " +font=" .. font.font end
+	if fontRaw.outline ~= font.outline then changed = changed .. " +outline=" .. font.outline end
+	if 3 ~= font.outlineWidth then changed = changed .. " +outlineWidth=" .. font.outlineWidth end
+	if 3 ~= font.outlineWeight then changed = changed .. " +outlineWeight=" .. font.outlineWeight end
+	if 1 ~= font.color[1] then changed = changed .. " +color[1]" .. font.color[1] end
+	if 1 ~= font.color[2] then changed = changed .. " +color[2]" .. font.color[2] end
+	if 1 ~= font.color[3] then changed = changed .. " +color[3]" .. font.color[3] end
+	if 1 ~= font.color[4] then changed = changed .. " +color[4]" .. font.color[4] end
+	if 0 ~= font.outlineColor[1] then changed = changed .. " +outlineColor[1]=" .. font.outlineColor[1] end
+	if 0 ~= font.outlineColor[2] then changed = changed .. " +outlineColor[2]=" .. font.outlineColor[2] end
+	if 0 ~= font.outlineColor[3] then changed = changed .. " +outlineColor[3]=" .. font.outlineColor[3] end
+	if 1 ~= font.outlineColor[4] then changed = changed .. " +outlineColor[4]=" .. font.outlineColor[4] end
+	if true ~= font.autoOutlineColor then changed = changed .. " +autoOutlineColor=" .. font.autoOutlineColor end
+	if 1 ~= font.uiScale then changed = changed .. " +uiScale=" .. font.uiScale end
+
+	if changed ~= "" then
+		Spring.Echo("font[" .. sizeScale .. "]" .. "Props changed: " .. changed )
+	end
+	Spring.Utilities.TraceFullEcho()
+	
+end
+
+function Configuration:GetFont(sizeScale, specialName, specialData, rawSize)
+	if not specialName and not rawSize then
+		Configuration:CheckFont(sizeScale)
+		return self.font[sizeScale]
+	end
+	local size = (rawSize and sizeScale) or self.fontRaw[sizeScale].size
+	if not self.fontSpecial[size] then
+		self.fontSpecial[size] = {}
+	end
+	if not self.fontSpecial[size][specialName] then
+		specialData = specialData or {}
+		specialData.font = self.fontName
+		specialData.size = size
+		
+		specialData.color        = specialData.color or {1,1,1,1}
+		specialData.outlineColor = specialData.outlineColor or {0.05,0.05,0.05,0.9}
+		specialData.outline      = specialData.outline or false
+		specialData.shadow       = specialData.shadow or false
+		self.fontSpecial[size][specialName] = Font:New(specialData)
+	end
+	return self.fontSpecial[size][specialName]
+end
+
+function Configuration:GetHintFont(sizeScale, specialName, specialData, rawSize)
+	specialName = (specialName or "") .. "_hint_" .. sizeScale
+	specialData = specialData or {}
+	specialData.color = {1,1,1,0.48}
+	return self:GetFont(sizeScale, specialName, specialData, rawSize)
+end
+
+function Configuration:GetButtonFont(sizeScale, specialName, specialData, rawSize)
+	specialName = (specialName or "") .. "_button_" .. sizeScale
+	specialData = specialData or {}
+	specialData.outline = true
+	specialData.outlineWidth = 3
+	specialData.outlineHeight = 3
+	return self:GetFont(sizeScale, specialName, specialData, rawSize)
 end
 
 function Configuration:AllowNotification(playerName, playerList)

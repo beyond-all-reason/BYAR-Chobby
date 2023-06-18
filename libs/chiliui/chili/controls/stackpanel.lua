@@ -12,6 +12,7 @@ StackPanel = LayoutPanel:Inherit{
 	resizeItems = true,
 	itemPadding = {0, 0, 0, 0},
 	itemMargin  = {5, 5, 5, 5},
+	noFont = true,
 }
 
 local this = StackPanel
@@ -20,6 +21,7 @@ local inherited = this.inherited
 --// =============================================================================
 
 function StackPanel:New(obj)
+	Spring.Echo("New StackPanel")
 	if (obj.orientation == "horizontal") then
 		obj.rows, obj.columns = 1, nil
 	else

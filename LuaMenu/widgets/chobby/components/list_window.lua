@@ -35,7 +35,7 @@ function ListWindow:init(parent, title, noWindow, windowClassname, noClose, cust
 			right = 5,
 			y = 17,
 			height = 20,
-			font = Configuration:GetFont(3),
+			objectOverrideFont = Configuration:GetFont(3),
 			caption = title,
 			parent = self.window
 		}
@@ -48,7 +48,7 @@ function ListWindow:init(parent, title, noWindow, windowClassname, noClose, cust
 			width = 80,
 			height = 45,
 			caption = i18n("close"),
-			font = Configuration:GetFont(3),
+			objectOverrideFont = Configuration:GetFont(3),
 			classname = "negative_button",
 			OnClick = {
 				function()

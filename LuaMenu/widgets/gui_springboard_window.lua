@@ -162,7 +162,7 @@ local function InitializeControls(window)
 				WG.MapListPanel.Show(SpringBoard, SpringBoard.mapName)
 			end
 		},
-		font = Configuration:GetFont(3),
+		objectOverrideFont = Configuration:GetFont(3),
 		parent = window,
 	}
 end

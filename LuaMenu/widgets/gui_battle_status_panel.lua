@@ -53,7 +53,7 @@ local function GetBattleInfoHolder(parent, battleID)
 		width = 225,
 		height = 20,
 		valign = 'top',
-		font = Configuration:GetFont(2),
+		objectOverrideFont = Configuration:GetFont(2),
 		parent = mainControl,
 	}
 	local text = StringUtilities.GetTruncatedStringWithDotDot(battle.title, lblTitle.font, lblTitle.width)
@@ -68,7 +68,7 @@ local function GetBattleInfoHolder(parent, battleID)
 		valign = 'top',
 		caption = "Spectator",
 		parent = mainControl,
-		font = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 	}
 	local imPlayerStatus = Image:New {
 		name = "imPlayerStatus",
@@ -87,7 +87,7 @@ local function GetBattleInfoHolder(parent, battleID)
 		y = 54,
 		height = 20,
 		valign = 'top',
-		font = Configuration:GetFont(2),
+		objectOverrideFont = Configuration:GetFont(2),
 		caption = playersPrefix .. lobby:GetBattlePlayerCount(battleID) .. "/" .. battle.maxPlayers,
 		parent = mainControl,
 	}
@@ -283,7 +283,7 @@ local function InitializeControls(parentControl)
 	--	valign = "center",
 	--	caption = "Battle",
 	--	parent = parentControl,
-	--	font = WG.Chobby.Configuration:GetFont(3),
+	--	objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 	--}
 
 	local battleInfoHolder = GetBattleInfoHolder(infoHolder, lobby:GetMyBattleID())
@@ -389,7 +389,7 @@ function BattleStatusPanel.GetControl(fontSizeScale)
 		width = 290,
 		bottom = 0,
 		padding = {0,0,0,0},
-		font = WG.Chobby.Configuration:GetFont(fontSizeScale),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(fontSizeScale),
 		caption = "",
 		OnParent = {
 			function(obj)

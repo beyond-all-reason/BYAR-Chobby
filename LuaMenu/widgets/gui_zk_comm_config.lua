@@ -296,7 +296,7 @@ local function InitializeControls(parentControl)
 		width = 180,
 		height = 30,
 		parent = parentControl,
-		font = WG.Chobby.Configuration:GetFont(3),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		caption = i18n("Configure commanders"),
 	}
 
@@ -305,7 +305,7 @@ local function InitializeControls(parentControl)
 		y = 7,
 		width = 80,
 		height = 45,
-		font =  WG.Chobby.Configuration:GetFont(3),
+		objectOverrideFont =  WG.Chobby.Configuration:GetFont(3),
 		caption = i18n("close"),
 		classname = "negative_button",
 		OnClick = {

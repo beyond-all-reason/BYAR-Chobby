@@ -13,7 +13,7 @@ function AiOptionsWindow:init(displayName, optionsPath, successFunc)
 		width = 80,
 		height = 45,
 		caption = i18n("apply"),
-		font = WG.Chobby.Configuration:GetFont(3),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		parent = self.window,
 		classname = "action_button",
 		OnClick = {
@@ -58,7 +58,7 @@ function AiOptionsWindow:MakeList(data)
 		valign = "center",
 		align = "left",
 		caption = data.name,
-		font = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 	}
 
 	local defaultItem = 1
@@ -80,8 +80,7 @@ function AiOptionsWindow:MakeList(data)
 		height = 30,
 		items = nameList,
 		tooltip = data.desc,
-		font = WG.Chobby.Configuration:GetFont(2),
-		itemFontSize = WG.Chobby.Configuration:GetFont(2).size,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		selected = defaultItem,
 		OnSelect = {
 			function (obj)
@@ -114,7 +113,7 @@ function AiOptionsWindow:MakeBool(data)
 		caption = data.name,
 		checked = data.def,
 		tooltip = data.desc,
-		font = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 
 		OnChange = {
 			function (obj, newState)
@@ -135,7 +134,7 @@ function AiOptionsWindow:MakeNumber(data)
 		valign = "center",
 		align = "left",
 		caption = data.name,
-		font = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 	}
 
 	local oldText = tostring(data.def);
@@ -148,7 +147,8 @@ function AiOptionsWindow:MakeNumber(data)
 		text   = oldText,
 		useIME = false,
 		tooltip = data.desc,
-		fontSize = WG.Chobby.Configuration:GetFont(2).size,
+		objectOverrideFont = Configuration:GetFont(2),
+		objectOverrideHintFont = Configuration:GetHintFont(2),
 		OnFocusUpdate = {
 			function (obj)
 				if obj.focused then
@@ -188,7 +188,7 @@ function AiOptionsWindow:MakeString(data)
 		valign = "center",
 		align = "left",
 		caption = data.name,
-		font = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 	}
 
 	local textBox = EditBox:New {
@@ -199,7 +199,8 @@ function AiOptionsWindow:MakeString(data)
 		text   = data.def,
 		useIME = false,
 		tooltip = data.desc,
-		fontSize = WG.Chobby.Configuration:GetFont(2).size,
+		objectOverrideFont = Configuration:GetFont(2),
+		objectOverrideHintFont = Configuration:GetHintFont(2),
 		OnFocusUpdate = {
 			function (obj)
 				if obj.focused then

@@ -30,7 +30,7 @@ function SortableList:init(holder, headings, itemHeight, defaultSort, sortDirect
 				width = heading.width,
 				height = 38,
 				caption = heading.name,
-				font = Configuration:GetFont(3),
+				objectOverrideFont = Configuration:GetFont(3),
 				tooltip = heading.tooltip,
 				classname = "button_small",
 				parent = self.holder,

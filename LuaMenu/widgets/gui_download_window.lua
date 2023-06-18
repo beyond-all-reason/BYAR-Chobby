@@ -85,7 +85,7 @@ local function CreateDownloadEntry(downloadData)
 		bottom = 3,
 		width = BUTTON_WIDTH - 4,
 		caption = i18n("retry"),
-		font = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		classname = "action_button",
 		OnClick = {
 			function ()
@@ -101,7 +101,7 @@ local function CreateDownloadEntry(downloadData)
 		bottom = 3,
 		width = BUTTON_WIDTH - 4,
 		caption = i18n("cancel"),
-		font = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		classname = "negative_button",
 		OnClick = {
 			function ()
@@ -117,7 +117,7 @@ local function CreateDownloadEntry(downloadData)
 		bottom = 3,
 		width = BUTTON_WIDTH + 4,
 		caption = i18n("to_front"),
-		font = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		classname = "action_button",
 		OnClick = {
 			function ()
@@ -270,7 +270,7 @@ local function InitializeControls(window)
 		width = 180,
 		height = 30,
 		parent = window,
-		font = WG.Chobby.Configuration:GetFont(3),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		caption = "Downloads",
 	}
 
@@ -329,7 +329,7 @@ local function InitializeControls(window)
 		width = 165,
 		height = 38,
 		caption = i18n("rescan_files"),
-		font = WG.Chobby.Configuration:GetFont(3),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		classname = "option_button",
 		parent = window,
 		OnClick = {

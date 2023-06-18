@@ -57,7 +57,7 @@ local function InitializeTutorialPrompt()
 		bottom = 4,
 		padding = {0,0,0,0},
 		caption = "Play the Tutorial",
-		font = WG.Chobby.Configuration:GetFont(4),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(4),
 		classname = "action_button",
 		OnClick = {
 			function()
@@ -147,7 +147,7 @@ local function CheckTutorialPopup()
 		right = "18%",
 		height = 70,
 		caption = "Play the Tutorial",
-		font = Configuration:GetFont(4),
+		objectOverrideFont = Configuration:GetFont(4),
 		classname = "action_button",
 		padding = {2,4,4,4},
 		OnClick = {
@@ -167,7 +167,7 @@ local function CheckTutorialPopup()
 		height = 42,
 		classname = "negative_button",
 		caption = i18n("close"),
-		font = Configuration:GetFont(3),
+		objectOverrideFont = Configuration:GetFont(3),
 		OnClick = {
 			CancelFunc
 		},

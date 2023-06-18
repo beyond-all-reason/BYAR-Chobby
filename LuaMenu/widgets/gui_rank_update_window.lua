@@ -76,7 +76,7 @@ local function CreateRankUpdateWindow(oldIcon, newIcon)
 		width = rankUpdateWindow.width - rankUpdateWindow.padding[1] - rankUpdateWindow.padding[3],
 		height = 35,
 		align = "center",
-		font = Configuration:GetFont(4),
+		objectOverrideFont = Configuration:GetFont(4),
 		caption = (isRankUp and i18n("rank_gained")) or i18n("rank_lost"),
 		parent = rankUpdateWindow,
 	}
@@ -87,7 +87,7 @@ local function CreateRankUpdateWindow(oldIcon, newIcon)
 		bottom = 1,
 		height = 60, -- standard height is 70
 		caption = i18n("close"),
-		font = Configuration:GetFont(3),
+		objectOverrideFont = Configuration:GetFont(3),
 		classname = "action_button",
 		OnClick = { CloseFunction },
 		parent = rankUpdateWindow,

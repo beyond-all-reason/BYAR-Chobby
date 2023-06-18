@@ -138,7 +138,7 @@ local function GetExperienceDisplay(parentControl, barHeight, fancy)
 		value = progressProportion,
 		max = 1,
 		caption = "Level " .. (commLevel + 1),
-		font = WG.Chobby.Configuration:GetFont(3),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		parent = parentControl,
 	}
 
@@ -148,7 +148,7 @@ local function GetExperienceDisplay(parentControl, barHeight, fancy)
 		width = 90,
 		height = 22,
 		align = "right",
-		font = WG.Chobby.Configuration:GetFont(3),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		caption = progressCaption,
 		parent = parentControl
 	}
@@ -161,7 +161,7 @@ local function GetExperienceDisplay(parentControl, barHeight, fancy)
 			width = 90,
 			height = 22,
 			align = "left",
-			font = WG.Chobby.Configuration:GetFont(3),
+			objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 			caption = "",
 			parent = parentControl
 		}
@@ -171,7 +171,7 @@ local function GetExperienceDisplay(parentControl, barHeight, fancy)
 			width = 90,
 			height = 22,
 			align = "left",
-			font = WG.Chobby.Configuration:GetFont(3),
+			objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 			caption = "",
 			parent = parentControl
 		}
@@ -295,7 +295,7 @@ local function GetModuleButton(parentControl, ClickFunc, moduleName, level, slot
 		right = 4,
 		height = BUTTON_SIZE,
 		text = ((hightlightEmpty and moduleData.emptyModule and Configuration:GetHighlightedColor()) or "") .. moduleData.humanName,
-		fontsize = Configuration:GetFont(2).size,
+		objectOverrideFont = Configuration:GetFont(2),
 		OnClick = {
 			function(self)
 				ClickFunc(self, moduleName, level, slot)
@@ -376,7 +376,7 @@ local function GetModuleList(parentControl, ClickFunc, left, right)
 			right = 5,
 			height = 20,
 			align = "left",
-			font = Configuration:GetFont(3),
+			objectOverrideFont = Configuration:GetFont(3),
 			caption = text,
 			parent = listScroll
 		}
@@ -513,7 +513,7 @@ local function InitializeControls(parentControl)
 		right = 5,
 		y = 17,
 		height = 20,
-		font = Configuration:GetFont(3),
+		objectOverrideFont = Configuration:GetFont(3),
 		caption = i18n("configure_commander"),
 		parent = parentControl
 	}
@@ -524,7 +524,7 @@ local function InitializeControls(parentControl)
 		width = 80,
 		height = 45,
 		caption = i18n("close"),
-		font = Configuration:GetFont(3),
+		objectOverrideFont = Configuration:GetFont(3),
 		classname = "negative_button",
 		OnClick = {
 			function()
@@ -561,7 +561,7 @@ local function InitializeControls(parentControl)
 		right = 5,
 		height = 18,
 		align = "left",
-		font = WG.Chobby.Configuration:GetFont(4),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(4),
 		caption = "",
 		parent = informationPanel
 	}

@@ -100,7 +100,7 @@ local function CreateMissionEntry(missionData)
 		height = 34,
 		caption = i18n("play"),
 		classname = "action_button",
-		font = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		OnClick = {
 			function()
 				local startScript = missionData.Script
@@ -204,7 +204,7 @@ local function InitializeControls(parentControl)
 		width = 180,
 		height = 30,
 		parent = parentControl,
-		font = Configuration:GetFont(3),
+		objectOverrideFont = Configuration:GetFont(3),
 		caption = "Learn advanced techniques in these tutorials",
 	}
 
@@ -213,7 +213,7 @@ local function InitializeControls(parentControl)
 		y = 7,
 		width = 80,
 		height = 45,
-		font =  WG.Chobby.Configuration:GetFont(3),
+		objectOverrideFont =  WG.Chobby.Configuration:GetFont(3),
 		caption = i18n("close"),
 		classname = "negative_button",
 		OnClick = {
@@ -244,7 +244,7 @@ local function InitializeControls(parentControl)
 			align = "center",
 			valign = "center",
 			parent = missingPanel,
-			font = Configuration:GetFont(3),
+			objectOverrideFont = Configuration:GetFont(3),
 			caption = "Error Loading Missions",
 		}
 		local missingLabel = Label:New {
@@ -255,7 +255,7 @@ local function InitializeControls(parentControl)
 			align = "center",
 			valign = "center",
 			parent = missingPanel,
-			font = Configuration:GetFont(3),
+			objectOverrideFont = Configuration:GetFont(3),
 			caption = "check that your install directory is writable.",
 		}
 		return

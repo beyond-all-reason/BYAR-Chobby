@@ -86,10 +86,10 @@ function Console:init(channelName, sendMessageListener, noHistoryLoad, onResizeF
 				shadow       = oldFont.shadow,
 				size         = value,
 			}
-			self.ebInputText.font = Font:New(fontSettings)
+			self.ebInputText.font = Configuration:GetFont(value, "console_font", fontSettings, true)
 			self.ebInputText:UpdateLayout()
 
-			self.tbHistory.font = Font:New(fontSettings)
+			self.tbHistory.font = Configuration:GetFont(value, "console_font", fontSettings, true)
 			self.tbHistory:UpdateLayout()
 		end
 	end

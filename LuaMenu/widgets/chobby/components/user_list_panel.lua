@@ -19,7 +19,7 @@ function UserListPanel:init(userUpdateFunction, spacing, showCount, getUserFunct
 				height = 20,
 				bottom = 2,
 				align = "left",
-				fontsize = Configuration:GetFont(2).size,
+				objectOverrideFont = Configuration:GetFont(2),
 				text = lobby:GetUserCount() .. " players online"
 			}
 	end

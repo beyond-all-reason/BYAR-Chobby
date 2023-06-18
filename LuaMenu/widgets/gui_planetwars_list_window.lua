@@ -330,7 +330,7 @@ local function InitializeActivityPromptHandler()
 		bottom = 4,
 		padding = {0,0,0,0},
 		caption = "Join",
-		font = Configuration:GetFont(3),
+		objectOverrideFont = Configuration:GetFont(3),
 		classname = "action_button",
 		OnClick = {
 			function()
@@ -671,7 +671,7 @@ local function MakePlanetControl(planetData, DeselectOtherFunc, attacking, defen
 		bottom = 6,
 		height = 45,
 		caption = i18n("defend_planet"),
-		font = Configuration:GetFont(3),
+		objectOverrideFont = Configuration:GetFont(3),
 		classname = "option_button",
 		OnClick = {
 			function(obj)
@@ -875,7 +875,7 @@ local function MakeFactionSelector(parent, x, y, SelectionFunc, CancelFunc, righ
 			width = 260,
 			height = 45,
 			caption = "Join " .. name,
-			font = Configuration:GetFont(3),
+			objectOverrideFont = Configuration:GetFont(3),
 			classname = "action_button",
 			OnClick = {
 				function()
@@ -909,7 +909,7 @@ local function MakeFactionSelector(parent, x, y, SelectionFunc, CancelFunc, righ
 		width = 170,
 		height = 35,
 		caption = "Factions Page",
-		font = Configuration:GetFont(2),
+		objectOverrideFont = Configuration:GetFont(2),
 		classname = "option_button",
 		padding = {2,4,4,4},
 		OnClick = {
@@ -936,7 +936,7 @@ local function MakeFactionSelector(parent, x, y, SelectionFunc, CancelFunc, righ
 			y = offset,
 			width = 84,
 			height = 35,
-			font =  WG.Chobby.Configuration:GetFont(2),
+			objectOverrideFont =  WG.Chobby.Configuration:GetFont(2),
 			caption = i18n("cancel"),
 			classname = "negative_button",
 			OnClick = {
@@ -1016,7 +1016,7 @@ local function InitializeControls(window)
 		right = 5,
 		y = 17,
 		height = 20,
-		font = Configuration:GetFont(3),
+		objectOverrideFont = Configuration:GetFont(3),
 		caption = "Planetwars",
 		parent = window
 	}
@@ -1027,7 +1027,7 @@ local function InitializeControls(window)
 		width = 80,
 		height = 45,
 		caption = i18n("close"),
-		font = Configuration:GetFont(3),
+		objectOverrideFont = Configuration:GetFont(3),
 		classname = "negative_button",
 		OnClick = {
 			function()
@@ -1052,7 +1052,7 @@ local function InitializeControls(window)
 		width = 150,
 		height = 32,
 		caption = "Galaxy Map",
-		font = Configuration:GetFont(2),
+		objectOverrideFont = Configuration:GetFont(2),
 		classname = "option_button",
 		padding = {2,4,4,4},
 		OnClick = {

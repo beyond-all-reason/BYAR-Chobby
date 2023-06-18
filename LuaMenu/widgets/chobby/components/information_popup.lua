@@ -30,7 +30,7 @@ function InformationPopup:init(infoText, extras)
 			width = extras.width - self.mainWindow.padding[1] - self.mainWindow.padding[3],
 			height = 35,
 			align = "center",
-			font = Configuration:GetFont(4),
+			objectOverrideFont = Configuration:GetFont(4),
 			caption = extras.heading,
 			parent = self.mainWindow,
 		}
@@ -41,7 +41,7 @@ function InformationPopup:init(infoText, extras)
 		right = 15,
 		y = (extras.heading and 65) or 15,
 		bottom = 75,
-		font = Configuration:GetFont(3),
+		objectOverrideFont = Configuration:GetFont(3),
 		text = infoText,
 		parent = self.mainWindow,
 	}
@@ -52,7 +52,7 @@ function InformationPopup:init(infoText, extras)
 		bottom = 1,
 		height = 70,
 		caption = extras.caption or i18n("ok"),
-		font = Configuration:GetFont(3),
+		objectOverrideFont = Configuration:GetFont(3),
 		classname = extras.buttonClass or "action_button",
 		OnClick = {
 			function()

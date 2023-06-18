@@ -34,8 +34,6 @@ imgCaptions[6] = "Grid ALT Keys"
 
 local imgAspectRatio = 1.78
 
-local listFont2
-
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 -- Utilities
@@ -49,8 +47,6 @@ end
 
 local function InitializeControls()
 	local Configuration = WG.Chobby.Configuration
-    listFont2 = Font:New(Configuration:GetFont(2))
-
 	local keysWindow = Window:New {
 		classname = "main_window",
 		parent = WG.Chobby.lobbyInterfaceHolder,
@@ -78,7 +74,7 @@ local function InitializeControls()
 			width = 180,
 			height = 35,
 			caption = imgCaptions[i],
-			objectOverrideFont = listFont2,
+			objectOverrideFont = Configuration:GetFont(2),
 			classname = "negative_button",
 			parent = keysWindow,
 			backgroundColor = {0.8, 0.8, 1, 0.4},
@@ -97,7 +93,7 @@ local function InitializeControls()
 		width = 80,
 		height = 35,
 		caption = i18n("close"),
-		objectOverrideFont = listFont2,
+		objectOverrideFont = Configuration:GetFont(2),
 		classname = "negative_button",
 		parent = keysWindow,
 		OnClick = {

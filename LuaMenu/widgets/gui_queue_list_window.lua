@@ -113,7 +113,7 @@ local function MakeQueueControl(parentControl, pos, queueName, queueDescription,
 		width = 80,
 		bottom = 0,
 		caption = i18n("join"),
-		font = Configuration:GetFont(3),
+		objectOverrideFont = Configuration:GetFont(3),
 		classname = "option_button",
 		OnClick = {
 			function(obj)
@@ -146,7 +146,7 @@ local function MakeQueueControl(parentControl, pos, queueName, queueDescription,
 		width = 80,
 		bottom = 0,
 		caption = i18n("leave"),
-		font = Configuration:GetFont(3),
+		objectOverrideFont = Configuration:GetFont(3),
 		classname = "action_button",
 		OnClick = {
 			function(obj)
@@ -451,7 +451,7 @@ local function InitializeControls(window)
 		right = 5,
 		y = 17,
 		height = 20,
-		font = Configuration:GetFont(3),
+		objectOverrideFont = Configuration:GetFont(3),
 		caption = "Join matchmaking queues",
 		parent = window
 	}
@@ -462,7 +462,7 @@ local function InitializeControls(window)
 		width = 80,
 		height = 45,
 		caption = i18n("close"),
-		font = Configuration:GetFont(3),
+		objectOverrideFont = Configuration:GetFont(3),
 		classname = "negative_button",
 		OnClick = {
 			function()
@@ -477,7 +477,7 @@ local function InitializeControls(window)
 		y = 7,
 		width = 180,
 		height = 45,
-		font = Configuration:GetFont(3),
+		objectOverrideFont = Configuration:GetFont(3),
 		caption = i18n("invite_friends"),
 		classname = "option_button",
 		OnClick = {

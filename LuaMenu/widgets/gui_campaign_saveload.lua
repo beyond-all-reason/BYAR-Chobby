@@ -120,7 +120,7 @@ local function PromptNewSave(backOnFail)
 		right = 15,
 		y = offset,
 		height = 35,
-		font = Configuration:GetFont(3),
+		objectOverrideFont = Configuration:GetFont(3),
 		caption = i18n("commander_name"),
 		parent = newSaveWindow,
 	}
@@ -142,7 +142,7 @@ local function PromptNewSave(backOnFail)
 		right = 15,
 		y = offset,
 		height = 35,
-		font = Configuration:GetFont(3),
+		objectOverrideFont = Configuration:GetFont(3),
 		caption = "Difficulty",
 		parent = newSaveWindow,
 	}
@@ -154,7 +154,7 @@ local function PromptNewSave(backOnFail)
 		height = 35,
 		text = "",
 		items = {"Easy", "Normal", "Hard", "Brutal"},
-		font = Configuration:GetFont(3),
+		objectOverrideFont = Configuration:GetFont(3),
 		itemFontSize = Configuration:GetFont(3).size,
 		selected = 2,
 		parent = newSaveWindow,
@@ -187,7 +187,7 @@ local function PromptNewSave(backOnFail)
 		bottom = 1,
 		height = 70,
 		caption = i18n("ok"),
-		font = Configuration:GetFont(3),
+		objectOverrideFont = Configuration:GetFont(3),
 		classname = "action_button",
 		OnClick = {
 			function()
@@ -202,7 +202,7 @@ local function PromptNewSave(backOnFail)
 		bottom = 1,
 		height = 70,
 		caption = i18n("cancel"),
-		font = Configuration:GetFont(3),
+		objectOverrideFont = Configuration:GetFont(3),
 		classname = "negative_button",
 		OnClick = {
 			function()
@@ -243,7 +243,7 @@ local function AddSaveEntryButton(saveFile, saveList)
 			width = 65,
 			caption = i18n("load"),
 			classname = "action_button",
-			font = WG.Chobby.Configuration:GetFont(2),
+			objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 			OnClick = {
 				function()
 					LoadGame(saveFile.name)
@@ -334,7 +334,7 @@ local function AddSaveEntryButton(saveFile, saveList)
 		bottom = 4,
 		caption = i18n("delete"),
 		classname = "action_button",
-		font = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		OnClick = {
 			function(self)
 				WG.Chobby.ConfirmationPopup(function(self) DeleteSave(saveFile.name) end, i18n("delete_confirm"), nil, 360, 200)
@@ -394,7 +394,7 @@ local function InitializeControls(parent, saveMode)
 		width = 160,
 		height = 38,
 		caption = i18n("new_campaign"),
-		font = Configuration:GetFont(3),
+		objectOverrideFont = Configuration:GetFont(3),
 		classname = "option_button",
 		parent = parent,
 		OnClick = {
