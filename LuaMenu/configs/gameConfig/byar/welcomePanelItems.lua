@@ -38,11 +38,6 @@ local welcomePanelItems = {
     },
     
     {
-        Header = "New Duel Map: Geyser Plains BAR v1.1!",
-        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/Geyser_Plains_BAR_v1.1.png",
-        Text = "Remaster of an old classic tournament 1v1 map is now available in BAR lobby!",
-    },    
-    {
         Header = "Guides for new players",
         Url = "https://www.youtube.com/channel/UCAByJ5NKeMmQ95EIWgBtbEw",
         Text = "Requiem has created some guides for new players. If you're new to the game and want to learn the basics via video we highly recommend you check them out.\n",
