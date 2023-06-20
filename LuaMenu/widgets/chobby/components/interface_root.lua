@@ -98,8 +98,7 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 		preserveChildrenOrder = true
 	}
 	lobbyInterfaceHolder.drawTimer = Spring.GetTimer()
-	version_font = WG.Chobby.Configuration:GetFont(1, "version_font", {color = {0.7, 0.7, 0.7, 1}})
-	-- version_font.color = {0.7,0.7,0.7,1} -- Grey color
+	version_font = WG.Chobby.Configuration:GetFont(1, "version_font", {color = {0.7, 0.7, 0.7, 1}}) -- Grey color
 
 	local byarchobbyrapidTag = 'byar-chobby:test'
 	if byarchobbyrapidTag and VFS.GetNameFromRapidTag then

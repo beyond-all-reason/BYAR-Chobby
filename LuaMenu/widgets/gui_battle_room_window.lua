@@ -756,8 +756,6 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 			height = 48,
 			classname = "ready_button",
 			objectOverrideFont = config:GetFont(3),
-			-- disabledFont = config:GetFont(3),
-			-- hasDisabledFont = true,
 			caption = i18n("ready"),
 			tooltip = i18n("ready_tooltip"), -- Set in OnUpdateUserBattleStatus
 			OnClick = {

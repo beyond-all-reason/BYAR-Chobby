@@ -326,7 +326,6 @@ local function InitializeControls()
 		height = 21,
 		parent = mapListWindow,
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
-		--objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		--caption = "Select a Map. Choose a Certified map for the best experience!",
 		caption = maincaption,
 	}
@@ -460,7 +459,6 @@ local function InitializeControls()
 		height = 35,
 		caption = i18n("close"),
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
-		--objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		classname = "negative_button",
 		parent = mapListWindow,
 		OnClick = {
@@ -479,7 +477,6 @@ local function InitializeControls()
 		height = 35,
 		caption = i18n("download_maps"),
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
-		--objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		classname = "option_button",
 		parent = mapListWindow,
 		OnClick = {

@@ -114,7 +114,7 @@ function FriendListWindow:AddFriendRequest(userName)
 		caption = i18n("friend_request"),
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(1, "friend_request", {color = { 0.5, 0.5, 0.5, 1 }}),
 	}
-	--lblFriendRequest.font.color = { 0.5, 0.5, 0.5, 1 }
+	lblFriendRequest.font.color = { 0.5, 0.5, 0.5, 1 }
 	lblFriendRequest:Invalidate()
 	local btnAccept = Button:New {
 		x = 10,

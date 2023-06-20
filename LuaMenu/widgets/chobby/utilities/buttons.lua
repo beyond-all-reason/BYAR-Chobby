@@ -20,33 +20,6 @@ local COLOR_CLASS = {
 	action_button = true,
 }
 
---function ButtonUtilities.SetButtonSelected(button)
---	if button.selected then
---		return
---	end
---
---	local Configuration = WG.Chobby.Configuration
---	if not button.highlighted then
---		button.oldCaption = button.oldCaption or button.caption
---		button.oldBackgroundColor = button.oldBackgroundColor or button.backgroundColor
---		button.oldFont = button.oldFont or button.font
---	end
---
---	button.selected = true
---	button.highlighted = false
---
---	button:SetCaption(Configuration:GetSelectedColor() .. button.oldCaption .. "\b")
---	button.font = Chili.Font:New(GetFont(button.oldFont.size, button.font.font))
---
---	if COLOR_CLASS[button.classname] then
---		local col = button.backgroundColor
---		button.backgroundColor = {(1 + col[1])*0.5, (1 + col[2])*0.5, (1 + col[3])*0.5, (1 + col[4])*0.5}
---	else
---		button.backgroundColor = Configuration:GetButtonSelectedColor()
---	end
---	button:Invalidate()
---end
-
 function ButtonUtilities.SetButtonSelected(button)
 	if button.selected then
 		return

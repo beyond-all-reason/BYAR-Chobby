@@ -322,17 +322,4 @@ end
 Font.Print = Font.Draw
 Font.PrintInBox = Font.DrawInBox
 
-function Font:Echo()
-	Spring.Echo("font = ", self.font)
-	Spring.Echo("size = ", self.size)
-	Spring.Echo("outlineWidth", self.outlineWidth)
-	Spring.Echo("outlineWeight", self.outlineWeight)
-	Spring.Echo("shadow", self.shadow)
-	Spring.Echo("outline", self.outline)
-	Spring.Echo("color", self.color[0], self.color[1], self.color[2], self.color[3])
-	Spring.Echo("outlineColor", self.outlineColor[0], self.outlineColor[1], self.outlineColor[2], self.outlineColor[3])
-	Spring.Echo("autoOutlineColor", self.autoOutlineColor)
-	Spring.Echo("uiScale", self.uiScale)
-end
-
 --// =============================================================================

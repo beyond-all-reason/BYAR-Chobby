@@ -171,7 +171,6 @@ local function GetUserClanImage(userName, userControl)
 end
 
 local function GetUserComboBoxOptions(userName, isInBattle, userControl, showTeamColor, showSide)
-	Spring.Echo("GetUserComboBoxOptions")
 	local userInfo = userControl.lobby:GetUser(userName) or {}
 	local bs = userControl.lobby:GetUserBattleStatus(userName) or {}
 	local myUserName = userControl.lobby:GetMyUserName()
@@ -256,9 +255,6 @@ local function GetUserComboBoxOptions(userName, isInBattle, userControl, showTea
 		end
 	end
 
-	Spring.Echo("GetUserComboBoxOptions #2")
-
-
 	-- Change team of anyone with !force
 	if  Configuration.gameConfig.spadsLobbyFeatures and not bs.isSpectator and (isInBattle or bs.aiLib) then
 		comboOptions[#comboOptions + 1] = "Change Team"
@@ -325,7 +321,6 @@ local function GetUserComboBoxOptions(userName, isInBattle, userControl, showTea
 			caption = "No Actions",
 		}
 	end
-	Spring.Echo("GetUserComboBoxOptions fin")
 	return comboOptions
 end
 
@@ -780,8 +775,6 @@ end
 -- Control Handling
 
 local function GetUserControls(userName, opts)
-	Spring.Echo("GetUserControls", userName, opts.autoResize)
-
 	local autoResize         = opts.autoResize
 	local maxNameLength      = opts.maxNameLength
 	local isInBattle         = opts.isInBattle
@@ -806,7 +799,6 @@ local function GetUserControls(userName, opts)
 	local userControls = reinitialize or {}
 
 	local Configuration = WG.Chobby.Configuration
-	Configuration:GetFont(2)
 
 	userControls.showFounder       = showFounder
 	userControls.showModerator     = showModerator
@@ -830,7 +822,6 @@ local function GetUserControls(userName, opts)
 
 	userControls.isPlaying = bs.isSpectator ~= nil and bs.isSpectator == false or false
 	userControls.isInQueue = bs.queuePos and bs.queuePos > 0 or false
-	Spring.Echo("GetUserControls values set", userName)
 	if reinitialize then
 		userControls.mainControl:ClearChildren()
 	else
@@ -847,8 +838,6 @@ local function GetUserControls(userName, opts)
 			backgroundColor = {0, 0, 0, 0}
 			borderColor = {0, 0, 0, 0}
 		end
-
-		Spring.Echo("userControls.MainControl is type", ControlType.classname)
 
 		userControls.mainControl = ControlType:New {
 			name = (not comboBoxOnly) and userName, -- Many can be added to screen0
@@ -1390,7 +1379,6 @@ local function GetUserControls(userName, opts)
 
 
 	if autoResize then
-		Spring.Echo("GetUserControls autoResize", userName)
 		userControls.mainControl.OnResize = userControls.mainControl.OnResize or {}
 		userControls.mainControl.OnResize[#userControls.mainControl.OnResize + 1] = function (obj, sizeX, sizeY)
 			local maxWidth = sizeX - userControls.nameStartY - 40

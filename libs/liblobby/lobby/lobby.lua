@@ -1045,8 +1045,6 @@ end
 -- Bots/AIs have additional keys inside chobby: owner~=nil, aiLib~=nil, aiOptions, aiVersion
 -- Example: _OnUpdateUserBattleStatus("gajop", {isReady=false, teamNumber=1})
 function Lobby:_OnUpdateUserBattleStatus(userName, status)
-	WG.Chobby.Configuration:GetFont(2)
-
 	local statusNew = status
 
 	if (statusNew.owner == nil and not self.users[userName]) or
