@@ -90,6 +90,7 @@ end
 -- @tparam Object obj the object table
 function Object:New(obj)
 	obj = obj or {}
+
 	--// check if the user made some lower-/uppercase failures
 	for i, v in pairs(obj) do
 		if (not self[i]) and (isstring(i)) then
