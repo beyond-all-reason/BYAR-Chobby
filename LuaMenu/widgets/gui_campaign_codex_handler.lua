@@ -151,7 +151,7 @@ local function PopulateCodexTree(parent, codexText, codexImage)
 		parent = parent,
 		clickTextToToggle = true,
 		minItemHeight = 26,
-		labelFontsize = WG.Chobby.Configuration:GetFont(BUTTON_FONT).size,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(BUTTON_FONT),
 		nodes = nodes, --{"wtf", "lololol", {"omg"}},
 	}
 	codexText:SetText("")
@@ -194,7 +194,7 @@ local function InitializeControls(parentControl)
 		right = 5,
 		y = 17,
 		height = 20,
-		objectOverrideFont = Configuration:GetFont(3),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		caption = i18n("codex"),
 		parent = parentControl
 	}
@@ -205,7 +205,7 @@ local function InitializeControls(parentControl)
 		width = 80,
 		height = 45,
 		caption = i18n("close"),
-		objectOverrideFont = Configuration:GetFont(3),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		classname = "negative_button",
 		OnClick = {
 			function()
@@ -231,7 +231,7 @@ local function InitializeControls(parentControl)
 		width = "100%",
 		height = "100%",
 		text = "",
-		objectOverrideFont = Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 	}
 
 	local codexImagePanel = Panel:New{

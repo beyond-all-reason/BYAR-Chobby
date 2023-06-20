@@ -37,7 +37,7 @@ local function CreateLine(lineText, linkText, onClick)
 		right = 0,
 		height = 20,
 		valign = 'center',
-		objectOverrideFont = Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		text = lineText,
 		parent = lineHolder,
 	}
@@ -268,7 +268,7 @@ local bugControl = Control:New {
 				width = 180,
 				height = 30,
 				parent = obj,
-				objectOverrideFont = Configuration:GetFont(3),
+				objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 				caption = "Send a bug report",
 			}
 
@@ -295,7 +295,7 @@ local bugControl = Control:New {
 				y = offset,
 				height = 35,
 				text ="Title:",
-				objectOverrideFont = Configuration:GetFont(3),
+				objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 				parent = obj,
 			}
 			offset = offset + 36
@@ -305,7 +305,7 @@ local bugControl = Control:New {
 				y = offset - 9,
 				height = 35,
 				text = "",
-				objectOverrideFont = Configuration:GetFont(3),
+				objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 				objectOverrideHintFont = Configuration:GetHintFont(3),
 				parent = obj,
 			}
@@ -318,7 +318,7 @@ local bugControl = Control:New {
 				y = offset,
 				height = 35,
 				text ="Description:",
-				objectOverrideFont = Configuration:GetFont(3),
+				objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 				parent = obj,
 			}
 			offset = offset + 36
@@ -328,7 +328,7 @@ local bugControl = Control:New {
 				y = offset - 9,
 				height = 35,
 				text = "",
-				objectOverrideFont = Configuration:GetFont(3),
+				objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 				objectOverrideHintFont = Configuration:GetHintFont(3),
 				parent = obj,
 			}
@@ -341,7 +341,7 @@ local bugControl = Control:New {
 				y = offset,
 				height = 35,
 				text = "Using Spring engine version " .. Spring.Utilities.GetEngineVersion() .. " " .. ((WG.Chobby.Configuration:GetIsRunning64Bit() and "64-bit.") or "32-bit."),
-				objectOverrideFont = Configuration:GetFont(2),
+				objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 				parent = obj,
 			}
 			offset = offset + 36

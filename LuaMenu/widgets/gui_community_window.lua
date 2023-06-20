@@ -152,7 +152,7 @@ local function GetLadderHandler(parentControl)
 		align = "left",
 		valign = "top",
 		text = "Ladder",
-		fontsize = WG.Chobby.Configuration:GetFont(3).size,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		parent = holder,
 	}
 
@@ -220,7 +220,7 @@ local function GetDateTimeDisplay(parentControl, xPosition, yPosition, timeStrin
 		valign = "top",
 		text = localTimeString or utcTimeString, -- Fallback
 		tooltip = string.gsub(timeString, "T", " at ") .. " UTC",
-		fontsize = WG.Chobby.Configuration:GetFont(2).size,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		parent = parentControl,
 	}
 
@@ -232,7 +232,7 @@ local function GetDateTimeDisplay(parentControl, xPosition, yPosition, timeStrin
 		align = "left",
 		valign = "top",
 		tooltip = utcTimeString,
-		fontsize = WG.Chobby.Configuration:GetFont(2).size,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		parent = parentControl,
 	}
 
@@ -517,7 +517,7 @@ local function GetNewsHandler(parentControl, headingSize, timeAsTooltip, topHead
 		align = "left",
 		valign = "top",
 		text = topHeading,
-		fontsize = WG.Chobby.Configuration:GetFont(3).size,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		parent = holder,
 	}
 
@@ -636,7 +636,7 @@ local function GetAwardsHandler(parentControl, iconWidth, iconHeight, GetEntryDa
 					right = 2,
 					bottom = 6,
 					align = "right",
-					fontsize = fontsize,
+					objectOverrideFont = WG.Chobby.Configuration:GetFont(fontsize),
 					caption = count,
 					parent = imageList[i],
 				}
@@ -754,7 +754,7 @@ local function GetProfileHandler(parentControl)
 					width = 80,
 					height = 22,
 					align = "right",
-					fontsize = WG.Chobby.Configuration:GetFont(2).size,
+					objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 					caption = "Awards:",
 					parent = holder,
 				}

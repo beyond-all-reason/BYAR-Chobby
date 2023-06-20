@@ -49,7 +49,7 @@ local function CreateIntegerSelectorWindow(opts)
 		height = (opts.height or 330) /2,
 		align = "center",
 		multiline = true,
-		objectOverrideFont = Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		text = opts.labelCaption or "",
 		parent = IntegerSelectorWindow,
 	}
@@ -72,7 +72,7 @@ local function CreateIntegerSelectorWindow(opts)
 		bottom = 1,
 		height = 40,
 		caption = i18n("ok"),
-		objectOverrideFont = Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		classname = "action_button",
 		OnClick = { CloseFunction, ChangeAccepted },
 		parent = IntegerSelectorWindow,
@@ -84,7 +84,7 @@ local function CreateIntegerSelectorWindow(opts)
 		bottom = 1,
 		height = 40,
 		caption = i18n("cancel"),
-		objectOverrideFont = Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		classname = "negative_button",
 		OnClick = { CloseFunction },
 		parent = IntegerSelectorWindow,
@@ -97,7 +97,7 @@ local function CreateIntegerSelectorWindow(opts)
 		height = 40,
 		align = "center",
 		caption = tostring(opts.defaultValue),
-		objectOverrideFont = Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		parent = IntegerSelectorWindow,
 	}
 

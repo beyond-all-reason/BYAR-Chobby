@@ -114,7 +114,7 @@ function AiListWindow:MakeAiOptionsButton(displayName, tooltip, shortName, versi
 		height = "100%",
 		caption = "",
 		classname = "button_small",
-		objectOverrideFont = Configuration:GetFont(3),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		OnClick = {
 			function()
 				local successFunc = function(aioptions)
@@ -144,7 +144,7 @@ function AiListWindow:MakeAiButton(btnWidth, displayName, tooltip, shortName, ve
 		height = "100%",
 		caption = displayName,
 		classname = "button_small",
-		objectOverrideFont = Configuration:GetFont(3),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		tooltip = tooltip,
 		OnClick = {
 			function()

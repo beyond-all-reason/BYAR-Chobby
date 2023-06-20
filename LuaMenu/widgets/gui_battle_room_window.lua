@@ -1153,7 +1153,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		y = leftOffset,
 		right = 3,
 		caption = WG.Chobby.Configuration.gameConfig.ShortenNameString(battle.gameName),
-		fontsize = config:GetFont(2).size,
+		objectOverrideFont = config:GetFont(2),
 		parent = leftInfo,
 		OnResize = {
 			function (obj, xSize, ySize)
@@ -1177,7 +1177,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		x = 28,
 		y = leftOffset,
 		caption = "",
-		fontsize = config:GetFont(2).size,
+		objectOverrideFont = config:GetFont(2),
 		parent = leftInfo,
 	}
 	leftOffset = leftOffset + 25
@@ -1196,7 +1196,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		x = 28,
 		y = leftOffset,
 		caption = "",
-		fontsize = config:GetFont(2).size,
+		objectOverrideFont = config:GetFont(2),
 		parent = leftInfo,
 	}
 	leftOffset = leftOffset + 30
@@ -1208,7 +1208,6 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		right = 0,
 		height = 120,
 		padding = {2, 0, 2, 0},
-		fontsize = config:GetFont(1).size,
 		autosize = false,
 		resizable = false,
 		tooltip = "All custom gameplay options are listed here",
@@ -2569,12 +2568,11 @@ local function SetupSpadsStatusPanel(battle, battleID)
 			selectByName = true,
 			captionHorAlign = -1,
 			text = "winkydink",
-			--objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
+			-- objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
 			items = sts.allowed,
 			align = "right",
 			valign = "center",
 			name = k,
-			--itemFontSize = Configuration:GetFont(1).size,
 			selected = stsCBdefault,
 			OnSelectName = {
 				function (obj, selectedName)
@@ -2667,7 +2665,7 @@ local function InitializeSetupPage(subPanel, screenHeight, pageConfig, nextPage,
 		right = "40%",
 		y = buttonScale,
 		height = 30,
-		objectOverrideFont = Configuration:GetFont(4),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(4),
 		align = "center",
 		valign = "center",
 		caption = pageConfig.humanName,
@@ -2684,7 +2682,7 @@ local function InitializeSetupPage(subPanel, screenHeight, pageConfig, nextPage,
 		height = buttonHeight,
 		classname = "action_button",
 		caption = (nextPage and "Next") or i18n("start"),
-		objectOverrideFont = Configuration:GetFont(buttonFont),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(buttonFont),
 		OnClick = {
 			function(obj)
 				subPanel:SetVisibility(false)
@@ -2711,7 +2709,7 @@ local function InitializeSetupPage(subPanel, screenHeight, pageConfig, nextPage,
 			right = "26%",
 			height = 200,
 			align = "left",
-			fontsize = Configuration:GetFont(2).size,
+			objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 			text = pageConfig.tipText,
 			parent = subPanel,
 		}
@@ -2727,7 +2725,7 @@ local function InitializeSetupPage(subPanel, screenHeight, pageConfig, nextPage,
 		classname = "option_button",
 		caption = "Advanced",
 		tooltip = i18n("advanced_button_tooltip"),
-		objectOverrideFont = Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		OnClick = {
 			function(obj)
 				WG.Analytics.SendOnetimeEvent("lobby:singleplayer:skirmish:advanced")
@@ -2747,7 +2745,7 @@ local function InitializeSetupPage(subPanel, screenHeight, pageConfig, nextPage,
 			height = 48,
 			classname = "option_button",
 			caption = "Back",
-			objectOverrideFont = Configuration:GetFont(2),
+			objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 			OnClick = {
 				function(obj)
 					subPanel:SetVisibility(false)
@@ -2781,7 +2779,7 @@ local function InitializeSetupPage(subPanel, screenHeight, pageConfig, nextPage,
 			classname = "option_button",
 			caption = caption,
 			tooltip = tooltip,
-			objectOverrideFont = Configuration:GetFont(buttonFont),
+			objectOverrideFont = WG.Chobby.Configuration:GetFont(buttonFont),
 			tooltip = pageConfig.optionTooltip and pageConfig.optionTooltip[i],
 			OnClick = {
 				function(obj)
@@ -3011,7 +3009,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		y = 7,
 		width = 80,
 		height = 45,
-		objectOverrideFont = Configuration:GetFont(3),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		caption = (isSingleplayer and i18n("close")) or i18n("leave"),
 		classname = "negative_button",
 		tooltip = (isSingleplayer and "Close the battleroom") or "Leave the multiplayer battleroom",
@@ -3035,7 +3033,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		y = 7,
 		width = 180,
 		height = 45,
-		objectOverrideFont = Configuration:GetFont(3),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		caption = i18n("invite_friends"),
 		classname = "option_button",
 		OnClick = {
@@ -3054,7 +3052,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		y = 19,
 		right = 100,
 		height = 30,
-		objectOverrideFont = Configuration:GetFont(3),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		caption = "",
 		parent = mainWindow,
 		OnResize = {
@@ -3076,9 +3074,8 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 			selectByName = true,
 			captionHorAlign = -12,
 			text = "",
-			objectOverrideFont = Configuration:GetFont(3),
+			objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 			items = {"Coop", "Team", "1v1", "FFA", "Custom"},
-			itemFontSize = Configuration:GetFont(3).size,
 			selected = Configuration.battleTypeToHumanName[battle.battleMode or 0],
 			OnSelectName = {
 				function (obj, selectedName)

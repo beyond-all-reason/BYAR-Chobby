@@ -219,7 +219,7 @@ local function GetLinkButton(holder, x, y, width, text, link)
 		y = 3,
 		right = 20,
 		align = "left",
-		fontsize = config:GetFont(3).size,
+		objectOverrideFont = config:GetFont(3),
 		parent = btnLink,
 	}
 	local imgLink = Image:New {
@@ -330,7 +330,7 @@ local function InitializeActivityPromptHandler()
 		bottom = 4,
 		padding = {0,0,0,0},
 		caption = "Join",
-		objectOverrideFont = Configuration:GetFont(3),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		classname = "action_button",
 		OnClick = {
 			function()
@@ -350,7 +350,7 @@ local function InitializeActivityPromptHandler()
 		y = 18,
 		width = 195,
 		height = 20,
-		fontsize = Configuration:GetFont(2).size,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		text = "",
 		parent = holder
 	}
@@ -359,7 +359,7 @@ local function InitializeActivityPromptHandler()
 		y = 18,
 		width = 195,
 		height = 20,
-		fontsize = Configuration:GetFont(2).size,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		text = "",
 		parent = holder
 	}
@@ -594,7 +594,7 @@ local function MakePlanetControl(planetData, DeselectOtherFunc, attacking, defen
 		y = 3,
 		right = 20,
 		align = "left",
-		fontsize = config:GetFont(3).size,
+		objectOverrideFont = config:GetFont(3),
 		parent = btnPlanetLink,
 	}
 	local imgPlanetLink = Image:New {
@@ -614,7 +614,7 @@ local function MakePlanetControl(planetData, DeselectOtherFunc, attacking, defen
 		width = 350,
 		height = 20,
 		valign = 'center',
-		fontsize = Configuration:GetFont(3).size,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		text = "0/0",
 		parent = holder,
 	}
@@ -671,7 +671,7 @@ local function MakePlanetControl(planetData, DeselectOtherFunc, attacking, defen
 		bottom = 6,
 		height = 45,
 		caption = i18n("defend_planet"),
-		objectOverrideFont = Configuration:GetFont(3),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		classname = "option_button",
 		OnClick = {
 			function(obj)
@@ -875,7 +875,7 @@ local function MakeFactionSelector(parent, x, y, SelectionFunc, CancelFunc, righ
 			width = 260,
 			height = 45,
 			caption = "Join " .. name,
-			objectOverrideFont = Configuration:GetFont(3),
+			objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 			classname = "action_button",
 			OnClick = {
 				function()
@@ -894,7 +894,7 @@ local function MakeFactionSelector(parent, x, y, SelectionFunc, CancelFunc, righ
 				y = offset + 56,
 				width = 240,
 				height = 45,
-				fontsize = Configuration:GetFont(2).size,
+				objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 				text = [["]] .. factionData.motto .. [["]] .. "\n" .. factionData.desc,
 				parent = holder,
 			}
@@ -909,7 +909,7 @@ local function MakeFactionSelector(parent, x, y, SelectionFunc, CancelFunc, righ
 		width = 170,
 		height = 35,
 		caption = "Factions Page",
-		objectOverrideFont = Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		classname = "option_button",
 		padding = {2,4,4,4},
 		OnClick = {
@@ -989,7 +989,7 @@ local function MakeFactionSelectionPopup()
 		right = 15,
 		y = 15,
 		height = 35,
-		fontsize = Configuration:GetFont(3).size,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		text = "Join a faction to play Planetwars",
 		parent = factionWindow,
 	}
@@ -1016,7 +1016,7 @@ local function InitializeControls(window)
 		right = 5,
 		y = 17,
 		height = 20,
-		objectOverrideFont = Configuration:GetFont(3),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		caption = "Planetwars",
 		parent = window
 	}
@@ -1027,7 +1027,7 @@ local function InitializeControls(window)
 		width = 80,
 		height = 45,
 		caption = i18n("close"),
-		objectOverrideFont = Configuration:GetFont(3),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		classname = "negative_button",
 		OnClick = {
 			function()
@@ -1052,7 +1052,7 @@ local function InitializeControls(window)
 		width = 150,
 		height = 32,
 		caption = "Galaxy Map",
-		objectOverrideFont = Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		classname = "option_button",
 		padding = {2,4,4,4},
 		OnClick = {
@@ -1077,7 +1077,7 @@ local function InitializeControls(window)
 		right = 16,
 		bottom = 18,
 		height = 50,
-		fontsize = Configuration:GetFont(2).size,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		text = "Select planets on the Galaxy Map for more options.",
 		parent = window
 	}
@@ -1089,7 +1089,7 @@ local function InitializeControls(window)
 		right = 16,
 		y = 60,
 		height = 50,
-		fontsize = Configuration:GetFont(2).size,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		text = "",
 		parent = window
 	}

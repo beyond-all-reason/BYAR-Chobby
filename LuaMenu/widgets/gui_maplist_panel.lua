@@ -150,7 +150,7 @@ local function CreateMapEntry(mapName, mapData, CloseFunc)--{"ResourceID":7098,"
 		classname = "battle_default_button",
 		padding = {0, 0, 0, 0},
 		tooltip = MINIMAP_TOOLTIP_PREFIX .. mapName .. "|" .. mapButtonCaption,
-		objectOverrideFont = Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		OnClick = {
 			function()
 				if (lobby.name == "singleplayer") or (mapData and mapData.IsInPool) then
@@ -193,7 +193,7 @@ local function CreateMapEntry(mapName, mapData, CloseFunc)--{"ResourceID":7098,"
 		width = 200,
 		height = 20,
 		valign = 'center',
-		objectOverrideFont = Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		text = mapName:gsub("_", " "),
 		parent = mapButton,
 	}
@@ -214,7 +214,7 @@ local function CreateMapEntry(mapName, mapData, CloseFunc)--{"ResourceID":7098,"
 			width = 160,
 			height = 20,
 			valign = 'center',
-			objectOverrideFont = Configuration:GetFont(2),
+			objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 			text = certificationLevel,
 			parent = mapButton,
 	}
@@ -228,7 +228,7 @@ local function CreateMapEntry(mapName, mapData, CloseFunc)--{"ResourceID":7098,"
 			width = 68,
 			height = 20,
 			valign = 'center',
-			objectOverrideFont = Configuration:GetFont(2),
+			objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 			text = mapSizeText,
 			parent = mapButton,
 		}
@@ -241,7 +241,7 @@ local function CreateMapEntry(mapName, mapData, CloseFunc)--{"ResourceID":7098,"
 			width = 98,
 			height = 20,
 			valign = 'center',
-			objectOverrideFont = Configuration:GetFont(2),
+			objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 			text = mapType,
 			parent = mapButton,
 		}
@@ -253,7 +253,7 @@ local function CreateMapEntry(mapName, mapData, CloseFunc)--{"ResourceID":7098,"
 			width = 160,
 			height = 20,
 			valign = 'center',
-			objectOverrideFont = Configuration:GetFont(2),
+			objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 			text = terrainType,
 			parent = mapButton,
 		}
@@ -325,8 +325,8 @@ local function InitializeControls()
 		y = 22,
 		height = 21,
 		parent = mapListWindow,
-		objectOverrideFont = Configuration:GetFont(2),
-		--objectOverrideFont = Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		--objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		--caption = "Select a Map. Choose a Certified map for the best experience!",
 		caption = maincaption,
 	}
@@ -367,7 +367,7 @@ local function InitializeControls()
 	--	align = "center",
 	--	valign = "center",
 	--	parent = loadingPanel,
-	--	objectOverrideFont = Configuration:GetFont(2),
+	--	objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 	--	caption = "Loading",
 	--}
 
@@ -380,7 +380,7 @@ local function InitializeControls()
 		right = 15,
 		y = 54,
 		bottom = 15,
-		objectOverrideFont = Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		parent = mapListWindow,
 		resizable = false,
 		draggable = false,
@@ -459,8 +459,8 @@ local function InitializeControls()
 		width = 80,
 		height = 35,
 		caption = i18n("close"),
-		objectOverrideFont = Configuration:GetFont(2),
-		--objectOverrideFont = Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		--objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		classname = "negative_button",
 		parent = mapListWindow,
 		OnClick = {
@@ -478,8 +478,8 @@ local function InitializeControls()
 		width = 180,
 		height = 35,
 		caption = i18n("download_maps"),
-		objectOverrideFont = Configuration:GetFont(2),
-		--objectOverrideFont = Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		--objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		classname = "option_button",
 		parent = mapListWindow,
 		OnClick = {
@@ -500,7 +500,7 @@ local function InitializeControls()
 		height = 33,
 		text = '',
 		hint = i18n("type_to_filter"),
-		objectOverrideFont = Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		parent = mapListWindow,
 		OnKeyPress = {
 			function(obj, key, ...)

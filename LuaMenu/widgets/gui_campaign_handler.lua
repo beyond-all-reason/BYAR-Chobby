@@ -136,7 +136,7 @@ local function MakeFeedbackWindow(parent, feedbackLink)
 		y = 15,
 		height = 35,
 		text = "Campaign Testing",
-		fontsize = Configuration:GetFont(4).size,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(4),
 		parent = textWindow,
 	}
 
@@ -154,7 +154,7 @@ local function MakeFeedbackWindow(parent, feedbackLink)
 		height = 35,
 		lineSpacing = 1,
 		text = "New missions are released every Sunday. Currently there are " .. (missionCount or "??") .. " missions. Please post your thoughts, feedback and issues on the forum.",
-		objectOverrideFont = Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		parent = textWindow,
 	}
 
@@ -252,7 +252,7 @@ local function InitializeDifficultySetting()
 		height = 30,
 		valign = "top",
 		align = "left",
-		objectOverrideFont = Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		caption = "Difficulty",
 		parent = window,
 	}
@@ -265,7 +265,7 @@ local function InitializeDifficultySetting()
 		items = {"Easy", "Normal", "Hard", "Brutal"},
 		selected = 2,
 		preferComboUp = true,
-		objectOverrideFont = Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		selected = WG.CampaignData.GetDifficultySetting(),
 		OnSelect = {
 			function (obj)
@@ -347,7 +347,7 @@ local function MakeRewardList(holder, bottom, name, rewardsTypes, cullUnlocked, 
 							right = 4,
 							height = 30,
 							text = name,
-							objectOverrideFont = Configuration:GetFont(2),
+							objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 							parent = rewardsHolder
 						}
 
@@ -397,7 +397,7 @@ local function MakeRewardList(holder, bottom, name, rewardsTypes, cullUnlocked, 
 								right = 4,
 								bottom = 6,
 								align = "right",
-								fontsize = Configuration:GetFont(3).size,
+								objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 								caption = count,
 								parent = image,
 							}
@@ -412,7 +412,7 @@ local function MakeRewardList(holder, bottom, name, rewardsTypes, cullUnlocked, 
 							width = REWARD_ICON_SIZE*widthMult,
 							height = REWARD_ICON_SIZE/stackHeight,
 							caption = string.gsub(tooltip, "_COUNT_", ""),
-							objectOverrideFont = Configuration:GetFont(2),
+							objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 							OnClick = clickFunc and {
 								function()
 									clickFunc(rewardList[i])
@@ -763,14 +763,14 @@ local function SelectPlanet(popupOverlay, planetHandler, planetID, planetData, s
 		x = 8,
 		y = 8,
 		caption = planetName,
-		objectOverrideFont = Configuration:GetFont(4),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(4),
 	}
 
 	local fluffLabels = {
-		Label:New{caption = "Primary", objectOverrideFont = Configuration:GetFont(3)},
-		Label:New{caption = planetData.infoDisplay.primary .. " (" .. planetData.infoDisplay.primaryType .. ") ", objectOverrideFont = Configuration:GetFont(3)},
-		Label:New{caption = "Type", objectOverrideFont = Configuration:GetFont(3)},
-		Label:New{caption = planetData.infoDisplay.terrainType or "<UNKNOWN>", objectOverrideFont = Configuration:GetFont(3)},
+		Label:New{caption = "Primary", objectOverrideFont = WG.Chobby.Configuration:GetFont(3)},
+		Label:New{caption = planetData.infoDisplay.primary .. " (" .. planetData.infoDisplay.primaryType .. ") ", objectOverrideFont = WG.Chobby.Configuration:GetFont(3)},
+		Label:New{caption = "Type", objectOverrideFont = WG.Chobby.Configuration:GetFont(3)},
+		Label:New{caption = planetData.infoDisplay.terrainType or "<UNKNOWN>", objectOverrideFont = WG.Chobby.Configuration:GetFont(3)},
 	}
 	fluffGrid = Grid:New{
 		x = 8,
@@ -789,7 +789,7 @@ local function SelectPlanet(popupOverlay, planetHandler, planetID, planetData, s
 		bottom = "25%",
 		padding = {0, 0, 10, 0},
 		text = ((startable or Configuration.debugMode) and planetData.infoDisplay.text) or "This planet will need to be approached for further study.",
-		objectOverrideFont = Configuration:GetFont(3),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 	}
 
 
@@ -834,7 +834,7 @@ local function SelectPlanet(popupOverlay, planetHandler, planetID, planetData, s
 			classname = "action_button",
 			parent = buttonHolder,
 			caption = i18n("start"),
-			objectOverrideFont = Configuration:GetFont(4),
+			objectOverrideFont = WG.Chobby.Configuration:GetFont(4),
 			OnClick = {
 				function(self)
 					WG.PlanetBattleHandler.StartBattle(planetID, planetData)
@@ -849,7 +849,7 @@ local function SelectPlanet(popupOverlay, planetHandler, planetID, planetData, s
 				width = 160,
 				height = 35,
 				padding = {0, 0, 0, 0},
-				objectOverrideFont = Configuration:GetFont(2),
+				objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 				caption = i18n("invite_friends") .. "   ",
 				classname = "option_button",
 				OnClick = {
@@ -880,7 +880,7 @@ local function SelectPlanet(popupOverlay, planetHandler, planetID, planetData, s
 				parent = buttonHolder,
 				caption = i18n("skip_tutorial"),
 				tooltip = "Skip quick tutorial. Only recommended for Zero-K veterans or players who have completed Tutorials 1 and 2.",
-				objectOverrideFont = Configuration:GetFont(4),
+				objectOverrideFont = WG.Chobby.Configuration:GetFont(4),
 				OnClick = {
 					function(self)
 						local function SkipFunc()
@@ -901,7 +901,7 @@ local function SelectPlanet(popupOverlay, planetHandler, planetID, planetData, s
 				classname = "action_button",
 				parent = buttonHolder,
 				caption = "Auto Win",
-				objectOverrideFont = Configuration:GetFont(4),
+				objectOverrideFont = WG.Chobby.Configuration:GetFont(4),
 				OnClick = {
 					function(self)
 						ProcessPlanetVictory(planetID, 352, MakeRandomBonusVictoryList(0.75, 8), nil, WG.CampaignData.GetDifficultySetting())
@@ -916,7 +916,7 @@ local function SelectPlanet(popupOverlay, planetHandler, planetID, planetData, s
 				classname = "action_button",
 				parent = buttonHolder,
 				caption = "Auto Lose",
-				objectOverrideFont = Configuration:GetFont(4),
+				objectOverrideFont = WG.Chobby.Configuration:GetFont(4),
 				OnClick = {
 					function(self)
 						ProcessPlanetDefeat(planetID, 351)
@@ -943,7 +943,7 @@ local function SelectPlanet(popupOverlay, planetHandler, planetID, planetData, s
 		height = 45,
 		classname = "negative_button",
 		caption = i18n("close"),
-		objectOverrideFont = Configuration:GetFont(3),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		OnClick = {
 			CloseFunc
 		},
@@ -985,8 +985,8 @@ local function SelectPlanet(popupOverlay, planetHandler, planetID, planetData, s
 	end
 
 	local function SizeUpdate()
-		local fluffFont = Configuration:GetFont(((planetHandler.height < 720) and 2) or 3)
-		local descFont = Configuration:GetFont(((planetHandler.height < 720) and 1) or 2)
+		local fluffFont = WG.Chobby.Configuration:GetFont(((planetHandler.height < 720) and 2) or 3)
+		local descFont = WG.Chobby.Configuration:GetFont(((planetHandler.height < 720) and 1) or 2)
 
 		planetDesc.font.size = descFont.size
 		planetDesc:Invalidate()
@@ -1235,7 +1235,7 @@ local function GetPlanet(popupOverlay, planetListHolder, planetID, planetData, a
 			align = "center",
 			valign = "center",
 			caption = planetID,
-			objectOverrideFont = Configuration:GetFont(3),
+			objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 			parent = image,
 		}
 	end
@@ -1373,7 +1373,7 @@ local function GetPlanet(popupOverlay, planetListHolder, planetID, planetData, a
 				right = 12,
 				y = 8,
 				bottom = 8,
-				objectOverrideFont = Configuration:GetFont(4),
+				objectOverrideFont = WG.Chobby.Configuration:GetFont(4),
 				text = planetData.mapDisplay.hintText,
 				parent = tipHolder,
 			}

@@ -46,7 +46,7 @@ function SteamLoginWindow:init(failFunction, cancelText, windowClassname)
 		y = 16,
 		height = 35,
 		caption = i18n("register_steam_long"),
-		objectOverrideFont = Configuration:GetFont(3),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		parent = self.window
 	}
 
@@ -56,7 +56,7 @@ function SteamLoginWindow:init(failFunction, cancelText, windowClassname)
 		y = 65,
 		height = 35,
 		text = i18n("username") .. ":",
-		fontsize = Configuration:GetFont(3).size,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		parent = self.window
 	}
 	self.ebUsername = EditBox:New {
@@ -65,7 +65,7 @@ function SteamLoginWindow:init(failFunction, cancelText, windowClassname)
 		y = 56,
 		height = 35,
 		text = Configuration.userName or Configuration.suggestedNameFromSteam or "",
-		objectOverrideFont = Configuration:GetFont(3),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		useIME = false,
 		parent = self.window
 	}
@@ -76,7 +76,7 @@ function SteamLoginWindow:init(failFunction, cancelText, windowClassname)
 		y = 105,
 		height = 35,
 		text = i18n("password") .. ":",
-		fontsize = Configuration:GetFont(3).size,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 	}
 	self.ebPassword = EditBox:New {
 		x = 135,
@@ -85,7 +85,7 @@ function SteamLoginWindow:init(failFunction, cancelText, windowClassname)
 		height = 35,
 		text = Configuration.password or "",
 		passwordInput = true,
-		objectOverrideFont = Configuration:GetFont(3),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		useIME = false,
 		OnKeyPress = {
 			function(obj, key, mods, ...)
@@ -108,7 +108,7 @@ function SteamLoginWindow:init(failFunction, cancelText, windowClassname)
 		bottom = 60,
 		height = 90,
 		text = "",
-		fontsize = Configuration:GetFont(3).size,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		parent = self.window
 	}
 
@@ -118,7 +118,7 @@ function SteamLoginWindow:init(failFunction, cancelText, windowClassname)
 		bottom = 2,
 		height = 70,
 		caption = i18n("connect"),
-		objectOverrideFont = Configuration:GetFont(3),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		classname = "action_button",
 		OnClick = {
 			function()
@@ -134,7 +134,7 @@ function SteamLoginWindow:init(failFunction, cancelText, windowClassname)
 		bottom = 2,
 		height = 70,
 		caption = i18n(cancelText or "cancel"),
-		objectOverrideFont = Configuration:GetFont(3),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		classname = "negative_button",
 		OnClick = {
 			function()

@@ -74,7 +74,7 @@ local function InitializeControls()
 			width = 180,
 			height = 35,
 			caption = imgCaptions[i],
-			objectOverrideFont = Configuration:GetFont(2),
+			objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 			classname = "negative_button",
 			parent = keysWindow,
 			backgroundColor = {0.8, 0.8, 1, 0.4},
@@ -93,7 +93,7 @@ local function InitializeControls()
 		width = 80,
 		height = 35,
 		caption = i18n("close"),
-		objectOverrideFont = Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		classname = "negative_button",
 		parent = keysWindow,
 		OnClick = {

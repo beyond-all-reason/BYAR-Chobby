@@ -111,7 +111,7 @@ local function InitializeQueueStatusHandler(name, ControlType, parent, pos)
 		y = 12,
 		right = rightBound,
 		bottom = bottomBound,
-		fontsize = WG.Chobby.Configuration:GetFont(2).size,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		text = "",
 		parent = queuePanel
 	}
@@ -226,7 +226,7 @@ local function InitializeInstantQueueHandler()
 		y = 18,
 		right = rightBound,
 		bottom = bottomBound,
-		fontsize = WG.Chobby.Configuration:GetFont(3).size,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		text = "",
 		parent = queuePanel
 	}
@@ -344,7 +344,7 @@ local function CreateReadyCheckWindow(DestroyFunc, secondsRemaining, minWinChanc
 		y = 15,
 		height = 35,
 		caption = invitationText,
-		objectOverrideFont = Configuration:GetFont(4),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(4),
 		parent = readyCheckWindow,
 	}
 
@@ -354,7 +354,7 @@ local function CreateReadyCheckWindow(DestroyFunc, secondsRemaining, minWinChanc
 		y = 80,
 		height = 35,
 		text = "",
-		fontsize = Configuration:GetFont(3).size,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		parent = readyCheckWindow,
 	}
 
@@ -364,7 +364,7 @@ local function CreateReadyCheckWindow(DestroyFunc, secondsRemaining, minWinChanc
 		y = 130,
 		height = 35,
 		caption = "Players accepted: 0",
-		objectOverrideFont = Configuration:GetFont(3),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		parent = readyCheckWindow,
 	}
 
@@ -404,7 +404,7 @@ local function CreateReadyCheckWindow(DestroyFunc, secondsRemaining, minWinChanc
 		bottom = 1,
 		height = 70,
 		caption = (allowReject and i18n("accept")) or i18n("ready"),
-		objectOverrideFont = Configuration:GetFont((allowReject and 3) or 4),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont((allowReject and 3) or 4),
 		parent = readyCheckWindow,
 		classname = "action_button",
 		OnClick = {
@@ -420,7 +420,7 @@ local function CreateReadyCheckWindow(DestroyFunc, secondsRemaining, minWinChanc
 		bottom = 1,
 		height = 70,
 		caption = i18n("reject"),
-		objectOverrideFont = Configuration:GetFont(3),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		parent = readyCheckWindow,
 		classname = "negative_button",
 		OnClick = {

@@ -53,7 +53,7 @@ local function GetBattleInfoHolder(parent, battleID)
 		width = 225,
 		height = 20,
 		valign = 'top',
-		objectOverrideFont = Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		parent = mainControl,
 	}
 	local text = StringUtilities.GetTruncatedStringWithDotDot(battle.title, lblTitle.font, lblTitle.width)
@@ -87,7 +87,7 @@ local function GetBattleInfoHolder(parent, battleID)
 		y = 54,
 		height = 20,
 		valign = 'top',
-		objectOverrideFont = Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		caption = playersPrefix .. lobby:GetBattlePlayerCount(battleID) .. "/" .. battle.maxPlayers,
 		parent = mainControl,
 	}
@@ -135,30 +135,30 @@ local function GetBattleInfoHolder(parent, battleID)
 		if smallMode then
 			minimap:SetPos(nil, nil, 30, 30)
 
-			lblTitle.font.size = Configuration:GetFont(1).size
+			lblTitle.font.size = WG.Chobby.Configuration:GetFont(1).size
 			lblTitle:SetPos(36, 1, 150)
 
-			lblPlayerStatus.font.size = Configuration:GetFont(1).size
+			lblPlayerStatus.font.size = WG.Chobby.Configuration:GetFont(1).size
 			lblPlayerStatus:SetPos(58, 18)
 
 			imPlayerStatus:SetPos(43, 18, 12, 12)
 
-			lblPlayers.font.size = Configuration:GetFont(1).size
+			lblPlayers.font.size = WG.Chobby.Configuration:GetFont(1).size
 			lblPlayers:SetPos(165, 18)
 
 			playersPrefix = PLAYER_PREFIX_SMALL
 		else
 			minimap:SetPos(nil, nil, 68, 68)
 
-			lblTitle.font.size = Configuration:GetFont(2).size
+			lblTitle.font.size = WG.Chobby.Configuration:GetFont(2).size
 			lblTitle:SetPos(76, 2, 225)
 
-			lblPlayerStatus.font.size = Configuration:GetFont(2).size
+			lblPlayerStatus.font.size = WG.Chobby.Configuration:GetFont(2).size
 			lblPlayerStatus:SetPos(103, 26)
 
 			imPlayerStatus:SetPos(82, 26, 18, 18)
 
-			lblPlayers.font.size = Configuration:GetFont(2).size
+			lblPlayers.font.size = WG.Chobby.Configuration:GetFont(2).size
 			lblPlayers:SetPos(80, 48)
 
 			playersPrefix = PLAYER_PREFIX_BIG

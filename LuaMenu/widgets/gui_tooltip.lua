@@ -128,7 +128,7 @@ local function GetTooltipLine(parent, hasImage, fontSize, xOffset, imageWidth)
 		height = 20,
 		align = "left",
 		parent = parent,
-		fontsize = WG.Chobby.Configuration:GetFont(fontSize).size,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(fontSize),
 		text = "",
 	}
 
@@ -217,7 +217,7 @@ local function GetBattleInfoHolder(parent, offset, battleID)
 		right = 5,
 		height = 20,
 		valign = 'top',
-		objectOverrideFont = Configuration:GetFont(1),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
 		caption = battle.title:sub(1, 60),
 		parent = mainControl,
 		OnResize = {
@@ -261,7 +261,7 @@ local function GetBattleInfoHolder(parent, offset, battleID)
 		right = 0,
 		height = 20,
 		valign = 'top',
-		objectOverrideFont = Configuration:GetFont(1),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
 		caption = lobby:GetBattlePlayerCount(battleID) .. "/" .. battle.maxPlayers,
 		parent = mainControl,
 	}
@@ -288,7 +288,7 @@ local function GetBattleInfoHolder(parent, offset, battleID)
 		height = 20,
 		valign = 'top',
 		caption = battle.gameName:sub(1, 22),
-		objectOverrideFont = Configuration:GetFont(1),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
 		parent = mainControl,
 		OnResize = {
 			function (obj, xSize, ySize)
@@ -307,7 +307,7 @@ local function GetBattleInfoHolder(parent, offset, battleID)
 		height = 20,
 		valign = 'center',
 		caption = battle.mapName:sub(1, 22),
-		objectOverrideFont = Configuration:GetFont(1),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
 		parent = mainControl,
 		OnResize = {
 			function (obj, xSize, ySize)

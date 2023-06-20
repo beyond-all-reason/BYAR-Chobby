@@ -23,9 +23,6 @@ local replayList
 -- Size constants for the replay window
 local PLAYER_HEIGHT = 20
 local REPLAY_LIST_ENTRY_HEIGHT = 126
-
-local myFont1
-local myFont2
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 -- Utilities
@@ -94,7 +91,7 @@ end
 --	Return a widget containing a player's information
 local function playerWidget(playerInfo)
 	local Configuration = WG.Chobby.Configuration
-	local userName = StringUtilities.GetTruncatedStringWithDotDot(playerInfo.name, myFont1, 110)
+	local userName = StringUtilities.GetTruncatedStringWithDotDot(playerInfo.name, WG.Chobby.Configuration:GetFont(1), 110)
 
 	-- Create a control widget to encapsulate the player's information
 	local ret = Chili.Control:New {
@@ -128,8 +125,7 @@ local function playerWidget(playerInfo)
 		name = "userName",
 		x = 18, y = 0, right = 0, height = PLAYER_HEIGHT,
 		valign = "top",
-		--objectOverrideFont = myFont1,
-		fontsize = Configuration:GetFont(1).size,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
 		text = "",
 		parent = ret,
 		OnResize = {
@@ -148,7 +144,7 @@ local function CreateReplayEntry(
 )
 
 	local Configuration = WG.Chobby.Configuration
-	local mapNameTruncated = StringUtilities.GetTruncatedStringWithDotDot(mapName, myFont1, 180)
+	local mapNameTruncated = StringUtilities.GetTruncatedStringWithDotDot(mapName, Configuration:GetFont(1), 180)
 	local fileName = string.sub(replayPath, 7)
 	local winningAllyTeamId = -2 -- old launcher does not send winningAllyTeamIds
 	if winningAllyTeamIds then
@@ -231,8 +227,7 @@ local function CreateReplayEntry(
 		x = 135, y = 22,
 		right = 0, height = 20,
 		valign = 'center',
-		objectOverrideFont = myFont2,
-		fontsize = Configuration:GetFont(2).size,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		text = battleType(teams),
 		parent = replayPanel,
 	}
@@ -242,8 +237,7 @@ local function CreateReplayEntry(
 		x = 135, y = 65,
 		right = 0, height = 20,
 		valign = 'center',
-		objectOverrideFont = myFont1,
-		--fontsize = Configuration:GetFont(1).size,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
 		text = replayDateString,
 		parent = replayPanel,
 	}
@@ -253,8 +247,7 @@ local function CreateReplayEntry(
 		x = 135, y = 82,
 		right = 0, height = 20,
 		valign = 'center',
-		objectOverrideFont = myFont1,
-		--fontsize = Configuration:GetFont(1).size,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
 		text = replayTimeString,
 		parent = replayPanel,
 	}
@@ -264,8 +257,7 @@ local function CreateReplayEntry(
 		x = 135, y = 42,
 		right = 0, height = 20,
 		valign = 'center',
-		objectOverrideFont = myFont2,
-		fontsize = Configuration:GetFont(2).size,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		text = mapNameTruncated,
 		parent = replayPanel,
 	}
@@ -276,8 +268,7 @@ local function CreateReplayEntry(
 			x = 135, y = 99,
 			right = 0, height = 20,
 			valign = 'center',
-			objectOverrideFont = myFont1,
-			--fontsize = Configuration:GetFont(1).size,
+			objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
 			text = '',
 			parent = replayPanel,
 		}
@@ -314,8 +305,7 @@ local function CreateReplayEntry(
 		TextBox:New {
 			x = xOffset, y = yOffset, right = 0, height = 10,
 			valign = 'center',
-			--objectOverrideFont = myFont1,
-			fontsize = Configuration:GetFont(1).size,
+			objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
 			text = "Team " .. allyTeamID,
 			parent = userList,
 			OnResize = {
@@ -337,7 +327,7 @@ local function CreateReplayEntry(
 			if yOffset + PLAYER_HEIGHT * 2 >= REPLAY_LIST_ENTRY_HEIGHT then
 				local ellipsis = TextBox:New {
 					x = xOffset, y = yOffset, text = "...",
-					objectOverrideFont = myFont1
+					objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
 				}
 				userList:AddChild(ellipsis)
 				ellipsis:SetPos(xOffset, yOffset)
@@ -389,8 +379,7 @@ local function CreateReplayEntry(
 			"action_button",
 			"option_button"
 		),
-		objectOverrideFont = myFont2,
-		fontsize = WG.Chobby.Configuration:GetFont(2).size,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		OnClick = {
 			function()
 				if not replayPath or not CheckReplayFileExists() then
@@ -413,8 +402,7 @@ local function CreateReplayEntry(
 		width = "10%",
 		caption = i18n("delete_replay"),
 		classname = "negative_button",
-		objectOverrideFont = myFont2,
-		fontsize = WG.Chobby.Configuration:GetFont(2).size,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		tooltip = "Delete the replay from your hard drive",
 		OnClick = {
 			function()
@@ -437,8 +425,6 @@ end
 
 local function InitializeControls(parentControl)
 	local Configuration = WG.Chobby.Configuration
-	myFont1 = Configuration:GetFont(1)
-	myFont2 = Configuration:GetFont(2)
 
 	Label:New {
 		x = 15,
@@ -446,7 +432,7 @@ local function InitializeControls(parentControl)
 		width = 180,
 		height = 30,
 		parent = parentControl,
-		objectOverrideFont = Configuration:GetFont(3),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		caption = "Replays",
 	}
 
@@ -467,7 +453,7 @@ local function InitializeControls(parentControl)
 		align = "center",
 		valign = "center",
 		parent = loadingPanel,
-		objectOverrideFont = Configuration:GetFont(3),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		caption = "Loading",
 	}
 
@@ -562,8 +548,7 @@ local function InitializeControls(parentControl)
 		width = 120,
 		height = 45,
 		caption = i18n("refresh"),
-		objectOverrideFont = myFont2,
-		objectOverrideFont = Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		classname = "option_button",
 		tooltip = "Refresh the list of replays",
 		parent = parentControl,
@@ -576,8 +561,7 @@ local function InitializeControls(parentControl)
 		width = 120,
 		height = 45,
 		caption = i18n("more"),
-		objectOverrideFont = myFont2,
-		objectOverrideFont = Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		classname = "option_button",
 		parent = parentControl,
 		tooltip = "Load more, older replays",
@@ -598,7 +582,7 @@ local function InitializeControls(parentControl)
 			width = 200,
 			height = 45,
 			text = "/demos/",
-			objectOverrideFont = Configuration:GetFont(2),
+			objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 			useIME = false,
 			parent = parentControl,
 			tooltip = "Enter the path to the replay",
@@ -618,8 +602,7 @@ local function InitializeControls(parentControl)
 			width = 120,
 			height = 45,
 			caption = "force start replay",
-			objectOverrideFont = myFont2,
-			objectOverrideFont = Configuration:GetFont(2),
+			objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 			classname = "option_button",
 			parent = parentControl,
 			tooltip = "Force start a specific replay",
@@ -642,8 +625,7 @@ local function InitializeControls(parentControl)
 			width = 120,
 			height = 45,
 			caption = i18n("download"),
-			objectOverrideFont = myFont2,
-			objectOverrideFont = Configuration:GetFont(2),
+			objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 			classname = "option_button",
 			parent = parentControl,
 			tooltip = "Get more replays from our website, and download the .sdfz files into your data/demos folder.",

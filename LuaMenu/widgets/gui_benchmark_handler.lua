@@ -156,7 +156,7 @@ local function InitializeControls(parentControl)
 		width = 180,
 		height = 30,
 		parent = parentControl,
-		objectOverrideFont = Configuration:GetFont(3),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		caption = "Benchmarker",
 	}
 
@@ -165,7 +165,7 @@ local function InitializeControls(parentControl)
 		y = 7,
 		width = 80,
 		height = 45,
-		objectOverrideFont = Configuration:GetFont(3),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		caption = i18n("close"),
 		classname = "negative_button",
 		OnClick = {
@@ -187,7 +187,7 @@ local function InitializeControls(parentControl)
 			y = offset,
 			height = 50,
 			caption = benchmarkData[i].humanName,
-			objectOverrideFont = Configuration:GetFont(3),
+			objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 			classname = "action_button",
 			OnClick = {
 				function()
@@ -203,7 +203,7 @@ local function InitializeControls(parentControl)
 			right = 15,
 			y = offset + 6,
 			height = 70,
-			objectOverrideFont = Configuration:GetFont(3),
+			objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 			text = benchmarkData[i].decription,
 			parent = parentControl,
 		}
@@ -218,7 +218,7 @@ local function InitializeControls(parentControl)
 			height = 80,
 			caption = "Generate Script",
 			tooltip = "Generates a startscript from luamenu/startscripts/config.lua.",
-			objectOverrideFont = Configuration:GetFont(4),
+			objectOverrideFont = WG.Chobby.Configuration:GetFont(4),
 			classname = "action_button",
 			OnClick = {
 				function()

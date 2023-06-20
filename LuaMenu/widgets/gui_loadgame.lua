@@ -297,7 +297,7 @@ local function AddSaveEntryButton(saveFile, saveList)
 		width = 65,
 		caption = i18n("load"),
 		classname = "action_button",
-		fontsize = Configuration:GetFont(2).size,
+		objectOverrideFont = WG.Chobby.Configuration:GetButtonFont(2),
 		OnClick = {
 			function()
 				if ingame then
@@ -319,7 +319,7 @@ local function AddSaveEntryButton(saveFile, saveList)
 		right = 0,
 		height = 20,
 		valign = 'center',
-		fontsize = Configuration:GetFont(2).size,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		text = saveFile.filename,
 		parent = container,
 	}
@@ -335,7 +335,7 @@ local function AddSaveEntryButton(saveFile, saveList)
 		right = 0,
 		height = 20,
 		valign = 'center',
-		fontsize = Configuration:GetFont(2).size,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		text = shortenname,
 		parent = container,
 	}
@@ -349,7 +349,7 @@ local function AddSaveEntryButton(saveFile, saveList)
 		right = 0,
 		height = 20,
 		valign = 'center',
-		fontsize = Configuration:GetFont(2).size,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		text = WriteDate(saveFile.date),
 		parent = container,
 	}
@@ -363,7 +363,7 @@ local function AddSaveEntryButton(saveFile, saveList)
 		right = 55,
 		height = 20,
 		valign = 'center',
-		fontsize = Configuration:GetFont(2).size,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		text = GetSaveDescText(saveFile),
 		parent = container,
 	}
@@ -378,7 +378,7 @@ local function AddSaveEntryButton(saveFile, saveList)
 		bottom = 4,
 		caption = i18n("delete"),
 		classname = "negative_button",
-		fontsize = Configuration:GetFont(2).size,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		OnClick = { function(self)
 				WG.Chobby.ConfirmationPopup(function(self) DeleteSave(saveFile.filename, saveList) end, i18n("delete_confirm"), nil, 360, 200)
 			end
@@ -412,7 +412,7 @@ local function InitializeControls(parent)
 		y = 14,
 		height = 20,
 		parent = parent,
-		objectOverrideFont = Configuration:GetFont(3),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		caption = i18n("load_saved_game"),
 	}
 
@@ -426,7 +426,7 @@ local function InitializeControls(parent)
 		y = 52,
 		bottom = 15,
 		parent = parent,
-		objectOverrideFont = Configuration:GetFont(3),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		resizable = false,
 		draggable = false,
 		padding = {0, 0, 0, 0},

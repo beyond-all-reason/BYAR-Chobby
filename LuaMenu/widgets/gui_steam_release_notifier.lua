@@ -52,7 +52,7 @@ local function SteamCheckPopup()
 		right = 15,
 		y = 23,
 		height = 35,
-		fontsize = Configuration:GetFont(4).size,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(4),
 		text = "Zero-K is on Steam!",
 		parent = steamWindow,
 	}
@@ -62,7 +62,7 @@ local function SteamCheckPopup()
 		right = 28,
 		y = 76,
 		height = 35,
-		fontsize = Configuration:GetFont(2).size,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		text = "You can help out by switching to the Steam version of Zero-K. This lets Steam know that people are interested in Zero-K which should, in turn, show the game to more potential players. See the settings guide for how to link your account and transfer your settings.",
 		parent = steamWindow,
 	}
@@ -78,7 +78,7 @@ local function SteamCheckPopup()
 		right = "26%",
 		height = 65,
 		caption = "Store Page",
-		objectOverrideFont = Configuration:GetFont(4),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(4),
 		classname = "action_button",
 		padding = {2,4,4,4},
 		OnClick = {
@@ -96,7 +96,7 @@ local function SteamCheckPopup()
 		right = "27%",
 		height = 42,
 		caption = "Settings Guide",
-		objectOverrideFont = Configuration:GetFont(3),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		classname = "option_button",
 		padding = {2,4,4,4},
 		OnClick = {
@@ -124,7 +124,7 @@ local function SteamCheckPopup()
 		height = 42,
 		classname = "negative_button",
 		caption = i18n("close"),
-		objectOverrideFont = Configuration:GetFont(3),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		OnClick = {
 			CancelFunc
 		},
@@ -140,7 +140,7 @@ local function SteamCheckPopup()
 		boxsize = 15,
 		caption = i18n("do_not_ask_again"),
 		checked = Configuration[doNotAskAgainKey] or false,
-		objectOverrideFont = Configuration:GetFont(1),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
 		parent = steamWindow,
 		OnClick = {
 			function (obj)

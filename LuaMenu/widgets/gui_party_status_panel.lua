@@ -58,7 +58,7 @@ local function InitializePartyStatusHandler(name)
 	local partyTitle = TextBox:New {
 		x = "75%",
 		y = 12,
-		fontsize = WG.Chobby.Configuration:GetFont(3).size,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		text = i18n("party"),
 		parent = queuePanel
 	}
@@ -156,7 +156,7 @@ local function CreatePartyInviteWindow(partyID, partyUsers, secondsRemaining, De
 		y = 15,
 		height = 35,
 		caption = titleText,
-		objectOverrideFont = Configuration:GetFont(4),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(4),
 		parent = partyInviteWindow,
 	}
 
@@ -184,7 +184,7 @@ local function CreatePartyInviteWindow(partyID, partyUsers, secondsRemaining, De
 	--	y = 15,
 	--	height = 35,
 	--	text = "",
-	--	fontsize = Configuration:GetFont(4).size,
+	--	objectOverrideFont = WG.Chobby.Configuration:GetFont(4),
 	--	parent = partyInviteWindow,
 	--}
 
@@ -219,7 +219,7 @@ local function CreatePartyInviteWindow(partyID, partyUsers, secondsRemaining, De
 		bottom = 1,
 		height = 70,
 		caption = i18n("accept"),
-		objectOverrideFont = Configuration:GetFont(3),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		parent = partyInviteWindow,
 		classname = "action_button",
 		OnClick = {
@@ -235,7 +235,7 @@ local function CreatePartyInviteWindow(partyID, partyUsers, secondsRemaining, De
 		bottom = 1,
 		height = 70,
 		caption = i18n("reject"),
-		objectOverrideFont = Configuration:GetFont(3),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		parent = partyInviteWindow,
 		classname = "negative_button",
 		OnClick = {

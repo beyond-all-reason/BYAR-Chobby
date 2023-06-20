@@ -102,7 +102,7 @@ local function InitializeCoopStatusHandler(name, text, leaveFunc, statusAndInvit
 		y = 18,
 		right = rightBound,
 		bottom = bottomBound,
-		fontsize = WG.Chobby.Configuration:GetFont(3).size,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		text = text,
 		parent = panelHolder,
 	}

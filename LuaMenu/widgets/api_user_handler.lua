@@ -321,7 +321,7 @@ local function GetUserComboBoxOptions(userName, isInBattle, userControl, showTea
 			y = 0,
 			width = 100,
 			height = 30,
-			objectOverrideFont = Configuration:GetFont(1),
+			objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
 			caption = "No Actions",
 		}
 	end
@@ -863,7 +863,7 @@ local function GetUserControls(userName, opts)
 			tooltip = (not disableInteraction) and tooltip,
 			ignoreItemCaption = true,
 			selectByName = true,
-			objectOverrideFont = Configuration:GetFont(2),
+			objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 			itemHeight = 30,
 			selected = 0,
 			maxDropDownWidth = large and 220 or 150,
@@ -1165,7 +1165,7 @@ local function GetUserControls(userName, opts)
 			bottom = 5,
 			align = "left",
 			parent = userControls.mainControl,
-			objectOverrideFont = Configuration:GetFont(2),
+			objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 			text = tostring(queuePos),
 		}
 		userControls.tbQueuePos:Invalidate()
@@ -1188,7 +1188,6 @@ local function GetUserControls(userName, opts)
 		keepAspect = true,
 		file = GetUserCountryImage(userName, userControls),
 	}
-	userControls.imCountry.font = nil
 	userControls.imCountry:SetVisibility(userControls.showCountry)
 	if userControls.showCountry then
 		offset = offset + 21
@@ -1228,7 +1227,7 @@ local function GetUserControls(userName, opts)
 			bottom = 5,
 			align = "left",
 			parent = userControls.mainControl,
-			objectOverrideFont = Configuration:GetFont(1),
+			objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
 			text = skill,
 		}
 		
@@ -1296,7 +1295,7 @@ local function GetUserControls(userName, opts)
 		bottom = 4,
 		align = "left",
 		parent = userControls.mainControl,
-		objectOverrideFont = Configuration:GetFont(1),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
 		text = userName,
 	}
 
@@ -1380,7 +1379,7 @@ local function GetUserControls(userName, opts)
 				valign = 'center',
 				parent = userControls.mainControl,
 				caption = i18n(status .. "_status"),
-				objectOverrideFont = Configuration:GetFont(1),
+				objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
 			}
 			--userControls.lblStatusLarge.font.color = fontColor
 			--userControls.lblStatusLarge:Invalidate()

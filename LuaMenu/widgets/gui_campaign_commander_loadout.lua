@@ -295,7 +295,7 @@ local function GetModuleButton(parentControl, ClickFunc, moduleName, level, slot
 		right = 4,
 		height = BUTTON_SIZE,
 		text = ((hightlightEmpty and moduleData.emptyModule and Configuration:GetHighlightedColor()) or "") .. moduleData.humanName,
-		objectOverrideFont = Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		OnClick = {
 			function(self)
 				ClickFunc(self, moduleName, level, slot)
@@ -376,7 +376,7 @@ local function GetModuleList(parentControl, ClickFunc, left, right)
 			right = 5,
 			height = 20,
 			align = "left",
-			objectOverrideFont = Configuration:GetFont(3),
+			objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 			caption = text,
 			parent = listScroll
 		}
@@ -513,7 +513,7 @@ local function InitializeControls(parentControl)
 		right = 5,
 		y = 17,
 		height = 20,
-		objectOverrideFont = Configuration:GetFont(3),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		caption = i18n("configure_commander"),
 		parent = parentControl
 	}
@@ -524,7 +524,7 @@ local function InitializeControls(parentControl)
 		width = 80,
 		height = 45,
 		caption = i18n("close"),
-		objectOverrideFont = Configuration:GetFont(3),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		classname = "negative_button",
 		OnClick = {
 			function()

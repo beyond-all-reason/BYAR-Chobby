@@ -147,7 +147,7 @@ function AiOptionsWindow:MakeNumber(data)
 		text   = oldText,
 		useIME = false,
 		tooltip = data.desc,
-		objectOverrideFont = Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		objectOverrideHintFont = Configuration:GetHintFont(2),
 		OnFocusUpdate = {
 			function (obj)
@@ -199,7 +199,7 @@ function AiOptionsWindow:MakeString(data)
 		text   = data.def,
 		useIME = false,
 		tooltip = data.desc,
-		objectOverrideFont = Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		objectOverrideHintFont = Configuration:GetHintFont(2),
 		OnFocusUpdate = {
 			function (obj)

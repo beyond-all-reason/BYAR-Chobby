@@ -63,7 +63,7 @@ function ButtonUtilities.SetButtonSelected(button)
 	button.highlighted = false
 
 	button:SetCaption(Configuration:GetSelectedColor() .. button.oldCaption .. "\b")
-	button.font = Configuration:GetFont(button.oldFont.size, "button_highlight", {
+	button.font = WG.Chobby.Configuration:GetFont(button.oldFont.size, "button_highlight", {
 		outlineWidth = 6,
 		outlineHeight = 6,
 		outline = true,
@@ -96,7 +96,7 @@ function ButtonUtilities.SetButtonHighlighted(button)
 	button.highlighted = true
 
 	button:SetCaption(Configuration:GetHighlightedColor() .. button.oldCaption .. "\b")
-	button.font = Configuration:GetFont(button.oldFont.size, "button_highlight", {
+	button.font = WG.Chobby.Configuration:GetFont(button.oldFont.size, "button_highlight", {
 		outlineWidth = 6,
 		outlineHeight = 6,
 		outline = true,

@@ -14,7 +14,7 @@ function GameListWindow:init(failFunction, sucessFunction)
 				width = "100%",
 				height = "100%",
 				caption = info.name,
-				objectOverrideFont = Configuration:GetFont(3),
+				objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 				OnClick = {
 					function()
 						sucessFunction(info.name)

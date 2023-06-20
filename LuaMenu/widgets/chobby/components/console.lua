@@ -43,7 +43,7 @@ function Console:init(channelName, sendMessageListener, noHistoryLoad, onResizeF
 		lineSpacing = 2,
 		bottom = 0,
 		text = "",
-		fontsize = Configuration.chatFontSize,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(Configuration.chatFontSize, "console_" .. Configuration.chatFontSize, false, true),
 		parent = self.spHistory,
 		selectable = true,
 		subTooltips = true,
@@ -70,7 +70,8 @@ function Console:init(channelName, sendMessageListener, noHistoryLoad, onResizeF
 		height = 25,
 		right = 2,
 		text = "",
-		fontsize = Configuration.chatFontSize,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(Configuration.chatFontSize, "console_" .. Configuration.chatFontSize, false, true),
+		objectOverrideHintFont = Configuration:GetHintFont(Configuration.chatFontSize, "console_hint_" .. Configuration.chatFontSize, false, true),
 		--hint = i18n("type_here_to_chat"),
 	}
 
@@ -86,10 +87,10 @@ function Console:init(channelName, sendMessageListener, noHistoryLoad, onResizeF
 				shadow       = oldFont.shadow,
 				size         = value,
 			}
-			self.ebInputText.font = Configuration:GetFont(value, "console_font", fontSettings, true)
+			self.ebInputText.font = WG.Chobby.Configuration:GetFont(value, "console_font", fontSettings, true)
 			self.ebInputText:UpdateLayout()
 
-			self.tbHistory.font = Configuration:GetFont(value, "console_font", fontSettings, true)
+			self.tbHistory.font = WG.Chobby.Configuration:GetFont(value, "console_font", fontSettings, true)
 			self.tbHistory:UpdateLayout()
 		end
 	end

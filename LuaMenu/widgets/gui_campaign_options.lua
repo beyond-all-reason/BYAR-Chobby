@@ -75,7 +75,7 @@ local function InitializeDifficultyWindow(parent)
 		height = 30,
 		valign = "top",
 		align = "left",
-		objectOverrideFont = Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		caption = "Difficulty",
 		parent = parent,
 	}
@@ -86,7 +86,7 @@ local function InitializeDifficultyWindow(parent)
 		height = 30,
 		items = {"Easy", "Normal", "Hard", "Brutal"},
 		selected = 2,
-		objectOverrideFont = Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		selected = WG.CampaignData.GetDifficultySetting(),
 		OnSelect = {
 			function (obj)
@@ -123,7 +123,7 @@ local function MakeStatLabel(parent, offset, name)
 		y = offset + TEXT_OFFSET,
 		width = 200,
 		height = 30,
-		objectOverrideFont = Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		text = name,
 		parent = parent,
 	}
@@ -132,7 +132,7 @@ local function MakeStatLabel(parent, offset, name)
 		y = offset + TEXT_OFFSET,
 		width = 200,
 		height = 30,
-		objectOverrideFont = Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		text = "",
 		parent = parent,
 	}

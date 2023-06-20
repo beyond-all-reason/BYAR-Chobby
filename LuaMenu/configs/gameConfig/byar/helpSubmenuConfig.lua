@@ -37,7 +37,7 @@ local function CreateLine(lineText, linkText, onClick)
 		right = 0,
 		height = 20,
 		valign = 'center',
-		objectOverrideFont = Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		text = lineText,
 		parent = lineHolder,
 	}
