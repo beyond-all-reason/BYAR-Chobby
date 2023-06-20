@@ -38,11 +38,6 @@ local welcomePanelItems = {
     },
     
     {
-        Header = "New Map: Ascendancy 1.1!",
-        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/Ascendancy_v1.0.png",
-        Text = "Behold the tallest BAR mountain!\nA new 8v8 map by Nikuksis.\nV1.1: Fixed ponds entrance, T3's can now enter and escape the water.",
-    },    
-    {
         Header = "Guides for new players",
         Url = "https://www.youtube.com/channel/UCAByJ5NKeMmQ95EIWgBtbEw",
         Text = "Requiem has created some guides for new players. If you're new to the game and want to learn the basics via video we highly recommend you check them out.\n",
