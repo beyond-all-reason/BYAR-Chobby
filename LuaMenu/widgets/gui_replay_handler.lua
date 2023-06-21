@@ -126,6 +126,7 @@ local function playerWidget(playerInfo)
 		x = 18, y = 0, right = 0, height = PLAYER_HEIGHT,
 		valign = "top",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(1),
 		text = "",
 		parent = ret,
 		OnResize = {
@@ -228,6 +229,7 @@ local function CreateReplayEntry(
 		right = 0, height = 20,
 		valign = 'center',
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
 		text = battleType(teams),
 		parent = replayPanel,
 	}
@@ -238,6 +240,7 @@ local function CreateReplayEntry(
 		right = 0, height = 20,
 		valign = 'center',
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(1),
 		text = replayDateString,
 		parent = replayPanel,
 	}
@@ -248,6 +251,7 @@ local function CreateReplayEntry(
 		right = 0, height = 20,
 		valign = 'center',
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(1),
 		text = replayTimeString,
 		parent = replayPanel,
 	}
@@ -258,6 +262,7 @@ local function CreateReplayEntry(
 		right = 0, height = 20,
 		valign = 'center',
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
 		text = mapNameTruncated,
 		parent = replayPanel,
 	}
@@ -269,6 +274,7 @@ local function CreateReplayEntry(
 			right = 0, height = 20,
 			valign = 'center',
 			objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
+			objectOverrideHintFont = WG.Chobby.Configuration:GetFont(1),
 			text = '',
 			parent = replayPanel,
 		}
@@ -306,6 +312,7 @@ local function CreateReplayEntry(
 			x = xOffset, y = yOffset, right = 0, height = 10,
 			valign = 'center',
 			objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
+			objectOverrideHintFont = WG.Chobby.Configuration:GetFont(1),
 			text = "Team " .. allyTeamID,
 			parent = userList,
 			OnResize = {
@@ -328,6 +335,7 @@ local function CreateReplayEntry(
 				local ellipsis = TextBox:New {
 					x = xOffset, y = yOffset, text = "...",
 					objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
+					objectOverrideHintFont = WG.Chobby.Configuration:GetFont(1),
 				}
 				userList:AddChild(ellipsis)
 				ellipsis:SetPos(xOffset, yOffset)
@@ -583,6 +591,7 @@ local function InitializeControls(parentControl)
 			height = 45,
 			text = "/demos/",
 			objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+			objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
 			useIME = false,
 			parent = parentControl,
 			tooltip = "Enter the path to the replay",

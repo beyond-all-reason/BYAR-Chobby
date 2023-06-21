@@ -71,12 +71,15 @@ local function InitWindow()
 		lineSpacing = 1,
 		autoHeight = true,
 		margin = {0,0,0,0},
-		font = {
-			outline          = true,
-			autoOutlineColor = true,
-			outlineWidth     = 3,
-			outlineWeight    = 4,
-		}
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(14, "gui_tooltip", 
+								table.merge({
+									outline          = true,
+									autoOutlineColor = true,
+									outlineWidth     = 3,
+									outlineWeight    = 4,
+								}, Control.font), true),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(14, "gui_tooltip", _, true),
+
 	}
 
 	tipWindow:Hide()
@@ -129,6 +132,7 @@ local function GetTooltipLine(parent, hasImage, fontSize, xOffset, imageWidth)
 		align = "left",
 		parent = parent,
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(fontSize),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(fontSize),
 		text = "",
 	}
 
@@ -507,12 +511,14 @@ local function GetBattleTooltip(battleID, battle)
 				bottom = 5,
 				parent = tipWindow,
 				margin = {0,0,0,0},
-				font = {
-					outline          = true,
-					autoOutlineColor = true,
-					outlineWidth     = 3,
-					outlineWeight    = 4,
-				},
+				objectOverrideFont = WG.Chobby.Configuration:GetFont(14, "gui_tooltip", 
+						table.merge({
+							outline          = true,
+							autoOutlineColor = true,
+							outlineWidth     = 3,
+							outlineWeight    = 4,
+						}, Control.font), true),
+				objectOverrideHintFont = WG.Chobby.Configuration:GetFont(14, "gui_tooltip", _, true),
 				parent = battleTooltip.mainControl,
 			}
 		end
@@ -823,12 +829,14 @@ local function GetUserTooltip(userName, userInfo, userBattleInfo, inBattleroom)
 				bottom = 5,
 				parent = tipWindow,
 				margin = {0,0,0,0},
-				font = {
-					outline          = true,
-					autoOutlineColor = true,
-					outlineWidth     = 3,
-					outlineWeight    = 4,
-				},
+				objectOverrideFont = WG.Chobby.Configuration:GetFont(14, "gui_tooltip", 
+						table.merge({
+							outline          = true,
+							autoOutlineColor = true,
+							outlineWidth     = 3,
+							outlineWeight    = 4,
+						}, Control.font), true),
+				objectOverrideHintFont = WG.Chobby.Configuration:GetFont(14, "gui_tooltip", _, true),
 				parent = userTooltip.mainControl,
 			}
 		end

@@ -167,6 +167,7 @@ local function MakeQueueControl(parentControl, pos, queueName, queueDescription,
 		right = 5,
 		align = "bottom",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(1),
 		text = "Party too large",
 		parent = queueHolder
 	}
@@ -178,6 +179,7 @@ local function MakeQueueControl(parentControl, pos, queueName, queueDescription,
 		width = 120,
 		height = 33,
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(3),
 		text = queueName,
 		parent = queueHolder
 	}
@@ -190,6 +192,7 @@ local function MakeQueueControl(parentControl, pos, queueName, queueDescription,
 		right = 5,
 		align = "bottom",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(1),
 		text = queueDescription,
 		parent = queueHolder
 	}
@@ -202,6 +205,7 @@ local function MakeQueueControl(parentControl, pos, queueName, queueDescription,
 		right = 5,
 		align = "bottom",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(1),
 		text = "Playing: " .. players,
 		parent = queueHolder
 	}
@@ -214,6 +218,7 @@ local function MakeQueueControl(parentControl, pos, queueName, queueDescription,
 		right = 5,
 		align = "bottom",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(1),
 		text = "Waiting: " .. waiting,
 		parent = queueHolder
 	}
@@ -505,6 +510,7 @@ local function InitializeControls(window)
 		y = 320,
 		height = 200,
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
 		text = "",
 		parent = window
 	}
@@ -515,6 +521,7 @@ local function InitializeControls(window)
 		y = 400,
 		height = 200,
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
 		text = "",
 		parent = window
 	}

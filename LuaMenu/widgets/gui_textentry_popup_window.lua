@@ -50,6 +50,7 @@ local function CreateTextEntryWindow(opts)
 		align = "center",
 		multiline = true,
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
 		text = opts.labelCaption or "",
 		parent = TextEntryWindow,
 	}
@@ -98,6 +99,7 @@ local function CreateTextEntryWindow(opts)
 		bottom = 45,
 		text = opts.defaultValue or "",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
 		useIME = false,
 		parent = TextEntryWindow,
 		--multiline = true,

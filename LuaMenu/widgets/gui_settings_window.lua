@@ -294,6 +294,7 @@ local function GetValueEntryBox(parent, name, position, currentValue)
 		height = 35,
 		text = tostring(currentValue),
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(3),
 		useIME = false,
 		parent = parent,
 		OnFocusUpdate = {
@@ -604,6 +605,7 @@ local function AddNumberSetting(offset, caption, desc, key, default, minVal, max
 		height = 30,
 		text = ToPercent(default*100),
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
 		useIME = false,
 		OnFocusUpdate = {
 			function (obj)
@@ -1221,6 +1223,7 @@ local function GetVoidTabControls()
 		valign = "top",
 		align = "left",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(3),
 		text = "Warning: These settings are experimental and not officially supported, proceed at your own risk.",
 	}
 	offset = offset + 65
@@ -1314,6 +1317,7 @@ local function GetVoidTabControls()
 		right = 18,
 		text = Configuration:GetServerAddress(),
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
 		useIME = false,
 		tooltip = "Requires a lobby restart for changes to take effect. Old Server is road-flag.bnr.la, new will be server3.beyondallreason.info. Temporarily we are on server3.beyondallreason.info",
 		OnFocusUpdate = {
@@ -1346,6 +1350,7 @@ local function GetVoidTabControls()
 		right = 18,
 		text = tostring(Configuration.serverPort),
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
 		useIME = false,
 		OnFocusUpdate = {
 			function (obj)
@@ -1786,6 +1791,7 @@ local function ProcessSettingsNumber(data, offset, defaults, customSettingsSwitc
 		right = 18,
 		text = FormatFunc(Configuration.settingsMenuValues[data.name] or defaults[data.name]),
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
 		useIME = false,
 		OnFocusUpdate = {
 			function (obj)

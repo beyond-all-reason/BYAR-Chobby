@@ -145,6 +145,7 @@ local function CreateMissionEntry(missionData)
 	--	height = 20,
 	--	valign = 'center',
 	--	objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+	--  objectOverrideHintFont = WG.Chobby.Configuration:GetFont(3),
 	--	text = tostring(missionData.FeaturedOrder or ""),
 	--	parent = holder,
 	--}
@@ -162,6 +163,7 @@ local function CreateMissionEntry(missionData)
 		height = 20,
 		valign = 'center',
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(3),
 		text = missionName,
 		parent = holder,
 	}
@@ -173,6 +175,7 @@ local function CreateMissionEntry(missionData)
 	--	height = 20,
 	--	valign = 'center',
 	--	objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+	--  objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
 	--	text = string.format("Difficulty %.1f", missionData.Difficulty or 0),
 	--	parent = holder,
 	--}
@@ -184,6 +187,7 @@ local function CreateMissionEntry(missionData)
 	--	height = 20,
 	--	valign = 'center',
 	--	objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+	--  objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2)
 	--	text = missionData.Map,
 	--	parent = holder,
 	--}

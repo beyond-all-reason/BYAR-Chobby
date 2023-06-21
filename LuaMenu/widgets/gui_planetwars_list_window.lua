@@ -220,6 +220,7 @@ local function GetLinkButton(holder, x, y, width, text, link)
 		right = 20,
 		align = "left",
 		objectOverrideFont = config:GetFont(3),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(3),
 		parent = btnLink,
 	}
 	local imgLink = Image:New {
@@ -351,6 +352,7 @@ local function InitializeActivityPromptHandler()
 		width = 195,
 		height = 20,
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
 		text = "",
 		parent = holder
 	}
@@ -360,6 +362,7 @@ local function InitializeActivityPromptHandler()
 		width = 195,
 		height = 20,
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
 		text = "",
 		parent = holder
 	}
@@ -595,6 +598,7 @@ local function MakePlanetControl(planetData, DeselectOtherFunc, attacking, defen
 		right = 20,
 		align = "left",
 		objectOverrideFont = config:GetFont(3),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(3),
 		parent = btnPlanetLink,
 	}
 	local imgPlanetLink = Image:New {
@@ -615,6 +619,7 @@ local function MakePlanetControl(planetData, DeselectOtherFunc, attacking, defen
 		height = 20,
 		valign = 'center',
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(3),
 		text = "0/0",
 		parent = holder,
 	}
@@ -895,6 +900,7 @@ local function MakeFactionSelector(parent, x, y, SelectionFunc, CancelFunc, righ
 				width = 240,
 				height = 45,
 				objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+				objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
 				text = [["]] .. factionData.motto .. [["]] .. "\n" .. factionData.desc,
 				parent = holder,
 			}
@@ -990,6 +996,7 @@ local function MakeFactionSelectionPopup()
 		y = 15,
 		height = 35,
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(3),
 		text = "Join a faction to play Planetwars",
 		parent = factionWindow,
 	}
@@ -1078,6 +1085,7 @@ local function InitializeControls(window)
 		bottom = 18,
 		height = 50,
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
 		text = "Select planets on the Galaxy Map for more options.",
 		parent = window
 	}
@@ -1090,6 +1098,7 @@ local function InitializeControls(window)
 		y = 60,
 		height = 50,
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
 		text = "",
 		parent = window
 	}

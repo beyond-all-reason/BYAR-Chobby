@@ -112,6 +112,7 @@ local function InitializeQueueStatusHandler(name, ControlType, parent, pos)
 		right = rightBound,
 		bottom = bottomBound,
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
 		text = "",
 		parent = queuePanel
 	}
@@ -227,6 +228,7 @@ local function InitializeInstantQueueHandler()
 		right = rightBound,
 		bottom = bottomBound,
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(3),
 		text = "",
 		parent = queuePanel
 	}
@@ -355,6 +357,7 @@ local function CreateReadyCheckWindow(DestroyFunc, secondsRemaining, minWinChanc
 		height = 35,
 		text = "",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(3),
 		parent = readyCheckWindow,
 	}
 

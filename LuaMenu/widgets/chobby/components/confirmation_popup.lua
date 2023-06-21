@@ -51,6 +51,7 @@ function ConfirmationPopup:init(successFunction, question, doNotAskAgainKey, wid
 		y = 15,
 		height = 35,
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(3),
 		text = question,
 		parent = mainWindow,
 	}

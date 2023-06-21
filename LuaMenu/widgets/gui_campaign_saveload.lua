@@ -264,6 +264,7 @@ local function AddSaveEntryButton(saveFile, saveList)
 		height = 20,
 		valign = 'center',
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(3),
 		text = saveFile.commanderName .. (current and " \255\0\255\255(current)\008" or ""),
 		parent = container,
 	}
@@ -277,6 +278,7 @@ local function AddSaveEntryButton(saveFile, saveList)
 		height = 20,
 		valign = 'center',
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
 		text = "Level: " .. (saveFile.commanderLevel + 1) .. "\nPlanets: " .. planetsCaptured,
 		parent = container,
 	}
@@ -292,6 +294,7 @@ local function AddSaveEntryButton(saveFile, saveList)
 	--	height = 20,
 	--	valign = 'center',
 	--	objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+	--  objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
 	--	text = campaignNameStr,
 	--	parent = container,
 	--}
@@ -306,6 +309,7 @@ local function AddSaveEntryButton(saveFile, saveList)
 		height = 20,
 		valign = 'center',
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
 		text = WriteDate(saveFile.date),
 		parent = container,
 	}
@@ -320,6 +324,7 @@ local function AddSaveEntryButton(saveFile, saveList)
 	--	height = 20,
 	--	valign = 'center',
 	--	objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+	--  objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
 	--	text = GetSaveDescText(saveFile),
 	--	parent = container,
 	--}

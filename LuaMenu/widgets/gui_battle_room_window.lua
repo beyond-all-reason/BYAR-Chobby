@@ -614,6 +614,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		align = "center",
 		parent = btnMapLink,
 		objectOverrideFont = config:GetFont(2),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
 	}
 	--[[
 	local imMapLink = Image:New {
@@ -2708,6 +2709,7 @@ local function InitializeSetupPage(subPanel, screenHeight, pageConfig, nextPage,
 			height = 200,
 			align = "left",
 			objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+			objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
 			text = pageConfig.tipText,
 			parent = subPanel,
 		}

@@ -38,6 +38,7 @@ local function CreateLine(lineText, linkText, onClick)
 		height = 20,
 		valign = 'center',
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
 		text = lineText,
 		parent = lineHolder,
 	}

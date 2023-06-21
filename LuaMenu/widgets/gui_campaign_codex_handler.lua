@@ -232,6 +232,7 @@ local function InitializeControls(parentControl)
 		height = "100%",
 		text = "",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
 	}
 
 	local codexImagePanel = Panel:New{

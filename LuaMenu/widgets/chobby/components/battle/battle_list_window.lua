@@ -1318,6 +1318,7 @@ function BattleListWindow:OpenHostWindow()
 		text = "Choose whether you want a public or a private custom battle where you are the boss and only you may change game settings. Only the boss leaving the room can unboss them. Anyone may join public battles, but private battles are password protected.",
 		--i18n("game_name") .. ":",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
 		parent = hostBattleWindow,
 	}
 
@@ -1630,6 +1631,7 @@ function BattleListWindow:JoinBattle(battle, _, _, joinAsPlayer)
 			text = "",
 			hint = i18n("password"),
 			objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+			objectOverrideHintFont = WG.Chobby.Configuration:GetFont(3),
 			passwordInput = true,
 			useIME = false,
 			parent = passwordWindow,

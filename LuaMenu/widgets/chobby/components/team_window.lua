@@ -85,6 +85,8 @@ function TeamWindow:CreateInvitePlayerWindow()
 	local ebPlayerName = EditBox:New {
 		hint = "Player name",
 		text = ""
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(14, "playername", table.merge({}, Control.font), true),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(14, "playername", _, true),
 	}
 	local window
 	window = Window:New {

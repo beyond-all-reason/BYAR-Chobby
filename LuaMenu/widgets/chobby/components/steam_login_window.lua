@@ -57,6 +57,7 @@ function SteamLoginWindow:init(failFunction, cancelText, windowClassname)
 		height = 35,
 		text = i18n("username") .. ":",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(3),
 		parent = self.window
 	}
 	self.ebUsername = EditBox:New {
@@ -66,6 +67,7 @@ function SteamLoginWindow:init(failFunction, cancelText, windowClassname)
 		height = 35,
 		text = Configuration.userName or Configuration.suggestedNameFromSteam or "",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(3),
 		useIME = false,
 		parent = self.window
 	}
@@ -77,6 +79,7 @@ function SteamLoginWindow:init(failFunction, cancelText, windowClassname)
 		height = 35,
 		text = i18n("password") .. ":",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(3),
 	}
 	self.ebPassword = EditBox:New {
 		x = 135,
@@ -86,6 +89,7 @@ function SteamLoginWindow:init(failFunction, cancelText, windowClassname)
 		text = Configuration.password or "",
 		passwordInput = true,
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(3),
 		useIME = false,
 		OnKeyPress = {
 			function(obj, key, mods, ...)
@@ -109,6 +113,7 @@ function SteamLoginWindow:init(failFunction, cancelText, windowClassname)
 		height = 90,
 		text = "",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(3),
 		parent = self.window
 	}
 

@@ -124,6 +124,7 @@ local function MakeStatLabel(parent, offset, name)
 		width = 200,
 		height = 30,
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
 		text = name,
 		parent = parent,
 	}
@@ -133,6 +134,7 @@ local function MakeStatLabel(parent, offset, name)
 		width = 200,
 		height = 30,
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
 		text = "",
 		parent = parent,
 	}

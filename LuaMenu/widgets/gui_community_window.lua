@@ -153,6 +153,7 @@ local function GetLadderHandler(parentControl)
 		valign = "top",
 		text = "Ladder",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(3),
 		parent = holder,
 	}
 
@@ -221,6 +222,7 @@ local function GetDateTimeDisplay(parentControl, xPosition, yPosition, timeStrin
 		text = localTimeString or utcTimeString, -- Fallback
 		tooltip = string.gsub(timeString, "T", " at ") .. " UTC",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
 		parent = parentControl,
 	}
 
@@ -233,6 +235,7 @@ local function GetDateTimeDisplay(parentControl, xPosition, yPosition, timeStrin
 		valign = "top",
 		tooltip = utcTimeString,
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
 		parent = parentControl,
 	}
 
@@ -368,6 +371,7 @@ local function GetNewsEntry(parentHolder, index, headingSize, timeAsTooltip, top
 				valign = "top",
 				text = entryData.heading,
 				objectOverrideFont = WG.Chobby.Configuration:GetButtonFont(7),
+				objectOverrideHintFont = WG.Chobby.Configuration:GetFont(7),
 				parent = holder,
 			}
 		else
@@ -424,6 +428,7 @@ local function GetNewsEntry(parentHolder, index, headingSize, timeAsTooltip, top
 					valign = "top",
 					text = entryData.text,
 					objectOverrideFont = WG.Chobby.Configuration:GetButtonFont(2),
+					objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
 					parent = holder,
 				}
 			else
@@ -518,6 +523,7 @@ local function GetNewsHandler(parentControl, headingSize, timeAsTooltip, topHead
 		valign = "top",
 		text = topHeading,
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(3),
 		parent = holder,
 	}
 

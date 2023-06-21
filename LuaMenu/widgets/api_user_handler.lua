@@ -1155,6 +1155,7 @@ local function GetUserControls(userName, opts)
 			align = "left",
 			parent = userControls.mainControl,
 			objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+			objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
 			text = tostring(queuePos),
 		}
 		userControls.tbQueuePos:Invalidate()
@@ -1217,6 +1218,7 @@ local function GetUserControls(userName, opts)
 			align = "left",
 			parent = userControls.mainControl,
 			objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
+			objectOverrideHintFont = WG.Chobby.Configuration:GetFont(1),
 			text = skill,
 		}
 		
@@ -1285,6 +1287,7 @@ local function GetUserControls(userName, opts)
 		align = "left",
 		parent = userControls.mainControl,
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(1),
 		text = userName,
 	}
 

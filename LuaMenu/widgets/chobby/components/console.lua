@@ -44,6 +44,7 @@ function Console:init(channelName, sendMessageListener, noHistoryLoad, onResizeF
 		bottom = 0,
 		text = "",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(Configuration.chatFontSize, "console_" .. Configuration.chatFontSize, false, true),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(Configuration.chatFontSize, "console_" .. Configuration.chatFontSize, false, true),
 		parent = self.spHistory,
 		selectable = true,
 		subTooltips = true,
@@ -71,7 +72,7 @@ function Console:init(channelName, sendMessageListener, noHistoryLoad, onResizeF
 		right = 2,
 		text = "",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(Configuration.chatFontSize, "console_" .. Configuration.chatFontSize, false, true),
-		objectOverrideHintFont = Configuration:GetHintFont(Configuration.chatFontSize, "console_hint_" .. Configuration.chatFontSize, false, true),
+		objectOverrideHintFont = Configuration:GetHintFont(Configuration.chatFontSize, "console_" .. Configuration.chatFontSize, false, true),
 		--hint = i18n("type_here_to_chat"),
 	}
 

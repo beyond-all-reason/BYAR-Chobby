@@ -138,6 +138,7 @@ local function CreateDownloadEntry(downloadData)
 		height = 20,
 		valign = 'center',
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
 		text = downloadDataName,
 		parent = holder,
 	}
@@ -149,6 +150,7 @@ local function CreateDownloadEntry(downloadData)
 		height = 20,
 		valign = 'center',
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
 		text = downloadData.removalType or "pending",
 		parent = holder,
 	}

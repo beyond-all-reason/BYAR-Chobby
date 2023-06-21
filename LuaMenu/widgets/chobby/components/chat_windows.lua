@@ -953,6 +953,7 @@ function ChatWindows:CreateJoinChannelWindow()
 		height = 35,
 		text = "",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(3),
 		parent = self.joinWindow,
 	}
 

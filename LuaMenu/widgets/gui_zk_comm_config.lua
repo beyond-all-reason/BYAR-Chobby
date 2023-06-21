@@ -101,6 +101,7 @@ local function CreateModuleEntry(moduleDef, commConfig, level, slotNum, moduleLi
 		height = 20,
 		valign = 'center',
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(3),
 		text = moduleDef.humanName,
 		parent = holder,
 	}
@@ -112,6 +113,7 @@ local function CreateModuleEntry(moduleDef, commConfig, level, slotNum, moduleLi
 		height = 20,
 		valign = 'center',
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(3),
 		text = moduleDef.slotType,
 		parent = holder,
 	}
@@ -123,6 +125,7 @@ local function CreateModuleEntry(moduleDef, commConfig, level, slotNum, moduleLi
 		height = 20,
 		valign = 'center',
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(3),
 		text = "" .. moduleDef.cost,
 		parent = holder,
 	}
@@ -267,6 +270,7 @@ local function CreateCommEntry(commConfig, configuratorStack, moduleList)
 		height = 20,
 		valign = 'center',
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(3),
 		text = commConfig.name,
 		parent = holder,
 	}
@@ -278,6 +282,7 @@ local function CreateCommEntry(commConfig, configuratorStack, moduleList)
 		height = 20,
 		valign = 'center',
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(3),
 		text = chassisDef.humanName,
 		parent = holder,
 	}

@@ -117,6 +117,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		height = 35,
 		text = i18n("username") .. ":",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(3),
 	}
 	loginChildren[#loginChildren+1] = self.txtUsername
 
@@ -127,6 +128,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		height = 35,
 		text = Configuration.userName or Configuration.suggestedNameFromSteam or "",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(3),
 		useIME = false,
 	}
 	loginChildren[#loginChildren+1] = self.ebUsername
@@ -138,6 +140,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		height = 35,
 		text = i18n("password") .. ":",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(3),
 	}
 	loginChildren[#loginChildren+1] = self.txtPassword
 
@@ -151,6 +154,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		passwordInput = true,
 		hint = "Enter password",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(3),
 		useIME = false,
 		OnKeyPress = {
 			function(obj, key, mods, ...)
@@ -174,6 +178,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		height = 35,
 		text = i18n("username") .. ":",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(3),
 	}
 	registerChildren[#registerChildren+1] = self.txtUsernameRegister
 
@@ -184,6 +189,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		height = 35,
 		text = Configuration.userName or Configuration.suggestedNameFromSteam or "",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(3),
 		useIME = false,
 	}
 	registerChildren[#registerChildren+1] = self.ebUsernameRegister
@@ -196,6 +202,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		height = 35,
 		text = i18n("password") .. ":",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(3),
 	}
 	registerChildren[#registerChildren+1] = self.txtPasswordRegister
 
@@ -208,6 +215,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		passwordInput = true,
 		hint = "Enter password",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(3),
 		useIME = false,
 		OnKeyPress = {
 			function(obj, key, mods, ...)
@@ -231,6 +239,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		height = 70,
 		text = i18n("confirm") .. ":",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(3),
 		useIME = false,
 	}
 	registerChildren[#registerChildren + 1] = self.txtConfirmPassword
@@ -244,6 +253,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		hint = "Confirm password",
 		passwordInput = true,
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(3),
 		OnKeyPress = {
 			function(obj, key, mods, ...)
 				if key == Spring.GetKeyCode("enter") or key == Spring.GetKeyCode("numpad_enter") then
@@ -264,6 +274,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 			height = 35,
 			text = i18n("Email") .. ":",
 			objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+			objectOverrideHintFont = WG.Chobby.Configuration:GetFont(3),
 			useIME = false,
 		}
 		registerChildren[#registerChildren + 1] = self.txtEmail
@@ -275,6 +286,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 			height = 35,
 			text = "",
 			objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+			objectOverrideHintFont = WG.Chobby.Configuration:GetFont(3),
 			useIME = false,
 			OnKeyPress = {
 				function(obj, key, mods, ...)
@@ -338,6 +350,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		height = 400,
 		text = "",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(3),
 	}
 	loginChildren[#loginChildren+1] = self.txtError
 
@@ -348,6 +361,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		height = 90,
 		text = "",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(3),
 	}
 	registerChildren[#registerChildren + 1] = self.txtErrorRegister
 
@@ -426,6 +440,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		-- caption = i18n("register_long"),
 		text = "Change user name. You must be logged in, and will be logged out on successful change.",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(1),
 	}
 	recoverChildren[#recoverChildren+1] = self.txtChangeUserName
 
@@ -447,6 +462,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		height =  formh * 1 ,
 		text = Configuration.userName or Configuration.suggestedNameFromSteam or "",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(1),
 		tooltip = 'User name may contain only letters, numbers, square brackets and underscores',
 		useIME = false,
 	}
@@ -475,6 +491,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		height =  formh * 1 ,
 		text = "If this doesnt work contact us on Discord",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(1),
 	}
 	recoverChildren[#recoverChildren+1] = self.txtErrorChangeUserName
 
@@ -489,6 +506,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		-- caption = i18n("register_long"),
 		text = "Reset forgotten password: You need to use your web browser to reset a forgotten password.",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(1),
 	}
 	recoverChildren[#recoverChildren+1] = self.txtResetPassword
 
@@ -531,6 +549,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		height =  formh * 1 ,
 		text = "",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(1),
 		tooltip = 'Make sure you enter your valid email address',
 		useIME = false,
 	}
@@ -554,6 +573,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		height =  formh * 1 ,
 		text = "",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(1),
 		tooltip = 'You will recieve this code via email after submitting your email in the above box',
 		useIME = false,
 	}
@@ -598,6 +618,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		height =  formh * 1 ,
 		text = "If this doesnt work contact us on Discord",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(1),
 	}
 	recoverChildren[#recoverChildren+1] = self.txtErrorResetPassword
 
@@ -612,6 +633,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		-- caption = i18n("register_long"),
 		text = "Change Password: You must be logged in, enter your old and your new password",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(1),
 	}
 	recoverChildren[#recoverChildren+1] = self.txtChangePassword
 
@@ -633,6 +655,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		height =  formh * 1 ,
 		text = "",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(1),
 		tooltip = 'Enter your old password here',
 		useIME = false,
 	}
@@ -656,6 +679,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		height =  formh * 1 ,
 		text = "",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(1),
 		tooltip = 'Enter your new password here',
 		useIME = false,
 	}
@@ -684,6 +708,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		height =  formh * 1 ,
 		text = "If this doesnt work contact us on Discord",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(1),
 	}
 	recoverChildren[#recoverChildren+1] = self.txtErrorChangePassword
 
@@ -698,6 +723,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		-- caption = i18n("register_long"),
 		text = "Change email address associated with your account. You must be logged in. Enter the new email address you wish to use, then enter the validation code sent to the new email address.",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(1),
 	}
 	recoverChildren[#recoverChildren+1] = self.txtChangeEmail
 
@@ -719,6 +745,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		height =  formh * 1 ,
 		text = "",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(1),
 		tooltip = 'Make sure you enter your new email address',
 		useIME = false,
 	}
@@ -742,6 +769,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		height =  formh * 1 ,
 		text = "",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(1)
 		tooltip = 'You will recieve this code via email after submitting your email in the above box',
 		useIME = false,
 	}
@@ -786,6 +814,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		height =  formh * 1 ,
 		text = "If this doesnt work contact us on Discord",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(1),
 	}
 	recoverChildren[#recoverChildren+1] = self.txtErrorChangeEmail
 
@@ -1419,6 +1448,7 @@ function LoginWindow:createAgreementWindow()
 		y = "3%",
 		text = self.agreementText,
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
 	}
 
 	ScrollPanel:New {
@@ -1440,6 +1470,7 @@ function LoginWindow:createAgreementWindow()
 			height = 35,
 			text = i18n("Email Verification Code") .. ":",
 			objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+			objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
 			useIME = false,
 			parent = self.agreementWindow,
 		}
@@ -1450,6 +1481,7 @@ function LoginWindow:createAgreementWindow()
 			height = 35,
 			text = "",
 			objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+			objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
 			useIME = false,
 			parent = self.agreementWindow,
 		}

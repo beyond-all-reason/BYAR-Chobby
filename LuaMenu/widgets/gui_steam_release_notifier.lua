@@ -53,6 +53,7 @@ local function SteamCheckPopup()
 		y = 23,
 		height = 35,
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(4),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(4),
 		text = "Zero-K is on Steam!",
 		parent = steamWindow,
 	}
@@ -63,6 +64,7 @@ local function SteamCheckPopup()
 		y = 76,
 		height = 35,
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
 		text = "You can help out by switching to the Steam version of Zero-K. This lets Steam know that people are interested in Zero-K which should, in turn, show the game to more potential players. See the settings guide for how to link your account and transfer your settings.",
 		parent = steamWindow,
 	}

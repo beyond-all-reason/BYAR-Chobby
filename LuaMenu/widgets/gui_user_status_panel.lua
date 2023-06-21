@@ -147,6 +147,7 @@ local function InitializeControls(window)
 		valign = "center",
 		text = "\255\180\180\180" .. i18n("offline") .. "\b",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
 		parent = window,
 	}
 

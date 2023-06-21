@@ -50,6 +50,7 @@ local function CreateIntegerSelectorWindow(opts)
 		align = "center",
 		multiline = true,
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
 		text = opts.labelCaption or "",
 		parent = IntegerSelectorWindow,
 	}
@@ -98,6 +99,7 @@ local function CreateIntegerSelectorWindow(opts)
 		align = "center",
 		caption = tostring(opts.defaultValue),
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
 		parent = IntegerSelectorWindow,
 	}
 

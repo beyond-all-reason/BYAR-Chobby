@@ -224,6 +224,7 @@ local function bla()
         align = "left",
         parent = btnMapLink,
         objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+        objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
         caption = "ABC",
     }
 

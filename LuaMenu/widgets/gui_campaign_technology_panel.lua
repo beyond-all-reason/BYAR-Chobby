@@ -65,6 +65,7 @@ local function MakeRewardList(holder, name, rewardsList, tooltipFunction, Unlock
 			height = 30,
 			text = name,
 			objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+			objectOverrideHintFont = WG.Chobby.Configuration:GetFont(3),
 			parent = rewardsHolder
 		}
 		paragraphOffset = MAIN_TITLE_HEIGHT
@@ -100,6 +101,7 @@ local function MakeRewardList(holder, name, rewardsList, tooltipFunction, Unlock
 				height = 30,
 				text = categories[info.category].name,
 				objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+				objectOverrideHintFont = WG.Chobby.Configuration:GetFont(3),
 				parent = rewardsHolder
 			}
 

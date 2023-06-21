@@ -20,6 +20,7 @@ function UserListPanel:init(userUpdateFunction, spacing, showCount, getUserFunct
 				bottom = 2,
 				align = "left",
 				objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+				objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
 				text = lobby:GetUserCount() .. " players online"
 			}
 	end

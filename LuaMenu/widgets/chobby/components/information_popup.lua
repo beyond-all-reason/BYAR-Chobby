@@ -42,6 +42,7 @@ function InformationPopup:init(infoText, extras)
 		y = (extras.heading and 65) or 15,
 		bottom = 75,
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(3),
 		text = infoText,
 		parent = self.mainWindow,
 	}

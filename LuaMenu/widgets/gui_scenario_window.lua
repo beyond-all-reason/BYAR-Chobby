@@ -263,6 +263,7 @@ local function CreateScenarioPanel(shortname, sPanel)
 		height = "100%",
 		valign = 'top',
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
 		text = summarytext,
 		parent = summarySP,
 		padding = {10,10,10,10},
@@ -446,6 +447,7 @@ local function CreateScenarioPanel(shortname, sPanel)
 		height = "100%",
 		valign = 'top',
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
 		text = scen.briefing,
 		parent = briefingtextSP,
 
@@ -798,6 +800,7 @@ local function MakeScenarioScrollPanelChildren()
 			local errormessage = TextBox:New{
 				parent = scenSelectorButton,
 				objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
+				objectOverrideHintFont = WG.Chobby.Configuration:GetFont(1),
 				x = 0,
 				y = 0,
 				width = "100%",

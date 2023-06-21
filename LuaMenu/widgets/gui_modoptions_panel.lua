@@ -497,6 +497,7 @@ local function InitializeModoptionsDisplay()
 		y = 1,
 		autoresize = true,
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(1),
 		text = "",
 		parent = mainScrollPanel,
 	}

@@ -194,6 +194,7 @@ local function CreateMapEntry(mapName, mapData, CloseFunc)--{"ResourceID":7098,"
 		height = 20,
 		valign = 'center',
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
 		text = mapName:gsub("_", " "),
 		parent = mapButton,
 	}
@@ -215,6 +216,7 @@ local function CreateMapEntry(mapName, mapData, CloseFunc)--{"ResourceID":7098,"
 			height = 20,
 			valign = 'center',
 			objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+			objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
 			text = certificationLevel,
 			parent = mapButton,
 	}
@@ -229,6 +231,7 @@ local function CreateMapEntry(mapName, mapData, CloseFunc)--{"ResourceID":7098,"
 			height = 20,
 			valign = 'center',
 			objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+			objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
 			text = mapSizeText,
 			parent = mapButton,
 		}
@@ -242,6 +245,7 @@ local function CreateMapEntry(mapName, mapData, CloseFunc)--{"ResourceID":7098,"
 			height = 20,
 			valign = 'center',
 			objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+			objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
 			text = mapType,
 			parent = mapButton,
 		}
@@ -254,6 +258,7 @@ local function CreateMapEntry(mapName, mapData, CloseFunc)--{"ResourceID":7098,"
 			height = 20,
 			valign = 'center',
 			objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+			objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
 			text = terrainType,
 			parent = mapButton,
 		}
@@ -498,6 +503,7 @@ local function InitializeControls()
 		text = '',
 		hint = i18n("type_to_filter"),
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
 		parent = mapListWindow,
 		OnKeyPress = {
 			function(obj, key, ...)

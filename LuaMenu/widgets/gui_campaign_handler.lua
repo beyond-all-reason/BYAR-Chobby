@@ -137,6 +137,7 @@ local function MakeFeedbackWindow(parent, feedbackLink)
 		height = 35,
 		text = "Campaign Testing",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(4),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(4),
 		parent = textWindow,
 	}
 
@@ -155,6 +156,7 @@ local function MakeFeedbackWindow(parent, feedbackLink)
 		lineSpacing = 1,
 		text = "New missions are released every Sunday. Currently there are " .. (missionCount or "??") .. " missions. Please post your thoughts, feedback and issues on the forum.",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
 		parent = textWindow,
 	}
 
@@ -348,6 +350,7 @@ local function MakeRewardList(holder, bottom, name, rewardsTypes, cullUnlocked, 
 							height = 30,
 							text = name,
 							objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+							objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
 							parent = rewardsHolder
 						}
 
@@ -790,6 +793,7 @@ local function SelectPlanet(popupOverlay, planetHandler, planetID, planetData, s
 		padding = {0, 0, 10, 0},
 		text = ((startable or Configuration.debugMode) and planetData.infoDisplay.text) or "This planet will need to be approached for further study.",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(3),
 	}
 
 
@@ -1374,6 +1378,7 @@ local function GetPlanet(popupOverlay, planetListHolder, planetID, planetData, a
 				y = 8,
 				bottom = 8,
 				objectOverrideFont = WG.Chobby.Configuration:GetFont(4),
+				objectOverrideHintFont = WG.Chobby.Configuration:GetFont(4),
 				text = planetData.mapDisplay.hintText,
 				parent = tipHolder,
 			}

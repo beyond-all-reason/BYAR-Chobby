@@ -296,6 +296,7 @@ local function GetModuleButton(parentControl, ClickFunc, moduleName, level, slot
 		height = BUTTON_SIZE,
 		text = ((hightlightEmpty and moduleData.emptyModule and Configuration:GetHighlightedColor()) or "") .. moduleData.humanName,
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
 		OnClick = {
 			function(self)
 				ClickFunc(self, moduleName, level, slot)

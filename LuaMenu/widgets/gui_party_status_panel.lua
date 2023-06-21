@@ -59,6 +59,7 @@ local function InitializePartyStatusHandler(name)
 		x = "75%",
 		y = 12,
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(3),
 		text = i18n("party"),
 		parent = queuePanel
 	}
@@ -185,6 +186,7 @@ local function CreatePartyInviteWindow(partyID, partyUsers, secondsRemaining, De
 	--	height = 35,
 	--	text = "",
 	--	objectOverrideFont = WG.Chobby.Configuration:GetFont(4),
+	--  objectOverrideHintFont = WG.Chobby.Configuration:GetFont(4),
 	--	parent = partyInviteWindow,
 	--}
 

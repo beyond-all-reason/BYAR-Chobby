@@ -204,6 +204,7 @@ local function InitializeControls(parentControl)
 			y = offset + 6,
 			height = 70,
 			objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+			objectOverrideHintFont = WG.Chobby.Configuration:GetFont(3),
 			text = benchmarkData[i].decription,
 			parent = parentControl,
 		}
