@@ -71,15 +71,12 @@ local function InitWindow()
 		lineSpacing = 1,
 		autoHeight = true,
 		margin = {0,0,0,0},
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(14, "gui_tooltip", 
-								table.merge({
-									outline          = true,
-									autoOutlineColor = true,
-									outlineWidth     = 3,
-									outlineWeight    = 4,
-								}, Control.font), true),
-		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(14, "gui_tooltip", _, true),
-
+		font = {
+			outline          = true,
+			autoOutlineColor = true,
+			outlineWidth     = 3,
+			outlineWeight    = 4,
+		},
 	}
 
 	tipWindow:Hide()

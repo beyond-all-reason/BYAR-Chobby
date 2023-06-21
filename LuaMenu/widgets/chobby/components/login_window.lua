@@ -769,7 +769,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		height =  formh * 1 ,
 		text = "",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
-		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(1)
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(1),
 		tooltip = 'You will recieve this code via email after submitting your email in the above box',
 		useIME = false,
 	}
