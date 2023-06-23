@@ -37,6 +37,9 @@ function Configuration:init()
 		[6] = {size = 28, outline = true, shadow = false},
 		[7] = {size = 28, outline = false, shadow = true},
 	}
+	-- copy of skin Armada Blue
+	self.fontRaw[8] = {font = "fonts/n019003l.pfb", size = self.fontRaw[1].size, shadow = true, outlineColor = {0.05,0.05,0.05,0.9},}
+	self.fontRaw[9] = {font = "fonts/n019003l.pfb", size = self.fontRaw[2].size, shadow = true, outlineColor = {0.05,0.05,0.05,0.9},}
 
 	self.fontSpecial = {}
 	self.font = {}
@@ -46,7 +49,7 @@ function Configuration:init()
 			font         = self.fontRaw[i].font or self.fontName,
 			outline      = self.fontRaw[i].outline,
 			shadow       = self.fontRaw[i].shadow,
-			outlineColor = {0.05,0.05,0.05,0.7},
+			outlineColor = self.fontRaw[i].outlineColor or {0.05,0.05,0.05,0.7},
 		}
 	end
 

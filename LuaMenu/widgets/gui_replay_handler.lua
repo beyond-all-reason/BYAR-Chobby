@@ -91,7 +91,7 @@ end
 --	Return a widget containing a player's information
 local function playerWidget(playerInfo)
 	local Configuration = WG.Chobby.Configuration
-	local userName = StringUtilities.GetTruncatedStringWithDotDot(playerInfo.name, WG.Chobby.Configuration:GetFont(1), 110)
+	local userName = playerInfo.name
 
 	-- Create a control widget to encapsulate the player's information
 	local ret = Chili.Control:New {
@@ -121,12 +121,12 @@ local function playerWidget(playerInfo)
 	}
 
 	-- Textbox with the user's name
-	TextBox:New {
+	local userTextBox = TextBox:New {
 		name = "userName",
 		x = 18, y = 0, right = 0, height = PLAYER_HEIGHT,
 		valign = "top",
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
-		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(1),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(8),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(8),
 		text = "",
 		parent = ret,
 		OnResize = {
@@ -135,6 +135,7 @@ local function playerWidget(playerInfo)
 			end
 		}
 	}
+	WG.Chobby.Configuration:PrintFont(userTextBox.font)
 
 	-- TODO: We could definitely add some more stuff (flag? TS value?) here.
 	return ret
@@ -145,7 +146,7 @@ local function CreateReplayEntry(
 )
 
 	local Configuration = WG.Chobby.Configuration
-	local mapNameTruncated = StringUtilities.GetTruncatedStringWithDotDot(mapName, Configuration:GetFont(1), 180)
+	local mapNameTruncated = StringUtilities.GetTruncatedStringWithDotDot(mapName, Configuration:GetFont(8), 180)
 	local fileName = string.sub(replayPath, 7)
 	local winningAllyTeamId = -2 -- old launcher does not send winningAllyTeamIds
 	if winningAllyTeamIds then
@@ -228,8 +229,8 @@ local function CreateReplayEntry(
 		x = 135, y = 22,
 		right = 0, height = 20,
 		valign = 'center',
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
-		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(9),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(9),
 		text = battleType(teams),
 		parent = replayPanel,
 	}
@@ -239,8 +240,8 @@ local function CreateReplayEntry(
 		x = 135, y = 65,
 		right = 0, height = 20,
 		valign = 'center',
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
-		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(1),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(8),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(8),
 		text = replayDateString,
 		parent = replayPanel,
 	}
@@ -250,8 +251,8 @@ local function CreateReplayEntry(
 		x = 135, y = 82,
 		right = 0, height = 20,
 		valign = 'center',
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
-		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(1),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(8),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(8),
 		text = replayTimeString,
 		parent = replayPanel,
 	}
@@ -261,8 +262,8 @@ local function CreateReplayEntry(
 		x = 135, y = 42,
 		right = 0, height = 20,
 		valign = 'center',
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
-		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(9),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(9),
 		text = mapNameTruncated,
 		parent = replayPanel,
 	}
@@ -273,8 +274,8 @@ local function CreateReplayEntry(
 			x = 135, y = 99,
 			right = 0, height = 20,
 			valign = 'center',
-			objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
-			objectOverrideHintFont = WG.Chobby.Configuration:GetFont(1),
+			objectOverrideFont = WG.Chobby.Configuration:GetFont(8),
+			objectOverrideHintFont = WG.Chobby.Configuration:GetFont(8),
 			text = '',
 			parent = replayPanel,
 		}
@@ -311,8 +312,8 @@ local function CreateReplayEntry(
 		TextBox:New {
 			x = xOffset, y = yOffset, right = 0, height = 10,
 			valign = 'center',
-			objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
-			objectOverrideHintFont = WG.Chobby.Configuration:GetFont(1),
+			objectOverrideFont = WG.Chobby.Configuration:GetFont(8),
+			objectOverrideHintFont = WG.Chobby.Configuration:GetFont(8),
 			text = "Team " .. allyTeamID,
 			parent = userList,
 			OnResize = {
@@ -590,8 +591,8 @@ local function InitializeControls(parentControl)
 			width = 200,
 			height = 45,
 			text = "/demos/",
-			objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
-			objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
+			objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
+			objectOverrideHintFont = WG.Chobby.Configuration:GetFont(1),
 			useIME = false,
 			parent = parentControl,
 			tooltip = "Enter the path to the replay",
@@ -611,7 +612,7 @@ local function InitializeControls(parentControl)
 			width = 120,
 			height = 45,
 			caption = "force start replay",
-			objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+			objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
 			classname = "option_button",
 			parent = parentControl,
 			tooltip = "Force start a specific replay",
