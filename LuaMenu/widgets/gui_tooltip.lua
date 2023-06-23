@@ -133,7 +133,7 @@ local function GetTooltipLine(parent, hasImage, fontSize, xOffset, imageWidth)
 		text = "",
 	}
 
-	function externalFunctions.Update(newPosition, newText, newImage, newColor, needDownload)
+	function externalFunctions.Update(newPosition, newText, newImage, newColor, colorName, needDownload)
 		if not textDisplay.visible then
 			textDisplay:Show()
 		end
@@ -141,8 +141,10 @@ local function GetTooltipLine(parent, hasImage, fontSize, xOffset, imageWidth)
 		textDisplay:SetPos(nil, newPosition)
 
 		if newColor then
-			textDisplay.font.color = newColor
+			textDisplay.font = WG.Chobby.Configuration:GetFont(fontSize, colorName, {color = newColor})
 			textDisplay:Invalidate()
+		else
+			textDisplay.font = WG.Chobby.Configuration:GetFont(fontSize)
 		end
 
 		if hasImage then
@@ -508,14 +510,15 @@ local function GetBattleTooltip(battleID, battle)
 				bottom = 5,
 				parent = tipWindow,
 				margin = {0,0,0,0},
-				objectOverrideFont = WG.Chobby.Configuration:GetFont(14, "gui_tooltip", 
-						table.merge({
+				objectOverrideFont = WG.Chobby.Configuration:GetFont(14, "tooltip_debug", 
+						{
+							font             = "fonts/n019003l.pfb",
 							outline          = true,
 							autoOutlineColor = true,
 							outlineWidth     = 3,
 							outlineWeight    = 4,
-						}, Control.font), true),
-				objectOverrideHintFont = WG.Chobby.Configuration:GetFont(14, "gui_tooltip", _, true),
+						}, true),
+				objectOverrideHintFont = WG.Chobby.Configuration:GetFont(14, "tooltip_debug", _, true),
 				parent = battleTooltip.mainControl,
 			}
 		end
@@ -643,7 +646,7 @@ local function GetUserTooltip(userName, userInfo, userBattleInfo, inBattleroom)
 		end
 
 		local clanFile, needDownload = WG.UserHandler.GetClanImage(userInfo.clan)
-		userTooltip.clan.Update(offset, "Clan: " .. userInfo.clan, clanFile, nil, needDownload)
+		userTooltip.clan.Update(offset, "Clan: " .. userInfo.clan, clanFile, nil, nil, needDownload)
 		offset = offset + 20
 	elseif userTooltip.clan then
 		userTooltip.clan.Hide()
@@ -697,7 +700,8 @@ local function GetUserTooltip(userName, userInfo, userBattleInfo, inBattleroom)
 				offset,
 				"Moderator",
 				IMAGE_MODERATOR,
-				Configuration:GetModeratorColor()
+				Configuration:GetModeratorColor(),
+				"tooltip_moderator"
 			)
 		end
 		userTooltip.moderator.UpdatePosition(offset)
@@ -826,14 +830,15 @@ local function GetUserTooltip(userName, userInfo, userBattleInfo, inBattleroom)
 				bottom = 5,
 				parent = tipWindow,
 				margin = {0,0,0,0},
-				objectOverrideFont = WG.Chobby.Configuration:GetFont(14, "gui_tooltip", 
-						table.merge({
+				objectOverrideFont = WG.Chobby.Configuration:GetFont(14, "tooltip_debug", 
+						{
+							font             = "fonts/n019003l.pfb",
 							outline          = true,
 							autoOutlineColor = true,
 							outlineWidth     = 3,
 							outlineWeight    = 4,
-						}, Control.font), true),
-				objectOverrideHintFont = WG.Chobby.Configuration:GetFont(14, "gui_tooltip", _, true),
+						}, true),
+				objectOverrideHintFont = WG.Chobby.Configuration:GetFont(14, "tooltip_debug", _, true),
 				parent = userTooltip.mainControl,
 			}
 		end
