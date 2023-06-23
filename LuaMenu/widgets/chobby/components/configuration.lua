@@ -46,6 +46,7 @@ function Configuration:init()
 			font         = self.fontRaw[i].font or self.fontName,
 			outline      = self.fontRaw[i].outline,
 			shadow       = self.fontRaw[i].shadow,
+			outlineColor = {0.05,0.05,0.05,0.7},
 		}
 	end
 
@@ -797,7 +798,7 @@ function Configuration:GetFont(sizeScale, specialName, specialData, rawSize)
 	end
 	if not self.fontSpecial[size][specialName] then
 		specialData = specialData or {}
-		specialData.font = self.fontName
+		specialData.font = specialData.font or self.fontName
 		specialData.size = size
 		
 		specialData.color        = specialData.color or {1,1,1,1}
