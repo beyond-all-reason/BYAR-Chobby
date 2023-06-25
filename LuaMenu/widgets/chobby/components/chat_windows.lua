@@ -178,7 +178,8 @@ function ChatWindows:init()
 		bottom = 9,
 		padding = {0, 0, 0, 0},
 		tabs = {
-			[1] = (Configuration.debugMode and { name = "debug", caption = i18n("debug"), children = {self.debugConsole.panel} }) or nil,
+			[1] = (Configuration.debugMode and { name = "debug", caption = i18n("debug"), children = {
+					self.debugConsole.panel}, objectOverrideFont = WG.Chobby.Configuration:GetFont(1)}) or nil,
 			--{ name = "server", caption = i18n("server"), children = {self.serverPanel} },
 		},
 		OnTabChange = {
@@ -437,7 +438,7 @@ function ChatWindows:ProcessChat(chanName, userName, message, msgDate, notifyCol
 	end
 	local nameColor
 	if source == lobby.SOURCE_DISCORD then
-	channelConsole:AddMessage(message, userName, msgDate, chatColour, thirdPerson, "\255\40\210\220", "Discord user.", true)
+		channelConsole:AddMessage(message, userName, msgDate, chatColour, thirdPerson, "\255\40\210\220", "Discord user.", true)
 	else
 		channelConsole:AddMessage(message, userName, msgDate, chatColour, thirdPerson, nameColor)
 	end
@@ -508,16 +509,24 @@ function ChatWindows:SetTabActivation(tabName, activationLevel, outlineColor)
 		if (ctrl.activationLevel or 0) > activationLevel then
 			return
 		end
-		ctrl.font.outline = true
-		ctrl._badge.font.outline = true
-		ctrl.font.outlineColor = outlineColor
-		ctrl._badge.font.outlineColor = outlineColor
-		ctrl.font.color = outlineColor
-		ctrl._badge.font.color = outlineColor
+		ctrl.font = Configuration:GetFont(8, "chat_badge_" .. activationLevel, {
+			outline = true,
+			outlineColor = outlineColor,
+			color = outlineColor,
+		})
+		if ctrl._badge then
+			ctrl._badge.font = Configuration:GetFont(8, "chat_badge_" .. activationLevel, {
+				outline = true,
+				outlineColor = outlineColor,
+				color = outlineColor,
+			})
+		end
 	else
-		ctrl.font.outline = false
-		ctrl.font.outlineColor = {0,0,0,1}
-		ctrl.font.color = {1,1,1,1}
+		ctrl.font = Configuration:GetFont(8, "chat_badge_white", {
+			outline = false,
+			outlineColor = {0,0,0,1},
+			color = {1,1,1,1},
+		})
 	end
 	ctrl.activationLevel = activationLevel
 
@@ -531,24 +540,23 @@ function ChatWindows:SetTabBadge(tabName, text)
 		return
 	end
 	local badge = ctrl._badge
-	if badge == nil then
-		badge = Label:New {
-			right = 0,
-			width = 10,
-			y = 0,
+	if not ctrl._badge then
+		ctrl._badge = Label:New {
+			x = 30,
+			y = -20,
+			width = 14,			
 			height = 12,
 			caption = text,
-			objectOverrideFont = WG.Chobby.Configuration:GetFont(1, "chat_badge_black", {
+			objectOverrideFont = WG.Chobby.Configuration:GetFont(8, "chat_badge_black", {
 				outline = true,
 				autoOutlineColor = false,
 				outlineColor = { 0, 0, 0, 0.6 },
 			}),
 			parent = ctrl
 		}
-		ctrl._badge = badge
 	end
 
-	badge:SetCaption(text)
+	ctrl._badge:SetCaption(text)
 end
 
 function ChatWindows:_NotifyTab(tabName, userName, chanName, nameMentioned, message, sound, popupDuration)
