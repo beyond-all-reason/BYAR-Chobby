@@ -28,7 +28,7 @@ function widget:Initialize()
 		local battle = self:GetBattle(battleID)
 		if battle then
 			self:JoinAsSpec()
-			self:ConnectToBattle(self.useSpringRestart, battle.ip, battle.port, nil, self:GetScriptPassword())
+			self:ConnectToBattle(self.useSpringRestart, battle.ip, battle.port, nil, self:GetScriptPassword(), nil, nil, nil, battle.engineVersion)
 		end
 
 		return self
@@ -74,22 +74,11 @@ function widget:Initialize()
 		return self
 	end
 
-	--TODO:
-	lobby.ChangeBattleTitle = function(self, newtitle)
-		self:_SendCommand("CHANGEBATTLETITLE "..tostring(newtitle))
-	end
-	
-	lobby._OnS_Battle_Update_lobby_title = function(self, battleID, newbattletitle)
-		if self.battles[battleID] then
-			self.battles[battleID].title = newbattletitle
-		end
-	end
-
 	lobby.ReportPlayer = function(self, userName, locationtype, locationID, reason)
 		if locationtype == nil then locationtype = "nil" end
 		if locationID == nil then locationID = "nil" end
 		if reason == nil then return end
-		if reason == "" then reason = "None Given" end 
+		if reason == "" then reason = "None Given" end
 		self:_SendCommand("c.moderation.report_user "..tostring(userName) .. "\t" .. tostring(locationtype) .. "\t" .. tostring(locationID) .. "\t" .. tostring(reason))
 	end
 

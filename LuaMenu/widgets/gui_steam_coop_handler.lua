@@ -396,10 +396,15 @@ function SteamCoopHandler.AttemptGameStart(gameType, gameName, mapName, scriptTa
 				local engine = string.gsub(string.gsub(startEngineVersion, " maintenance", ""), " develop", "")
 				local engine = string.gsub(startEngineVersion, "BAR105", "bar") -- because this is the path we use
 				local params = {
-					StartDemoName = string.sub(startReplayFile, 7),
+					StartDemoName = startReplayFile, -- dont remove the 'demos/' string from it now
 					Engine = engine,
 					SpringSettings = WG.SettingsWindow.GetSettingsString(),
 				}
+				if WG.Chobby and WG.Chobby.InformationPopup then
+					WG.Chobby.InformationPopup("The replay uses a different engine, so it will be opened in a new window.")
+					Spring.SetConfigInt("Fullscreen", 1, false)
+					Spring.SetConfigInt("Fullscreen", 0, false)
+				end
 				WG.WrapperLoopback.StartNewSpring(params)
 				Spring.PauseSoundStream()
 				return

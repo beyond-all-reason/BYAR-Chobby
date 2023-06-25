@@ -41,6 +41,8 @@ local IMG_UNREADY  = LUA_DIRNAME .. "images/unready.png"
 local IMAGE_DLREADY      = LUA_DIRNAME .. "images/downloadready.png"
 local IMAGE_DLUNREADY    = LUA_DIRNAME .. "images/downloadnotready.png"
 local IMG_LINK     = LUA_DIRNAME .. "images/link.png"
+local IMG_CHECKBOX		= LUA_DIRNAME .. "images/checkbox.png"
+local IMG_CHECKARROW		= LUA_DIRNAME .. "images/checkbox_arrow.png"
 
 local MINIMUM_QUICKPLAY_PLAYERS = 4 -- Hax until the server tells me a number.
 
@@ -73,6 +75,7 @@ local function UpdateArchiveStatus(updateSync)
 	local haveGame = HasGame(battle.gameName)
 	local haveMap = VFS.HasArchive(battle.mapName)
 
+
 	if mainWindowFunctions and mainWindowFunctions.GetInfoHandler() then
 		local infoHandler = mainWindowFunctions.GetInfoHandler()
 		infoHandler.SetHaveGame(haveGame)
@@ -82,11 +85,24 @@ local function UpdateArchiveStatus(updateSync)
 
 	if btnStartBattle then
 		if haveMapAndGame then
-			btnStartBattle.tooltip = "Start the game, or call a vote to start multiplayer, or join a running game"
-			ButtonUtilities.SetButtonDeselected(btnStartBattle)
+			--btnStartBattle.tooltip = "Start the game, or call a vote to start multiplayer, or join a running game"
+			btnStartBattle:StyleReady()
+			btnStartBattle:SetEnabled(true)
+			btnStartBattle:SetCaption(i18n("start"))
+			if battleLobby.name == "singleplayer" then
+				btnStartBattle.tooltip = i18n("startbtn_tooltip")
+			elseif battle.isRunning then
+				btnStartBattle:SetCaption(i18n("rejoin"))
+				btnStartBattle.tooltip = i18n("startbtn_inprogress_tooltip")
+			else
+				btnStartBattle.tooltip = i18n("startbtn_votestart_tooltip")
+			end
+			btnStartBattle.suppressButtonReaction = false
 		else
-			btnStartBattle.tooltip = "Please wait for downloads to finish before starting."
-			ButtonUtilities.SetButtonDeselected(btnStartBattle)
+			btnStartBattle.tooltip = i18n("startbtn_gettingcontent_tooltip")
+			btnStartBattle:StyleOff()
+			btnStartBattle:SetEnabled(false)
+			btnStartBattle.suppressButtonReaction = true
 		end
 
 	end
@@ -124,11 +140,12 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	local externalFunctions = {}
 
 	local btnMapLink = Button:New {
+		name = 'btnMapLink',
 		x = 3,
 		y = 0,
 		right = 3,
 		height = 20,
-		classname = "button_square",
+		classname = "button_small",
 		caption = "",
 		padding = {0, 0, 0, 0},
 		parent = rightInfo,
@@ -143,6 +160,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	}
 
 	local startBoxPanel = Control:New{
+		name = 'startBoxPanel',
 		x = 0,
 		y = 22,
 		width = "100%",
@@ -153,10 +171,13 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	-- the buttons needed are:
 	-- splitV , splitH, splitC1_2, splitC2_2, split4, add, remove
 	local btnSplitV = Button:New{
+		name = 'btnSplitV',
 		x = "0%",
 		bottom = 0,
 		width = "12%",
 		height = "100%",
+		maxWidth = 50,
+		maxHeight = 50,
 		classname = "button_small",
 		caption = "",
 		padding = {0, 0, 0, 0},
@@ -190,6 +211,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	}
 
 	local imSplitV = Image:New {
+		name = 'imSplitV',
 		x = 0,
 		y = 0,
 		right = 0,
@@ -201,10 +223,13 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	}
 
 	local btnSplitH = Button:New{
+		name = 'btnSplitH',
 		x = "12.5%",
 		bottom = 0,
 		width = '12%',
 		height = "100%",
+		maxWidth = 50,
+		maxHeight = 50,
 		parent = startBoxPanel,
 		classname = "button_small",
 		caption = "",
@@ -238,6 +263,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	}
 
 	local imSplitH = Image:New {
+		name = 'imSplitH',
 		x = 0,
 		y = 0,
 		right = 0,
@@ -249,10 +275,13 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	}
 
 	local btnSplitC1 = Button:New{
+		name = 'btnSplitC1',
 		x = "25%",
 		bottom = 0,
 		width = '12%',
 		height = "100%",
+		maxWidth = 50,
+		maxHeight = 50,
 		parent = startBoxPanel,
 		classname = "button_small",
 		caption = "",
@@ -286,6 +315,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	}
 
 	local imSplitC1 = Image:New {
+		name = 'imSplitC1',
 		x = 0,
 		y = 0,
 		right = 0,
@@ -297,10 +327,13 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	}
 
 	local btnSplitC2 = Button:New{
+		name = 'btnSplitC2',
 		x = "37.5%",
 		bottom = 0,
 		width = '12%',
 		height = "100%",
+		maxWidth = 50,
+		maxHeight = 50,
 		parent = startBoxPanel,
 		classname = "button_small",
 		caption = "",
@@ -334,6 +367,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	}
 
 	local imSplitC2 = Image:New {
+		name = 'imSplitC2',
 		x = 0,
 		y = 0,
 		right = 0,
@@ -346,10 +380,13 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 
 
 	local btnSplitC4 = Button:New{
+		name = 'btnSplitC4',
 		x = "50%",
 		bottom = 0,
 		width = '12%',
 		height = "100%",
+		maxWidth = 50,
+		maxHeight = 50,
 		parent = startBoxPanel,
 		classname = "button_small",
 		caption = "",
@@ -385,6 +422,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	}
 
 	local imSplitC4 = Image:New {
+		name = 'imSplitC4',
 		x = 0,
 		y = 0,
 		right = 0,
@@ -397,10 +435,13 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 
 
 	local btnSplitS4 = Button:New{
+		name = 'btnSplitS4',
 		x = "62.5%",
 		bottom = 0,
 		width = '12%',
 		height = "100%",
+		maxWidth = 50,
+		maxHeight = 50,
 		parent = startBoxPanel,
 		classname = "button_small",
 		caption = "",
@@ -436,6 +477,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	}
 
 	local imSplitS4 = Image:New {
+		name = 'imSplitS4',
 		x = 0,
 		y = 0,
 		right = 0,
@@ -448,10 +490,13 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 
 
 	local btnAddBox = Button:New{
+		name = 'btnAddBox',
 		x = "75%",
 		bottom = 0,
 		width = '12%',
 		height = "100%",
+		maxWidth = 50,
+		maxHeight = 50,
 		parent = startBoxPanel,
 		classname = "button_small",
 		caption = "",
@@ -473,6 +518,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	}
 
 	local imAddBox = Image:New {
+		name = 'imAddBox',
 		x = 0,
 		y = 0,
 		right = 0,
@@ -484,10 +530,13 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	}
 
 	local btnClearBox = Button:New{
+		name = 'btnClearBox',
 		x = "87.5%",
 		bottom = 0,
 		width = '12%',
 		height = "100%",
+		maxWidth = 50,
+		maxHeight = 50,
 		parent = startBoxPanel,
 		classname = "button_small",
 		caption = "",
@@ -511,6 +560,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	}
 
 	local imClearBox = Image:New {
+		name = 'imClearBox',
 		x = 0,
 		y = 0,
 		right = 0,
@@ -561,7 +611,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		x = 2,
 		y = 3,
 		right = 20,
-		align = "left",
+		align = "center",
 		parent = btnMapLink,
 		fontsize = config:GetFont(2).size,
 	}
@@ -597,6 +647,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	end
 
 	local minimapPanel = Panel:New {
+		name = 'minimapPanel',
 		x = 0,
 		y = 0,
 		right = 0,
@@ -622,6 +673,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 
 	local mapImageFile, needDownload = config:GetMinimapImage(battle.mapName)
 	local imMinimap = Image:New {
+		name = 'imMinimap',
 		x = 0,
 		y = 0,
 		right = 0,
@@ -656,6 +708,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	]]--
 	if config.devMode then 
 		local comboboxstartpostype = ComboBox:New{
+			name = 'comboboxstartpostype',
 			x = 0,
 			bottom = 100,
 			right = 0,
@@ -673,7 +726,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 					for k,v in ipairs  {"Fixed", "Random", "Choose In Game", "Choose Before Game"} do
 						if selectedName == v then
 							battle.startPosType = k - 1
-							Spring.Echo("Selected startPosType", k,v, k-1,selectedName)
+							--Spring.Echo("Selected startPosType", k,v, k-1,selectedName)
 							return
 						end
 					end
@@ -696,7 +749,9 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 
 	if battleLobby.name ~= "singleplayer" then
 		readyButton = Button:New {
+			name = 'readyButton',
 			x = 0,
+			align = "right",
 			right = "50.5%",
 			bottom = 0,
 			height = 48,
@@ -704,8 +759,8 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 			font = config:GetFont(3),
 			disabledFont = config:GetFont(3),
 			hasDisabledFont = true,
-			caption = i18n("unready"),
-			tooltip = i18n("unready_tooltip"), -- Set in OnUpdateUserBattleStatus
+			caption = i18n("ready"),
+			tooltip = i18n("ready_tooltip"), -- Set in OnUpdateUserBattleStatus
 			OnClick = {
 				function(readyButton)
 					if not readyButton.state.enabled then return end
@@ -715,18 +770,43 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 			},
 			parent = rightInfo,
 		}
+
+		readyButtonCheck = Image:New {
+			name = 'readyButtonCheck',
+			--x = "5%",
+			y = 6,
+			right = "84%",
+			width = 16,
+			height = 16,
+			keepAspect = true,
+			file = IMG_CHECKBOX,
+			parent = readyButton,
+		}
+
+		readyButtonCheckArrow = Image:New {
+			name = 'readyButtonCheckArrow',
+			width = 16,
+			height = 16,
+			file = IMG_CHECKARROW,
+			parent = readyButtonCheck,
+		}
+
 		readyButton:SetEnabled(false)
-		readyButton:StyleUnready()
+		readyButton:StyleOff()
+		readyButton.suppressButtonReaction = true
 	end
 
 	btnStartBattle = Button:New {
-		x = ((readyButton == nil) and 0 or "50.5%"),
+		name = 'btnStartBattle',
+		x = ((battleLobby.name == "singleplayer") and 0 or "50.5%"),
 		right = 0,
 		bottom = 0,
 		height = 48,
 		caption = i18n("start"),
-		classname = "action_button",
+		classname = "ready_button",
 		font = config:GetFont(3),
+		disabledFont = config:GetFont(3),
+		hasDisabledFont = true,
 		tooltip = "Start the game, or call a vote to start multiplayer, or join a running game",
 		OnClick = {
 			function()
@@ -760,11 +840,13 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		},
 		parent = rightInfo,
 	}
+	ButtonUtilities.SetButtonDeselected(btnStartBattle)
 
 	local btnPlay
 	local btnSpectate
-
+	
 	local function SetButtonStatePlaying()
+		-- Spring.Echo("SetButtonStatePlaying !!!")
 		ButtonUtilities.SetButtonDeselected(btnSpectate)
 		ButtonUtilities.SetCaption(btnSpectate, i18n("spectate"))
 		ButtonUtilities.SetButtonSelected(btnPlay)
@@ -778,53 +860,73 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 
 	end
 	local function SetButtonStateSpectating()
+		-- Spring.Echo("SetButtonStateSpectating !!!")
+		-- playBtn
 		ButtonUtilities.SetButtonDeselected(btnPlay)
 		ButtonUtilities.SetCaption(btnPlay, i18n("play"))
-		ButtonUtilities.SetButtonSelected(btnSpectate)
-
-		btnSpectate.suppressButtonReaction = true
 		btnPlay.suppressButtonReaction = false
+		
+		-- SpecBtn
+		ButtonUtilities.SetButtonSelected(btnSpectate)
+		btnSpectate.suppressButtonReaction = true
 
 		btnSpectate.tooltip = i18n("tooltip_is_spectator")
 		btnPlay.tooltip = i18n("tooltip_become_player")
-		
+
 		ButtonUtilities.SetCaption(btnSpectate, i18n("spectating"))
 	end
-	
+
 	btnSpectate = Button:New { -- Some properties set by SetButtonStatePlaying() after both buttons are initialised.
+		name = 'btnSpectate',
 		x = "50.5%",
 		right = 0,
 		bottom = 51,
 		height = 32,
-		classname = "option_button",
+		classname = "playing_button",
 		caption = "",
 		font = config:GetFont(2),
 		OnClick = {
 			function(obj)
+				if btnSpectate.selected then
+					return
+				end
+				local battleStatus = battleLobby:GetUserBattleStatus(myUserName) or {}
+				if battleStatus.isSpectator and battleLobby.name ~= "singleplayer" then
+					battleLobby:SayBattle('$leaveq')
+					battleLobby:_OnUpdateUserBattleStatus(battleLobby:GetMyUserName(), {queuePos = 0}) -- we proactive change our queuePos; because we don't reliable receicve s.battle.queue_status on fast clicking play/spectate
+				end
 				battleLobby:SetBattleStatus({
 					isSpectator = true,
 					isReady = false
 				})
 
-				SetButtonStateSpectating()
-
+				if battleLobby.name == "singleplayer" then
+					SetButtonStateSpectating()
+				end
+				
 				WG.Analytics.SendOnetimeEvent("lobby:multiplayer:custom:spectate")
-				WG.Chobby.Configuration:SetConfigValue("lastGameSpectatorState", true)
+				if WG.Chobby.Configuration.useLastGameSpectatorState == 1 then
+					WG.Chobby.Configuration:SetConfigValue("lastGameSpectatorState", true)
+				end
 			end
 		},
 		parent = rightInfo,
 	}
 
 	btnPlay = Button:New { -- Some properties set by SetButtonStatePlaying() after both buttons are initialised.
+		name = 'btnPlay',	
 		x = 0,
 		right = "50.5%",
 		bottom = 51,
 		height = 32,
-		classname = "option_button",
+		classname = "playing_button",
 		caption = "",
 		font = config:GetFont(2),
 		OnClick = {
 			function(obj)
+				if btnPlay.selected then
+					return
+				end
 				local unusedTeamID = battleLobby:GetUnusedTeamID()
 				--Spring.Echo("unusedTeamID",unusedTeamID)
 				battleLobby:SetBattleStatus({
@@ -832,20 +934,112 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 					isReady = false,
 					side = (WG.Chobby.Configuration.lastFactionChoice or 0),
 					teamNumber = unusedTeamID})
-				
-				SetButtonStatePlaying()
+
+				if battleLobby.name == "singleplayer" then
+					SetButtonStatePlaying()
+				end
 
 				WG.Analytics.SendOnetimeEvent("lobby:multiplayer:custom:play")
-				WG.Chobby.Configuration:SetConfigValue("lastGameSpectatorState", false)
+				if WG.Chobby.Configuration.useLastGameSpectatorState == 1 then
+					WG.Chobby.Configuration:SetConfigValue("lastGameSpectatorState", false)
+				end
 			end
 		},
 		parent = rightInfo,
 	}
 
+	-- Spring.Echo("debug_initialSetButtonStatePlayingbefore")
 	SetButtonStatePlaying()
+	-- Spring.Echo("debug_initialSetButtonStatePlayingafter")
+	
+	local function SetBtnPlayState(selected, caption)
+		local myBs = battleLobby:GetUserBattleStatus(battleLobby.myUserName) or {}
+		local myQueuePos = myBs.queuePos or "?"
+		-- Spring.Echo("SetBtnPlayState selected, caption", selected, caption)
+		if selected then
+			ButtonUtilities.SetButtonSelected(btnPlay)
+			if caption == "playing" then
+				btnPlay.tooltip = i18n("tooltip_is_player")
+			elseif caption == "queued" then
+				btnPlay.tooltip = i18n("tooltip_queued")
+			end
+		else
+			ButtonUtilities.SetButtonDeselected(btnPlay)
+			if caption == "play" then
+				btnPlay.tooltip = i18n("tooltip_become_player")
+			elseif caption == "join_queue" then
+				btnPlay.tooltip = i18n("tooltip_join_queue")
+			end
+		end
+		local newCaption = i18n(caption)
+		newCaption = caption ~= "queued" and newCaption or (newCaption .. " " ..myQueuePos)
+		ButtonUtilities.SetCaption(btnPlay, newCaption)
+		btnPlay.suppressButtonReaction = selected
+	end
+
+	local function SetBtnSpecState(selected, caption)
+		-- Spring.Echo("SetBtnSpecState selected, caption", selected, caption)
+		if selected then
+			ButtonUtilities.SetButtonSelected(btnSpectate)
+			btnSpectate.tooltip = i18n("tooltip_is_spectator")
+		else
+			ButtonUtilities.SetButtonDeselected(btnSpectate)
+			if caption == "spectate" then
+				btnSpectate.tooltip = i18n("tooltip_become_spectator")
+			elseif caption == "leave_queue" then
+				btnSpectate.tooltip = i18n("tooltip_leave_queue")
+			end
+		end
+		ButtonUtilities.SetCaption(btnSpectate, i18n(caption))
+		btnSpectate.suppressButtonReaction = selected
+	end
+
+	function externalFunctions.SetBtnsPlaySpec(playSelected, playCaption, specSelected, specCaption, force)
+		-- local inputParamsPlay = {
+		-- 	playSelected = playSelected,
+		-- 	playCaption  = playCaption,
+		-- }
+		-- 
+		-- local inputParamsSpec = {
+		-- 	specSelected = specSelected,
+		-- 	specCaption  = specCaption,
+		-- }
+		
+		if not btnPlay then
+			-- Spring.Echo("SetBtnsPlaySpec btnPlay not initialized")
+			return
+		end
+
+		--local playBtnStatus = {
+		--	selected               = btnPlay.selected,
+		--	suppressButtonReaction = btnPlay.suppressButtonReaction,
+		--	tooltip                = btnPlay.tooltip,
+		--	caption                = btnPlay.oldCaption, -- strange behaviour, returns strange strings
+		--}
+		--
+		--local specBtnStatus = {
+		--	selected               = btnSpectate.selected,
+		--	suppressButtonReaction = btnSpectate.suppressButtonReaction,
+		--	tooltip                = btnSpectate.tooltip,
+		--	caption                = btnSpectate.oldCaption, -- strange behaviour, returns strange strings
+		--}
+
+		if btnPlay.selected ~= playSelected or btnPlay.oldCaption ~= playCaption or force then
+			-- Spring.Utilities.TableEcho(inputParamsPlay)
+			-- Spring.Utilities.TableEcho(playBtnStatus)
+			SetBtnPlayState(playSelected, playCaption)
+		end
+
+		if btnSpectate.selected ~= specSelected or btnSpectate.oldCaption ~= specCaption or force then
+			-- Spring.Utilities.TableEcho(inputParamsSpec)
+			-- Spring.Utilities.TableEcho(specBtnStatus)
+			SetBtnSpecState(specSelected, specCaption)
+		end
+	end
 
 	rightInfo.OnResize = {
 		function (obj, xSize, ySize)
+			-- Spring.Utilities.TraceFullEcho(nil,nil,nil,"rightInfo.OnResize", xSize, ySize )
 			if xSize + minimapBottomClearance < ySize then
 				minimapPanel._relativeBounds.left = 0
 				minimapPanel._relativeBounds.right = 0
@@ -916,6 +1110,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	leftOffset = leftOffset + 38
 
 	local btnPickMap = Button:New {
+		name = 'btnPickMap',
 		x = 5,
 		y = leftOffset,
 		height = 35,
@@ -935,6 +1130,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 
 	WG.ModoptionsPanel.LoadModotpions(battle.gameName, battleLobby)
 	local btnModoptions = Button:New {
+		name = 'btnModoptions',
 		x = 5,
 		y = leftOffset,
 		height = 35,
@@ -953,15 +1149,23 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	leftOffset = leftOffset + 40
 
 	local lblGame = Label:New {
+		name = 'lblGame',
 		x = 8,
 		y = leftOffset,
+		right = 3,
 		caption = WG.Chobby.Configuration.gameConfig.ShortenNameString(battle.gameName),
-		font = config:GetFont(1),
+		fontsize = config:GetFont(2).size,
 		parent = leftInfo,
+		OnResize = {
+			function (obj, xSize, ySize)
+				obj:SetCaption(StringUtilities.GetTruncatedStringWithDotDot(WG.Chobby.Configuration.gameConfig.ShortenNameString(battle.gameName), obj.font, xSize or obj.width))
+			end
+		}
 	}
 	leftOffset = leftOffset + 26
 
 	local imHaveGame = Image:New {
+		name = 'imHaveGame',
 		x = 8,
 		y = leftOffset,
 		width = 15,
@@ -970,15 +1174,17 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		parent = leftInfo,
 	}
 	local lblHaveGame = Label:New {
+		name = 'lblHaveGame',
 		x = 28,
 		y = leftOffset,
 		caption = "",
-		font = config:GetFont(1),
+		fontsize = config:GetFont(2).size,
 		parent = leftInfo,
 	}
 	leftOffset = leftOffset + 25
 
 	local imHaveMap = Image:New {
+		name = 'imHaveMap',
 		x = 8,
 		y = leftOffset,
 		width = 15,
@@ -987,20 +1193,23 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		parent = leftInfo,
 	}
 	local lblHaveMap = Label:New {
+		name = 'lblHaveMap',
 		x = 28,
 		y = leftOffset,
 		caption = "",
-		font = config:GetFont(1),
+		fontsize = config:GetFont(2).size,
 		parent = leftInfo,
 	}
-	leftOffset = leftOffset + 25
+	leftOffset = leftOffset + 30
 
 	local modoptionsHolder = Control:New {
+		name = 'modoptionsHolder',
 		x = 0,
 		y = leftOffset,
 		right = 0,
 		height = 120,
 		padding = {2, 0, 2, 0},
+		fontsize = config:GetFont(1).size,
 		autosize = false,
 		resizable = false,
 		tooltip = "All custom gameplay options are listed here",
@@ -1033,7 +1242,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	local downloaderPos = {
 		x = 0,
 		height = 120,
-		right = 0,
+		right = 3,
 		y = leftOffset,
 		parent = leftInfo,
 	}
@@ -1094,11 +1303,11 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	function externalFunctions.UpdateUserTeamStatus(userName, allyNumber, isSpectator)
 		if userName == myUserName then
 			if isSpectator then
-				SetButtonStateSpectating()
+				-- SetButtonStateSpectating()
 				startBoxPanel:Hide()
 				minimapPanel.disableChildrenHitTest = true --omg this is amazing
 			else
-				SetButtonStatePlaying()
+				-- SetButtonStatePlaying()
 				startBoxPanel:Show()
 				minimapPanel.disableChildrenHitTest = false
 			end
@@ -1109,6 +1318,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		if battleID == updatedBattleID then
 			if isRunning then
 				btnStartBattle:SetCaption(i18n("rejoin"))
+				readyButton.tooltip = i18n("inprogress_tooltip")
 			else
 				btnStartBattle:SetCaption(i18n("start"))
 			end
@@ -1260,6 +1470,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		-- Spring.Log("Chobby AddStartRect",LOG.WARNING,"AddStartRect", allyNo, left, top, right, bottom,minimapPanel.width,minimapPanel.height)
 		-- FIXME: minimap.width is sometimes only 10 at this point :/
 		-- it doesnt even know how big it is right nowhere
+		-- Spring.Utilities.TraceFullEcho()
 
 		local minimapPanelMaxSize = math.max(minimapPanel.width,minimapPanel.height) -1
 		local ox = math.floor(left * minimapPanelMaxSize / 200)
@@ -1268,6 +1479,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		local oh = math.floor((bottom-top) * minimapPanelMaxSize / 200)
 		if currentStartRects[allyNo+1] then externalFunctions.RemoveStartRect(allyNo) end
 		local newStartRect = Window:New {
+			name = 'newStartRect'..tostring(allyNo + 1),
 
 			spadsSizes = {left = left,top = top,right = right,bottom = bottom, caption = tostring(allyNo + 1)},
 			x = ox,
@@ -1376,6 +1588,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	MaybeDownloadGame(battle)
 	MaybeDownloadMap(battle)
 	UpdateArchiveStatus(true)
+	externalFunctions.rightInfo = rightInfo
 
 	return externalFunctions
 end
@@ -1385,13 +1598,13 @@ local function AddTeamButtons(parent, offX, joinFunc, aiFunc, unjoinable, disall
 		local addAiButton = Button:New {
 			name = "addAiButton",
 			x = offX,
-			y = 0,
-			height = 32,
+			y = 0, --5
+			height = 24,
 			width = 95,
 			font = WG.Chobby.Configuration:GetFont(2),
 			caption = i18n("add_ai") .. "\b",
 			OnClick = {aiFunc},
-			classname = "button_square",
+			classname = "button_small",
 			parent = parent,
 			tooltip = "Add an AI to the game",
 		}
@@ -1401,26 +1614,52 @@ local function AddTeamButtons(parent, offX, joinFunc, aiFunc, unjoinable, disall
 		local joinTeamButton = Button:New {
 			name = "joinTeamButton",
 			x = offX,
-			y = 0,
-			height = 32,
+			y = 0, --5
+			height = 24,
 			width = 95,
 			font = WG.Chobby.Configuration:GetFont(2),
 			caption = i18n("join") .. "\b",
 			OnClick = {joinFunc},
-			classname = "button_square",
+			classname = "button_small",
 			parent = parent,
 			tooltip = "Change your team to this one",
 		}
 	end
 end
 
+local function SortPlayersBySkill(a, b)
+	local sA = battleLobby:GetUser(a.name)
+	local sB = battleLobby:GetUser(b.name)
+	local joinA = tonumber((sA and sA.skill) or 0)
+	local joinB = tonumber((sB and sB.skill) or 0)
+	return joinA > joinB
+end
+
+local function SortPlayersByQueued(a, b)
+	local sA = battleLobby:GetUserBattleStatus(a.name)
+	local sB = battleLobby:GetUserBattleStatus(b.name)
+	local queuePosA = tonumber((sA and sA.queuePos) or 0)
+	local queuePosB = tonumber((sB and sB.queuePos) or 0)
+	local battle = battleLobby:GetBattle(battleLobby:GetMyBattleID()) or {}
+	local founder = battle.founder
+
+	if queuePosA ~= queuePosB then
+		return queuePosA < queuePosB
+	-- sort normal spectator list by name, founder top
+	elseif a.name == founder or b.name == founder then
+		return a.name == founder
+	end
+	return string.lower(a.name) < string.lower(b.name)
+end
+
 local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 
-	local SPACING = 22
+	local SPACING = 24
 	local disallowCustomTeams = battle.disallowCustomTeams
 	local disallowBots = battle.disallowBots
 
 	local mainScrollPanel = ScrollPanel:New {
+		name = 'mainScrollPanel',
 		x = 0,
 		right = 0,
 		y = 1,
@@ -1430,6 +1669,7 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 	}
 
 	local mainStackPanel = Control:New {
+		name = 'mainStackPanel',
 		x = 0,
 		right = 0,
 		y = 0,
@@ -1439,6 +1679,7 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 	}
 	mainStackPanel._relativeBounds.bottom = nil
 	local spectatorScrollPanel = ScrollPanel:New {
+		name = 'spectatorScrollPanel',
 		x = 0,
 		right = 0,
 		y = 0,
@@ -1448,6 +1689,7 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 	}
 
 	local spectatorStackPanel = Control:New {
+		name = 'spectatorStackPanel',
 		x = 0,
 		right = 0,
 		y = 0,
@@ -1482,7 +1724,7 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 			if totalHeight < minHeight then
 				totalHeight = minHeight
 			end
-			panel:SetPos(nil, nil, nil, totalHeight + 15)
+			panel:SetPos(nil, nil, nil, totalHeight + 0) -- +15
 			local runningHeight = 0
 			for i = 1, #children do
 				local child = children[i]
@@ -1512,7 +1754,7 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 	end
 
 	local function GetTeam(teamIndex)
-		teamIndex = teamIndex or -1
+		teamIndex = teamIndex or -2 -- default to -2 = Spectator team
 		if not team[teamIndex] then
 			if teamIndex == emptyTeamIndex then
 				local checkTeam = teamIndex + 1
@@ -1524,6 +1766,10 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 
 			local humanName, parentStack, parentScroll
 			if teamIndex == -1 then
+				humanName = "Join-Queue"
+				parentStack = spectatorStackPanel
+				parentScroll = spectatorScrollPanel
+			elseif teamIndex == -2 then
 				humanName = "Spectators"
 				parentStack = spectatorStackPanel
 				parentScroll = spectatorScrollPanel
@@ -1542,6 +1788,7 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 			end
 
 			local teamHolder = Control:New {
+				name = 'teamHolder',
 				name = teamIndex,
 				x = 0,
 				right = 0,
@@ -1552,19 +1799,21 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 			}
 
 			local label = Label:New {
+				name = 'label',
 				x = 5,
 				y = 0,
 				width = 120,
-				height = 30,
+				height = 25, --30
 				valign = "center",
-				font = WG.Chobby.Configuration:GetFont(3),
+				font = WG.Chobby.Configuration:GetFont(2),
 				caption = humanName,
 				parent = teamHolder,
 			}
-			if teamIndex ~= -1 then
+			if teamIndex ~= -1 and teamIndex ~= -2 then
 				local seperator = Line:New {
+					name = 'seperator',
 					x = 0,
-					y = 25,
+					y = 20, --25
 					right = 0,
 					height = 2,
 					parent = teamHolder
@@ -1591,18 +1840,57 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 				)
 			end
 			local teamStack = Control:New {
+				name = 'teamStack',
 				x = 0,
-				y = 31,
+				y = 26, --31
 				right = 0,
+				font = WG.Chobby.Configuration:GetFont(2),
 				bottom = 0,
 				padding = {0, 0, 0, 0},
 				parent = teamHolder,
 				preserveChildrenOrder = true,
 			}
 
-			if teamIndex == -1 then
+			local labelTeamPlayerCount = Label:New {
+				x = -20, -- hand crafted
+				y = 0,
+				width = 40,
+				height = 25, -- same as label (for team names)
+				align = "right",
+				valign = "center",
+				font = WG.Chobby.Configuration:GetFont(2),
+				caption = "0",
+				parent = teamHolder,
+			}
+			local function UpdateTeamPlayerCount()
+				labelTeamPlayerCount.caption = string.format("%d", #teamStack.children)
+			end
+
+			local function UpdatePlayerPositions()
+				if teamIndex ~= -1 and teamIndex ~= -2 then
+					table.sort(teamStack.children, SortPlayersBySkill)
+				else
+					-- Spring.Echo("Sorting teamIndex: " .. tostring(teamIndex))
+					table.sort(teamStack.children, SortPlayersByQueued)
+				end
+
+				local position = 1
+
+				for i = 1, #teamStack.children do
+					teamStack.children[i]:SetPos(nil, position)
+					teamStack.children[i]:Invalidate()
+					position = position + SPACING
+				end
+			
+				teamHolder:SetPos(nil, nil, nil, position + 30) -- 35
+				PositionChildren(parentStack, parentScroll.height)
+				teamHolder:Invalidate()
+			end
+
+			if teamIndex == -1 or teamIndex == -2 then
 				-- Empty spectator team is created. Position children to prevent flicker.
 				PositionChildren(parentStack, parentScroll.height)
+				teamHolder:SetVisibility(false)
 			end
 
 			local teamData = {}
@@ -1619,7 +1907,7 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 					joinTeamButton:Dispose()
 				end
 
-				if teamIndex ~= -1 then
+				if teamIndex ~= -1 and teamIndex ~= -2 then
 					AddTeamButtons(
 						teamHolder,
 						90,
@@ -1666,13 +1954,10 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 				end
 				if not teamStack:GetChildByName(playerControl.name) then
 					teamStack:AddChild(playerControl)
-					playerControl:SetPos(nil, (#teamStack.children - 1)*SPACING)
-					playerControl:Invalidate()
-
-					teamHolder:SetPos(nil, nil, nil, #teamStack.children*SPACING + 35)
-					PositionChildren(parentStack, parentScroll.height)
-					teamHolder:Invalidate()
+					teamHolder:SetVisibility(true)
+					UpdatePlayerPositions()
 				end
+				UpdateTeamPlayerCount()
 			end
 
 			function teamData.RemoveTeam()
@@ -1686,7 +1971,7 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 			end
 
 			function teamData.CheckRemoval()
-				if teamStack:IsEmpty() and teamIndex ~= -1 then
+				if teamStack:IsEmpty() and teamIndex ~= -2 then
 					local removeHolder = false
 
 					if disallowCustomTeams then
@@ -1707,6 +1992,9 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 								teamData.RemoveTeam()
 								return true
 							end
+						elseif teamIndex == -1 then
+							teamHolder:SetVisibility(false)
+							return true
 						end
 					end
 				end
@@ -1715,25 +2003,19 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 
 			function teamData.RemovePlayer(name)
 				local playerData = GetPlayerData(name)
-				if playerData.team ~= teamIndex then
+				if playerData.team ~= teamIndex or playerData.team == false then
 					return
 				end
 				playerData.team = false
-				local index = 1
-				local timeToMove = false
-				while index <= #teamStack.children do
-					if timeToMove then
-						teamStack.children[index]:SetPos(nil, (index - 1)*SPACING)
-						teamStack.children[index]:Invalidate()
-					elseif teamStack.children[index].name == name then
-						teamStack:RemoveChild(teamStack.children[index])
-						index = index - 1
-						timeToMove = true
-					end
-					index = index + 1
-				end
-				teamHolder:SetPos(nil, nil, nil, #teamStack.children*SPACING + 35)
 
+				local playerControl = teamStack:GetChildByName(name)
+				if not playerControl then
+					return
+				end
+
+				teamStack:RemoveChild(playerControl)
+				UpdatePlayerPositions()
+				
 				if name == battleLobby:GetMyUserName() then
 					local joinTeam = teamHolder:GetChildByName("joinTeamButton")
 					if joinTeam then
@@ -1743,6 +2025,7 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 
 				teamData.CheckRemoval()
 				PositionChildren(parentStack, parentScroll.height)
+				UpdateTeamPlayerCount()
 			end
 
 			team[teamIndex] = teamData
@@ -1764,7 +2047,9 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 		end
 	end
 
-	GetTeam(-1) -- Make Spectator heading appear
+	GetTeam(-1) -- Make Queue heading appear
+	GetTeam(-2) -- Make Spectator heading appear
+
 	GetTeam(0) -- Always show two teams in custom battles
 	if not (disallowCustomTeams and disallowBots) then
 		GetTeam(1)
@@ -1805,16 +2090,22 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 		end
 	end
 
-	function externalFunctions.UpdateUserTeamStatus(userName, allyNumber, isSpectator)
+	function externalFunctions.UpdateUserTeamStatus(userName, teamNew, isSpectator, queuePos)
 		if isSpectator then
-			allyNumber = -1
+			if (queuePos and queuePos > 0) then
+				teamNew = -1 -- virtual team "Join-Queue"
+			else
+				teamNew = -2 -- virtual team "Spectator"
+			end
 		end
 		local playerData = GetPlayerData(userName)
-		if playerData.team == allyNumber then
-			return
+		if playerData.team == teamNew then
+			return -- team didn't change, so don't update
 		end
-		RemovePlayerFromTeam(userName)
-		AddPlayerToTeam(allyNumber, userName)
+		if playerData.team ~= false then
+			RemovePlayerFromTeam(userName)
+		end
+		AddPlayerToTeam(teamNew, userName)
 	end
 
 	function externalFunctions.LeftBattle(leftBattleID, userName)
@@ -1842,6 +2133,7 @@ local function SetupVotePanel(votePanel, battle, battleID)
 	local currentMapName
 
 	local minimapPanel = Panel:New {
+		name = 'minimapPanel',
 		x = 0,
 		y = 0,
 		bottom = 0,
@@ -1850,11 +2142,12 @@ local function SetupVotePanel(votePanel, battle, battleID)
 		parent = votePanel,
 	}
 	local btnMinimap = Button:New {
+		name = 'btnMinimap',
 		x = 0,
 		y = 0,
 		right = 0,
 		bottom = 0,
-		classname = "button_square",
+		classname = "option_button",
 		caption = "",
 		parent = minimapPanel,
 		padding = {1,1,1,1},
@@ -1867,6 +2160,7 @@ local function SetupVotePanel(votePanel, battle, battleID)
 		},
 	}
 	local imMinimap = Image:New {
+		name = 'imMinimap',
 		x = 0,
 		y = 0,
 		right = 0,
@@ -1876,6 +2170,7 @@ local function SetupVotePanel(votePanel, battle, battleID)
 	}
 
 	local activePanel = Control:New {
+		name = 'activePanel',
 		x = 0,
 		y = 0,
 		right = 0,
@@ -1886,6 +2181,7 @@ local function SetupVotePanel(votePanel, battle, battleID)
 
 	local buttonNo
 	local buttonYes = Button:New {
+		name = 'buttonYes',
 		x = offset,
 		y = 0,
 		bottom = 0,
@@ -1907,6 +2203,7 @@ local function SetupVotePanel(votePanel, battle, battleID)
 		padding = {10,10,10,10},
 		children = {
 			Image:New {
+				name = 'buttonYes',
 				x = 0,
 				y = 0,
 				right = 0,
@@ -1920,6 +2217,7 @@ local function SetupVotePanel(votePanel, battle, battleID)
 	offset = offset + height
 
 	buttonNo = Button:New {
+		name = 'buttonNo',
 		x = offset,
 		y = 0,
 		bottom = 0,
@@ -1955,16 +2253,18 @@ local function SetupVotePanel(votePanel, battle, battleID)
 	offset = offset + 2
 
 	local voteName = Label:New {
+		name = 'voteName',
 		x = offset,
 		y = 4,
 		width = 50,
 		bottom = height * 0.4,
-		font = config:GetFont(1),
+		font = config:GetFont(2),
 		caption = "",
 		parent = activePanel,
 	}
 
 	local voteProgressNo = Progressbar:New {
+		name = 'voteProgressNo',
 		x = offset,
 		y = height * 0.90,
 		right = 55,
@@ -1975,8 +2275,8 @@ local function SetupVotePanel(votePanel, battle, battleID)
 		color     = {1, 0, 0, 1},
 	}
 
-	
 	local voteProgressYes = Progressbar:New {
+		name = 'voteProgressYes',
 		x = offset,
 		y = height * 0.80,
 		right = 55,
@@ -1984,11 +2284,11 @@ local function SetupVotePanel(votePanel, battle, battleID)
 		value = 0,
 		parent = activePanel,
 		tooltip = "How many players have voted no out of the required number have voted to fail",
-		
 		color     = {0, 1, 0, 1},
 	}
 
 	local voteCountLabel = Label:New {
+		name = 'voteCountLabel',
 		right = 5,
 		y = height * 0.5,
 		width = 50,
@@ -2008,6 +2308,7 @@ local function SetupVotePanel(votePanel, battle, battleID)
 	end
 
 	local voteResultLabel = Label:New {
+		name = 'voteResultLabel',
 		x = 5,
 		y = 4,
 		right = 0,
@@ -2064,7 +2365,7 @@ local function SetupVotePanel(votePanel, battle, battleID)
 
 	local oldVoteInitiator = ""
 	local oldTitle = ""
-	
+
 	function externalFunctions.VoteUpdate(voteMessage, pollType, mapPoll, candidates, votesNeeded, pollUrl, voteInitiator, resetButtons)
 		--Spring.Echo("externalFunctions.VoteUpdate(voteMessage, pollType, mapPoll, candidates, votesNeeded, pollUrl, voteInitiator)",voteMessage, pollType, mapPoll, candidates, votesNeeded, pollUrl, voteInitiator)
 		UpdatePollType(pollType, mapPoll, pollUrl)
@@ -2144,9 +2445,9 @@ local function SetupVotePanel(votePanel, battle, battleID)
 end
 
 local function SetupSpadsStatusPanel(battle, battleID)
-	
+
 	local freezeSettings = true
-	
+
 	local spadsSettingsOrder = {'teamSize','nbTeams','preset','autoBalance','balanceMode','locked'}
 	spadsSettingsTable = {
 		teamSize = {
@@ -2165,23 +2466,23 @@ local function SetupSpadsStatusPanel(battle, battleID)
 		},
 		preset = {
 			current = "team",
-			allowed = {"team","ffa","coop","duel","tourney"},
+			allowed = {"team","ffa","coop","duel","tourney","custom"},
 			caption = "Preset",
-			tooltip = "Team - Game of multiple Teams\nFFA - Free-For-All\nCoop - Humans vs AI\nDuel - 1v1",
+			tooltip = "Team - Game of multiple Teams\nFFA - Free-For-All\nCoop - Humans vs AI\nDuel - 1v1\nCustom - For custom battles",
 			spadscommand = "!preset",
 		},
-		autoBalance = { 
+		autoBalance = {
 			current = "off",
-			allowed = {"off","on","advanced"},
+			allowed = {"off","advanced"},
 			caption = "Autobalance",
-			tooltip = "Balance teams automatically",
+			tooltip = "Balance teams and fix IDs automatically.\nUse Coop preset to play vs AIs.",
 			spadscommand = "!autobalance",
 		},
-		balanceMode = { 
-			current = "clan;skill",
-			allowed = {"random","clan;skill","skill","clan;random"},
+		balanceMode = {
+			current = "skill",
+			allowed = {"skill","clan;skill","random"},
 			caption = "BalanceMode",
-			tooltip = "Method to use when autobalancing",
+			tooltip = "Method to use when auto balancing teams",
 			spadscommand = "!balanceMode",
 		},
 		locked = {
@@ -2241,24 +2542,26 @@ local function SetupSpadsStatusPanel(battle, battleID)
 	local rows = 3
 	local cols = 3
 	local i = 0
-	for _, k in ipairs(spadsSettingsOrder) do
+	for j, k in ipairs(spadsSettingsOrder) do
 		local sts = spadsSettingsTable[k]
 		local xpos = tostring(math.fmod(i,cols) * 100/cols) ..'%'
 		local stslabel = Label:New {
+			name = 'stslabel'..tostring(j),
 			x = tostring(math.fmod(i,cols) * 100/cols + 1) ..'%',
 			y = tostring(math.floor(i/cols) * 100/rows + 1) ..'%',
 			width = tostring(100.0/cols -2 ) ..'%',
 			height = tostring(100.0/rows -2) ..'%',
-			font = WG.Chobby.Configuration:GetFont(1),
+			--font = WG.Chobby.Configuration:GetFont(1),
 			align = "left",
 			valign = "center",
 			parent = spadsStatusPanel,
 			caption = sts.caption,
 			tooltip = sts.tooltip
 		}
-		
+
 		local stsCBdefault = sts.current
 		local stsCB = ComboBox:New{
+			name = 'stsCB'..tostring(j),
 			x = tostring(50/cols + math.fmod(i,cols) * 100/cols + 1 ) ..'%',
 			y = tostring(math.floor(i/cols) * 100/rows + 1) ..'%',
 			width = tostring(50.0/cols - 2) ..'%',
@@ -2267,7 +2570,7 @@ local function SetupSpadsStatusPanel(battle, battleID)
 			selectByName = true,
 			captionHorAlign = -1,
 			text = "winkydink",
-			font = WG.Chobby.Configuration:GetFont(1),
+			--font = WG.Chobby.Configuration:GetFont(1),
 			items = sts.allowed,
 			align = "right",
 			valign = "center",
@@ -2292,6 +2595,7 @@ local function SetupSpadsStatusPanel(battle, battleID)
 	end
 
 	local balanceButton = Button:New {
+		name = 'balanceButton',
 		x = '1%',
 		y = '68%',
 		width = '31%',
@@ -2300,15 +2604,16 @@ local function SetupSpadsStatusPanel(battle, battleID)
 		tooltip = "Attempt to balance the teams. In Coop Preset this splits Humans and AIs.",
 		font = WG.Chobby.Configuration:GetFont(2),
 		parent = spadsStatusPanel,
-		classname = "button_square",
+		classname = "button_small",
 		OnClick = {
 			function()
 				battleLobby:SayBattle('!balance')
 			end
 		},
 	}
-		
+
 	local lockButton = Button:New {
+		name = 'lockButton',
 		x = '34%',
 		y = '68%',
 		width = '31%',
@@ -2317,16 +2622,17 @@ local function SetupSpadsStatusPanel(battle, battleID)
 		tooltip = "Lock the battleroom, preventing everyone from joining",
 		font = WG.Chobby.Configuration:GetFont(2),
 		parent = spadsStatusPanel,
-		classname = "button_square",
+		classname = "button_small",
 		OnClick = {
 			function()
 				battleLobby:SayBattle('!lock')
 			end
 		},
 	}
-		
+
 	local unlockButton = Button:New {
-		x = '68%',
+		name = 'unlockButton',
+		x = '67%',
 		y = '68%',
 		width = '31%',
 		height = '31%',
@@ -2334,7 +2640,7 @@ local function SetupSpadsStatusPanel(battle, battleID)
 		tooltip = "Unlock the battleroom, to allow players to join",
 		font = WG.Chobby.Configuration:GetFont(2),
 		parent = spadsStatusPanel,
-		classname = "button_square",
+		classname = "button_small",
 		OnClick = {
 			function()
 				battleLobby:SayBattle('!unlock')
@@ -2357,6 +2663,7 @@ local function InitializeSetupPage(subPanel, screenHeight, pageConfig, nextPage,
 	subPanel:SetVisibility(not prevPage)
 
 	local lblBattleTitle = Label:New {
+		name = 'lblBattleTitle',
 		x = "40%",
 		right = "40%",
 		y = buttonScale,
@@ -2371,6 +2678,7 @@ local function InitializeSetupPage(subPanel, screenHeight, pageConfig, nextPage,
 	local buttons = {}
 
 	local nextButton = Button:New {
+		name = 'nextButton',
 		x = "36%",
 		right = "36%",
 		y = 2*buttonScale + 5 + (#pageConfig.options)*buttonScale,
@@ -2398,6 +2706,7 @@ local function InitializeSetupPage(subPanel, screenHeight, pageConfig, nextPage,
 	local tipTextBox
 	if pageConfig.tipText then
 		tipTextBox = TextBox:New {
+			name = 'tipTextBox',
 			x = "26%",
 			y = 3*buttonScale + 20 + (#pageConfig.options)*buttonScale,
 			right = "26%",
@@ -2411,6 +2720,7 @@ local function InitializeSetupPage(subPanel, screenHeight, pageConfig, nextPage,
 	end
 
 	local advButton = Button:New {
+		name = 'advButton',
 		x = "78%",
 		right = "5%",
 		bottom = "4%",
@@ -2431,6 +2741,7 @@ local function InitializeSetupPage(subPanel, screenHeight, pageConfig, nextPage,
 
 	if prevPage then
 		Button:New {
+			name = 'prevPage',
 			x = "5%",
 			right = "78%",
 			bottom = "4%",
@@ -2463,11 +2774,12 @@ local function InitializeSetupPage(subPanel, screenHeight, pageConfig, nextPage,
 			caption = pageConfig.options[i]
 		end
 		buttons[i] = Button:New {
+			name = 'pageConfig.options'..tostring(i),
 			x = x,
 			y = y,
 			right = right,
 			height = height,
-			classname = "button_highlight",
+			classname = "option_button",
 			caption = caption,
 			tooltip = tooltip,
 			font = Configuration:GetFont(buttonFont),
@@ -2495,6 +2807,7 @@ local function InitializeSetupPage(subPanel, screenHeight, pageConfig, nextPage,
 		if pageConfig.minimap then
 			local mapImageFile, needDownload = Configuration:GetMinimapImage(pageConfig.options[i])
 			local imMinimap = Image:New {
+				name = 'pageConfig.minimap'..tostring(i),
 				x = 0,
 				y = 0,
 				right = 0,
@@ -2535,6 +2848,7 @@ local function SetupEasySetupPanel(mainWindow, standardSubPanel, setupData)
 	local pages = {}
 	for i = 1, #pageConfigs do
 		pages[i] = Control:New {
+			name = 'pageConfigs'..tostring(i),
 			x = 0,
 			y = panelOffset,
 			right = 0,
@@ -2570,10 +2884,11 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	local EXTERNAL_PAD_HOR = 12
 	local INTERNAL_PAD = 2
 
-	local BOTTOM_SPACING = 100
+	local BOTTOM_SPACING = 96
 	if isSingleplayer then BOTTOM_SPACING = 5 end
 
 	mainWindow = Control:New {
+		name = 'mainWindow',
 		x = 0,
 		y = 0,
 		width = "100%",
@@ -2583,6 +2898,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	}
 
 	local subPanel = Control:New {
+		name = 'subPanel',
 		x = 0,
 		y = 47,
 		right = 0,
@@ -2596,6 +2912,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	end
 
 	local topPanel = Control:New {
+		name = 'topPanel',
 		x = 0,
 		y = 0,
 		right = 0,
@@ -2605,6 +2922,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	}
 
 	local bottomPanel = Control:New {
+		name = 'bottomPanel',
 		x = 0,
 		y = topPoportion .. "%",
 		right = 0,
@@ -2614,15 +2932,17 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	}
 
 	local playerPanel = Control:New {
+		name = 'playerPanel',
 		x = 0,
 		y = 0,
 		right = "52%",
 		bottom = BOTTOM_SPACING,
-		padding = {EXTERNAL_PAD_HOR, EXTERNAL_PAD_VERT, INTERNAL_PAD, INTERNAL_PAD},
+		padding = {EXTERNAL_PAD_HOR, EXTERNAL_PAD_VERT, INTERNAL_PAD, 0},
 		parent = topPanel,
 	}
 
 	local spectatorPanel = Control:New {
+		name = 'spectatorPanel',
 		x = "67%",
 		y = 0,
 		right = 0,
@@ -2636,6 +2956,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 
 
 	spadsStatusPanel = Control:New{
+		name = 'spadsStatusPanel',
 		x = 0,
 		right = "33%",
 		bottom = 0,
@@ -2647,9 +2968,10 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 
 	--spadsStatusPanel = 
 	SetupSpadsStatusPanel() -- git stash for scumbags
-	spadsStatusPanel:SetVisibility(false) -- start hidden
+	spadsStatusPanel:SetVisibility(not isSingleplayer) -- start hidden
 
 	local votePanel = Control:New {
+		name = 'votePanel',
 		x = 0,
 		right = "33%",
 		bottom = 0,
@@ -2663,6 +2985,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	local votePanel = SetupVotePanel(votePanel)
 
 	local leftInfo = Control:New {
+		name = 'leftInfo',
 		x = "48%",
 		y = 0,
 		right = "33%",
@@ -2672,6 +2995,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	}
 
 	local rightInfo = Control:New {
+		name = 'rightInfo',
 		x = "67%",
 		y = 0,
 		right = 0,
@@ -2683,7 +3007,8 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	local infoHandler = SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, battleLobby:GetMyUserName())
 
 	local btnQuitBattle = Button:New {
-		right = 11,
+		name = 'btnQuitBattle',
+		right = 12,
 		y = 7,
 		width = 80,
 		height = 45,
@@ -2706,6 +3031,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	}
 
 	local btnInviteFriends = Button:New {
+		name = 'btnInviteFriends',
 		right = 101,
 		y = 7,
 		width = 180,
@@ -2726,7 +3052,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	local lblBattleTitle = Label:New {
 		name = "lblBattleTitle",
 		x = 20,
-		y = 17,
+		y = 19,
 		right = 100,
 		height = 30,
 		font = Configuration:GetFont(3),
@@ -2742,6 +3068,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	local battleTypeCombo
 	if isHost then
 		battleTypeCombo = ComboBox:New {
+			name = 'battleTypeCombo',
 			x = 13,
 			width = 125,
 			y = 12,
@@ -2820,6 +3147,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	local battleRoomConsole = WG.Chobby.Console("Battleroom Chat", MessageListener, true, nil, true)
 
 	local chatPanel = Control:New {
+		name = 'chatPanel',
 		x = 0,
 		y = 0,
 		bottom = 0,
@@ -2861,32 +3189,133 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		btnInviteFriends:SetVisibility(newVisibile)
 	end
 
-	-- Lobby interface
+	-- 23/03/19 Fireball update: only react, when dependent status.properties are present = were updated for this current event
+	-- reacts to: isSpectator, isReady, queuePos
 	local function OnUpdateUserBattleStatus(listener, username, status)
-
-		if username ~= battleLobby.myUserName then return end
-
-		WG.Chobby.Configuration:SetConfigValue("lastGameSpectatorState", status.isSpectator)
-
-		if battleLobby.name ~= "singleplayer" then
-			readyButton:SetEnabled(not status.isSpectator)
-
-			if status.isReady then
-				readyButton:StyleReady()
-				readyButton:SetCaption(i18n("ready"))
-				readyButton.tooltip = i18n("ready_tooltip")
-			else
-				readyButton:StyleUnready()
-				readyButton:SetCaption(i18n("unready"))
-				readyButton.tooltip = i18n("unready_tooltip")
+		
+		------------------------
+		-- Buttons Play and Spec
+	
+		local battleID = battleLobby:GetMyBattleID()
+		local maxPlayers = battleLobby.battles[battleID].maxPlayers
+		local playerCount = battleLobby:GetBattlePlayerCount(battleID)
+		local myBs = battleLobby:GetUserBattleStatus(battleLobby.myUserName) or {}
+		local iAmPlayer = myBs.isSpectator ~= nil and myBs.isSpectator == false
+		local iAmQueued = myBs.queuePos and myBs.queuePos > 0
+		-- Spring.Echo("OnUpdateUserBattleStatus battleID, maxPlayers, playerCount, iAmPlayer, iAmQueued", battleID, maxPlayers, playerCount, iAmPlayer, iAmQueued)
+		
+		-- somebody switched to player
+		if status.isSpectator ~= nil and status.isSpectator == false then
+			if not iAmPlayer then
+				if not iAmQueued then
+					if playerCount >= maxPlayers then
+						-- Spring.Echo("OnUpdateUserBattleStatus players full > SET play = join_queue")
+						infoHandler.SetBtnsPlaySpec(false, "join_queue", true, "spectating", false)
+					else
+						-- Spring.Echo("OnUpdateUserBattleStatus players not full > SET play = play")
+						infoHandler.SetBtnsPlaySpec(false, "play", true, "spectating", false)
+					end
+				else
+					-- Spring.Echo("OnUpdateUserBattleStatus SET play = queued; Spec = leave_queue")
+					infoHandler.SetBtnsPlaySpec(true, "queued", false, "Leave Queue", false)
+				end
 			end
 		end
-	end
+
+		if username ~= battleLobby.myUserName or battleLobby.name == "singleplayer" or (status.isSpectator == nil and status.isReady == nil and status.queuePos == nil) then
+			-- Spring.Echo("Canceled")
+			return
+		end
+		------------------------
+		-- (else) Update affects ME
 		
-	local function OnUpdateUserTeamStatus(listener, userName, allyNumber, isSpectator)
+		if status.isSpectator ~= nil then
+			-- we switched to player
+			if status.isSpectator == false then
+				-- Spring.Echo("OnUpdateUserBattleStatus[me] we became player > SET play = playing and spec = spectate")
+				infoHandler.SetBtnsPlaySpec(true, "playing", false, "spectate", true)
+				-- if we were were in queuePos before switching to player, play a sound
+				if status.queuePos then
+					local Configuration = WG.Chobby.Configuration
+					Spring.PlaySoundFile("sounds/beep6.wav", Configuration.menuNotificationVolume or 1, "ui")
+				end
+
+			-- we switched to spec
+			else
+				-- Spring.Echo("OnUpdateUserBattleStatus[me] we became spec > SET play = play|join_queue and spec = spectating|leave_queue")
+				if not iAmQueued then
+					if playerCount >= maxPlayers then
+						-- Spring.Echo("OnUpdateUserBattleStatus[me] players full > SET play = join_queue")
+						infoHandler.SetBtnsPlaySpec(false, "join_queue", true, "spectating", true)
+					else
+						-- Spring.Echo("OnUpdateUserBattleStatus[me] players not full > SET play = play")
+						infoHandler.SetBtnsPlaySpec(false, "play", true, "spectating", true)
+					end
+				else
+					-- Spring.Echo("OnUpdateUserBattleStatus[me] SET play = Queued; Spec = leave_queue")
+					infoHandler.SetBtnsPlaySpec(true, "queued", false, "leave_queue", true)
+				end
+			end
+		end
+
+		if iAmQueued then
+			-- Spring.Echo("OnUpdateUserBattleStatus[me] SET play = Queued; Spec = leave_queue")
+			infoHandler.SetBtnsPlaySpec(true, "queued", false, "leave_queue")
+		elseif not iAmPlayer then
+			if playerCount >= maxPlayers then
+				-- Spring.Echo("OnUpdateUserBattleStatus[me] players full > SET play = join_queue")
+				infoHandler.SetBtnsPlaySpec(false, "join_queue", true, "spectating")
+			else
+				-- Spring.Echo("OnUpdateUserBattleStatus[me] players not full > SET play = play")
+				infoHandler.SetBtnsPlaySpec(false, "play", true, "spectating")
+			end
+		end
+
+		------------------------
+		-- Button Ready
+
+		local tooltipCandidate = ""
+		if status.isSpectator ~= nil then
+			-- Spring.Log(LOG_SECTION, LOG.NOTICE, status.isSpectator and "Disabling readyButton" or "Enabling readyButton")
+			readyButton:SetEnabled(not status.isSpectator)
+			if status.isSpectator then
+				-- Spring.Log(LOG_SECTION, LOG.NOTICE, "uncheck readyButton and StyleOff")
+				readyButtonCheckArrow.file = nil
+				readyButtonCheckArrow:Invalidate()
+				readyButton:StyleOff()
+				readyButton.suppressButtonReaction = true
+				tooltipCandidate = i18n("unready_notplaying_tooltip")
+			else
+				readyButton.suppressButtonReaction = false
+			end
+		end
+		if not status.isSpectator then
+			if status.isReady ~= nil and status.isReady then
+				-- Spring.Log(LOG_SECTION, LOG.NOTICE, "check readyButton and StyleReady")
+				readyButton:StyleReady()
+				readyButtonCheckArrow.file = IMG_CHECKARROW
+				readyButtonCheckArrow:Invalidate()
+				tooltipCandidate = i18n("ready_tooltip")
+			else
+				-- Spring.Log(LOG_SECTION, LOG.NOTICE, "uncheck readyButton and StyleUnready")
+				readyButton:StyleUnready()
+				readyButtonCheckArrow.file = nil
+				readyButtonCheckArrow:Invalidate()
+				tooltipCandidate = i18n("unready_tooltip")
+			end
+        end
+
+		-- 23/04/04 Fireball: moved readyButton tooltip change on battle.isRunning to BattleIngameUpdate
+		if not battle.isRunning then
+			readyButton.tooltip = tooltipCandidate
+		end
+	end
+
+	local function OnUpdateUserTeamStatus(listener, userName, allyNumber, isSpectator, queuePos)
+		-- Spring.Echo("room:OnUpdateUserTeamStatus userName:" .. tostring(userName) .. " allyNumber:" .. tostring(allyNumber) .. " isSpectator:" .. tostring(isSpectator))
 		--votePanel.VoteButtonVisible(isSpectator == false)
 		infoHandler.UpdateUserTeamStatus(userName, allyNumber, isSpectator)
-		playerHandler.UpdateUserTeamStatus(userName, allyNumber, isSpectator)
+		playerHandler.UpdateUserTeamStatus(userName, allyNumber, isSpectator, queuePos)
 	end
 
 	local function OnBattleIngameUpdate(listener, updatedBattleID, isRunning)
@@ -2998,36 +3427,36 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	end
 
 	local function ParseSpadsMessage(userName, message) -- return hidemessage bool
-	-- should only be called on messages from founder (host)
-	local myUserName = battleLobby:GetMyUserName()
-	local iAmMentioned = (string.find(message,myUserName,nil,true) ~= nil)
-	--Spring.Echo("Parsing", userName, message, myUserName,iAmMentioned)
+		-- should only be called on messages from founder (host)
+		local myUserName = battleLobby:GetMyUserName()
+		local iAmMentioned = (string.find(message,myUserName,nil,true) ~= nil)
+		--Spring.Echo("Parsing", userName, message, myUserName,iAmMentioned)
 
-	if iAmMentioned then return false end
+		if iAmMentioned then return false end
 
-	-- filter some basic things that are 'private' to me
-	if string.match(message, "you cannot vote currently, there is no vote in progress.$") then return true end
+		-- filter some basic things that are 'private' to me
+		if string.match(message, "you cannot vote currently, there is no vote in progress.$") then return true end
 
-	if string.match(message, ", there is already a vote in progress, please wait for it to finish before calling another one.$") then return true end
+		if string.match(message, ", there is already a vote in progress, please wait for it to finish before calling another one.$") then return true end
 
-	if string.match(message, ", please wait .* more second.s. before calling another vote .vote flood protection..$") then return true end
+		if string.match(message, ", please wait .* more second.s. before calling another vote .vote flood protection..$") then return true end
 
-	if string.match(message, ".* you have already voted for current vote.$") then return true end
+		if string.match(message, ".* you have already voted for current vote.$") then return true end
 
-	if string.match(message, ". Away vote mode for .*$") then return true end
+		if string.match(message, ". Away vote mode for .*$") then return true end
 
-	-- TODO: prepare for BarManager
-	-- i can still multi-vote!
-	if string.match(message, ". Hi .*! Current battle type is .*.$") then return false end
+		-- TODO: prepare for BarManager
+		-- i can still multi-vote!
+		if string.match(message, ". Hi .*! Current battle type is .*.$") then return false end
 
-	if string.match(message, ". BattleStatus = .*") then
-		initBattleStatusPanel(pyPartition(message,'"', true))
-		return true
-	end
-	
-	if string.match(message, "Player .* has already been added in game") then return true end
+		if string.match(message, ". BattleStatus = .*") then
+			initBattleStatusPanel(pyPartition(message,'"', true))
+			return true
+		end
 
-	return false -- false if it should be displayed to user, true if not
+		if string.match(message, "Player .* has already been added in game") then return true end
+		
+		return false -- false if it should be displayed to user, true if not
 	end
 
 	local function ParseUserMessage(userName,message) -- returns hidemessage bool
@@ -3037,7 +3466,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 			lastUserToChangeStartBoxes = userName 
 			if not mine then return true end
 		end
-		
+
 		if mine then return false end -- alway show own messages from here:
 
 		if message == '!vote y' or message == '!vote n' or message == '!vote b' then
@@ -3047,7 +3476,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		if string.match(message, "^!joinas spec$") then return true end
 
 		if string.match(message, "^!cv .*") then return true end
-		
+
 		if string.match(message, "^!ring .*") then return true end
 
 		if string.match(message, "^!endvote$") then return true end
@@ -3167,7 +3596,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 				end
 			end
 				--* BarManager|{"BattleStateChanged": {"locked": "locked"}}".
-			
+
 			return true
 		end
 		return false
@@ -3222,7 +3651,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 
 	local function OnRing(listener, userName) -- userName is who rang you
 		Spring.PlaySoundFile("sounds/ring.wav", WG.Chobby.Configuration.menuNotificationVolume or 1)
-		
+
 		local userInfo = lobby:TryGetUser(userName)
 		if userInfo then
 			local userControl = WG.UserHandler.GetNotificationUser(userName)
@@ -3246,7 +3675,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 			{math.random(50,255),	0,						0					},
 			{0,						math.random(50,255),	0					},
 			{0,						0,						math.random(50,255)},
-			
+
 			{math.random(50,255),	math.random(0,255),		0					},
 			{math.random(50,255),	0,						math.random(0,255)	},
 			{math.random(50,255),	math.random(0,200),		math.random(0,200)	},
@@ -3258,8 +3687,8 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 			{math.random(0,255),	0,						math.random(50,255)},
 			{0,						math.random(0,255),		math.random(50,255)},
 			{math.random(0,200),	math.random(0,200),		math.random(50,255)},
-		}	
-		
+		}
+
 		local r = math.random(1,#colorOptions)
 		return {colorOptions[r][1]/255, colorOptions[r][2]/255, colorOptions[r][3]/255,}
 	end
@@ -3285,7 +3714,8 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		})
 	end
 
-	local function OnS_Battle_Update_lobby_title(listener, changedbattleID, newbattletitle)
+	local function OnUpdateBattleTitle(listener, changedbattleID, newbattletitle)
+		--Spring.Echo("battle_room: OnUpdateBattleTitle")
 		if battleID == changedbattleID then
 			UpdateBattleTitle()
 		end
@@ -3312,7 +3742,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	battleLobby:AddListener("OnEnableAllUnits", OnEnableAllUnits)
 	battleLobby:AddListener("OnDisableUnits", OnDisableUnits)
 	battleLobby:AddListener("OnRequestBattleStatus", OnRequestBattleStatus)
-	battleLobby:AddListener("OnS_Battle_Update_lobby_title", OnS_Battle_Update_lobby_title)
+	battleLobby:AddListener("OnUpdateBattleTitle", OnUpdateBattleTitle)
 
 	local function OnDisposeFunction()
 		emptyTeamIndex = 0
@@ -3374,6 +3804,7 @@ function BattleRoomWindow.ShowMultiplayerBattleRoom(battleID)
 	battleLobby = WG.LibLobby.lobby
 
 	multiplayerWrapper = Control:New {
+		name = 'multiplayerWrapper',
 		x = 0,
 		y = 0,
 		width = "100%",
@@ -3424,7 +3855,7 @@ function BattleRoomWindow.GetSingleplayerControl(setupData)
 
 		OnParent = {
 			function(obj)
-
+				--Spring.Utilities.TraceFullEcho()
 				if multiplayerWrapper then
 					WG.BattleStatusPanel.RemoveBattleTab()
 
@@ -3435,6 +3866,13 @@ function BattleRoomWindow.GetSingleplayerControl(setupData)
 					WG.LibLobby.lobby:LeaveBattle()
 					multiplayerWrapper = nil
 				elseif mainWindow then
+					--Spring.Echo("mainWindo exists", mainWindowFunctions, mainWindowFunctions.GetInfoHandler())
+					if mainWindowFunctions and mainWindowFunctions.GetInfoHandler() then
+						local infoHandler = mainWindowFunctions.GetInfoHandler()
+						--Spring.Utilities.TableEcho(infoHandler)
+						infoHandler.rightInfo:Invalidate()
+						infoHandler.UpdateStartRectPositionsInMinimap()
+					end
 					return
 				end
 
@@ -3452,6 +3890,7 @@ function BattleRoomWindow.GetSingleplayerControl(setupData)
 
 				local battleWindow, functions = InitializeControls(1, battleLobby, 70, setupData)
 				mainWindowFunctions = functions
+				--Spring.Echo("battleWindow, functions, mainWindow", battleWindow, functions, mainWindow)
 				if not battleWindow then
 					return
 				end
@@ -3487,7 +3926,7 @@ function BattleRoomWindow.GetSingleplayerControl(setupData)
 								return counter
 							end
 						end
-						
+
 						fullName = fullName .. " (".. counter ..")"
 						-- Ubserver AI names cannot include whitespace
 						-- Not required for singleplayer, but breaks counter otherwise
@@ -3514,7 +3953,33 @@ function BattleRoomWindow.GetSingleplayerControl(setupData)
 							1, -- Default side for enemy AI is Cortex
 							GetStarterEnemyAIColorAssignment(i))
 					end
+					if singleplayerDefault.startboxes then 
+						for startboxindex, startboxcoords in pairs(singleplayerDefault.startboxes) do 
+							--Spring.Utilities.TraceFullEcho(100,100,100,"INIT BOXEN", battleWindow, mainWindowFunctions)
+							--Spring.Utilities.TableEcho(mainWindowFunctions)
+							local infoHandler = mainWindowFunctions.GetInfoHandler()
+							--Spring.Utilities.TableEcho(infoHandler)
+							infoHandler.AddStartRect(startboxindex, startboxcoords[1], startboxcoords[2],startboxcoords[3],startboxcoords[4])
+							infoHandler.rightInfo:Invalidate()
+							infoHandler.UpdateStartRectPositionsInMinimap()
+						end
+					end
 				end
+				local function updateMinimapstartBoxesDelayed()
+					if mainWindowFunctions and mainWindowFunctions.GetInfoHandler() then 
+						local infoHandler = mainWindowFunctions.GetInfoHandler()
+						--Spring.Utilities.TableEcho(infoHandler)
+						infoHandler.rightInfo:Invalidate()
+						infoHandler.UpdateStartRectPositionsInMinimap()
+						--Spring.Echo("Updating infoHandler.rightInfo:UpdateClientArea()")
+						infoHandler.rightInfo:UpdateClientArea()
+					end
+				end
+
+				if WG.Delay then
+					WG.Delay(updateMinimapstartBoxesDelayed, 0.5)
+				end
+
 			end
 		},
 	}
@@ -3568,7 +4033,7 @@ function BattleRoomWindow.LeaveBattle(onlyMultiplayer, onlySingleplayer)
 	end
 
 	battleLobby:LeaveBattle()
-	barManagerPresent = nil
+	barManagerPresent = true
 	if mainWindowFunctions then
 		mainWindowFunctions.OnBattleClosed(_, battleLobby:GetMyBattleID())
 	end
@@ -3589,6 +4054,14 @@ local function DelayedInitialize()
 		end
 	end
 	WG.Chobby.Configuration:AddListener("OnConfigurationChange", onConfigurationChange)
+
+	if mainWindowFunctions and mainWindowFunctions.GetInfoHandler() then
+		local infoHandler = mainWindowFunctions.GetInfoHandler()
+		infoHandler.rightInfo:Invalidate()
+		infoHandler.UpdateStartRectPositionsInMinimap()
+	else
+		--Spring.Echo("Cannot find mainWindowFunctions in battle room window",mainWindowFunctions)
+	end
 end
 
 function widget:Initialize()

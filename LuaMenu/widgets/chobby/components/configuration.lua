@@ -19,6 +19,8 @@ function Configuration:init()
 		fileConfig.game = "zk"
 	end
 
+	WG.Server.address = "server4.beyondallreason.info"
+
 	--self.serverAddress = "localhost"
 	self.serverAddress = WG.Server.address
 	self.serverPort =  WG.Server.port
@@ -26,12 +28,14 @@ function Configuration:init()
 	self.chatFontSize = 18
 
 	self.font = {
-		[0] = {size = 10, shadow = false},
-		[1] = {size = 14, shadow = false},
-		[2] = {size = 18, shadow = false},
-		[3] = {size = 22, shadow = false},
-		[4] = {size = 32, shadow = false},
-		[5] = {size = 48, shadow = false},
+		[0] = {font = "fonts/Poppins-Medium.otf", size = 17, outline = false, shadow = true},
+		[1] = {size = 15, outline = false, shadow = false},
+		[2] = {size = 17, outline = false, shadow = true},
+		[3] = {size = 20, outline = false, shadow = true},
+		[4] = {size = 24, outline = true,  shadow = false},
+		[5] = {size = 24, outline = false, shadow = true},
+		[6] = {size = 28, outline = true, shadow = false},
+		[7] = {size = 28, outline = false, shadow = true},
 	}
 
 	-- self.uiScale, WG.uiScale, and self.uiScalesForScreenSizes will be overridden in Configuration:SetConfigData;
@@ -56,6 +60,7 @@ function Configuration:init()
 	self.suggestedNameFromSteam = false
 	self.password = false
 	self.autoLogin = true
+	self.uploadLogPrompt = 'Prompt'
 	self.firstLoginEver = true
 	self.canAuthenticateWithSteam = false
 	self.wantAuthenticateWithSteam = true
@@ -71,7 +76,7 @@ function Configuration:init()
 	self.battleFilterLocked = false
 	self.battleFilterRedundant = true
 	self.battleFilterRedundantRegions = {"EU - ", "USA - ", "AUS - ","EU - ENGINE TESTING ","US - ","AU - ", "UK - "}
-	self.hostRegions = {"EU","US","AU","HU"}
+	self.hostRegions = {"DE","EU","EU2","US","US2","AU"}
 
 	self.manualBorderless = {
 		game = {},
@@ -102,8 +107,21 @@ function Configuration:init()
 	self.ignoredUserNameColor = {0.6, 0.6, 0.6, 1}
 	self.userNameColor = {1, 1, 1, 1}
 
-	self.buttonFocusColor = {0.54,0.72,1,0.3}
-	self.buttonSelectedColor = {0.54,0.72,1,0.6}--{1.0, 1.0, 1.0, 1.0}
+	self.buttonFocusColor = {0.34,0.52,1,0.3}
+	self.buttonSelectedColor = {0.1, 0.58, 0.90, 0.9}--{1.0, 1.0, 1.0, 1.0}
+
+	self.skillUncertaintyColors = {
+		[0] = {1.00, 0.75, 0.16, 1.0},
+		[1] = {0.85, 0.638, 0.137, 1.0},
+		[2] = {0.60, 0.45, 0.096, 1.0},
+		[3] = {0.40, 0.30, 0.064, 1.0},
+	}
+
+	self.showRank    = true
+	self.showSkillOpt = 1 -- 1: No 2: Yes 3: Detailed (with Uncertainty)
+	self.showCountry = false
+
+	self.useLastGameSpectatorState = 1 --1: Remember Last 2: Always Spectator 3: Always Player
 
 	self.loadLocalWidgets = false
 	self.displayBots = false
@@ -117,6 +135,7 @@ function Configuration:init()
 	self.multiplayerLaunchNewSpring = false
 	self.myAccountID = false
 	self.lastAddedAiName = false
+	self.multiplayerDifferentEngine = true
 
 	self.noNaiveConfigOverride = {
 		settingsMenuValues = true,
@@ -223,6 +242,7 @@ function Configuration:init()
 	self.debugMode = false
 	self.devMode = (VFS.FileExists("devmode.txt") and true) or false
 	self.enableProfiler = false
+	self.enableCacheRapidPool = true
 	self.showCampaignButton = false
 	self.showPlanetUnlocks = false
 	self.showPlanetEnemyUnits = false
@@ -256,6 +276,7 @@ function Configuration:init()
 			self.channels[channelName] = true
 		end
 	end
+	self.staticTooltipPositions = true
 
 	self.language = "en"
 	self.languages = {
@@ -450,7 +471,7 @@ end
 local function screenSizeKey()
 	local vsx, vsy = Spring.Orig.GetViewSizes()
 	-- Scale down to avoid using different keys for only slightly different view sizes.
-	return math.floor(vsx / 500) .. "x" .. math.floor(vsy / 250)  
+	return math.floor(vsx / 500) .. "x" .. math.floor(vsy / 250)
 end
 
 function Configuration:SetUiScale(newScale)
@@ -471,9 +492,9 @@ function Configuration:UpdateUiScaleMaxMin()
 	local oldMin = self.minUiScale
 	local oldMax = self.maxUiScale
 
-	self.maxUiScale = math.max(1, screenWidth / 960, screenHeight / 540) -- 200% @ 1080p; 400% @ 4k
+	self.maxUiScale = math.max(1, screenWidth / 960, screenHeight / 540) -- 200% @ 1080p; 400% @ 4k -- 200% @ 1080p; 400% @ 4k
 	-- size it against font sizes, because readability is the lower limit here.
-	-- We don't use font[0], so cap it against font[1]
+	-- font[0] is outlined and larger, so cap it against font[1]
 	self.minUiScale = 7 / self.font[1].size
 
 	if oldMin ~= self.minUiScale or oldMax ~= self.maxUiScale then
@@ -514,21 +535,17 @@ function Configuration:SetConfigData(data)
 	-- Fix old memory
 	self.game_settings.UnitIconDist = nil
 
-	if self.serverAddress == "zero-k.com" then
-		self.serverAddress = "zero-k.info"
-	end
-
 	--THIS IS FOR WHEN WE PULL THE PLUG, AUTOMATICALLY SWITCH OVER TO TEISERVER
 	if self.serverAddress == "road-flag.bnr.la" then
-		self.serverAddress = "server2.beyondallreason.info"
+		self.serverAddress = "server4.beyondallreason.info"
 	end
 
-	if self.serverAddress ~= "server2.beyondallreason.info" then
-		self.serverAddress = "server2.beyondallreason.info"
+	if self.serverAddress == "server3.beyondallreason.info" then
+		self.serverAddress = "server4.beyondallreason.info"
 	end
 
-	if self.serverAddress ~= "server2.beyondallreason.info" then
-		self.serverAddress = "server2.beyondallreason.info" -- TEMPORARILY
+	if self.serverAddress ~= "server4.beyondallreason.info" then
+		self.serverAddress = "server4.beyondallreason.info"
 	end
 
 	local newSpringsettings, onlyIfMissingSettings = VFS.Include(LUA_DIRNAME .. "configs/springsettings/springsettingsChanges.lua")
@@ -558,6 +575,7 @@ function Configuration:GetConfigData()
 		uiScalesForScreenSizes = self.uiScalesForScreenSizes,
 		password = self.password,
 		autoLogin = self.autoLogin,
+		uploadLogPrompt = self.uploadLogPrompt,
 		firstLoginEver = self.firstLoginEver,
 		wantAuthenticateWithSteam = self.wantAuthenticateWithSteam,
 		useSteamBrowser = self.useSteamBrowser,
@@ -587,6 +605,7 @@ function Configuration:GetConfigData()
 		debugMode = self.debugMode,
 		debugAutoWin = self.debugAutoWin,
 		enableProfiler = self.enableProfiler,
+		enableCacheRapidPool= self.enableCacheRapidPool,
 		showCampaignButton = self.showCampaignButton,
 		showPlanetUnlocks = self.showPlanetUnlocks,
 		showPlanetEnemyUnits = self.showPlanetEnemyUnits,
@@ -613,6 +632,7 @@ function Configuration:GetConfigData()
 		displayBadEngines2 = self.displayBadEngines2,
 		useWrongEngine = self.useWrongEngine,
 		multiplayerLaunchNewSpring = self.multiplayerLaunchNewSpring,
+		multiplayerDifferentEngine = self.multiplayerDifferentEngine,
 		doNotSetAnySpringSettings = self.doNotSetAnySpringSettings,
 		agressivelySetBorderlessWindowed = self.agressivelySetBorderlessWindowed,
 		fixedSettingsOverride = self.fixedSettingsOverride,
@@ -639,6 +659,11 @@ function Configuration:GetConfigData()
 		nextCampaignSaveNumber = self.nextCampaignSaveNumber,
 		steamReleasePopupSeen = self.steamReleasePopupSeen,
 		campaignConfigName = self.campaignConfigName,
+		showSkill   = self.showSkill,
+		showSkillOpt   = self.showSkillOpt,
+		showRank    = self.showRank,
+		showCountry = self.showCountry,
+		useLastGameSpectatorState = self.useLastGameSpectatorState,
 	}
 end
 
@@ -752,14 +777,14 @@ function Configuration:GetTick()
 end
 
 function Configuration:GetFont(sizeScale, fontName)
-	if fontName == nil then fontName = 'LuaMenu/widgets/chili/skins/Evolved/fonts/n019003l.pfb' end
+	if fontName == nil then fontName = 'fonts/Poppins-Regular.otf' end
 	return {
 		size = self.font[sizeScale].size,
+		outline = self.font[sizeScale].outline,
 		shadow = self.font[sizeScale].shadow,
 		font = fontName,
 		-- color        = {1,1,1,1},
-		-- outlineColor = {0.05,0.05,0.05,0.9},
-		-- outline = false,
+		outlineColor = {0.05,0.05,0.05,0.7},
 	}
 end
 
@@ -792,7 +817,12 @@ function Configuration:AllowNotification(playerName, playerList)
 	return true
 end
 
+local minimapSmallImageCache = {}
 function Configuration:GetMinimapSmallImage(mapName)
+	if minimapSmallImageCache[mapName] then
+		return minimapSmallImageCache[mapName], false
+	end
+	local found = false
 	if not self.gameConfig.minimapThumbnailPath then
 		return LUA_DIRNAME .. "images/minimapNotFound1.png"
 	end
@@ -800,20 +830,25 @@ function Configuration:GetMinimapSmallImage(mapName)
 	local filePath = self.gameConfig.minimapThumbnailPath .. mapName .. ".png"
 	if not VFS.FileExists(filePath) then
 		filePath = "LuaMenu/Images/Minimaps/" .. mapName .. ".jpg"
-	end
-	-- if not VFS.FileExists(filePath) then
-	-- 	Spring.Log("Chobby", LOG.WARNING,"GetMinimapSmallImage not found for",mapName)
-	-- 	filePath = "LuaMenu/Images/minimapNotFound.png"
-	-- end
-	if WG.WrapperLoopback and WG.WrapperLoopback.DownloadImage and (not VFS.FileExists(filePath)) then
+		if not VFS.FileExists(filePath) then
+			Spring.Log("Chobby", LOG.WARNING,"GetMinimapSmallImage not found for",mapName)
+			filePath = "LuaMenu/Images/minimapNotFound.png"
+		else found = true end
+	else found = true end
+
+--[[ 	if WG.WrapperLoopback and WG.WrapperLoopback.DownloadImage and (not VFS.FileExists(filePath)) then
 		if not self.minimapThumbDownloads[mapName] then
 			Spring.CreateDir("LuaMenu/Images/MinimapThumbnails")
 			WG.WrapperLoopback.DownloadImage({ImageUrl = "http://zero-k.info/Resources/" .. mapName .. ".thumbnail.jpg", TargetPath = filePath})
 			self.minimapThumbDownloads[mapName] = true
 		end
 		return filePath, true
+	end ]]
+	
+	if found then
+		minimapSmallImageCache[mapName] = filePath
 	end
-	return filePath, not VFS.FileExists(filePath)
+	return filePath, not found
 end
 
 function Configuration:GetMinimapImage(mapName)
@@ -825,18 +860,18 @@ function Configuration:GetMinimapImage(mapName)
 	if not VFS.FileExists(filePath) then
 		filePath = "LuaMenu/Images/Minimaps/" .. mapName .. ".jpg"
 	end
-	-- if not VFS.FileExists(filePath) then
-	-- 	Spring.Log("Chobby", LOG.WARNING,"GetMinimapImage not found for",mapName)
-	-- 	filePath = "LuaMenu/Images/minimapNotFound.png"
-	-- end
-	if WG.WrapperLoopback and WG.WrapperLoopback.DownloadImage and (not VFS.FileExists(filePath)) then
+	if not VFS.FileExists(filePath) then
+	 	Spring.Log("Chobby", LOG.WARNING,"GetMinimapImage not found for",mapName)
+	 	filePath = "LuaMenu/Images/minimapNotFound.png"
+	end
+--[[ 	if WG.WrapperLoopback and WG.WrapperLoopback.DownloadImage and (not VFS.FileExists(filePath)) then
 		if not self.minimapDownloads[mapName] then
 			Spring.CreateDir("LuaMenu/Images/Minimaps")
 			WG.WrapperLoopback.DownloadImage({ImageUrl = "http://zero-k.info/Resources/" .. mapName .. ".minimap.jpg", TargetPath = filePath})
 			self.minimapDownloads[mapName] = true
 		end
 		return filePath, true
-	end
+	end ]]
 	return filePath, not VFS.FileExists(filePath)
 end
 

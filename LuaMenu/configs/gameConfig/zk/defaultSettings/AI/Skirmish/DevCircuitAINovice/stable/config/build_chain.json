@@ -1,0 +1,193 @@
+// Mono-space font required
+{
+"porcupine": {
+	// changed Razor to Hacksaw because razors are annoying to kill just to end the game
+	//        0              1                2             3                   4             5                6            7              8               9            10                 11            12             13               14
+	"unit": ["turretlaser", "turretmissile", "turretriot", "turretheavylaser", "turrettorp", "turretaaclose", "staticcon", "turretheavy", "staticshield", "turretemp", "turretantiheavy", "staticarty", "turretaafar", "turretaaheavy", "turretgauss"],
+	// Actual number of defences per cluster bounded by income
+	"land":  [0, 1, 0, 3, 5, 1, 2, 1, 5, 0, 14, 1, 3, 6, 12, 11, 13],
+	"water": [4, 1, 6, 4, 4, 3, 5],
+	"prevent": 1,  // number of preventive defences
+	"amount": {  // income bound factor
+		"offset": [-0.40, 0.20],
+		// Amount factor: 8x8 ~ 1.15, 20x20 ~ 0.95
+		"factor": [1.15, 0.95],
+		"map": [8, 20]
+	},
+
+	// Base defence and time to build it, in seconds
+	// "base": [[0, 20], [0, 120], [0, 360], [1, 400], [0, 500], [5, 660], [5, 860],[1, 980], [5, 1160], [1, 1380], [2, 1680], [13, 1800], [7, 2400]],
+	// Let's make this more interesting for noobs to fight; add some stingers, add some variety, get it all out earlier
+	// This might be too much, though. Test and tweak.
+	// "base": [[0, 20], [1, 120], [0, 180], [1, 240], [3, 300], [5, 360], [6, 420], [9, 480], [1, 540], [0, 600], [5, 660], [3, 720]],
+	// Yep, way too much. Try this:
+	"base": [[0, 20], [1, 120], [3, 180], [5, 240], [6, 300], [1, 360], [5, 420]],
+
+	"superweapon": {
+		"unit":   ["raveparty", "staticnuke", "staticheavyarty", "zenith"],
+		"weight": [ 0.3,         0.2,          0.4,               0.1],
+
+		"condition": [35, 600]  // [<Minimum income>, <maximum seconds to build>]
+	},
+
+	// Fallback defence
+	"default": "turretmissile"
+},
+
+// Actions on building finished event
+"build_chain": {
+	// WARNING: Avoid recursion
+	// <category>: factory, nano, store, pylon, energy, defence, bunker, big_gun, radar, sonar, mex, repair
+	"energy": {
+		// <UnitDef>: {<elements>}
+		"energysingu": {
+			// Available elements:
+			// "energy": [max energy income, <"mex"|true|false>]
+			// "pylon": <boolean>
+			// "porc": <boolean>
+			// "terra": <boolean>
+			// "hub": [
+			//     // chain1
+			//     [{<unit1>, <category>, <offset>, <condition>}, {<unit2>, <category>, <offset>, <condition>}, ...],
+			//     // chain2
+			//     [{...}, {...}, ...],
+			//     ...
+			// ]
+			// <unit>: UnitDef
+			// <offset>:
+			//     1) [x, z] in South facing, elmos
+			//     2) {<direction>: <delta>} - left, right, front, back
+			// <condition>: air, no_air, maybe
+
+			// Build pylon in direction of nearby mex cluster
+			"pylon": true,
+
+			// Build chain of units
+			"hub": [
+				[  // chain1
+					{"unit": "turretlaser", "category": "defence", "offset": [-80, -80]},
+					{"unit": "turretmissile", "category": "defence", "offset": [-70, 70]},
+					{"unit": "turretmissile", "category": "defence", "offset": [-80, 80]},
+					{"unit": "turretaafar", "category": "defence", "offset": {"front": 120}, "condition": "air"},
+					{"unit": "turretaaflak", "category": "defence", "offset": {"front": 120}, "condition": "no_air"}
+				],
+				[  // chain2
+					{"unit": "turretlaser", "category": "defence", "offset": [80, 80]},
+					{"unit": "turretemp", "category": "defence", "offset": {"right": 80}},
+					{"unit": "turretmissile", "category": "defence", "offset": [70, -70]},
+					{"unit": "turretmissile", "category": "defence", "offset": [80, -80]},
+					{"unit": "turretaafar", "category": "defence", "offset": {"front": 120}, "condition": "air"},
+					{"unit": "turretaaflak", "category": "defence", "offset": {"front": 120}, "condition": "no_air"}
+				]
+			]
+		},
+		"energyfusion": {
+			"pylon": true,
+			"hub": [[
+					{"unit": "turretlaser", "category": "defence", "offset": [80, -80]},
+					{"unit": "turretriot", "category": "defence", "offset": [-80, 80]}
+				]]
+		}
+	},
+	"factory": {
+//		"factoryplane": {
+//			"hub": [[{"unit": "staticcon", "category": "nano", "offset": {"back": 0}}]]
+//		}
+		"factorygunship": {
+			"hub": [[{"unit": "staticcon", "category": "nano", "offset": {"back": 0}}]]
+		}
+	},
+	"mex": {
+		"staticmex": {
+//			"terra": true,
+			"energy": [50, true],
+			"porc": true
+		}
+	},
+	"big_gun": {
+		"staticheavyarty": {
+			"hub": [[
+					{"unit": "staticradar", "category": "radar", "offset": {"back": 40}},
+					{"unit": "turretaafar", "category": "defence", "offset": {"left": 120}, "condition": "air"},
+					{"unit": "turretlaser", "category": "defence", "offset": [-80, 80]},
+					{"unit": "turretmissile", "category": "defence", "offset": [80, 80]},
+					{"unit": "turretriot", "category": "defence", "offset": [80, -80]},
+					{"unit": "turretmissile", "category": "defence", "offset": [-80, -80]}
+				]]
+		},
+		"raveparty": {
+			"hub": [[
+					{"unit": "staticradar", "category": "radar", "offset": {"back": 40}},
+					{"unit": "turretaafar", "category": "defence", "offset": {"left": -220}, "condition": "air"},
+					{"unit": "turretlaser", "category": "defence", "offset": [-80, 180]},
+					{"unit": "turretmissile", "category": "defence", "offset": [80, 80]},
+					{"unit": "turretaafar", "category": "defence", "offset": {"front": -120}, "condition": "air"},
+					{"unit": "turretriot", "category": "defence", "offset": [180, -80]},
+					{"unit": "turretheavy", "category": "defence", "offset": [-80, -80]},
+					{"unit": "turretmissile", "category": "defence", "offset": [-70, 170]},
+					{"unit": "turretmissile", "category": "defence", "offset": [80, 80]},
+					{"unit": "turretlaser", "category": "defence", "offset": [-80, 180]},
+					{"unit": "turretriot", "category": "defence", "offset": [180, -80]},
+					{"unit": "turretlaser", "category": "defence", "offset": [-80, -80]},
+					{"unit": "turretaafar", "category": "defence", "offset": {"front": 220}, "condition": "air"},
+					{"unit": "turretheavy", "category": "defence", "offset": [180, -80]},
+					{"unit": "turretmissile", "category": "defence", "offset": [-70, 170]},
+					{"unit": "turretmissile", "category": "defence", "offset": [80, 80]},
+					{"unit": "turretlaser", "category": "defence", "offset": [-80, 180]},
+					{"unit": "turretmissile", "category": "defence", "offset": [-70, 70]},
+					{"unit": "turretriot", "category": "defence", "offset": [180, -80]},
+					{"unit": "turretaafar", "category": "defence", "offset": {"front": -230}, "condition": "air"},
+					{"unit": "turretmissile", "category": "defence", "offset": [180, 80]},
+					{"unit": "turretmissile", "category": "defence", "offset": [-80, -80]}
+				]]
+		},
+		"mahlazer": {
+			"hub": [[
+					{"unit": "staticradar", "category": "radar", "offset": {"back": 40}},
+					{"unit": "turretaafar", "category": "defence", "offset": {"left": -220}, "condition": "air"},
+					{"unit": "turretlaser", "category": "defence", "offset": [-80, 180]},
+					{"unit": "turretmissile", "category": "defence", "offset": [80, 80]},
+					{"unit": "turretaafar", "category": "defence", "offset": {"front": -120}, "condition": "air"},
+					{"unit": "turretriot", "category": "defence", "offset": [180, -80]},
+					{"unit": "turretlaser", "category": "defence", "offset": [-80, -80]},
+					{"unit": "turretheavy", "category": "defence", "offset": [-70, 170]},
+					{"unit": "turretmissile", "category": "defence", "offset": [80, 80]},
+					{"unit": "turretlaser", "category": "defence", "offset": [-80, 180]},
+					{"unit": "turretriot", "category": "defence", "offset": [180, -80]},
+					{"unit": "turretlaser", "category": "defence", "offset": [-80, -80]},
+					{"unit": "turretaafar", "category": "defence", "offset": {"front": 220}, "condition": "air"},
+					{"unit": "turretriot", "category": "defence", "offset": [180, -80]},
+					{"unit": "turretmissile", "category": "defence", "offset": [-70, 170]},
+					{"unit": "turretmissile", "category": "defence", "offset": [80, 80]},
+					{"unit": "turretlaser", "category": "defence", "offset": [-80, 180]},
+					{"unit": "turretmissile", "category": "defence", "offset": [-70, 70]},
+					{"unit": "turretriot", "category": "defence", "offset": [180, -80]},
+					{"unit": "turretheavy", "category": "defence", "offset": {"front": -230}, "condition": "air"},
+					{"unit": "turretmissile", "category": "defence", "offset": [180, 80]},
+					{"unit": "turretmissile", "category": "defence", "offset": [-80, -80]}
+				]]
+		},
+		"staticnuke": {
+			"hub": [[
+					{"unit": "staticradar", "category": "radar", "offset": {"back": 40}},
+					{"unit": "turretaafar", "category": "defence", "offset": {"left": 120}, "condition": "air"},
+					{"unit": "turretlaser", "category": "defence", "offset": [-80, 80]},
+					{"unit": "turretmissile", "category": "defence", "offset": [80, 80]},
+					{"unit": "turretriot", "category": "defence", "offset": [80, -80]},
+					{"unit": "turretmissile", "category": "defence", "offset": [-80, -80]}
+				]]
+		},
+		"turretaaheavy": {
+			"pylon": true,
+			"hub": [
+					[
+					{"unit": "staticradar", "category": "radar", "offset": {"back": 40}},
+					{"unit": "turretlaser", "category": "defence", "offset": [-80, 80]},
+					{"unit": "turretmissile", "category": "defence", "offset": [80, 80]},
+					{"unit": "turretriot", "category": "defence", "offset": [80, -80]},
+					{"unit": "turretmissile", "category": "defence", "offset": [-80, -80]}
+				]]
+		}
+	}
+}
+}

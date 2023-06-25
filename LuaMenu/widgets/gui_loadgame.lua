@@ -35,6 +35,8 @@ local ScrollPanel
 local Label
 local Button
 
+local myFont3
+
 --------------------------------------------------------------------------------
 -- data
 --------------------------------------------------------------------------------
@@ -180,6 +182,51 @@ local function LoadGameByFilename(filename)
 		return
 	end
 
+	if saveData.engineVersion and (Engine.versionFull ~= saveData.engineVersion) then
+		-- Both should be "105.1.1-1723-gd990800 BAR105" or whatever
+		local ssfFileName = SAVE_DIR .. '/' .. filename .. ".ssf"
+		-- we have an engine version mismatch, try in a different engine!
+		Spring.Echo("Off-engine savegame found, attempting to start with: ",game,saveData.map, nil,nil, ssfFileName,saveData.engineVersion)
+		
+		--This one does not work because the player IDs will mismatch and spam errors
+		--WG.SteamCoopHandler.AttemptGameStart("replay", game,saveData.map, nil,nil, ssfFileName,saveData.engineVersion)
+		
+		local script = [[
+			[GAME]
+			{
+				SaveFile=__FILE__;
+				IsHost=1;
+				OnlyLocal=1;
+				MyPlayerName=__PLAYERNAME__;
+			}
+			]]
+		script = script:gsub("__FILE__", ssfFileName)
+		script = script:gsub("__PLAYERNAME__", saveData.playerName)
+
+		local scriptfilename = "engine_testing_start_script.txt"
+		local scriptfile = io.open(scriptfilename, 'w')
+		scriptfile:write(script)
+		scriptfile:close()
+
+		local params = {
+			StartScriptContent = script,
+			SpringSettings = WG.SettingsWindow.GetSettingsString(),
+			StartDemoName = scriptfilename,
+			Engine = string.gsub(saveData.engineVersion, "BAR105", "bar"),
+		}
+		if WG.Chobby and WG.Chobby.InformationPopup then
+			WG.Chobby.InformationPopup("The saved game uses a different engine, so it will be opened in a new window.")
+			Spring.SetConfigInt("Fullscreen", 1, false)
+			Spring.SetConfigInt("Fullscreen", 0, false)
+		end
+		Spring.PauseSoundStream()
+		WG.WrapperLoopback.StartNewSpring(params)
+		
+		return
+	end
+	-- Gotta check engine version!
+	--engineVersion = "105.1.1-1723-gd990800 BAR105",
+
 	local success, err = pcall(
 		function()
 			--Spring.Log(widget:GetInfo().name, LOG.INFO, "Save file " .. path .. " loaded")
@@ -252,7 +299,7 @@ local function AddSaveEntryButton(saveFile, saveList)
 		width = 65,
 		caption = i18n("load"),
 		classname = "action_button",
-		font = WG.Chobby.Configuration:GetFont(2),
+		fontsize = Configuration:GetFont(2).size,
 		OnClick = {
 			function()
 				if ingame then
@@ -274,7 +321,7 @@ local function AddSaveEntryButton(saveFile, saveList)
 		right = 0,
 		height = 20,
 		valign = 'center',
-		font = Configuration:GetFont(2),
+		fontsize = Configuration:GetFont(2).size,
 		text = saveFile.filename,
 		parent = container,
 	}
@@ -290,7 +337,7 @@ local function AddSaveEntryButton(saveFile, saveList)
 		right = 0,
 		height = 20,
 		valign = 'center',
-		font = Configuration:GetFont(2),
+		fontsize = Configuration:GetFont(2).size,
 		text = shortenname,
 		parent = container,
 	}
@@ -304,7 +351,7 @@ local function AddSaveEntryButton(saveFile, saveList)
 		right = 0,
 		height = 20,
 		valign = 'center',
-		font = Configuration:GetFont(2),
+		fontsize = Configuration:GetFont(2).size,
 		text = WriteDate(saveFile.date),
 		parent = container,
 	}
@@ -315,10 +362,10 @@ local function AddSaveEntryButton(saveFile, saveList)
 		name = "saveDetails",
 		x = x,
 		y = 12,
-		right = 0,
+		right = 55,
 		height = 20,
 		valign = 'center',
-		font = Configuration:GetFont(2),
+		fontsize = Configuration:GetFont(2).size,
 		text = GetSaveDescText(saveFile),
 		parent = container,
 	}
@@ -333,7 +380,7 @@ local function AddSaveEntryButton(saveFile, saveList)
 		bottom = 4,
 		caption = i18n("delete"),
 		classname = "negative_button",
-		font = WG.Chobby.Configuration:GetFont(2),
+		fontsize = Configuration:GetFont(2).size,
 		OnClick = { function(self)
 				WG.Chobby.ConfirmationPopup(function(self) DeleteSave(saveFile.filename, saveList) end, i18n("delete_confirm"), nil, 360, 200)
 			end
@@ -361,13 +408,15 @@ end
 local function InitializeControls(parent)
 	Configuration = WG.Chobby.Configuration
 
+	myFont3 = Font:New(Configuration:GetFont(3))
+
 	Label:New {
-		x = 20,
+		x = 15,
 		right = 5,
-		y = 17,
+		y = 14,
 		height = 20,
 		parent = parent,
-		font = Configuration:GetFont(3),
+		objectOverrideFont = myFont3,
 		caption = i18n("load_saved_game"),
 	}
 
@@ -381,6 +430,7 @@ local function InitializeControls(parent)
 		y = 52,
 		bottom = 15,
 		parent = parent,
+		objectOverrideFont = myFont3,
 		resizable = false,
 		draggable = false,
 		padding = {0, 0, 0, 0},

@@ -1,0 +1,5 @@
+All of the following textures in folder (/LuaMenu/widgets/chobby/images) were made for Beyond All Reason by IceXuick
+all rights reserved (CC BY NC ND)
+
+left.png
+lock.png

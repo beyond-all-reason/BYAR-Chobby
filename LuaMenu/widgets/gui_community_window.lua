@@ -83,7 +83,7 @@ local function LeaveIntentionallyBlank(scroll, caption)
 		width = 120,
 		height = 20,
 		align = "left",
-		valign = "tp",
+		valign = "top",
 		font = WG.Chobby.Configuration:GetFont(1),
 		caption = caption,
 		parent = scroll
@@ -98,8 +98,10 @@ local function AddLinkButton(scroll, name, tooltip, link, x, right, y, bottom)
 		bottom = bottom,
 		caption = name,
 		tooltip = tooltip,
-		classname = "option_button",
-		font = WG.Chobby.Configuration:GetFont(3),
+		classname = "link_button",
+		objectOverrideFont = myFont7,
+		--font = WG.Chobby.Configuration:GetFont(3),
+		--Spring.Utilities.TraceFullEcho(maxdepth, 50, 50),
 		OnClick = {
 			function ()
 				WG.BrowserHandler.OpenUrl(link)
@@ -108,9 +110,9 @@ local function AddLinkButton(scroll, name, tooltip, link, x, right, y, bottom)
 		OnResize = {
 			function(obj, xSize, ySize)
 				if globalSizeMode == 2 then
-					ButtonUtilities.SetFontSizeScale(obj, 4)
+					ButtonUtilities.SetFontSizeScale(obj, 5)
 				else
-					ButtonUtilities.SetFontSizeScale(obj, 3)
+					ButtonUtilities.SetFontSizeScale(obj, 4)
 				end
 			end
 		},
@@ -205,13 +207,13 @@ end
 local function GetDateTimeDisplay(parentControl, xPosition, yPosition, timeString)
 	local localTimeString = Spring.Utilities.ArchaicUtcToLocal(timeString, i18n)
 	if localTimeString then
-		localTimeString = localTimeString .. " local time."
+		localTimeString = localTimeString .. " of your local time."
 	end
 	local utcTimeString = string.gsub(timeString, "T", " at ") .. " UTC"
 
 	local localStart = TextBox:New{
 		x = xPosition,
-		y = yPosition + 6,
+		y = yPosition,
 		right = 4,
 		height = 22,
 		align = "left",
@@ -224,7 +226,7 @@ local function GetDateTimeDisplay(parentControl, xPosition, yPosition, timeStrin
 
 	local countdown = TextBox:New{
 		x = xPosition,
-		y = yPosition + 26,
+		y = yPosition + localStart.height,
 		right = 4,
 		height = 22,
 		align = "left",
@@ -243,8 +245,12 @@ local function GetDateTimeDisplay(parentControl, xPosition, yPosition, timeStrin
 	}
 
 	function externalFunctions.SetPosition(newY)
-		localStart:SetPos(nil, newY + 6)
-		countdown:SetPos(nil, newY + 26)
+		localStart:SetPos(nil, newY)
+		countdown:SetPos(nil, newY + localStart.height)
+	end
+
+	function externalFunctions.GetHeight()
+		return localStart.height + countdown.height
 	end
 
 	function externalFunctions.SetVisibility(visible)
@@ -277,10 +283,11 @@ local headingFormats = {
 		spacing = 2,
 		buttonPos = 2,
 		inButton = 4,
-		paragraphSpacing = 0,
-		topHeadingOffset = 30,
+		paragraphSpacing = 20,
+		topHeadingOffset = 60,
 		imageSize = 120,
 		buttonBot = 6,
+		vSpacing = 6,
 	},
 	[4] = {
 		buttonSize = 40,
@@ -290,12 +297,17 @@ local headingFormats = {
 		buttonPos = 5,
 		inButton = 7,
 		paragraphSpacing = 30,
-		topHeadingOffset = 50,
+		topHeadingOffset = 80,
 		imageSize = 120,
 		buttonBot = 10,
+		vSpacing = 6,
 	},
 }
 
+-- 2023/03/28 Fireball: we always use "headingFormats[2]"
+--						we never use "showBulletHeading"
+--						in result "freeHeading" and "heading" is same
+--						i simplified this function to use always "heading" and deleted bullets
 local function GetNewsEntry(parentHolder, index, headingSize, timeAsTooltip, topHeading, showBulletHeading)
 	local linkString
 	local controls = {}
@@ -307,41 +319,32 @@ local function GetNewsEntry(parentHolder, index, headingSize, timeAsTooltip, top
 		y = 0,
 		right = 0,
 		height = 500,
-		padding = {0,0,0,0},
+		padding = {15,5,15,0},
 		parent = parentHolder,
 	}
 
 	local externalFunctions = {}
 
+	-- Fireball: vPositioning doesn´t matter here, overwritten by DoResize as soon as the control was created
 	function externalFunctions.AddEntry(entryData, parentPosition)
 		local textPos = 6
 		local headingPos = 2
 		local offset = 0
 
-		if showBulletHeading then
-			if not controls.bullet then
-				controls.bullet = Image:New{
-					x = 2,
-					y = offset + 5,
-					width = 16,
-					height = 16,
-					file = IMG_BULLET,
-					parent = holder,
-				}
-			end
-			headingPos = 18
-		end
-
 		if entryData.link then
 			linkString = entryData.link
 			if not controls.linkButton then
 				controls.linkButton = Button:New {
-					x = headingPos,
-					y = offset + 5,
-					right = 2,
-					height = headFormat.buttonSize,
-					classname = "button_square",
-					caption = "",
+					x = 2,
+					y = offset + 6, -- Fireball: doesn´t matter, overwritten by DoResize, this is totally wrong
+					width = 280,
+					--right = 400,
+					align = "left",
+					valign = "top",
+					height = 40,
+					classname = "link_button",
+					objectOverrideFont = myFont0,
+					caption = entryData.urlText,
 					padding = {0, 0, 0, 0},
 					parent = holder,
 					OnClick = {
@@ -353,67 +356,25 @@ local function GetNewsEntry(parentHolder, index, headingSize, timeAsTooltip, top
 			else
 				controls.linkButton:SetVisibility(true)
 			end
-
-			if not controls.heading then
-				controls.heading = TextBox:New{
-					x = 4,
-					y = headFormat.inButton,
-					right = 4,
-					height = headFormat.height,
-					align = "left",
-					valign = "top",
-					text = entryData.heading,
-					fontsize = WG.Chobby.Configuration:GetFont(headingSize).size,
-					parent = controls.linkButton,
-				}
-			else
-				controls.heading:SetText(entryData.heading)
-			end
-
-			-- Possibly looks nicer without link image.
-			if not showBulletHeading then
-				if not controls.linkImage then
-					controls.linkImage = Image:New {
-						x = 0,
-						y = 5,
-						width = headFormat.linkSize,
-						height = headFormat.linkSize,
-						keepAspect = true,
-						file = IMG_LINK,
-						parent = controls.linkButton,
-					}
-				end
-
-				local length = controls.heading.font:GetTextWidth(entryData.heading)
-				controls.linkImage:SetPos(length + 8)
-			end
-
-			if controls.freeHeading then
-				controls.freeHeading:SetVisibility(false)
-			end
-		else
-			if not controls.freeHeading then
-				controls.freeHeading = TextBox:New{
-					x = headingPos + 4,
-					y = offset + 12,
-					right = 4,
-					height = headFormat.height,
-					align = "left",
-					valign = "top",
-					text = entryData.heading,
-					fontsize = WG.Chobby.Configuration:GetFont(4).size,
-					parent = holder,
-				}
-			else
-				controls.freeHeading:SetText(entryData.heading)
-				controls.freeHeading:SetVisibility(true)
-			end
-
-			if controls.linkButton then
-				controls.linkButton:SetVisibility(false)
-			end
 		end
-		offset = offset + 40
+
+		if not controls.heading then
+			controls.heading = TextBox:New{
+				x = 4, -- Fireball: Why not textpos(=6) ?
+				y = headFormat.inButton,	-- Fireball: doesn´t matter, overwritten by DoResize
+				right = 4,
+				height = headFormat.height,
+				align = "center", -- Fireball: What do we want to center here ? the heading is shown aligned to the left and it´s good. is this working at all ?
+				valign = "top",
+				text = entryData.heading,
+				objectOverrideFont = myFont7,
+				parent = holder,
+			}
+		else
+			controls.heading:SetText(entryData.heading)
+		end
+
+		offset = offset + controls.heading.height
 
 		if entryData.imageFile then
 			textPos = headFormat.imageSize + 12
@@ -421,8 +382,8 @@ local function GetNewsEntry(parentHolder, index, headingSize, timeAsTooltip, top
 			if not controls.image then
 				controls.image = Image:New{
 					name = "news" .. index,
-					x = 4,
-					y = offset + 6,
+					x = 4, -- Fireball: Why not textpos(=6) ?
+					y = offset + headFormat.vSpacing,
 					width = headFormat.imageSize,
 					height = headFormat.imageSize,
 					keepAspect = true,
@@ -436,17 +397,18 @@ local function GetNewsEntry(parentHolder, index, headingSize, timeAsTooltip, top
 				controls.image:Invalidate()
 				controls.image:SetVisibility(true)
 			end
+			offset = offset + headFormat.vSpacing + headFormat.imageSize
 		elseif controls.image then
 			controls.image:SetVisibility(false)
 		end
 
 		if entryData.atTime and not timeAsTooltip then
 			if not controls.dateTime then
-				controls.dateTime = GetDateTimeDisplay(holder, textPos, offset, entryData.atTime)
+				controls.dateTime = GetDateTimeDisplay(holder, textPos, offset + headFormat.vSpacing, entryData.atTime)
 			else
 				controls.dateTime.SetVisibility(true)
 			end
-			offset = offset + 45
+			offset = offset + headFormat.vSpacing + controls.dateTime.GetHeight()
 		elseif controls.dateTime then
 			controls.dateTime.SetVisibility(false)
 		end
@@ -455,22 +417,23 @@ local function GetNewsEntry(parentHolder, index, headingSize, timeAsTooltip, top
 			if not controls.text then
 				controls.text = TextBox:New{
 					x = textPos,
-					y = offset + 6,
+					y = offset + headFormat.vSpacing,
 					right = 4,
 					height = 120,
 					align = "left",
 					valign = "top",
 					text = entryData.text,
-					fontsize = WG.Chobby.Configuration:GetFont(2).size,
+					objectOverrideFont = myFont2,
 					parent = holder,
 				}
 			else
 				controls.text:SetText(entryData.text)
 				controls.text:SetVisibility(true)
-				controls.text:SetPos(textPos, offset + 6)
+				controls.text:SetPos(textPos, offset + headFormat.vSpacing)
 				controls.text._relativeBounds.right = 4
 				controls.text:UpdateClientArea(false)
 			end
+			offset = offset + headFormat.vSpacing + controls.text.height
 		elseif controls.text then
 			controls.text:SetVisibility(false)
 		end
@@ -487,39 +450,39 @@ local function GetNewsEntry(parentHolder, index, headingSize, timeAsTooltip, top
 
 		local offset = 0
 
-		if controls.bullet then
-			controls.bullet:SetPos(nil, offset + 5)
-		end
-
 		local headingSize
-		if controls.linkButton and controls.linkButton.visible then
+		if controls.heading and controls.heading.visible then
 			headingSize = (#controls.heading.physicalLines)*headFormat.fontSize
-			controls.linkButton:SetPos(nil, offset + headFormat.buttonPos, nil, headingSize + headFormat.buttonBot)
 			controls.heading:SetPos(nil, nil, nil, headingSize)
-		elseif controls.freeHeading then
-			headingSize = (#controls.freeHeading.physicalLines)*headFormat.fontSize
-			controls.freeHeading:SetPos(nil, offset + 12, nil, headingSize)
 		end
 		offset = offset + headingSize + headFormat.spacing
 
+		local offsetImage = 0
 		if controls.image and controls.image.visible then
-			controls.image:SetPos(nil, offset + 6)
+			controls.image:SetPos(nil, offset + headFormat.vSpacing)
+			offsetImage = offset + headFormat.vSpacing + headFormat.imageSize
 		end
+
 		if controls.dateTime and controls.dateTime.visible then
-			controls.dateTime.SetPosition(offset)
-			offset = offset + 46
+			controls.dateTime.SetPosition(offset + headFormat.vSpacing)
+			offset = offset + headFormat.vSpacing + controls.dateTime.GetHeight()
 		end
+
 		if controls.text and controls.text.visible then
-			controls.text:SetPos(nil, offset + 6)
+			controls.text:SetPos(nil, offset + headFormat.vSpacing)
+			offset = offset + headFormat.vSpacing + controls.text.height
 		end
 
-		local offsetSize = (controls.text and (#controls.text.physicalLines)*18) or 6
-		if controls.image and controls.image.visible and ((not controls.text) or (offsetSize < headFormat.imageSize - (controls.dateTime and 46 or 0))) then
-			offsetSize = headFormat.imageSize - (controls.dateTime and 46 or 0)
+		if controls.linkButton and controls.linkButton.visible then
+			offset = math.max(offset, offsetImage) + headFormat.vSpacing
+			controls.linkButton:SetPos(nil, offset)
+			offset = offset + controls.linkButton.height
+		else
+			offset = math.max(offset, offsetImage)	
 		end
 
-		holder:SetPos(nil, parentPosition, nil, offset + offsetSize + 10)
-		return parentPosition + offset + offsetSize + headFormat.paragraphSpacing
+		holder:SetPos(nil, parentPosition, nil, offset+10)
+		return parentPosition + offset + headFormat.paragraphSpacing
 	end
 
 	function externalFunctions.UpdateCountdown()
@@ -542,7 +505,7 @@ local function GetNewsHandler(parentControl, headingSize, timeAsTooltip, topHead
 		x = 0,
 		y = 0,
 		right = 0,
-		padding = {0,0,0,0},
+		padding = {0,15,0,0},
 		parent = parentControl,
 	}
 
@@ -590,6 +553,7 @@ local function GetNewsHandler(parentControl, headingSize, timeAsTooltip, topHead
 				link = items[i].Url,
 				atTime = items[i].Time,
 				text = items[i].Text,
+				urlText = items[i].UrlText,
 			}
 			if items[i].Image then
 				local imagePos = string.find(items[i].Image, "news")
@@ -845,6 +809,12 @@ local function InitializeControls(window)
 	--	parent = window,
 	--	font = WG.Chobby.Configuration:GetFont(3),
 	--	caption = "Community",
+	local Configuration = WG.Chobby.Configuration
+	myFont7 = Font:New(Configuration:GetFont(7))
+	myFont5 = Font:New(Configuration:GetFont(5))
+	myFont4 = Font:New(Configuration:GetFont(5, 'fonts/Poppins-Medium.otf'))
+	myFont2 = Font:New(Configuration:GetFont(2))
+	myFont0 = Font:New(Configuration:GetFont(0))
 
 	local lobby = WG.LibLobby.lobby
 	local staticCommunityData = LoadStaticCommunityData()
@@ -862,8 +832,8 @@ local function InitializeControls(window)
 	-- Populate link panel
 	AddLinkButton(leftCenter, "Donate",   "Help us continue development", "https://www.beyondallreason.info/donate-for-bar",0, 0, "75.5%", 0) --last
 	AddLinkButton(leftCenter, "Manual",  "A quick guide on how the game mechanics work", "https://www.beyondallreason.info/guides", 0, 0, "50.5%", "25.5%") --third
-	AddLinkButton(leftCenter, "Homepage", "Visit our website for more", "https://www.beyondallreason.info/",   0, 0, "25.5%", "50.5%") --second
-	AddLinkButton(leftCenter, "Talk to us", "Chat on the BAR Discord server.", "https://discord.gg/N968ddE", 0, 0, 0, "75.5%") --first
+	AddLinkButton(leftCenter, "Homepage", "Visit our website for more, opens https://www.beyondallreason.info/", "https://www.beyondallreason.info/",   0, 0, "25.5%", "50.5%") --second
+	AddLinkButton(leftCenter, "Join us on Discord", "Opens a link to https://discord.gg/N968ddE in your browser.", "https://discord.gg/N968ddE", 0, 0, 0, "75.5%") --first
 
 	-- News Handler
 	--[[

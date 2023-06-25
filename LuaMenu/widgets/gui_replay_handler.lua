@@ -21,8 +21,8 @@ local replayListWindow
 local replayList
 
 -- Size constants for the replay window
-local PLAYER_HEIGHT = 18
-local REPLAY_LIST_ENTRY_HEIGHT = 120
+local PLAYER_HEIGHT = 20
+local REPLAY_LIST_ENTRY_HEIGHT = 126
 
 local myFont1
 local myFont2
@@ -67,7 +67,9 @@ end
 
 --	From the flat array of players, build an array of teams
 local function buildTeams(players)
+	local Configuration = WG.Chobby.Configuration	
 	local teams = {}
+	local myAllyID, myteamID
 	for _, player in pairs(players) do
 		local team
 		if teams[player.allyTeamId + 1] == nil then
@@ -77,6 +79,15 @@ local function buildTeams(players)
 			team = teams[player.allyTeamId + 1]
 		end
 		table.insert(team, player)
+		if player.name == Configuration.userName then
+			myAllyID = player.allyTeamId + 1
+			myTeamID = #team
+		end
+	end
+	if myAllyID then
+		local playerMe = teams[myAllyID][myTeamID]
+		table.remove(teams[myAllyID], myTeamID)
+		table.insert(teams[myAllyID], 1, playerMe)
 	end
 	return teams
 end
@@ -84,7 +95,7 @@ end
 --	Return a widget containing a player's information
 local function playerWidget(playerInfo)
 	local Configuration = WG.Chobby.Configuration
-	local userName = playerInfo.name
+	local userName = StringUtilities.GetTruncatedStringWithDotDot(playerInfo.name, myFont1, 110)
 
 	-- Create a control widget to encapsulate the player's information
 	local ret = Chili.Control:New {
@@ -118,10 +129,15 @@ local function playerWidget(playerInfo)
 		name = "userName",
 		x = 18, y = 0, right = 0, height = PLAYER_HEIGHT,
 		valign = "top",
-		objectoverridefont = myFont1,
-		--fontsize = Configuration:GetFont(1).size,
-		text = userName,
+		--objectoverridefont = myFont1,
+		fontsize = Configuration:GetFont(1).size,
+		text = "",
 		parent = ret,
+		OnResize = {
+			function (obj, xSize, ySize)
+				obj:SetText(StringUtilities.GetTruncatedStringWithDotDot(userName, obj.font, obj.width))
+			end
+		}
 	}
 
 	-- TODO: We could definitely add some more stuff (flag? TS value?) here.
@@ -129,11 +145,19 @@ local function playerWidget(playerInfo)
 end
 
 local function CreateReplayEntry(
-	replayPath, engineName, gameName, mapName, players, time
+	replayPath, engineName, gameName, mapName, players, time, winningAllyTeamIds
 )
 
 	local Configuration = WG.Chobby.Configuration
+	local mapNameTruncated = StringUtilities.GetTruncatedStringWithDotDot(mapName, myFont1, 180)
 	local fileName = string.sub(replayPath, 7)
+	local winningAllyTeamId = -2 -- old launcher does not send winningAllyTeamIds
+	if winningAllyTeamIds then
+		winningAllyTeamId = winningAllyTeamIds[1] and (winningAllyTeamIds[1] + 1) or -1
+	end
+	-- Spring.Echo("winningAllyTeamIds exists ?:", winningAllyTeamIds ~= nil)
+	-- Spring.Echo("winningAllyTeamId:", winningAllyTeamId)
+	
 	if string.sub(fileName, 0, 4) == "hide" then
 		return
 	end
@@ -187,7 +211,7 @@ local function CreateReplayEntry(
 	local minimap = Panel:New {
 		name = "minimap",
 		x = 3, y = 3,
-		width = 112, height = 112,
+		width = 120, height = 120,
 		padding = {1,1,1,1},
 		parent = replayPanel,
 	}
@@ -243,15 +267,28 @@ local function CreateReplayEntry(
 		valign = 'center',
 		objectoverridefont = myFont2,
 		fontsize = Configuration:GetFont(2).size,
-		text = mapName,
+		text = mapNameTruncated,
 		parent = replayPanel,
 	}
+
+	if winningAllyTeamId > -2 then
+		TextBox:New {
+			name = "replayMyResult",
+			x = 135, y = 99,
+			right = 0, height = 20,
+			valign = 'center',
+			objectoverridefont = myFont1,
+			--fontsize = Configuration:GetFont(1).size,
+			text = '',
+			parent = replayPanel,
+		}
+	end
 
 	-- Compute the teams/players lists
 
 	local userList = Chili.Control:New {
-		x = 415, y = 10,
-		right = 0, bottom = 0,
+		x = 346, y = 10,
+		right = "11.5%", bottom = 0,
 		padding = {0, 0, 0, 0},
 		parent = replayPanel,
 	}
@@ -260,8 +297,8 @@ local function CreateReplayEntry(
 	local yOffset = 0
 
 	-- Iterate over the teams structure
-	for i, team in pairs(teams) do
-		if i > 1 then
+	for allyTeamID, team in pairs(teams) do
+		if allyTeamID > 1 then
 			yOffset = yOffset + 10
 		end
 
@@ -278,16 +315,24 @@ local function CreateReplayEntry(
 		TextBox:New {
 			x = xOffset, y = yOffset, right = 0, height = 10,
 			valign = 'center',
-			objectoverridefont = myFont1,
-			--fontsize = Configuration:GetFont(1).size,
-			text = "Team " .. i,
+			--objectoverridefont = myFont1,
+			fontsize = Configuration:GetFont(1).size,
+			text = "Team " .. allyTeamID,
 			parent = userList,
+			OnResize = {
+				function (obj, xSize, ySize)
+					obj:SetText(StringUtilities.GetTruncatedStringWithDotDot("Team " .. allyTeamID, obj.font, obj.width))
+				end
+			}
 		}
 		yOffset = yOffset + PLAYER_HEIGHT
 
 		--	Then add each player on a subsequent line
 		for _, player in pairs(team) do
-
+			if winningAllyTeamId > -2 and player.name == Configuration.userName then
+				local result = winningAllyTeamId == -1 and "Unknown Result" or allyTeamID == winningAllyTeamId and "Won" or "Lost"
+				replayPanel:GetChildByName("replayMyResult"):SetText(result)
+			end
 			--	If there are too many players to display on one line, just add
 			--	an ellipsis and skip subsequent players for the team.
 			if yOffset + PLAYER_HEIGHT * 2 >= REPLAY_LIST_ENTRY_HEIGHT then
@@ -346,7 +391,7 @@ local function CreateReplayEntry(
 			"option_button"
 		),
 		objectoverridefont = myFont2,
-		--font = WG.Chobby.Configuration:GetFont(2),
+		fontsize = WG.Chobby.Configuration:GetFont(2).size,
 		OnClick = {
 			function()
 				if not replayPath or not CheckReplayFileExists() then
@@ -369,8 +414,8 @@ local function CreateReplayEntry(
 		width = "10%",
 		caption = i18n("delete_replay"),
 		classname = "negative_button",
-		--font = WG.Chobby.Configuration:GetFont(2),
 		objectoverridefont = myFont2,
+		fontsize = WG.Chobby.Configuration:GetFont(2).size,
 		tooltip = "Delete the replay from your hard drive",
 		OnClick = {
 			function()
@@ -403,8 +448,8 @@ local function InitializeControls(parentControl)
 		width = 180,
 		height = 30,
 		parent = parentControl,
-		objectoverridefont = myFont3,
-		--font = Configuration:GetFont(3),
+		--objectoverridefont = myFont3,
+		font = Configuration:GetFont(3),
 		caption = "Replays",
 	}
 
@@ -521,8 +566,8 @@ local function InitializeControls(parentControl)
 		width = 120,
 		height = 45,
 		caption = i18n("refresh"),
-		objectoverridefont = myFont3,
-		--font = Configuration:GetFont(3),
+		objectoverridefont = myFont2,
+		font = Configuration:GetFont(2),
 		classname = "option_button",
 		tooltip = "Refresh the list of replays",
 		parent = parentControl,
@@ -530,13 +575,13 @@ local function InitializeControls(parentControl)
 	}
 
 	moreButton = Button:New {
-		right = 15 + 130,
+		right = 15 + 260,
 		y = 7,
 		width = 120,
 		height = 45,
 		caption = i18n("more"),
-		objectoverridefont = myFont3,
-		--font = Configuration:GetFont(3),
+		objectoverridefont = myFont2,
+		font = Configuration:GetFont(2),
 		classname = "option_button",
 		parent = parentControl,
 		tooltip = "Load more, older replays",
@@ -577,8 +622,8 @@ local function InitializeControls(parentControl)
 			width = 120,
 			height = 45,
 			caption = "force start replay",
-			objectoverridefont = myFont3,
-			--font = Configuration:GetFont(3),
+			objectoverridefont = myFont2,
+			font = Configuration:GetFont(2),
 			classname = "option_button",
 			parent = parentControl,
 			tooltip = "Force start a specific replay",
@@ -596,13 +641,13 @@ local function InitializeControls(parentControl)
 
 	if WG.BrowserHandler and Configuration.gameConfig.link_replays ~= nil then
 		Button:New {
-			right = 15 + 260,
+			right = 15 + 130,
 			y = 7,
 			width = 120,
 			height = 45,
 			caption = i18n("download"),
-			objectoverridefont = myFont3,
-			--font = Configuration:GetFont(3),
+			objectoverridefont = myFont2,
+			font = Configuration:GetFont(2),
 			classname = "option_button",
 			parent = parentControl,
 			tooltip = "Get more replays from our website, and download the .sdfz files into your data/demos folder.",
@@ -616,11 +661,11 @@ local function InitializeControls(parentControl)
 
 	local externalFunctions = {}
 
-	function externalFunctions.AddReplay(replayPath, engine, game, map, players, time)
+	function externalFunctions.AddReplay(replayPath, engine, game, map, players, time, winningAllyTeamIds)
 		--	Try to add the replay, show the stack trace in case of error
 		xpcall(
 			function ()
-				local control, sortData = CreateReplayEntry(replayPath, engine, game, map, players, time)
+				local control, sortData = CreateReplayEntry(replayPath, engine, game, map, players, time, winningAllyTeamIds)
 
 				if control then
 					replayList:AddItem(replayPath, control, sortData)
@@ -662,12 +707,12 @@ function ReplayHandler.GetControl()
 	return window
 end
 
-function ReplayHandler.ReadReplayInfoDone(path, engine, game, map, players, time)
+function ReplayHandler.ReadReplayInfoDone(path, engine, game, map, players, time, winningAllyTeamIds)
 	if not replayListWindow then
 		return
 	end
 
-	replayListWindow.AddReplay(path, engine, game, map, players, time)
+	replayListWindow.AddReplay(path, engine, game, map, players, time, winningAllyTeamIds)
 end
 
 --------------------------------------------------------------------------------

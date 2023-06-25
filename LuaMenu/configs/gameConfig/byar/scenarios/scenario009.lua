@@ -7,7 +7,7 @@ local scenariodata = {
 	imagepath		= "scenario009.jpg", -- placed next to lua file, should be 3:1 ratio banner style
 	imageflavor		= "All is not lost", -- This text will be drawn over image
     summary         = [[After a ferocious battle, you are left with only a handful of Rezzer's, tasked to resurrect your army. Beware though, it seems that you might not be alone with this goal]],
-	briefing 		= [[You will start with some Necros (Resurrection and Repair Bots), that can resurrect units from their wrecks, though they are unable to resurrect units that have been destroyed beyond repair into just heaps of metal. While Necros cannot build any units on their own, your only hope is to find the wrecks of some construction bots and rebuild everything anew. Units that are resurrected, become active with 0 health, but Necros will continue to repair them back to full health. Necros can also reclaim wrecks from the battlefield for their metal very rapidly, if needed.
+	briefing 		= [[You will start with some Graverobbers (Resurrection and Repair Bots), that can resurrect units from their wrecks, though they are unable to resurrect units that have been destroyed beyond repair into just heaps of metal. While Graverobbers cannot build any units on their own, your only hope is to find the wrecks of some construction bots and rebuild everything anew. Units that are resurrected, become active with 0 health, but Graverobbers will continue to repair them back to full health. Graverobbers can also reclaim wrecks from the battlefield for their metal very rapidly, if needed.
 
 Tips:
  - Resurrection bots will use Energy to resurrect units, at a flat cost of 75e per second while resurrecting.
@@ -41,8 +41,8 @@ Scoring:
         {name = "Brutal" , playerhandicap = 0,  enemyhandicap=50},
     },
     allowedsides     = {"Cortex"}, --these are the permitted factions for this mission, ch0ose from {"Armada", "Cortex", "Random"}
-	victorycondition= "Kill all enemy units", -- This is plaintext, but should be reflected in startscript
-	losscondition	= "Loss of all your units",  -- This is plaintext, but should be reflected in startscript
+	victorycondition= "Kill all construction units", -- This is plaintext, but should be reflected in startscript
+	losscondition	= "Lose all of your construction units",  -- This is plaintext, but should be reflected in startscript
     unitlimits   = { -- table of unitdefname : maxnumberofthese units, 0 means disable it
         -- dont use the one in startscript, put the disabled stuff here so we can show it in scenario window!
         --armavp = 0,
@@ -226,7 +226,7 @@ Scoring:
 
 	[modoptions]
 	{
-        deathmode = killall;
+        deathmode = builders;
         scenariooptions = __SCENARIOOPTIONS__;
         ruins = enabled;
 	}

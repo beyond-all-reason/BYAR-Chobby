@@ -1,0 +1,653 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<head>
+    <title>Reference</title>
+    <link rel="stylesheet" href="../luadoc.css" type="text/css" />
+	<!--meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/-->
+</head>
+
+<body>
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+<div id="main">
+
+<div id="navigation">
+
+
+<h1>LuaDoc</h1>
+<ul>
+	
+	<li><a href="../index.html">Index</a></li>
+	
+</ul>
+
+
+<!-- Module list -->
+
+
+
+<!-- File list -->
+
+<h1>Files</h1>
+<ul>
+
+	<li><strong>docgen.lua</strong></li>
+	
+</ul>
+
+
+
+
+
+
+</div> <!-- id="navigation" -->
+
+<div id="content">
+
+<h1>File <code>docgen.lua</code></h1>
+
+
+
+
+
+
+
+<h2>Functions</h2>
+<table class="function_list">
+
+	<tr>
+	<td class="name" nowrap><a href="#LCS.class">LCS.class</a>&nbsp;(args)</td>
+	<td class="summary">Creates a class </td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#LCS.class.final">LCS.class.final</a>&nbsp;(args)</td>
+	<td class="summary">Creates a final class.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#LCS.class.static">LCS.class.static</a>&nbsp;(args)</td>
+	<td class="summary">Creates a static class.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#LCS.is_A">LCS.is_A</a>&nbsp;(thing, kind)</td>
+	<td class="summary">Checks if nature of the given argument 'thing'.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#[class]">[class]</a>&nbsp;(args)</td>
+	<td class="summary">Default class constructor used to instantiation.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#[class]:extends">[class]:extends</a>&nbsp;(args)</td>
+	<td class="summary">Returns a new class derived from class [class].</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#[class]:getClass">[class]:getClass</a>&nbsp;()</td>
+	<td class="summary">Checks for a reference to the superclass of class [class] </td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#[class]:getSubClasses">[class]:getSubClasses</a>&nbsp;()</td>
+	<td class="summary">Checks for a list of all classes deriving from class [class] </td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#[class]:new">[class]:new</a>&nbsp;(args)</td>
+	<td class="summary">Default class constructor used to instantiation.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#[class]:super">[class]:super</a>&nbsp;(method, ...)</td>
+	<td class="summary">Calls a method defined in a parent of class [class] </td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#[instance]:getClass">[instance]:getClass</a>&nbsp;()</td>
+	<td class="summary">Checks for the reference to the class from which 'instance' was created </td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#[instance]:is_A">[instance]:is_A</a>&nbsp;(aClass)</td>
+	<td class="summary">Checks if instance [instance] was instantiated from a specific class.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#[instance]:super">[instance]:super</a>&nbsp;(method, ...)</td>
+	<td class="summary">Calls a methods defined in a parent of a class from which object 'instance' was created </td>
+	</tr>
+
+</table>
+
+
+
+
+
+
+<br/>
+<br/>
+
+
+
+
+<h2><a name="functions"></a>Functions</h2>
+<dl class="function">
+
+
+
+<dt><a name="LCS.class"></a><strong>LCS.class</strong>&nbsp;(args)</dt>
+<dd>
+Creates a class
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  args: [table] Optional.A key-index table to be the class members.
+	</li>
+	
+</ul>
+
+
+
+
+<h3>Usage:</h3>
+<pre class='example'> <br> LCS = require('LCS') <br> Vector = LCS.class { x = 0, y = 0} <br> </pre>
+
+
+
+<h3>Return value:</h3>
+[table] A class
+
+
+
+</dd>
+
+
+
+
+<dt><a name="LCS.class.final"></a><strong>LCS.class.final</strong>&nbsp;(args)</dt>
+<dd>
+Creates a final class. They do not offer support for inheritance. So these classes cannot be derived.
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  args: [table] Optional.A key-index table to be the class members.
+	</li>
+	
+</ul>
+
+
+
+
+<h3>Usage:</h3>
+<pre class='example'> <br> LCS = require('LCS') <br> myFinalClass = LCS.class.final() <br> </pre>
+
+
+
+<h3>Return value:</h3>
+[table] A final class
+
+
+
+</dd>
+
+
+
+
+<dt><a name="LCS.class.static"></a><strong>LCS.class.static</strong>&nbsp;(args)</dt>
+<dd>
+Creates a static class. These classes cannot instantiate objects.
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  args: [table] Optional.A key-index table to be the class members.
+	</li>
+	
+</ul>
+
+
+
+
+<h3>Usage:</h3>
+<pre class='example'> <br> LCS = require('LCS') <br> myStaticClass = LCS.class.static() <br> </pre>
+
+
+
+<h3>Return value:</h3>
+[table] A static class
+
+
+
+</dd>
+
+
+
+
+<dt><a name="LCS.is_A"></a><strong>LCS.is_A</strong>&nbsp;(thing, kind)</dt>
+<dd>
+Checks if nature of the given argument 'thing'.
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  thing: [table] The reference holding a supposed object or a supposed class to be tested
+	</li>
+	
+	<li>
+	  kind: [string] Optional. A string value to be either 'object' or 'class'. When not given, returns a string representing the nature of the given 'thing'
+	</li>
+	
+</ul>
+
+
+
+
+<h3>Usage:</h3>
+<pre class='example'> <br> LCS = require('LCS') <br> myClass = LCS.class() <br> myObject = myClass() <br> print(LCS.is_A(myClass,'class')) --> True <br> print(LCS.is_A(myObject,'object')) --> True <br> print(LCS.is_A(myClass)) --> 'class' <br> print(LCS.is_A(myObject)) --> 'object' <br> </pre>
+
+
+
+<h3>Return value:</h3>
+[boolean] or [string] True if 'thing' matches string 'kind', or the string 'object' or 'class'
+
+
+
+</dd>
+
+
+
+
+<dt><a name="[class]"></a><strong>[class]</strong>&nbsp;(args)</dt>
+<dd>
+Default class constructor used to instantiation. Similar to [class]:new(). Assumes the calling class is not static.
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  args: [table] Optional.A list of arguments in a specific order to init the new instance. Using args assumes the constructor [class]:init() have been implemented upon class definition.
+	</li>
+	
+</ul>
+
+
+
+
+<h3>Usage:</h3>
+<pre class='example'> <br> LCS = require('LCS') <br> Vector = LCS.class {x = 0, y = 0} <br> function Vector:init(x,y) <br> self.x = x <br> self.y = y <br> end <br> v1 = Vector(1,2) <br> print(v1.x,v1.y) --> 1,2<br> </pre>
+
+
+
+<h3>Return value:</h3>
+[table] An instance of class [class]
+
+
+
+<h3>See also:</h3>
+<ul>
+	
+	<li><a href="../files/docgen.html#[class]:new">
+		[class]:new
+	</a>
+	
+	<li><a href="../files/docgen.html#LCS.class.static">
+		LCS.class.static
+	</a>
+	
+</ul>
+
+</dd>
+
+
+
+
+<dt><a name="[class]:extends"></a><strong>[class]:extends</strong>&nbsp;(args)</dt>
+<dd>
+Returns a new class derived from class [class]. Assumes class [class] is not a final class.
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  args: [table] Optional. A key-index table to be the class members.
+	</li>
+	
+</ul>
+
+
+
+
+<h3>Usage:</h3>
+<pre class='example'> <br> LCS = require('LCS') <br> Animal = LCS.class() <br> <br> function Animal:yell() <br> print('Yelling!') <br> end<br> <br> Dog = Animal:extends {name = nil} <br> function Dog:init(name) <br> self.name = name <br> end <br> <br> puppet = Dog('waffles') <br> print(puppet.name) --> waffles <br> puppet:yell() --> Yelling! <br> </pre>
+
+
+
+<h3>Return value:</h3>
+[table]  A new class which inherits from class [class]
+
+
+
+<h3>See also:</h3>
+<ul>
+	
+	<li><a href="../files/docgen.html#LCS.class.final">
+		LCS.class.final
+	</a>
+	
+</ul>
+
+</dd>
+
+
+
+
+<dt><a name="[class]:getClass"></a><strong>[class]:getClass</strong>&nbsp;()</dt>
+<dd>
+Checks for a reference to the superclass of class [class]
+
+
+
+
+
+<h3>Usage:</h3>
+<pre class='example'> <br> LCS = require('LCS') <br> Animal = LCS.class() <br> <br> Dog = Animal:extends {name = nil} <br> print(Dog:getClass() == Animal) --> True <br> </pre>
+
+
+
+<h3>Return value:</h3>
+[table] or [nil] Returns a reference to the superclass of class [class]. If [class] does not derives from a class, returns nil
+
+
+
+<h3>See also:</h3>
+<ul>
+	
+	<li><a href="../files/docgen.html#[instance]:getClass">
+		[instance]:getClass
+	</a>
+	
+</ul>
+
+</dd>
+
+
+
+
+<dt><a name="[class]:getSubClasses"></a><strong>[class]:getSubClasses</strong>&nbsp;()</dt>
+<dd>
+Checks for a list of all classes deriving from class [class]
+
+
+
+
+
+<h3>Usage:</h3>
+<pre class='example'> <br> LCS = require('LCS') <br> Animal = LCS.class() <br> <br> Dog = Animal:extends {name = nil} <br> list = Animal:getSubClasses()<br> for i,class in ipairs(list) do<br> if class == Dog then print('True')  end    <br> end                           --> True<br> </pre>
+
+
+
+<h3>Return value:</h3>
+[table] Returns an array list of all classes deriving from class [class]
+
+
+
+</dd>
+
+
+
+
+<dt><a name="[class]:new"></a><strong>[class]:new</strong>&nbsp;(args)</dt>
+<dd>
+Default class constructor used to instantiation. Similar to [class](). Assumes the calling class is not static.
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  args: [table] Optional.A list of arguments in a specific order to init the new instance. Using args assumes the constructor [class]:init() have been implemented upon class definition.
+	</li>
+	
+</ul>
+
+
+
+
+<h3>Usage:</h3>
+<pre class='example'> <br> LCS = require('LCS') <br> Vector = LCS.class {x = 0, y = 0} <br> function Vector:init(x,y) <br> self.x = x <br> self.y = y <br> end <br>  v1 = Vector:new(3,4) <br> print(v1.x,v1.y) --> 3,4<br> </pre>
+
+
+
+<h3>Return value:</h3>
+[table] An instance of class [class]
+
+
+
+<h3>See also:</h3>
+<ul>
+	
+	<li><a href="../files/docgen.html#[class]">
+		[class]
+	</a>
+	
+	<li><a href="">
+		[class]:init
+	</a>
+	
+	<li><a href="../files/docgen.html#LCS.class.static">
+		LCS.class.static
+	</a>
+	
+</ul>
+
+</dd>
+
+
+
+
+<dt><a name="[class]:super"></a><strong>[class]:super</strong>&nbsp;(method, ...)</dt>
+<dd>
+Calls a method defined in a parent of class [class]
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  method: [string] A string refferring to the name of the function to be invoked.
+	</li>
+	
+	<li>
+	  ...: Optional. The required arguments which will be passed to the method called, in proper order.
+	</li>
+	
+</ul>
+
+
+
+
+<h3>Usage:</h3>
+<pre class='example'> <br> LCS = require('LCS') <br> Dog = LCS.class {name = ''} <br> function Dog:init(name) <br> self.name = name <br> end <br> SuperDog = Dog:extends {power = 0} <br> function SuperDog:init(name,power) <br> self:super('init',name)<br> self.power = power<br> end<br> <br> superPuppet = SuperDog('superPuppet',100) <br> print(superPuppet.name) --> superPuppet <br> print(superPuppet.power) --> 100 <br> </pre>
+
+
+
+<h3>Return value:</h3>
+[...] The result of expected from the method call.
+
+
+
+<h3>See also:</h3>
+<ul>
+	
+	<li><a href="../files/docgen.html#[instance]:super">
+		[instance]:super
+	</a>
+	
+</ul>
+
+</dd>
+
+
+
+
+<dt><a name="[instance]:getClass"></a><strong>[instance]:getClass</strong>&nbsp;()</dt>
+<dd>
+Checks for the reference to the class from which 'instance' was created
+
+
+
+
+
+<h3>Usage:</h3>
+<pre class='example'> <br> LCS = require('LCS') <br> Animal = LCS.class() <br> <br> Dog = Animal:extends {name = nil} <br> puppet = Dog()<br> print(puppet:getClass() == Dog) --> True <br> </pre>
+
+
+
+<h3>Return value:</h3>
+[table] Returns a reference tto the class from which 'instance' was created
+
+
+
+<h3>See also:</h3>
+<ul>
+	
+	<li><a href="../files/docgen.html#[class]:getClass">
+		[class]:getClass
+	</a>
+	
+	<li><a href="../files/docgen.html#[instance]:is_A">
+		[instance]:is_A
+	</a>
+	
+</ul>
+
+</dd>
+
+
+
+
+<dt><a name="[instance]:is_A"></a><strong>[instance]:is_A</strong>&nbsp;(aClass)</dt>
+<dd>
+Checks if instance [instance] was instantiated from a specific class. This lethod should not be called from a class.
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  aClass: [table] Optional. When given, tests if 'instance' was instantiated from aClass.
+	</li>
+	
+</ul>
+
+
+
+
+<h3>Usage:</h3>
+<pre class='example'> <br> LCS = require('LCS') <br> Animal = LCS.class() <br> <br> thing = Animal()  <br> print(thing:is_A(Animal)) --> True <br> print(thing:is_A() == Animal)--> True <br> </pre>
+
+
+
+<h3>Return value:</h3>
+[boolean] or [table] Returns True if 'instance'  was instantiated from aClass, either False. If 'aClass' is not given, returns a reference to the class from which 'instance' was created.
+
+
+
+<h3>See also:</h3>
+<ul>
+	
+	<li><a href="../files/docgen.html#LCS.is_A">
+		LCS.is_A
+	</a>
+	
+</ul>
+
+</dd>
+
+
+
+
+<dt><a name="[instance]:super"></a><strong>[instance]:super</strong>&nbsp;(method, ...)</dt>
+<dd>
+Calls a methods defined in a parent of a class from which object 'instance' was created
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  method: [string] A string refferring to the name of the function to be invoked.
+	</li>
+	
+	<li>
+	  ...: Optional. The required arguments which will be passed to the method called, in proper order.
+	</li>
+	
+</ul>
+
+
+
+
+<h3>Usage:</h3>
+<pre class='example'> <br> LCS = require('LCS') <br> Dog = LCS.class {name = ''} <br> function Dog:init(name) <br> self.name = name <br> end <br> function Dog:say(something) <br> print(something) <br> end         <br> SuperDog = Dog:extends {power = 0} <br> function SuperDog:say(something) <br> print('Superdog says : '..something) <br> end         <br> superPuppet = SuperDog() <br> superPuppet:say('Hello!') --> SuperDog says : Hello! <br> superPuppet:super('say','Hello!') --> Hello! <br> </pre>
+
+
+
+<h3>Return value:</h3>
+[...] The result of expected from the method call.
+
+
+
+<h3>See also:</h3>
+<ul>
+	
+	<li><a href="../files/docgen.html#[class]:super">
+		[class]:super
+	</a>
+	
+</ul>
+
+</dd>
+
+
+</dl>
+
+
+
+
+
+
+
+</div> <!-- id="content" -->
+
+</div> <!-- id="main" -->
+
+<div id="about">
+	<p><a href="http://validator.w3.org/check?uri=referer"><img src="http://www.w3.org/Icons/valid-xhtml10" alt="Valid XHTML 1.0!" height="31" width="88" /></a></p>
+</div> <!-- id="about" -->
+
+</div> <!-- id="container" -->	
+</body>
+</html>

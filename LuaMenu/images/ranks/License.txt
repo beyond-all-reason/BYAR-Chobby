@@ -1,0 +1,28 @@
+All of the following rank-textures in folder (/LuaMenu/images/ranks/) were made for Beyond All Reason by IceXuick
+all rights reserved (CC BY NC ND)
+
+1.png
+2.png
+3.png
+4.png
+5.png
+6.png
+7.png
+8.png
+19.png
+20.png
+21.png
+1M.png
+2M.png
+3M.png
+4M.png
+5M.png
+6M.png
+7M.png
+8M.png
+19M.png
+20M.png
+21M.png
+moderator.png
+player.png
+friend.png

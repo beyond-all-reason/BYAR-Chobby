@@ -28,11 +28,11 @@ local currentMode = false
 local currentManualBorderless = false
 local delayedModeSet, delayedBorderOverride
 
-local ITEM_OFFSET = 38
+local ITEM_OFFSET = 36
 
-local COMBO_X = 280
-local COMBO_WIDTH = 235
-local CHECK_WIDTH = 280
+local COMBO_X = "55%"
+local COMBO_WIDTH = 85
+local CHECK_WIDTH = "55%"
 local TEXT_OFFSET = 6
 
 local settingsWindowHandler
@@ -403,7 +403,7 @@ local function ShowWindowGeoConfig(name, modeNum, modeName, retreatPadding)
 		bottom = 1,
 		height = 70,
 		caption = i18n("apply"),
-		font = Configuration:GetFont(3),
+		objectOverrideFont = settingsFont3,
 		classname = "action_button",
 		OnClick = {
 			function()
@@ -418,7 +418,7 @@ local function ShowWindowGeoConfig(name, modeNum, modeName, retreatPadding)
 		bottom = 1,
 		height = 70,
 		caption = i18n("cancel"),
-		font = Configuration:GetFont(3),
+		objectOverrideFont = settingsFont3,
 		classname = "negative_button",
 		OnClick = {
 			function()
@@ -452,7 +452,7 @@ local function ShowManualFullscreenEntryWindow(name)
 		right = 15,
 		y = 15,
 		height = 35,
-		font = Configuration:GetFont(3),
+		objectOverrideFont = settingsFont3,
 		caption = i18n("set_resolution"),
 		parent = manualWindow,
 	}
@@ -509,7 +509,7 @@ local function ShowManualFullscreenEntryWindow(name)
 		bottom = 1,
 		height = 70,
 		caption = i18n("apply"),
-		font = Configuration:GetFont(3),
+		objectOverrideFont = settingsFont3,
 		classname = "action_button",
 		OnClick = {
 			function()
@@ -524,7 +524,7 @@ local function ShowManualFullscreenEntryWindow(name)
 		bottom = 1,
 		height = 70,
 		caption = i18n("cancel"),
-		font = Configuration:GetFont(3),
+		objectOverrideFont = settingsFont3,
 		classname = "negative_button",
 		OnClick = {
 			function()
@@ -644,16 +644,17 @@ local function GetLobbyTabControls()
 		height = 40,
 		valign = "top",
 		align = "left",
-		font = Configuration:GetFont(2),
+		objectOverrideFont = settingsFont2,
 		caption = "Split Panel Mode",
 	}
 	children[#children + 1] = ComboBox:New {
 		x = COMBO_X,
 		y = offset,
 		width = COMBO_WIDTH,
+		right = 18,
 		height = 30,
 		items = {"Autodetect", "Always Two", "Always One"},
-		font = Configuration:GetFont(2),
+		objectOverrideFont = settingsFont2,
 		itemFontSize = Configuration:GetFont(2).size,
 		selected = Configuration.panel_layout or 3,
 		OnSelect = {
@@ -686,6 +687,7 @@ local function GetLobbyTabControls()
 		y = offset,
 		width  = COMBO_WIDTH,
 		height = 30,
+		right = 18,
 		value  = Configuration.chatFontSize or 18,
 		min    = 12,
 		max    = 20,
@@ -717,6 +719,7 @@ local function GetLobbyTabControls()
 		y = offset,
 		width  = COMBO_WIDTH,
 		height = 30,
+		right = 18,
 		value  = Configuration.menuMusicVolume or 0.5,
 		min    = 0,
 		max    = 1,
@@ -748,6 +751,7 @@ local function GetLobbyTabControls()
 		y = offset,
 		width  = COMBO_WIDTH,
 		height = 30,
+		right = 18,
 		value  = Configuration.menuNotificationVolume or 0.5,
 		min    = 0,
 		max    = 1,
@@ -788,6 +792,7 @@ local function GetLobbyTabControls()
 		y = offset,
 		width  = COMBO_WIDTH,
 		height = 30,
+		right = 18,
 		value  = Configuration.menuBackgroundBrightness or 1,
 		min    = 0,
 		max    = 1,
@@ -819,6 +824,7 @@ local function GetLobbyTabControls()
 		y = offset,
 		width  = COMBO_WIDTH,
 		height = 30,
+		right = 18,
 		value  = Configuration.gameOverlayOpacity or 0.5,
 		min    = 0,
 		max    = 1,
@@ -850,6 +856,7 @@ local function GetLobbyTabControls()
 		y = offset,
 		width  = COMBO_WIDTH,
 		height = 30,
+		right = 18,
 		value  = Configuration.uiScale * 100.0,
 		min    = math.ceil(Configuration.minUiScale * 100.0),
 		max    = math.floor(Configuration.maxUiScale * 100.0),
@@ -879,9 +886,86 @@ local function GetLobbyTabControls()
 		uiScaleTrackbar:SetMinMax(newMin * 100.0, newMax * 100.0)
 	end)
 
+	children[#children + 1], offset = AddCheckboxSetting(offset, i18n("showTestingEngines"), "displayBadEngines2", false, nil, i18n("showTestingEnginestooltip"))
 	children[#children + 1], offset = AddCheckboxSetting(offset, i18n("autoLaunchAsSpectator"), "autoLaunchAsSpectator", true)
 
-	-- Why is this shit so fucked up.
+	children[#children + 1] = Label:New {
+		x = 20,
+		y = offset + TEXT_OFFSET,
+		width = 90,
+		height = 40,
+		valign = "top",
+		align = "left",
+		objectOverrideFont = settingsFont2,
+		caption = i18n("useLastGameSpectatorState"),
+	}
+	children[#children + 1] = ComboBox:New {
+		x = COMBO_X,
+		y = offset,
+		width = COMBO_WIDTH,
+		right = 18,
+		height = 30,
+		items = {"Remember Last", "Always Spectator", "Always Player"},
+		objectOverrideFont = settingsFont2,
+		itemFontSize = Configuration:GetFont(2).size,
+		selected = Configuration.useLastGameSpectatorState or 1,
+		OnSelect = {
+			function (obj)
+				if freezeSettings then
+					return
+				end
+				Configuration:SetConfigValue("useLastGameSpectatorState", obj.selected)
+				if obj.selected ~= 1 then
+					Configuration:SetConfigValue("lastGameSpectatorState", obj.selected == 2 and true or false)
+				end
+			end
+		},
+		tooltip = i18n("useLastGameSpectatorStateTooltip"),
+	}
+	offset = offset + ITEM_OFFSET
+
+	children[#children + 1], offset = AddCheckboxSetting(offset, i18n("showCountry"), "showCountry", true, nil, i18n("showCountrytooltip"))
+	children[#children + 1], offset = AddCheckboxSetting(offset, i18n("showRank"), "showRank", true, nil, i18n("showRanktooltip"))
+	children[#children + 1] = Label:New {
+		x = 20,
+		y = offset + TEXT_OFFSET,
+		width = 90,
+		height = 40,
+		valign = "top",
+		align = "left",
+		objectOverrideFont = settingsFont2,
+		caption = i18n("showSkill"),
+	}
+	local showSkillOptions = {"No", "Yes", "Detailed"}
+	local selectedShowSkillOption = 1
+	for k,v in ipairs(showSkillOptions) do
+		if v == Configuration.showSkillOpt then
+			selectedShowSkillOption = k
+		end
+	end
+
+	children[#children + 1] = ComboBox:New {
+		x = COMBO_X,
+		y = offset,
+		width = COMBO_WIDTH,
+		right = 18,
+		height = 30,
+		items = {"No", "Yes", "Detailed"},
+		objectOverrideFont = settingsFont2,
+		itemFontSize = Configuration:GetFont(2).size,
+		selected = Configuration.showSkillOpt or 1,
+		OnSelect = {
+			function (obj)
+				if freezeSettings then
+					return
+				end
+				Configuration:SetConfigValue("showSkillOpt", obj.selected)
+			end
+		},
+		tooltip = i18n("showSkillOpttooltip"),
+	}
+	offset = offset + ITEM_OFFSET
+
 	local randomSkirmishOption = Spring.GetConfigInt("randomSkirmishSetup", 1)
 	if randomSkirmishOption == 1 then
 		Configuration.randomSkirmishSetup = true
@@ -896,7 +980,7 @@ local function GetLobbyTabControls()
 		boxalign = "right",
 		boxsize = 20,
 		caption = i18n("randomSkirmishSetup"),
-		checked = Configuration.randomSkirmishSetup or true,
+		checked = Configuration.randomSkirmishSetup or false,
 		tooltip = i18n("randomSkirmishSetup_tooltip"),
 		objectOverrideFont = settingsFont2,
 		--font = Configuration:GetFont(2),
@@ -906,7 +990,7 @@ local function GetLobbyTabControls()
 	}
 	children[#children + 1] = randomSkirmishSetup
 	offset = offset + ITEM_OFFSET
-	
+
 	local autoLogin = Checkbox:New {
 		x = 20,
 		width = CHECK_WIDTH,
@@ -925,6 +1009,49 @@ local function GetLobbyTabControls()
 		end},
 	}
 	children[#children + 1] = autoLogin
+	offset = offset + ITEM_OFFSET
+
+	children[#children + 1] = Label:New {
+		x = 20,
+		y = offset + TEXT_OFFSET,
+		width = 90,
+		height = 40,
+		valign = "top",
+		align = "left",
+		objectOverrideFont = settingsFont2,
+		caption = "Error log uploading",
+		tooltip = "Prompt will ask you each time an error is detected if you want to upload the infolog.",
+	}
+
+	local uploadLogPromptItems = {"Prompt", "Always Yes", "Always No"}
+	local selectedUploadLogPrompt = 1
+	for k,v in ipairs(uploadLogPromptItems) do
+		if v == Configuration.uploadLogPrompt then
+			selectedUploadLogPrompt = k
+		end
+	end
+
+	children[#children + 1] = ComboBox:New {
+		x = COMBO_X,
+		y = offset,
+		width = COMBO_WIDTH,
+		right = 18,
+		height = 30,
+		items = uploadLogPromptItems,
+		objectOverrideFont = settingsFont2,
+		itemFontSize = Configuration:GetFont(2).size,
+		selected = selectedUploadLogPrompt or 1,
+		tooltip = "Prompt will ask you each time an error is detected if you want to upload the infolog.",
+		OnSelect = {
+			function (obj)
+				if freezeSettings then
+					return
+				end
+				Configuration:SetConfigValue("uploadLogPrompt", obj.items[obj.selected])
+			end
+		},
+	}
+
 	offset = offset + ITEM_OFFSET
 
 	if not Configuration.gameConfig.disableSteam then
@@ -947,23 +1074,33 @@ local function GetLobbyTabControls()
 	children[#children + 1], offset = AddCheckboxSetting(offset, i18n("displayBots"), "displayBots", false, nil, i18n("displayBots_tooltip") )
 	children[#children + 1], offset = AddCheckboxSetting(offset, i18n("filterbattleroom"), "filterbattleroom", true, nil, i18n("filterbattleroom_tooltip"))
 
+	children[#children + 1], offset = AddCheckboxSetting(offset, i18n("flushLogs"), "flushLogs",
+		Spring.GetConfigInt("LogFlushLevel") == 0,
+		function(newstate) Spring.SetConfigInt("LogFlushLevel", (newstate and 0) or 50) end, i18n("flushLogs_tooltip"))
+
+	local enableCacheRapidPoolFunc = function(newState)
+		Spring.Echo("Toggling Rapid Pool Cache to", newState)
+		widgetHandler:ToggleWidget("Rapid Pool Cache")
+	end
+
+	children[#children + 1], offset = AddCheckboxSetting(offset, "Rapid Pool Cache", "enableCacheRapidPool", true, enableCacheRapidPoolFunc)
 	--children[#children + 1], offset = AddCheckboxSetting(offset, i18n("keep_queues"), "rememberQueuesOnStart", false, nil, "Stay in matchmaker queues when a battle is launched.")
 
 
 	children[#children + 1] = Label:New {
 		x = 20,
 		y = offset + TEXT_OFFSET,
-		width = 90,
+		width = 110,
 		height = 40,
 		valign = "top",
 		align = "left",
 		objectOverrideFont = settingsFont2,
 		--font = Configuration:GetFont(2),
 		caption = "Choose Server:",
-		tooltip = "Old Server is road-flag.bnr.la, new is server2.beyondallreason.info. Changing this will log you out of current server, click Login in top right to reconnect to new one, Temporarily we are on : server2.beyondallreason.info",
+		tooltip = "Old Server is server3.beyondallreason.info, new one is server4.beyondallreason.info. Changing this will log you out of current server, click Login in top right to reconnect to new one, Currently we are on : server4.beyondallreason.info",
 	}
 
-	local barservers = {"server2.beyondallreason.info","road-flag.bnr.la"}
+	local barservers = {"server4.beyondallreason.info","server3.beyondallreason.info","bar.teifion.co.uk"}
 
 	if WG.Chobby.Configuration.devMode then
 		barservers[#barservers + 1] = "localhost"
@@ -975,12 +1112,13 @@ local function GetLobbyTabControls()
 		y = offset,
 		width = COMBO_WIDTH,
 		height = 30,
+		right = 18,
 		items = barservers,
 		objectOverrideFont = settingsFont2,
 		--font = Configuration:GetFont(2),
 		itemFontSize = Configuration:GetFont(2).size,
 		selected = Configuration:GetServerAddress(),
-		tooltip = "Old Server is road-flag.bnr.la, new is server2.beyondallreason.info. Changing this will log you out of current server, click Login in top right to reconnect to new one. Temporarily we are on: server2.beyondallreason.info",
+		tooltip = "Old Server is server3.beyondallreason.info, new is server4.beyondallreason.info. Changing this will log you out of current server, click Login in top right to reconnect to new one. Currently we are on: server4.beyondallreason.info",
 		OnSelect = {
 			function (obj, num)
 				if freezeSettings then -- so that it doesnt run when started, fucking yay
@@ -1146,11 +1284,11 @@ local function GetVoidTabControls()
 	children[#children + 1], offset = AddCheckboxSetting(offset, "Edit Campaign", "editCampaign", false)
 	children[#children + 1], offset = AddCheckboxSetting(offset, "Debug server messages", "activeDebugConsole", false)
 	children[#children + 1], offset = AddCheckboxSetting(offset, "Show channel bots", "displayBots", false)
-	children[#children + 1], offset = AddCheckboxSetting(offset, "Show wrong engines", "displayBadEngines2", false)
+	-- children[#children + 1], offset = AddCheckboxSetting(offset, "Show wrong engines", "displayBadEngines2", false) -- moved to regular
 	children[#children + 1], offset = AddCheckboxSetting(offset, "Debug for MatchMaker", "showMatchMakerBattles", false)
 	children[#children + 1], offset = AddCheckboxSetting(offset, "Hide interface", "hideInterface", false)
 	--children[#children + 1], offset = AddCheckboxSetting(offset, "Neuter Settings", "doNotSetAnySpringSettings", false)
-	children[#children + 1], offset = AddCheckboxSetting(offset, "Agressive Set Borderless", "agressivelySetBorderlessWindowed", false)
+	children[#children + 1], offset = AddCheckboxSetting(offset, "Aggressive Set Borderless", "agressivelySetBorderlessWindowed", false)
 	children[#children + 1], offset = AddCheckboxSetting(offset, "Use wrong engine", "useWrongEngine", false)
 	children[#children + 1], offset = AddCheckboxSetting(offset, "Show old AI versions", "showOldAiVersions", false)
 	children[#children + 1], offset = AddCheckboxSetting(offset, "Show AIOptions", "showAiOptions", true)
@@ -1174,7 +1312,9 @@ local function GetVoidTabControls()
 		y = offset,
 		width = COMBO_WIDTH,
 		height = 30,
+		right = 18,
 		caption = "Disable",
+		classname = "negative_button",
 		tooltip = "Disables the entire lobby and menu.",
 		objectOverrideFont = settingsFont2,
 		--font = Configuration:GetFont(2),
@@ -1203,11 +1343,12 @@ local function GetVoidTabControls()
 		y = offset,
 		width = COMBO_WIDTH,
 		height = 30,
+		right = 18,
 		text = Configuration:GetServerAddress(),
 		objectOverrideFont = settingsFont2,
 		--font = Configuration:GetFont(2),
 		useIME = false,
-		tooltip = "Requires a lobby restart for changes to take effect. Old Server is road-flag.bnr.la, new will be server2.beyondallreason.info. Temporarily we are on server2.beyondallreason.info",
+		tooltip = "Requires a lobby restart for changes to take effect. Old Server is road-flag.bnr.la, new will be server3.beyondallreason.info. Temporarily we are on server3.beyondallreason.info",
 		OnFocusUpdate = {
 			function (obj)
 				if obj.focused then
@@ -1236,6 +1377,7 @@ local function GetVoidTabControls()
 		y = offset,
 		width = COMBO_WIDTH,
 		height = 30,
+		right = 18,
 		text = tostring(Configuration.serverPort),
 		objectOverrideFont = settingsFont2,
 		--font = Configuration:GetFont(2),
@@ -1288,6 +1430,7 @@ local function GetVoidTabControls()
 		y = offset,
 		width = COMBO_WIDTH,
 		height = 30,
+		right = 18,
 		parent = window,
 		items = Configuration.gameConfigHumanNames,
 		objectOverrideFont = settingsFont2,
@@ -1333,6 +1476,7 @@ local function GetVoidTabControls()
 		y = offset,
 		width = COMBO_WIDTH,
 		height = 30,
+		right = 18,
 		parent = window,
 		items = Configuration.campaignConfigHumanNames,
 		objectOverrideFont = settingsFont2,
@@ -1368,6 +1512,7 @@ local function GetVoidTabControls()
 		y = offset,
 		width  = COMBO_WIDTH,
 		height = 30,
+		right = 18,
 		value  = Configuration.coopConnectDelay or 0,
 		min    = 0,
 		max    = 100,
@@ -1536,6 +1681,7 @@ local function ProcessScreenSizeOption(data, offset)
 		y = offset,
 		width = COMBO_WIDTH,
 		height = 30,
+		right = 18,
 		items = items,
 		objectOverrideFont = settingsFont2,
 		--font = Configuration:GetFont(2),
@@ -1619,6 +1765,7 @@ local function ProcessSettingsOption(data, offset, defaults, customSettingsSwitc
 		y = offset,
 		width = COMBO_WIDTH,
 		height = 30,
+		right = 18,
 		items = items,
 		objectOverrideFont = settingsFont2,
 		--font = Configuration:GetFont(2),
@@ -1687,6 +1834,7 @@ local function ProcessSettingsNumber(data, offset, defaults, customSettingsSwitc
 		y = offset,
 		width = COMBO_WIDTH,
 		height = 30,
+		right = 18,
 		text = FormatFunc(Configuration.settingsMenuValues[data.name] or defaults[data.name]),
 		objectOverrideFont = settingsFont2,
 		--font = Configuration:GetFont(2),
@@ -1763,9 +1911,8 @@ end
 
 local function InitializeControls(window)
 	window.OnParent = nil
-	
+
 	local Configuration = WG.Chobby.Configuration
-	settingsFont1 = Font:New(Configuration:GetFont(1))
 	settingsFont2 = Font:New(Configuration:GetFont(2))
 	settingsFont3 = Font:New(Configuration:GetFont(3))
 

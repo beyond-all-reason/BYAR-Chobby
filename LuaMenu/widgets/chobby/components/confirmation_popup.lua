@@ -89,7 +89,7 @@ function ConfirmationPopup:init(successFunction, question, doNotAskAgainKey, wid
 	if doNotAskAgainKey then
 		local doNotAskAgain = Checkbox:New {
 			x = 15,
-			width = 130,
+			width = 150,
 			bottom = 75,
 			height = 35,
 			boxalign = "right",

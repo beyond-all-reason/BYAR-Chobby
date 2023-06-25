@@ -38,10 +38,32 @@ function createTabGroup(ctrls, visibleFunc)
 end
 
 local function GetLobbyName()
-	return 'Chobby'
+	local byarchobbyrapidTag = 'byar-chobby:test'
+	if byarchobbyrapidTag and VFS.GetNameFromRapidTag then
+		local rapidName = VFS.GetNameFromRapidTag(byarchobbyrapidTag)
+		if rapidName then
+			byarchobbyrapidTag = rapidName
+			byarchobbyrapidTag = string.gsub(byarchobbyrapidTag, "BYAR Chobby test%-", "")
+		end
+	end
+	local chobbyrapidTag = 'chobby:test'
+	if chobbyrapidTag and VFS.GetNameFromRapidTag then
+		local rapidName = VFS.GetNameFromRapidTag(chobbyrapidTag)
+		if rapidName then
+			chobbyrapidTag = rapidName
+			chobbyrapidTag = string.gsub(chobbyrapidTag, "Chobby test%-", "")
+		end
+	end
+	local lobbyname = 'Chobby:'..byarchobbyrapidTag..'/'..chobbyrapidTag 
+	--Spring.Utilities.TraceFullEcho()
+	return lobbyname
 end
 
 function LoginWindow:init(failFunction, cancelText, windowClassname, params)
+
+	local myFont1 = Font:New(Configuration:GetFont(1))
+	local myFont2 = Font:New(Configuration:GetFont(2))
+	local myFont3 = Font:New(Configuration:GetFont(3))
 
 	if WG.Chobby.lobbyInterfaceHolder:GetChildByName("loginWindow") then
 		Log.Error("Tried to spawn duplicate login window")
@@ -78,7 +100,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		y = 14,
 		height = 35,
 		caption = i18n("login_long"),
-		font = Configuration:GetFont(3),
+		objectOverrideFont = myFont3,
 	}
 	loginChildren[#loginChildren+1] = self.lblLoginInstructions
 
@@ -88,7 +110,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		y = 14,
 		height = 35,
 		caption = i18n("register_long"),
-		font = Configuration:GetFont(3),
+		objectOverrideFont = myFont3,
 	}
 	registerChildren[#registerChildren + 1] = self.lblRegisterInstructions
 
@@ -98,7 +120,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		y = 60,
 		height = 35,
 		text = i18n("username") .. ":",
-		fontsize = Configuration:GetFont(3).size,
+		objectOverrideFont = myFont3,
 	}
 	loginChildren[#loginChildren+1] = self.txtUsername
 
@@ -108,7 +130,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		y = 51,
 		height = 35,
 		text = Configuration.userName or Configuration.suggestedNameFromSteam or "",
-		font = Configuration:GetFont(3),
+		objectOverrideFont = myFont3,
 		useIME = false,
 	}
 	loginChildren[#loginChildren+1] = self.ebUsername
@@ -119,7 +141,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		y = 100,
 		height = 35,
 		text = i18n("password") .. ":",
-		fontsize = Configuration:GetFont(3).size,
+		objectOverrideFont = myFont3,
 	}
 	loginChildren[#loginChildren+1] = self.txtPassword
 
@@ -132,7 +154,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		text = Configuration.password or "",
 		passwordInput = true,
 		hint = "Enter password",
-		font = Configuration:GetFont(3),
+		objectOverrideFont = myFont3,
 		useIME = false,
 		OnKeyPress = {
 			function(obj, key, mods, ...)
@@ -155,7 +177,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		y = 60,
 		height = 35,
 		text = i18n("username") .. ":",
-		fontsize = Configuration:GetFont(3).size,
+		objectOverrideFont = myFont3,
 	}
 	registerChildren[#registerChildren+1] = self.txtUsernameRegister
 
@@ -165,7 +187,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		y = 51,
 		height = 35,
 		text = Configuration.userName or Configuration.suggestedNameFromSteam or "",
-		font = Configuration:GetFont(3),
+		objectOverrideFont = myFont3,
 		useIME = false,
 	}
 	registerChildren[#registerChildren+1] = self.ebUsernameRegister
@@ -177,7 +199,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		y = 100,
 		height = 35,
 		text = i18n("password") .. ":",
-		fontsize = Configuration:GetFont(3).size,
+		objectOverrideFont = myFont3,
 	}
 	registerChildren[#registerChildren+1] = self.txtPasswordRegister
 
@@ -189,7 +211,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		text = Configuration.password or "",
 		passwordInput = true,
 		hint = "Enter password",
-		font = Configuration:GetFont(3),
+		objectOverrideFont = myFont3,
 		useIME = false,
 		OnKeyPress = {
 			function(obj, key, mods, ...)
@@ -212,7 +234,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		y = 140,
 		height = 70,
 		text = i18n("confirm") .. ":",
-		fontsize = Configuration:GetFont(3).size,
+		objectOverrideFont = myFont3,
 		useIME = false,
 	}
 	registerChildren[#registerChildren + 1] = self.txtConfirmPassword
@@ -225,7 +247,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		text = "",
 		hint = "Confirm password",
 		passwordInput = true,
-		font = Configuration:GetFont(3),
+		objectOverrideFont = myFont3,
 		OnKeyPress = {
 			function(obj, key, mods, ...)
 				if key == Spring.GetKeyCode("enter") or key == Spring.GetKeyCode("numpad_enter") then
@@ -244,8 +266,8 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 			width = 170,
 			y = 180,
 			height = 35,
-			text = i18n("Email") .. ":",
-			fontsize = Configuration:GetFont(3).size,
+			text = i18n("email") .. ":",
+			objectOverrideFont = myFont3,
 			useIME = false,
 		}
 		registerChildren[#registerChildren + 1] = self.txtEmail
@@ -256,7 +278,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 			y = 171,
 			height = 35,
 			text = "",
-			font = Configuration:GetFont(3),
+			objectOverrideFont = myFont3,
 			useIME = false,
 			OnKeyPress = {
 				function(obj, key, mods, ...)
@@ -277,7 +299,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		y = 220,
 		height = 35,
 		caption = "Required for online play only",
-		font = Configuration:GetFont(3),
+		objectOverrideFont = myFont3,
 	}
 	registerChildren[#registerChildren + 1] = self.lblRegistrationMultiplayer
 
@@ -290,7 +312,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		boxsize = 15,
 		caption = i18n("autoLogin"),
 		checked = Configuration.autoLogin,
-		font = Configuration:GetFont(2),
+		objectOverrideFont = myFont2,
 		OnClick = {function (obj)
 			Configuration:SetConfigValue("autoLogin", obj.checked)
 		end},
@@ -306,7 +328,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		boxsize = 15,
 		caption = i18n("autoLogin"),
 		checked = Configuration.autoLogin,
-		font = Configuration:GetFont(2),
+		objectOverrideFont = myFont2,
 		OnClick = {function (obj)
 			Configuration:SetConfigValue("autoLogin", obj.checked)
 		end},
@@ -316,8 +338,8 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 	self.txtError = TextBox:New {
 		x = 15,
 		right = 15,
-		y = self.windowHeight - 216,
-		height = 90,
+		y = 140, --self.windowHeight - 400,
+		height = 400,
 		text = "",
 		fontsize = Configuration:GetFont(3).size,
 	}
@@ -339,7 +361,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		y = self.windowHeight - 143,
 		height = 70,
 		caption = i18n("login_verb"),
-		font = Configuration:GetFont(3),
+		objectOverrideFont = myFont3,
 		classname = "action_button",
 		OnClick = {
 			function()
@@ -355,7 +377,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		y = self.windowHeight - 143,
 		height = 70,
 		caption = i18n("register_verb"),
-		font = Configuration:GetFont(3),
+		objectOverrideFont = myFont3,
 		classname = "option_button",
 		OnClick = {
 			function()
@@ -371,7 +393,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		y = self.windowHeight - 143,
 		height = 70,
 		caption = i18n(cancelText or "cancel"),
-		font = Configuration:GetFont(3),
+		objectOverrideFont = myFont3,
 		classname = "negative_button",
 		OnClick = {
 			function()
@@ -407,7 +429,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		height =  formh * 2 ,
 		-- caption = i18n("register_long"),
 		text = "Change user name. You must be logged in, and will be logged out on successful change.",
-		font = Configuration:GetFont(1),
+		objectOverrideFont = myFont1,
 	}
 	recoverChildren[#recoverChildren+1] = self.txtChangeUserName
 
@@ -418,7 +440,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		height =  formh * 1 ,
 		-- caption = i18n("register_long"),
 		caption = "New user name:",
-		font = Configuration:GetFont(1),
+		objectOverrideFont = myFont1,
 	}
 	recoverChildren[#recoverChildren+1] = self.lblChangeUserName
 
@@ -428,7 +450,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		width =   formw * 1 ,
 		height =  formh * 1 ,
 		text = Configuration.userName or Configuration.suggestedNameFromSteam or "",
-		font = Configuration:GetFont(1),
+		objectOverrideFont = myFont1,
 		tooltip = 'User name may contain only letters, numbers, square brackets and underscores',
 		useIME = false,
 	}
@@ -439,8 +461,8 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		y = pad + formh * 2 ,
 		width =   formw * 1 ,
 		height =  formh * 1 ,
-		caption = i18n("Change username"),
-		font = Configuration:GetFont(1),
+		caption = i18n("change_username"),
+		objectOverrideFont = myFont1,
 		classname = "negative_button",
 		OnClick = {
 			function()
@@ -452,7 +474,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 
 	self.txtErrorChangeUserName = TextBox:New {
 		x = pad + formw * 0 ,
-		y = pad + formh * 3 ,
+		y = 4 + pad + formh * 3 ,
 		width =   formw * 3 ,
 		height =  formh * 1 ,
 		text = "If this doesnt work contact us on Discord",
@@ -470,7 +492,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		height =  formh * 1 ,
 		-- caption = i18n("register_long"),
 		text = "Reset forgotten password: You need to use your web browser to reset a forgotten password.",
-		font = Configuration:GetFont(1),
+		objectOverrideFont = myFont1,
 	}
 	recoverChildren[#recoverChildren+1] = self.txtResetPassword
 
@@ -480,11 +502,11 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		width =   formw * 3 ,
 		height =  formh * 2 ,
 		caption = "Reset your password via a browser link",
-		font = Configuration:GetFont(2),
+		objectOverrideFont = myFont2,
 		classname = "negative_button",
 		OnClick = {
 			function()
-				WG.BrowserHandler.OpenUrl("https://server2.beyondallreason.info/forgot_password")
+				WG.BrowserHandler.OpenUrl("https://server4.beyondallreason.info/forgot_password")
 			end
 		},
 	}
@@ -502,7 +524,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		height =  formh * 1 ,
 		-- caption = i18n("register_long"),
 		caption = "Email address:",
-		font = Configuration:GetFont(1),
+		objectOverrideFont = myFont1,
 	}
 	recoverChildren[#recoverChildren+1] = self.lblResetPasswordEmail
 
@@ -512,7 +534,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		width =   formw * 1 ,
 		height =  formh * 1 ,
 		text = "",
-		font = Configuration:GetFont(1),
+		objectOverrideFont = myFont1,
 		tooltip = 'Make sure you enter your valid email address',
 		useIME = false,
 	}
@@ -525,7 +547,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		height =  formh * 1 ,
 		-- caption = i18n("register_long"),
 		caption = "Verification Code:",
-		font = Configuration:GetFont(1),
+		objectOverrideFont = myFont1,
 	}
 	recoverChildren[#recoverChildren+1] = self.lblResetPasswordVerification
 
@@ -535,7 +557,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		width =   formw * 1 ,
 		height =  formh * 1 ,
 		text = "",
-		font = Configuration:GetFont(1),
+		objectOverrideFont = myFont1,
 		tooltip = 'You will recieve this code via email after submitting your email in the above box',
 		useIME = false,
 	}
@@ -546,8 +568,8 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		y = pad + formh * 7 ,
 		width =   formw * 1 ,
 		height =  formh * 1 ,
-		caption = i18n("Submit email"),
-		font = Configuration:GetFont(1),
+		caption = i18n("submit_email"),
+		objectOverrideFont = myFont1,
 		classname = "negative_button",
 		OnClick = {
 			function()
@@ -562,8 +584,8 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		y = pad + formh * 8 ,
 		width =   formw * 1 ,
 		height =  formh * 1 ,
-		caption = i18n("Submit Verification"),
-		font = Configuration:GetFont(1),
+		caption = i18n("submit_verification"),
+		objectOverrideFont = myFont1,
 		classname = "negative_button",
 		OnClick = {
 			function()
@@ -593,7 +615,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		height =  formh * 1 ,
 		-- caption = i18n("register_long"),
 		text = "Change Password: You must be logged in, enter your old and your new password",
-		font = Configuration:GetFont(1),
+		objectOverrideFont = myFont1,
 	}
 	recoverChildren[#recoverChildren+1] = self.txtChangePassword
 
@@ -604,7 +626,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		height =  formh * 1 ,
 		-- caption = i18n("register_long"),
 		caption = "Old password:",
-		font = Configuration:GetFont(1),
+		objectOverrideFont = myFont1,
 	}
 	recoverChildren[#recoverChildren+1] = self.lblChangePasswordOld
 
@@ -614,7 +636,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		width =   formw * 1 ,
 		height =  formh * 1 ,
 		text = "",
-		font = Configuration:GetFont(1),
+		objectOverrideFont = myFont1,
 		tooltip = 'Enter your old password here',
 		useIME = false,
 	}
@@ -627,7 +649,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		height =  formh * 1 ,
 		-- caption = i18n("register_long"),
 		caption = "New Password:",
-		font = Configuration:GetFont(1),
+		objectOverrideFont = myFont1,
 	}
 	recoverChildren[#recoverChildren+1] = self.lblChangePasswordNew
 
@@ -637,7 +659,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		width =   formw * 1 ,
 		height =  formh * 1 ,
 		text = "",
-		font = Configuration:GetFont(1),
+		objectOverrideFont = myFont1,
 		tooltip = 'Enter your new password here',
 		useIME = false,
 	}
@@ -648,8 +670,8 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		y = pad + formh * 13 ,
 		width =   formw * 1 ,
 		height =  formh * 2 ,
-		caption = i18n("Change Password"),
-		font = Configuration:GetFont(1),
+		caption = i18n("change_password"),
+		objectOverrideFont = myFont1,
 		classname = "negative_button",
 		OnClick = {
 			function()
@@ -661,7 +683,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 
 	self.txtErrorChangePassword = TextBox:New {
 		x = pad + formw * 0 ,
-		y = pad + formh * 15 ,
+		y = 4 + pad + formh * 15 ,
 		width =   formw * 3 ,
 		height =  formh * 1 ,
 		text = "If this doesnt work contact us on Discord",
@@ -679,7 +701,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		height =  formh * 1 ,
 		-- caption = i18n("register_long"),
 		text = "Change email address associated with your account. You must be logged in. Enter the new email address you wish to use, then enter the validation code sent to the new email address.",
-		font = Configuration:GetFont(1),
+		objectOverrideFont = myFont1,
 	}
 	recoverChildren[#recoverChildren+1] = self.txtChangeEmail
 
@@ -690,7 +712,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		height =  formh * 1 ,
 		-- caption = i18n("register_long"),
 		caption = "New email address:",
-		font = Configuration:GetFont(1),
+		objectOverrideFont = myFont1,
 	}
 	recoverChildren[#recoverChildren+1] = self.lblChangeEmailEmail
 
@@ -700,7 +722,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		width =   formw * 1 ,
 		height =  formh * 1 ,
 		text = "",
-		font = Configuration:GetFont(1),
+		objectOverrideFont = myFont1,
 		tooltip = 'Make sure you enter your new email address',
 		useIME = false,
 	}
@@ -713,7 +735,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		height =  formh * 1 ,
 		-- caption = i18n("register_long"),
 		caption = "Verification Code:",
-		font = Configuration:GetFont(1),
+		objectOverrideFont = myFont1,
 	}
 	recoverChildren[#recoverChildren+1] = self.lblChangeEmailVerification
 
@@ -723,7 +745,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		width =   formw * 1 ,
 		height =  formh * 1 ,
 		text = "",
-		font = Configuration:GetFont(1),
+		objectOverrideFont = myFont1,
 		tooltip = 'You will recieve this code via email after submitting your email in the above box',
 		useIME = false,
 	}
@@ -734,8 +756,8 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		y = pad + formh * 20 ,
 		width =   formw * 1 ,
 		height =  formh * 1 ,
-		caption = i18n("Submit email"),
-		font = Configuration:GetFont(1),
+		caption = i18n("submit_email"),
+		objectOverrideFont = myFont1,
 		classname = "negative_button",
 		OnClick = {
 			function()
@@ -750,8 +772,8 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		y = pad + formh * 21 ,
 		width =   formw * 1 ,
 		height =  formh * 1 ,
-		caption = i18n("Submit Verification"),
-		font = Configuration:GetFont(1),
+		caption = i18n("submit_verification"),
+		objectOverrideFont = myFont1,
 		classname = "negative_button",
 		OnClick = {
 			function()
@@ -763,7 +785,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 
 	self.txtErrorChangeEmail = TextBox:New {
 		x = pad + formw * 0 ,
-		y = pad + formh * 22 ,
+		y = 4 + pad + formh * 22 ,
 		width =   formw * 3 ,
 		height =  formh * 1 ,
 		text = "If this doesnt work contact us on Discord",
@@ -790,7 +812,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		y = self.windowHeight - 143,
 		height = 70,
 		caption = "Logout",
-		font = Configuration:GetFont(3),
+		objectOverrideFont = myFont3,
 		classname = "negative_button",
 		OnClick = {
 			LogoutFunc
@@ -805,14 +827,14 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		width = 207,
 		height = 70,
 		caption = "Server Website",
-		font = Configuration:GetFont(3),
+		objectOverrideFont = myFont3,
 		classname = "option_button",
 		OnClick = {
 			function ()
-				WG.BrowserHandler.OpenUrl("https://server2.beyondallreason.info/")
+				WG.BrowserHandler.OpenUrl("https://server4.beyondallreason.info/")
 			end
 		},
-		tooltip = "Visit the server's website for all your account and clan management needs at https://server2.beyondallreason.info/. You can also recover your account/password from there.",
+		tooltip = "Visit the server's website for all your account and clan management needs at https://server4.beyondallreason.info/. You can also recover your account/password from there.",
 	}
 
 	
@@ -961,6 +983,17 @@ function LoginWindow:tryLogin()
 		end
 		lobby:AddListener("OnDisconnected", self.onDisconnected)
 
+		local function FollowRedirect()
+			lobby:Connect(Configuration:GetServerAddress(), Configuration:GetServerPort(), username, password, 3, nil, GetLobbyName())
+		end
+			
+		self.onRedirect = function(listener, newaddress)
+			lobby:Disconnect()
+			Configuration:SetConfigValue("serverAddress", newaddress)
+			WG.Delay(FollowRedirect, 3)
+		end
+
+		lobby:AddListener("OnRedirect", self.onRedirect)
 		lobby:Connect(Configuration:GetServerAddress(), Configuration:GetServerPort(), username, password, 3, nil, GetLobbyName())
 	else
 		lobby:Login(username, password, 3, nil, GetLobbyName())
@@ -1368,36 +1401,35 @@ function LoginWindow:OnConnected()
 	lobby:AddListener("OnAgreementEnd", self.onAgreementEnd)
 end
 
-
-
-
 function LoginWindow:createAgreementWindow()
 	self.agreementWindow = Window:New {
-		x = 600,
-		y = 200,
-		width = 650,
-		height = 530,
-		caption = "User agreement",
+		classname = "main_window",
+		x = "33.3%",
+		y = "15%",
+		right = "33.3%",
+		bottom = "15%",
+		caption = "\nUser agreement",
+		captionColor = {1.0, 1.0, 1.0, 1.0},
+		font = Configuration:GetFont(3),
+		OnClick = self.BringToFront,
 		resizable = false,
 		draggable = false,
 		parent = WG.Chobby.lobbyInterfaceHolder,
 	}
 
 	self.tbAgreement = TextBox:New {
-		x = 1,
-		width = "100%",
-		y = 1,
-		height = "100%",
+		x = "2%",
+		right = "2%",
+		y = "3%",
 		text = self.agreementText,
 		font = Configuration:GetFont(2),
 	}
 
 	ScrollPanel:New {
-		x = 1,
-
-		right = 7,
-		y = 1,
-		height = 390,
+		x = "2%",
+		right = "2%",
+		y = 48,
+		bottom = 270,
 		children = {
 			self.tbAgreement
 		},
@@ -1406,19 +1438,19 @@ function LoginWindow:createAgreementWindow()
 
 	if self.emailRequired then
 		self.txtVerif = TextBox:New {
-			x = 1,
+			x = "2%",
 			width = 200,
-			y = 405,
+			bottom = 100,
 			height = 35,
-			text = i18n("Email Verification Code") .. ":",
+			text = i18n("email_verification_code") .. ":",
 			fontsize = Configuration:GetFont(2).size,
 			useIME = false,
 			parent = self.agreementWindow,
 		}
 		self.ebVerif = EditBox:New {
 			x = 200,
-			width = 650-250,
-			y = 395,
+			right = "3%",
+			bottom = 96,
 			height = 35,
 			text = "",
 			font = Configuration:GetFont(2),
@@ -1427,13 +1459,46 @@ function LoginWindow:createAgreementWindow()
 		}
 	end
 
+	local button = Button:New {
+		x = "2%",
+		height = 60,
+		right = "2%",
+		bottom = 204,
+		caption = "Terms of service",
+		classname = "link_button",
+		font = WG.Chobby.Configuration:GetFont(3),
+		OnClick = {
+			function ()
+				WG.BrowserHandler.OpenUrl("https://server4.beyondallreason.info/privacy_policy")
+			end
+		},
+		parent = self.agreementWindow,
+	}
+
+	local button = Button:New {
+		x = "2%",
+		height = 60,
+		right = "2%",
+		bottom = 140,
+		caption = "Code of conduct",
+		classname = "link_button",
+		font = WG.Chobby.Configuration:GetFont(3),
+		OnClick = {
+			function ()
+				WG.BrowserHandler.OpenUrl("https://www.beyondallreason.info/code-of-conduct")
+			end
+		},
+		parent = self.agreementWindow,
+	}
+
 	self.btnYes = Button:New {
-		x = 1,
+		x = "2%",
 		width = 135,
-		y = 430,
+		bottom = "1%",
 		height = 70,
-		caption = "Accept",
+		caption = i18n("accept"),
 		font = Configuration:GetFont(3),
+		classname = "action_button",
 		OnClick = {
 			function()
 				local verificationCode = ""
@@ -1446,12 +1511,13 @@ function LoginWindow:createAgreementWindow()
 		parent = self.agreementWindow,
 	}
 	self.btnNo = Button:New {
-		x = 240,
+		right = "2%",
 		width = 135,
-		y = 430,
+		bottom = "1%",
 		height = 70,
-		caption = "Decline",
+		caption = i18n("decline"),
 		font = Configuration:GetFont(3),
+		classname = "negative_button",
 		OnClick = {
 			function()
 				self:declineAgreement()

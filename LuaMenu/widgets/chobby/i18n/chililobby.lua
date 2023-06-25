@@ -37,6 +37,13 @@ return {
 		autoLogin = "Login automatically",
 		authenticateSteam = "Authenticate with Steam",
 		play_offline = "Play offline",
+		keys = "Keys",
+		email = "Email",
+		email_verification_code = "Email Verification Code",
+		change_username = "Change Username",
+		change_password = "Change Password",
+		submit_email = "Submit email",
+		submit_verification = "Submit Verification",
 		-- gui_battle_status_panel
 		spectating_game_status = "Spectating",
 		playing_game_status = "Playing",
@@ -68,7 +75,7 @@ return {
 		party = "Party",
 		accept = "Accept",
 		reject = "Reject",
-		ready = "Ready",
+		ready = "   Ready",
 		apply = "Apply",
 		enter_battle_password = "Enter Battle Password",
 		set_window_position = "Set Window Position",
@@ -139,15 +146,24 @@ return {
 		rejoin = "Rejoin",
 		abandon = "Abandon",
 
-		tooltip_is_spectator = "You will spectate this game",
-		tooltip_become_spectator = "Press to watch the game as a spectator",
 		spectate = "Spectate",
 		spectating = "Spectating",
+		leave_queue = "Exit Queue",
 
-		tooltip_is_player = "You will play in this game",
-		tooltip_become_player = "Press to play in this game",
+		tooltip_is_spectator = "You will spectate this game when it starts.",
+		tooltip_become_spectator = "Press to watch the game as a spectator.",
+		tooltip_leave_queue = "Press to leave the join-queue and become a normal spectator.",
+		
+		tooltip_is_player = "You will play in this game when it starts.",
+		tooltip_become_player = "Press to play in this game.",
+		tooltip_join_queue = "Press to enter the join-queue.",
+		tooltip_leave_queue = "Press to leave the join-queue.",
+		tooltip_queued = "You are in the join-queue.",
+
 		play = "Play",
 		playing = "Playing",
+		join_queue = "Join Queue",
+		queued = "Queued",
 
 		watch = "Watch",
 		matchmaking = "Matchmaking",
@@ -189,6 +205,8 @@ return {
 		drawFullSpeed_tooltip = "Enabling this makes the lobby be drawn at your maximum FPS, which can cause excess CPU and GPU load, but can help if you are having issues with VSync",
 		fixFlicker = "Fix lobby flickering",
 		fixFlicker_tooltip = "At the cost of significant idle CPU load: Enable this if you experience flickering in the lobby.",
+		flushLogs = "Flush logs to disk",
+		flushLogs_tooltip = "Immediately flush infolog.txt to disk for debuggging.",
 		keep_queues = "Stay in MM queues on launch",
 		simplifiedSkirmishSetup = "Simple skirmish setup",
 		debugMode = "Debug mode",
@@ -199,13 +217,37 @@ return {
 		displayBots_tooltip = "Shows various bots (TS ranking bot SLDB, battleroom host bots, user account management bots) in the chat channels if you need to interacti with them (you dont, unless you are developing)",
 		filterbattleroom = "Filter bot chatter",
 		filterbattleroom_tooltip = "Battleroom management bots are quite verbose, enable this if you want to see every debug message that the bots do (for SPADS)",
+		showTestingEngines = "Show Battles with Test Engine Versions",
+		showTestingEnginestooltip = "You need to start the launcher with Engine-Testing config to get latest engine before you can use different engines. Testing versions will open new window.",
+		showRank = "Show rank icons",
+		showRanktooltip = "Displays the rank icon next to the players name in the battleroom",
+		showSkill = "Show OpenSkill values",
+		showSkillOpttooltip = "Displays the OpenSkill value next to the players name in the battleroom. On Detailed OS-uncertainty is reflected by color saturation of OS-value.",
+		useLastGameSpectatorState = "Battle join state",
+		useLastGameSpectatorStateTooltip = "Set the initial Player/Spectator state when joining battles.",
+		showCountry = "Show country flags",
+		showCountrytooltip = "Displays the country flag next to the players name in the battleroom",
 
 		-- gui_battle_room_window.lua
 
-		ready = "Ready",
 		ready_tooltip = "Click to become unready. This will prevent the game from starting!",
-		unready = "Not Ready",
+		unready = "Unready",
 		unready_tooltip = "Click to become ready. If you're not ready, the game can't start!",
+		unready_notplaying_tooltip = "You can't become ready as you are spectating. Press play to join the game.",
+		inprogress_tooltip = "This game is in progress. Press rejoin to watch the game.",
+		startbtn_tooltip = "Start the game.",
+		startbtn_votestart_tooltip = "Call a vote to start.",
+		startbtn_inprogress_tooltip = "Watch this in progress game.",
+		startbtn_gettingcontent_tooltip = "Please wait for downloads to finish before starting.",
+
+		-- gui_maplist_panel.lua
+
+		type_to_filter = "Type to filter",
+		maincaption_multiplayer = "Select a Map. Only Certified and Classic in Online.",
+		maincaption_singleplayer = "Select a Map. Certified maps are recommended.",
+
+		-- gui_keys_panel.lua
+		maincaption_keys = "Key Bindings",
 
 		-- chat_windows.lua
 		server = "Server",
@@ -240,6 +282,8 @@ return {
 		-- friend_list_window.lua
 		friend_request = "Friend request",
 		decline = "Decline",
+		user_offline = "User is now offline",
+		user_online = "User is now online",
 
 		-- campaign handler
 		campaign = "Campaign",

@@ -1,0 +1,20 @@
+name: Publish launcher config.json
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+jobs:
+  publish_config:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+      - name: Publish config.json
+        run: |
+          curl --fail-with-body \
+            --request PUT \
+            --header "Content-Type: application/json" \
+            --header "AccessKey: $ACCESS_KEY" \
+            --upload-file dist_cfg/config.json \
+            https://launcher-config.beyondallreason.dev/config.json
+        env:
+          ACCESS_KEY: ${{ secrets.LAUNCHER_CONFIG_PUSH_ACCESS_KEY }}

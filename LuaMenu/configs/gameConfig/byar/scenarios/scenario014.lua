@@ -8,24 +8,35 @@ local scenariodata = {
 	imageflavor		= "Build a shipyard from the shores.", -- This text will be drawn over image
     summary         = [[An enemy Commander has landed on the southeast corner of the map, neutralize it and destroy every last unit to claim all the resources of this world.]],
 	briefing 		= [[The map is split in two by a river, which is passable on both sides by hovercraft and amphibious units. The central bridge can be easily defended from the outcrops on the top. Make sure to set up some light defences on your end of the bridge as soon as possible. The mountain ranges will provide adequate cover against long-range plasma cannons.
-
+ 
+ 
 Tips:
- - Start by building the initial 3 Metal Extractors, then 2 Solar Generators, and a Bot Lab
- - Make sure to send a few attack units early on to secure the bridge
- - Watch out for amphibous units or hovercraft making their way across the river
- - After securing the bridge and claiming the metal on the western side of the river, you should have sufficient resources to advance your technology to Tier 2.
- - The map doesnt contain very much contested resources, so you should be free
-
+ 
+ ‣  Start by building the initial 3 Metal Extractors, then 2 Solar Generators, and a Bot Lab
+ 
+ ‣  Make sure to send a few attack units early on to secure the bridge
+ 
+ ‣  Watch out for amphibous units or hovercraft making their way across the river
+ 
+ ‣  After securing the bridge and claiming the metal on the western side of the river, you should have sufficient resources to advance your technology to Tier 2.
+ 
+ ‣  The map doesnt contain very much contested resources, so you should be free
+ 
+ 
 Scoring:
- - Time taken to complete the scenario
- - Resources spent to destroy all enemy units.
-
+ 
+ ‣  Time taken to complete the scenario
+ ‣  Resources spent to destroy all enemy units.
+  
+ 
 The difficulty modifier will change the amount of resources you and the enemy can use:
- - Beginner: You +50%, enemy -50%
- - Novice: You +25%, enemy -25%
- - Normal: Regular resources for both sides
- - Hard: Regular resources for you, +50% for the enemy
- - Brutal: Regular resources for you, +100% for the enemy
+ 
+ ‣  Beginner: You +50%, enemy -50%
+ ‣  Novice: You +25%, enemy -25%
+ ‣  Normal: Regular resources for both sides
+ ‣  Hard: Regular resources for you, +50% for the enemy
+ ‣  Brutal: Regular resources for you, +100% for the enemy
+
     ]],
 
 	mapfilename		= "Pinewood_Derby_V1", -- the name of the map to be displayed here
@@ -43,8 +54,8 @@ The difficulty modifier will change the amount of resources you and the enemy ca
         {name = "Brutal"  , playerhandicap = 0, enemyhandicap = 100 },
     },
     allowedsides     = {"Armada","Cortex","Random"}, --these are the permitted factions for this mission
-	victorycondition= "Kill all enemy units", -- This is plaintext, but should be reflected in startscript
-	losscondition	= "Loss of all your units",  -- This is plaintext, but should be reflected in startscript
+	victorycondition= "Kill all construction units", -- This is plaintext, but should be reflected in startscript
+	losscondition	= "Lose all of your construction units",  -- This is plaintext, but should be reflected in startscript
     unitlimits   = { -- table of unitdefname : maxnumberoftese units, 0 is disable it
 	-- dont use the one in startscript, put it here!
         --armavp = 0,
@@ -90,7 +101,7 @@ The difficulty modifier will change the amount of resources you and the enemy ca
 
 	[modoptions]
 	{
-		deathmode = killall;
+		deathmode = builders;
 		scenariooptions = __SCENARIOOPTIONS__;
 	}
 

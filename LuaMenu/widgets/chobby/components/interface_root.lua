@@ -11,7 +11,7 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 	local userStatusPanelWidth = 300
 
 	local battleStatusWidth = 480
-	local panelButtonsWidth = 578
+	local panelButtonsWidth = "44.9%"
 	local panelButtonsHeight = 42
 	local statusWindowGapSmall = 44
 
@@ -36,19 +36,20 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 	local mainButtonsWidth = 180
 	local mainButtonsWidthSmall = 140
 
-	local userStatusWidth = 275
+	local userStatusWidth = 265
+	local userStatusWidth = 333
 
 	local imageFudge = 0
 
 	local padding = 0
 
-	local statusButtonWidth = 290
-	local statusButtonWidthSmall = 290
+	local statusButtonWidth = 265
+	local statusButtonWidthSmall = 265
 
 	local topBarHeight = 42
 
 	-- Switch to single panel mode when below the minimum screen width
-	local minScreenWidth = 1360
+	local minScreenWidth = 1350
 
 	local gameRunning = false
 	local showTopBar = false
@@ -96,7 +97,7 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 		children = {},
 		preserveChildrenOrder = true
 	}
-
+	lobbyInterfaceHolder.drawTimer = Spring.GetTimer()
 	version_font = Configuration:GetFont(1)
 	version_font.color = {0.7,0.7,0.7,1} -- Grey color
 
@@ -109,24 +110,17 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 		end
 	end
 
-	local chobbyrapidTag = 'chobby:test'
-	if chobbyrapidTag and VFS.GetNameFromRapidTag then
-		local rapidName = VFS.GetNameFromRapidTag(chobbyrapidTag)
-		if rapidName then
-			chobbyrapidTag = rapidName
-			chobbyrapidTag = string.gsub(chobbyrapidTag, "Chobby test%-", "")
-		end
-	end
 
 	local label_version = Label:New {
-		x = "80%",
+		--x = "68.5%",
 		y = "95%",
 		width = "20%",
 		height = "5%",
+		right = "2.25%",
 		parent = lobbyInterfaceHolder,
 		font = version_font,
 		caption = "Game: " .. Configuration.gameConfig.ShortenNameString(Configuration:GetDefaultGameName()) .. "  Engine: " .. Configuration:GetTruncatedEngineVersion() .. "  "
-			.. '\nChobby: ' .. byarchobbyrapidTag .. " / " ..chobbyrapidTag ,
+			.. 'Chobby: ' .. byarchobbyrapidTag ,
 		align = "right",
 		valign = 'bottom',
 	}
@@ -182,6 +176,19 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 		parent = holder_heading,
 	}
 
+	local cachingLabel 	= Label:New {
+		name = "cachingLabel",
+		x = 4,
+		y = "98%",
+		width = 200,
+		height = 18,
+		--right = "2.25%",
+		parent = lobbyInterfaceHolder,
+		font = Configuration:GetFont(1),
+		caption = "Caching...",
+		align = "left",
+		valign = 'top',
+	}
 	-----------------------------------
 	-- Top middle and top right status
 	-----------------------------------
@@ -225,15 +232,15 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 	}
 
 	local status_panelButtons = Control:New {
+		width = (2 + panelWidthRel) .. "%",
 		bottom = 0,
 		right = 0,
-		width = panelButtonsWidth,
 		height = panelButtonsHeight,
 		name = "status_panelButtons",
 		parent = holder_status,
 		resizable = false,
 		draggable = false,
-		padding = {0, 0, 0, 0},
+		padding = {0, 0, 20, 0},
 		children = {}
 	}
 	local panelButtons_buttons = Control:New {
@@ -244,6 +251,7 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 		name = "panelButtons_buttons",
 		caption = "", -- Panel Buttons
 		parent = status_panelButtons,
+		font = Configuration:GetFont(3),
 		resizable = false,
 		draggable = false,
 		padding = {0, 0, 0, 0},
@@ -323,6 +331,21 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 		children = {}
 	}
 
+	local buttonsHolder = Control:New {
+
+		x = 0,
+		y = 0,
+		width = "100%",
+		height = "100%",
+		name = "buttonsHolder",
+		caption = "", -- Main Buttons
+		--parent = buttonsHolder_buttons,
+		resizable = false,
+		draggable = false,
+		padding = {0, 0, 0, 0},
+		children = {}
+	}
+
 	local buttonsHolder_image = Image:New {
 		x = 0,
 		y = 0,
@@ -380,6 +403,7 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 		right = BUTTON_SIDE_SPACING,
 		height = 70,
 		caption = i18n("exit"),
+		--objectOverrideFont = myFont3,
 		font = Configuration:GetFont(3),
 		parent = buttonsHolder_buttons,
 		OnClick = {MakeExitPopup},
@@ -542,6 +566,8 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 
 	mainWindowHandler = GetSubmenuHandler(buttonsHolder_buttons, mainContent_window, submenuWindow_mainContent, submenus, UpdateTitle)
 
+	--Spring.Utilities.TableEcho(buttonsHolder)
+
 	local statusAndInvitesPanel = GetControlPanelHandler(holder_statusAndInvites)
 
 	-------------------------------------------------------------------
@@ -596,7 +622,7 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 		local topOffset = (showTopBar and topBarHeight) or 0
 
 		if doublePanelMode then
-			battleStatusPanelHandler.Rescale(3, nil, statusButtonWidth)
+			battleStatusPanelHandler.Rescale(2, nil, statusButtonWidth)
 			RescaleMainWindow(3, 70, 50, buttonSpacingLarge)
 
 			-- Make main buttons wider
@@ -654,7 +680,7 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 			holder_topImage:SetPos(nil, topOffset, nil, titleHeight + imageFudge)
 		else
 			rightPanelHandler.Rescale(2, 55, nil, nil, buttonSpacingSmall)
-			battleStatusPanelHandler.Rescale(3, nil, statusButtonWidthSmall)
+			battleStatusPanelHandler.Rescale(2, nil, statusButtonWidthSmall)
 			RescaleMainWindow(2, 55, 46, buttonSpacingSmall)
 
 			-- Make main buttons thinner
@@ -915,10 +941,11 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 	local switchToGameButton = Button:New {
 		y = 2,
 		right = 3,
-		width = 220,
+		width = 150,
 		height = 38,
 		name = "switchToGameButton",
-		caption = "Return to Game",
+		caption = "Back to Game",
+		captionHorAlign = 5,
 		font = WG.Chobby.Configuration:GetFont(2),
 		parent = holder_topBar,
 		resizable = false,
@@ -938,7 +965,7 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 
 	local leaveGameButton = Button:New {
 		y = 2,
-		right = 226,
+		right = 156,
 		width = 108,
 		height = 38,
 		name = "leaveGameButton",
@@ -1152,6 +1179,14 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 		return backgroundHolder
 	end
 
+	function externalFunctions.GetCachingImage()
+		return cachingImage
+	end
+
+	function externalFunctions.GetCachingLabel()
+		return cachingLabel
+	end
+
 	function externalFunctions.SetLobbyButtonEnabled(newEnabled)
 		Spring.Echo("SetLobbyButtonEnabled", newEnabled)
 		if ingameInterfaceHolder:GetChildByName("switchToMenuButton") then
@@ -1220,7 +1255,7 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 	-------------------------------------------------------------------
 	local screenWidth, screenHeight = Spring.GetViewSizes()
 
-	battleStatusPanelHandler.Rescale(3, 70)
+	battleStatusPanelHandler.Rescale(2, 70)
 	rightPanelHandler.Rescale(2, 70)
 	RescaleMainWindow(3, 70, 50)
 

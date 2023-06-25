@@ -32,7 +32,7 @@ local background = {
 	backgroundFocus = backgroundConfig.backgroundFocus,
 }
 -- random background
-local loadscreens = VFS.DirList(LUA_DIRNAME .. "configs/gameConfig/" .. shortname .. "/skinning/loadpictures/")
+local loadscreens = VFS.DirList(LUA_DIRNAME .. "configs/gameConfig/" .. shortname .. "/skinning/loadpictures/", "*.jpg")
 local randomBackgroundImage = loadscreens[1+(math.floor((1000*os.clock())%#loadscreens))] -- hacky hotfix for http://springrts.com/mantis/view.php?id=4572
 if VFS.FileExists(randomBackgroundImage) then
 	background.image = randomBackgroundImage
@@ -69,10 +69,10 @@ local externalFuncAndData = {
 	_defaultGameRapidTag   = "byar:test", -- Do not read directly
 	--editor                 = "rapid://sb-byar:test",
 	--editor                 = "SpringBoard BYAR $VERSION",
-	defaultChatChannels    = {"main", "newbies"},
+	defaultChatChannels    = {"main"},
 	sayPrivateSelectAndActivateChatTab = sayPrivateSelectAndActivateChatTab,
 	aiBlacklist            = aiBlacklist,
-	unversionedGameAis	   = {"SimpleAI", "SimpleCheaterAI","SimpleDefenderAI", "SimpleConstructorAI", "ScavengersAI", "ControlModeAI", "ChickensAI"},
+	unversionedGameAis	   = {"SimpleAI","SimpleDefenderAI", "SimpleConstructorAI", "ScavengersAI", "ControlModeAI", "ChickensAI"},
 	GetAiSimpleName        = aiSimpleNames.GetAiSimpleName,
 	simpleAiOrder          = aiSimpleNames.simpleAiOrder,
 	aiTooltip              = aiSimpleNames.aiTooltip,
@@ -93,7 +93,7 @@ local externalFuncAndData = {
 	--springSettingsPath     = springSettingsPath,
 	headingLarge           = headingLarge,
 	headingSmall           = headingSmall,
-	skinName               = "Evolved",
+	skinName               = "Armada Blues",
 	taskbarTitle           = "Beyond All Reason",
 	taskbarTitleShort      = "BAR",
 	taskbarIcon            = taskbarIcon,
@@ -121,9 +121,28 @@ local externalFuncAndData = {
 	spadsLobbyFeatures = true,
 	filterEmptyRegionalAutohosts = true,
 	logoutOpensLoginPanel = logoutOpensLoginPanel,
-	SaveLobbyVersionGZPath = "rapid/repos.springrts.com/byar-chobby/versions.gz",
 	ShortenNameString = ShortenNameString,
 }
+
+-- Hack to figure out which versions.gz do we need to cache when downloading
+-- any updates with rapid and then restore afterwards. If we don't set
+-- SaveLobbyVersionGZPath correctly the game will crash in the following scenario:
+-- 1. User starts lobby and joins game for which they don't have the game version downloaded
+-- 2. Change happens on the server in BYAR chobby repository, that repoints byar-chobby:test to a new package
+-- 3. Lobby starts downloading game, pr-downloader updates all version.gz files in all repos because download
+--    of game is done by *springname" not by rapid tag (pr-downloader can't figure out to which repo given
+--    springname belongs)
+-- 4. New version of the game is downloaded, but byar-chobby:test points at new, not downloaded package
+--    as pr-downloaded only downloaded game.
+-- 5. Crash, because spring can't load byar-chobby:test package.
+local chobbyRepoDomain = "repos.springrts.com"
+local rapidTagResolutionOrder = Spring.GetConfigString("RapidTagResolutionOrder")
+if rapidTagResolutionOrder ~= "" then
+	-- We assume that the first one is ok.
+	chobbyRepoDomain = rapidTagResolutionOrder:split(';')[1]
+end
+externalFuncAndData.SaveLobbyVersionGZPath = "rapid/" .. chobbyRepoDomain .."/byar-chobby/versions.gz"
+
 if Spring.GetConfigInt('soundtrack', 2) == 3 then
 	externalFuncAndData.openTrack = "LuaMenu/configs/gameConfig/byar/lobbyMusic/ProfessorKliq-TensionGrowl.ogg"
 	externalFuncAndData.randomTrackList = {

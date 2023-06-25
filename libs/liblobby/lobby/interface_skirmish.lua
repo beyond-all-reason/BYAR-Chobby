@@ -76,6 +76,7 @@ function InterfaceSkirmish:_StartScript(gameName, mapName, playerName, friendLis
 		return tostring(teamColor[1]) .. " " .. tostring(teamColor[2]) .. " " .. tostring(teamColor[3])
 	end
 
+	local playerNames = {}
 	-- Add the player, this is to make the player team 0.
 	-- except that it doesnt actually work, and makes the player in the _last_ allyteam :/
 	-- so we will rewrite it to reflect actual chobby single player setup
@@ -89,6 +90,7 @@ function InterfaceSkirmish:_StartScript(gameName, mapName, playerName, friendLis
 				Spectator = (data.isSpectator and 1) or nil,
 				rank = 0,
 			}
+			playerNames[#playerNames+1] = userName
 
 			if not data.isSpectator then
 				teams[teamCount] = {
@@ -277,6 +279,20 @@ function InterfaceSkirmish:_StartScript(gameName, mapName, playerName, friendLis
 	-- The engine treats rapid dependencies just like normal archives and I see no reason we do otherwise.
 	if string.find(gameName, ":") and not string.find(gameName, "rapid://") then
 		gameName = "rapid://" .. gameName
+	end
+
+	local numplayers = 0
+	local foundname = false
+	for _, name in pairs(playerNames) do
+		numplayers = numplayers + 1
+		if name == playerName then
+			foundname = name
+		end
+	end
+	
+	if (foundname == false) and (numplayers == 1) then
+		Spring.Echo("Found a different player name in skirmish startscript than reported by lobby. Fixing.", playername)
+		if players[0] then players[0].Name = playerName end
 	end
 
 	local script = {

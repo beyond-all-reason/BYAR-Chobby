@@ -1,39 +1,60 @@
-local welcomePanelItems = {
+--[[ -- example
     {
-        Header = "Welcome to BAR Alpha",
-        Url = "https://discord.gg/N968ddE",
-        Time = nil,-- "NowTime",
+        Header = "bla",
+        Text = "bla",
+        Url = "https://www.beyondallreason.info",
+        UrlText = "Beyond All Reason Website",
+        Image = "LuaMenu/configs/gameConfig/byar/images/bla.png",
+        Time = whatever the hell this thing does.
+    }
+]]
+
+
+
+local welcomePanelItems = {
+
+    {
+        Header = "Welcome to Beyond All Reason",
         Text = "Welcome back Commander. We hope you are ready for epic single player and multiplayer battles. Check out our Discord and join the community!\n",
+    },
+    {
+        Header = "Season 0 has started!",
+        Url = "https://www.beyondallreason.info/news/new-opportunities-ahead-season-zero-is-about-to-begin",
+        Text = "The OpenSkill uncertainty factor was reset for all players to its default value (the same as for new players). It's expected that your match rating (displayed in lobby) is lower than what it was before the reset, and likewise for your rank icon\n",
+        UrlText = "More info",
+    },
+    {
+        Header = "Commander Update",
+        Url = "https://www.beyondallreason.info/news/commander-update-details",
+        Text = "Commanders have been changed! They are now immune to the mighty D-Gun and their explosion does less damage. Their wreckage contains reduced metal value of 1250 (was 2000)\n",
+        UrlText = "More info",
+    },
+    {
+        Header = "PRO 4v4 Tournament concluded!",
+        Image = "LuaMenu/images/Group_141.png",
+        Url = "https://www.youtube.com/watch?v=_dq9Xwfh4h4",
+        Text = "\nCongratulations to the team BARcode!\nAs the dust slowly settles after the epic battles of 4v4 tourney, enjoy the tourney stream VOD! We really had a blast organising, casting an playing this one and sitting together with Chris Taylor (the creator of Total Annihilation) for a surprise interview.\n",
+        UrlText = "Watch"
     },
     
     {
-        Header = "Video guides for new players",
+        Header = "Guides for new players",
         Url = "https://www.youtube.com/channel/UCAByJ5NKeMmQ95EIWgBtbEw",
-        Time = nil,-- "NowTime",
         Text = "Requiem has created some guides for new players. If you're new to the game and want to learn the basics via video we highly recommend you check them out.\n",
+        UrlText = "Link to video guides"
     },
 
     {
-        Header = "Map update: Bismuth Valley v2.0",
-        --Url = "https://drive.google.com/drive/folders/16eBcMpkgMTV9mlKxYmNda64X_dmCFdkk",
-        Time = nil,-- "NowTime",
-        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/bismuth_valley_v2.0.png",
-        Text = "Bismuth Valley is now updated to v2.0! New metal distibution and reworked south pillars along with new bismuth texture.",
-    },
-
-    {
-        Header = "New Map: Cirolata 1.02",
-        Time = nil,-- "NowTime",
-        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/Cirolata_1.02.png",
-        Text = "A new 4-way Team-FFA map on a 16x16 subtropical island.",
+        Header = "Please help us test new engines!",
+        Text = "Just select [Engine Test] in the launcher dropdown, and then play Skirmish and Multiplayer games. AMD testers especially needed. Report anything out of the ordinary to Discord!\n",
+        UrlText = "BAR #engine channel on Discord"
     },
 
     {
         Header = "Steam release roadmap",
-        Url = "https://discord.com/channels/549281623154229250/697141979892416512/997178414257680444",
-        Time = nil,-- "NowTime",
-        -- Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/bismuth_valley_v1.0.png",
-        Text = "We've published our Steam Release roadmap, check it out on the discord!",
+        Url = "https://www.beyondallreason.info/development/steam-release",
+        Text = "We've published our Steam Release roadmap, check it out on the website!",
+        UrlText = "Roadmap Link"
     },
 
     --[[
@@ -43,47 +64,47 @@ local welcomePanelItems = {
         Time = nil, --"",
         Text = "We've just released a new engine update. Be sure to report any issues to #bugreports on the discord and thank you for bearing with us through any teething problems with it.."
     }, ]]--
-    -- {
-    --     Header = "Beyond All Reason Alpha Championship Cup #2",
-    --     Url = "https://www.twitch.tv/videos/1450944560",
-    --     Time = nil, --"",
-    --     Text = "Congratulations to Raghna for his victory. We'll have something up on YouTube in the near future but for now we still have the twitch stream."
-    -- },
+
     {
-        Header = "New single player scenarios",
-        Url = nil, --"https://www.beyondallreason.info/",
-        Time = nil,-- "NowTime",
-        Text = "Play these from the single player menu on the left, and tell us what you think of them on Discord in the #scenarios channel.\n" ,
-    },
-    {
-        Header = "New code of conduct",
+        Header = "Code of Conduct",
         Url = "https://www.beyondallreason.info/code-of-conduct",
-        Time = nil,-- "NowTime",
         Text = "We recently updated our code of conduct; be sure to check it out. As our community growth we've added the ability to report problems, click a user and select 'report user' to alert the moderator team to an issue. See the full code of conduct at https://www.beyondallreason.info/code-of-conduct",
+        UrlText = "Code of Conduct Link"
     },
+
     {
         Header = "Play with your friends: use our servers!",
-        Url = nil,--"https://www.beyondallreason.info/",
-        Time = nil,-- "NowTime",
         Text = "Join any empty (blue), or waiting (green) battle to start playing, or host your own public or private battle by clicking the Host Game button in the Multiplayer Battle List",
     },
+
     {
-        Header = "Multiplayer battle room commands",
-        --Url = "https://www.beyondallreason.info/",
-        --Time = "NowTime",
-        Text = "Type these commands into the battle room chat\n" ..
-               "!help - The battle room will give you detailed commands in the chat tab\n" ..
-               -- "!boss username - set username as a boss to gain full control (to disable: !boss)\n" ..
-               "!preset team - sets the room to Team vs Team game\n" ..
-               "!preset ffa - sets the room to Free-for-all game\n" ..
-               "!preset coop - sets all players to one team and AIs to the other\n" ..
-               -- "!fixcolors - Makes sure players dont have identical colors\n" ..
-               "!forcestart - starts the game even if teams arent balanced or colors arent fixed\n" ..
-               "!autobalance off - turns off automatic balancing (Recommended for PVE)\n" ..
-               "!autofixcolors off - turns off automatic color assignment\n" 
-               --"  !force Playername bonus [0-100] - Sets a % resource bonus for player or AI\n"..
-               --"  !force Playername team 1 - Places player or AI into a specific team"
-               ,
+        Header = "Useful commands in Multiplayer!",
+        Text = "!boss [nickname] \n" ..
+            "Boss someone (or yourself) in your battleroom so that person can set all the settings up without voting. You automatically become a boss of a room that you Host yourself.\n" ..
+            " \n" ..
+            "!forcestart \n" ..
+            "If your game is stuck because of some AFK player that refuses to load or press ready, or you encountered a bug that prevents your game from starting, or you set up weird teams, !forcestart is your savior.\n" ..
+            " \n" ..
+            "!stop \n" ..
+            "If you need to terminate the game you're currently playing for whatever reason, !stop will happily do it for you.\n" ..
+            " \n" ..
+            "!promote \n"  ..
+            "Sends a little message on ingame main chat that your room is waiting for people to join.\n" ..
+            " \n" ..
+            "$rename [name] \n"  ..
+            "Renames the battleroom you're currently in. Requires you to be the !boss of the battleroom to do so.\n" ..
+            " \n" ..
+            "$setratinglevels [min] [max] \n"  ..
+            "Sets minimum and maximum skill rating allowed in the room.\n" ..
+            " \n" ..
+            "$resetratinglevels\n"  ..
+            "Removes skill rating limits from the room.\n" ..
+            " \n" ..
+            "$explain \n" ..
+            "Gives you a nice breakdown of how the autobalance works in your current battleroom.\n" ..
+            " \n" ..
+            "For a full list of commands, use !help and $help in any multiplayer room." ..
+            " \n",
     },
 }
 

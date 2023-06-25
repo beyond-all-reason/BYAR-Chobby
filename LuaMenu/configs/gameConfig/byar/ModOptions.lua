@@ -24,68 +24,7 @@
 
 
 local options={
-	---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-	---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-	-- Resources
-	---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-	---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-	{
-		key		= "resources_options",
-		name	= "Resources",
-		desc	= "Resources",
-		type	= "section",
-	},
 
-	{
-		key    = "startmetal",
-		name   = "Starting metal",
-		desc   = "Determines amount of metal and metal storage that each player will start with",
-		type   = "number",
-		section= "resources_options",
-		def    = 1000,
-		min    = 0,
-		max    = 10000,
-		step   = 1,
-	},
-
-	{
-		key    = "startenergy",
-		name   = "Starting energy",
-		desc   = "Determines amount of energy and energy storage that each player will start with",
-		type   = "number",
-		section= "resources_options",
-		def    = 1000,
-		min    = 0,
-		max    = 10000,
-		step   = 1,
-	},
-	{
-		key="map_tidal",
-		name="Tidal Strength",
-		desc="Unchanged = map setting, low = 13e/sec, medium = 18e/sec, high = 23e/sec.",
-		hidden = true,
-		type="list",
-		def="unchanged",
-		section="resources_options",
-		items={
-			{key="unchanged", name="Unchanged", desc="Use map settings"},
-			{key="low", name="Low", desc="Set tidal incomes to 13 energy per second"},
-			{key="medium", name="Medium", desc="Set tidal incomes to 18 energy per second"},
-			{key="high", name="High", desc="Set tidal incomes to 23 energy per second"},
-		}
-	},
-
-	{
-		key    = 'resourceincomemultiplier',
-		name   = 'Resource Income Multiplier',
-		desc   = 'Resource Income Multiplier',
-		type   =  "number",
-		section = 'resources_options',
-		def    = 1,
-		min    = 0.01,
-		max    = 100,
-		step   = 0.01,
-	},
 	---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 	---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 	-- Restrictions
@@ -137,25 +76,28 @@ local options={
 		def    		= true,
 		section		= "restrictions",
 	},
+
 	{
-		key    		= 'norushmode',
-		name   		= 'NoRush Mode',
-		desc   		= 'Disallows moving out of your startbox area for a set amount of time',
+		key    		= 'norush',
+		name   		= "No Rush mode - Work in Progress, Requires Startboxes (doesn't work in FFA or 1v1 preset)",
+		desc   		= 'No Rush mode',
 		type   		= "bool",
 		section		= 'restrictions',
 		def    		= false,
 	},
+
 	{
-		key    		= 'norushtime',
-		name   		= 'NoRush Time',
-		desc   		= 'After how many minutes NoRush protection disappears',
+		key    		= 'norushtimer',
+		name   		= "No Rush Time (in minutes)",
+		desc   		= 'No Rush Time (in minutes)',
 		type   		= "number",
-		section 	= 'restrictions',
-		def    		= 10,
-		min    		= 1,
-		max    		= 60,
+		section		= 'restrictions',
+		def    		= 5,
+		min    		= 5,
+		max    		= 30,
 		step   		= 1,
 	},
+
 	{
 		key    		= 'disable_fogofwar',
 		name   		= 'Disable Fog of War',
@@ -229,50 +171,6 @@ local options={
 		def    		= false,
 	},
 
-	{
-		key    = 'map_restrictions_shrinknorth',
-		name   = 'Map Shrink Percentage North',
-		desc   = 'Set a percentage of map area to cut from playable area from the north',
-		type   = 'number',
-		def    = 0,
-		min    = 0,
-		max    = 100,
-		step   = 1,
-		section= "restrictions",
-	},
-	{
-		key    = 'map_restrictions_shrinksouth',
-		name   = 'Map Shrink Percentage South',
-		desc   = 'Set a percentage of map area to cut from playable area from the south',
-		type   = 'number',
-		def    = 0,
-		min    = 0,
-		max    = 100,
-		step   = 1,
-		section= "restrictions",
-	},
-	{
-		key    = 'map_restrictions_shrinkwest',
-		name   = 'Map Shrink Percentage West',
-		desc   = 'Set a percentage of map area to cut from playable area from the west',
-		type   = 'number',
-		def    = 0,
-		min    = 0,
-		max    = 100,
-		step   = 1,
-		section= "restrictions",
-	},
-	{
-		key    = 'map_restrictions_shrinkeast',
-		name   = 'Map Shrink Percentage East',
-		desc   = 'Set a percentage of map area to cut from playable area from the east',
-		type   = 'number',
-		def    = 0,
-		min    = 0,
-		max    = 100,
-		step   = 1,
-		section= "restrictions",
-	},
 	---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 	---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 	-- Scavengers
@@ -290,7 +188,7 @@ local options={
 		desc   = 'Scavengers Base Difficulty Level',
 		type   = 'list',
 		section = 'options_scavengers',
-		def  = "veryeasy",
+		def  = "medium",
 		items={
 			{key="noob", name="Noob", desc="Noob"},
 			{key="veryeasy", name="Very Easy", desc="Very Easy"},
@@ -337,7 +235,7 @@ local options={
 	},
 	{
 		key    = 'scavtechcurve',
-		name   = 'Game Lenght Multiplier',
+		name   = 'Game Length Multiplier',
 		desc   = 'Higher than 1 - Longer, Lower than 1 - Shorter',
 		type   = 'number',
 		section= 'options_scavengers',
@@ -473,7 +371,7 @@ local options={
 	},
 	{
 		key="chicken_difficulty",
-		name="Difficulty",
+		name="Base Difficulty",
 		desc="Raptors difficulty",
 		type="list",
 		def="normal",
@@ -481,11 +379,12 @@ local options={
 		items={
 			{key="veryeasy", name="Very Easy", desc="Very Easy"},
 			{key="easy", name="Easy", desc="Easy"},
-			{key="normal", name="Medium", desc="Medium"},
+			{key="normal", name="Normal", desc="Normal"},
 			{key="hard", name="Hard", desc="Hard"},
 			{key="veryhard", name="Very Hard", desc="Very Hard"},
 			{key="epic", name="Epic", desc="Epic"},
-			{key="survival", name="Endless", desc="Endless Mode"}
+
+			--{key="survival", name="Endless", desc="Endless Mode"}
 		}
 	},
 	{
@@ -496,109 +395,62 @@ local options={
 		def="initialbox",
 		section="chicken_defense_options",
 		items={
-			--{key="anywhere", name="Anywhere", desc="Burrows can spawn anywhere"},
-			{key="avoid", name="Avoid Players", desc="Burrows do not spawn on player units"},
+			{key="avoid", name="Avoid Players", desc="Burrows avoid player units"},
 			{key="initialbox", name="Initial Start Box", desc="First wave spawns in chicken start box, following burrows avoid players"},
 			{key="alwaysbox", name="Always Start Box", desc="Burrows always spawn in chicken start box"},
 		}
 	},
 	{
-		key    = "chicken_queentime",
-		name   = "Max Queen Arrival (Minutes)",
-		desc   = "Queen will spawn after given time.",
-		type   = "number",
-		def    = 40,
-		min    = 1,
-		max    = 1440,
-		step   = 1,
-		section= "chicken_defense_options",
-	},
-	{
-		key    = "chicken_maxchicken",
-		name   = "Chicken Limit",
-		desc   = "Maximum number of chickens on map.",
-		type   = "number",
-		def    = 300,
-		min    = 50,
-		max    = 5000,
-		step   = 25,
-		section= "chicken_defense_options",
-		hidden = true,
-	},
-	{
-		key    = "chicken_spawncountmult",
-		name   = "Raptor Spawn Multiplier",
-		desc   = "How many times more raptors spawn than normal.",
-		type   = "number",
-		def    = 1,
-		min    = 1,
-		max    = 20,
-		step   = 1,
-		section= "chicken_defense_options",
-	},
-	{
-		key    = "chicken_swarmmode",
-		name   = "Swarm Mode",
-		desc   = "Waves spawn 10 times faster but for every 2 minutes of waves you get 4 minutes of grace period",
+		key    = "chicken_endless",
+		name   = "Endless Mode",
+		desc   = "When you kill the queen, the game doesn't end, but loops around at higher difficulty instead, infinitely.",
 		type   = "bool",
 		def    = false,
 		section= "chicken_defense_options",
-    },
+	},
 	{
-		key    = "chicken_graceperiod",
-		name   = "Grace Period (Minutes)",
-		desc   = "Time before Raptors become active.",
+		key    = "chicken_queentimemult",
+		name   = "Queen Hatching Time Multiplier",
+		desc   = "How quickly Queen Hatch goes from 0 to 100% (Range: 0.1 - 3)",
 		type   = "number",
-		def    = 5,
+		def    = 1,
+		min    = 0.1,
+		max    = 3,
+		step   = 0.1,
+		section= "chicken_defense_options",
+	},
+	{
+		key    = "chicken_spawncountmult",
+		name   = "Unit Spawn Per Wave Multiplier",
+		desc   = "How many times more raptors will spawn per wave. (Range: 1 - 5)",
+		type   = "number",
+		def    = 1,
 		min    = 1,
-		max    = 20,
+		max    = 5,
 		step   = 1,
 		section= "chicken_defense_options",
 	},
 	{
-		key    = "chicken_queenanger",
-		name   = "Killing burrows adds to queen anger.",
-		desc   = "Killing burrows adds to queen anger.",
-		type   = "bool",
-		def    = true,
+		key    = "chicken_spawntimemult",
+		name   = "Time Between Waves Multiplier",
+		desc   = "How often new waves will spawn. (Range: 0.1 - 3)",
+		type   = "number",
+		def    = 1,
+		min    = 0.1,
+		max    = 3,
+		step   = 0.1,
 		section= "chicken_defense_options",
-    },
-
-	---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-	---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-	-- TeamColoring
-	---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-	---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-	{
-		key		= "teamcoloring_options",
-		name	= "TeamColors",
-		desc	= "TeamColors",
-		type	= "section",
 	},
 	{
-		key    = 'teamcolors_anonymous_mode',
-		name   = 'Anonymous Mode',
-		desc   = 'All your enemies are colored with the same color so you cannot recognize them. Forces Dynamic TeamColors to be enabled',
-		type   = 'bool',
-		section = 'teamcoloring_options',
-		def  = false,
-	},
-	{
-		key    = 'teamcolors_icon_dev_mode',
-		name   = "Icon Dev Mode (Don't use in normal games)",
-		desc   = 'Forces teamcolors to be an specific one, for all teams',
-		type   = 'list',
-		section = 'teamcoloring_options',
-		def  = "disabled",
-		items={
-			{key="disabled", name="Disabled", desc="description"},
-			{key="armblue", name="Armada Blue", desc="description"},
-			{key="corred", name="Cortex Red", desc="description"},
-			{key="scavpurp", name="Scavenger Purple", desc="description"},
-			{key="chickenorange", name="Chicken Orange", desc="description"},
-			{key="gaiagray", name="Gaia Gray", desc="description"},
-		}
+		key    = "chicken_graceperiodmult",
+		name   = "Grace Period Time Multiplier",
+		desc   = "Time before Raptors become active. (Range: 0.1 - 3)",
+		type   = "number",
+		def    = 1,
+		min    = 0.1,
+		max    = 3,
+		step   = 0.1,
+		section= "chicken_defense_options",
 	},
 
 	---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -612,6 +464,45 @@ local options={
 		name	= "Other",
 		desc	= "Options",
 		type	= "section",
+	},
+
+	{
+		key    = "startmetal",
+		name   = "Starting metal",
+		desc   = "Determines amount of metal and metal storage that each player will start with",
+		type   = "number",
+		section= "options",
+		def    = 1000,
+		min    = 0,
+		max    = 10000,
+		step   = 1,
+	},
+
+	{
+		key    = "startenergy",
+		name   = "Starting energy",
+		desc   = "Determines amount of energy and energy storage that each player will start with",
+		type   = "number",
+		section= "options",
+		def    = 1000,
+		min    = 0,
+		max    = 10000,
+		step   = 1,
+	},
+	{
+		key="map_tidal",
+		name="Tidal Strength",
+		desc="Unchanged = map setting, low = 13e/sec, medium = 18e/sec, high = 23e/sec.",
+		hidden = true,
+		type="list",
+		def="unchanged",
+		section="options",
+		items={
+			{key="unchanged", name="Unchanged", desc="Use map settings"},
+			{key="low", name="Low", desc="Set tidal incomes to 13 energy per second"},
+			{key="medium", name="Medium", desc="Set tidal incomes to 18 energy per second"},
+			{key="high", name="High", desc="Set tidal incomes to 23 energy per second"},
+		}
 	},
 
 	{
@@ -653,6 +544,23 @@ local options={
 		section="options",
 	},
 	{
+		key    = "map_waterislava",
+		name   = "Water Is Lava",
+		desc   = "Turns water into Lava",
+		type   = "bool",
+		def    = false,
+		section= "options",
+	},
+	{
+		key    = "map_atmosphere",
+		name   = "Map Atmosphere and Ambient Sounds",
+		desc   = "",
+		type   = "bool",
+		def    = true,
+		hidden = true,
+		section= "options",
+	},
+	{
 		key    = "ffa_mode",
 		name   = "FFA Mode",
 		desc   = "Units with no player control are removed/destroyed \nUse FFA spawning mode",
@@ -672,10 +580,27 @@ local options={
 	},
 
 	{
+		key    = 'teamcolors_anonymous_mode',
+		name   = 'Anonymous Mode',
+		desc   = 'Anonimizes players in the match so you have harder time telling who is who.',
+		type   = 'list',
+		section = 'options',
+		def  = "disabled",
+		items={
+			{key="disabled", name="Disabled", desc="Anonymous Mode disabled."},
+			{key="allred", name="Force SimpleColors", desc="All players have simple colors enabled, enemies cannot be recognized from each other."},
+			{key="global", name="Shuffle Globally", desc="Player colors order is shuffled globally, everyone see the same colors"},
+			{key="local", name="Shuffle Locally", desc="Player colors order is shuffled locally, everyone see different colors"},
+			--{key="disco", name="Shuffle Locally - DiscoMode", desc="Player colors order is shuffled locally, everyone see different colors that change every once a while randomly"},
+		}
+	},
+
+	{
 		key    = 'coop',
 		name   = 'Cooperative mode',
 		desc   = 'Adds extra commanders to id-sharing teams, 1 com per player',
 		type   = 'bool',
+		hidden = true,
 		def    = false,
 		section= 'options',
 	},
@@ -709,11 +634,9 @@ local options={
 		def="normal",
 		section="options",
 		items={
-			{key="veryrare", name="Very Rare"},
-			{key="rarer", name="Rare"},
 			{key="normal", name="Normal"},
-			{key="dense", name="Dense"},
-			{key="verydense", name="Very Dense"},
+			{key="rarer", name="Rare"},
+			{key="veryrare", name="Very Rare"},
 		}
 	},
 
@@ -754,11 +677,9 @@ local options={
 		def="normal",
 		section="options",
 		items={
-			{key="veryrare", name="Very Rare"},
-			{key="rarer", name="Rare"},
 			{key="normal", name="Normal"},
-			{key="dense", name="Dense"},
-			{key="verydense", name="Very Dense"},
+			{key="rarer", name="Rare"},
+			{key="veryrare", name="Very Rare"},
 		}
 	},
 
@@ -781,10 +702,19 @@ local options={
 		desc   = 'How many assist drones per commander should be spawned',
 		type   = 'number',
 		section= 'options',
-		def    = 4,
+		def    = 3,
 		min    = 1,
 		max    = 30,
 		step   = 1,
+	},
+
+	{
+		key    = 'assistdronesair',
+		name   = 'Assist Drones: Use Air Drones',
+		type   = 'bool',
+		def    = true,
+		hidden = true,
+		section= "options",
 	},
 
 	{
@@ -805,7 +735,7 @@ local options={
 		name   = 'Base Construction Turret: Range',
 		type   = 'number',
 		section= 'options',
-		def    = 1500,
+		def    = 1000,
 		min    = 100,
 		max    = 5000,
 		step   = 1,
@@ -816,9 +746,9 @@ local options={
 		name   = 'Base Construction Turret: Buildpower',
 		type   = 'number',
 		section= 'options',
-		def    = 500,
+		def    = 400,
 		min    = 100,
-		max    = 5000,
+		max    = 4000,
 		step   = 1,
 	},
 
@@ -874,7 +804,7 @@ local options={
 		desc   = 'Time Between New Units Add-up.',
 		type   = 'number',
 		section= 'controlvictoryoptions',
-		def    = 4,
+		def    = 1,
 		min    = 1,
 		max    = 10,
 		step   = 1,  -- quantization is aligned to the def value
@@ -931,10 +861,9 @@ local options={
     },
 	{
 		key    = "usemexconfig",
-		name   = "Use metal spots as point locations?",
-		hidden = true,
+		name   = "Use metal spots as point locations",
 		type   = 'bool',
-		def    = true,
+		def    = false,
 		section= "controlvictoryoptions",
     },
 	{
@@ -1051,7 +980,7 @@ local options={
 		hidden = true,
 		type   = 'number',
 		section= 'controlvictoryoptions',
-		def    = 1,
+		def    = 4,
 		min    = 0,
 		max    = 6,
 		step   = 1,  -- quantization is aligned to the def value
@@ -1145,6 +1074,18 @@ local options={
 	},
 
 	{
+		key    = 'resourceincomemultiplier',
+		name   = 'Resource Income Multiplier',
+		desc   = 'Resource Income Multiplier',
+		type   =  "number",
+		section = 'options_multipliers',
+		def    = 1,
+		min    = 0.1,
+		max    = 10,
+		step   = 0.1,
+	},
+
+	{
 		key    = 'multiplier_metalcost',
 		name   = 'Unit Cost Multiplier - Metal',
 		desc   = 'Unit Cost Multiplier - Metal',
@@ -1228,6 +1169,18 @@ local options={
 		step   = 0.1,
 	},
 
+	{
+		key    = 'experimentalshieldpower',
+		name   = 'Shield Power Multiplier',
+		desc   = 'Shield Power Multiplier',
+		type   ="number",
+		section = 'options_multipliers',
+		def    = 1,
+		min    = 0.01,
+		max    = 100,
+		step   = 0.01,
+	},
+
 
 	---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 	---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -1267,19 +1220,6 @@ local options={
 	},
 
 	{
-		key    = 'experimentalshieldpower',
-		name   = 'Shield Power Multiplier',
-		desc   = 'Shield Power Multiplier',
-		type   ="number",
-		section = 'options_experimental',
-		def    = 1,
-		min    = 0.01,
-		max    = 100,
-		step   = 0.01,
-	},
-
-
-	{
 		key    = 'experimentalxpgain',
 		name   = 'XP Gain Multiplier',
 		desc   = 'XP Gain Multiplier',
@@ -1293,9 +1233,18 @@ local options={
 	},
 
 	{
-		key    = 'experimentalscavuniqueunits',
-		name   = 'Scavenger Units Buildable by Players',
-		desc   = 'Scavenger Units Buildable by Players',
+		key    = 'experimentalextraunits',
+		name   = 'Extra Unit Pack',
+		desc   = 'Formerly known as Scavenger units. Addon pack of units for Armada and Cortex, including various "fun" units',
+		type   = 'bool',
+		section = 'options_experimental',
+		def  = false,
+	},
+	
+	{
+		key    = 'expandedcortexvehiclest2',
+		name   = 'Additional Cortex T2 Vehicles',
+		desc   = 'Adds Forge, a combat engineer like the butler with a flamethrower. Adds Printer, an armored field engineer. Adds Torch, a fast flame tank',
 		type   = 'bool',
 		section = 'options_experimental',
 		def  = false,
@@ -1304,7 +1253,7 @@ local options={
 	{
 		key    = 'experimentallegionfaction',
 		name   = 'Legion Faction',
-		desc   = '3rd experimental faction',
+		desc   = '3rd experimental faction (does not work with unba enabled!)',
 		type   = 'bool',
 		section = 'options_experimental',
 		def  = false,
@@ -1317,6 +1266,16 @@ local options={
 		type = 'bool',
 		section = 'options_experimental',
 		def = false,
+
+	},
+
+	{
+		key = 'comupdate',
+		name = 'Commander Update',
+		desc = 'Increased commander HP, reduced comblast, reduced wreckmetal, com-to-com dgun rework.',
+		type = 'bool',
+		section = 'options_experimental',
+		def = true,
 
 	},
 
@@ -1341,16 +1300,6 @@ local options={
 	},
 
 	{
-		key    = 'mapatmospherics',
-		name   = 'Map Atmospherics',
-		desc   = 'Map Atmospherics',
-		hidden = true,
-		type   = 'bool',
-		section = 'options_experimental',
-		def  = true,
-	},
-
-	{
 		key    = 'experimentalmassoverride',
 		name   = 'Mass Override',
 		desc   = 'Mass Override',
@@ -1361,48 +1310,13 @@ local options={
 	},
 
 	{
-		key    = 'experimentalflankingbonusmode',
-		name   = 'Flanking Bonus Mode (between 0 and 3, read tooltip)',
-		desc   = "Additional damage applied to units when they're surrounded. 0 - No flanking bonus, 1 - Dynamic direction, world dimension, 2 - Dynamic direction, unit dimension, 3 - Static direction, front armor = best armor. If 3 is chosen, 2 is used for buildings.",
-		type   ="number",
-		section = 'options_experimental',
-		def    = 1,
-		min    = 0,
-		max    = 3,
-		step   = 1,
-	},
-
-	{
-		key    = 'experimentalflankingbonusmin',
-		name   = 'Flanking Bonus Minimum Damage Percentage (Default 90%)',
-		desc   = 'How much damage weapons deal at hardest point of flanking armor',
-		type   ="number",
-		section = 'options_experimental',
-		def    = 90,
-		min    = 1,
-		max    = 1000,
-		step   = 1,
-	},
-
-	{
-		key    = 'experimentalflankingbonusmax',
-		name   = 'Flanking Bonus Maximum Damage Percentage (Default 190%)',
-		desc   = 'How much damage weapons deal at hardest point of flanking armor',
-		type   ="number",
-		section = 'options_experimental',
-		def    = 190,
-		min    = 1,
-		max    = 1000,
-		step   = 1,
-	},
-
-	{
 		key    = 'experimentalrebalancet2labs',
 		name   = 'Rebalance Candidate: Cheaper T2 Factories',
 		desc   = '',
 		type   = 'bool',
 		section = 'options_experimental',
 		def  = false,
+		hidden = true,
 	},
 
 	{
@@ -1412,6 +1326,7 @@ local options={
 		type   = 'bool',
 		section = 'options_experimental',
 		def  = false,
+		hidden = true,
 	},
 
 	{
@@ -1421,6 +1336,7 @@ local options={
 		type   = 'bool',
 		section = 'options_experimental',
 		def  = false,
+		hidden = true,
 	},
 
 	{
@@ -1429,7 +1345,18 @@ local options={
 		desc   = '',
 		type   = 'bool',
 		section = 'options_experimental',
-		def  = false,
+		def  = true,
+		hidden = true,
+	},
+
+	{
+		key    = 'experimentalrebalancewreckstandarization',
+		name   = 'Rebalance Candidate: Standarized wreck metal values. *0.6 of metal cost for wreck, *0.25 for heap.',
+		desc   = '',
+		type   = 'bool',
+		section = 'options_experimental',
+		def  = true,
+		hidden = true,
 	},
 
 	{
@@ -1454,6 +1381,33 @@ local options={
 		key		= "unbatech",
 		name	= "UnbaTech - Reworked Tech Progression (Requires UnbaCom)",
 		desc	= "Constructors cannot build Tech2 factories. In order to reach Tech2 you have to level up your commander.",
+		type	= "bool",
+		def		= false,
+		section	= "options_experimental",
+		hidden = true,
+	},
+
+	{
+		key    = 'teamcolors_icon_dev_mode',
+		name   = "Icon Dev Mode (Don't use in normal games)",
+		desc   = 'Forces teamcolors to be an specific one, for all teams',
+		type   = 'list',
+		section = 'options_experimental',
+		def  = "disabled",
+		items={
+			{key="disabled", name="Disabled", desc="description"},
+			{key="armblue", name="Armada Blue", desc="description"},
+			{key="corred", name="Cortex Red", desc="description"},
+			{key="scavpurp", name="Scavenger Purple", desc="description"},
+			{key="chickenorange", name="Chicken Orange", desc="description"},
+			{key="gaiagray", name="Gaia Gray", desc="description"},
+		}
+	},
+
+	{
+		key		= "unified_maxslope",
+		name	= "Standardized land unit maxslope",
+		desc	= "All land units have minimum maxslope of 36",
 		type	= "bool",
 		def		= false,
 		section	= "options_experimental",
@@ -1497,7 +1451,39 @@ local options={
 		max    = 10,
 		step   = 0.1,
 	},
+	{
+		key     = "tweakunits",
+		name    = "Tweak Units",
+		desc    = "A base64 encoded lua table of unit parameters to change.",
+		section = 'options_experimental',
+		type    = "string",
+		def     = "",
+	},
+	{
+		key     = "tweakdefs",
+		name    = "Tweak Defs",
+		desc    = "A base64 encoded snippet of code that modifies game definitions.",
+		section = 'options_experimental',
+		type    = "string",
+		def     = "",
+	},
+	{
+		key     = "debugcommands",
+		name    = "Debug Commands",
+		desc    = "A pipe separated list of commands to execute at [gameframe]:luarules fightertest|100:forcequit...", -- example: debugcommands=150:cheat 1|200:luarules fightertest|600:quitforce;
+		section = 'options_experimental',
+		type    = "string",
+		def     = "",
+	},
 
+	{
+		key     = "defaultdecals",
+		name    = "Default Decals",
+		desc    = "Use the default explosion decals instead of Decals GL4", -- example: debugcommands=150:cheat 1|200:luarules fightertest|600:quitforce;
+		section = 'options_experimental',
+		type    = "bool",
+		def     =  true,
+	},
 	---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 	---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 	-- End Options
@@ -1505,4 +1491,29 @@ local options={
 	---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 }
+
+for i = 1, 9 do
+	options[#options + 1] =  {
+		key     = "tweakunits" .. i,
+		name    = "Tweak Units " .. i,
+		desc    = "A base64 encoded lua table of unit parameters to change.",
+		section = 'options_experimental',
+		type    = "string",
+		def     = "",
+		hidden = true,
+	}
+end
+
+for i = 1, 9 do
+	options[#options + 1] =  {
+		key     = "tweakdefs" .. i,
+		name    = "Tweak Defs " .. i,
+		desc    = "A base64 encoded snippet of code that modifies game definitions.",
+		section = 'options_experimental',
+		type    = "string",
+		def     = "",
+		hidden = true,
+	}
+end
+
 return options

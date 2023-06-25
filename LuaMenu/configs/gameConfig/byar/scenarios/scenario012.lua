@@ -7,7 +7,7 @@ local scenariodata = {
 	author			= "Beherith", -- your name here
 	imagepath		= "scenario012.jpg", -- placed next to lua file, should be 3:1 ratio banner style
 	imageflavor		= "Mines explode on the slightest touch", -- This text will be drawn over image
-    summary         = [[The Armada are amassing reinforcements	 at a rally point near one of your stealthy outposts. You do not have any technology except for minelayers and scouts. Lay mines around the area, and then you must distract and draw these forces onto minefields, without allowing Armada to detect and destroy your base of operations.]],
+    summary         = [[The Armada are amassing reinforcements at a rally point near one of your stealthy outposts. You do not have any technology except for minelayers and scouts. Lay mines around the area, and then you must distract and draw these forces onto minefields, without allowing Armada to detect and destroy your base of operations.]],
 	briefing 		= [[
 Tips:
  - Mines automatically detonate if an enemy gets within range of it, or if it is destroyed.
@@ -88,7 +88,7 @@ Scoring:
 {name = 'corfav', x = 3566, y = 322, z = 3375, rot = -16384 , team = 0},
 {name = 'cormex', x = 3464, y = 324, z = 3160, rot = 0 , team = 0},
 {name = 'corrad', x = 3696, y = 324, z = 3392, rot = 0 , team = 0},
-{name = 'corestor', x = 3776, y = 321, z = 3552, rot = 0 , team = 0},
+--{name = 'corestor', x = 3776, y = 321, z = 3552, rot = 0 , team = 0},
 {name = 'coradvsol', x = 3824, y = 319, z = 3680, rot = 0 , team = 0},
 {name = 'coradvsol', x = 3760, y = 321, z = 3680, rot = 0 , team = 0},
 {name = 'coradvsol', x = 3696, y = 319, z = 3680, rot = 0 , team = 0},

@@ -1,0 +1,69 @@
+// Mono-space font required
+{
+"commander": {
+	"prefix": "dyntrainer_",
+	"suffix": "_base",
+	"unit": {
+		"support": {
+			// Choice importance, 0 by default
+			"importance": 0.15,
+
+			// Morph params
+			"upgrade": {
+			},
+
+			// Commander hides if ("time" elapsed) and ("threat" exceeds value or enemy has "air")
+			"hide": {
+				"time": 480,  // seconds
+				"threat": 30,
+				"air": true
+			}
+		},
+		"recon": {
+			// Choice importance, 0 by default
+			"importance": 0.55,
+
+			// Morph params
+			"upgrade": {
+			},
+
+			// Commander hides if ("time" elapsed) and ("threat" exceeds value or enemy has "air")
+			"hide": {
+				"time": 480,  // seconds
+				"threat": 20,
+				"air": true
+			}
+		},
+		"assault": {
+			// Choice importance, 0 by default
+			"importance": 0.4,
+
+			// Morph params
+			"upgrade": {
+			},
+
+			// Commander hides if ("time" elapsed) and ("threat" exceeds value or enemy has "air")
+			"hide": {
+				"time": 480,  // seconds
+				"threat": 60,
+				"air": true
+			}
+		},
+		"strike": {
+		   // Choice importance, 0 by default
+			"importance": 0.15,
+
+			// Morph params
+			"upgrade": {
+			},
+
+			// Commander hides if ("time" elapsed) and ("threat" exceeds value or enemy has "air")
+			"hide": {
+				"time": 480,  // seconds
+				"threat": 50,
+				"air": true
+			}
+		}
+	}
+}
+}

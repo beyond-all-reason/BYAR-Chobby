@@ -1,0 +1,18 @@
+language: python
+
+sudo: false
+
+env:
+  - LUA="lua 5.1"
+
+before_install:
+  - pip install hererocks
+  - hererocks env --$LUA -rlatest
+  - source env/bin/activate
+  - luarocks install luacheck
+
+script:
+  # '--enable 1' means 'global = true'
+  # IDEs tend to have issues with 'global = true', as they work on a per-file basis
+  # this allows us to use the same .luacheckrc for both travis and IDEs
+  - luacheck *lua luaui --enable 1

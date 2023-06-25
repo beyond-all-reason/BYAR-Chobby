@@ -7,6 +7,8 @@ if randomSkirmishEnabled == 1 then
 		convertedListOfMaps[#convertedListOfMaps+1] = {
 			mapName = pickedMap,
 			mapSize = mapDetails.Width + mapDetails.Height,
+			mapWidth = mapDetails.Width,
+			mapHeight = mapDetails.Height,
 			isFFA = mapDetails.IsFFA,
 		}
 	end
@@ -22,7 +24,7 @@ if randomSkirmishEnabled == 1 then
 			local enemyAI = {}
 			local friendlyAI = {}
 			for i = 1,teamSizes do
-				local randomAIList = {"SimpleAI", "SimpleAI", "SimpleAI", "SimpleAI", "SimpleAI", "SimpleDefenderAI", "SimpleCheaterAI", "SimpleConstructorAI", "BARb", "STAI",}
+				local randomAIList = {"SimpleAI", "BARb"}
 				--local randomAIList = {"BARb", "STAI",}
 				local randomAI = randomAIList[math.random(1,#randomAIList)]
 				if i == 1 then
@@ -32,7 +34,14 @@ if randomSkirmishEnabled == 1 then
 					enemyAI[#enemyAI+1] = {shortName = randomAI}
 				end
 			end
-			skirmishTable = {map = map, enemyAI = enemyAI, friendlyAI = friendlyAI,}
+
+			local startboxes = {[0] = {0, 0, 40, 200}, [1] = {160, 0, 200, 200}, }
+			if pickedMap.mapWidth and pickedMap.mapHeight and
+				(pickedMap.mapWidth < pickedMap.mapHeight) then
+				startboxes =  {[0] = {0, 160, 200, 200}, [1] = {0, 0, 200, 40}, }
+			end
+			skirmishTable = {map = map, enemyAI = enemyAI, friendlyAI = friendlyAI,startboxes = startboxes}
+			
 		end
 	end
 

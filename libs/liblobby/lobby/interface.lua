@@ -11,6 +11,8 @@ Interface.jsonCommands = {}
 -- define command format with pattern (regex)
 Interface.commandPattern = {}
 
+local forcePlayer = false
+
 -------------------------------------------------
 -- BEGIN Client commands
 -------------------------------------------------
@@ -20,13 +22,45 @@ Interface.commandPattern = {}
 ------------------------
 
 function Interface:Register(userName, password, email)
+	username = self:TextEraseNewline(userName)
+	password = self:TextEraseNewline(password)
+
 	self:super("Register", userName, password, email)
 	password = VFS.CalculateHash(password, 0)
 	self:_SendCommand(concat("REGISTER", userName, password, email))
 	return self
 end
 
+local function GetLobbyName()
+	local byarchobbyrapidTag = 'byar-chobby:test'
+	if byarchobbyrapidTag and VFS.GetNameFromRapidTag then
+		local rapidName = VFS.GetNameFromRapidTag(byarchobbyrapidTag)
+		if rapidName then
+			byarchobbyrapidTag = rapidName
+			byarchobbyrapidTag = string.gsub(byarchobbyrapidTag, "BYAR Chobby test%-", "")
+		end
+	end
+	local chobbyrapidTag = 'chobby:test'
+	if chobbyrapidTag and VFS.GetNameFromRapidTag then
+		local rapidName = VFS.GetNameFromRapidTag(chobbyrapidTag)
+		if rapidName then
+			chobbyrapidTag = rapidName
+			chobbyrapidTag = string.gsub(chobbyrapidTag, "Chobby test%-", "")
+		end
+	end
+	local lobbyname = 'Chobby:'..byarchobbyrapidTag..'/'..chobbyrapidTag
+	--Spring.Utilities.TraceFullEcho()
+	return lobbyname
+end
+
 function Interface:Login(user, password, cpu, localIP, lobbyVersion)
+	-- erase newline-chars in case user copied over incorrectly
+	user = self:TextEraseNewline(user)
+	password = self:TextEraseNewline(password)
+
+	-- overwrite lobbyVersion by local function, since it´s not provided by caller right now or given as "Chobby"
+	lobbyVersion = GetLobbyName()
+
 	self:super("Login", user, password, cpu, localIP, lobbyVersion)
 	if localIP == nil then
 		localIP = "*"
@@ -126,20 +160,22 @@ end
 -- Battle commands
 ------------------------
 
+-- 2023-03-08 Fireball: stop sneaky changes to lobby´s battleStatus properties here - listeners depend on lobby´s event OnUpdateUserBattleStatus
+--                      instead call _OnUpdateUserBattleStatus in SetBattleStatus, which sets the new values and spreads them correctly
 local function UpdateAndCreateMerge(userData, status)
 	local battleStatus = {}
 	local updated = false
 	if status.isReady ~= nil then
 		updated = updated or userData.isReady ~= status.isReady
 		battleStatus.isReady = status.isReady
-		userData.isReady     = status.isReady
+		-- userData.isReady     = status.isReady
 	else
 		battleStatus.isReady = userData.isReady -- self:GetMyIsReady()
 	end
 	if status.teamNumber ~= nil then
 		updated = updated or userData.teamNumber ~= status.teamNumber
 		battleStatus.teamNumber = status.teamNumber
-		userData.teamNumber     = status.teamNumber
+		-- userData.teamNumber     = status.teamNumber
 	else
 		battleStatus.teamNumber = userData.teamNumber or 0 -- self:GetMyTeamNumber() or 0
 	end
@@ -154,35 +190,35 @@ local function UpdateAndCreateMerge(userData, status)
 			end
 		end
 		battleStatus.teamColor = status.teamColor
-		userData.teamColor     = status.teamColor
+		-- userData.teamColor     = status.teamColor
 	else
 		battleStatus.teamColor = userData.teamColor -- self:GetMyTeamColor()
 	end
 	if status.allyNumber ~= nil then
 		updated = updated or userData.allyNumber ~= status.allyNumber
 		battleStatus.allyNumber = status.allyNumber
-		userData.allyNumber     = status.allyNumber
+		-- userData.allyNumber     = status.allyNumber
 	else
 		battleStatus.allyNumber = userData.allyNumber or 0 -- self:GetMyAllyNumber() or 0
 	end
 	if status.isSpectator ~= nil then
 		updated = updated or userData.isSpectator ~= status.isSpectator
 		battleStatus.isSpectator = status.isSpectator
-		userData.isSpectator     = status.isSpectator
+		-- userData.isSpectator     = status.isSpectator
 	else
 		battleStatus.isSpectator = userData.isSpectator -- self:GetMyIsSpectator()
 	end
 	if status.sync ~= nil then
 		updated = updated or userData.sync ~= status.sync
 		battleStatus.sync = status.sync
-		userData.sync     = status.sync
+		-- userData.sync     = status.sync
 	else
 		battleStatus.sync = userData.sync -- self:GetMySync()
 	end
 	if status.side ~= nil then
 		updated = updated or userData.side ~= status.side
 		battleStatus.side = status.side
-		userData.side     = status.side
+		-- userData.side     = status.side
 	else
 		battleStatus.side = userData.side or 0 -- self:GetMySide() or 0
 	end
@@ -190,6 +226,55 @@ local function UpdateAndCreateMerge(userData, status)
 	--battleStatus.isReady = not battleStatus.isSpectator
 	return battleStatus, updated
 end
+
+--n = pow(2,i) -- where i = 0,31
+--print('{',n//1000000,',', n%1000000,'},')
+local bin2decmillion16 = { -- the <1M and >1M parts of 2^nth powers where n > 16
+	{ 0 , 65536 }, --16
+	{ 0 , 131072 }, --17
+	{ 0 , 262144 }, --18
+	{ 0 , 524288 }, --19
+	{ 1 , 48576 },
+	{ 2 , 97152 },
+	{ 4 , 194304 },
+	{ 8 , 388608 },
+	{ 16 , 777216 }, --24
+	{ 33 , 554432 }, --25
+	{ 67 , 108864 }, --26
+	{ 134 , 217728 }, --27
+	{ 268 , 435456 }, --28
+	{ 536 , 870912 },  --29
+	{ 1073 , 741824 }, --30
+	{ 2147 , 483648 }, -- 31
+	}
+
+-- Combine two 16 bit numbers into a string-formatted 32-bit integer
+local function lsbmsb16tostring(lsb,msb)
+	local aboveamillion = 0
+	local belowamillion = lsb
+	for b = 1, 16 do
+		if math.bit_and(msb, 2^(b-1)) > 0 then
+			belowamillion = belowamillion + bin2decmillion16[b][2]
+			if belowamillion >= 1000000 then
+				aboveamillion = aboveamillion + math.floor(belowamillion/1000000)
+				belowamillion = belowamillion % 1000000
+			end
+			aboveamillion = aboveamillion + bin2decmillion16[b][1]
+		end
+	end
+
+	local statusstr = ""
+	if aboveamillion == 0 then
+		statusstr = ("%d"):format(belowamillion)
+	else
+		statusstr = ("%d%06d"):format(aboveamillion,belowamillion)
+	end
+	--if statusstr ~= tostring(lsb + 65536 * msb) then
+	--	Spring.Echo("Possible integer overflow issues!",statusstr, lsb + 65536 * msb)
+	--end
+	return statusstr
+end
+
 
 local function EncodeBattleStatus(battleStatus)
 	local playMode = 1
@@ -204,28 +289,17 @@ local function EncodeBattleStatus(battleStatus)
 	end
 
 	-- This nasty piece of code is because battlestatus can overflow the 24bits of float that Spring Lua supports:
-	local belowamillion =
+	local lsb16 =
 		(battleStatus.isReady and 2 or 0) +
 		lshift(battleStatus.teamNumber, 2) +
 		lshift(battleStatus.allyNumber, 6) +
 		lshift(playMode, 10)
 
-	local aboveamillion = nil
-	local bignum =
-		math.floor((lshift(battleStatus.sync, 22) + --Because sync actually has 3 values, 0, 1, 2 (unknown, synced, unsynced)
-		lshift(battleStatus.side, 24)))
-	
-	aboveamillion = math.floor(bignum / 1000000)
-	belowamillion = belowamillion + (bignum%1000000)
+	local msb16 =
+		math.floor((lshift(battleStatus.sync, 6) + --Because sync actually has 3 values, 0, 1, 2 (unknown, synced, unsynced)
+		lshift(battleStatus.side, 8)))
 
-	local statusstr = ""
-	if aboveamillion == 0 then 
-		statusstr = ("%d"):format(belowamillion)
-	else
-		statusstr = ("%d%06d"):format(aboveamillion,belowamillion)
-	end
-
-	return statusstr
+	return lsbmsb16tostring(lsb16, msb16)
 end
 
 local function EncodeTeamColor(teamColor)
@@ -245,7 +319,10 @@ function Interface:RejoinBattle(battleID)
 	return self
 end
 
-function Interface:JoinBattle(battleID, password, scriptPassword)
+-- 2023/04/04 Fireball: Added joinAsPlayer to bypass lastGameSpectatorState
+function Interface:JoinBattle(battleID, password, scriptPassword, joinAsPlayer)
+	forcePlayer = joinAsPlayer and true or false -- used by Interfac:_OnRequestBattleStatus
+
 	scriptPassword = scriptPassword or (tostring(math.floor(math.random() * 65536)) .. tostring(math.floor(math.random() * 65536)))
 	password = password or "empty"
 	self.changedTeamIDOnceAfterJoin = false
@@ -273,10 +350,7 @@ function Interface:SetBattleStatus(status)
 	-- 2020/02/12: Problem partially fixed by ignoring battleStatus that result in no update
 	-- 2021/01/21: Which had the unfortunate side effect of not sending the first REQUESTBATTLESTATUS response
 	local myUserName = self:GetMyUserName()
-	if not self.userBattleStatus[myUserName] then
-		self.userBattleStatus[myUserName] = {}
-	end
-	local userData = self.userBattleStatus[myUserName]
+	local userData = self.userBattleStatus[myUserName] or {}
 	local battleStatus, updated = UpdateAndCreateMerge(userData, status)
 
 	--next(status) will return nil if status is empty table, which it is when it is called from REQUESTBATTLESTATUS
@@ -288,6 +362,7 @@ function Interface:SetBattleStatus(status)
 	local teamColor = battleStatus.teamColor or { math.random(), math.random(), math.random(), 1 }
 	teamColor = EncodeTeamColor(teamColor)
 	self:_SendCommand(concat("MYBATTLESTATUS", battleStatusString, teamColor))
+	self:_OnUpdateUserBattleStatus(myUserName, battleStatus)
 	return self
 end
 
@@ -433,8 +508,8 @@ end
 Interface.commands["MOTD"] = Interface._OnMOTD
 Interface.commandPattern["MOTD"] = "([^\t]*)"
 
-function Interface:_OnAccepted()
-	self:super("_OnAccepted")
+function Interface:_OnAccepted(newName)
+	self:super("_OnAccepted", newName)
 end
 Interface.commands["ACCEPTED"] = Interface._OnAccepted
 Interface.commandPattern["ACCEPTED"] = "(%S+)"
@@ -521,6 +596,11 @@ function Interface:_OnPong()
 end
 Interface.commands["PONG"] = Interface._OnPong
 
+function Interface:_OnQueued()
+	self:super("_OnQueued")
+end
+Interface.commands["QUEUED"] = Interface._OnQueued
+
 ------------------------
 -- User commands
 ------------------------
@@ -537,9 +617,12 @@ function Interface:_OnAddUser(userName, country, accountID, lobbyID)
 	self:super("_OnAddUser", userName, userTable)
 end
 Interface.commands["ADDUSER"] = Interface._OnAddUser
-Interface.commandPattern["ADDUSER"] = "(%S+)%s+(%S%S)%s+(%S+)%s*(.*)"
+Interface.commandPattern["ADDUSER"] = "(%S+)%s+(%S%S%-?%S?%S?%S?)%s+(%S+)%s*(.*)"
 
 function Interface:_OnRemoveUser(userName)
+	for channelName, _ in pairs(self:GetChannels()) do
+		self:_OnLeft(channelName, userName, "")
+	end
 	self:super("_OnRemoveUser", userName)
 end
 Interface.commands["REMOVEUSER"] = Interface._OnRemoveUser
@@ -644,17 +727,47 @@ Interface.commands["FRIENDREQUESTLISTEND"] = Interface._OnFriendRequestListEnd
 ------------------------
 -- Battle commands
 ------------------------
+local msblsb5 = { -- stores a table of each power of 10 >= 10^5 as the 16 bit top and bottom halfs of digits greater than the 5th digit
+	{ 1 , 34464 },
+	{ 15 , 16960 },
+	{ 152 , 38528 },
+	{ 1525 , 57600 },
+	{ 15258 , 51712 },
+}
+
+-- splits a string-encoded 32bit unsigned integer into 16bit LSB and 16bit MSB
+local function split16fast(bignumstr)
+	local skipdigits = 5
+	local lsb = tonumber(string.sub(bignumstr, -skipdigits)) -- 5 length suffix
+	local msb = 0
+	for i= skipdigits + 1, string.len(bignumstr) do -- for each character of the big number string
+		local n = tonumber(string.sub(bignumstr,-i,-i)) -- get the current character
+		--print (i,string.sub(bignumstr,i,i),n)
+		for k = 1, n do  -- for each number value of current character
+			lsb = lsb + msblsb5[i - skipdigits][2] -- add the 16bit LSB of 10*i'th power
+			if lsb >= 65536 then -- if it overflows LSB, increment MSB
+				msb = msb + math.floor(lsb / 65536)
+				lsb = lsb % 65536
+			end
+			msb = msb + msblsb5[i - skipdigits][1] -- add the 16 bit MSB of 10*i'th power
+		end
+	end
+	--print (msb, lsb, lsb + msb *65536)
+	return lsb, msb
+end
 
 local function ParseBattleStatus(battleStatus)
-	battleStatus = tonumber(battleStatus)
+	local lsb, msb = split16fast(battleStatus)
+
+	--battleStatus = tonumber(battleStatus)
 	return {
-		isReady      = rshift(battleStatus, 1) % 2 == 1,
-		teamNumber   = rshift(battleStatus, 2) % 16,
-		allyNumber   = rshift(battleStatus, 6) % 16,
-		isSpectator  = rshift(battleStatus, 10) % 2 == 0,
-		handicap     = rshift(battleStatus, 11) % 128,
-		sync         = rshift(battleStatus, 22) % 4,
-		side         = rshift(battleStatus, 24) % 16,
+		isReady      = rshift(lsb, 1) % 2 == 1,
+		teamNumber   = rshift(lsb, 2) % 16,
+		allyNumber   = rshift(lsb, 6) % 16,
+		isSpectator  = rshift(lsb, 10) % 2 == 0,
+		handicap     = (lshift(msb, 5) + rshift(lsb, 11) ) % 128,
+		sync         = rshift(msb, 6) % 4,
+		side         = rshift(msb, 8) % 16,
 	}
 end
 
@@ -687,8 +800,8 @@ function Interface:_OnBattleOpened(battleID, type, natType, founder, ip, port, m
 		title = title,
 		gameName = gameName,
 
-		spectatorCount = 0,
-		--playerCount = nil,
+		spectatorCount = 1, -- To handle the founder joining as a spec
+		--playerCount = 0, -- to handle the founder joining as a spec
 		isRunning = self.users[founder].isInGame,
 
 		-- Spring stuff
@@ -696,6 +809,7 @@ function Interface:_OnBattleOpened(battleID, type, natType, founder, ip, port, m
 		--type = tonumber(type)
 		--natType = tonumber(natType)
 	})
+	self:_OnJoinedBattle(battleID, founder, "") -- so that the founder joins the battle as a spectato
 end
 Interface.commands["BATTLEOPENED"] = Interface._OnBattleOpened
 Interface.commandPattern["BATTLEOPENED"] = "(%d+)%s+(%d)%s+(%d)%s+(%S+)%s+(%S+)%s+(%d+)%s+(%d+)%s+(%d+)%s+(%S+)%s+(%S+)%s*(.*)"
@@ -810,21 +924,84 @@ function Interface:_OnUpdateBot(battleID, name, battleStatus, teamColor)
 	battleID = tonumber(battleID)
 	local status = ParseBattleStatus(battleStatus)
 	status.teamColor = ParseTeamColor(teamColor)
-	-- local ai, dll = unpack(explode("\t", aiDll)))
-	status.aiLib = aiDll
-	status.owner = owner
 	self:_OnUpdateUserBattleStatus(name, status)
 end
 Interface.commands["UPDATEBOT"] = Interface._OnUpdateBot
 Interface.commandPattern["UPDATEBOT"] = "(%d+)%s+(%S+)%s+(%S+)%s+(%S+)"
 
+local function testEncodeDecode()
+	Spring.Log(LOG_SECTION, LOG.NOTICE, "Starting testEncodeDecode")
+	local error = false
+	local bStatus = {}
+	local retBStatus = {}
+	for isReady=0, 1, 1 do
+		for teamNumber=0, 15, 1 do
+			for allyNumber=0,15, 1 do
+				for isSpectator =0, 1, 1 do
+					for sync=0, 2, 1 do
+						for side=0, 2, 1 do
+							bStatus.isReady = isReady == 1 and true or false
+							bStatus.teamNumber = teamNumber
+							bStatus.allyNumber = allyNumber
+							bStatus.isSpectator = isSpectator == 1 and true or false
+							bStatus.sync = sync
+							bStatus.side = side
+							bStatusStr = EncodeBattleStatus(bStatus)
+							retBStatus = ParseBattleStatus(bStatusStr)
+							if	retBStatus.isReady ~= bStatus.isReady or
+								retBStatus.teamNumber ~= bStatus.teamNumber or
+								retBStatus.allyNumber ~= bStatus.allyNumber or
+								retBStatus.isSpectator ~= bStatus.isSpectator or
+								retBStatus.sync ~= bStatus.sync or
+								retBStatus.side ~= bStatus.side then
+								error = true
+								Spring.Log(LOG_SECTION, LOG.NOTICE,
+									bStatus.isReady,
+									bStatus.teamNumber,
+									bStatus.allyNumber,
+									bStatus.isSpectator,
+									bStatus.sync,
+									bStatus.side)
+								Spring.Log(LOG_SECTION, LOG.NOTICE,
+									retBStatus.isReady,
+									retBStatus.teamNumber,
+									retBStatus.allyNumber,
+									retBStatus.isSpectator,
+									retBStatus.sync,
+									retBStatus.side)
+							end
+						end
+					end
+				end
+			end
+		end
+	end
+	Spring.Log(LOG_SECTION, LOG.NOTICE, "Finished testEncodeDecode, found Errors: ", error)
+end
+
 function Interface:_OnSaidBattle(userName, message)
+	if (message == "?test EncodeBattleStatus") then
+		testEncodeDecode()
+	end
 	self:super("_OnSaidBattle", userName, message)
 end
 Interface.commands["SAIDBATTLE"] = Interface._OnSaidBattle
 Interface.commandPattern["SAIDBATTLE"] = "(%S+)%s+(.*)"
 
+local function startsWith(targetstring, pattern) 
+	if string.len(pattern) <= string.len(targetstring) and pattern == string.sub(targetstring,1, string.len(pattern)) then
+		return true, string.sub(targetstring, string.len(pattern) + 1)
+	else
+		return false
+	end
+end
+
 function Interface:_OnSaidBattleEx(userName, message)
+	local JoinQueue_PREFIX = "You are now in the join-queue at position"
+	local doesStartWith = startsWith(message, JoinQueue_PREFIX)
+	if doesStartWith then
+		self:_SendCommand(concat("c.battle.queue_status")) -- request the whole join-queue again, because server doesn´t always send s.battle.queue_status or sends it before the change took affect
+	end
 	self:super("_OnSaidBattleEx", userName, message)
 end
 Interface.commands["SAIDBATTLEEX"] = Interface._OnSaidBattleEx
@@ -850,7 +1027,7 @@ function Interface:_OnJoinFailed(chanName, reason)
 	self:super("_OnJoinFailed", chanName, reason)
 end
 Interface.commands["JOINFAILED"] = Interface._OnJoinFailed
-Interface.commandPattern["JOINFAILED"] = "(%S+)%s+(.*)" -- fix regex to match official protocol 
+Interface.commandPattern["JOINFAILED"] = "(%S+)%s+(.*)" -- fix regex to match official protocol
 
 function Interface:_OnLeft(chanName, userName, reason)
 	self:super("_OnLeft", chanName, userName, reason)
@@ -1008,6 +1185,28 @@ function Interface:RemoveQueueUser(name, userNames)
 	self:_SendCommand(concat("REMOVEQUEUEUSER", {name=name, userNames=userNames}))
 	return self
 end
+
+-- parse following servermessage:
+-- s.battle.queue_status\s<battleID>\t<userName1>\t<userName2>...
+function Interface:_OnSBattleQueueStatus(battleID, userNamesChain)
+	-- Spring.Echo("_OnSBattleQueueStatus battleID:"..battleID.." userNamesChain:"..userNamesChain, "type of battleID", type(battleID))
+
+	-- validate battleID
+	battleID = tonumber(battleID)
+	if not self:GetMyBattleID() or self:GetMyBattleID() ~= battleID then
+		Spring.Log(LOG_SECTION, LOG.WARNING, "Received s.battle.queue_status with battleID for another battle: ", tostring(battleID))
+		return
+	end
+
+	local queuedUserNames = {}
+	if userNamesChain ~= "" then -- because our explode returns a table with 1 element when join-queue is empty
+		queuedUserNames = explode("\t", userNamesChain)
+	end
+
+	self:_OnUpdateBattleQueue(battleID, queuedUserNames) -- always update, empty queue must be propagated too
+end
+Interface.commands["s.battle.queue_status"] = Interface._OnSBattleQueueStatus
+Interface.commandPattern["s.battle.queue_status"] = "(%d+)%s*(.*)" -- * on %s because the part right of %d can be total empty for an empty queue
 
 ------------
 ------------
@@ -1511,10 +1710,51 @@ end
 Interface.commands["REMOVESTARTRECT"] = Interface._OnRemoveStartRect
 Interface.commandPattern["REMOVESTARTRECT"] = "(%d+)"
 
+function getSyncStatus(battle)
+	if not battle then
+		return 0
+	end
+
+	local haveGame = VFS.HasArchive(battle.gameName)
+	local haveMap = VFS.HasArchive(battle.mapName)
+	-- Spring.Echo("haveGame, haveMap", haveGame, haveMap)
+	return (haveGame and haveMap) and 1 or 2 -- 1: Sync 2: Unsync
+end
+
+-- 2023/03/23 Fireball: This request is sent once by the server, directly after hosting or joining a battle
+--                      since we do not have any battleStatus(in most cases), we generate a default one
 function Interface:_OnRequestBattleStatus()
-	self._requestedBattleStatus = true
-	self:_CallListeners("OnRequestBattleStatus")
-	self:SetBattleStatus({})
+	-- 2023/03/06 Fireball: moved the action from the only listener to OnRequestBattleStatus in whole chobby from gui_battle_room_window.lua to here
+	--                      and don´t call listeners of OnRequestBattleStatus anymore
+	
+	local battleStatus = self.userBattleStatus[self:GetMyUserName()] -- 2023/03/23 Fireball: chobby doesn´t delete battleStatus on leaveBattle - maybe we find sth. left from prior session for this host, which we can make use of
+	self._requestedBattleStatus = true -- allow SetBattleStatus again
+
+	local defaultSpec = true
+	if forcePlayer then -- 2023/04/04 Fireball: forcePlayer is set by Interface:JoinBattle; the only use case is forcing player while hosting a battle	
+		defaultSpec = false
+		forcePlayer = false -- 2023/04/04 set it to false after usage
+	else
+		defaultSpec = WG.Chobby.Configuration.lastGameSpectatorState 
+	end
+	if battleStatus then
+		if battleStatus.isSpectator ~= nil then
+			defaultSpec = battleStatus.isSpectator
+		end
+		self:SetBattleStatus({
+			isSpectator =  defaultSpec,
+			isReady = false,
+			side = battleStatus.side or WG.Chobby.Configuration.lastFactionChoice,
+			sync = getSyncStatus(self:GetBattle(self:GetMyBattleID())),
+		})
+	else
+		self:SetBattleStatus({
+			isSpectator = defaultSpec,
+			isReady = false,
+			side = (WG.Chobby.Configuration.lastFactionChoice or 0) ,
+			sync = getSyncStatus(self:GetBattle(self:GetMyBattleID())),
+		})
+	end
 end
 Interface.commands["REQUESTBATTLESTATUS"] = Interface._OnRequestBattleStatus
 
@@ -1584,11 +1824,60 @@ end
 Interface.commands["SERVERMSGBOX"] = Interface._OnServerMSGBox
 Interface.commandPattern["SERVERMSGBOX"] = "([^\t]+)\t+([^\t]+)"
 
-local mod_opts_pre = "game/modoptions/"
-local mod_opts_pre_indx = #mod_opts_pre + 1
+-- l = "(" or ""
+-- p = "[" or ""
+-- d = "#" or ""
+local function parseSkillOrigin(l, p, d)
+	if l == "("              then return "Rank" end
+	if p == "[" and d == ""  then return "Plugin" end
+	if p == "[" and d == "#" then return "Plugin_Degraded" end
+	if              d == ""  then return "SLDB" end
+	if              d == "#" then return "SLDB_Degraded" end
+	return "Unknown" -- to make function clean, shouldn't be possible
+  end
+
+-- interpret following scripttags
+-- playername/skilluncertainty=2
+-- playername/skill=<skillformat>
+-- skillformat , skillOrigin
+-- 1. (6)     , Lobby Rank
+-- 2. 6.34    , SLDB
+-- 3. #6.34#  , SLDB_Degraded
+-- 4. [6.34]  , Plugin
+-- 5. [#6.34#], Plugin_Degraded
+-- Note: playername is delivered in lower case by protocol rules, see https://springrts.com/dl/LobbyProtocol/ProtocolDescription.html#SETSCRIPTTAGS:client
+local function GetSkillFromScriptTag(tag)
+	local userNameLC, skillKey, skillParam = string.match(tag, "(.+)/(.+)=(.+)")
+	if userNameLC == "" or skillKey == "" then
+		Spring.Log(LOG_SECTION, LOG.WARNING, "Could not parse scriptTag player/[..]", tag)
+		return
+	end
+	local l,p,d,value = string.match(skillParam, "(%(?)(%[?)(#?)(%d+%.?%d*)") -- ignore closings ")", "#", "]"
+	if value == "" then
+		Spring.Log(LOG_SECTION, LOG.WARNING, "Could not parse player/"..skillKey.."/[..]", skillParam)
+		return
+	end
+	local status = {}
+	if (skillKey == "skill") then
+		status["skillOrigin"] = parseSkillOrigin(l,p,d)
+		status["skill"]       = tostring(value) --stay with string, tonumber would change the value in spring lua i.e 10.23 -> 10.229999...
+	elseif (skillKey == "skilluncertainty") then
+		status["skillUncertainty"] = tostring(value) -- without tostring, we get [number] for value 1 and [string] for value 3, which is strange
+	else
+		Spring.Log(LOG_SECTION, LOG.NOTICE, "unsupported setScriptTags playerKey:", skillKey)
+		return
+	end
+	return userNameLC, status
+end
+
 local function string_starts(String, Start)
 	return string.sub(String, 1, string.len(Start)) == Start
 end
+
+local mod_opts_pre = "game/modoptions/"
+local mod_opts_pre_indx = #mod_opts_pre + 1
+local scriptTagPlayers = "game/players/"
+local scriptTagPlayersIndx = #scriptTagPlayers + 1
 function Interface:_OnSetScriptTags(tagsTxt)
 	local tags = explode("\t", tagsTxt)
 	if self.modoptions == nil then
@@ -1601,6 +1890,14 @@ function Interface:_OnSetScriptTags(tagsTxt)
 			local k = kvTable[1]
 			local v = kvTable[2]
 			self.modoptions[k] = v
+		elseif string_starts(tag, scriptTagPlayers) then
+			local userNameLC, status = GetSkillFromScriptTag(tag:sub(scriptTagPlayersIndx))
+			local userName = self:GetLowerCaseUser(userNameLC) --lobby:FindBattleUserByLowerCase
+			if (userName == nil) or (status == nil) then
+				Spring.Log(LOG_SECTION, LOG.WARNING, "Could not parse tag " .. tag)
+			else
+				self:_OnUpdateUserStatus(userName, status)
+			end
 		end
 	end
 	self:_OnSetModOptions(self.modoptions)
@@ -1681,15 +1978,17 @@ Interface.jsonCommands["LISTQUEUES"] = Interface._OnListQueues
 
 -- Teiserver Tachyon commands for BAR:
 
-function Interface:_OnS_Battle_Update_lobby_title(battleID, newbattletitle)
-	--self:super("_OnS_Battle_Update_lobby_title", tonumber(battleID), newbattletitle)
-	battleID = tonumber(battleID)
-	if battleID then 
-		self:_CallListeners("OnS_Battle_Update_lobby_title", battleID, newbattletitle)
-		--Spring.Echo("Interface:_OnS_Battle_Update_lobby_title",battleID, newbattletitle)
-	end
+function Interface:_OnUpdateBattleTitle(battleID, battleTitle)
+	self:super("_OnUpdateBattleTitle", tonumber(battleID), battleTitle)
 end
-Interface.commands["s.battle.update_lobby_title"] = Interface._OnS_Battle_Update_lobby_title
+Interface.commands["s.battle.update_lobby_title"] = Interface._OnUpdateBattleTitle
 Interface.commandPattern["s.battle.update_lobby_title"] = "(%S+)%s+(.*)"
+
+function Interface:_OnS_Client_Errorlog()
+	self:_CallListeners("OnS_Client_Errorlog")
+end
+
+Interface.commands["s.client.errorlog"] = Interface._OnS_Client_Errorlog
+--Interface.commandPattern["s.client.errorlog"] = "(%S+)"
 
 return Interface

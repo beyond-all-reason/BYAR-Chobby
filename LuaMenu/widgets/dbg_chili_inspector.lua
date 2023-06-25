@@ -21,6 +21,8 @@ local Chili
 local window0
 local tree0
 local label0
+local label1
+local label2
 
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
@@ -47,9 +49,10 @@ local function traceLost(node)
 
 	for i,obj in pairs(Chili.DebugHandler.allObjects) do
 		if obj.name ~= "wnd_inspector" then
-			if (not obj.parent)and(not obj:InheritsFrom("screen")) then
-				local caption = ("%s: %s (redrawn: %i; disposed: %s)"):format(obj.classname, obj.name, obj._redrawCounter or 0, GetBooleanStr(obj.disposed))
+			if (not obj.parent)and(not obj:InheritsFrom("screen")) and (obj.classname ~= "treeviewnode") then
+				local caption = ("%s: %s (redrawn: %i; disposed: %s; from %s)"):format(obj.classname, obj.name, obj._redrawCounter or 0, GetBooleanStr(obj.disposed), obj.allocatedfrom or "")
 				local nodec = node:Add(caption)
+				Spring.Echo("Lost: "..caption)
 				trace(obj.children, nodec, 1, 1)
 			end
 		end
@@ -75,7 +78,7 @@ local function tracePerWidget(node)
 				if obj.font then
 					fonts = fonts + 1
 					--local fontname = string.match(obj.font.font or "", "(%d+)/?$") -- remove all before trailing slash
-					local fontname = string.sub(obj.font.font or "", -10) -- remove all before trailing slash
+					local fontname = string.sub(obj.font.font or "nil", -10) -- remove all before trailing slash
 					
 					fontinfo = ("Font:(%s[%i])"):format(fontname, obj.font.size or "0")
 				end
@@ -85,7 +88,8 @@ local function tracePerWidget(node)
 					positioninfo = ("Pos(%i:%i)"):format(obj.x  or 0, obj.y or 0)
 				end 
 
-				local caption = ("%s: %s; \"%s\" %s %s"):format(
+				local caption = ("%s->%s: %s; \"%s\" %s %s"):format(
+					(obj.parent and obj.parent.name) or "orph",
 					obj.classname,
 					obj.name,
 					obj.caption or "",
@@ -122,20 +126,37 @@ function widget:Initialize()
 			Chili.Label:New{
 				name = "lbl_inspector_memusage",
 				x=0, right = 50,
-				y=0, bottom=-25,
+				y=0, bottom=-20,
 				align = "right", valign = "bottom",
 				caption = "Lua MemUsage: 0MB",
+
+			},			
+			Chili.Label:New{
+				name = "lbl_inspector_memdelta",
+				x=0, right = 50,
+				y=20, bottom=-40,
+				align = "right", valign = "bottom",
+				caption = "Lua Memdelta: 0MB",
+
+			},
+			Chili.Label:New{
+				name = "lbl_inspector_drawdata",
+				x=0, right = 50,
+				y=40, bottom=-60,
+				align = "right", valign = "bottom",
+				caption = "Lobbyinterfaceholder drawtime",
 
 			},
 			Chili.Button:New{
 				right = 0, width = 50,
 				y=5, bottom=-25,
 				caption="gc",
+				classname = "button_small",
 				OnMouseUp = {function() collectgarbage("collect") end},
 			},
 			Chili.ScrollPanel:New{
 				x=0, right=0,
-				y=25, bottom=20,
+				y=60, bottom=20,
 				children = {
 					Chili.TreeView:New{
 						name = "tree_inspector";
@@ -154,18 +175,27 @@ function widget:Initialize()
 				children = {
 					Chili.Button:New{
 						caption="visible objects",
-						OnMouseUp = {function() tree0.root:Clear(); trace(Chili.Screen0.children, tree0.root) end},
+						classname = "option_button",
+						OnMouseUp = {function() tree0.root:Clear(); 
+							for child in tree0.root.children do
+								child:Dispose()
+							end
+							
+							trace(Chili.Screen0.children, tree0.root) end},
 					},
 					Chili.Button:New{
 						caption="lost objects",
+						classname = "option_button",
 						OnMouseUp = {function() tree0.root:Clear(); traceLost(tree0.root) end},
 					},
 					Chili.Button:New{
 						caption="per widget",
+						classname = "option_button",
 						OnMouseUp = {function() tree0.root:Clear(); tracePerWidget(tree0.root) end},
 					},
 					Chili.Button:New{
 						caption="close",
+						classname = "negative_button",
 						OnMouseUp = {function()
 							widgetHandler:RemoveWidget() end},
 					},
@@ -176,6 +206,8 @@ function widget:Initialize()
 
 	tree0 = window0:GetObjectByName("tree_inspector")
 	label0 = window0:GetObjectByName("lbl_inspector_memusage")
+	label1 = window0:GetObjectByName("lbl_inspector_memdelta")
+	label2 = window0:GetObjectByName("lbl_inspector_drawdata")
 
 	trace(Chili.Screen0.children, tree0.root)
 end
@@ -187,9 +219,23 @@ function widget:Shutdown()
 end
 
 local updatecount = 0
+local lastupdatetime = Spring.GetTimer()
+local lastmemusagesec = 0
+local lastmemusageframe = 0
+local memdelta = 0
 function widget:Update()
 	updatecount = updatecount + 1
 	local curUsage, gcLimit = gcinfo()
 	local caption = ("O/F: %d/%d Frame:%i Lua MemUsage: %.2fMB"):format(objects, fonts,updatecount, curUsage / 1024)
 	label0:SetCaption(caption)
+
+	if Spring.DiffTimers(Spring.GetTimer(), lastupdatetime) > 1 then 
+		memdelta = curUsage - lastmemusagesec
+		lastmemusagesec = curUsage
+		lastupdatetime = Spring.GetTimer()
+	end
+	label1:SetCaption(("Mem usage delta = %04d KB/s %04d KB/f"):format(memdelta, curUsage - lastmemusageframe))
+	lastmemusageframe = curUsage
+	local lobbyinterfaceholder = WG.Chobby.lobbyInterfaceHolder
+	label2:SetCaption(("Draw Time = %3.2f ms"):format((lobbyinterfaceholder.drawTime or 0)*1000))
 end

@@ -6,17 +6,28 @@ local BATTLE_NOT_RUNNING = LUA_DIRNAME .. "images/nothing.png"
 local IMAGE_DLREADY      = LUA_DIRNAME .. "images/downloadready.png"
 local IMAGE_DLUNREADY    = LUA_DIRNAME .. "images/downloadnotready.png"
 
+local myFont1
+local myFont2
+local myFont3
+
 function BattleListWindow:init(parent)
+
+	myFont1 = Font:New(Configuration:GetFont(1))
+	myFont2 = Font:New(Configuration:GetFont(2))
+	myFont3 = Font:New(Configuration:GetFont(3))
+
 	self:super("init", parent, "Play or watch a game", true, nil, nil, nil, 34)
+	self.name = "BattleListWindow"
 
 	if not Configuration.gameConfig.disableBattleListHostButton then
 		self.btnNewBattle = Button:New {
-			x = 260,
+			--x = 260,
 			y = 7,
-			width = 150,
+			right = 95,
+			width = 200,
 			height = 45,
 			caption = i18n("open_mp_game"),
-			font = Configuration:GetFont(3),
+			objectOverrideFont = myFont3,
 			classname = "option_button",
 			parent = self.window,
 			OnClick = {
@@ -47,16 +58,16 @@ function BattleListWindow:init(parent)
 		align = "center",
 		valign = "center",
 		parent = self.infoPanel,
-		font = Configuration:GetFont(3),
+		objectOverrideFont = myFont3,
 	}
 	self.infoPanel:SetVisibility(false)
 
 	Label:New {
 		x = 20,
 		right = 5,
-		bottom = 11,
+		bottom = 15,
 		height = 20,
-		font = Configuration:GetFont(2),
+		objectOverrideFont = myFont2,
 		caption = "Filter out:",
 		parent = self.window
 	}
@@ -64,13 +75,13 @@ function BattleListWindow:init(parent)
 	local checkPassworded = Checkbox:New {
 		x = 110,
 		width = 21,
-		bottom = 4,
+		bottom = 8,
 		height = 30,
 		boxalign = "left",
 		boxsize = 20,
 		caption = " Passworded",
 		checked = Configuration.battleFilterPassworded2 or false,
-		font = Configuration:GetFont(2),
+		objectOverrideFont = myFont2,
 		OnChange = {
 			function (obj, newState)
 				Configuration:SetConfigValue("battleFilterPassworded2", newState)
@@ -83,13 +94,13 @@ function BattleListWindow:init(parent)
 	local checkNonFriend = Checkbox:New {
 		x = 280,
 		width = 21,
-		bottom = 4,
+		bottom = 8,
 		height = 30,
 		boxalign = "left",
 		boxsize = 20,
 		caption = " Non-friend",
 		checked = Configuration.battleFilterNonFriend or false,
-		font = Configuration:GetFont(2),
+		objectOverrideFont = myFont2,
 		OnChange = {
 			function (obj, newState)
 				Configuration:SetConfigValue("battleFilterNonFriend", newState)
@@ -102,13 +113,13 @@ function BattleListWindow:init(parent)
 	local checkRunning = Checkbox:New {
 		x = 435,
 		width = 21,
-		bottom = 4,
+		bottom = 8,
 		height = 30,
 		boxalign = "left",
 		boxsize = 20,
 		caption = " Running",
 		checked = Configuration.battleFilterRunning or false,
-		font = Configuration:GetFont(2),
+		objectOverrideFont = myFont2,
 		OnChange = {
 			function (obj, newState)
 				Configuration:SetConfigValue("battleFilterRunning", newState)
@@ -122,13 +133,13 @@ function BattleListWindow:init(parent)
     local checkLocked = Checkbox:New {
 		x = 575,
 		width = 21,
-		bottom = 4,
+		bottom = 8,
 		height = 30,
 		boxalign = "left",
 		boxsize = 20,
 		caption = " Locked",
 		checked = Configuration.battleFilterLocked or false,
-		font = Configuration:GetFont(2),
+		objectOverrideFont = myFont2,
 		OnChange = {
 			function (obj, newState)
 				Configuration:SetConfigValue("battleFilterLocked", newState)
@@ -147,9 +158,9 @@ function BattleListWindow:init(parent)
 	end
 	WG.Delay(UpdateCheckboxes, 0.2)
 
-	self:SetMinItemWidth(320)
+	self:SetMinItemWidth(100000)
 	self.columns = 3
-	self.itemHeight = 80
+	self.itemHeight = 40
 	self.itemPadding = 1
 
 	local function UpdateTimersDelay()
@@ -158,47 +169,31 @@ function BattleListWindow:init(parent)
 	end
 	WG.Delay(UpdateTimersDelay, 30)
 
-	self.listenerUpdateDisabled = false
 	self.onBattleOpened = function(listener, battleID)
-		if self.listenerUpdateDisabled then
-			return
-		end
 		self:AddBattle(battleID, lobby:GetBattle(battleID))
 		self:SoftUpdate()
 	end
 	lobby:AddListener("OnBattleOpened", self.onBattleOpened)
 
 	self.onBattleClosed = function(listener, battleID)
-		if self.listenerUpdateDisabled then
-			return
-		end
 		self:RemoveRow(battleID)
 		self:SoftUpdate()
 	end
 	lobby:AddListener("OnBattleClosed", self.onBattleClosed)
 
 	self.onJoinedBattle = function(listener, battleID)
-		if self.listenerUpdateDisabled then
-			return
-		end
 		self:JoinedBattle(battleID)
 		self:SoftUpdate()
 	end
 	lobby:AddListener("OnJoinedBattle", self.onJoinedBattle)
 
 	self.onLeftBattle = function(listener, battleID)
-		if self.listenerUpdateDisabled then
-			return
-		end
 		self:LeftBattle(battleID)
 		self:SoftUpdate()
 	end
 	lobby:AddListener("OnLeftBattle", self.onLeftBattle)
 
 	self.onUpdateBattleInfo = function(listener, battleID)
-		if self.listenerUpdateDisabled then
-			return
-		end
 		self:OnUpdateBattleInfo(battleID)
 		self:UpdateButtonColor(battleID)
 		self:SoftUpdate()
@@ -206,23 +201,22 @@ function BattleListWindow:init(parent)
 	lobby:AddListener("OnUpdateBattleInfo", self.onUpdateBattleInfo)
 
 	self.onBattleIngameUpdate = function(listener, battleID, isRunning)
-		if self.listenerUpdateDisabled then
-			return
-		end
 		self:OnBattleIngameUpdate(battleID, isRunning)
 		self:SoftUpdate()
 	end
 	lobby:AddListener("OnBattleIngameUpdate", self.onBattleIngameUpdate)
 
-	
-	self.onS_Battle_Update_lobby_title = function(listener, battleID, newbattletitle)
-		if self.listenerUpdateDisabled then
-			return
-		end
-		self:OnS_Battle_Update_lobby_title(battleID, newbattletitle)
+	self.onUpdateBattleTitle = function(listener, battleID, newbattletitle)
+		self:OnUpdateBattleTitle(battleID, newbattletitle)
 		self:SoftUpdate()
 	end
-	lobby:AddListener("OnS_Battle_Update_lobby_title", self.onS_Battle_Update_lobby_title)
+	lobby:AddListener("OnUpdateBattleTitle", self.onUpdateBattleTitle)
+
+	self.onFriendRequestList = function(listener)
+		self:OnFriendRequestList()
+		self:SoftUpdate()
+	end
+	lobby:AddListener("OnFriendRequestList", self.onFriendRequestList)
 
 	local function onConfigurationChange(listener, key, value)
 		if key == "displayBadEngines2" then
@@ -282,12 +276,52 @@ function BattleListWindow:Update()
 	self:SoftUpdate()
 end
 
+
 function BattleListWindow:SoftUpdate()
-	if Configuration.battleFilterRedundant then
-		self:UpdateAllBattleIDs()
+	-- UpdateFilters is quite heavy, because it sorts all the battles on the
+	-- list, so instead of just calling SoftUpdate functionality directly,
+	-- we only update, if we havent updated in 3 seconds.
+	-- Also note, that the previous implementation somehow ran on intermediate states, 
+	-- causeing severe bouncing of battles up and down
+	if self.lastSoftUpdate == nil then
+		self.lastSoftUpdate = Spring.GetTimer()
 	end
-	self:UpdateFilters()
+
 	self:UpdateInfoPanel()
+	if Spring.DiffTimers(Spring.GetTimer(), self.lastSoftUpdate) > 3 then
+		self.lastSoftUpdate = Spring.GetTimer()
+		if Configuration.battleFilterRedundant then
+			self:UpdateAllBattleIDs()
+		end
+		self:UpdateFilters()
+	end
+
+	-- this method, for some godforsaken reason doesnt work as expected. 
+	-- It is kept here as a tomb for weary travellers to rest by.
+	--[[
+	self.lastSoftUpdate = os.clock()
+
+	local battleList = self
+
+	local function RealSoftUpdate()
+		if os.clock() - battleList.lastSoftUpdate < 0.1 then
+			WG.Delay(RealSoftUpdate, 0.2)
+			return
+		end
+
+		if Configuration.battleFilterRedundant then
+			battleList:UpdateAllBattleIDs()
+		end
+		battleList:UpdateFilters()
+		battleList:UpdateInfoPanel()
+		battleList.softUpdateTimerRunning = false
+	end
+
+	if not self.softUpdateTimerRunning then
+		WG.Delay(RealSoftUpdate, 0.2)
+		self.softUpdateTimerRunning = true
+	end
+	]]--
 end
 
 function BattleListWindow:UpdateInfoPanel()
@@ -366,7 +400,7 @@ function BattleListWindow:MakeWatchBattle(battleID, battle)
 		right = 0,
 		height = 20,
 		valign = 'center',
-		font = Configuration:GetFont(2),
+		objectOverrideFont = myFont2,
 		caption = (battle.title or "") .. " - Click to watch",
 		parent = parentButton,
 		OnResize = {
@@ -418,7 +452,7 @@ function BattleListWindow:MakeWatchBattle(battleID, battle)
 		y = 20,
 		height = 15,
 		valign = 'center',
-		font = Configuration:GetFont(1),
+		objectOverrideFont = myFont1,
 		caption = playerCount .. ((playerCount == 1 and " player on " ) or " players on ") .. battle.mapName:gsub("_", " "),
 		parent = parentButton,
 	}
@@ -440,7 +474,7 @@ function BattleListWindow:MakeWatchBattle(battleID, battle)
 		y = 36,
 		height = 15,
 		valign = 'center',
-		font = Configuration:GetFont(1),
+		objectOverrideFont = myFont1,
 		caption = modeName,
 		parent = parentButton,
 	}
@@ -486,29 +520,44 @@ function BattleListWindow:MakeJoinBattle(battleID, battle)
 		tooltip = "battle_tooltip_" .. battleID,
 	}
 
+	local imgIsRunning = Image:New {
+		name = "imgIsRunning",
+		x = 0, -- Apparently deleting this breaks some things, so let's throw it 10000 pixels to the left, lmao.
+		width = 20,
+		height = 20,
+		y = 0,
+		margin = {0, 0, 0, 0},
+		file = "LuaMenu/images/ingame.png",
+		parent = parentButton,
+	}
+	imgIsRunning:SetVisibility(battle.isRunning == true)
+
 	local lblTitle = Label:New {
 		name = "lblTitle",
-		x = height + 3,
+		x = "4%",
 		y = 0,
-		right = 0,
+		right = "55%",
 		height = 20,
+		align = "left",
 		valign = 'center',
-		font = Configuration:GetFont(2),
+		objectOverrideFont = myFont2,
+		--caption = battle.title .. " | " .. battle.mapName:gsub("_", " "),
 		caption = battle.title,
 		parent = parentButton,
 		OnResize = {
 			function (obj, xSize, ySize)
+				--obj:SetCaption(StringUtilities.GetTruncatedStringWithDotDot(battle.title .. " | " .. battle.mapName:gsub("_", " "), obj.font, obj.width))
 				obj:SetCaption(StringUtilities.GetTruncatedStringWithDotDot(battle.title, obj.font, obj.width))
 			end
 		}
 	}
 	local minimap = Panel:New {
 		name = "minimap",
-		x = 3,
-		y = 3,
-		width = height - 6,
-		height = height - 6,
-		padding = {1,1,1,1},
+		x = "47%",
+		y = 0,
+		width = height,
+		height = height,
+		padding = {0,0,0,0},
 		parent = parentButton,
 	}
 
@@ -527,86 +576,94 @@ function BattleListWindow:MakeJoinBattle(battleID, battle)
 	}
 	local runningImage = Image:New {
 		name = "runningImage",
-		x = 0,
+		x = -100000,
 		y = 0,
 		right = 0,
 		bottom = 0,
 		keepAspect = false,
-		file = (battle.isRunning and BATTLE_RUNNING) or BATTLE_NOT_RUNNING,
+		--file = (battle.isRunning and BATTLE_RUNNING) or BATTLE_NOT_RUNNING,
+		file = "LuaMenu/images/ingame.png",
 		parent = minimap,
 	}
-	runningImage:BringToFront()
+	runningImage:SetVisibility(battle.isRunning == true)
+	--runningImage:BringToFront()
 
-	local lblPlayers = Label:New {
-		name = "playersCaption",
-		x = height + 3,
-		width = 50,
-		y = 18,
-		height = 22,
-		valign = 'bottom',
-		font = Configuration:GetFont(2),
-		caption = lobby:GetBattlePlayerCount(battleID) .. "/" .. battle.maxPlayers,
+	local lblMap = Label:New {
+		name = "mapCaption",
+		--x = height - 10000, -- Apparently deleting this breaks some things, so let's throw it 10000 pixels to the left, lmao.
+		x = "51%",
+		right = "14%",
+		y = 0, --36
+		height = 20,
+		--align = "right",
+		valign = 'center',
+		caption = battle.mapName:gsub("_", " "),
+		objectOverrideFont = myFont2,
 		parent = parentButton,
+		OnResize = {
+			function (obj, xSize, ySize)
+				obj:SetCaption(StringUtilities.GetTruncatedStringWithDotDot(battle.mapName:gsub("_", " "), obj.font, xSize or obj.width))
+			end
+		}
 	}
 
 	if battle.passworded then
 		local imgPassworded = Image:New {
 			name = "password",
-			x = height + 50,
-			width = 15,
-			height = 15,
-			y = 20,
-			height = 15,
+			x = "86%",
+			width = "4%",
+			height = 18,
+			y = 0,
+			align = "right",
+			valign = 'center',
+			margin = {0, 0, 0, 0},
+			file = "LuaMenu/images/key.png",
+			parent = parentButton,
+		}
+	else
+		local imgLocked = Image:New {
+			name = "imgLocked",
+			x = "86%",
+			width = "4%",
+			height = 20,
+			y = 0,
+			align = "right",
+			valign = 'center',
 			margin = {0, 0, 0, 0},
 			file = CHOBBY_IMG_DIR .. "lock.png",
 			parent = parentButton,
 		}
+		imgLocked:SetVisibility(battle.locked == true)
 	end
 
-	if not Configuration.gameConfig.hideGameExistanceDisplay then
-		local imHaveGame = Image:New {
-			name = "imHaveGame",
-			x = height + 50,
-			width = 15,
-			height = 15,
-			y = 20,
-			height = 15,
-			file = (VFS.HasArchive(battle.gameName) and IMAGE_DLREADY or IMAGE_DLUNREADY),
-			parent = parentButton,
-		}
-	end
-
-	local lblGame = Label:New {
-		name = "gameCaption",
-		x = height + 70,
-		right = 0,
-		y = 20,
-		height = 15,
+	local rankimg = Configuration.gameConfig.rankFunction(nil, 1, nil, nil,nil )
+	--WG.UserHandler.GetUserRankImage()
+	-- Configuration.gameConfig.rankFunction(nil, mybestrank, nil, nil,nil ),
+	local imgAvgRank = Image:New {
+		name = "imgAvgRank",
+		x = "90%",
+		width = "4%",
+		height = 20,
+		y = 0,
+		align = "right",
 		valign = 'center',
-		caption = self:_MakeGameCaption(battle),
-		font = Configuration:GetFont(1),
+		margin = {0, 0, 0, 0},
+		file = rankimg,
 		parent = parentButton,
 	}
+	imgAvgRank:SetVisibility(false)
 
-	local imHaveMap = Image:New {
-		name = "imHaveMap",
-		x = height + 50,
-		width = 15,
-		height = 15,
-		y = 36,
-		height = 15,
-		file = (VFS.HasArchive(battle.mapName) and IMAGE_DLREADY or IMAGE_DLUNREADY),
-		parent = parentButton,
-	}
-	local lblMap = Label:New {
-		name = "mapCaption",
-		x = height + 70,
+	local lblPlayers = Label:New {
+		name = "playersCaption",
+		x = 50,
 		right = 0,
-		y = 36,
-		height = 15,
+		width = 50,
+		y = 0,
+		height = 20,
+		align = "right",
 		valign = 'center',
-		caption = battle.mapName:gsub("_", " "),
-		font = Configuration:GetFont(1),
+		objectOverrideFont = myFont2,
+		caption = lobby:GetBattlePlayerCount(battleID) .. "/" .. battle.maxPlayers,
 		parent = parentButton,
 	}
 
@@ -650,7 +707,7 @@ function BattleListWindow:ItemInFilter(id)
 			return false
 		end
 	end
-	
+
 	if Configuration.battleFilterLocked and battle.locked  then
 		return false
 	end
@@ -728,41 +785,77 @@ function BattleListWindow:FilterRedundantBattle(battle, id)
 end
 
 function BattleListWindow:CompareItems(id1, id2)
-	-- Help: returns true if id1 should be before id2
-	-- Sort 'open games first', by player count
-	-- Then empty battles
-	-- Then running but unlocked battles , by player count
-	-- Then running but locked battles, by player count
-	-- Finally private battles, alphabetically
+	-- Returns true if id1 should be before id2
+	-- Sort:
+	-- 0. Public, not running battles with > 0 players
+	-- 1. public, running unlocked battles by player count
+	-- 2. public locked battles by player count
+	-- 3. private battles, alphabetically
+	--
 
 	-- sorted list of params to check by?
-
+	local lobby = WG.LibLobby.lobby
 	local battle1, battle2 = lobby:GetBattle(id1), lobby:GetBattle(id2)
-	if id1 and id2 then
-		if not (battle1 and battle2) then
-			return false -- just for sanity
+	if id1 and id2 and battle1 and battle2 then -- validity check
+		--Spring.Echo("id", id1, id2, "isrunning", battle1.isRunning, battle2.isRunning,
+		--	"pw", battle1.passworded, battle2.passworded,
+		--	'locked', battle1.locked, battle2.locked
+		--)
+		local battle1passworded = (battle1.passworded == true )
+		local battle2passworded = (battle2.passworded == true )
+		
+		if battle1passworded ~= battle2passworded then
+			return battle2passworded
+		elseif battle1passworded  and battle2passworded then
+			--Spring.Echo(id1, battle1.locked, battle1.title, id2, battle2.locked, battle2.title)
+			--if battle1.locked ~= battle2.locked then
+			--	return battle2.locked
+			--else
+				-- Sort passworded battles by title
+				return string.lower(battle1.title) < string.lower(battle2.title )
+			--end
+		end
+		-- neither are passworded
+
+		-- Dump locked next
+		local battle1locked = (battle1.locked == true)
+		local battle2locked = (battle2.locked == true)
+		if battle1locked ~= battle2locked then
+			return battle2locked
+		end
+
+		-- Handle silly ass negative counts
+		local countOne = math.max(0, lobby:GetBattlePlayerCount(id1))
+		local countTwo = math.max(0, lobby:GetBattlePlayerCount(id2))
+		--Spring.Echo(id1, countOne, id2, countTwo)
+		--Put empty rooms at the back of the list
+		-- unless they are running
+		local battle1isRunning = (battle1.isRunning == true)
+		local battle2isRunning = (battle2.isRunning == true)
+		local empty1 = (battle1isRunning == false) and (countOne == 0)
+		local empty2 = (battle2isRunning == false) and (countTwo == 0)
+
+		if empty1 ~= empty2 then
+			return (empty2 == true)
 		end
 		
-		if battle1.passworded ~= battle2.passworded then 
-			return battle2.passworded --
-		elseif battle1.passworded == true and battle2.passworded == true then
-			return string.lower(battle1.title) < string.lower(battle2.title )
+		if countOne == 0 and countTwo > 0 then -- id1 is empty
+			return false
+		elseif countOne > 0 and countTwo == 0 then  -- id2 is empty
+			return true
 		end
 
-		if battle1.isRunning ~= battle2.isRunning then 
-			return battle2.isRunning 
+		-- Put running after open
+		if battle1isRunning ~= battle2isRunning then
+			return battle2isRunning
 		end
 
-		if battle1.locked ~= battle2.locked then 
-			return battle2.locked
-		end
-
-		local countOne = lobby:GetBattlePlayerCount(id1)
-		local countTwo = lobby:GetBattlePlayerCount(id2)
+		-- Sort by player count
 		if countOne ~= countTwo then
 			return countOne > countTwo
 		end
-		return id1 > id2 -- stabalize the sort.
+
+		return id1 > id2 -- stabilize the sort.
 	else
 		Spring.Echo("battle1", id1, battle1, battle1 and battle1.users)
 		Spring.Echo("battle2", id2, battle2, battle2 and battle2.users)
@@ -787,7 +880,7 @@ function BattleListWindow:UpdateButtonColor(battleID)
 		if battle.locked then
 			battlebuttonstyle =  {0.90, 0.10, 0.10, 0.65} --red
 		else
-			if lobby:GetBattlePlayerCount(battleID) < 1 then
+			if (lobby:GetBattlePlayerCount(battleID) < 1) and (battle.isRunning == false) then
 					battlebuttonstyle = {0.10, 0.10, 0.95, 0.65} --blue
 			else
 				if battle.isRunning then
@@ -805,6 +898,12 @@ function BattleListWindow:UpdateButtonColor(battleID)
 			break
 		end
 	end
+
+	local imgLocked = items.battleButton:GetChildByName("imgLocked")
+	if imgLocked then
+		imgLocked:SetVisibility(battle.locked == true)
+	end
+
 	--Spring.Echo("BattleListWindow:UpdateButtonColor",battleID,battlebuttonstyle, items.battleButton.backgroundColor,battle.isRunning ,battle.passworded, lobby:GetBattlePlayerCount(battleID))
 
 	if colorChanged then
@@ -815,6 +914,42 @@ function BattleListWindow:UpdateButtonColor(battleID)
 	end
 end
 
+function BattleListWindow:UpdateRankIcon(battleID, battle, items)
+	battle = battle or lobby:GetBattle(battleID)
+	if battle == nil then return end
+	local users = battle.users
+	local avgRank = 0
+	local numplayers = 0
+
+	local items = items or self:GetRowItems(battleID)
+	if not items then return end
+	local imgAvgRank = items.battleButton:GetChildByName("imgAvgRank")
+
+	if users then
+		for i, userName in ipairs(users) do
+			--local userInfo = lobby:TryGetUser(userName)
+			local userInfo = lobby:GetUser(userName)
+			if userInfo and userInfo.level and userInfo.isBot ~= true then
+				avgRank = avgRank + userInfo.level
+				numplayers = numplayers + 1
+				--Spring.Echo("RANKY", battleID, userName, userInfo.level)
+			end
+			--Spring.Echo("RANKY", battleID, userName, userInfo and userInfo.level)
+			--Spring.Utilities.TableEcho(userInfo)
+		end
+	end
+	--Spring.Echo("UpdateRankIcon", battleID, numplayers, avgRank)
+
+	if numplayers > 0 then
+		avgRank = math.round(avgRank/numplayers)--
+	end
+	imgAvgRank:SetVisibility(numplayers>0)
+	local rankimg = Configuration.gameConfig.rankFunction(nil, avgRank , nil, nil,nil )
+	imgAvgRank.file = rankimg
+	imgAvgRank:Invalidate()
+end
+
+
 function BattleListWindow:RecalculateOrder(id)
 	if lobby.commandBuffer then
 		return
@@ -824,6 +959,10 @@ end
 
 function BattleListWindow:UpdateSync(battleID)
 	local battle = lobby:GetBattle(battleID)
+	if battle == nil then
+		--Spring.Utilities.TraceFullEcho(30,nil,nil, "lobby:GetBattle(battleID) == nil", battleID)
+		return
+	end
 	if not (Configuration.displayBadEngines2 or Configuration:IsValidEngineVersion(battle.engineVersion)) then
 		return
 	end
@@ -834,15 +973,15 @@ function BattleListWindow:UpdateSync(battleID)
 		return
 	end
 
-	local imHaveMap = items.battleButton:GetChildByName("imHaveMap")
-	if imHaveMap ~= nil then
-		imHaveMap.file = (VFS.HasArchive(battle.mapName) and IMAGE_DLREADY or IMAGE_DLUNREADY)
-	end
+	-- local imHaveMap = items.battleButton:GetChildByName("imHaveMap")
+	-- if imHaveMap ~= nil then
+	-- 	imHaveMap.file = (VFS.HasArchive(battle.mapName) and IMAGE_DLREADY or IMAGE_DLUNREADY)
+	-- end
 
-	local imHaveGame = items.battleButton:GetChildByName("imHaveGame")
-	if imHaveGame ~= nil then
-		imHaveGame.file = (VFS.HasArchive(battle.gameName) and IMAGE_DLREADY or IMAGE_DLUNREADY)
-	end
+	-- local imHaveGame = items.battleButton:GetChildByName("imHaveGame")
+	-- if imHaveGame ~= nil then
+	-- 	imHaveGame.file = (VFS.HasArchive(battle.gameName) and IMAGE_DLREADY or IMAGE_DLUNREADY)
+	-- end
 end
 
 function BattleListWindow:UpdateTimers()
@@ -879,6 +1018,10 @@ function BattleListWindow:_MakeGameCaption(battle)
 	return 'BAR-'..gameCaption
 end
 
+function BattleListWindow:UpdateBattleRank(battleID)
+	local avgRank = items.battleButton:GetChildByName("avgRankImg")
+end
+
 function BattleListWindow:JoinedBattle(battleID)
 	local battle = lobby:GetBattle(battleID)
 	if not (Configuration.displayBadEngines2 or Configuration:IsValidEngineVersion(battle.engineVersion)) then
@@ -900,6 +1043,7 @@ function BattleListWindow:JoinedBattle(battleID)
 		playersOnMapCaption:SetCaption(playerCount .. ((playerCount == 1 and " player on " ) or " players on ") .. battle.mapName:gsub("_", " "))
 	end
 
+	self:UpdateRankIcon(battleID, battle, items)
 	self:UpdateButtonColor(battleID)
 	self:RecalculateOrder(battleID)
 end
@@ -925,11 +1069,14 @@ function BattleListWindow:LeftBattle(battleID)
 		playersOnMapCaption:SetCaption(playerCount .. ((playerCount == 1 and " player on " ) or " players on ") .. battle.mapName:gsub("_", " "))
 	end
 
+	self:UpdateRankIcon(battleID, battle, items)
 	self:UpdateButtonColor(battleID)
 	self:RecalculateOrder(battleID)
 end
 
 function BattleListWindow:OnUpdateBattleInfo(battleID)
+	-- Note that the parameters of UPDATEBATTLEINFO are :
+	-- UPDATEBATTLEINFO spectatorCount locked mapHash {mapName}
 	local battle = lobby:GetBattle(battleID)
 	if not (Configuration.displayBadEngines2 or Configuration:IsValidEngineVersion(battle.engineVersion)) then
 		return
@@ -940,57 +1087,63 @@ function BattleListWindow:OnUpdateBattleInfo(battleID)
 		self:AddBattle(battleID)
 		return
 	end
+	local battleButton = items.battleButton
+	local lblTitle = battleButton:GetChildByName("lblTitle")
+	--local imHaveMap = battleButton:GetChildByName("imHaveMap")
+	local password = battleButton:GetChildByName("password")
 
-	local lblTitle = items.battleButton:GetChildByName("lblTitle")
-	local mapCaption = items.battleButton:GetChildByName("mapCaption")
-	local imHaveMap = items.battleButton:GetChildByName("imHaveMap")
-	local minimapImage = items.battleButton:GetChildByName("minimap"):GetChildByName("minimapImage")
-	local password = items.battleButton:GetChildByName("password")
-
-	if imHaveMap then
+	if imHaveMap or true then
 		-- Password Update
 		if password and not battle.passworded then
 			password:Dispose()
 		elseif battle.passworded and not password then
 			local imgPassworded = Image:New {
 				name = "password",
-				x = items.battleButton.height + 28,
+				x = battleButton.height + 28,
 				y = 22,
 				height = 30,
 				width = 30,
 				margin = {0, 0, 0, 0},
 				file = CHOBBY_IMG_DIR .. "lock.png",
-				parent = items.battleButton,
+				parent = battleButton,
 			}
 		end
 
-
-
 		-- Resets title and truncates.
 		lblTitle.OnResize[1](lblTitle)
-
-		minimapImage.file, minimapImage.checkFileExists = Configuration:GetMinimapSmallImage(battle.mapName)
-		minimapImage:Invalidate()
-
-		mapCaption:SetCaption(battle.mapName:gsub("_", " "))
-		if VFS.HasArchive(battle.mapName) then
-			imHaveMap.file = IMAGE_DLREADY
-		else
-			imHaveMap.file = IMAGE_DLUNREADY
-		end
-		imHaveMap:Invalidate()
-
-
-		local imHaveGame = items.battleButton:GetChildByName("imHaveGame")
-		if imHaveGame ~= nil then
-			imHaveGame.file = (VFS.HasArchive(battle.gameName) and IMAGE_DLREADY or IMAGE_DLUNREADY)
+		
+		-- Update minimap button if changed
+		if battleButton.previousMapName ~= battle.mapName then 
+			local minimapImage = battleButton:GetChildByName("minimap"):GetChildByName("minimapImage")
+			local mapCaption = battleButton:GetChildByName("mapCaption")
+			minimapImage.file, minimapImage.checkFileExists = Configuration:GetMinimapSmallImage(battle.mapName)
+			minimapImage:Invalidate()
+			mapCaption:SetCaption(battle.mapName:gsub("_", " "))
+			battleButton.previousMapName = battle.mapName
 		end
 
-		local gameCaption = items.battleButton:GetChildByName("gameCaption")
-		gameCaption:SetCaption(self:_MakeGameCaption(battle))
+		-- if VFS.HasArchive(battle.mapName) then
+		-- 	imHaveMap.file = IMAGE_DLREADY
+		-- else
+		-- 	imHaveMap.file = IMAGE_DLUNREADY
+		-- end
+		-- imHaveMap:Invalidate()
 
-		local playersCaption = items.battleButton:GetChildByName("playersCaption")
-		playersCaption:SetCaption(lobby:GetBattlePlayerCount(battleID) .. "/" .. battle.maxPlayers)
+
+		-- local imHaveGame = items.battleButton:GetChildByName("imHaveGame")
+		-- if imHaveGame ~= nil then
+		-- 	imHaveGame.file = (VFS.HasArchive(battle.gameName) and IMAGE_DLREADY or IMAGE_DLUNREADY)
+		-- end
+
+		--local gameCaption = items.battleButton:GetChildByName("gameCaption")
+		--gameCaption:SetCaption(self:_MakeGameCaption(battle))
+		local newPlayerCount = lobby:GetBattlePlayerCount(battleID)
+		if battleButton.previousPlayerCount ~= newPlayerCount then 
+			local playersCaption = battleButton:GetChildByName("playersCaption")
+			playersCaption:SetCaption(newPlayerCount .. "/" .. battle.maxPlayers)
+			battleButton.previousPlayerCount = newPlayerCount
+		end
+
 	else
 		-- Resets title and truncates.
 		local lblTitle = items.battleButton:GetChildByName("lblTitle")
@@ -1029,13 +1182,27 @@ function BattleListWindow:OnBattleIngameUpdate(battleID, isRunning)
 	end
 	runningImage:Invalidate()
 
+	local imgIsRunning = items.battleButton:GetChildByName("imgIsRunning")
+	if imgIsRunning then
+		imgIsRunning:SetVisibility(battle.isRunning == true)
+	end
+
 	self:UpdateButtonColor(battleID)
 	self:RecalculateOrder(battleID)
 end
 
+function BattleListWindow:OnFriendRequestList()
+	--Spring.Echo("BattleListWindow:OnFriendRequestList")
+	collectgarbage("collect")
+	collectgarbage("collect")
+	if self.itemNames then
+		for battleID, item in pairs(self.itemNames) do
+			self:UpdateRankIcon(battleID, nil, item)
+		end
+	end
+end
 
-function BattleListWindow:OnS_Battle_Update_lobby_title(battleID, newbattletitle)
-	--Spring.Echo("function BattleListWindow:OnS_Battle_Update_lobby_title",battleID, newbattletitle)
+function BattleListWindow:OnUpdateBattleTitle(battleID, battleTitle)
 	local battle = lobby:GetBattle(battleID)
 	if not (Configuration.displayBadEngines2 or Configuration:IsValidEngineVersion(battle.engineVersion)) then
 		return
@@ -1045,11 +1212,9 @@ function BattleListWindow:OnS_Battle_Update_lobby_title(battleID, newbattletitle
 		self:AddBattle(battleID)
 		return
 	end
-	
-	battle.title = newbattletitle
 
 	local battletitlelable = items.battleButton:GetChildByName("lblTitle")
-	battletitlelable:SetCaption(StringUtilities.GetTruncatedStringWithDotDot(newbattletitle, battletitlelable.font, math.max(battletitlelable.width, 250) ))
+	battletitlelable:SetCaption(StringUtilities.GetTruncatedStringWithDotDot(battleTitle, battletitlelable.font, math.max(battletitlelable.width, 250) ))
 	battletitlelable:Invalidate()
 	items.battleButton:Invalidate()
 
@@ -1060,11 +1225,78 @@ end
 
 
 function BattleListWindow:OpenHostWindow()
+	-- Enumerate all known clusters and their number of children
+	local regions = {'EU','US','AU'}
+	local clusters = {
+		['[teh]cluster1'] = {limit = 80, current = 0, online = false, region = 'EU'},
+		['[teh]clusterEU2'] = {limit = 70, current = 0, online = false, region = 'EU'},
+		['[teh]clusterEU3'] = {limit = 30, current = 0, online = false, region = 'EU'},
+		--['[teh]clusterEU4'] = {limit = 100, current = 0, online = false, region = 'EU'}, -- This is currently the engine testing host
+		['[teh]clusterEU5'] = {limit = 200, current = 0, online = false, region = 'EU'},
+		['[teh]clusterUS'] = {limit = 70, current = 0, online = false, region = 'US'},
+		['[teh]clusterUS2'] = {limit = 60, current = 0, online = false, region = 'US'},
+		['[teh]clusterUS3'] = {limit = 70, current = 0, online = false, region = 'US'},
+		['[teh]clusterUS4'] = {limit = 150, current = 0, online = false, region = 'US'},
+		['[teh]clusterAU'] = {limit = 90, current = 0, online = false, region = 'AU'},
+	}
+
+	local numusers = 0
+	local users = lobby:GetUsers()
+	for name, _ in pairs(users) do
+		if string.find(name,"[teh]cluster", nil, true) then
+			-- shorten it
+			--Spring.Echo(name)
+			if clusters[name] then -- cluster manager
+				clusters[name].online = true
+			else-- instance
+				manager = name:sub(1,-5)
+				if clusters[manager] then
+					clusters[manager].current = clusters[manager].current + 1
+				end
+			end
+		end
+	end
+
+	-- return a cluster manager name and error code
+	local function TryGetRegion(targetregion)
+		local emptiness = {} -- key is manager name, value is fullness
+		local sum = 0
+		for manager, data in pairs(clusters) do
+			if data.region == targetregion and data.online then
+				emptiness[manager] = 1.0 - data.current/data.limit
+				sum = sum + emptiness[manager]
+				Spring.Echo("Manager", manager, data.current,  data.limit, emptiness[manager], sum)
+			end
+		end
+
+		-- choose
+		local r = math.random() * sum
+		local tot = 0
+		for manager,prob in pairs(emptiness) do
+			tot = tot + prob
+			if r <= tot then
+				Spring.Echo("Found a manager for this request", manager, tot, prob, r)
+				return manager, nil
+			end
+		end
+		if next(emptiness) == nil then
+			Spring.Echo( "No cluster managers for", targetregion)
+			return '[teh]clusterEU2' , "No cluster managers"
+		else
+			Spring.Echo("Couldnt find host in ", targetregion)
+			for manager,prob in pairs(emptiness) do
+				return manager, "no free hosts"
+			end
+		end
+	end
+
+	local currentInstances = {}
+
 	local hostBattleWindow = Window:New {
 		caption = "",
 		name = "hostBattle",
 		parent = WG.Chobby.lobbyInterfaceHolder,
-		width = 400,
+		width = 500,
 		height = 400,
 		resizable = false,
 		draggable = false,
@@ -1078,7 +1310,7 @@ function BattleListWindow:OpenHostWindow()
 		height = 35,
 		align = "center",
 		caption = i18n("open_mp_game"),
-		font = Configuration:GetFont(3),
+		objectOverrideFont = myFont3,
 		parent = hostBattleWindow,
 	}
 
@@ -1090,11 +1322,12 @@ function BattleListWindow:OpenHostWindow()
 		--multiline = true,
 		valign = "top",
 		height = 150,
-		text = "You can host a game by requesting an empty battle room. You can lock the battle rooms (!lock) to prevent anyone from joining, otherwise anyone can join your game.",--i18n("game_name") .. ":",
-		font = Configuration:GetFont(2),
+		--text = "You can host a game by requesting an empty battle room. You can lock the battle rooms (!lock) to prevent anyone from joining, otherwise anyone can join your game.",--i18n("game_name") .. ":",
+		text = "Choose whether you want a public or a private custom battle where you are the boss and only you may change game settings. Only the boss leaving the room can unboss them. Anyone may join public battles, but private battles are password protected.",
+		--i18n("game_name") .. ":",
+		objectOverrideFont = myFont2,
 		parent = hostBattleWindow,
 	}
-
 
 	local typeLabel = Label:New {
 		x = 0,
@@ -1103,7 +1336,7 @@ function BattleListWindow:OpenHostWindow()
 		align = "right",
 		height = 35,
 		caption = "Geographical region",-- i18n("game_type") .. ":",
-		font = Configuration:GetFont(2),
+		objectOverrideFont = myFont2,
 		parent = hostBattleWindow,
 	}
 
@@ -1114,11 +1347,12 @@ function BattleListWindow:OpenHostWindow()
 		height = 35,
 		itemHeight = 22,
 		text = "",
-		font = Configuration:GetFont(2),
-		items = Configuration.hostRegions,
+		objectOverrideFont = myFont2,
+				text = "",
+		items = regions, -- Configuration.hostRegions, --self.hostRegions = {"DE","EU","EU2","US","AU"}
 		itemFontSize = Configuration:GetFont(2).size,
 		selected = 1,
-		tooltip = "Choose the one closest to you for the best ping. Battle Rooms are not geographically limited.",
+		tooltip = "You may choose any region you wish, BAR is not sensitive to latency.",
 		parent = hostBattleWindow,
 	}
 
@@ -1133,7 +1367,7 @@ function BattleListWindow:OpenHostWindow()
 			boxsize = 20,
 			caption = "Passworded private battle",
 			checked =  false,
-			font = Configuration:GetFont(2),
+			objectOverrideFont = myFont2,
 			OnChange = {
 				function (obj, newState)
 					userWantsPrivateBattle =  newState
@@ -1151,7 +1385,7 @@ function BattleListWindow:OpenHostWindow()
 		align = "left",
 		height = 35,
 		caption = "",-- i18n("game_type") .. ":",
-		font = Configuration:GetFont(2),
+		objectOverrideFont = myFont2,
 		parent = hostBattleWindow,
 	}
 
@@ -1160,17 +1394,17 @@ function BattleListWindow:OpenHostWindow()
 	end
 
 	local function HostBattle()
-		WG.BattleRoomWindow.LeaveBattle()
-		--Attempting to host game at 
-		local requestedregion = typeCombo.items[typeCombo.selected]
+		
+		--Attempting to host game at
+		local requestedregion = typeCombo.items[typeCombo.selected] ---self.hostRegions = {"DE","EU","EU2","US","AU"}
 		--Spring.Echo("Looking for empty host in region", requestedregion)
+		local targetCluster, errmsg = TryGetRegion(requestedregion)
+
 		if userWantsPrivateBattle then
-			local privateclusters = {EU = '[teh]cluster1', US = '[teh]clusterUS', AU = '[teh]clusterAU', HU = '[teh]cluster2',}
-			local targetCluster = privateclusters[requestedregion]
-			local mypassword = nil
+			local mypassword = ""
 			local function listenForPrivateBattle(listener, userName, message, msgDate)
 				--Spring.Echo("listenForPrivateBattle",listener, userName, message, msgDate)
-				if userName == targetCluster and string.find(message,"Starting a new private instance in", nil, true) then 
+				if userName == targetCluster and string.find(message,"Starting a new private instance in", nil, true) then
 					local pwindex = string.find(message,"password=", nil, true)
 					mypassword = string.sub(message, pwindex + 9, pwindex + 9 + 3)
 					Spring.Echo("Got the password:", mypassword)
@@ -1180,13 +1414,13 @@ function BattleListWindow:OpenHostWindow()
 			lobby:AddListener("OnSaidPrivate", listenForPrivateBattle)
 			lobby:SayPrivate(targetCluster, "!privatehost")
 			errorLabel:SetCaption("Please wait while we spin up a \nbattle room for you.")
-			
+
 			local trytime = 30
 
 			local function delayedWatchRooms()
 				if trytime < 1 then
 					lobby:RemoveListener("OnSaidPrivate", listenForPrivateBattle)
-					errorLabel:SetCaption("Unable to spin up a private battle right now.")
+					errorLabel:SetCaption("Unable to spin up a private battle right now. Try a different region.")
 					return
 				end
 				local myplayername = lobby:GetMyUserName() or ''
@@ -1207,7 +1441,10 @@ function BattleListWindow:OpenHostWindow()
 				end
 				if myprivatebattleID ~= nil then
 					trytime = -1
-					lobby:JoinBattle(myprivatebattleID, mypassword)
+
+					WG.BattleRoomWindow.LeaveBattle()
+					-- Configuration:SetConfigValue("lastGameSpectatorState", false) -- assume that private hoster wants to play, needed so he can boss self!
+					lobby:JoinBattle(myprivatebattleID, mypassword, _, true) -- forcePlayer = true
 					lobby:RemoveListener("OnSaidPrivate", listenForPrivateBattle)
 
 					local function bossSelf()
@@ -1227,52 +1464,58 @@ function BattleListWindow:OpenHostWindow()
 			end
 
 			return
-		end
-
-
-
-		local targetbattle = nil
-		-- try to get empty matching one
-		local battles = lobby:GetBattles()
-		local tmp = {}
-		for _, battle in pairs(battles) do
-			table.insert(tmp, battle)
-		end
-		battles = tmp
-		if requestedregion == 'HU' then requestedregion = "EU - 1" end -- nasty
-		for _, battle in pairs(battles) do
-			if string.sub(battle.title,1,string.len(requestedregion)) == requestedregion and
-				lobby:GetBattlePlayerCount(battle.battleID) == 0 and 
-				battle.spectatorCount == 1 and
-				Configuration:IsValidEngineVersion(battle.engineVersion) then
-
-				targetbattle = battle.battleID
-				break
-			else
-				--Spring.Echo('tryhostbattle',battle, battle.battleID, battle.title, lobby:GetBattlePlayerCount(battle.battleID),Configuration:IsValidEngineVersion(battle.engineVersion) )
-			end
-
-		end
-
-		if targetbattle == nil then
-			--Spring.Echo("Failed to find a battle")
-			errorLabel:SetCaption("Could not find a suitable battle room!\nPlease try again.")
 		else
-			errorLabel:SetCaption("")
-			if WG.Analytics then
-				WG.Analytics.SendRepeatEvent("lobby:multiplayer:hostgame", {
-					hostregion = requestedregion
-				})
+			targetCluster = targetCluster .. '['
+
+			local targetbattle = nil
+			-- try to get empty matching one
+			local battles = lobby:GetBattles()
+			local tmp = {}
+			for _, battle in pairs(battles) do
+				table.insert(tmp, battle)
 			end
-			--Spring.Echo("Found a battle")
-			local function bossSelf() 
-				local myplayername = lobby:GetMyUserName() or ''
-				lobby:SayBattle("!boss " .. myplayername)
+			battles = tmp
+			--if requestedregion == 'DE' then requestedregion = "EU - 2" end -- nasty
+			-- targetCluster
+			for _, battle in pairs(battles) do
+				if string.find(battle.founder, targetCluster, nil, true) and
+					battle.spectatorCount == 1 and
+					battle.isRunning ~= true and -- this is needed after server restarts
+					battle.passworded ~= true and
+					battle.locked ~= true and
+					lobby:GetBattlePlayerCount(battle.battleID) == 0 and
+					Configuration:IsValidEngineVersion(battle.engineVersion) then
+						-- TODO: THIS MIGHT STILL JOIN "MANAGED" BATTLES WITH MANAGER BOTS
+						targetbattle = battle.battleID
+					break
+				else
+					--Spring.Echo('tryhostbattle',battle, battle.battleID, battle.title, battle.founder, targetCluster, lobby:GetBattlePlayerCount(battle.battleID),Configuration:IsValidEngineVersion(battle.engineVersion) )
+				end
 			end
 
-			self:JoinBattle(lobby:GetBattle(targetbattle))
-			WG.Delay(bossSelf, 1)
-			hostBattleWindow:Dispose()
+			if targetbattle == nil then
+				--Spring.Echo("Failed to find a battle")
+				errorLabel:SetCaption("Could not find a suitable battle room in your selected region!\nPlease try another.")
+			else
+				errorLabel:SetCaption("")
+				if WG.Analytics then
+					WG.Analytics.SendRepeatEvent("lobby:multiplayer:hostgame", {
+						hostregion = requestedregion
+					})
+				end
+				-- Configuration:SetConfigValue("lastGameSpectatorState", false) -- assume that private hoster wants to play, needed so he can boss self!
+
+				--Spring.Echo("Found a battle")
+				local function bossSelf()
+					local myplayername = lobby:GetMyUserName() or ''
+					lobby:SayBattle("!boss " .. myplayername)
+					lobby:SayBattle("!preset custom")
+				end
+
+				self:JoinBattle(lobby:GetBattle(targetbattle), _, _, true)
+				WG.Delay(bossSelf, 1)
+				hostBattleWindow:Dispose()
+			end
 		end
 	end
 
@@ -1282,7 +1525,7 @@ function BattleListWindow:OpenHostWindow()
 		bottom = 1,
 		height = 70,
 		caption = i18n("host"),
-		font = Configuration:GetFont(2),
+		objectOverrideFont = myFont2,
 		parent = hostBattleWindow,
 		classname = "action_button",
 		OnClick = {
@@ -1298,7 +1541,7 @@ function BattleListWindow:OpenHostWindow()
 		bottom = 1,
 		height = 70,
 		caption = i18n("cancel"),
-		font = Configuration:GetFont(2),
+		objectOverrideFont = myFont2,
 		parent = hostBattleWindow,
 		classname = "negative_button",
 		OnClick = {
@@ -1311,13 +1554,13 @@ function BattleListWindow:OpenHostWindow()
 	local popupHolder = PriorityPopup(hostBattleWindow, CancelFunc, HostBattle)
 end
 
-function BattleListWindow:JoinBattle(battle)
+function BattleListWindow:JoinBattle(battle, _, _, joinAsPlayer)
 	-- We can be force joined to an invalid engine version. This widget is not
 	-- the place to deal with this case.
 	if not battle.passworded then
 		WG.BattleRoomWindow.LeaveBattle()
 
-		local removeListeners 
+		local removeListeners
 
 		local function onJoinBattle(listener)
 			removeListeners()
@@ -1327,8 +1570,8 @@ function BattleListWindow:JoinBattle(battle)
 			WG.Chobby.InformationPopup("Unable to join battle: " .. (reason or ""))
 			removeListeners()
 		end
-		
-		removeListeners = function ()    
+
+		removeListeners = function ()
 			lobby:RemoveListener("OnJoinBattleFailed", onJoinBattleFailed)
 			lobby:RemoveListener("OnJoinBattle", onJoinBattle)
 		end
@@ -1336,7 +1579,7 @@ function BattleListWindow:JoinBattle(battle)
 		lobby:AddListener("OnJoinBattleFailed", onJoinBattleFailed)
 		lobby:AddListener("OnJoinBattle", onJoinBattle)
 
-		lobby:JoinBattle(battle.battleID)
+		lobby:JoinBattle(battle.battleID, _, _, joinAsPlayer)
 	else
 		local tryJoin, passwordWindow
 
@@ -1386,7 +1629,7 @@ function BattleListWindow:JoinBattle(battle)
 			right = 15,
 			y = 15,
 			height = 35,
-			font = Configuration:GetFont(3),
+			objectOverrideFont = myFont3,
 			caption = i18n("enter_battle_password"),
 			parent = passwordWindow,
 		}
@@ -1420,7 +1663,7 @@ function BattleListWindow:JoinBattle(battle)
 			bottom = 1,
 			height = 70,
 			caption = i18n("join"),
-			font = Configuration:GetFont(3),
+			objectOverrideFont = myFont3,
 			classname = "action_button",
 			OnClick = {
 				function()
@@ -1435,7 +1678,7 @@ function BattleListWindow:JoinBattle(battle)
 			bottom = 1,
 			height = 70,
 			caption = i18n("cancel"),
-			font = Configuration:GetFont(3),
+			objectOverrideFont = myFont3,
 			classname = "negative_button",
 			OnClick = {
 				function()
