@@ -80,6 +80,8 @@ function Chotify:Post(obj)
             bottom = 5,
             text = body,
             parent = window,
+            objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
+            objectOverrideHintFont = WG.Chobby.Configuration:GetFont(1),
         }
     else
         window:AddChild(body)

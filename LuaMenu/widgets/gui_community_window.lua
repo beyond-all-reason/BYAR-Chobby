@@ -84,7 +84,7 @@ local function LeaveIntentionallyBlank(scroll, caption)
 		height = 20,
 		align = "left",
 		valign = "top",
-		font = WG.Chobby.Configuration:GetFont(1),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
 		caption = caption,
 		parent = scroll
 	}
@@ -99,8 +99,8 @@ local function AddLinkButton(scroll, name, tooltip, link, x, right, y, bottom)
 		caption = name,
 		tooltip = tooltip,
 		classname = "link_button",
-		objectOverrideFont = myFont7,
-		--font = WG.Chobby.Configuration:GetFont(3),
+		--objectOverrideFont = WG.Chobby.Configuration:GetButtonFont(7),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		--Spring.Utilities.TraceFullEcho(maxdepth, 50, 50),
 		OnClick = {
 			function ()
@@ -152,7 +152,8 @@ local function GetLadderHandler(parentControl)
 		align = "left",
 		valign = "top",
 		text = "Ladder",
-		fontsize = WG.Chobby.Configuration:GetFont(3).size,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(3),
 		parent = holder,
 	}
 
@@ -186,7 +187,7 @@ local function GetLadderHandler(parentControl)
 					align = "right",
 					valign = "top",
 					caption = i .. ". ",
-					font = WG.Chobby.Configuration:GetFont(2),
+					objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 					parent = holder,
 				}
 			end
@@ -220,7 +221,8 @@ local function GetDateTimeDisplay(parentControl, xPosition, yPosition, timeStrin
 		valign = "top",
 		text = localTimeString or utcTimeString, -- Fallback
 		tooltip = string.gsub(timeString, "T", " at ") .. " UTC",
-		fontsize = WG.Chobby.Configuration:GetFont(2).size,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
 		parent = parentControl,
 	}
 
@@ -232,7 +234,8 @@ local function GetDateTimeDisplay(parentControl, xPosition, yPosition, timeStrin
 		align = "left",
 		valign = "top",
 		tooltip = utcTimeString,
-		fontsize = WG.Chobby.Configuration:GetFont(2).size,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
 		parent = parentControl,
 	}
 
@@ -343,7 +346,7 @@ local function GetNewsEntry(parentHolder, index, headingSize, timeAsTooltip, top
 					valign = "top",
 					height = 40,
 					classname = "link_button",
-					objectOverrideFont = myFont0,
+					objectOverrideFont = WG.Chobby.Configuration:GetButtonFont(0),
 					caption = entryData.urlText,
 					padding = {0, 0, 0, 0},
 					parent = holder,
@@ -367,7 +370,8 @@ local function GetNewsEntry(parentHolder, index, headingSize, timeAsTooltip, top
 				align = "center", -- Fireball: What do we want to center here ? the heading is shown aligned to the left and it´s good. is this working at all ?
 				valign = "top",
 				text = entryData.heading,
-				objectOverrideFont = myFont7,
+				objectOverrideFont = WG.Chobby.Configuration:GetButtonFont(7),
+				objectOverrideHintFont = WG.Chobby.Configuration:GetFont(7),
 				parent = holder,
 			}
 		else
@@ -423,7 +427,8 @@ local function GetNewsEntry(parentHolder, index, headingSize, timeAsTooltip, top
 					align = "left",
 					valign = "top",
 					text = entryData.text,
-					objectOverrideFont = myFont2,
+					objectOverrideFont = WG.Chobby.Configuration:GetButtonFont(2),
+					objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
 					parent = holder,
 				}
 			else
@@ -517,7 +522,8 @@ local function GetNewsHandler(parentControl, headingSize, timeAsTooltip, topHead
 		align = "left",
 		valign = "top",
 		text = topHeading,
-		fontsize = WG.Chobby.Configuration:GetFont(3).size,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(3),
 		parent = holder,
 	}
 
@@ -636,7 +642,7 @@ local function GetAwardsHandler(parentControl, iconWidth, iconHeight, GetEntryDa
 					right = 2,
 					bottom = 6,
 					align = "right",
-					fontsize = fontsize,
+					objectOverrideFont = WG.Chobby.Configuration:GetFont(fontsize),
 					caption = count,
 					parent = imageList[i],
 				}
@@ -712,7 +718,7 @@ local function GetProfileHandler(parentControl)
 			max = 1,
 			caption = "Level " .. 2,
 			tooltip = tooltip,
-			font = WG.Chobby.Configuration:GetFont(2),
+			objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 			parent = holder,
 		}
 		function progressBar:HitTest(x,y) return self end
@@ -754,7 +760,7 @@ local function GetProfileHandler(parentControl)
 					width = 80,
 					height = 22,
 					align = "right",
-					fontsize = WG.Chobby.Configuration:GetFont(2).size,
+					objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 					caption = "Awards:",
 					parent = holder,
 				}
@@ -807,14 +813,9 @@ local function InitializeControls(window)
 	--	width = 180,
 	--	height = 30,
 	--	parent = window,
-	--	font = WG.Chobby.Configuration:GetFont(3),
+	--	objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 	--	caption = "Community",
 	local Configuration = WG.Chobby.Configuration
-	myFont7 = Font:New(Configuration:GetFont(7))
-	myFont5 = Font:New(Configuration:GetFont(5))
-	myFont4 = Font:New(Configuration:GetFont(5, 'fonts/Poppins-Medium.otf'))
-	myFont2 = Font:New(Configuration:GetFont(2))
-	myFont0 = Font:New(Configuration:GetFont(0))
 
 	local lobby = WG.LibLobby.lobby
 	local staticCommunityData = LoadStaticCommunityData()

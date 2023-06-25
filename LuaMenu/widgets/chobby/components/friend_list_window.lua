@@ -14,7 +14,7 @@ function FriendListWindow:init(parent)
 		width = 180,
 		height = 45,
 		caption = i18n("invite_friends"),
-		font = Configuration:GetFont(3),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		classname = "option_button",
 		parent = self.window,
 		OnClick = {
@@ -31,7 +31,8 @@ function FriendListWindow:init(parent)
 			y = 15,
 			height = 30,
 			text = "",
-			font = Configuration:GetFont(1),
+			objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
+			objectOverrideHintFont = WG.Chobby.Configuration:GetFont(1),
 			useIME = false,
 			parent = self.window,
 			tooltip = "Name of new friend",
@@ -43,7 +44,7 @@ function FriendListWindow:init(parent)
 			y = 15,
 			height = 30,
 			caption = "Add Friend",
-			font = Configuration:GetFont(1),
+			objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
 			classname = "option_button",
 			parent = self.window,
 			OnClick = {
@@ -112,7 +113,7 @@ function FriendListWindow:AddFriendRequest(userName)
 		width = 100,
 		height = 30,
 		caption = i18n("friend_request"),
-		font = Configuration:GetFont(1),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(1, "friend_request", {color = { 0.5, 0.5, 0.5, 1 }}),
 	}
 	lblFriendRequest.font.color = { 0.5, 0.5, 0.5, 1 }
 	lblFriendRequest:Invalidate()
@@ -122,7 +123,7 @@ function FriendListWindow:AddFriendRequest(userName)
 		width = 100,
 		height = 30,
 		caption = i18n("accept"),
-		font = Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		classname = "option_button",
 		OnClick = {
 			function()
@@ -137,7 +138,7 @@ function FriendListWindow:AddFriendRequest(userName)
 		width = 100,
 		height = 30,
 		caption = i18n("decline"),
-		font = Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		classname = "negative_button",
 		OnClick = {
 			function()

@@ -139,7 +139,7 @@ function BattleWatchListWindow:AddBattle(battleID)
 		right = 0,
 		height = 20,
 		valign = 'center',
-		font = Configuration:GetFont(2),
+		ovjectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		caption = battle.title,
 		parent = parentButton,
 		OnResize = {
@@ -191,7 +191,7 @@ function BattleWatchListWindow:AddBattle(battleID)
 		y = 20,
 		height = 15,
 		valign = 'center',
-		font = Configuration:GetFont(1),
+		ovjectOverrideFont = WG.Chobby.Configuration:GetFont(1),
 		caption = playerCount .. ((playerCount == 1 and " player on " ) or " players on ") .. battle.mapName:gsub("_", " "),
 		parent = parentButton,
 	}
@@ -203,7 +203,7 @@ function BattleWatchListWindow:AddBattle(battleID)
 		y = 36,
 		height = 15,
 		valign = 'center',
-		font = Configuration:GetFont(1),
+		ovjectOverrideFont = WG.Chobby.Configuration:GetFont(1),
 		caption = "Running for " .. Spring.Utilities.GetTimeToPast(battle.runningSince),
 		parent = parentButton,
 	}

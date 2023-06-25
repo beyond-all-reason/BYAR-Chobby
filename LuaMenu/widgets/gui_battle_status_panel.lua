@@ -53,7 +53,7 @@ local function GetBattleInfoHolder(parent, battleID)
 		width = 225,
 		height = 20,
 		valign = 'top',
-		font = Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		parent = mainControl,
 	}
 	local text = StringUtilities.GetTruncatedStringWithDotDot(battle.title, lblTitle.font, lblTitle.width)
@@ -68,7 +68,7 @@ local function GetBattleInfoHolder(parent, battleID)
 		valign = 'top',
 		caption = "Spectator",
 		parent = mainControl,
-		font = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 	}
 	local imPlayerStatus = Image:New {
 		name = "imPlayerStatus",
@@ -87,7 +87,7 @@ local function GetBattleInfoHolder(parent, battleID)
 		y = 54,
 		height = 20,
 		valign = 'top',
-		font = Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		caption = playersPrefix .. lobby:GetBattlePlayerCount(battleID) .. "/" .. battle.maxPlayers,
 		parent = mainControl,
 	}
@@ -135,35 +135,35 @@ local function GetBattleInfoHolder(parent, battleID)
 		if smallMode then
 			minimap:SetPos(nil, nil, 30, 30)
 
-			lblTitle.font.size = Configuration:GetFont(1).size
+			lblTitle.font = WG.Chobby.Configuration:GetFont(1)
 			lblTitle:SetPos(36, 1, 150)
 
-			lblPlayerStatus.font.size = Configuration:GetFont(1).size
+			lblPlayerStatus.font = WG.Chobby.Configuration:GetFont(1)
 			lblPlayerStatus:SetPos(58, 18)
 
 			imPlayerStatus:SetPos(43, 18, 12, 12)
 
-			lblPlayers.font.size = Configuration:GetFont(1).size
+			lblPlayers.font = WG.Chobby.Configuration:GetFont(1)
 			lblPlayers:SetPos(165, 18)
 
 			playersPrefix = PLAYER_PREFIX_SMALL
 		else
 			minimap:SetPos(nil, nil, 68, 68)
 
-			lblTitle.font.size = Configuration:GetFont(2).size
+			lblTitle.font = WG.Chobby.Configuration:GetFont(2)
 			lblTitle:SetPos(76, 2, 225)
 
-			lblPlayerStatus.font.size = Configuration:GetFont(2).size
+			lblPlayerStatus.font = WG.Chobby.Configuration:GetFont(2)
 			lblPlayerStatus:SetPos(103, 26)
 
 			imPlayerStatus:SetPos(82, 26, 18, 18)
 
-			lblPlayers.font.size = Configuration:GetFont(2).size
+			lblPlayers.font = WG.Chobby.Configuration:GetFont(2)
 			lblPlayers:SetPos(80, 48)
 
 			playersPrefix = PLAYER_PREFIX_BIG
 		end
-		local text = StringUtilities.GetTruncatedStringWithDotDot(battle.title, lblTitle.font, 160)
+		local text = StringUtilities.GetTruncatedStringWithDotDot(battle.title, lblTitle.font, smallMode and 160 or 130)
 		lblTitle:SetCaption(text)
 
 		lblPlayers:SetCaption(playersPrefix .. lobby:GetBattlePlayerCount(battleID) .. "/" .. battle.maxPlayers)
@@ -283,7 +283,7 @@ local function InitializeControls(parentControl)
 	--	valign = "center",
 	--	caption = "Battle",
 	--	parent = parentControl,
-	--	font = WG.Chobby.Configuration:GetFont(3),
+	--	objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 	--}
 
 	local battleInfoHolder = GetBattleInfoHolder(infoHolder, lobby:GetMyBattleID())
@@ -389,7 +389,7 @@ function BattleStatusPanel.GetControl(fontSizeScale)
 		width = 290,
 		bottom = 0,
 		padding = {0,0,0,0},
-		font = WG.Chobby.Configuration:GetFont(fontSizeScale),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(fontSizeScale),
 		caption = "",
 		OnParent = {
 			function(obj)

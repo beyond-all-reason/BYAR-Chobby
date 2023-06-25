@@ -50,7 +50,8 @@ function ConfirmationPopup:init(successFunction, question, doNotAskAgainKey, wid
 		right = 15,
 		y = 15,
 		height = 35,
-		font = Configuration:GetFont(3),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(3),
 		text = question,
 		parent = mainWindow,
 	}
@@ -61,7 +62,7 @@ function ConfirmationPopup:init(successFunction, question, doNotAskAgainKey, wid
 		bottom = 1,
 		height = 70,
 		caption = i18n(yesText or "yes"),
-		font = Configuration:GetFont(3),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		classname = "action_button",
 		OnClick = {
 			function()
@@ -76,7 +77,7 @@ function ConfirmationPopup:init(successFunction, question, doNotAskAgainKey, wid
 		bottom = 1,
 		height = 70,
 		caption = i18n(noText or "cancel"),
-		font = Configuration:GetFont(3),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		classname = "negative_button",
 		OnClick = {
 			function()
@@ -96,7 +97,7 @@ function ConfirmationPopup:init(successFunction, question, doNotAskAgainKey, wid
 			boxsize = 15,
 			caption = i18n("do_not_ask_again"),
 			checked = Configuration[doNotAskAgainKey] or false,
-			font = Configuration:GetFont(1),
+			objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
 			parent = mainWindow,
 			OnClick = {
 				function (obj)

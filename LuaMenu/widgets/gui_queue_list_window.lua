@@ -113,7 +113,7 @@ local function MakeQueueControl(parentControl, pos, queueName, queueDescription,
 		width = 80,
 		bottom = 0,
 		caption = i18n("join"),
-		font = Configuration:GetFont(3),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		classname = "option_button",
 		OnClick = {
 			function(obj)
@@ -146,7 +146,7 @@ local function MakeQueueControl(parentControl, pos, queueName, queueDescription,
 		width = 80,
 		bottom = 0,
 		caption = i18n("leave"),
-		font = Configuration:GetFont(3),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		classname = "action_button",
 		OnClick = {
 			function(obj)
@@ -166,7 +166,8 @@ local function MakeQueueControl(parentControl, pos, queueName, queueDescription,
 		height = 22,
 		right = 5,
 		align = "bottom",
-		fontsize = Configuration:GetFont(1).size,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(1),
 		text = "Party too large",
 		parent = queueHolder
 	}
@@ -177,7 +178,8 @@ local function MakeQueueControl(parentControl, pos, queueName, queueDescription,
 		y = 15,
 		width = 120,
 		height = 33,
-		fontsize = Configuration:GetFont(3).size,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(3),
 		text = queueName,
 		parent = queueHolder
 	}
@@ -189,7 +191,8 @@ local function MakeQueueControl(parentControl, pos, queueName, queueDescription,
 		height = 22,
 		right = 5,
 		align = "bottom",
-		fontsize = Configuration:GetFont(1).size,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(1),
 		text = queueDescription,
 		parent = queueHolder
 	}
@@ -201,7 +204,8 @@ local function MakeQueueControl(parentControl, pos, queueName, queueDescription,
 		height = 22,
 		right = 5,
 		align = "bottom",
-		fontsize = Configuration:GetFont(1).size,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(1),
 		text = "Playing: " .. players,
 		parent = queueHolder
 	}
@@ -213,7 +217,8 @@ local function MakeQueueControl(parentControl, pos, queueName, queueDescription,
 		height = 22,
 		right = 5,
 		align = "bottom",
-		fontsize = Configuration:GetFont(1).size,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(1),
 		text = "Waiting: " .. waiting,
 		parent = queueHolder
 	}
@@ -451,7 +456,7 @@ local function InitializeControls(window)
 		right = 5,
 		y = 17,
 		height = 20,
-		font = Configuration:GetFont(3),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		caption = "Join matchmaking queues",
 		parent = window
 	}
@@ -462,7 +467,7 @@ local function InitializeControls(window)
 		width = 80,
 		height = 45,
 		caption = i18n("close"),
-		font = Configuration:GetFont(3),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		classname = "negative_button",
 		OnClick = {
 			function()
@@ -477,7 +482,7 @@ local function InitializeControls(window)
 		y = 7,
 		width = 180,
 		height = 45,
-		font = Configuration:GetFont(3),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		caption = i18n("invite_friends"),
 		classname = "option_button",
 		OnClick = {
@@ -504,7 +509,8 @@ local function InitializeControls(window)
 		right = 5,
 		y = 320,
 		height = 200,
-		fontsize = Configuration:GetFont(2).size,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
 		text = "",
 		parent = window
 	}
@@ -514,7 +520,8 @@ local function InitializeControls(window)
 		right = 5,
 		y = 400,
 		height = 200,
-		fontsize = Configuration:GetFont(2).size,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
 		text = "",
 		parent = window
 	}

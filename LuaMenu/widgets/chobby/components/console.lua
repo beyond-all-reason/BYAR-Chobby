@@ -43,7 +43,8 @@ function Console:init(channelName, sendMessageListener, noHistoryLoad, onResizeF
 		lineSpacing = 2,
 		bottom = 0,
 		text = "",
-		fontsize = Configuration.chatFontSize,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(Configuration.chatFontSize, "console_" .. Configuration.chatFontSize, {font = "LuaMenu/widgets/chili/skins/evolved/fonts/n019003l.pfb", shadow = true}, true),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(Configuration.chatFontSize, "console_" .. Configuration.chatFontSize, {font = "LuaMenu/widgets/chili/skins/evolved/fonts/n019003l.pfb", shadow = true}, true),
 		parent = self.spHistory,
 		selectable = true,
 		subTooltips = true,
@@ -70,26 +71,17 @@ function Console:init(channelName, sendMessageListener, noHistoryLoad, onResizeF
 		height = 25,
 		right = 2,
 		text = "",
-		fontsize = Configuration.chatFontSize,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(Configuration.chatFontSize, "console_" .. Configuration.chatFontSize, {font = "LuaMenu/widgets/chili/skins/evolved/fonts/n019003l.pfb", shadow = true}, true),
+		objectOverrideHintFont = Configuration:GetHintFont(Configuration.chatFontSize, "console_" .. Configuration.chatFontSize, {font = "LuaMenu/widgets/chili/skins/evolved/fonts/n019003l.pfb", shadow = true}, true),
 		--hint = i18n("type_here_to_chat"),
 	}
 
 	local function onConfigurationChange(listener, key, value)
 		if key == "chatFontSize" then
-			local oldFont = self.ebInputText.font
-			-- Relevant settings depend on skin
-			local fontSettings = {
-				font         = oldFont.font,
-				color        = oldFont.color,
-				outlineColor = oldFont.outlineColor,
-				outline      = oldFont.outline,
-				shadow       = oldFont.shadow,
-				size         = value,
-			}
-			self.ebInputText.font = Font:New(fontSettings)
+			self.ebInputText.font = WG.Chobby.Configuration:GetFont(value, "console_" .. value, {font = "LuaMenu/widgets/chili/skins/evolved/fonts/n019003l.pfb", shadow = true}, true)
 			self.ebInputText:UpdateLayout()
 
-			self.tbHistory.font = Font:New(fontSettings)
+			self.tbHistory.font = WG.Chobby.Configuration:GetFont(value, "console_" .. value, {font = "LuaMenu/widgets/chili/skins/evolved/fonts/n019003l.pfb", shadow = true}, true)
 			self.tbHistory:UpdateLayout()
 		end
 	end

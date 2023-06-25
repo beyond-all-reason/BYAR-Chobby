@@ -76,7 +76,7 @@ local function ProcessListOption(data, index)
 		valign = "center",
 		align = "left",
 		caption = data.name,
-		font = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		tooltip = data.desc,
 	}
 
@@ -104,8 +104,7 @@ local function ProcessListOption(data, index)
 		valign = "center",
 		align = "left",
 		items = items,
-		font = WG.Chobby.Configuration:GetFont(2),
-		itemFontSize = WG.Chobby.Configuration:GetFont(2).size,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		selectByName = true,
 		selected = defaultItem,
 		OnSelectName = {
@@ -141,7 +140,7 @@ local function ProcessBoolOption(data, index)
 		valign = "center",
 		align = "left",
 		caption = data.name,
-		font = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		tooltip = data.desc,
 	}
 
@@ -165,7 +164,7 @@ local function ProcessBoolOption(data, index)
 		boxsize = 25,
 		caption = "",--data.name,
 		checked = checked,
-		font = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		tooltip = data.desc,
 
 		OnChange = {
@@ -202,7 +201,7 @@ local function ProcessNumberOption(data, index)
 		valign = "center",
 		align = "left",
 		caption = data.name,
-		font = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		tooltip = data.desc,
 	}
 
@@ -215,8 +214,9 @@ local function ProcessNumberOption(data, index)
 		height = 30,
 		text   = oldText,
 		useIME = false,
-		fontSize = WG.Chobby.Configuration:GetFont(2).size,
-    tooltip = data.desc,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetHintFont(2),
+		tooltip = data.desc,
 		OnFocusUpdate = {
 			function (obj)
 				if obj.focused then
@@ -267,7 +267,7 @@ local function ProcessStringOption(data, index)
 		valign = "center",
 		align = "left",
 		caption = data.name,
-		font = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		tooltip = data.desc,
 	}
 
@@ -280,7 +280,8 @@ local function ProcessStringOption(data, index)
 		height = 30,
 		text   = oldText,
 		useIME = false,
-		fontSize = WG.Chobby.Configuration:GetFont(2).size,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetHintFont(2),
 		OnFocusUpdate = {
 			function (obj)
 				if obj.focused then
@@ -362,7 +363,7 @@ local function CreateModoptionWindow()
 		local fontSize = 2
 		local tooltip = data.desc
 		local origCaption = caption
-		caption = StringUtilities.GetTruncatedStringWithDotDot(caption, Font:New(WG.Chobby.Configuration:GetFont(fontSize)), tabWidth)
+		caption = StringUtilities.GetTruncatedStringWithDotDot(caption, WG.Chobby.Configuration:GetFont(fontSize), tabWidth)
 		if origCaption ~= caption then
 			tooltip = origCaption
 		end
@@ -370,7 +371,7 @@ local function CreateModoptionWindow()
 			name = key,
 			caption = caption,
 			tooltip = tooltip,
-			font = WG.Chobby.Configuration:GetFont(fontSize),
+			objectOverrideFont = WG.Chobby.Configuration:GetFont(fontSize),
 			children = PopulateTab(data.options)
 		}
 	end
@@ -434,7 +435,7 @@ local function CreateModoptionWindow()
 		bottom = 1,
 		height = 70,
 		caption = i18n("reset"),
-		font = WG.Chobby.Configuration:GetFont(3),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		parent = modoptionsSelectionWindow,
 		classname = "option_button",
 		OnClick = {
@@ -450,7 +451,7 @@ local function CreateModoptionWindow()
 		bottom = 1,
 		height = 70,
 		caption = i18n("apply"),
-		font = WG.Chobby.Configuration:GetFont(3),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		parent = modoptionsSelectionWindow,
 		classname = "action_button",
 		OnClick = {
@@ -466,7 +467,7 @@ local function CreateModoptionWindow()
 		bottom = 1,
 		height = 70,
 		caption = i18n("cancel"),
-		font = WG.Chobby.Configuration:GetFont(3),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		parent = modoptionsSelectionWindow,
 		classname = "negative_button",
 		OnClick = {
@@ -495,7 +496,8 @@ local function InitializeModoptionsDisplay()
 		right = 1,
 		y = 1,
 		autoresize = true,
-		font = WG.Chobby.Configuration:GetFont(1),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(1),
 		text = "",
 		parent = mainScrollPanel,
 	}

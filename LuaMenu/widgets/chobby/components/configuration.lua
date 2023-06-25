@@ -26,8 +26,8 @@ function Configuration:init()
 	self.serverPort =  WG.Server.port
 
 	self.chatFontSize = 18
-
-	self.font = {
+	self.fontName = "fonts/Poppins-Regular.otf"
+	self.fontRaw = {
 		[0] = {font = "fonts/Poppins-Medium.otf", size = 17, outline = false, shadow = true},
 		[1] = {size = 15, outline = false, shadow = false},
 		[2] = {size = 17, outline = false, shadow = true},
@@ -37,6 +37,21 @@ function Configuration:init()
 		[6] = {size = 28, outline = true, shadow = false},
 		[7] = {size = 28, outline = false, shadow = true},
 	}
+	-- copy of skin Armada Blue
+	self.fontRaw[8] = {font = "fonts/n019003l.pfb", size = self.fontRaw[1].size, shadow = true, outlineColor = {0.05,0.05,0.05,0.9},}
+	self.fontRaw[9] = {font = "fonts/n019003l.pfb", size = self.fontRaw[2].size, shadow = true, outlineColor = {0.05,0.05,0.05,0.9},}
+
+	self.fontSpecial = {}
+	self.font = {}
+	for i = 0, #self.fontRaw do
+		self.font[i] = Font:New {
+			size         = self.fontRaw[i].size,
+			font         = self.fontRaw[i].font or self.fontName,
+			outline      = self.fontRaw[i].outline,
+			shadow       = self.fontRaw[i].shadow,
+			outlineColor = self.fontRaw[i].outlineColor or {0.05,0.05,0.05,0.7},
+		}
+	end
 
 	-- self.uiScale, WG.uiScale, and self.uiScalesForScreenSizes will be overridden in Configuration:SetConfigData;
 	-- We're setting default values here in case something tries to access it before we get there.
@@ -776,16 +791,42 @@ function Configuration:GetTick()
 	return self:GetSuccessColor() .. "O"
 end
 
-function Configuration:GetFont(sizeScale, fontName)
-	if fontName == nil then fontName = 'fonts/Poppins-Regular.otf' end
-	return {
-		size = self.font[sizeScale].size,
-		outline = self.font[sizeScale].outline,
-		shadow = self.font[sizeScale].shadow,
-		font = fontName,
-		-- color        = {1,1,1,1},
-		outlineColor = {0.05,0.05,0.05,0.7},
-	}
+function Configuration:GetFont(sizeScale, specialName, specialData, rawSize)
+	if not specialName and not rawSize then
+		return self.font[sizeScale]
+	end
+	local size = (rawSize and sizeScale) or self.fontRaw[sizeScale].size
+	if not self.fontSpecial[size] then
+		self.fontSpecial[size] = {}
+	end
+	if not self.fontSpecial[size][specialName] then
+		specialData = specialData or {}
+		specialData.font = specialData.font or self.fontName
+		specialData.size = size
+		
+		specialData.color        = specialData.color or {1,1,1,1}
+		specialData.outlineColor = specialData.outlineColor or {0.05,0.05,0.05,0.9}
+		specialData.outline      = specialData.outline or false
+		specialData.shadow       = specialData.shadow or false
+		self.fontSpecial[size][specialName] = Font:New(specialData)
+	end
+	return self.fontSpecial[size][specialName]
+end
+
+function Configuration:GetHintFont(sizeScale, specialName, specialData, rawSize)
+	specialName = (specialName or "") .. "_hint_" .. sizeScale
+	specialData = specialData or {}
+	specialData.color = {1,1,1,0.48}
+	return self:GetFont(sizeScale, specialName, specialData, rawSize)
+end
+
+function Configuration:GetButtonFont(sizeScale, specialName, specialData, rawSize)
+	specialName = (specialName or "") .. "_button_" .. sizeScale
+	specialData = specialData or {}
+	specialData.outline = true
+	specialData.outlineWidth = 3
+	specialData.outlineHeight = 3
+	return self:GetFont(sizeScale, specialName, specialData, rawSize)
 end
 
 function Configuration:AllowNotification(playerName, playerList)

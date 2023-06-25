@@ -37,9 +37,6 @@ local TEXT_OFFSET = 6
 
 local settingsWindowHandler
 
-local settingsFont1
-local settingsFont2
-local settingsFont3
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 -- Utilities
@@ -274,8 +271,7 @@ local function GetValueEntryBox(parent, name, position, currentValue)
 		align = "right",
 		height = 35,
 		caption = name .. ":",
-		objectOverrideFont = settingsFont3,
-		--font = Configuration:GetFont(3),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		parent = parent,
 	}
 
@@ -297,8 +293,8 @@ local function GetValueEntryBox(parent, name, position, currentValue)
 		y = position,
 		height = 35,
 		text = tostring(currentValue),
-		objectOverrideFont = settingsFont3,
-		--font = Configuration:GetFont(3),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(3),
 		useIME = false,
 		parent = parent,
 		OnFocusUpdate = {
@@ -339,8 +335,7 @@ local function ShowWindowGeoConfig(name, modeNum, modeName, retreatPadding)
 		right = 15,
 		y = 15,
 		height = 35,
-		objectOverrideFont = settingsFont3,
-		--font = Configuration:GetFont(3),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		caption = i18n("set_window_position"),
 		parent = manualWindow,
 	}
@@ -403,7 +398,7 @@ local function ShowWindowGeoConfig(name, modeNum, modeName, retreatPadding)
 		bottom = 1,
 		height = 70,
 		caption = i18n("apply"),
-		objectOverrideFont = settingsFont3,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		classname = "action_button",
 		OnClick = {
 			function()
@@ -418,7 +413,7 @@ local function ShowWindowGeoConfig(name, modeNum, modeName, retreatPadding)
 		bottom = 1,
 		height = 70,
 		caption = i18n("cancel"),
-		objectOverrideFont = settingsFont3,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		classname = "negative_button",
 		OnClick = {
 			function()
@@ -452,7 +447,7 @@ local function ShowManualFullscreenEntryWindow(name)
 		right = 15,
 		y = 15,
 		height = 35,
-		objectOverrideFont = settingsFont3,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		caption = i18n("set_resolution"),
 		parent = manualWindow,
 	}
@@ -509,7 +504,7 @@ local function ShowManualFullscreenEntryWindow(name)
 		bottom = 1,
 		height = 70,
 		caption = i18n("apply"),
-		objectOverrideFont = settingsFont3,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		classname = "action_button",
 		OnClick = {
 			function()
@@ -524,7 +519,7 @@ local function ShowManualFullscreenEntryWindow(name)
 		bottom = 1,
 		height = 70,
 		caption = i18n("cancel"),
-		objectOverrideFont = settingsFont3,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		classname = "negative_button",
 		OnClick = {
 			function()
@@ -560,8 +555,7 @@ local function AddCheckboxSetting(offset, caption, key, default, clickFunc, tool
 		caption = caption,
 		checked = checked,
 		tooltip = tooltip,
-		--font = Configuration:GetFont(2),
-		objectOverrideFont = settingsFont2,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		OnChange = {function (obj, newState)
 			Configuration:SetConfigValue(key, newState)
 			if clickFunc then
@@ -584,8 +578,7 @@ local function AddNumberSetting(offset, caption, desc, key, default, minVal, max
 		valign = "top",
 		align = "left",
 		caption = caption,
-		--font = Configuration:GetFont(2),
-		objectOverrideFont = settingsFont2,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		tooltip = desc,
 	}
 
@@ -611,8 +604,8 @@ local function AddNumberSetting(offset, caption, desc, key, default, minVal, max
 		width = COMBO_WIDTH,
 		height = 30,
 		text = ToPercent(default*100),
-		--font = Configuration:GetFont(2),
-		objectOverrideFont = settingsFont2,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
 		useIME = false,
 		OnFocusUpdate = {
 			function (obj)
@@ -644,7 +637,7 @@ local function GetLobbyTabControls()
 		height = 40,
 		valign = "top",
 		align = "left",
-		objectOverrideFont = settingsFont2,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		caption = "Split Panel Mode",
 	}
 	children[#children + 1] = ComboBox:New {
@@ -654,8 +647,7 @@ local function GetLobbyTabControls()
 		right = 18,
 		height = 30,
 		items = {"Autodetect", "Always Two", "Always One"},
-		objectOverrideFont = settingsFont2,
-		itemFontSize = Configuration:GetFont(2).size,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		selected = Configuration.panel_layout or 3,
 		OnSelect = {
 			function (obj)
@@ -678,8 +670,7 @@ local function GetLobbyTabControls()
 		height = 40,
 		valign = "top",
 		align = "left",
-		objectOverrideFont = settingsFont2,
-		--font = Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		caption = "Chat Font Size",
 	}
 	children[#children + 1] = Trackbar:New {
@@ -710,8 +701,7 @@ local function GetLobbyTabControls()
 		height = 40,
 		valign = "top",
 		align = "left",
-		objectOverrideFont = settingsFont2,
-		--font = Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		caption = "Menu Music Volume",
 	}
 	children[#children + 1] = Trackbar:New {
@@ -742,8 +732,7 @@ local function GetLobbyTabControls()
 		height = 40,
 		valign = "top",
 		align = "left",
-		objectOverrideFont = settingsFont2,
-		--font = Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		caption = "Notification Volume",
 	}
 	children[#children + 1] = Trackbar:New {
@@ -783,8 +772,7 @@ local function GetLobbyTabControls()
 		height = 40,
 		valign = "top",
 		align = "left",
-		objectOverrideFont = settingsFont2,
-		--font = Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		caption = "Background Brightness",
 	}
 	children[#children + 1] = Trackbar:New {
@@ -815,8 +803,7 @@ local function GetLobbyTabControls()
 		height = 40,
 		valign = "top",
 		align = "left",
-		objectOverrideFont = settingsFont2,
-		--font = Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		caption = "Game Overlay Opacity",
 	}
 	children[#children + 1] = Trackbar:New {
@@ -847,8 +834,7 @@ local function GetLobbyTabControls()
 		height = 40,
 		valign = "top",
 		align = "left",
-		objectOverrideFont = settingsFont2,
-		--font = Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		caption = "User Interface Scale",
 	}
 	local uiScaleTrackbar = Trackbar:New {
@@ -896,7 +882,7 @@ local function GetLobbyTabControls()
 		height = 40,
 		valign = "top",
 		align = "left",
-		objectOverrideFont = settingsFont2,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		caption = i18n("useLastGameSpectatorState"),
 	}
 	children[#children + 1] = ComboBox:New {
@@ -906,8 +892,7 @@ local function GetLobbyTabControls()
 		right = 18,
 		height = 30,
 		items = {"Remember Last", "Always Spectator", "Always Player"},
-		objectOverrideFont = settingsFont2,
-		itemFontSize = Configuration:GetFont(2).size,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		selected = Configuration.useLastGameSpectatorState or 1,
 		OnSelect = {
 			function (obj)
@@ -933,7 +918,7 @@ local function GetLobbyTabControls()
 		height = 40,
 		valign = "top",
 		align = "left",
-		objectOverrideFont = settingsFont2,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		caption = i18n("showSkill"),
 	}
 	local showSkillOptions = {"No", "Yes", "Detailed"}
@@ -951,8 +936,7 @@ local function GetLobbyTabControls()
 		right = 18,
 		height = 30,
 		items = {"No", "Yes", "Detailed"},
-		objectOverrideFont = settingsFont2,
-		itemFontSize = Configuration:GetFont(2).size,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		selected = Configuration.showSkillOpt or 1,
 		OnSelect = {
 			function (obj)
@@ -982,8 +966,7 @@ local function GetLobbyTabControls()
 		caption = i18n("randomSkirmishSetup"),
 		checked = Configuration.randomSkirmishSetup or false,
 		tooltip = i18n("randomSkirmishSetup_tooltip"),
-		objectOverrideFont = settingsFont2,
-		--font = Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		OnChange = {function (obj, newState)
 			Configuration:SetConfigValue("randomSkirmishSetup", newState)
 		end},
@@ -1000,8 +983,7 @@ local function GetLobbyTabControls()
 		boxsize = 20,
 		caption = i18n("autoLogin"),
 		checked = Configuration.autoLogin or false,
-		objectOverrideFont = settingsFont2,
-		--font = Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		OnChange = {function (obj, newState)
 			freezeSettings = true
 			Configuration:SetConfigValue("autoLogin", newState)
@@ -1018,7 +1000,7 @@ local function GetLobbyTabControls()
 		height = 40,
 		valign = "top",
 		align = "left",
-		objectOverrideFont = settingsFont2,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		caption = "Error log uploading",
 		tooltip = "Prompt will ask you each time an error is detected if you want to upload the infolog.",
 	}
@@ -1038,8 +1020,7 @@ local function GetLobbyTabControls()
 		right = 18,
 		height = 30,
 		items = uploadLogPromptItems,
-		objectOverrideFont = settingsFont2,
-		itemFontSize = Configuration:GetFont(2).size,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		selected = selectedUploadLogPrompt or 1,
 		tooltip = "Prompt will ask you each time an error is detected if you want to upload the infolog.",
 		OnSelect = {
@@ -1094,8 +1075,7 @@ local function GetLobbyTabControls()
 		height = 40,
 		valign = "top",
 		align = "left",
-		objectOverrideFont = settingsFont2,
-		--font = Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		caption = "Choose Server:",
 		tooltip = "Old Server is server3.beyondallreason.info, new one is server4.beyondallreason.info. Changing this will log you out of current server, click Login in top right to reconnect to new one, Currently we are on : server4.beyondallreason.info",
 	}
@@ -1114,9 +1094,7 @@ local function GetLobbyTabControls()
 		height = 30,
 		right = 18,
 		items = barservers,
-		objectOverrideFont = settingsFont2,
-		--font = Configuration:GetFont(2),
-		itemFontSize = Configuration:GetFont(2).size,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		selected = Configuration:GetServerAddress(),
 		tooltip = "Old Server is server3.beyondallreason.info, new is server4.beyondallreason.info. Changing this will log you out of current server, click Login in top right to reconnect to new one. Currently we are on: server4.beyondallreason.info",
 		OnSelect = {
@@ -1154,8 +1132,7 @@ local function GetLobbyTabControls()
 		height = 40,
 		valign = "top",
 		align = "left",
-		objectOverrideFont = settingsFont2,
-		--font = Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		caption = "Clear Channel History",
 	}
 	children[#children + 1] = Button:New {
@@ -1166,8 +1143,7 @@ local function GetLobbyTabControls()
 		caption = "Apply",
 		classname = "negative_button",
 		tooltip = "Clears chat history displayed in the lobby, does not affect the chat history files saved to your computer.",
-		objectOverrideFont = settingsFont2,
-		--font = Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		OnClick = {
 			function (obj)
 				WG.Chobby.interfaceRoot.GetChatWindow():ClearHistory()
@@ -1184,8 +1160,7 @@ local function GetLobbyTabControls()
 		height = 40,
 		valign = "top",
 		align = "left",
-		objectOverrideFont = settingsFont2,
-		--font = Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		caption = "Delete Path Cache",
 	}
 	children[#children + 1] = Button:New {
@@ -1196,8 +1171,7 @@ local function GetLobbyTabControls()
 		caption = "Apply",
 		classname = "negative_button",
 		tooltip = "Deletes path cache. May solve desync.",
-		objectOverrideFont = settingsFont2,
-		--font = Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		OnClick = {
 			function (obj)
 				if WG.CacheHandler then
@@ -1248,8 +1222,8 @@ local function GetVoidTabControls()
 		height = 40,
 		valign = "top",
 		align = "left",
-		objectOverrideFont = settingsFont3,
-		--fontsize = Configuration:GetFont(3).size,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(3),
 		text = "Warning: These settings are experimental and not officially supported, proceed at your own risk.",
 	}
 	offset = offset + 65
@@ -1303,8 +1277,7 @@ local function GetVoidTabControls()
 		height = 40,
 		valign = "top",
 		align = "left",
-		objectOverrideFont = settingsFont2,
-		--font = Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		caption = "Disable Lobby",
 	}
 	children[#children + 1] = Button:New {
@@ -1316,8 +1289,7 @@ local function GetVoidTabControls()
 		caption = "Disable",
 		classname = "negative_button",
 		tooltip = "Disables the entire lobby and menu.",
-		objectOverrideFont = settingsFont2,
-		--font = Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		OnClick = {
 			function (obj)
 				WG.Chobby.ConfirmationPopup(DisableAllWidgets, "This will break everything. Are you sure?", nil, 315, 170, i18n("yes"), i18n("cancel"))
@@ -1334,8 +1306,7 @@ local function GetVoidTabControls()
 		height = 40,
 		valign = "top",
 		align = "left",
-		objectOverrideFont = settingsFont2,
-		--font = Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		caption = "Server Address",
 	}
 	children[#children + 1] = EditBox:New {
@@ -1345,8 +1316,8 @@ local function GetVoidTabControls()
 		height = 30,
 		right = 18,
 		text = Configuration:GetServerAddress(),
-		objectOverrideFont = settingsFont2,
-		--font = Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
 		useIME = false,
 		tooltip = "Requires a lobby restart for changes to take effect. Old Server is road-flag.bnr.la, new will be server3.beyondallreason.info. Temporarily we are on server3.beyondallreason.info",
 		OnFocusUpdate = {
@@ -1368,8 +1339,7 @@ local function GetVoidTabControls()
 		height = 40,
 		valign = "top",
 		align = "left",
-		objectOverrideFont = settingsFont2,
-		--font = Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		caption = "Server Port",
 	}
 	children[#children + 1] = EditBox:New {
@@ -1379,8 +1349,8 @@ local function GetVoidTabControls()
 		height = 30,
 		right = 18,
 		text = tostring(Configuration.serverPort),
-		objectOverrideFont = settingsFont2,
-		--font = Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
 		useIME = false,
 		OnFocusUpdate = {
 			function (obj)
@@ -1410,8 +1380,7 @@ local function GetVoidTabControls()
 		valign = "top",
 		align = "left",
 		parent = window,
-		objectOverrideFont = settingsFont2,
-		--font = Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		caption = "Singleplayer",
 	}
 
@@ -1433,9 +1402,7 @@ local function GetVoidTabControls()
 		right = 18,
 		parent = window,
 		items = Configuration.gameConfigHumanNames,
-		objectOverrideFont = settingsFont2,
-		--font = Configuration:GetFont(2),
-		itemFontSize = Configuration:GetFont(2).size,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		selected = singleplayerSelected,
 		OnSelect = {
 			function (obj)
@@ -1456,8 +1423,7 @@ local function GetVoidTabControls()
 		valign = "top",
 		align = "left",
 		parent = window,
-		objectOverrideFont = settingsFont2,
-		--font = Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		caption = "Campaign",
 	}
 
@@ -1479,9 +1445,7 @@ local function GetVoidTabControls()
 		right = 18,
 		parent = window,
 		items = Configuration.campaignConfigHumanNames,
-		objectOverrideFont = settingsFont2,
-		--font = Configuration:GetFont(2),
-		itemFontSize = Configuration:GetFont(2).size,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		selected = campaignSelected,
 		OnSelect = {
 			function (obj)
@@ -1502,8 +1466,7 @@ local function GetVoidTabControls()
 		height = 40,
 		valign = "top",
 		align = "left",
-		objectOverrideFont = settingsFont2,
-		--font = Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		caption = "Coop Connection Delay",
 		tooltip = "Hosts with poor internet may require their clients to add a delay in order to connect. This is not used by BAR",
 	}
@@ -1552,8 +1515,7 @@ local function MakePresetsControl(settingPresets, offset)
 		valign = "top",
 		align = "left",
 		parent = window,
-		objectOverrideFont = settingsFont2,
-		--font = Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		caption = "Preset:",
 	}
 
@@ -1568,8 +1530,7 @@ local function MakePresetsControl(settingPresets, offset)
 			width = 75,
 			height = 30,
 			caption = caption,
-			objectOverrideFont = settingsFont2,
-			--font = Configuration:GetFont(2),
+			objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 			customSettings = not settings,
 			OnClick = {
 				function (obj)
@@ -1661,8 +1622,7 @@ local function ProcessScreenSizeOption(data, offset)
 		valign = "top",
 		align = "left",
 		caption = data.humanName,
-		objectOverrideFont = settingsFont2,
-		--font = Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		tooltip = data.desc,
 	}
 
@@ -1683,9 +1643,7 @@ local function ProcessScreenSizeOption(data, offset)
 		height = 30,
 		right = 18,
 		items = items,
-		objectOverrideFont = settingsFont2,
-		--font = Configuration:GetFont(2),
-		itemFontSize = Configuration:GetFont(2).size,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		selected = selectedOption,
 		OnSelect = {
 			function (obj)
@@ -1740,8 +1698,7 @@ local function ProcessSettingsOption(data, offset, defaults, customSettingsSwitc
 		valign = "top",
 		align = "left",
 		caption = data.humanName,
-		objectOverrideFont = settingsFont2,
-		--font = Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		tooltip = data.desc,
 	}
 
@@ -1767,9 +1724,7 @@ local function ProcessSettingsOption(data, offset, defaults, customSettingsSwitc
 		height = 30,
 		right = 18,
 		items = items,
-		objectOverrideFont = settingsFont2,
-		--font = Configuration:GetFont(2),
-		itemFontSize = Configuration:GetFont(2).size,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		selected = defaultItem,
 		OnSelect = {
 			function (obj, num)
@@ -1803,8 +1758,7 @@ local function ProcessSettingsNumber(data, offset, defaults, customSettingsSwitc
 		valign = "top",
 		align = "left",
 		caption = data.humanName,
-		objectOverrideFont = settingsFont2,
-		--font = Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		tooltip = data.desc,
 	}
 
@@ -1836,8 +1790,8 @@ local function ProcessSettingsNumber(data, offset, defaults, customSettingsSwitc
 		height = 30,
 		right = 18,
 		text = FormatFunc(Configuration.settingsMenuValues[data.name] or defaults[data.name]),
-		objectOverrideFont = settingsFont2,
-		--font = Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
 		useIME = false,
 		OnFocusUpdate = {
 			function (obj)
@@ -1904,7 +1858,7 @@ local function MakeTab(name, children)
 	return {
 		name = name,
 		caption = name,
-		font = WG.Chobby.Configuration:GetFont(3),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		children = {contentsPanel}
 	}
 end
@@ -1913,8 +1867,6 @@ local function InitializeControls(window)
 	window.OnParent = nil
 
 	local Configuration = WG.Chobby.Configuration
-	settingsFont2 = Font:New(Configuration:GetFont(2))
-	settingsFont3 = Font:New(Configuration:GetFont(3))
 
 	local tabs = {
 		MakeTab("Lobby", GetLobbyTabControls())

@@ -5,8 +5,6 @@
 local function CreateLine(lineText, linkText, onClick)
 	local Configuration = WG.Chobby.Configuration
 
-	myFont2 = Font:New(Configuration:GetFont(2))
-
 	local lineHolder = Control:New {
 		x = 0,
 		y = 0,
@@ -24,7 +22,7 @@ local function CreateLine(lineText, linkText, onClick)
 			width = 235,
 			caption = linkText,
 			classname = "option_button",
-			objectOverrideFont = myFont2,
+			objectOverrideFont = Configuration:GetButtonFont(2),
 			OnClick = {
 				onClick
 			},
@@ -39,7 +37,8 @@ local function CreateLine(lineText, linkText, onClick)
 		right = 0,
 		height = 20,
 		valign = 'center',
-		objectOverrideFont = myFont2,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
 		text = lineText,
 		parent = lineHolder,
 	}
@@ -197,7 +196,7 @@ local communityControl = Control:New {
 				width = 180,
 				height = 30,
 				parent = obj,
-				font = WG.Chobby.Configuration:GetFont(3),
+				objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 				caption = "Community and development links",
 			}
 
@@ -206,7 +205,7 @@ local communityControl = Control:New {
 				y = 7,
 				width = 80,
 				height = 45,
-				font = WG.Chobby.Configuration:GetFont(3),
+				objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 				caption = i18n("close"),
 				classname = "negative_button",
 				OnClick = {

@@ -40,10 +40,6 @@ local mydifficulty = {name = "Normal", playerhandicap = 100, enemyhandicap = 100
 local myscores = {time = 0, resources = 0}
 local myside = nil
 
-local myFont1
-local myFont2
-local myFont3
-
 local scoreData = {} -- a table, with keys being scenario uniqueIDs, e.g.:
 --[[
 { supcrossingvsbarbs001 = {
@@ -228,8 +224,7 @@ local function CreateScenarioPanel(shortname, sPanel)
 		width = "50%",
 		height = "5%",
 		parent = sPanel,
-		font = Configuration:GetFont(3),
-		--objectOverrideFont = Configuration:GetOverrideFont(3),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		caption = scen.title,
 	}
 
@@ -267,7 +262,8 @@ local function CreateScenarioPanel(shortname, sPanel)
 		width = "100%",
 		height = "100%",
 		valign = 'top',
-		fontsize = Configuration:GetFont(2).size,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
 		text = summarytext,
 		parent = summarySP,
 		padding = {10,10,10,10},
@@ -279,7 +275,7 @@ local function CreateScenarioPanel(shortname, sPanel)
 		width = "50%",
 		height = "5%",
 		parent = sPanel,
-		font = Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		caption = "Victory",
 	}
 	lblvictoryText.font.color = {0.7, 0.7, 0.7, 1.0}
@@ -290,7 +286,7 @@ local function CreateScenarioPanel(shortname, sPanel)
 		width = "50%",
 		height = "5%",
 		parent = sPanel,
-		font = Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		caption = scen.victorycondition,
 	}
 
@@ -300,7 +296,7 @@ local function CreateScenarioPanel(shortname, sPanel)
 		width = "50%",
 		height = "5%",
 		parent = sPanel,
-		font = Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		caption = "Loss" ,
 	}
 	lbllossText.font.color = {0.7, 0.7, 0.7, 1.0}
@@ -311,7 +307,7 @@ local function CreateScenarioPanel(shortname, sPanel)
 		width = "50%",
 		height = "5%",
 		parent = sPanel,
-		font = Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		caption = scen.losscondition,
 	}
 
@@ -321,7 +317,7 @@ local function CreateScenarioPanel(shortname, sPanel)
 		width = "50%",
 		height = "5%",
 		parent = sPanel,
-		font = Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		caption = "Difficulty",
 	}
 	lbldifficultyText.font.color = {0.7, 0.7, 0.7, 1.0}
@@ -333,7 +329,7 @@ local function CreateScenarioPanel(shortname, sPanel)
 		width = "50%",
 		height = "5%",
 		parent = sPanel,
-		font = Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		caption = tostring(scen.difficulty) .. "/10",
 	}
 
@@ -343,7 +339,7 @@ local function CreateScenarioPanel(shortname, sPanel)
 		width = "50%",
 		height = "5%",
 		parent = sPanel,
-		font = Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		caption = "Est. Time",
 	}
 	lblpartimeText.font.color = {0.7, 0.7, 0.7, 1.0}
@@ -355,7 +351,7 @@ local function CreateScenarioPanel(shortname, sPanel)
 		width = "50%",
 		height = "5%",
 		parent = sPanel,
-		font = Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		caption = tostring(math.ceil(scen.partime/60)) .. " minutes",
 	}
 
@@ -365,7 +361,7 @@ local function CreateScenarioPanel(shortname, sPanel)
 		width = "50%",
 		height = "5%",
 		parent = sPanel,
-		font = Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		caption = "Est. Resources" ,
 	}
 	lblparresourcesText.font.color = {0.7, 0.7, 0.7, 1.0}
@@ -377,7 +373,7 @@ local function CreateScenarioPanel(shortname, sPanel)
 		width = "50%",
 		height = "5%",
 		parent = sPanel,
-		font = Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		caption =  tostring(math.ceil(scen.parresources/1000)) .. "K metal",
 	}
 
@@ -428,7 +424,7 @@ local function CreateScenarioPanel(shortname, sPanel)
 		width = "73%",
 		height = "5%",
 		parent = flavorimage,
-		font = Configuration:GetFont(0),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(0),
 		caption = scen.imageflavor,
 	}
 
@@ -450,7 +446,8 @@ local function CreateScenarioPanel(shortname, sPanel)
 		width = "100%",
 		height = "100%",
 		valign = 'top',
-		fontsize = Configuration:GetFont(2).size,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
 		text = scen.briefing,
 		parent = briefingtextSP,
 
@@ -464,7 +461,7 @@ local function CreateScenarioPanel(shortname, sPanel)
 		width = "20%",
 		height = "5%",
 		parent = sPanel,
-		font = Configuration:GetFont(3),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		caption = "Personal Records",
 	}
 
@@ -475,7 +472,7 @@ local function CreateScenarioPanel(shortname, sPanel)
 		width = "20%",
 		height = "5%",
 		parent = sPanel,
-		font = Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		caption = "Difficulty: "..tostring(mydifficulty.name),
 	}
 
@@ -485,7 +482,7 @@ local function CreateScenarioPanel(shortname, sPanel)
 		width = "25%",
 		height = "5%",
 		parent = sPanel,
-		font = Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		caption = "My Best Time: ",
 	}
 	lblmytime.font.color = {0.7, 0.7, 0.7, 1.0}
@@ -496,7 +493,7 @@ local function CreateScenarioPanel(shortname, sPanel)
 		width = "25%",
 		height = "5%",
 		parent = sPanel,
-		font = Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		caption = SecondsToTimeString(myscores.time),
 	}
 
@@ -506,7 +503,7 @@ local function CreateScenarioPanel(shortname, sPanel)
 		width = "25%",
 		height = "5%",
 		parent = sPanel,
-		font = Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		caption = "My Resources ",
 	}
 	lblmyresources.font.color = {0.7, 0.7, 0.7, 1.0}
@@ -517,7 +514,7 @@ local function CreateScenarioPanel(shortname, sPanel)
 		width = "25%",
 		height = "5%",
 		parent = sPanel,
-		font = Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		caption =  string.format( "%.2fK metal",myscores.resources/1000.0),
 	}
 
@@ -528,7 +525,7 @@ local function CreateScenarioPanel(shortname, sPanel)
 			--width = "25%",
 			--height = "5%",
 			parent = sPanel,
-			font = Configuration:GetFont(2),
+			objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 			caption =  "Author: ".. scen.author,
 		}
 
@@ -543,7 +540,7 @@ local function CreateScenarioPanel(shortname, sPanel)
 			height = "4%",
 			caption = "Submit Rating",
 			classname = "option_button",
-			font = Configuration:GetFont(2),
+			objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 			tooltip = "Submit a rating to this scenario",
 			OnClick = {
 				function(obj)
@@ -573,7 +570,7 @@ local function CreateScenarioPanel(shortname, sPanel)
 		width = "100",
 		height = "4%",
 		parent = sPanel,
-		font = Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		caption = "Faction",
 	}
 	sidelabel.font.color = {0.7, 0.7, 0.7, 1.0}
@@ -586,7 +583,7 @@ local function CreateScenarioPanel(shortname, sPanel)
 		height = "4%",
 		caption = myside,
 		classname = "option_button",
-		font = Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		tooltip = "Start the scenario",
 		OnClick = {
 			function(obj)
@@ -616,9 +613,8 @@ local function CreateScenarioPanel(shortname, sPanel)
 		selectByName = true,
 		--captionHorAlign = -32,
 		text = "HasText",
-		font = Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		items = scen.allowedsides or {"Armada"}, --{"Coop", "Team", "1v1", "FFA", "Custom"},
-		itemFontSize = Configuration:GetFont(2).size,
 		selected = 1,
 		OnSelectName = {
 			function (obj, selectedName)
@@ -636,7 +632,7 @@ local function CreateScenarioPanel(shortname, sPanel)
 		width = "100",
 		height = "4%",
 		parent = sPanel,
-		font = Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		caption = "Difficulty",
 	}
 	difflabel.font.color = {0.7, 0.7, 0.7, 1.0}
@@ -660,9 +656,8 @@ local function CreateScenarioPanel(shortname, sPanel)
 		selectByName = true,
 		--captionHorAlign = -32,
 		text = "HasText",
-		font = Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		items = difficulties, --{"Coop", "Team", "1v1", "FFA", "Custom"},
-		itemFontSize = Configuration:GetFont(2).size,
 		selected = defaultdifficultyindex,
 		OnSelectName = {
 			function (obj, selectedName)
@@ -711,7 +706,7 @@ local function CreateScenarioPanel(shortname, sPanel)
 		height = "7%",
 		caption = "Start Scenario",
 		classname = "ready_button",
-		font = Configuration:GetFont(3),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		tooltip = "Start the scenario",
 		OnClick = {
 			function()
@@ -784,8 +779,8 @@ local function MakeScenarioScrollPanelChildren()
 			height = 100,
 			caption = "",
 			classname = "battle_default_button",
-			objectOverrideFont = myFont3,
-			--font = Configuration:GetFont(2),
+			objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+			--objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 			--tooltip = "",
 			OnClick = {
 				function()
@@ -804,7 +799,8 @@ local function MakeScenarioScrollPanelChildren()
 		if scen.error then
 			local errormessage = TextBox:New{
 				parent = scenSelectorButton,
-				font = Configuration:GetFont(1),
+				objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
+				objectOverrideHintFont = WG.Chobby.Configuration:GetFont(1),
 				x = 0,
 				y = 0,
 				width = "100%",
@@ -832,8 +828,7 @@ local function MakeScenarioScrollPanelChildren()
 				width = 300,
 				--height = 30,
 				parent = scenSelectorButton,
-				objectOverrideFont = myFont2,
-				--font = Configuration:GetFont(3),
+				objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 				caption = string.format( "%03d. %s",i+reloadcount, scen.title ),
 			}
 
@@ -844,8 +839,7 @@ local function MakeScenarioScrollPanelChildren()
 				width = 100,
 				--height = 30,
 				parent = scenSelectorButton,
-				objectOverrideFont = myFont2,
-				--font = Configuration:GetFont(3),
+				objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 				caption = string.format( "Difficulty: % 2d/10",scen.difficulty ),
 			}
 
@@ -856,8 +850,7 @@ local function MakeScenarioScrollPanelChildren()
 					width = 100,
 					--height = 30,
 					parent = scenSelectorButton,
-					objectOverrideFont = myFont2,
-					--font = Configuration:GetFont(3),
+					objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 					caption = string.format( "New!"),
 				}
 			end
@@ -883,8 +876,7 @@ local function MakeScenarioScrollPanelChildren()
 					width = 500,
 					--height = 30,
 					parent = scenSelectorButton,
-					objectOverrideFont = myFont2,
-					--font = Configuration:GetFont(2),
+					objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 					caption = string.format( "Completed On: %s   Time: %s  Resources: %.2fK metal",mybestdiff, SecondsToTimeString(mybestscore.time), mybestscore.resources/1000.0 ),
 				}
 			else
@@ -894,8 +886,7 @@ local function MakeScenarioScrollPanelChildren()
 					width = 500,
 					--height = 30,
 					parent = scenSelectorButton,
-					objectOverrideFont = myFont2,
-					--font = Configuration:GetFont(2),
+					objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 					caption = "Not completed yet",
 				}
 			end
@@ -919,9 +910,6 @@ end
 
 local function InitializeControls(parentControl)
 	local Configuration = WG.Chobby.Configuration
-	myFont1 = Font:New(Configuration:GetFont(1))
-	myFont2 = Font:New(Configuration:GetFont(2))
-	myFont3 = Font:New(Configuration:GetFont(3))
 
 	DownloadRequirements()
 
@@ -931,7 +919,7 @@ local function InitializeControls(parentControl)
 		width = 180,
 		--height = 30,
 		parent = parentControl,
-		font = Configuration:GetFont(3),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		caption = "Scenario",
 	}
 
@@ -970,7 +958,7 @@ local function InitializeControls(parentControl)
 		height = 45,
 		caption = "Back",
 		classname = "negative_button",
-		font = Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		tooltip = "Back to the list of scenarios",
 		OnClick = {
 			function()
@@ -991,7 +979,7 @@ local function InitializeControls(parentControl)
 		height = 35,
 		caption = "R",
 		classname = "action_button",
-		font = Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		tooltip = "Back to the list of scenarios",
 		OnClick = {
 			function()
@@ -1022,10 +1010,8 @@ local function InitializeControls(parentControl)
 		--captionAlign  = 0, -- these dont work
 		--captionHorAlign = 10,
 		text = "HasText",
-		objectOverrideFont = myFont3,
-		--font = Configuration:GetFont(3),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		items = cbitemlist, --{"Coop", "Team", "1v1", "FFA", "Custom"},
-		itemFontSize = Configuration:GetFont(3).size,
 		selected = 1,
 		OnSelectName = {
 			function (obj, selectedName)

@@ -98,8 +98,7 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 		preserveChildrenOrder = true
 	}
 	lobbyInterfaceHolder.drawTimer = Spring.GetTimer()
-	version_font = Configuration:GetFont(1)
-	version_font.color = {0.7,0.7,0.7,1} -- Grey color
+	version_font = WG.Chobby.Configuration:GetFont(1, "version_font", {color = {0.7, 0.7, 0.7, 1}}) -- Grey color
 
 	local byarchobbyrapidTag = 'byar-chobby:test'
 	if byarchobbyrapidTag and VFS.GetNameFromRapidTag then
@@ -118,7 +117,7 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 		height = "5%",
 		right = "2.25%",
 		parent = lobbyInterfaceHolder,
-		font = version_font,
+		objectOverrideFont = version_font,
 		caption = "Game: " .. Configuration.gameConfig.ShortenNameString(Configuration:GetDefaultGameName()) .. "  Engine: " .. Configuration:GetTruncatedEngineVersion() .. "  "
 			.. 'Chobby: ' .. byarchobbyrapidTag ,
 		align = "right",
@@ -184,7 +183,7 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 		height = 18,
 		--right = "2.25%",
 		parent = lobbyInterfaceHolder,
-		font = Configuration:GetFont(1),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
 		caption = "Caching...",
 		align = "left",
 		valign = 'top',
@@ -251,7 +250,7 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 		name = "panelButtons_buttons",
 		caption = "", -- Panel Buttons
 		parent = status_panelButtons,
-		font = Configuration:GetFont(3),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		resizable = false,
 		draggable = false,
 		padding = {0, 0, 0, 0},
@@ -403,8 +402,7 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 		right = BUTTON_SIDE_SPACING,
 		height = 70,
 		caption = i18n("exit"),
-		--objectOverrideFont = myFont3,
-		font = Configuration:GetFont(3),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		parent = buttonsHolder_buttons,
 		OnClick = {MakeExitPopup},
 	}
@@ -926,7 +924,7 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 		height = 38,
 		name = "switchToMenuButton",
 		caption = "Menu",
-		font = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		parent = ingameInterfaceHolder,
 		resizable = false,
 		draggable = false,
@@ -946,7 +944,7 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 		name = "switchToGameButton",
 		caption = "Back to Game",
 		captionHorAlign = 5,
-		font = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		parent = holder_topBar,
 		resizable = false,
 		draggable = false,
@@ -970,7 +968,7 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 		height = 38,
 		name = "leaveGameButton",
 		caption = "Leave",
-		font = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		parent = holder_topBar,
 		resizable = false,
 		draggable = false,

@@ -28,7 +28,7 @@ local function InitializeControls(window)
 		width = 180,
 		height = 30,
 		parent = window,
-		font = WG.Chobby.Configuration:GetFont(4),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(4),
 		caption = "Friends",
 	}
 
@@ -39,7 +39,8 @@ local function InitializeControls(window)
 			y = 35,
 			height = 35,
 			text = "",
-			font = Configuration:GetFont(3),
+			objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+			objectOverrideHintFont = WG.Chobby.Configuration:GetFont(3),
 			useIME = false,
 			parent = window,
 			tooltip = "Name of new friend",
@@ -51,7 +52,7 @@ local function InitializeControls(window)
 			y = 35,
 			height = 35,
 			caption = "Add Friend",
-			font = Configuration:GetFont(3),
+			objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 			classname = "option_button",
 			parent = window,
 			tooltip = "Click to send a friend request",
