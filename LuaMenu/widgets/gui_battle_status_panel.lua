@@ -135,35 +135,35 @@ local function GetBattleInfoHolder(parent, battleID)
 		if smallMode then
 			minimap:SetPos(nil, nil, 30, 30)
 
-			lblTitle.font.size = WG.Chobby.Configuration:GetFont(1).size
+			lblTitle.font = WG.Chobby.Configuration:GetFont(1)
 			lblTitle:SetPos(36, 1, 150)
 
-			lblPlayerStatus.font.size = WG.Chobby.Configuration:GetFont(1).size
+			lblPlayerStatus.font = WG.Chobby.Configuration:GetFont(1)
 			lblPlayerStatus:SetPos(58, 18)
 
 			imPlayerStatus:SetPos(43, 18, 12, 12)
 
-			lblPlayers.font.size = WG.Chobby.Configuration:GetFont(1).size
+			lblPlayers.font = WG.Chobby.Configuration:GetFont(1)
 			lblPlayers:SetPos(165, 18)
 
 			playersPrefix = PLAYER_PREFIX_SMALL
 		else
 			minimap:SetPos(nil, nil, 68, 68)
 
-			lblTitle.font.size = WG.Chobby.Configuration:GetFont(2).size
+			lblTitle.font = WG.Chobby.Configuration:GetFont(2)
 			lblTitle:SetPos(76, 2, 225)
 
-			lblPlayerStatus.font.size = WG.Chobby.Configuration:GetFont(2).size
+			lblPlayerStatus.font = WG.Chobby.Configuration:GetFont(2)
 			lblPlayerStatus:SetPos(103, 26)
 
 			imPlayerStatus:SetPos(82, 26, 18, 18)
 
-			lblPlayers.font.size = WG.Chobby.Configuration:GetFont(2).size
+			lblPlayers.font = WG.Chobby.Configuration:GetFont(2)
 			lblPlayers:SetPos(80, 48)
 
 			playersPrefix = PLAYER_PREFIX_BIG
 		end
-		local text = StringUtilities.GetTruncatedStringWithDotDot(battle.title, lblTitle.font, 160)
+		local text = StringUtilities.GetTruncatedStringWithDotDot(battle.title, lblTitle.font, smallMode and 160 or 130)
 		lblTitle:SetCaption(text)
 
 		lblPlayers:SetCaption(playersPrefix .. lobby:GetBattlePlayerCount(battleID) .. "/" .. battle.maxPlayers)

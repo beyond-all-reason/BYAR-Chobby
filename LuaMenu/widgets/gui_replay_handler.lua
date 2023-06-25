@@ -135,7 +135,6 @@ local function playerWidget(playerInfo)
 			end
 		}
 	}
-	WG.Chobby.Configuration:PrintFont(userTextBox.font)
 
 	-- TODO: We could definitely add some more stuff (flag? TS value?) here.
 	return ret
