@@ -921,6 +921,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		width = width,
 		height = self.windowHeight,
 		caption = "",
+		noFont = true,
 		resizable = false,
 		draggable = false,
 		classname = windowClassname,

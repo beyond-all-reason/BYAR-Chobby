@@ -147,6 +147,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		height = 20,
 		classname = "button_small",
 		caption = "",
+		noFont = true,
 		padding = {0, 0, 0, 0},
 		parent = rightInfo,
 		--tooltip = "Choose a different map",
@@ -180,6 +181,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		maxHeight = 50,
 		classname = "button_small",
 		caption = "",
+		noFont = true,
 		padding = {0, 0, 0, 0},
 		parent = startBoxPanel,
 		tooltip = "Split start boxes left vs right",
@@ -233,6 +235,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		parent = startBoxPanel,
 		classname = "button_small",
 		caption = "",
+		noFont = true,
 		padding = {0, 0, 0, 0},
 		tooltip = "Split start boxes top vs bottom",
 		OnClick = {
@@ -285,6 +288,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		parent = startBoxPanel,
 		classname = "button_small",
 		caption = "",
+		noFont = true,
 		padding = {0, 0, 0, 0},
 		tooltip = "Split start boxes top left vs bottom right",
 		OnClick = {
@@ -337,6 +341,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		parent = startBoxPanel,
 		classname = "button_small",
 		caption = "",
+		noFont = true,
 		padding = {0, 0, 0, 0},
 		tooltip = "Split start boxes bottom left vs top right",
 		OnClick = {
@@ -390,6 +395,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		parent = startBoxPanel,
 		classname = "button_small",
 		caption = "",
+		noFont = true,
 		padding = {0, 0, 0, 0},
 		tooltip = "Split start boxes into 4 corners for 4 teams",
 		OnClick = {
@@ -445,6 +451,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		parent = startBoxPanel,
 		classname = "button_small",
 		caption = "",
+		noFont = true,
 		padding = {0, 0, 0, 0},
 		tooltip = "Split start boxes into 4 sides for 4 teams",
 		OnClick = {
@@ -500,6 +507,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		parent = startBoxPanel,
 		classname = "button_small",
 		caption = "",
+		noFont = true,
 		padding = {0, 0, 0, 0},
 		tooltip = "Add a new start box in the center",
 		OnClick = {
@@ -540,6 +548,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		parent = startBoxPanel,
 		classname = "button_small",
 		caption = "",
+		noFont = true,
 		padding = {0, 0, 0, 0},
 		tooltip = "Remove last start box",
 		OnClick = {
@@ -2146,6 +2155,7 @@ local function SetupVotePanel(votePanel, battle, battleID)
 		bottom = 0,
 		classname = "option_button",
 		caption = "",
+		objectOverrideFont = WG.Chobby.Configuration:GetButtonFont(10),
 		parent = minimapPanel,
 		padding = {1,1,1,1},
 		OnClick = {
@@ -2184,6 +2194,7 @@ local function SetupVotePanel(votePanel, battle, battleID)
 		bottom = 0,
 		width = height,
 		caption = "",
+		noFont = true,
 		classname = "positive_button",
 		tooltip = "Vote YES on the current poll",
 		OnClick = {
@@ -2220,6 +2231,7 @@ local function SetupVotePanel(votePanel, battle, battleID)
 		bottom = 0,
 		width = height,
 		caption = "",
+		noFont = true,
 		classname = "negative_button",
 		tooltip = "Vote NO on the current poll",
 		OnClick = {
@@ -2270,6 +2282,7 @@ local function SetupVotePanel(votePanel, battle, battleID)
 		parent = activePanel,
 		tooltip = "How many players have voted yes out of the required number have voted to pass",
 		color     = {1, 0, 0, 1},
+		noFont = true,
 	}
 
 	local voteProgressYes = Progressbar:New {
@@ -2282,6 +2295,7 @@ local function SetupVotePanel(votePanel, battle, battleID)
 		parent = activePanel,
 		tooltip = "How many players have voted no out of the required number have voted to fail",
 		color     = {0, 1, 0, 1},
+		noFont = true,
 	}
 
 	local voteCountLabel = Label:New {

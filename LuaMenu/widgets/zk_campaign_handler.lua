@@ -1283,7 +1283,9 @@ local function InitializeNewGameControls()
 		--OnClick = { function(self)
 		--	StartNewGame()
 		--end},
-		font = {size = 18}
+		-- font = {size = 18}
+		--objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		noFont = true,
 	}
 	--newGameCampaignScroll = ScrollPanel:New {
 	--	name = 'chobby_campaign_newGameScroll',

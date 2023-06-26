@@ -785,6 +785,7 @@ function ChatWindows:GetChannelConsole(chanName)
 		local closeChannelButton = Button:New {
 			width = 24, height = 24, y = 5, right = Configuration.userListWidth + 18,
 			caption = "x",
+			objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
 			classname = "button_small",
 			OnClick = {
 				function()
@@ -889,6 +890,7 @@ function ChatWindows:GetPrivateChatConsole(userName, switchTo)
 
 		local closeChannelButton = Button:New {
 			width = 24, height = 24, y = 5, right = 18,
+			objectOverrideFont = WG.Chobby.Configuration:GetFont(10),
 			caption = "x",
 			OnClick = {
 				function()
