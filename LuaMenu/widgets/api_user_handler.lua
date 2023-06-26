@@ -1339,6 +1339,7 @@ local function GetUserControls(userName, opts)
 			y = offsetY + 2,
 			parent = userControls.mainControl,
 			caption = handicaptxt,
+			objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
 			tooltip = "Handicap",
 		}
 	end

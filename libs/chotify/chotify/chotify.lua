@@ -68,6 +68,7 @@ function Chotify:Post(obj)
         bottom = 2,
         height = 100,
         caption = title,
+        objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
         parent = Chili.Screen0,
         draggable = false,
         resizable = false,

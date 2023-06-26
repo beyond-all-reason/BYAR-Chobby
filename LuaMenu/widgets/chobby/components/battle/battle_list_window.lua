@@ -483,6 +483,7 @@ function BattleListWindow:MakeJoinBattle(battleID, battle)
 		right = 0,
 		y = 0,
 		height = self.itemHeight,
+		noFont = true,
 		caption = "",
 		classname = "battle_default_button",
 		OnClick = {
@@ -1600,6 +1601,7 @@ function BattleListWindow:JoinBattle(battle, _, _, joinAsPlayer)
 			width = 316,
 			height = 240,
 			caption = "",
+			objectOverrideFont = WG.Chobby.Configuration:GetFont(10),
 			resizable = false,
 			draggable = false,
 			parent = WG.Chobby.lobbyInterfaceHolder,

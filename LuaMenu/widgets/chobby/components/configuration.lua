@@ -40,6 +40,7 @@ function Configuration:init()
 	-- copy of skin Armada Blue
 	self.fontRaw[8] = {font = "fonts/n019003l.pfb", size = self.fontRaw[1].size, shadow = true, outlineColor = {0.05,0.05,0.05,0.9},}
 	self.fontRaw[9] = {font = "fonts/n019003l.pfb", size = self.fontRaw[2].size, shadow = true, outlineColor = {0.05,0.05,0.05,0.9},}
+	self.fontRaw[10] = {font = "fonts/n019003l.pfb", size = 14, shadow = true, outlineColor = {0.05,0.05,0.05,0.9},}
 
 	self.fontSpecial = {}
 	self.font = {}

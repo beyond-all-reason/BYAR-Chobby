@@ -23,6 +23,7 @@ function Downloader:init(buttonsMode, tbl, timeout, updateListener, completeList
 		right = 0,
 		height = 30,
 		value = 0,
+		objectOverrideFont = WG.Chobby.Configuration:GetButtonFont(10),
 	}
 
 	self.queueLabel = Label:New {
