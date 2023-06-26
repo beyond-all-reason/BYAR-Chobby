@@ -99,9 +99,7 @@ local function AddLinkButton(scroll, name, tooltip, link, x, right, y, bottom)
 		caption = name,
 		tooltip = tooltip,
 		classname = "link_button",
-		--objectOverrideFont = WG.Chobby.Configuration:GetButtonFont(7),
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
-		--Spring.Utilities.TraceFullEcho(maxdepth, 50, 50),
 		OnClick = {
 			function ()
 				WG.BrowserHandler.OpenUrl(link)

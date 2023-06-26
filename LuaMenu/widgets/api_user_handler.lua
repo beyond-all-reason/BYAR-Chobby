@@ -1072,7 +1072,6 @@ local function GetUserControls(userName, opts)
 			}
 		}
 	end
-	Spring.Echo("GetUserControls ComboboxOptions set", userName)
 
 	if comboBoxOnly then
 		return userControls
