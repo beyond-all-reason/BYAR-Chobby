@@ -272,10 +272,10 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 			width = 170,
 			y = 180,
 			height = 35,
-			text = i18n("Email") .. ":",
+			text = i18n("email") .. ":",
 			objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 			objectOverrideHintFont = WG.Chobby.Configuration:GetFont(3),
-			useIME = false,
+   		useIME = false,
 		}
 		registerChildren[#registerChildren + 1] = self.txtEmail
 
@@ -473,7 +473,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		y = pad + formh * 2 ,
 		width =   formw * 1 ,
 		height =  formh * 1 ,
-		caption = i18n("Change username"),
+		caption = i18n("change_username"),
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
 		classname = "negative_button",
 		OnClick = {
@@ -584,7 +584,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		y = pad + formh * 7 ,
 		width =   formw * 1 ,
 		height =  formh * 1 ,
-		caption = i18n("Submit email"),
+		caption = i18n("submit_email"),
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
 		classname = "negative_button",
 		OnClick = {
@@ -600,7 +600,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		y = pad + formh * 8 ,
 		width =   formw * 1 ,
 		height =  formh * 1 ,
-		caption = i18n("Submit Verification"),
+		caption = i18n("submit_verification"),
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
 		classname = "negative_button",
 		OnClick = {
@@ -690,7 +690,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		y = pad + formh * 13 ,
 		width =   formw * 1 ,
 		height =  formh * 2 ,
-		caption = i18n("Change Password"),
+		caption = i18n("change_password"),
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
 		classname = "negative_button",
 		OnClick = {
@@ -780,7 +780,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		y = pad + formh * 20 ,
 		width =   formw * 1 ,
 		height =  formh * 1 ,
-		caption = i18n("Submit email"),
+		caption = i18n("submit_email"),
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
 		classname = "negative_button",
 		OnClick = {
@@ -796,7 +796,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		y = pad + formh * 21 ,
 		width =   formw * 1 ,
 		height =  formh * 1 ,
-		caption = i18n("Submit Verification"),
+		caption = i18n("submit_verification"),
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
 		classname = "negative_button",
 		OnClick = {
@@ -1468,7 +1468,7 @@ function LoginWindow:createAgreementWindow()
 			width = 200,
 			bottom = 100,
 			height = 35,
-			text = i18n("Email Verification Code") .. ":",
+			text = i18n("email_verification_code") .. ":",
 			objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 			objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
 			useIME = false,

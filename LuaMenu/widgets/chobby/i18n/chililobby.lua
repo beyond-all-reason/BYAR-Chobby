@@ -38,6 +38,12 @@ return {
 		authenticateSteam = "Authenticate with Steam",
 		play_offline = "Play offline",
 		keys = "Keys",
+		email = "Email",
+		email_verification_code = "Email Verification Code",
+		change_username = "Change Username",
+		change_password = "Change Password",
+		submit_email = "Submit email",
+		submit_verification = "Submit Verification",
 		-- gui_battle_status_panel
 		spectating_game_status = "Spectating",
 		playing_game_status = "Playing",
@@ -276,6 +282,8 @@ return {
 		-- friend_list_window.lua
 		friend_request = "Friend request",
 		decline = "Decline",
+		user_offline = "User is now offline",
+		user_online = "User is now online",
 
 		-- campaign handler
 		campaign = "Campaign",
