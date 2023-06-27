@@ -336,18 +336,18 @@ local function GetUserRankImageName(userName, userControl)
 	return image
 end
 
--- returns skill, skillUncertaintyColor
+-- returns skill, skillUncertaintyColorFont
 -- default to skill="  ", sigma = 0, if no skill is known for userName (skill wasn´t set yet in Interface:_OnSetScriptTags)
 -- skill format: "XX" or " X" (leading whitespace)
 -- takes skillUncertaintyColors values from configuration.lua
-local function GetUserSkill(userName, userControl)
+local function GetUserSkillFont(userName, userControl)
 	local config = WG.Chobby.Configuration
 	local skill = "  "
 	local sigma = 0
 
 	local bs = userControl.lobby:GetUserBattleStatus(userName) or {}
 	if userControl.isSingleplayer or bs.aiLib ~= nil or userControl.showSkillOpt == 1 then
-		return "  ", config.skillUncertaintyColors[sigma]
+		return "  ", WG.Chobby.Configuration:GetFont(1)
 	end
 
 	local userInfo = userControl.lobby:GetUser(userName) or {}
@@ -366,7 +366,7 @@ local function GetUserSkill(userName, userControl)
 			sigma = 0
 		end
 	end
-	return skill, config.skillUncertaintyColors[sigma]
+	return skill, WG.Chobby.Configuration:GetFont(1, "skill" .. sigma, {color = config.skillUncertaintyColors[sigma]})
 end
 
 local function GetUserStatusImages(userName, isInBattle, userControl)
@@ -398,39 +398,39 @@ local function GetUserStatusImages(userName, isInBattle, userControl)
 	return images
 end
 
-local function GetUserNameColor(userName, userControl)
+local function GetUserNameColorFont(userName, userControl)
 	local userInfo = userControl.lobby:GetUser(userName) or {}
 	if userControl.showModerator and userInfo.isAdmin then
-		return WG.Chobby.Configuration:GetModeratorColor()
+		return WG.Chobby.Configuration:GetFont(1, "Moderator", {color = WG.Chobby.Configuration:GetModeratorColor()} )
 	end
 	if userControl.showFounder and userInfo.battleID then
 		local battle = lobby:GetBattle(userInfo.battleID)
 		if battle and battle.founder == userName then
-			return WG.Chobby.Configuration:GetFounderColor()
+			return WG.Chobby.Configuration:GetFont(1, "Founder", {color = WG.Chobby.Configuration:GetFounderColor()} )
 		end
 	end
 	if userInfo.isIgnored then
-		return WG.Chobby.Configuration:GetIgnoredUserNameColor()
+		return WG.Chobby.Configuration:GetFont(1, "Ignored", {color = WG.Chobby.Configuration:GetIgnoredUserNameColor()} )
 	end
-	return WG.Chobby.Configuration:GetUserNameColor()
+	return WG.Chobby.Configuration:GetFont(1, "UserName", {color = WG.Chobby.Configuration:GetUserNameColor()} )
 end
 
--- gets status name, image and color
+-- gets status name, image and colorFont
 -- used for large user displays
-local function GetUserStatus(userName, isInBattle, userControl)
+local function GetUserStatusFont(userName, isInBattle, userControl)
 	local userInfo = userControl.lobby:GetUser(userName) or {}
 	if userInfo.isOffline then
-		return IMAGE_OFFLINE, "offline", {0.5, 0.5, 0.5, 1}
+		return IMAGE_OFFLINE, "offline", WG.Chobby.Configuration:GetFont(1, "offline", {color = {0.5, 0.5, 0.5, 1}} )
 	elseif userInfo.isInGame or (userInfo.battleID and not isInBattle) then
 		if userInfo.isInGame then
-			return IMAGE_INGAME, "ingame", {1, 0.5, 0.5, 1}
+			return IMAGE_INGAME, "ingame", WG.Chobby.Configuration:GetFont(1, "ingame", {color = {1, 0.5, 0.5, 1}} )
 		else
-			return IMAGE_BATTLE, "battle", {0.5, 1, 0.5, 1}
+			return IMAGE_BATTLE, "battle", WG.Chobby.Configuration:GetFont(1, "battle", {color = {0.5, 1, 0.5, 1}} )
 		end
 	elseif userInfo.isAway then
-		return IMAGE_AFK, "afk", {0.5, 0.5, 1, 1}
+		return IMAGE_AFK, "afk", WG.Chobby.Configuration:GetFont(1, "afk", {color = {0.5, 0.5, 1, 1}} )
 	else
-		return IMAGE_ONLINE, "online", {1, 1, 1, 1}
+		return IMAGE_ONLINE, "online", WG.Chobby.Configuration:GetFont(1, "online", {color = {1, 1, 1, 1}} )
 	end
 end
 
@@ -476,12 +476,12 @@ local function UpdateUserControlStatus(userName, userControls)
 		return
 	end
 	if userControls.imStatusLarge then
-		local imgFile, status, fontColor = GetUserStatus(userName, isInBattle, userControls)
-		--userControls.tbName.font.color = fontColor
-		--userControls.tbName:Invalidate()
+		local imgFile, status, font = GetUserStatusFont(userName, isInBattle, userControls)
+		userControls.tbName.font = font
+		userControls.tbName:Invalidate()
 		userControls.imStatusLarge.file = imgFile
 		userControls.imStatusLarge:Invalidate()
-		--userControls.lblStatusLarge.font.color = fontColor
+		userControls.lblStatusLarge.font = font
 		userControls.lblStatusLarge:SetCaption(i18n(status .. "_status"))
 	elseif not userControls.statusImages then
 		return
@@ -557,8 +557,8 @@ local function UpdateUserActivity(listener, userName)
 				userControls.imLevel:Invalidate()
 			end
 
-			--userControls.tbName.font.color = GetUserNameColor(userName, userControls)
-			--userControls.tbName:Invalidate()
+			userControls.tbName.font = GetUserNameColorFont(userName, userControls)
+			userControls.tbName:Invalidate()
 
 			UpdateUserStatusImage(userName, userControls)
 			UpdateUserControlStatus(userName, userControls)
@@ -678,9 +678,9 @@ local function UpdateUserBattleStatus(listener, userName)
 					offset = offset + 1
 					userControls.tbSkill:SetPos(offset)
 					offset = offset + 20
-					local skill, skillColor = GetUserSkill(userName, userControls)
+					local skill, skillColorFont = GetUserSkillFont(userName, userControls)
 					userControls.tbSkill:SetText(skill)
-					--userControls.tbSkill.font.color = skillColor
+					userControls.tbSkill.font = skillColorFont
 					userControls.tbSkill:Invalidate()
 				end
 			end
@@ -710,12 +710,9 @@ local function UpdateUserBattleStatus(listener, userName)
 			local truncatedName = StringUtilities.TruncateStringIfRequiredAndDotDot(userName, userControls.tbName.font, maxNameLength and (maxNameLength - offset))
 			userControls.nameStartY = offset
 			userControls.maxNameLength = maxNameLength
-
-			--local nameColor = GetUserNameColor(userName, userControls)
-			--if nameColor then
-			--	userControls.tbName.font.color = nameColor
-			--	userControls.tbName:Invalidate()
-			--end
+			
+			userControls.tbName.font = GetUserNameColorFont(userName, userControls)
+			userControls.tbName:Invalidate()
 			if truncatedName then
 				userControls.tbName:SetText(truncatedName)
 				userControls.nameTruncated = true
@@ -1206,7 +1203,7 @@ local function GetUserControls(userName, opts)
 
 		-- skill only available when we are inside battle
 		local showSkill = userControls.isPlaying and userControls.showSkillOpt > 1 -- 1: no 2: Yes 3: Detailed
-		local skill, skillColor = GetUserSkill(userName, userControls)
+		local skill, skillColorFont = GetUserSkillFont(userName, userControls)
 		offset = offset + 1
 		userControls.tbSkill = TextBox:New {
 			name = "skill",
@@ -1216,13 +1213,11 @@ local function GetUserControls(userName, opts)
 			bottom = 5,
 			align = "left",
 			parent = userControls.mainControl,
-			objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
-			objectOverrideHintFont = WG.Chobby.Configuration:GetFont(1),
+			objectOverrideFont = skillColorFont,
+			objectOverrideHintFont = skillColorFont,
 			text = skill,
 		}
-		
-		--userControls.tbSkill.font.color = skillColor
-		--userControls.tbSkill:Invalidate()
+
 		userControls.tbSkill:SetVisibility(showSkill)
 		if showSkill then
 			offset = offset + 20
@@ -1294,11 +1289,9 @@ local function GetUserControls(userName, opts)
 	userControls.nameStartY = offset
 	userControls.maxNameLength = maxNameLength
 
-	--local nameColor = GetUserNameColor(userName, userControls)
-	--if nameColor then
-	--	userControls.tbName.font.color = nameColor
-	--	userControls.tbName:Invalidate()
-	--end
+	userControls.tbName.font = GetUserNameColorFont(userName, userControls)
+	userControls.tbName:Invalidate()
+
 	if truncatedName then
 		userControls.tbName:SetText(truncatedName)
 		userControls.nameTruncated = true
@@ -1351,7 +1344,7 @@ local function GetUserControls(userName, opts)
 		if large then
 			offsetY = offsetY + 35
 			offset = 5
-			local imgFile, status, fontColor = GetUserStatus(userName, isInBattle, userControls)
+			local imgFile, status, font = GetUserStatusFont(userName, isInBattle, userControls)
 			userControls.imStatusLarge = Image:New {
 				name = "imStatusLarge",
 				x = offset,
@@ -1373,10 +1366,11 @@ local function GetUserControls(userName, opts)
 				caption = i18n(status .. "_status"),
 				objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
 			}
-			--userControls.lblStatusLarge.font.color = fontColor
-			--userControls.lblStatusLarge:Invalidate()
-			--userControls.tbName.font.color = fontColor
-			--userControls.tbName:Invalidate()
+			userControls.lblStatusLarge.font = font
+			userControls.lblStatusLarge:Invalidate()
+
+			userControls.tbName.font = font
+			userControls.tbName:Invalidate()
 		end
 	end
 
