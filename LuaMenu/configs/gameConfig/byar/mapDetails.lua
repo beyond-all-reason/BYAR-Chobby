@@ -160,6 +160,6 @@ return {
 ['Tundra_V2']={Width=16, Height=16, Is1v1=1, IsTeam=1, IsFFA=nil, IsCertified=1, Special=nil, Flat=1, Hills=nil, Water=nil, IsInPool=1, PlayerCount=nil, TeamCount=nil, Author='Beherith', InfoText=nil, LastUpdate=1683982315},
 ['Twin Lakes Park Redux 1.2']={Width=24, Height=20, Is1v1=nil, IsTeam=1, IsFFA=1, IsCertified=1, Special=nil, Flat=nil, Hills=1, Water=nil, IsInPool=1, PlayerCount='16', TeamCount='8', InfoText='Large mountains and many passes.', LastUpdate=1683982289},
 ['Valles Marineris 2.6']={Width=16, Height=12, Is1v1=nil, IsTeam=1, IsFFA=nil, IsCertified=1, Special=nil, Flat=1, Hills=1, Water=nil, IsInPool=1, PlayerCount='8', TeamCount='2', Author='IceXuick', InfoText=nil, LastUpdate=1683982303},
-['White Fire Remake 1.1']={Width=16, Height=16, Is1v1=nil, IsTeam=1, IsFFA=nil, IsCertified=1, Special=nil, Flat=nil, Hills=1, Water=nil, IsInPool=1, PlayerCount='16', TeamCount='2', Author='Phalange', InfoText='Up to 8v8 map.', LastUpdate=1687446057},
+['White Fire Remake 1.2']={Width=16, Height=16, Is1v1=nil, IsTeam=1, IsFFA=nil, IsCertified=1, Special=nil, Flat=nil, Hills=1, Water=nil, IsInPool=1, PlayerCount='16', TeamCount='2', Author='Phalange', InfoText='Up to 8v8 map.', LastUpdate=1687446057},
 ['Zed Remake 3.3']={Width=12, Height=12, Is1v1=1, IsTeam=nil, IsFFA=nil, IsCertified=1, Special=nil, Flat=nil, Hills=1, Water=nil, IsInPool=1, PlayerCount=nil, TeamCount=nil, Author='IceXuick', InfoText=nil, LastUpdate=1683982262},
 }
