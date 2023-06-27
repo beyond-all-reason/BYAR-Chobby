@@ -197,7 +197,9 @@ function widget:Initialize()
 						caption="close",
 						classname = "negative_button",
 						OnMouseUp = {function()
-							widgetHandler:RemoveWidget() end},
+										widgetHandler:RemoveWidget()
+										WG.Chobby.Configuration:SetConfigValue("enableInspector", false)
+									end},
 					},
 				},
 			},
