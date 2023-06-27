@@ -89,7 +89,19 @@ local function GetTerrainTypeBar(special, flat, hills, water)
   return terrainTypeString
 end
 
-local function GetCertifiedLevelBar(isCertified,isClassic)
+local function GetMapAge(LastUpdate)
+  local now = os.time()
+  local twoWeeksAgo = now - 60*60*24*14
+  local mapAge = 999999999
+  if ( LastUpdate == nil ) then LastUpdate = 1 end --some maps can  have lastUpdate = nil
+  if ( LastUpdate >= twoWeeksAgo ) then 
+	mapAge = now - LastUpdate end
+  return mapAge--if it's older then two weeks don't sort by age
+end
+
+local function GetCertifiedLevelBar(isCertified,isClassic,LastUpdate)
+  if ( LastUpdate == nil ) then LastUpdate = 1 end --some maps can  have lastUpdate = nil
+  if ( GetMapAge(LastUpdate) < 999999999) then return "   NEW!" end
   if isCertified then return "Certified" end
   if isClassic then return "Classic" end
   return "Unofficial"
@@ -208,7 +220,7 @@ local function CreateMapEntry(mapName, mapData, CloseFunc)--{"ResourceID":7098,"
 		parent = mapButton,
 	}
 
-    local certificationLevel = GetCertifiedLevelBar( mapData and mapData.IsCertified, mapData and mapData.IsInPool)
+    local certificationLevel = GetCertifiedLevelBar( mapData and mapData.IsCertified, mapData and mapData.IsInPool, mapData and mapData.LastUpdate)
 	TextBox:New {
 			x = 655,
 			y = 12,
@@ -263,10 +275,10 @@ local function CreateMapEntry(mapName, mapData, CloseFunc)--{"ResourceID":7098,"
 			parent = mapButton,
 		}
 
-		sortData = {string.lower(mapName), (mapData.Width or 0)*100 + (mapData.Height or 0), string.lower(mapType), string.lower(terrainType), (haveMap and 1) or 0, string.lower(certificationLevel), (haveMap and ' '..mapName) or mapName}
+		sortData = {string.lower(mapName), (mapData.Width or 0)*100 + (mapData.Height or 0), string.lower(mapType), string.lower(terrainType), (haveMap and 1) or 0, string.lower(certificationLevel), string.format( "%09d", GetMapAge(mapData.LastUpdate) )  .. mapName }
 		sortData[8] = sortData[1] .. " " .. mapSizeText .. " " .. sortData[3] .. " " .. sortData[4] .. " " .. sortData[6] .. " " .. sortData[7]-- Used for text filter by name, type, terrain or size. Now includes HAX COLUMN.
 	else
-		sortData = {string.lower(mapName), 0, "", "", (haveMap and 1) or 0, certificationLevel,(haveMap and ' '..mapName) or mapName}
+		sortData = {string.lower(mapName), 0, "", "", (haveMap and 1) or 0, certificationLevel,"999999999" .. (haveMap and ' '..mapName) or mapName}
 		sortData[8] = sortData[1]
 	end
 
