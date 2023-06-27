@@ -112,6 +112,7 @@ function widget:Initialize()
 		widgetHandler:RemoveWidget()
 		return
 	end
+	WG.Chobby.Configuration:SetConfigValue("enableInspector", true)
 
 	window0 = Chili.Window:New{
 		name = "wnd_inspector",

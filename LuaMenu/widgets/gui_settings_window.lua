@@ -1503,7 +1503,9 @@ local function GetVoidTabControls()
 			return
 		end
 		if key == "enableInspector" and cbInspector.checked ~= value then
-			cbInspector.SetToggle(value)
+			cbInspector.checked = value
+			cbInspector.state.checked = cbInspector.checked
+			cbInspector:Invalidate()
 		end
 	end
 
