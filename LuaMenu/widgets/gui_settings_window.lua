@@ -556,10 +556,10 @@ local function AddCheckboxSetting(offset, caption, key, default, clickFunc, tool
 		checked = checked,
 		tooltip = tooltip,
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
-		OnChange = {function (obj, newState)
-			Configuration:SetConfigValue(key, newState)
+		OnClick = {function (obj)
+			Configuration:SetConfigValue(key, obj.checked)
 			if clickFunc then
-				clickFunc(newState)
+				clickFunc(obj.checked)
 			end
 		end},
 	}
@@ -1237,7 +1237,12 @@ local function GetVoidTabControls()
 	end
 
 	local function EnableInspectorFunc(newState)
-		widgetHandler:ToggleWidget("ChiliInspector")
+		if newState then
+			widgetHandler:EnableWidget("ChiliInspector")
+		else
+			widgetHandler:DisableWidget("ChiliInspector")
+		end
+
 	end
 
 
@@ -1250,7 +1255,9 @@ local function GetVoidTabControls()
 	children[#children + 1], offset = AddCheckboxSetting(offset, i18n("debugMode"), "debugMode", false)
 	children[#children + 1], offset = AddCheckboxSetting(offset, "Debug Auto Win", "debugAutoWin", false)
 	children[#children + 1], offset = AddCheckboxSetting(offset, "Enable Profiler", "enableProfiler", false, EnableProfilerFunc)
-	children[#children + 1], offset = AddCheckboxSetting(offset, "Enable Inspector", "enableInspector", false, EnableInspectorFunc)
+	local cbInspector
+	cbInspector, offset = AddCheckboxSetting(offset, "Enable Inspector", "enableInspector", false, EnableInspectorFunc)
+	children[#children + 1] = cbInspector
 	children[#children + 1], offset = AddCheckboxSetting(offset, "Show Campaign button", "showCampaignButton", false, toggleCampaignFunc)
 	children[#children + 1], offset = AddCheckboxSetting(offset, "Show Planet Unlocks", "showPlanetUnlocks", false)
 	children[#children + 1], offset = AddCheckboxSetting(offset, "Show Planet Enemy Units", "showPlanetEnemyUnits", false)
@@ -1491,7 +1498,18 @@ local function GetVoidTabControls()
 	}
 	offset = offset + ITEM_OFFSET
 
+	local function onConfigurationChange(listener, key, value)
+		if freezeSettings then
+			return
+		end
+		if key == "enableInspector" and cbInspector.checked ~= value then
+			cbInspector.SetToggle(value)
+		end
+	end
+
 	freezeSettings = false
+
+	Configuration:AddListener("OnConfigurationChange", onConfigurationChange)
 
 	return children
 end

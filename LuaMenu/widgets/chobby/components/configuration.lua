@@ -258,6 +258,7 @@ function Configuration:init()
 	self.debugMode = false
 	self.devMode = (VFS.FileExists("devmode.txt") and true) or false
 	self.enableProfiler = false
+	self.enableInspector = false
 	self.enableCacheRapidPool = true
 	self.showCampaignButton = false
 	self.showPlanetUnlocks = false
@@ -621,6 +622,7 @@ function Configuration:GetConfigData()
 		debugMode = self.debugMode,
 		debugAutoWin = self.debugAutoWin,
 		enableProfiler = self.enableProfiler,
+		enableInspector = self.enableInspector,
 		enableCacheRapidPool= self.enableCacheRapidPool,
 		showCampaignButton = self.showCampaignButton,
 		showPlanetUnlocks = self.showPlanetUnlocks,
