@@ -122,6 +122,8 @@ function Configuration:init()
 	self.founderColor = {0.7, 1, 0.65, 1}
 	self.ignoredUserNameColor = {0.6, 0.6, 0.6, 1}
 	self.userNameColor = {1, 1, 1, 1}
+	self.myUserNameColor = {0.8, 0.3, 0.9, 1}
+	self.friendsColor = {0.8, 0.4, 0.1, 1}
 
 	self.buttonFocusColor = {0.34,0.52,1,0.3}
 	self.buttonSelectedColor = {0.1, 0.58, 0.90, 0.9}--{1.0, 1.0, 1.0, 1.0}
@@ -775,6 +777,14 @@ end
 
 function Configuration:GetUserNameColor()
 	return self.userNameColor
+end
+
+function Configuration:GetMyUserNameColor()
+	return self.myUserNameColor
+end
+
+function Configuration:GetFriendsColor()
+	return self.friendsColor
 end
 
 -- NOTE: this one is in opengl range [0,1]

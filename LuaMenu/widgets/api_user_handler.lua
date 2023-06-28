@@ -409,6 +409,12 @@ local function GetUserNameColorFont(userName, userControl)
 			return WG.Chobby.Configuration:GetFont(1, "Founder", {color = WG.Chobby.Configuration:GetFounderColor()} )
 		end
 	end
+	if userName == userControl.lobby:GetMyUserName() then
+		return WG.Chobby.Configuration:GetFont(1, "User", {color = WG.Chobby.Configuration:GetMyUserNameColor()} )
+	end
+	if userInfo.isFriend then
+		return WG.Chobby.Configuration:GetFont(1, "Friend", {color = WG.Chobby.Configuration:GetFriendsColor()})
+	end
 	if userInfo.isIgnored then
 		return WG.Chobby.Configuration:GetFont(1, "Ignored", {color = WG.Chobby.Configuration:GetIgnoredUserNameColor()} )
 	end
