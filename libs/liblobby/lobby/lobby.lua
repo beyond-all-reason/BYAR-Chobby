@@ -1122,6 +1122,10 @@ function Lobby:_OnVoteResponse(isYesVote)
 	self:_CallListeners("OnVoteResponse", isYesVote)
 end
 
+function Lobby:_OnUserVoted(userName, voteOption)
+	self:_CallListeners("OnUserVoted", userName, voteOption)
+end
+
 function Lobby:_OnSetModOptions(data)
 	self.modoptions = data
 	self:_CallListeners("OnSetModOptions", data)

@@ -133,6 +133,13 @@ function Configuration:init()
 		[3] = {0.40, 0.30, 0.064, 1.0},
 	}
 
+	self.voteColor = {
+		["yes"]   = {0.00, 1.00, 0.00, 1.0}, -- green
+		["no"]    = {1.00, 0.00, 0.00, 1.0}, -- red
+		["blank"] = {0.50, 1.00, 0.00, 1.0}, -- orange
+		["initVote"] = {0.80, 0.80, 0.80, 1.0}, -- grey
+	}
+
 	self.showRank    = true
 	self.showSkillOpt = 1 -- 1: No 2: Yes 3: Detailed (with Uncertainty)
 	self.showCountry = false

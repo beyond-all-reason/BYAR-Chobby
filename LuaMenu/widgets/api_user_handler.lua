@@ -756,6 +756,56 @@ local function UpdateUserBattleStatus(listener, userName)
 	end
 end
 
+local votedUsers = {} -- 2023-06-29 FB: ToDo: Does not get reset, if user leaves battle during vote, but has no impact
+
+-- 2023-06-29 FB: can be called in 3 modes
+-- 1. userName is given and voteOption is either yes/no/blank -> color of user is changed to green/red/orange
+-- 2. username nil and voteOption = default -> all username colors, that were changed before, are returned to default (e.g white or moderator/friend/bot color)
+-- 3. username nil and voteOption = initVote -> all username colors are overwritten with grey
+local function OnUserVoted(listener, userName, voteOption)
+	if voteOption ~= "yes" and voteOption ~= "no" and voteOption ~= "blank" and voteOption ~= "default" and voteOption ~= "initVote" then
+		return
+	end
+	
+	if not userName then
+		
+		if voteOption == "default" then -- revert all changed username colors to default after vote
+			for _, userName2 in pairs(votedUsers) do
+				OnUserVoted(_, userName2, voteOption)
+			end
+			votedUsers = {}
+		elseif voteOption == "initVote" and next(votedUsers) == nil then -- set all playing battleUsers colors to white on vote start
+			OnUserVoted(_, _, "default") -- 1. revert any changed colors (could be spectator by now, too, or left battle)
+			for userName2, userControls2 in pairs(battleUsers) do -- 2. set all users that are allowed to vote to grey (allowed are only users that were "isPlaying" on time of vote start)
+				if userControls2.isPlaying then
+					OnUserVoted(_, userName2, voteOption)
+				end
+			end
+		end
+		return
+	end
+	
+	local userControls = battleUsers[userName]
+	if not userControls then
+		return
+	end
+
+	if userControls.tbName then
+		if voteOption == "default" then
+			userControls.tbName.font = GetUserNameColorFont(userName, userControls)
+			userControls.tbName:Invalidate()
+			return
+		elseif userControls.isPlaying then
+			userControls.tbName.font = WG.Chobby.Configuration:GetFont(1, "vote1" .. voteOption, {color = WG.Chobby.Configuration.voteColor[voteOption]}) -- voteOption can be yes, no, blank, initVote
+			userControls.tbName:Invalidate()
+		end
+	end
+
+	if not votedUsers[userName] then
+		table.insert(votedUsers, userName)
+	end
+end
+
 local function UpdateUserCountry(listener, userName)
 	for i = 1, #userListList do
 		local userList = userListList[i]
@@ -1619,6 +1669,8 @@ local function AddListeners()
 	lobby:AddListener("OnAddUser", UpdateUserCountry)
 	lobby:AddListener("OnUpdateUserBattleStatus", UpdateUserBattleStatus)
 	WG.LibLobby.localLobby:AddListener("OnUpdateUserBattleStatus", UpdateUserBattleStatus)
+
+	lobby:AddListener("OnUserVoted", OnUserVoted)
 end
 
 --------------------------------------------------------------------------------
