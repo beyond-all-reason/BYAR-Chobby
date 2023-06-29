@@ -51,6 +51,10 @@ local lastUserToChangeStartBoxes = ''
 local readyButton
 local btnStartBattle = nil
 
+local vote_votingsPattern = "(%d+)/(%d+).-:(%d+)"
+local vote_whoCalledPattern = "%* (.*) called a vote for command"
+local vote_mapPattern = 'set map (.*)"'
+
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 -- Download management
@@ -3497,9 +3501,10 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		-- https://github.com/beyond-all-reason/Beyond-All-Reason/blob/master/luaui/Widgets_BAR/gui_vote_interface.lua#L193
 
 		-- New vote:
-		if string.match(message, "called a vote for command .* .!vote y, !vote n, !vote b.") or string.match(message,"* Vote in progress: ") then -- [teh]BaNa called a vote for command "forcestart" [!vote y, !vote n, !vote b]
-			local newlycalledvote = string.match(message, " called a vote for command .*")
-
+		-- [teh]BaNa called a vote for command "forcestart" [!vote y, !vote n, !vote b]
+		-- [teh]cluster1[00], * Vote in progress: "set map DSDR 4.0" [y:1/2, n:0/1(2)] (25s remaining)
+		local newlycalledvote = string.match(message, " called a vote for command .*") 
+		if newlycalledvote or string.match(message,"* Vote in progress: ") then 
 			local userwhocalledvote = nil
 			local ismapppoll = false
 			local mapname = ''
@@ -3508,14 +3513,12 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 			local novotes = 0
 			local timeleft = nil
 
-			if newlycalledvote == nil then -- [teh]cluster1[00], * Vote in progress: "set map DSDR 4.0" [y:1/2, n:0/1(2)] (25s remaining),
-				--* Vote in progress: "forcestart" [y:7/9(10), n:5/8(9)] (1s remaining)
-				local startOfVoteResults = pyPartition(message," [y:",false)
-				yesvotes = tonumber(pyPartition(startOfVoteResults,"/",true)) or 0
-				votesNeeded = tonumber(pyPartition(pyPartition(startOfVoteResults,"/",false), ",",true)) or
-							tonumber(pyPartition(pyPartition(startOfVoteResults,"/",false), "(",true)) or -1
-				novotes = tonumber(pyPartition(pyPartition(startOfVoteResults," n:",false),"/",true)) or 0
-				-- Spring.Echo("votes",message, 'yes:',yesvotes,"needed:",votesNeeded,"no:",novotes)
+			if newlycalledvote == nil then
+				yesvotes, votesNeeded, novotes = string.match(message, vote_votingsPattern)
+				yesvotes = tonumber(yesvotes)
+				votesNeeded = tonumber(votesNeeded or -1)
+				novotes = tonumber(novotes or 0)
+				-- Spring.Echo("votes", message, 'yes:', yesvotes, "needed:", votesNeeded, "no:", novotes)
 			end
 
 			local candidates = {}
@@ -3531,19 +3534,12 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 			}
 
 			if newlycalledvote then
-				userwhocalledvote = pyPartition(pyPartition(message," called a vote for command",true),"* ",false)
+				userwhocalledvote = string.match(message, vote_whoCalledPattern)
 			end 
 			--[teh]Behe_Chobby3 called a vote for command "set map Tetrad_V2" [!vote y, !vote n, !vote b]
 			if string.find(message, ' "set map ', nil, true) then
-				if newlycalledvote then
-					mapname = pyPartition(message,'called a vote for command "set map ',false)
-					mapname = pyPartition(mapname,'"',true)
-					ismapppoll = true
-				else
-					mapname = pyPartition(message,'Vote in progress: "set map ',false)
-					mapname = pyPartition(mapname,'"',true)
-					ismapppoll = true
-				end
+				mapname = string.match(message, vote_mapPattern)
+				ismapppoll = true
 			end
 
 			if string.match(message,"..s remaining.$") then
