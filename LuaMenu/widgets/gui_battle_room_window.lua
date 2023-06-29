@@ -2419,8 +2419,11 @@ local function SetupVotePanel(votePanel, battle, battleID)
 		--HideVoteResult()
 	end
 
+	local function HideVotedUsers()
+		WG.LibLobby.lobby:_OnUserVoted(_, "default")
+	end
+
 	function externalFunctions.VoteEnd(message, success)
-		--Spring.Echo("VoteEnd(message, success)", message, success)
 		activePanel:SetVisibility(false)
 		minimapPanel:SetVisibility(false)
 		if message then oldTitle = message end
@@ -2433,16 +2436,18 @@ local function SetupVotePanel(votePanel, battle, battleID)
 		matchmakerModeEnabled = false
 		ResetButtons()
 		WG.Delay(HideVoteResult, 3)
+		WG.Delay(HideVotedUsers, 3)
+
 	end
 
 	function externalFunctions.ImmediateVoteEnd()
-		--Spring.Echo("ImmediateVoteEnd()")
 		activePanel:SetVisibility(false)
 		minimapPanel:SetVisibility(false)
 		if barManagerPresent then spadsStatusPanel:SetVisibility(true) end
 		matchmakerModeEnabled = false
 		ResetButtons()
 		HideVoteResult()
+		HideVotedUsers()
 	end
 
 	function externalFunctions.VoteButtonVisible(visible)
@@ -3494,6 +3499,18 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		if string.match(message, "^!ring .*") then return true end
 
 		if string.match(message, "^!endvote$") then return true end
+
+		if message:lower():match("^!vote yes$") or message:lower():match("^!vote y$") or message:lower():match("^!yes$") or message:lower():match("^!y$") then
+			battleLobby:_OnUserVoted(userName, "yes")
+		end
+
+		if message:lower():match("^!vote no$") or message:lower():match("^!vote n$") or message:lower():match("^!no$") or message:lower():match("^!n$") then
+			battleLobby:_OnUserVoted(userName, "no")
+		end
+
+		if message:lower():match("^!vote blank$") or message:lower():match("^!vote b$") or message:lower():match("^!blank$") or message:lower():match("^!b$") then
+			battleLobby:_OnUserVoted(userName, "blank")
+		end
 	end
 
 
@@ -3503,8 +3520,8 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		-- New vote:
 		-- [teh]BaNa called a vote for command "forcestart" [!vote y, !vote n, !vote b]
 		-- [teh]cluster1[00], * Vote in progress: "set map DSDR 4.0" [y:1/2, n:0/1(2)] (25s remaining)
-		local newlycalledvote = string.match(message, " called a vote for command .*") 
-		if newlycalledvote or string.match(message,"* Vote in progress: ") then 
+		local newlycalledvote = string.match(message, "called a vote for command") 
+		if newlycalledvote or string.match(message,"Vote in progress") then 
 			local userwhocalledvote = nil
 			local ismapppoll = false
 			local mapname = ''
@@ -3535,6 +3552,8 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 
 			if newlycalledvote then
 				userwhocalledvote = string.match(message, vote_whoCalledPattern)
+				WG.LibLobby.lobby:_OnUserVoted(_, "initVote")
+				WG.LibLobby.lobby:_OnUserVoted(userwhocalledvote, "yes")
 			end 
 			--[teh]Behe_Chobby3 called a vote for command "set map Tetrad_V2" [!vote y, !vote n, !vote b]
 			if string.find(message, ' "set map ', nil, true) then
@@ -3553,24 +3572,24 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 			votePanel.VoteUpdate(title,nil, ismapppoll, candidates, votesNeeded, mapname, userwhocalledvote, newlycalledvote)
 			return true
 
-		elseif string.match(message, "^. Vote for command .* passed" ) then	--[21:13:58] * [teh]host * Vote for command "bSet coop 1" passed. --voteend
+		elseif string.match(message, "Vote for command.*passed" ) then	--[21:13:58] * [teh]host * Vote for command "bSet coop 1" passed. --voteend
 			votePanel.VoteEnd(nil, true)
 			return true
 
-		elseif string.match(message, "^. Vote for command .* failed" )then	--[21:13:58] * [teh]host * Vote for command "bSet coop 1" passed. --voteend
+		elseif string.match(message, "Vote for command.*failed" )then	--[21:13:58] * [teh]host * Vote for command "bSet coop 1" passed. --voteend
 			votePanel.VoteEnd(nil, false)
 			return true
 
-		elseif string.find(message, "* Vote cancelled by ", nil, true) then --votecancel
+		elseif string.find(message, "Vote cancelled by", nil, true) then --votecancel
 			--[14:42:53] * [teh]host * Vote cancelled by [teh]BaNa
 			votePanel.ImmediateVoteEnd()
 			return true
 
-		elseif string.find(message, "command executed directly by ", nil, true) and string.find(string.lower(message), " cancelling ", nil, true) then --votecancel
+		elseif string.find(message, "command executed directly by", nil, true) and string.find(string.lower(message), " cancelling ", nil, true) then --votecancel
 			--[14:43:19] * [teh]host * Cancelling "set map Throne Acidic" vote (command executed directly by [teh]Beherith)
 			votePanel.ImmediateVoteEnd()
 			return true
-		elseif string.find(message, "* Game starting, cancelling ", nil, true) then
+		elseif string.find(message, "Game starting, cancelling", nil, true) then
 			votePanel.ImmediateVoteEnd()
 			return false
 		end
