@@ -409,7 +409,7 @@ local function GetUserNameColorFont(userName, userControl)
 			return WG.Chobby.Configuration:GetFont(1, "Founder", {color = WG.Chobby.Configuration:GetFounderColor()} )
 		end
 	end
-	if userName == userControl.lobby:GetMyUserName() then
+	if not userControl.disableInteraction and userName == userControl.lobby:GetMyUserName() then
 		return WG.Chobby.Configuration:GetFont(1, "User", {color = WG.Chobby.Configuration:GetMyUserNameColor()} )
 	end
 	if userInfo.isFriend then
@@ -803,21 +803,22 @@ local function GetUserControls(userName, opts)
 
 	local Configuration = WG.Chobby.Configuration
 
-	userControls.showFounder       = showFounder
-	userControls.showModerator     = showModerator
-	userControls.isInBattle        = isInBattle
-	userControls.lobby             = (isSingleplayer and WG.LibLobby.localLobby) or lobby
-	userControls.isSingleplayer    = isSingleplayer
-	userControls.steamInvite       = opts.steamInvite
-	userControls.hideStatus        = opts.hideStatus
-	userControls.hideStatusInvite  = opts.hideStatusInvite
-	userControls.hideStatusIngame  = opts.hideStatusIngame
-	userControls.hideStatusAway    = opts.hideStatusAway
-	userControls.dropdownWhitelist = opts.dropdownWhitelist
-	userControls.showSkillOpt	   = opts.showSkillOpt or 1 -- default to 1=no
-	userControls.showRank          = opts.showRank or false
-	userControls.showCountry       = opts.showCountry or false
-	userControls.isSingleplayer    = opts.isSingleplayer or false -- is needed by UpdateUserBattleStatus
+	userControls.showFounder        = showFounder
+	userControls.showModerator      = showModerator
+	userControls.isInBattle         = isInBattle
+	userControls.lobby              = (isSingleplayer and WG.LibLobby.localLobby) or lobby
+	userControls.isSingleplayer     = isSingleplayer
+	userControls.disableInteraction = disableInteraction
+	userControls.steamInvite        = opts.steamInvite
+	userControls.hideStatus         = opts.hideStatus
+	userControls.hideStatusInvite   = opts.hideStatusInvite
+	userControls.hideStatusIngame   = opts.hideStatusIngame
+	userControls.hideStatusAway     = opts.hideStatusAway
+	userControls.dropdownWhitelist  = opts.dropdownWhitelist
+	userControls.showSkillOpt	    = opts.showSkillOpt or 1 -- default to 1=no
+	userControls.showRank           = opts.showRank or false
+	userControls.showCountry        = opts.showCountry or false
+	userControls.isSingleplayer     = opts.isSingleplayer or false -- is needed by UpdateUserBattleStatus
 
 	local myBattleID = userControls.lobby:GetMyBattleID()
 	local userInfo = userControls.lobby:GetUser(userName) or {}
