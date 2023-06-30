@@ -815,7 +815,7 @@ local function GetUserControls(userName, opts)
 	userControls.hideStatusIngame   = opts.hideStatusIngame
 	userControls.hideStatusAway     = opts.hideStatusAway
 	userControls.dropdownWhitelist  = opts.dropdownWhitelist
-	userControls.showSkillOpt	    = opts.showSkillOpt or 1 -- default to 1=no
+	userControls.showSkillOpt       = opts.showSkillOpt or 1 -- default to 1=no
 	userControls.showRank           = opts.showRank or false
 	userControls.showCountry        = opts.showCountry or false
 	userControls.isSingleplayer     = opts.isSingleplayer or false -- is needed by UpdateUserBattleStatus
