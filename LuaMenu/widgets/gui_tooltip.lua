@@ -103,7 +103,7 @@ end
 local function GetTooltipLine(parent, hasImage, fontSize, xOffset, imageWidth)
 	local textDisplay, imageDisplay
 
-	fontSize = fontSize or 2
+	fontSize = fontSize or 1
 	xOffset = xOffset or 6
 
 	local externalFunctions = {}
