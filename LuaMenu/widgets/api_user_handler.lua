@@ -346,8 +346,8 @@ local function GetUserSkillFont(userName, userControl)
 	local sigma = 0
 
 	local bs = userControl.lobby:GetUserBattleStatus(userName) or {}
-	if userControl.isSingleplayer or bs.aiLib ~= nil or userControl.showSkillOpt == 1 then
-		return "  ", WG.Chobby.Configuration:GetFont(1)
+	if userControl.isSingleplayer or bs.aiLib ~= nil or userControl.showSkill == false then
+		return "  ", config:GetFont(1)
 	end
 
 	local userInfo = userControl.lobby:GetUser(userName) or {}
@@ -357,7 +357,7 @@ local function GetUserSkillFont(userName, userControl)
 		skill = tostring(skill)
 	end
 	
-	if userControl.showSkillOpt == 3 and userInfo.skillUncertainty then
+	if config.showSkillOpt == 3 and userInfo.skillUncertainty then
 		-- sigma must be rounded to int; it´s used as array index
 		sigma = math.floor(userInfo.skillUncertainty+0.5)
 		if sigma > 3 then
@@ -366,7 +366,7 @@ local function GetUserSkillFont(userName, userControl)
 			sigma = 0
 		end
 	end
-	return skill, WG.Chobby.Configuration:GetFont(1, "skill" .. sigma, {color = config.skillUncertaintyColors[sigma]})
+	return skill, config:GetFont(1, "skill" .. sigma, {color = config.skillUncertaintyColors[sigma]})
 end
 
 local function GetUserStatusImages(userName, isInBattle, userControl)
@@ -604,13 +604,14 @@ local function OnPartyLeft(listener, partyID, partyUsers)
 end
 
 local function UpdateUserBattleStatus(listener, userName)
+	local Configuration = WG.Chobby.Configuration
 	UpdateUserComboboxOptions(_, userName)
 	for i = 1, #userListList do
 		local userList = userListList[i]
 		local userControls = userList[userName]
 		if userControls then
 			local bs = userControls.lobby:GetUserBattleStatus(userName) or {}
-			userControls.isPlaying = bs.isSpectator ~= nil and bs.isSpectator == false or false
+			userControls.isPlaying = bs.isSpectator == false
 			
 			local offset = 0
 			if userControls.tbQueuePos then
@@ -661,33 +662,38 @@ local function UpdateUserBattleStatus(listener, userName)
 			--]]
 
 			if not userControls.isSingleplayer then
-				-- Country: show if configured to show
-				userControls.imCountry:SetVisibility(userControls.showCountry)
-				if userControls.showCountry then	
-					offset = offset + 1
-					userControls.imCountry:SetPos(offset + 2)
-					offset = offset + 21
+				
+				if userControls.showCountry then
+					userControls.imCountry:SetVisibility(Configuration.showCountry)
+					if Configuration.showCountry then	
+						offset = offset + 1
+						userControls.imCountry:SetPos(offset + 2)
+						offset = offset + 21
+					end
 				end
 
-				-- Rank: show if configured to show
-				userControls.imLevel:SetVisibility(userControls.showRank)
 				if userControls.showRank then
-					offset = offset + 1
-					userControls.imLevel:SetPos(offset)
-					offset = offset + 21
+					userControls.imLevel:SetVisibility(Configuration.showRank)
+					if Configuration.showRank then
+						offset = offset + 1
+						userControls.imLevel:SetPos(offset)
+						offset = offset + 21
+					end
 				end
 
 				-- Skill: show only in battlelist (limited by spring lobby protocol, skill not available for users outside of own battle)
-				local showSkill = userControls.isPlaying and userControls.showSkillOpt > 1
-				userControls.tbSkill:SetVisibility(showSkill)
-				if showSkill then
-					offset = offset + 1
-					userControls.tbSkill:SetPos(offset)
-					offset = offset + 20
-					local skill, skillColorFont = GetUserSkillFont(userName, userControls)
-					userControls.tbSkill:SetText(skill)
-					userControls.tbSkill.font = skillColorFont
-					userControls.tbSkill:Invalidate()
+				if userControls.showSkill then
+					local displaySkill = userControls.isPlaying and Configuration.showSkillOpt > 1
+					userControls.tbSkill:SetVisibility(displaySkill)
+					if displaySkill then
+						offset = offset + 2
+						userControls.tbSkill:SetPos(offset)
+						offset = offset + 18
+						local skill, skillColorFont = GetUserSkillFont(userName, userControls)
+						userControls.tbSkill:SetText(skill)
+						userControls.tbSkill.font = skillColorFont
+						userControls.tbSkill:Invalidate()
+					end
 				end
 			end
 
@@ -701,7 +707,7 @@ local function UpdateUserBattleStatus(listener, userName)
 				local sideSelected = bs.side ~= nil
 				userControls.imSide:SetVisibility(userControls.isPlaying and sideSelected)
 				if sideSelected then
-					userControls.imSide.file = WG.Chobby.Configuration:GetSideById(bs.side).logo
+					userControls.imSide.file = Configuration:GetSideById(bs.side).logo
 				end
 				if userControls.isPlaying and sideSelected then
 					offset = offset + 2
@@ -865,7 +871,7 @@ local function GetUserControls(userName, opts)
 	userControls.hideStatusIngame   = opts.hideStatusIngame
 	userControls.hideStatusAway     = opts.hideStatusAway
 	userControls.dropdownWhitelist  = opts.dropdownWhitelist
-	userControls.showSkillOpt       = opts.showSkillOpt or 1 -- default to 1=no
+	userControls.showSkill          = opts.showSkill or false
 	userControls.showRank           = opts.showRank or false
 	userControls.showCountry        = opts.showCountry or false
 	userControls.isSingleplayer     = opts.isSingleplayer or false -- is needed by UpdateUserBattleStatus
@@ -874,7 +880,7 @@ local function GetUserControls(userName, opts)
 	local userInfo = userControls.lobby:GetUser(userName) or {}
 	local bs = userControls.lobby:GetUserBattleStatus(userName) or {}
 
-	userControls.isPlaying = bs.isSpectator ~= nil and bs.isSpectator == false or false
+	userControls.isPlaying = bs.isSpectator == false
 	userControls.isInQueue = bs.queuePos and bs.queuePos > 0 or false
 	if reinitialize then
 		userControls.mainControl:ClearChildren()
@@ -1219,67 +1225,70 @@ local function GetUserControls(userName, opts)
 			offset = offset - 2
 		end
 	end
-
-	local offset = offset + 1
-	userControls.imCountry = Image:New {
-		name = "imCountry",
-		x = offset + 2,
-		y = offsetY + 4,
-		width = 16,
-		height = 11,
-		parent = userControls.mainControl,
-		keepAspect = true,
-		file = GetUserCountryImage(userName, userControls),
-	}
-	userControls.imCountry:SetVisibility(userControls.showCountry)
-	if userControls.showCountry then
-		offset = offset + 21
-	else
-		offset = offset - 1
-	end
-
+	
 	if not isSingleplayer then
-		offset = offset + 1
-		userControls.imLevel = Image:New {
-			name = "imLevel",
-			x = offset,
-			y = offsetY + 1,
-			width = 19,
-			height = 19,
-			parent = userControls.mainControl,
-			keepAspect = false,
-			file = GetUserRankImageName(userName, userControls),
-		}
-		userControls.imLevel.font = nil
-		userControls.imLevel:SetVisibility(userControls.showRank)
-		if userControls.showRank then
-			offset = offset + 21
-		else
-			offset = offset - 1
+		if userControls.showCountry then
+			offset = offset + 1
+			userControls.imCountry = Image:New {
+				name = "imCountry",
+				x = offset + 2,
+				y = offsetY + 4,
+				width = 16,
+				height = 11,
+				parent = userControls.mainControl,
+				keepAspect = true,
+				file = GetUserCountryImage(userName, userControls),
+			}
+			userControls.imCountry:SetVisibility(Configuration.showCountry)
+			if Configuration.showCountry then
+				offset = offset + 21
+			else
+				offset = offset - 1
+			end
 		end
 
-		-- skill only available when we are inside battle
-		local showSkill = userControls.isPlaying and userControls.showSkillOpt > 1 -- 1: no 2: Yes 3: Detailed
-		local skill, skillColorFont = GetUserSkillFont(userName, userControls)
-		offset = offset + 1
-		userControls.tbSkill = TextBox:New {
-			name = "skill",
-			x = offset,
-			y = offsetY + 4,
-			right = 0,
-			bottom = 5,
-			align = "left",
-			parent = userControls.mainControl,
-			objectOverrideFont = skillColorFont,
-			objectOverrideHintFont = skillColorFont,
-			text = skill,
-		}
+		if userControls.showRank then
+			offset = offset + 1
+			userControls.imLevel = Image:New {
+				name = "imLevel",
+				x = offset,
+				y = offsetY + 1,
+				width = 19,
+				height = 19,
+				parent = userControls.mainControl,
+				keepAspect = false,
+				file = GetUserRankImageName(userName, userControls),
+			}
+			userControls.imLevel:SetVisibility(Configuration.showRank)
+			if Configuration.showRank then
+				offset = offset + 21
+			else
+				offset = offset - 1
+			end
+		end
 
-		userControls.tbSkill:SetVisibility(showSkill)
-		if showSkill then
-			offset = offset + 20
-		else
-			offset = offset - 1
+		if userControls.showSkill then
+			local skill, skillColorFont = GetUserSkillFont(userName, userControls)
+			offset = offset + 2
+			userControls.tbSkill = TextBox:New {
+				name = "skill",
+				x = offset,
+				y = offsetY + 4,
+				right = 0,
+				bottom = 5,
+				align = "left",
+				parent = userControls.mainControl,
+				objectOverrideFont = skillColorFont,
+				objectOverrideHintFont = skillColorFont,
+				text = skill,
+			}
+			local displaySkill = userControls.isPlaying and Configuration.showSkillOpt > 1
+			userControls.tbSkill:SetVisibility(displaySkill)
+			if displaySkill then
+				offset = offset + 18
+			else
+				offset = offset - 2
+			end
 		end
 	end
 
@@ -1454,14 +1463,11 @@ local function GetUserControls(userName, opts)
 	end
 
 	local function OnConfigurationChange(listener, key, value)
-		if key == "showCountry" then
-			userControls.showCountry = value
+		if key == "showCountry" and userControls.showCountry then
 			UpdateUserBattleStatus(_, userName)
-		elseif key == "showRank" then
-			userControls.showRank = value
+		elseif key == "showRank" and userControls.showRank then
 			UpdateUserBattleStatus(_, userName)
-		elseif key == "showSkillOpt" then
-			userControls.showSkillOpt = value
+		elseif key == "showSkillOpt" and userControls.showSkill then
 			UpdateUserBattleStatus(_, userName)
 		end
 	end
@@ -1529,9 +1535,9 @@ function userHandler.GetBattleUser(userName, isSingleplayer)
 		autoResize     = true,
 		isInBattle     = true,
 		showReady      = true,
-		showCountry    = WG.Chobby.Configuration.showCountry,
-		showRank       = WG.Chobby.Configuration.showRank,
-		showSkillOpt   = WG.Chobby.Configuration.showSkillOpt,
+		showCountry    = true,
+		showRank       = true,
+		showSkill      = true,
 		showSync       = WG.Chobby.Configuration.showSync,
 		showModerator  = true,
 		showFounder    = true,
@@ -1548,8 +1554,8 @@ function userHandler.GetTooltipUser(userName)
 		suppressSync   = true,
 		showModerator  = true,
 		showFounder    = true,
-		showCountry    = WG.Chobby.Configuration.showCountry,
-		showRank       = WG.Chobby.Configuration.showRank,
+		showCountry    = true,
+		showRank       = true,
 	})
 end
 
