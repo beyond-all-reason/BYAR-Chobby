@@ -755,6 +755,7 @@ local function UpdateUserBattleStatus(listener, userName)
 						end
 						userControls.lblHandicap:SetCaption(handicaptxt)
 						userControls.lblHandicap:SetVisibility(true)
+						userControls.lblHandicap:SetPos(offset)
 					end
 				end
 				if not userControls.isPlaying or handicap == nil then
