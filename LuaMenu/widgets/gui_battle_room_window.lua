@@ -3339,6 +3339,9 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 
 	local function OnBattleIngameUpdate(listener, updatedBattleID, isRunning)
 		infoHandler.BattleIngameUpdate(updatedBattleID, isRunning)
+		if isRunning and battleID == updatedBattleID then
+			votePanel.VoteEnd("Match starting", true)
+		end
 	end
 
 	local function OnUpdateBattleInfo(listener, updatedBattleID, newInfo)
