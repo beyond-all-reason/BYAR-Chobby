@@ -1984,6 +1984,12 @@ end
 Interface.commands["s.battle.update_lobby_title"] = Interface._OnUpdateBattleTitle
 Interface.commandPattern["s.battle.update_lobby_title"] = "(%S+)%s+(.*)"
 
+function Interface:_OnBattleExtraData(battleID, data)
+	-- do nothing for now, but suppress errors in log
+end
+Interface.commands["s.battle.extra_data"] = Interface._OnBattleExtraData
+Interface.commandPattern["s.battle.extra_data"] = "(%S+)%s+(.*)"
+
 function Interface:_OnS_Client_Errorlog()
 	self:_CallListeners("OnS_Client_Errorlog")
 end
