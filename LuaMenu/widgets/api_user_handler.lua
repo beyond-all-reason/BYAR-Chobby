@@ -790,7 +790,7 @@ local function OnUserVoted(listener, userName, voteOption)
 	if not userName then
 		
 		if voteOption == "default" then -- revert all changed username colors to default after vote
-			userAllowedToVote = {}
+			usersAllowedToVote = {}
 			for _, userName2 in pairs(votedUsers) do
 				OnUserVoted(_, userName2, voteOption)
 			end
