@@ -78,6 +78,9 @@ local USER_CH_TOOLTIP_PREFIX = "user_chat_s_"
 
 local UserLevelToImageConfFunction
 
+local votedUsers = {} -- 2023-06-29 FB: ToDo: Does not get reset, if user leaves battle during vote, but has no impact
+local usersAllowedToVote = {}
+
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 -- Globally Applicable Utilities
@@ -399,26 +402,32 @@ local function GetUserStatusImages(userName, isInBattle, userControl)
 end
 
 local function GetUserNameColorFont(userName, userControl)
+	local Configuration = WG.Chobby.Configuration
+	
+	if usersAllowedToVote[userName] then
+		return userControl.tbName.font
+	end
+
 	local userInfo = userControl.lobby:GetUser(userName) or {}
 	if userControl.showModerator and userInfo.isAdmin then
-		return WG.Chobby.Configuration:GetFont(1, "Moderator", {color = WG.Chobby.Configuration:GetModeratorColor()} )
+		return Configuration:GetFont(1, "Moderator", {color = Configuration:GetModeratorColor()} )
 	end
 	if userControl.showFounder and userInfo.battleID then
 		local battle = lobby:GetBattle(userInfo.battleID)
 		if battle and battle.founder == userName then
-			return WG.Chobby.Configuration:GetFont(1, "Founder", {color = WG.Chobby.Configuration:GetFounderColor()} )
+			return Configuration:GetFont(1, "Founder", {color = Configuration:GetFounderColor()} )
 		end
 	end
 	if not userControl.disableInteraction and userName == userControl.lobby:GetMyUserName() then
-		return WG.Chobby.Configuration:GetFont(1, "User", {color = WG.Chobby.Configuration:GetMyUserNameColor()} )
+		return Configuration:GetFont(1, "User", {color = Configuration:GetMyUserNameColor()} )
 	end
 	if userInfo.isFriend then
-		return WG.Chobby.Configuration:GetFont(1, "Friend", {color = WG.Chobby.Configuration:GetFriendsColor()})
+		return Configuration:GetFont(1, "Friend", {color = Configuration:GetFriendsColor()})
 	end
 	if userInfo.isIgnored then
-		return WG.Chobby.Configuration:GetFont(1, "Ignored", {color = WG.Chobby.Configuration:GetIgnoredUserNameColor()} )
+		return Configuration:GetFont(1, "Ignored", {color = Configuration:GetIgnoredUserNameColor()} )
 	end
-	return WG.Chobby.Configuration:GetFont(1, "UserName", {color = WG.Chobby.Configuration:GetUserNameColor()} )
+	return Configuration:GetFont(1, "UserName", {color = Configuration:GetUserNameColor()} )
 end
 
 -- gets status name, image and colorFont
@@ -755,6 +764,7 @@ local function UpdateUserBattleStatus(listener, userName)
 						end
 						userControls.lblHandicap:SetCaption(handicaptxt)
 						userControls.lblHandicap:SetVisibility(true)
+						userControls.lblHandicap:SetPos(offset)
 					end
 				end
 				if not userControls.isPlaying or handicap == nil then
@@ -768,8 +778,6 @@ local function UpdateUserBattleStatus(listener, userName)
 	end
 end
 
-local votedUsers = {} -- 2023-06-29 FB: ToDo: Does not get reset, if user leaves battle during vote, but has no impact
-
 -- 2023-06-29 FB: can be called in 3 modes
 -- 1. userName is given and voteOption is either yes/no/blank -> color of user is changed to green/red/orange
 -- 2. username nil and voteOption = default -> all username colors, that were changed before, are returned to default (e.g white or moderator/friend/bot color)
@@ -782,14 +790,17 @@ local function OnUserVoted(listener, userName, voteOption)
 	if not userName then
 		
 		if voteOption == "default" then -- revert all changed username colors to default after vote
+			usersAllowedToVote = {}
 			for _, userName2 in pairs(votedUsers) do
 				OnUserVoted(_, userName2, voteOption)
 			end
 			votedUsers = {}
-		elseif voteOption == "initVote" and next(votedUsers) == nil then -- set all playing battleUsers colors to white on vote start
+			
+		elseif voteOption == "initVote" --[[and next(votedUsers) == nil]] then -- set all playing battleUsers colors to white on vote start
 			OnUserVoted(_, _, "default") -- 1. revert any changed colors (could be spectator by now, too, or left battle)
 			for userName2, userControls2 in pairs(battleUsers) do -- 2. set all users that are allowed to vote to grey (allowed are only users that were "isPlaying" on time of vote start)
 				if userControls2.isPlaying then
+					usersAllowedToVote[userName2] = true
 					OnUserVoted(_, userName2, voteOption)
 				end
 			end
@@ -807,7 +818,8 @@ local function OnUserVoted(listener, userName, voteOption)
 			userControls.tbName.font = GetUserNameColorFont(userName, userControls)
 			userControls.tbName:Invalidate()
 			return
-		elseif userControls.isPlaying then
+		end
+		if userControls.isPlaying then
 			userControls.tbName.font = WG.Chobby.Configuration:GetFont(1, "vote1" .. voteOption, {color = WG.Chobby.Configuration.voteColor[voteOption]}) -- voteOption can be yes, no, blank, initVote
 			userControls.tbName:Invalidate()
 		end
