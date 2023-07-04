@@ -259,6 +259,10 @@ function Lobby:SayBattleEx(message)
 end
 
 function Lobby:ConnectToBattle(useSpringRestart, battleIp, battlePort, clientPort, scriptPassword, myName, gameName, mapName, engineName, battleType)
+	local battle = self.battles[self.myBattleID] or {}
+	gameName = gameName or battle.gameName
+	mapName = mapName or battle.mapName
+
 	if gameName and not VFS.HasArchive(gameName) then
 		local error = "Cannot start game: missing game file '" .. gameName .. "'."
 		Spring.Echo(error)
