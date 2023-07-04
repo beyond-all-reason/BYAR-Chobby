@@ -159,7 +159,6 @@ function widget:Initialize()
 
 	randomTrackList = {}
 	local originalSoundtrackEnabled = Spring.GetConfigInt('UseSoundtrackNew', 1)
-	local legacySoundtrackEnabled 	= Spring.GetConfigInt('UseSoundtrackOld', 0)
 	local customSoundtrackEnabled	= Spring.GetConfigInt('UseSoundtrackCustom', 1)
 	
 	
@@ -168,12 +167,6 @@ function widget:Initialize()
 	if originalSoundtrackEnabled == 1 then
 		local musicDirOriginal 		= 'luamenu/configs/gameconfig/byar/lobbyMusic/original'
 		randomTrackList = playlistMerge(randomTrackList, VFS.DirList(musicDirOriginal, '*.ogg'))
-	end
-
-	-- Legacy Soundtrack List
-	if legacySoundtrackEnabled == 1 then
-		local musicDirLegacy 		= 'luamenu/configs/gameconfig/byar/lobbyMusic/legacy'
-		randomTrackList = playlistMerge(randomTrackList, VFS.DirList(musicDirLegacy, '*.ogg'))
 	end
 
 	-- Custom Soundtrack List
