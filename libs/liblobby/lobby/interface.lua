@@ -1001,6 +1001,7 @@ function Interface:_OnSaidBattleEx(userName, message)
 	local doesStartWith = startsWith(message, JoinQueue_PREFIX)
 	if doesStartWith then
 		self:_SendCommand(concat("c.battle.queue_status")) -- request the whole join-queue again, because server doesn´t always send s.battle.queue_status or sends it before the change took affect
+		return
 	end
 	self:super("_OnSaidBattleEx", userName, message)
 end

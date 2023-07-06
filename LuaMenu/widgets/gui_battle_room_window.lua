@@ -3445,9 +3445,6 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 
 	-- whoever wrote lua string parser needs to get rammed by a horse
 
-	local function initBattleStatusPanel(bs)
-	end
-
 	local function dontshowvote()
 	end
 
@@ -3474,10 +3471,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		-- i can still multi-vote!
 		if string.match(message, ". Hi .*! Current battle type is .*.$") then return false end
 
-		if string.match(message, ". BattleStatus = .*") then
-			initBattleStatusPanel(pyPartition(message,'"', true))
-			return true
-		end
+		if string.match(message, ". BattleStatus = .*") then return true end
 
 		if string.match(message, "Player .* has already been added in game") then return true end
 		
