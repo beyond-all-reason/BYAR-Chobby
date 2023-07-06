@@ -498,6 +498,7 @@ local function UpdateUserControlStatus(userName, userControls)
 		userControls.imStatusLarge:Invalidate()
 		userControls.lblStatusLarge.font = font
 		userControls.lblStatusLarge:SetCaption(i18n(status .. "_status"))
+		return
 	elseif not userControls.statusImages then
 		return
 	end
@@ -1465,7 +1466,7 @@ local function GetUserControls(userName, opts)
 			if userControls.imTeamColor then
 				offset = offset + 25
 			end
-			if userControls.statusImages then
+			if not large and userControls.statusImages then
 				for i = 1, #userControls.statusImages do
 					userControls.statusImages[i]:SetPos(offset)
 					offset = offset + 21
