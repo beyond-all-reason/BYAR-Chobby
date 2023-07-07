@@ -225,19 +225,15 @@ local function GetUserComboBoxOptions(userName, isInBattle, userControl, showTea
 		
 		if userInfo.isIgnored then
 			comboOptions[#comboOptions + 1] = "Unignore"
-		elseif not userInfo.isAdmin then
-		 	if (not Configuration.gameConfig.spadsLobbyFeatures) or
-		 		(Configuration.gameConfig.spadsLobbyFeatures and not userInfo.isBot) then
+		elseif not userInfo.isBot then
 		 		comboOptions[#comboOptions + 1] = "Ignore" --remove ignore for now
-		 	end
 		end
 
 
 		if userInfo.isFriend then
 			comboOptions[#comboOptions + 1] = "Unfriend"
 		else
-			if (Configuration.gameConfig.spadsLobbyFeatures ~= true ) or
-			(Configuration.gameConfig.spadsLobbyFeatures == true and not userInfo.isBot) then
+			if not userInfo.isBot then
 				comboOptions[#comboOptions + 1] = "Friend"
 			end
 		end
@@ -259,44 +255,35 @@ local function GetUserComboBoxOptions(userName, isInBattle, userControl, showTea
 	end
 
 	-- Change team of anyone with !force
-	if  Configuration.gameConfig.spadsLobbyFeatures and not bs.isSpectator and (isInBattle or bs.aiLib) then
+	if  not bs.isSpectator and (isInBattle or bs.aiLib) then
 		comboOptions[#comboOptions + 1] = "Change Team"
 	end
 
 	-- Set the handicap value of anyone with !force
-	if  Configuration.gameConfig.spadsLobbyFeatures and not bs.isSpectator and (isInBattle or bs.aiLib) then
+	if  not bs.isSpectator and (isInBattle or bs.aiLib) then
 		comboOptions[#comboOptions + 1] = "Add Bonus"
 	end
 
 	-- Ring: not bot and is in same battle
-	if not userInfo.isBot and Configuration.gameConfig.spadsLobbyFeatures and isInBattle and (not bs.aiLib) then
+	if not userInfo.isBot and isInBattle and (not bs.aiLib) then
 		comboOptions[#comboOptions + 1] = "Ring"
 	end
 
 	-- Spec: in same battle, is not AI and is not spec:
-	if Configuration.gameConfig.spadsLobbyFeatures and
-		isInBattle and not bs.isSpectator and not bs.aiLib then
+	if isInBattle and not bs.isSpectator and not bs.aiLib then
 		comboOptions[#comboOptions + 1] = "Force Spectator"
 	end
 
 	-- Spec: in same battle, is not AI and is not spec:
-	if Configuration.gameConfig.spadsLobbyFeatures and
-		isInBattle and not bs.isSpectator and not bs.aiLib then
+	if isInBattle and not bs.isSpectator and not bs.aiLib then
 		comboOptions[#comboOptions + 1] = "Make Boss"
 	end
 
 	-- userControl.lobby:GetMyIsAdmin()
 	-- Let everyone start kick votes, but dont let they try to kick spads lobby bottomSpacing
-	if Configuration.gameConfig.spadsLobbyFeatures then
-		if userName ~= myUserName and not userInfo.isBot and
-			(isInBattle or (bs.aiLib and bs.owner == myUserName)) then
-			comboOptions[#comboOptions + 1] = "Kick"
-		end
-	else
-		if userName ~= myUserName and
-			(isInBattle or (bs.aiLib and bs.owner == myUserName)) then
-			comboOptions[#comboOptions + 1] = "Kick"
-		end
+	if userName ~= myUserName and not userInfo.isBot and
+		(isInBattle or (bs.aiLib and bs.owner == myUserName)) then
+		comboOptions[#comboOptions + 1] = "Kick"
 	end
 
 	if userName ~= myUserName and not userInfo.isBot and not bs.aiLib then
@@ -954,11 +941,7 @@ local function GetUserControls(userName, opts)
 						if userBattleInfo and userBattleInfo.aiLib then
 							userControls.lobby:RemoveAi(userName)
 						else
-							if Configuration.gameConfig.spadsLobbyFeatures then
-								lobby:SayBattle("!kick "..userName)
-							else
-								userControls.lobby:KickUser(userName)
-							end
+							lobby:SayBattle("!kick "..userName)
 						end
 					elseif selectedName == "Unfriend" then
 						userControls.lobby:Unfriend(userName)

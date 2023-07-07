@@ -118,7 +118,6 @@ local externalFuncAndData = {
 	},
 	disableColorChoosing = true,
 	showHandicap = true,
-	spadsLobbyFeatures = true,
 	filterEmptyRegionalAutohosts = true,
 	logoutOpensLoginPanel = logoutOpensLoginPanel,
 	ShortenNameString = ShortenNameString,
