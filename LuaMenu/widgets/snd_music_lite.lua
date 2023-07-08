@@ -160,21 +160,21 @@ function widget:Initialize()
 	randomTrackList = {}
 	local originalSoundtrackEnabled = Spring.GetConfigInt('UseSoundtrackNew', 1)
 	local customSoundtrackEnabled	= Spring.GetConfigInt('UseSoundtrackCustom', 1)
-	
+	local allowedExtensions = "{*.ogg,*.mp3}"
 	
 	local musicPlaylist = {}
 	-- Original Soundtrack List
 	if originalSoundtrackEnabled == 1 then
 		local musicDirOriginal 		= 'luamenu/configs/gameconfig/byar/lobbyMusic/original'
-		randomTrackList = playlistMerge(randomTrackList, VFS.DirList(musicDirOriginal))
+		randomTrackList = playlistMerge(randomTrackList, VFS.DirList(musicDirOriginal, allowedExtensions))
 	end
 
 	-- Custom Soundtrack List
 	if customSoundtrackEnabled == 1 then
 		local musicDirCustom 		= 'music/custom/menu'
-		randomTrackList = playlistMerge(randomTrackList, VFS.DirList(musicDirCustom))
+		randomTrackList = playlistMerge(randomTrackList, VFS.DirList(musicDirCustom, allowedExtensions))
 		local musicDirCustom2 		= 'music/custom/peace'
-		randomTrackList = playlistMerge(randomTrackList, VFS.DirList(musicDirCustom2))
+		randomTrackList = playlistMerge(randomTrackList, VFS.DirList(musicDirCustom2, allowedExtensions))
 	end
 
 	if randomTrackList == nil or #randomTrackList == 0 then
