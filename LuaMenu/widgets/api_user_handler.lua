@@ -941,7 +941,7 @@ local function GetUserControls(userName, opts)
 						if userBattleInfo and userBattleInfo.aiLib then
 							userControls.lobby:RemoveAi(userName)
 						else
-							lobby:SayBattle("!kick "..userName)
+							lobby:SayBattle("!kickban "..userName)
 						end
 					elseif selectedName == "Unfriend" then
 						userControls.lobby:Unfriend(userName)
