@@ -988,18 +988,8 @@ end
 Interface.commands["SAIDBATTLE"] = Interface._OnSaidBattle
 Interface.commandPattern["SAIDBATTLE"] = "(%S+)%s+(.*)"
 
-local function startsWith(targetstring, pattern) 
-	if string.len(pattern) <= string.len(targetstring) and pattern == string.sub(targetstring,1, string.len(pattern)) then
-		return true, string.sub(targetstring, string.len(pattern) + 1)
-	else
-		return false
-	end
-end
-
 function Interface:_OnSaidBattleEx(userName, message)
-	local JoinQueue_PREFIX = "You are now in the join-queue at position"
-	local doesStartWith = startsWith(message, JoinQueue_PREFIX)
-	if doesStartWith then
+	if startsWith(message, WG.Chobby.Configuration.BTLEX_JOINQUEUE) then
 		self:_SendCommand(concat("c.battle.queue_status")) -- request the whole join-queue again, because server doesn´t always send s.battle.queue_status or sends it before the change took affect
 		return
 	end

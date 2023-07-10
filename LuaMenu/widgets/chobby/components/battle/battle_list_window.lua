@@ -335,6 +335,7 @@ function BattleListWindow:UpdateInfoPanel()
 			self.infoPanel:SetVisibility(true)
 			self.infoPanel:BringToFront()
 			self.infoLabel:SetCaption("No games matching filter criteria.")
+			self.infoLabel:SetCaption("No battle rooms found, report this to us on Discord!\nIf the server was just restarted\nwait a few minutes.")
 			return
 		end
 	else

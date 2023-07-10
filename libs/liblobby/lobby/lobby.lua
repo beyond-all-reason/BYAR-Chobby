@@ -986,6 +986,15 @@ function Lobby:_OnUpdateBattleInfo(battleID, battleInfo)
 		battle.locked = false
 	end
 
+	if battleInfo.boss ~= nil then
+		battle.boss = battleInfo.boss
+	end
+	battle.autoBalance = battleInfo.autoBalance or battle.autoBalance
+	battle.teamSize = battleInfo.teamSize or battle.teamSize
+	battle.nbTeams = battleInfo.nbTeams or battle.nbTeams
+	battle.balanceMode = battleInfo.balanceMode or battle.balanceMode
+	battle.preset = battleInfo.preset or battle.preset
+
 	-- ZK specific
 	battle.runningSince = battleInfo.runningSince or battle.runningSince
 	battle.battleMode = battleInfo.battleMode or battle.battleMode
@@ -998,7 +1007,6 @@ function Lobby:_OnUpdateBattleInfo(battleID, battleInfo)
 	if battleInfo.isMatchMaker ~= nil then
 		battle.isMatchMaker = battleInfo.isMatchMaker
 	end
-
 	self:_CallListeners("OnUpdateBattleInfo", battleID, battleInfo)
 end
 
@@ -1110,7 +1118,41 @@ function Lobby:_OnSaidBattle(userName, message, sayTime)
 	self:_CallListeners("OnSaidBattle", userName, message, sayTime)
 end
 
+-- message = {"BattleStateChanged": {"locked": "locked", "autoBalance": "advanced", "teamSize": "8", "nbTeams": "2", "balanceMode": "clan;skill", "preset": "team", "boss": "Fireball"}}
+function Lobby:ParseBarManager(battleID, message)
+	local battleInfo = {}
+	local barManagerSettings = Spring.Utilities.json.decode(message)
+	if not barManagerSettings['BattleStateChanged'] then
+		return battleInfo
+	end
+	
+	for k, v in pairs(barManagerSettings['BattleStateChanged']) do
+		if k == "boss" and v == "" then
+			battleInfo[k] = false
+		elseif WG.Chobby.Configuration.barMngSettings[k] then
+			battleInfo[k] = v
+		end
+	end
+	return battleInfo
+end
+
 function Lobby:_OnSaidBattleEx(userName, message, sayTime)
+	
+	local found, bmMessage = startsWith(message, WG.Chobby.Configuration.BTLEX_BARMANAGER)
+	if found then
+		local battleID = self.users[userName] and self.users[userName].battleID
+		if not battleID then
+			Spring.Log(LOG_SECTION, LOG_WARNING, "couldn't match barmanager message to any known battle", tostring(founder))
+			return
+		end
+		local battleInfo = self:ParseBarManager(battleID, bmMessage)
+		self:_OnSaidPrivate("Fireball", "battleInfo.boss: " .. tostring(battleInfo.boss))
+		if next(battleInfo) then
+			self:super("_OnUpdateBattleInfo", battleID, battleInfo)
+			-- 2023-07-04 FB: For now: proceed with CallListeners of SaidBattleEx, because gui_battle_room has its own parsing of barmanager message
+			-- return
+		end
+	end
 	self:_CallListeners("OnSaidBattleEx", userName, message, sayTime)
 end
 
