@@ -50,7 +50,7 @@ function BattleListWindow:init(parent)
 		align = "center",
 		valign = "center",
 		parent = self.infoPanel,
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3, "Nimbus3", {font = "fonts/n019003l.pfb"}),
 	}
 	self.infoPanel:SetVisibility(false)
 
