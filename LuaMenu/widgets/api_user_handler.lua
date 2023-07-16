@@ -281,12 +281,12 @@ local function GetUserComboBoxOptions(userName, isInBattle, userControl, showTea
 
 	-- userControl.lobby:GetMyIsAdmin()
 	-- Let everyone start kick votes, but dont let they try to kick spads lobby bottomSpacing
-	if userName ~= myUserName and not bs.aiLib  then
-		comboOptions[#comboOptions + 1] = "Kickban"
-	end
-
-	if bs.aiLib and bs.owner == myUserName then
-		comboOptions[#comboOptions + 1] = "Remove"
+	if userName ~= myUserName and not userInfo.isBot and isInBattle then
+		if not bs.aiLib then
+			comboOptions[#comboOptions + 1] = "Kickban"
+		elseif bs.owner == myUserName then
+			comboOptions[#comboOptions + 1] = "Remove"
+		end
 	end
 
 	if userName ~= myUserName and not userInfo.isBot and not bs.aiLib then
