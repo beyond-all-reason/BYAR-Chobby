@@ -281,9 +281,12 @@ local function GetUserComboBoxOptions(userName, isInBattle, userControl, showTea
 
 	-- userControl.lobby:GetMyIsAdmin()
 	-- Let everyone start kick votes, but dont let they try to kick spads lobby bottomSpacing
-	if userName ~= myUserName and not userInfo.isBot and
-		(isInBattle or (bs.aiLib and bs.owner == myUserName)) then
-		comboOptions[#comboOptions + 1] = "Kick"
+	if userName ~= myUserName and not bs.aiLib  then
+		comboOptions[#comboOptions + 1] = "Kickban"
+	end
+
+	if bs.aiLib and bs.owner == myUserName then
+		comboOptions[#comboOptions + 1] = "Remove"
 	end
 
 	if userName ~= myUserName and not userInfo.isBot and not bs.aiLib then
@@ -936,13 +939,10 @@ local function GetUserControls(userName, opts)
 				function (obj, selectedName)
 					if selectedName == "Message" then
 						local chatWindow = WG.Chobby.interfaceRoot.OpenPrivateChat(userName)
-					elseif selectedName == "Kick" then
-						local userBattleInfo = userControls.lobby:GetUserBattleStatus(userName) or {}
-						if userBattleInfo and userBattleInfo.aiLib then
-							userControls.lobby:RemoveAi(userName)
-						else
-							lobby:SayBattle("!kick "..userName)
-						end
+					elseif selectedName == "Kickban" then
+						lobby:SayBattle("!kickban "..userName)
+					elseif selectedName == "Remove" then
+						userControls.lobby:RemoveAi(userName)
 					elseif selectedName == "Unfriend" then
 						userControls.lobby:Unfriend(userName)
 					elseif selectedName == "Friend" then
