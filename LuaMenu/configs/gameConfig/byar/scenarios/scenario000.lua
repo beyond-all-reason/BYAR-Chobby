@@ -1233,15 +1233,15 @@ local scenariodata = {
 		version=<not-versioned>;
 		isfromdemo=0;
 		team=1;
-		shortname=ChickensAI;
+		shortname=RaptorsAI;
 		}
 		[modoptions]
 		{
 		scenariooptions=__SCENARIOOPTIONS__;
 		maxunits=10000;
-		chicken_graceperiod=5;
-		chicken_queentime=120;
-		chicken_chickenstart=alwaysbox;
+		raptor_graceperiod=5;
+		raptor_queentime=120;
+		raptor_chickenstart=alwaysbox;
 		startmetal=999999;
 		startenergy=999999;
 		}
