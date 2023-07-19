@@ -529,7 +529,7 @@ local function UpdateUserControlStatus(userName, userControls)
 	if userControls.lblHandicap and userControls.lblHandicap.visible then
 		handiCapLength = userControls.lblHandicap.font:GetTextWidth(userControls.lblHandicap.caption)
 	end
-	local statusImageOffset = userControls.nameStartY + handiCapLength + userControls.nameActualLength + 3 
+	local statusImageOffset = userControls.nameStartY + userControls.nameActualLength + handiCapLength + 3 
 	if userControls.maxNameLength then
 		if statusImageOffset + 21*(#imageFiles) > userControls.maxNameLength then
 			statusImageOffset = userControls.maxNameLength - 21*(#imageFiles)
