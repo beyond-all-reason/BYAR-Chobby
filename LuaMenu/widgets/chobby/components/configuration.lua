@@ -356,6 +356,18 @@ function Configuration:init()
 	for i = 1, #saneCharacterList do
 		self.saneCharacters[saneCharacterList[i]] = true
 	end
+
+	self.barMngSettings = {
+		autoBalance = true,
+		teamSize = true,
+		nbTeams = true,
+		balanceMode = true,
+		preset = true,
+		boss = true,
+	}
+	-- SAIDBATTLEEX Prefixes
+	self.BTLEX_JOINQUEUE = "You are now in the join-queue at position"
+	self.BTLEX_BARMANAGER = "* BarManager|"
 end
 
 ---------------------------------------------------------------------------------

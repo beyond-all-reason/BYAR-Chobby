@@ -68,6 +68,7 @@ local IMAGE_DOWNLOAD     = IMAGE_DIR .. "download.png"
 local IMAGE_UNKNOWN_SYNC = IMAGE_DIR .. "unknown_sync.png"
 local IMAGE_ONLINE       = IMAGE_DIR .. "online.png"
 local IMAGE_OFFLINE      = IMAGE_DIR .. "offline.png"
+local IMAGE_BOSS         = IMAGE_DIR .. "boss-icon.png"
 
 local IMAGE_CLAN_PATH    = "LuaUI/Configs/Clans/"
 local RANK_DIR           = LUA_DIRNAME .. "configs/gameConfig/zk/rankImages/"
@@ -370,6 +371,13 @@ local function GetUserStatusImages(userName, isInBattle, userControl)
 		images[#images + 1] = IMAGE_PARTY_INVITE
 	end
 
+	if isInBattle then
+		local boss = userInfo.battleID and userControl.lobby.battles[userInfo.battleID] and userControl.lobby.battles[userInfo.battleID].boss
+		if boss and userName == boss then
+			images[#images + 1] = IMAGE_BOSS
+		end
+	end
+
 	if not isInBattle or userControl.isPlaying == false then
 		if userInfo.isInGame or (userInfo.battleID and not isInBattle) and not userControl.hideStatusIngame then
 			if userInfo.isInGame then
@@ -500,7 +508,9 @@ local function UpdateUserControlStatus(userName, userControls)
 	if userControls.lblHandicap and userControls.lblHandicap.visible then
 		handiCapLength = userControls.lblHandicap.font:GetTextWidth(userControls.lblHandicap.caption)
 	end
+
 	local statusImageOffset = userControls.nameStartY + userControls.nameActualLength + handiCapLength + 3
+
 	if userControls.maxNameLength then
 		if statusImageOffset + 21*(#imageFiles) > userControls.maxNameLength then
 			statusImageOffset = userControls.maxNameLength - 21*(#imageFiles)
@@ -579,6 +589,18 @@ end
 local function UpdateUserActivityList(listener, userList)
 	for i = 1, #userList do
 		UpdateUserActivity(_, userList[i])
+	end
+end
+
+local function UpdateBattleInfo(listener, battleID, battleInfo)
+	if battleInfo.boss ~= nil then
+		if battleInfo.boss == false then
+			for userName, userControls in pairs(battleUsers) do
+				UpdateUserControlStatus(userName, userControls)
+			end
+		elseif battleUsers[battleInfo.boss] ~= nil then
+			UpdateUserControlStatus(battleInfo.boss, battleUsers[battleInfo.boss])
+		end
 	end
 end
 
@@ -1684,6 +1706,7 @@ local function AddListeners()
 	WG.LibLobby.localLobby:AddListener("OnUpdateUserBattleStatus", UpdateUserBattleStatus)
 
 	lobby:AddListener("OnUserVoted", OnUserVoted)
+	lobby:AddListener("OnUpdateBattleInfo", UpdateBattleInfo)
 end
 
 --------------------------------------------------------------------------------
