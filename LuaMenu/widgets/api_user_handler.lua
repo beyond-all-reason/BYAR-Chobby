@@ -496,7 +496,11 @@ local function UpdateUserControlStatus(userName, userControls)
 	local imageFiles = GetUserStatusImages(userName, userControls.isInBattle, userControls)
 	local imageControlCount = math.max(#userControls.statusImages, #imageFiles)
 
-	local statusImageOffset = userControls.nameStartY + userControls.nameActualLength + 3
+	local handiCapLength = 0
+	if userControls.lblHandicap and userControls.lblHandicap.visible then
+		handiCapLength = userControls.lblHandicap.font:GetTextWidth(userControls.lblHandicap.caption)
+	end
+	local statusImageOffset = userControls.nameStartY + userControls.nameActualLength + handiCapLength + 3
 	if userControls.maxNameLength then
 		if statusImageOffset + 21*(#imageFiles) > userControls.maxNameLength then
 			statusImageOffset = userControls.maxNameLength - 21*(#imageFiles)
