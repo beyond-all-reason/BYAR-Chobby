@@ -148,10 +148,10 @@ function InterfaceSkirmish:_StartScript(gameName, mapName, playerName, friendLis
 	local chickenAdded = false
 	for userName, data in pairs(self.userBattleStatus) do
 		if data.allyNumber and data.aiLib then
-			if friendAllyTeam == data.allyNumber and aiReplaceCount > 0 and not string.find(data.aiLib, "Chicken") then
+			if friendAllyTeam == data.allyNumber and aiReplaceCount > 0 and not string.find(data.aiLib, "Raptor") then
 				aiReplaceCount = aiReplaceCount - 1
 			else
-				if chickenName and string.find(data.aiLib, "Chicken") then
+				if chickenName and string.find(data.aiLib, "Raptor") then
 					-- Override chicken AI if difficulty modoption is present
 					ais[aiCount] = {
 						Name = chickenName,

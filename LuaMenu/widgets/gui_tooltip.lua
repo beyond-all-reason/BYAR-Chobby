@@ -128,8 +128,8 @@ local function GetTooltipLine(parent, hasImage, fontSize, xOffset, imageWidth)
 		height = 20,
 		align = "left",
 		parent = parent,
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(fontSize, "tooltip" .. fontSize, {font="fonts/n019003l.pfb"}),
-		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(fontSize, "tooltip" .. fontSize),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(fontSize, "Nimbus" .. fontSize, {font = "fonts/n019003l.pfb"}),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(fontSize, "Nimbus" .. fontSize),
 		text = "",
 	}
 
@@ -144,7 +144,7 @@ local function GetTooltipLine(parent, hasImage, fontSize, xOffset, imageWidth)
 			textDisplay.font = WG.Chobby.Configuration:GetFont(fontSize, colorName, {font="fonts/n019003l.pfb", color = newColor})
 			textDisplay:Invalidate()
 		else
-			textDisplay.font = WG.Chobby.Configuration:GetFont(fontSize, "tooltip" .. fontSize, {font="fonts/n019003l.pfb"})
+			textDisplay.font = WG.Chobby.Configuration:GetFont(fontSize, "Nimbus" .. fontSize, {font = "fonts/n019003l.pfb"})
 		end
 
 		if hasImage then

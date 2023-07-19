@@ -160,7 +160,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 			function(obj, key, mods, ...)
 				if key == Spring.GetKeyCode("enter") or key == Spring.GetKeyCode("numpad_enter") then
 					if self.tabPanel.tabBar:IsSelected("login") then
-						self:tryLogin()
+						self:MayBeDisconnectBeforeTryLogin()
 					else
 						self:tryRegister()
 					end
@@ -221,7 +221,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 			function(obj, key, mods, ...)
 				if key == Spring.GetKeyCode("enter") or key == Spring.GetKeyCode("numpad_enter") then
 					if self.tabPanel.tabBar:IsSelected("login") then
-						self:tryLogin()
+						self:MayBeDisconnectBeforeTryLogin()
 					else
 						self:tryRegister()
 					end
@@ -375,7 +375,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		classname = "action_button",
 		OnClick = {
 			function()
-				self:tryLogin()
+				self:MayBeDisconnectBeforeTryLogin()
 			end
 		},
 	}
@@ -981,6 +981,24 @@ function LoginWindow:RemoveListeners()
 	end
 end
 
+function LoginWindow:MayBeDisconnectBeforeTryLogin()
+	if lobby:GetConnectionStatus() ~= "connected" then
+		self:tryLogin()
+		return
+	end
+
+	-- disconnect and cleanup before login to next account
+	local function callTryLogin() self:tryLogin() end
+	self.onDisconnected = function(listener)
+		lobby:RemoveListener("OnDisconnected", self.onDisconnected)
+		WG.Delay(callTryLogin, 3) -- server returns error when connecting directly after disconnect
+	end
+	lobby:AddListener("OnDisconnected", self.onDisconnected)
+
+	WG.Chobby.interfaceRoot.CleanMultiplayerState()
+	lobby:Disconnect()
+end
+
 function LoginWindow:tryLogin()
 	self.txtError:SetText("")
 
@@ -993,7 +1011,7 @@ function LoginWindow:tryLogin()
 	Configuration.userName = username
 	Configuration.password = password
 
-	if not lobby.connected or self.loginAttempts >= 3 then
+	if not (lobby:GetConnectionStatus() == "connected") or self.loginAttempts >= 3 then
 		self.loginAttempts = 0
 		self:RemoveListeners()
 

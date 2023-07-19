@@ -138,7 +138,7 @@ function Configuration:init()
 	self.voteColor = {
 		["yes"]   = {0.00, 1.00, 0.00, 1.0}, -- green
 		["no"]    = {1.00, 0.00, 0.00, 1.0}, -- red
-		["blank"] = {0.50, 1.00, 0.00, 1.0}, -- orange
+		["blank"] = {1.00, 0.80, 0.00, 1.0}, -- yellow
 		["initVote"] = {0.80, 0.80, 0.80, 1.0}, -- grey
 	}
 

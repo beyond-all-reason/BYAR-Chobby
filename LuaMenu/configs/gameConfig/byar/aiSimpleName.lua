@@ -2,7 +2,7 @@ local subnameMap = {
 	['BARb stable'] = "BARbarian AI",
 	['NullAI 0.1'] = "Inactive AI",
 	['ScavengersAI'] = "ScavengersDefense AI",
-	['ChickensAI'] = "RaptorsDefense AI",
+	['RaptorsAI'] = "RaptorsDefense AI",
 	--['STAI'] = "STAI",
 }
 
@@ -17,7 +17,7 @@ local simpleAiOrder = {
 	['SimpleDefenderAI'] = 13,
 	['SimpleConstructorAI'] = 14,
 	['ScavengersAI'] = 31,
-	['ChickensAI'] = 41,
+	['RaptorsAI'] = 41,
 	['NullAI 0.1'] = 51,
 }
 
@@ -29,7 +29,7 @@ local aiTooltip = {
 	--['STAI'] = "A medium to hard difficulty, experimental, non cheating AI.",
 	['NullAI 0.1'] = "A game-testing AI. Literally does nothing.",
 	['BARb stable'] = "The recommended excellent performance, adjustable difficulty, non-cheating AI. Add as many as you wish!",
-	['ChickensAI'] = "This is a PvE game mode, where hordes of alien creatures attack the players. Only add 1 per game.",
+	['RaptorsAI'] = "This is a PvE game mode, where hordes of alien creatures attack the players. Only add 1 per game.",
 }
 
 return {
