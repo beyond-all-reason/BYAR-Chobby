@@ -68,7 +68,7 @@ local IMAGE_DOWNLOAD     = IMAGE_DIR .. "download.png"
 local IMAGE_UNKNOWN_SYNC = IMAGE_DIR .. "unknown_sync.png"
 local IMAGE_ONLINE       = IMAGE_DIR .. "online.png"
 local IMAGE_OFFLINE      = IMAGE_DIR .. "offline.png"
-local IMAGE_BOSS         = IMAGE_DIR .. "key.png" -- 2023-07-19 FB: Replace with dedicated boss icon when available
+local IMAGE_BOSS         = IMAGE_DIR .. "boss-icon.png"
 
 local IMAGE_CLAN_PATH    = "LuaUI/Configs/Clans/"
 local RANK_DIR           = LUA_DIRNAME .. "configs/gameConfig/zk/rankImages/"
@@ -377,25 +377,15 @@ local function GetUserStatusImages(userName, isInBattle, userControl)
 	local userInfo = userControl.lobby:GetUser(userName) or {}
 	local images = {}
 
-	local boss = userInfo.battleID and userControl.lobby.battles[userInfo.battleID] and userControl.lobby.battles[userInfo.battleID].boss
-	Spring.Echo("userName", userName)
-	--if string.find(userName, "Fireball") then
-	if userControl.channelUser and string.find(userName, "Fireball") then
-		--Spring.Echo("Fireball found")
-		Spring.Echo("ChannelUser")
-		Spring.Echo("battleID", userInfo.battleID)
-		Spring.Echo("battles(battleID)", userInfo.battleID and userControl.lobby.battles[userInfo.battleID] and true)
-		Spring.Echo("boss:", boss)
-	end
-	if boss and userName == boss then
-		images[#images + 1] = IMAGE_BOSS
-		Spring.Echo("IMAGE_BOSS")
-	else
-		Spring.Echo("not boss")
-	end
-
 	if userInfo.pendingPartyInvite and not userControl.hideStatusInvite then
 		images[#images + 1] = IMAGE_PARTY_INVITE
+	end
+
+	if isInBattle then
+		local boss = userInfo.battleID and userControl.lobby.battles[userInfo.battleID] and userControl.lobby.battles[userInfo.battleID].boss
+		if boss and userName == boss then
+			images[#images + 1] = IMAGE_BOSS
+		end
 	end
 
 	if not isInBattle or userControl.isPlaying == false then
@@ -408,7 +398,6 @@ local function GetUserStatusImages(userName, isInBattle, userControl)
 				end
 			else
 				images[#images + 1] = IMAGE_BATTLE
-				Spring.Echo("IMAGE_BATTLE")
 			end
 		end
 	end
@@ -612,14 +601,12 @@ local function UpdateUserActivityList(listener, userList)
 end
 
 local function UpdateBattleInfo(listener, battleID, battleInfo)
-	Spring.Echo("api_user: UpdateBattleInfo", battleID, battleInfo.boss)
 	if battleInfo.boss ~= nil then
 		if battleInfo.boss == false then
 			for userName, userControls in pairs(battleUsers) do
 				UpdateUserControlStatus(userName, userControls)
 			end
 		elseif battleUsers[battleInfo.boss] ~= nil then
-			Spring.Echo("api_user: Call UpdateUserControlStatus", battleInfo.boss, battleUsers[battleInfo.boss])
 			UpdateUserControlStatus(battleInfo.boss, battleUsers[battleInfo.boss])
 		end
 	end
@@ -925,7 +912,6 @@ local function GetUserControls(userName, opts)
 	userControls.showRank           = opts.showRank or false
 	userControls.showCountry        = opts.showCountry or false
 	userControls.isSingleplayer     = opts.isSingleplayer or false -- is needed by UpdateUserBattleStatus
-	userControls.channelUser        = opts.channelUser
 
 	local myBattleID = userControls.lobby:GetMyBattleID()
 	local userInfo = userControls.lobby:GetUser(userName) or {}
@@ -1388,8 +1374,6 @@ local function GetUserControls(userName, opts)
 
 	offset = offset + 2
 
-	--userName = "Fireball_Test_WithExtraLong"
-
 	-- This is also used for top name tag
 	userControls.tbName = TextBox:New { 
 		name = "tbName",
@@ -1628,7 +1612,6 @@ function userHandler.GetChannelUser(userName)
 		maxNameLength  = WG.Chobby.Configuration.chatMaxNameLength,
 		showModerator  = true,
 		showCountry    = true,
-		channelUser    = true,
 	})
 end
 

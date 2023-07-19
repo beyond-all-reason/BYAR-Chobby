@@ -1007,6 +1007,7 @@ function Lobby:_OnUpdateBattleInfo(battleID, battleInfo)
 	if battleInfo.isMatchMaker ~= nil then
 		battle.isMatchMaker = battleInfo.isMatchMaker
 	end
+
 	self:_CallListeners("OnUpdateBattleInfo", battleID, battleInfo)
 end
 
@@ -1146,7 +1147,6 @@ function Lobby:_OnSaidBattleEx(userName, message, sayTime)
 			return
 		end
 		local battleInfo = self:ParseBarManager(battleID, bmMessage)
-		self:_OnSaidPrivate("Fireball", "battleInfo.boss: " .. tostring(battleInfo.boss))
 		if next(battleInfo) then
 			self:super("_OnUpdateBattleInfo", battleID, battleInfo)
 			-- 2023-07-04 FB: For now: proceed with CallListeners of SaidBattleEx, because gui_battle_room has its own parsing of barmanager message
