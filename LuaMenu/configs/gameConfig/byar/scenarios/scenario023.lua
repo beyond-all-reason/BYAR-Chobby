@@ -135,6 +135,7 @@ local scenariodata = {
 	GameStartDelay = 5;
 	myplayername = __PLAYERNAME__;
 	nohelperais = 0;
+	FixedRNGSeed = 123123;
 }
 	]],
 }
