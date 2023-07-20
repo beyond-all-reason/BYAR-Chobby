@@ -13,11 +13,10 @@
 
 local welcomePanelItems = {
     {
-        Header = "BAR 3v3 Official PRO Tournament 2023",
-        Image = "LuaMenu/images/3v3Tournament.png",
-        Url = "https://www.twitch.tv/beyondallreasonofficial",
-        Text = "\n3v3 tournament is live with some of the most skillfull players in BAR! See the live casting done by our amazing casting team on Twitch!\n",
-        UrlText = "Watch"
+        Header = "Commander update survey!",
+        Url = "https://forms.gle/6iagp9r8EWPc3YUQ9",
+        Text = "\nWe would like to collect your feedback in a systematic way to use as supplementary data for the Game Design Team's discussion and ultimately decision on if and what tweaks should be applied. Thank you in advance for your time!\n",
+        UrlText = "Participate"
     },
     {
         Header = "Welcome to Beyond All Reason",
