@@ -1927,19 +1927,25 @@ function Interface:_OnIgnoreListParse(tags)
 	self:_OnIgnoreList(userName, reason)
 end
 
+local igListNew = {}
 function Interface:_OnIgnoreList(userName, reason)
-	self:_CallListeners("OnIgnoreList", userName, reason)
+	local igUser = {
+		userName = userName,
+		reason = reason,
+	}
+	igListNew[#igListNew + 1] = igUser
 end
 Interface.commands["IGNORELIST"] = Interface._OnIgnoreListParse
 Interface.commandPattern["IGNORELIST"] = "(.+)"
 
 function Interface:_OnIgnoreListBegin()
-	self:_CallListeners("OnIgnoreListBegin")
+	igListNew = {}
 end
 Interface.commands["IGNORELISTBEGIN"] = Interface._OnIgnoreListBegin
 
 function Interface:_OnIgnoreListEnd()
-	self:_CallListeners("OnIgnoreListEnd")
+	self:super("_OnIgnoreListEnd", igListNew)
+	igListNew = {}	
 end
 Interface.commands["IGNORELISTEND"] = Interface._OnIgnoreListEnd
 

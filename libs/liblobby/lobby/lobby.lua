@@ -764,6 +764,9 @@ end
 ------------------------
 
 function Lobby:_OnAddIgnoreUser(userName)
+	if self.isIgnored[userName] then
+		return
+	end
 	table.insert(self.ignored, userName)
 	self.isIgnored[userName] = true
 	self.ignoredCount = self.ignoredCount + 1
@@ -773,6 +776,9 @@ function Lobby:_OnAddIgnoreUser(userName)
 end
 
 function Lobby:_OnRemoveIgnoreUser(userName)
+	if not self.isIgnored[userName] then
+		return
+	end
 	for i, v in pairs(self.ignored) do
 		if v == userName then
 			table.remove(self.ignored, i)
@@ -789,17 +795,22 @@ function Lobby:_OnRemoveIgnoreUser(userName)
 	self:_CallListeners("OnRemoveIgnoreUser", userName)
 end
 
-function Lobby:_OnIgnoreList(data)
-	self.ignored = data
-	self.ignoredCount = #data
-	self.isIgnored = {}
-	for _, userName in pairs(self.ignored) do
-		self.isIgnored[userName] = true
-		local userInfo = self:TryGetUser(userName)
-		userInfo.isIgnored = true
+function Lobby:_OnCleanIgnoreList()
+	local ignoredCp = ShallowCopy(self.ignored)
+	for _, userName in pairs(ignoredCp) do
+		self:_OnRemoveIgnoreUser(userName)
 	end
+end
 
-	self:_CallListeners("OnIgnoreList", self:Getignored())
+function Lobby:_OnIgnoreList(data)
+	return self
+end
+
+function Lobby:_OnIgnoreListEnd(igListNew)
+	self:_OnCleanIgnoreList()
+	for _, igUser in pairs(igListNew) do
+		self:_OnAddIgnoreUser(igUser.userName)
+	end
 end
 
 ------------------------

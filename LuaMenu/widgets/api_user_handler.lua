@@ -604,16 +604,6 @@ local function UpdateBattleInfo(listener, battleID, battleInfo)
 	end
 end
 
-local function OnIgnoreList(listener, userName)
-	if userName then
-		local userInfo = lobby:GetUser(userName)
-		--Spring.Echo("OnIgnoreList(listener, userList)", userName,userInfo)
-		if userInfo then
-			userInfo.isIgnored = true
-		end
-	end
-end
-
 local function OnPartyUpdate(listener, partyID, partyUsers)
 	if partyID ~= lobby:GetMyPartyID() then
 		return
@@ -1122,12 +1112,8 @@ local function GetUserControls(userName, opts)
 							WG.BrowserHandler.OpenUrl(Configuration.gameConfig.link_reportPlayer(userInfo.accountID))
 						end
 					elseif selectedName == "Unignore" then
-						local userInfo = userControls.lobby:GetUser(userName)
-						userInfo.isIgnored = nil
 						userControls.lobby:Unignore(userName)
 					elseif selectedName == "Ignore" then
-						local userInfo = userControls.lobby:GetUser(userName)
-						userInfo.isIgnored = true
 						userControls.lobby:Ignore(userName)
 					elseif selectedName == "Report User" then
 						WG.TextEntryWindow.CreateTextEntryWindow({
@@ -1682,9 +1668,6 @@ end
 
 local function AddListeners()
 	lobby:AddListener("OnFriendList", UpdateUserActivityList)
-	lobby:AddListener("OnIgnoreList", UpdateUserActivityList)
-	lobby:AddListener("OnIgnoreList", OnIgnoreList)
-	lobby:AddListener("Ignore", OnIgnoreList)
 	lobby:AddListener("OnUpdateUserStatus", UpdateUserActivity)
 
 	lobby:AddListener("OnFriend", UpdateUserActivity)
