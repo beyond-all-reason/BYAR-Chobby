@@ -583,7 +583,7 @@ local function UpdateUserActivity(listener, userName, status)
 			UpdateUserStatusImage(userName, userControls)
 			UpdateUserControlStatus(userName, userControls)
 
-			if (status["skill"] or status["skillUncertainty"]) and userControls.showSkill then
+			if status and (status["skill"] or status["skillUncertainty"]) and userControls.showSkill then
 				local displaySkill = userControls.isPlaying and WG.Chobby.Configuration.showSkillOpt > 1
 				if displaySkill then
 					local skill, skillColorFont = GetUserSkillFont(userName, userControls)
