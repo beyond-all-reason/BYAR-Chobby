@@ -565,7 +565,7 @@ local function UpdateUserComboboxOptions(_, userName)
 	end
 end
 
-local function UpdateUserActivity(listener, userName)
+local function UpdateUserActivity(listener, userName, status)
 	for i = 1, #userListList do
 		local userList = userListList[i]
 		local userControls = userList[userName]
@@ -582,6 +582,16 @@ local function UpdateUserActivity(listener, userName)
 
 			UpdateUserStatusImage(userName, userControls)
 			UpdateUserControlStatus(userName, userControls)
+
+			if (status["skill"] or status["skillUncertainty"]) and userControls.showSkill then
+				local displaySkill = userControls.isPlaying and WG.Chobby.Configuration.showSkillOpt > 1
+				if displaySkill then
+					local skill, skillColorFont = GetUserSkillFont(userName, userControls)
+					userControls.tbSkill:SetText(skill)
+					userControls.tbSkill.font = skillColorFont
+					userControls.tbSkill:Invalidate()
+				end
+			end
 		end
 	end
 end
