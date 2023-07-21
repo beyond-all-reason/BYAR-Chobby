@@ -3499,18 +3499,6 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		if string.match(message, "^!ring .*") then return true end
 
 		if string.match(message, "^!endvote$") then return true end
-
-		if message:lower():match("^!vote yes$") or message:lower():match("^!vote y$") or message:lower():match("^!yes$") or message:lower():match("^!y$") then
-			battleLobby:_OnUserVoted(userName, "yes")
-		end
-
-		if message:lower():match("^!vote no$") or message:lower():match("^!vote n$") or message:lower():match("^!no$") or message:lower():match("^!n$") then
-			battleLobby:_OnUserVoted(userName, "no")
-		end
-
-		if message:lower():match("^!vote blank$") or message:lower():match("^!vote b$") or message:lower():match("^!blank$") or message:lower():match("^!b$") then
-			battleLobby:_OnUserVoted(userName, "blank")
-		end
 	end
 
 

@@ -1116,6 +1116,16 @@ function Lobby:_OnRemoveAi(battleID, aiName, aiLib, allyNumber, owner)
 end
 
 function Lobby:_OnSaidBattle(userName, message, sayTime)
+	-- parse votes (yes|no|blank)
+	local messageL = message:lower()
+	if messageL:match("^!vote yes$") or messageL:match("^!vote y$") or messageL:match("^!yes$") or messageL:match("^!y$") then
+		self:_OnUserVoted(userName, "yes")
+	elseif messageL:match("^!vote no$") or messageL:match("^!vote n$") or messageL:match("^!no$") or messageL:match("^!n$") then
+		self:_OnUserVoted(userName, "no")
+	elseif messageL:match("^!vote blank$") or messageL:match("^!vote b$") or messageL:match("^!blank$") or messageL:match("^!b$") then
+		self:_OnUserVoted(userName, "blank")
+	end
+
 	self:_CallListeners("OnSaidBattle", userName, message, sayTime)
 end
 
