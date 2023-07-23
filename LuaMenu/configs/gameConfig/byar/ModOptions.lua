@@ -1244,7 +1244,7 @@ local options={
 	{
 		key    = 'expandedcortexvehiclest2',
 		name   = 'Additional Cortex T2 Vehicles',
-		desc   = 'Adds Forge, a combat engineer like the butler with a flamethrower. Adds Printer, an armored field engineer. Adds Heat Tiger, Tiger with a heat laser',
+		desc   = 'Adds Printer, an armored field engineer. Replaces Alligator with Salamander, a cheaper amphibious tank with precision heat rays',
 		type   = 'bool',
 		section = 'options_experimental',
 		def  = false,
