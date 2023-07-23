@@ -374,6 +374,7 @@ function Console:LoadHistory(numLines)
 	end
 	local path = 'chatLogs/' .. self.channelName .. ".txt"
 	if not VFS.FileExists(path) then
+		self:AddMessage(i18n("mod_priv_chat"))
 		return
 	end
 

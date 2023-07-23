@@ -330,6 +330,9 @@ return {
 		month_10 = "October",
 		month_11 = "November",
 		month_12 = "December",
+
+		-- moderation
+		mod_priv_chat = "Remember: Direct Messages are not private and subject to the same moderation rules as other chat. Be careful not to click links from people you don't know and never give out your password.",
 	},
 	de = {
 		-- general
