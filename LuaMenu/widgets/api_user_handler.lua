@@ -31,7 +31,21 @@ local friendUsers = {}
 local friendRequestUsers = {}
 local notificationUsers = {}
 
-local clanDownloadBegun = {}
+local namedUserList = {
+	battleUsers = battleUsers,
+	tooltipUsers = tooltipUsers,
+	singleplayerUsers = singleplayerUsers,
+	channelUsers = channelUsers,
+	debriefingUsers = debriefingUsers,
+	partyUsers = partyUsers,
+	popupUsers = popupUsers,
+	statusUsers = statusUsers,
+	profileUsers = profileUsers,
+	ladderUsers = ladderUsers,
+	friendUsers = friendUsers,
+	friendRequestUsers = friendRequestUsers,
+	notificationUsers = notificationUsers,
+}
 
 local userListList = {
 	battleUsers,
@@ -48,6 +62,8 @@ local userListList = {
 	friendRequestUsers,
 	notificationUsers,
 }
+
+local clanDownloadBegun = {}
 
 local IMAGE_DIR          = LUA_DIRNAME .. "images/"
 
@@ -178,156 +194,29 @@ local function battleWatchable()
 
 end
 
-local function GetUserComboBoxOptions(userName, isInBattle, userControl, showTeamColor, showSide)
-	local userInfo = userControl.lobby:GetUser(userName) or {}
-	local info = userInfo
-	local bs = userControl.lobby:GetUserBattleStatus(userName) or {}
-	local myUserName = userControl.lobby:GetMyUserName()
+local function GetUserComboBoxOptions(userName, isInBattle, control, showTeamColor, showSide)
+	local info = control.lobby:GetUser(userName) or {}
+	local bs = control.lobby:GetUserBattleStatus(userName) or {}
+	local myUserName = control.lobby:GetMyUserName()
 	local itsme = userName == myUserName
+	local iPlay = not control.lobby:GetMyIsSpectator()
 	local comboOptions = {}
+	local boss = info.battleID and control.lobby.battles[info.battleID] and control.lobby.battles[info.battleID].boss
 
-	--local myPartyID = userControl.lobby:GetMyPartyID()
-	--local userPartyID = userControl.lobby:GetUserPartyID(userName)
-
-	local Configuration = WG.Chobby.Configuration
-
-	if not (itsme or bs.aiLib) then										comboOptions[#comboOptions + 1] = "Message" end
-																		comboOptions[#comboOptions + 1] = "Copy Name" end
-	if not (itsme or bs.aiLib or info.isBot) then						comboOptions[#comboOptions + 1] = "Ring" end
-	if not (itsme or bs.aiLib or isInBattle) and info.battleID then		comboOptions[#comboOptions + 1] = "Join Battle" end
-	if not (itsme or bs.aiLib or info.isBot) then						comboOptions[#comboOptions + 1] = info.isIgnored and "Unignore" or "Ignore"
-																		comboOptions[#comboOptions + 1] = info.isFriend and "Unfriend" or "Friend" end
-	if showSide and not bs.isSpectator and itsme or bs.aiLib and then	comboOptions[#comboOptions + 1] = "Change Faction"
-
-	if (not bs.aiLib) and userName ~= myUserName then
-		comboOptions[#comboOptions + 1] = "Message"
-
-			-- Ring: not bot and is in same battle
-		if not userInfo.isBot and isInBattle then
-			comboOptions[#comboOptions + 1] = "Ring"
-		end
-
-		if (not isInBattle) and userInfo.battleID then
-			local battle = lobby:GetBattle(userInfo.battleID)
-			if battle and Configuration:IsValidEngineVersion(battle.engineVersion) then
-				if not Configuration.showMatchMakerBattles and battle.isMatchMaker then
-					comboOptions[#comboOptions + 1] = "Watch Battle"
-				else
-					comboOptions[#comboOptions + 1] = "Join Battle"
-				end
-			end
-		end
-
-		--if not Configuration.hidePartySystem and ((not myPartyID) or myPartyID ~= userPartyID) then
-		--	-- Do not show any party options for people already in my party.
-		--	if (not myPartyID) and userPartyID then
-		--		-- Join others party if they have one and I don't.
-		--		comboOptions[#comboOptions + 1] = "Join Party"
-		--	else
-		--		-- Invite user to make a party or join mine. Note that the
-		--		-- user might be in a party which is not visible to me. In
-		--		-- this case the command might be the same as join party.
-		--		comboOptions[#comboOptions + 1] = "Invite to Party"
-		--	end
-		--end
-
-		--if Configuration.canAuthenticateWithSteam and userControl.steamInvite and userInfo.steamID then
-		--	comboOptions[#comboOptions + 1] = "Invite to Campaign"
-		--end
-
-		--if userInfo.accountID and Configuration.gameConfig.link_userPage ~= nil then
-		--	comboOptions[#comboOptions + 1] = "User Page"
-		--end
-
-		--if userInfo.accountID and Configuration.gameConfig.link_reportPlayer ~= nil then
-		--	comboOptions[#comboOptions + 1] = "Report"
-		--end
-		
-		if userInfo.isIgnored then
-			comboOptions[#comboOptions + 1] = "Unignore"
-		elseif not userInfo.isBot then
-			comboOptions[#comboOptions + 1] = "Ignore" --remove ignore for now
-		end
-
-
-		if userInfo.isFriend then
-			comboOptions[#comboOptions + 1] = "Unfriend"
-		else
-			if not userInfo.isBot then
-				comboOptions[#comboOptions + 1] = "Friend"
-			end
-		end
-
-		if userInfo.accountID and Configuration.gameConfig.link_reportPlayer ~= nil then
-			comboOptions[#comboOptions + 1] = "Report"
-		end
-	end
-
-	--if userName == myUserName and userInfo.accountID and Configuration.gameConfig.link_userPage ~= nil then
-	--	-- Only add for myself since the same thing is added in the previous block
-	--	comboOptions[#comboOptions + 1] = "User Page"
-	--end
-
-	if (userName == myUserName or bs.aiLib) and
-		not bs.isSpectator then
-		if showTeamColor then
-			comboOptions[#comboOptions + 1] = "Change Color"
-		end
-		if showSide then
-			comboOptions[#comboOptions + 1] = "Change Faction"
-		end
-	end
-
-	-- Change team of anyone with !force
-	if  not bs.isSpectator and (isInBattle or bs.aiLib) then
-		comboOptions[#comboOptions + 1] = "Change Team"
-	end
-
-	-- Set the handicap value of anyone with !force
-	if  not bs.isSpectator and (isInBattle or bs.aiLib) then
-		comboOptions[#comboOptions + 1] = "Add Bonus"
-	end
-
-	-- Ring: not bot and is in same battle
-	--if userName ~= myUserName and not userInfo.isBot and isInBattle and (not bs.aiLib) then
-	--	comboOptions[#comboOptions + 1] = "Ring"
-	--end
-
-	-- Spec: in same battle, is not AI and is not spec:
-	if userName ~= myUserName and isInBattle and not bs.isSpectator and not bs.aiLib then
-		comboOptions[#comboOptions + 1] = "Force Spectator"
-	end
-
-	-- Spec: in same battle, is not AI and is not spec:
-	if not userControl.isSingleplayer and isInBattle and not bs.isSpectator and not bs.aiLib then
-		comboOptions[#comboOptions + 1] = "Make Boss"
-	end
-
-	-- userControl.lobby:GetMyIsAdmin()
-	-- Let everyone start kick votes, but dont let they try to kick spads lobby bottomSpacing
-	if userName ~= myUserName and not userInfo.isBot and isInBattle then
-		if not bs.aiLib then
-			comboOptions[#comboOptions + 1] = "Kickban"
-		elseif bs.owner == myUserName then
-			comboOptions[#comboOptions + 1] = "Remove"
-		end
-	end
-
-	if userName ~= myUserName and not userInfo.isBot and not bs.aiLib then
-		comboOptions[#comboOptions + 1] = "Report User"
-	end
-	
-
-	local whitelist = userControl.dropdownWhitelist
-	if whitelist then
-		local culled = {}
-		for i = 1, #comboOptions do
-			if whitelist[comboOptions[i]] then
-				culled[#culled + 1] = comboOptions[i]
-			end
-		end
-		comboOptions = culled
-	end
+	if not (itsme or bs.aiLib) then																					comboOptions[#comboOptions + 1] = "Message" end
+																													comboOptions[#comboOptions + 1] = "Copy Name"
+	if not (itsme or bs.aiLib or info.isBot) then																	comboOptions[#comboOptions + 1] = "Ring" end
+	if not (itsme or bs.aiLib or isInBattle) and info.battleID then													comboOptions[#comboOptions + 1] = "Join Battle" end
+	if not (itsme or bs.aiLib or info.isBot) then																	comboOptions[#comboOptions + 1] = info.isIgnored and "Unignore" or "Ignore"
+																													comboOptions[#comboOptions + 1] = info.isFriend and "Unfriend" or "Friend" end
+	if showSide and not bs.isSpectator and (itsme or (bs.aiLib and bs.owner == myUserName)) then					comboOptions[#comboOptions + 1] = "Change Faction" end
+	if isInBattle and not bs.isSpectator and (itsme and iPlay) or (bs.aiLib and bs.owner == myUserName) then		comboOptions[#comboOptions + 1] = "Change Team" end
+	if isInBattle and not bs.isSpectator and (iPlay or  (bs.aiLib and bs.owner == myUserName)) then					comboOptions[#comboOptions + 1] = "Add Bonus" end
+	if iPlay and not bs.aiLib and isInBattle and not bs.isSpectator then											comboOptions[#comboOptions + 1] = "Force Spectator" end
+	if iPlay and not (control.isSingleplayer or bs.aiLib or info.isBot) and isInBattle and userName ~= boss then	comboOptions[#comboOptions + 1] = "Make Boss" end
+	if iPlay and not itsme and not info.isBot and isInBattle and not bs.aiLib then									comboOptions[#comboOptions + 1] = "Kickban" end
+	if bs.aiLib and bs.owner == myUserName and isInBattle then														comboOptions[#comboOptions + 1] = "Remove" end
+	if not itsme and not info.isBot and not bs.aiLib then															comboOptions[#comboOptions + 1] = "Report User" end
 
 	if #comboOptions == 0 then
 		comboOptions[1] = Label:New {
@@ -626,15 +515,21 @@ local function UpdateUserActivityList(listener, userList)
 	end
 end
 
+-- only reacts to boss changes
 local function UpdateBattleInfo(listener, battleID, battleInfo)
-	if battleInfo.boss ~= nil then
-		if battleInfo.boss == false then
-			for userName, userControls in pairs(battleUsers) do
-				UpdateUserControlStatus(userName, userControls)
-			end
-		elseif battleUsers[battleInfo.boss] ~= nil then
-			UpdateUserControlStatus(battleInfo.boss, battleUsers[battleInfo.boss])
+	if battleInfo.boss == nil then return end
+	
+	-- boss changed, so update all userComboBoxOptions in battleUsers to allow "Make boss" for previous boss again
+	for username, _ in pairs(battleUsers) do
+		UpdateUserComboboxOptions(_, username)
+	end
+
+	if battleInfo.boss == false then
+		for userName, userControls in pairs(battleUsers) do
+			UpdateUserControlStatus(userName, userControls)
 		end
+	elseif battleUsers[battleInfo.boss] ~= nil then
+		UpdateUserControlStatus(battleInfo.boss, battleUsers[battleInfo.boss])
 	end
 end
 
@@ -653,13 +548,21 @@ local function OnPartyLeft(listener, partyID, partyUsers)
 	end
 end
 
-local function UpdateUserBattleStatus(listener, userName)
+local function UpdateUserBattleStatus(listener, userName, battleStatusDiff)
 	local Configuration = WG.Chobby.Configuration
 	UpdateUserComboboxOptions(_, userName)
 	for i = 1, #userListList do
 		local userList = userListList[i]
 		local userControls = userList[userName]
 		if userControls then
+
+			-- if this battleStatus is about us and we are switching between spec and player > Then update ComboboxOption of all users in my battle, because the right to access options is dependent of our own spec status (e.g. changeTeam, AddBonus, MakeBoss, ForceSpectator... are only allowed if we are a player)
+			if userList == namedUserList["battleUsers"] and battleStatusDiff['isSpectator'] ~= nil and userName == userControls.lobby:GetMyUserName() then
+				for username, _ in pairs(battleUsers) do
+					UpdateUserComboboxOptions(_, username)
+				end
+			end
+
 			local bs = userControls.lobby:GetUserBattleStatus(userName) or {}
 			userControls.isPlaying = bs.isSpectator == false
 			
@@ -971,7 +874,7 @@ local function GetUserControls(userName, opts)
 			selected = 0,
 			maxDropDownWidth = large and 220 or 150,
 			minDropDownHeight = 0,
-			maxDropDownHeight = 300,
+			maxDropDownHeight = 340,
 			items = GetUserComboBoxOptions(userName, isInBattle, userControls, showTeamColor, showSide),
 			OnOpen = {
 				function (obj)
