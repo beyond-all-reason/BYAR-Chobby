@@ -190,10 +190,6 @@ local function GetUserClanImage(userName, userControl)
 	return file, needDownload
 end
 
-local function battleWatchable()
-
-end
-
 local function GetUserComboBoxOptions(userName, isInBattle, control, showTeamColor, showSide)
 	local info = control.lobby:GetUser(userName) or {}
 	local bs = control.lobby:GetUserBattleStatus(userName) or {}
