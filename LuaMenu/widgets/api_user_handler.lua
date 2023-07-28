@@ -174,19 +174,38 @@ local function GetUserClanImage(userName, userControl)
 	return file, needDownload
 end
 
+local function battleWatchable()
+
+end
+
 local function GetUserComboBoxOptions(userName, isInBattle, userControl, showTeamColor, showSide)
 	local userInfo = userControl.lobby:GetUser(userName) or {}
+	local info = userInfo
 	local bs = userControl.lobby:GetUserBattleStatus(userName) or {}
 	local myUserName = userControl.lobby:GetMyUserName()
+	local itsme = userName == myUserName
 	local comboOptions = {}
 
-	local myPartyID = userControl.lobby:GetMyPartyID()
-	local userPartyID = userControl.lobby:GetUserPartyID(userName)
+	--local myPartyID = userControl.lobby:GetMyPartyID()
+	--local userPartyID = userControl.lobby:GetUserPartyID(userName)
 
 	local Configuration = WG.Chobby.Configuration
 
+	if not (itsme or bs.aiLib) then										comboOptions[#comboOptions + 1] = "Message" end
+																		comboOptions[#comboOptions + 1] = "Copy Name" end
+	if not (itsme or bs.aiLib or info.isBot) then						comboOptions[#comboOptions + 1] = "Ring" end
+	if not (itsme or bs.aiLib or isInBattle) and info.battleID then		comboOptions[#comboOptions + 1] = "Join Battle" end
+	if not (itsme or bs.aiLib or info.isBot) then						comboOptions[#comboOptions + 1] = info.isIgnored and "Unignore" or "Ignore"
+																		comboOptions[#comboOptions + 1] = info.isFriend and "Unfriend" or "Friend" end
+	if showSide and not bs.isSpectator and itsme or bs.aiLib and then	comboOptions[#comboOptions + 1] = "Change Faction"
+
 	if (not bs.aiLib) and userName ~= myUserName then
 		comboOptions[#comboOptions + 1] = "Message"
+
+			-- Ring: not bot and is in same battle
+		if not userInfo.isBot and isInBattle then
+			comboOptions[#comboOptions + 1] = "Ring"
+		end
 
 		if (not isInBattle) and userInfo.battleID then
 			local battle = lobby:GetBattle(userInfo.battleID)
@@ -199,35 +218,35 @@ local function GetUserComboBoxOptions(userName, isInBattle, userControl, showTea
 			end
 		end
 
-		if not Configuration.hidePartySystem and ((not myPartyID) or myPartyID ~= userPartyID) then
-			-- Do not show any party options for people already in my party.
-			if (not myPartyID) and userPartyID then
-				-- Join others party if they have one and I don't.
-				comboOptions[#comboOptions + 1] = "Join Party"
-			else
-				-- Invite user to make a party or join mine. Note that the
-				-- user might be in a party which is not visible to me. In
-				-- this case the command might be the same as join party.
-				comboOptions[#comboOptions + 1] = "Invite to Party"
-			end
-		end
+		--if not Configuration.hidePartySystem and ((not myPartyID) or myPartyID ~= userPartyID) then
+		--	-- Do not show any party options for people already in my party.
+		--	if (not myPartyID) and userPartyID then
+		--		-- Join others party if they have one and I don't.
+		--		comboOptions[#comboOptions + 1] = "Join Party"
+		--	else
+		--		-- Invite user to make a party or join mine. Note that the
+		--		-- user might be in a party which is not visible to me. In
+		--		-- this case the command might be the same as join party.
+		--		comboOptions[#comboOptions + 1] = "Invite to Party"
+		--	end
+		--end
 
-		if Configuration.canAuthenticateWithSteam and userControl.steamInvite and userInfo.steamID then
-			comboOptions[#comboOptions + 1] = "Invite to Campaign"
-		end
+		--if Configuration.canAuthenticateWithSteam and userControl.steamInvite and userInfo.steamID then
+		--	comboOptions[#comboOptions + 1] = "Invite to Campaign"
+		--end
 
-		if userInfo.accountID and Configuration.gameConfig.link_userPage ~= nil then
-			comboOptions[#comboOptions + 1] = "User Page"
-		end
+		--if userInfo.accountID and Configuration.gameConfig.link_userPage ~= nil then
+		--	comboOptions[#comboOptions + 1] = "User Page"
+		--end
 
-		if userInfo.accountID and Configuration.gameConfig.link_reportPlayer ~= nil then
-			comboOptions[#comboOptions + 1] = "Report"
-		end
+		--if userInfo.accountID and Configuration.gameConfig.link_reportPlayer ~= nil then
+		--	comboOptions[#comboOptions + 1] = "Report"
+		--end
 		
 		if userInfo.isIgnored then
 			comboOptions[#comboOptions + 1] = "Unignore"
 		elseif not userInfo.isBot then
-		 		comboOptions[#comboOptions + 1] = "Ignore" --remove ignore for now
+			comboOptions[#comboOptions + 1] = "Ignore" --remove ignore for now
 		end
 
 
@@ -238,12 +257,16 @@ local function GetUserComboBoxOptions(userName, isInBattle, userControl, showTea
 				comboOptions[#comboOptions + 1] = "Friend"
 			end
 		end
+
+		if userInfo.accountID and Configuration.gameConfig.link_reportPlayer ~= nil then
+			comboOptions[#comboOptions + 1] = "Report"
+		end
 	end
 
-	if userName == myUserName and userInfo.accountID and Configuration.gameConfig.link_userPage ~= nil then
-		-- Only add for myself since the same thing is added in the previous block
-		comboOptions[#comboOptions + 1] = "User Page"
-	end
+	--if userName == myUserName and userInfo.accountID and Configuration.gameConfig.link_userPage ~= nil then
+	--	-- Only add for myself since the same thing is added in the previous block
+	--	comboOptions[#comboOptions + 1] = "User Page"
+	--end
 
 	if (userName == myUserName or bs.aiLib) and
 		not bs.isSpectator then
@@ -266,17 +289,17 @@ local function GetUserComboBoxOptions(userName, isInBattle, userControl, showTea
 	end
 
 	-- Ring: not bot and is in same battle
-	if not userInfo.isBot and isInBattle and (not bs.aiLib) then
-		comboOptions[#comboOptions + 1] = "Ring"
-	end
+	--if userName ~= myUserName and not userInfo.isBot and isInBattle and (not bs.aiLib) then
+	--	comboOptions[#comboOptions + 1] = "Ring"
+	--end
 
 	-- Spec: in same battle, is not AI and is not spec:
-	if isInBattle and not bs.isSpectator and not bs.aiLib then
+	if userName ~= myUserName and isInBattle and not bs.isSpectator and not bs.aiLib then
 		comboOptions[#comboOptions + 1] = "Force Spectator"
 	end
 
 	-- Spec: in same battle, is not AI and is not spec:
-	if isInBattle and not bs.isSpectator and not bs.aiLib then
+	if not userControl.isSingleplayer and isInBattle and not bs.isSpectator and not bs.aiLib then
 		comboOptions[#comboOptions + 1] = "Make Boss"
 	end
 
@@ -293,6 +316,7 @@ local function GetUserComboBoxOptions(userName, isInBattle, userControl, showTea
 	if userName ~= myUserName and not userInfo.isBot and not bs.aiLib then
 		comboOptions[#comboOptions + 1] = "Report User"
 	end
+	
 
 	local whitelist = userControl.dropdownWhitelist
 	if whitelist then
@@ -941,6 +965,7 @@ local function GetUserControls(userName, opts)
 			tooltip = (not disableInteraction) and tooltip,
 			ignoreItemCaption = true,
 			selectByName = true,
+			showSelection = false,
 			objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 			itemHeight = 30,
 			selected = 0,
@@ -965,6 +990,8 @@ local function GetUserControls(userName, opts)
 				function (obj, selectedName)
 					if selectedName == "Message" then
 						local chatWindow = WG.Chobby.interfaceRoot.OpenPrivateChat(userName)
+					elseif selectedName == "Copy Name" then
+						Spring.SetClipboard(userName)
 					elseif selectedName == "Kickban" then
 						lobby:SayBattle("!kickban "..userName)
 					elseif selectedName == "Remove" then
@@ -1145,6 +1172,7 @@ local function GetUserControls(userName, opts)
 
 						})
 					end
+
 				
 				end
 			}
