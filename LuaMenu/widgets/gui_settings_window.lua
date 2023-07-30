@@ -1696,6 +1696,10 @@ local function ProcessScreenSizeOption(data, offset)
 
 					battleStartDisplay = obj.selected
 					Configuration.game_fullscreen = obj.selected
+
+					if Spring.GetConfigInt('SelectedScreenMode', -1) >= 1 then
+						Spring.SetConfigInt('SelectedScreenMode', -1)
+					end
 				end
 			end
 		},
