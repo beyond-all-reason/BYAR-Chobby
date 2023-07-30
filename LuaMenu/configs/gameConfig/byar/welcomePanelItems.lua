@@ -70,12 +70,12 @@ local welcomePanelItems = {
         Text = "We've just released a new engine update. Be sure to report any issues to #bugreports on the discord and thank you for bearing with us through any teething problems with it.."
     }, ]]--
 
-    {
-        Header = "Code of Conduct",
-        Url = "https://www.beyondallreason.info/code-of-conduct",
-        Text = "We recently updated our code of conduct; be sure to check it out. As our community growth we've added the ability to report problems, click a user and select 'report user' to alert the moderator team to an issue. See the full code of conduct at https://www.beyondallreason.info/code-of-conduct",
-        UrlText = "Code of Conduct Link"
-    },
+    --{
+    --    Header = "Code of Conduct",
+    --    Url = "https://www.beyondallreason.info/code-of-conduct",
+    --    Text = "We recently updated our code of conduct; be sure to check it out. As our community growth we've added the ability to report problems, click a user and select 'report user' to alert the moderator team to an issue. See the full code of conduct at https://www.beyondallreason.info/code-of-conduct",
+    --    UrlText = "Code of Conduct Link"
+    --},
 
     {
         Header = "Play with your friends: use our servers!",
