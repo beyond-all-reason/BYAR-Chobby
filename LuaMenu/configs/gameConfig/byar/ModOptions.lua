@@ -8,8 +8,8 @@
 --
 --  These keywords must be lowercase for LuaParser to read them.
 --
---  key:      the string used in the script.txt
---  name:     the displayed name
+--  key:      the string used in  script.txt
+--  name:     the displayed namethe
 --  desc:     the description (could be used as a tooltip)
 --  type:     the option type ('list','string','number','bool')
 --  def:      the default value
@@ -1327,6 +1327,15 @@ local options={
 		key = 'comtestchanges',
 		name = 'Commander Test Changes',
 		desc = 'Comupdate, but with health 4000->3700, regen 0->5, and T1 turrets deal 1.5x damage to commanders',
+		type = 'bool',
+		section = 'options_experimental',
+		def = false,
+	},
+
+	{
+		key = 'expandedt2sea',
+		name = 'Expanded T2 Sea',
+		desc = 'T2 sea is expanded to include a lightning ship for arm and a flamethrower ship for cor, and both factions get a drone carrier ship and an anti-nuke support ship to replace the aircraft carrier.  Cruisers rebalanced to be slower and lower range but higher health and dps for a more defensive role',
 		type = 'bool',
 		section = 'options_experimental',
 		def = false,
