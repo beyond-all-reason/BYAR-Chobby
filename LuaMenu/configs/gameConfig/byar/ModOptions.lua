@@ -8,8 +8,8 @@
 --
 --  These keywords must be lowercase for LuaParser to read them.
 --
---  key:      the string used in  script.txt
---  name:     the displayed namethe
+--  key:      the string used in the script.txt
+--  name:     the displayed name
 --  desc:     the description (could be used as a tooltip)
 --  type:     the option type ('list','string','number','bool')
 --  def:      the default value
