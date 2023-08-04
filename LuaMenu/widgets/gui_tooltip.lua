@@ -454,21 +454,35 @@ local function GetBattleTooltip(battleID, battle)
 	elseif battleTooltip.isRunning then
 		battleTooltip.isRunning:Hide()
 	end
-  
-	-- InGameSince
-	if battle.runningSince and battle.isRunning then
-		if not battleTooltip.inGameSince then
-			battleTooltip.inGameSince = GetTooltipLine(battleTooltip.mainControl, true)
+
+	-- inGameStatusSince
+	-- local inGameSince = battle.inGameStatusSince ~= nil
+	if battle.inGameStatusSince ~= nil and battle.isRunning then
+		if not battleTooltip.inGameStatusSince then
+			battleTooltip.inGameStatusSince = GetTooltipLine(battleTooltip.mainControl)
 		end
-		battleTooltip.inGameSince.Update(
-			offset,
-			"Running for " .. Spring.Utilities.GetTimeToPast(battle.runningSince, true),
-			IMAGE_INGAME
-		)
-		offset = offset + 20
-	elseif battleTooltip.inGameSince then
-		battleTooltip.inGameSince:Hide()
+		local elapsed = math.floor(Spring.DiffTimers(Spring.GetTimer(), battle.inGameStatusSince) + 0.5)
+		local elapsed = Spring.Utilities.FormatTime(elapsed, true)
+		battleTooltip.inGameStatusSince.Update( offset, "Running for " .. tostring(elapsed))
+		offset = offset + 21
+	elseif battleTooltip.inGameStatusSince then
+		battleTooltip.inGameStatusSince:Hide()
 	end
+  
+	-- InGameSince ZK specific
+	--if battle.runningSince and battle.isRunning then
+	--	if not battleTooltip.inGameSince then
+	--		battleTooltip.inGameSince = GetTooltipLine(battleTooltip.mainControl, true)
+	--	end
+	--	battleTooltip.inGameSince.Update(
+	--		offset,
+	--		"Running for " .. Spring.Utilities.GetTimeToPast(battle.runningSince, true),
+	--		IMAGE_INGAME
+	--	)
+	--	offset = offset + 20
+	--elseif battleTooltip.inGameSince then
+	--	battleTooltip.inGameSince:Hide()
+	--end
 
 	-- Player list
 	local userListPosition = offset

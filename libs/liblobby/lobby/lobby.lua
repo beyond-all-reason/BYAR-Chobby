@@ -817,8 +817,13 @@ end
 -- Battle commands
 ------------------------
 
-function Lobby:_OnBattleIngameUpdate(battleID, isRunning)
+function Lobby:_OnBattleIngameUpdate(battleID, isRunning, receivedTime)
 	if self.battles[battleID] and self.battles[battleID].isRunning ~= isRunning then
+		--local battleInfo = {inGameStatusSince = receivedTime}
+		-- self._OnUpdateBattleInfo(battleID, battleInfo)
+		self.battles[battleID].inGameStatusSince = receivedTime
+		-- Spring.Echo("_OnBattleIngameUpdate set inGameStatusSince for title", self.battles[battleID].title)
+
 		self.battles[battleID].isRunning = isRunning
 		self:_CallListeners("OnBattleIngameUpdate", battleID, isRunning)
 	end
@@ -850,13 +855,14 @@ function Lobby:_OnBattleOpened(battleID, battle)
 		playerCount = battle.playerCount,
 		spectatorCount = battle.spectatorCount,
 		isRunning = battle.isRunning,
+		inGameStatusSince = battle.inGameStatusSince,
 
 		-- ZK specific
-		runningSince = battle.runningSince,
-		battleMode = battle.battleMode,
-		disallowCustomTeams = battle.disallowCustomTeams,
-		disallowBots = battle.disallowBots,
-		isMatchMaker = battle.isMatchMaker,
+		-- runningSince = battle.runningSince,
+		-- battleMode = battle.battleMode,
+		-- disallowCustomTeams = battle.disallowCustomTeams,
+		-- disallowBots = battle.disallowBots,
+		-- isMatchMaker = battle.isMatchMaker,
 	}
 	self.battleCount = self.battleCount + 1
 
@@ -1006,18 +1012,21 @@ function Lobby:_OnUpdateBattleInfo(battleID, battleInfo)
 	battle.balanceMode = battleInfo.balanceMode or battle.balanceMode
 	battle.preset = battleInfo.preset or battle.preset
 
+	battle.inGameStatusSince = battleInfo.inGameStatusSince or battle.inGameStatusSince
+	-- Spring.Echo("_OnUpdateBattleInfo update for ", battleID, ":", battle.title, " has inGameStatusSince set?", battle.inGameStatusSince ~= nil)
+
 	-- ZK specific
-	battle.runningSince = battleInfo.runningSince or battle.runningSince
-	battle.battleMode = battleInfo.battleMode or battle.battleMode
-	if battleInfo.disallowCustomTeams ~= nil then
-		battle.disallowCustomTeams = battleInfo.disallowCustomTeams
-	end
-	if battleInfo.disallowBots ~= nil then
-		battle.disallowBots = battleInfo.disallowBots
-	end
-	if battleInfo.isMatchMaker ~= nil then
-		battle.isMatchMaker = battleInfo.isMatchMaker
-	end
+	-- battle.runningSince = battleInfo.runningSince or battle.runningSince
+	-- battle.battleMode = battleInfo.battleMode or battle.battleMode
+	-- if battleInfo.disallowCustomTeams ~= nil then
+	-- 	battle.disallowCustomTeams = battleInfo.disallowCustomTeams
+	-- end
+	-- if battleInfo.disallowBots ~= nil then
+	-- 	battle.disallowBots = battleInfo.disallowBots
+	-- end
+	-- if battleInfo.isMatchMaker ~= nil then
+	-- 	battle.isMatchMaker = battleInfo.isMatchMaker
+	-- end
 
 	self:_CallListeners("OnUpdateBattleInfo", battleID, battleInfo)
 end

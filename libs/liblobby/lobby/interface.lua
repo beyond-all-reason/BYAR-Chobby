@@ -628,7 +628,9 @@ end
 Interface.commands["REMOVEUSER"] = Interface._OnRemoveUser
 Interface.commandPattern["REMOVEUSER"] = "(%S+)"
 
-function Interface:_OnClientStatus(userName, status)
+function Interface:_OnClientStatus(userName, status, receivedTime)
+	-- Spring.Echo("_OnClientStatus receivedTime", receivedTime ~= nil)
+	-- Spring.Utilities.TraceFullEcho()
 	status = {
 		isInGame = (status%2 == 1),
 		isAway = (status%4 >= 2),
@@ -643,7 +645,7 @@ function Interface:_OnClientStatus(userName, status)
 	if status.isInGame ~= nil then
 		local battleID = self:GetBattleFoundedBy(userName)
 		if battleID then
-			self:_OnBattleIngameUpdate(battleID, status.isInGame)
+			self:_OnBattleIngameUpdate(battleID, status.isInGame, receivedTime)
 		end
 		if self.myBattleID and status.isInGame then
 			local myBattle = self:GetBattle(self.myBattleID)

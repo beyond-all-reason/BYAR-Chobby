@@ -159,7 +159,7 @@ function Interface:SendCommandToBuffer(cmdName)
 	return not self.bufferBypass[cmdName]
 end
 
-function Interface:CommandReceived(command)
+function Interface:CommandReceived(command, receivedTime)
 	local cmdId, cmdName, arguments
 	local argumentsPos = false
 	if command:sub(1,1) == "#" then
@@ -196,7 +196,7 @@ function Interface:CommandReceived(command)
 		arguments = command:sub(argumentsPos + 1)
 	end
 
-	self:_OnCommandReceived(cmdName, arguments, cmdId)
+	self:_OnCommandReceived(cmdName, arguments, cmdId, receivedTime)
 end
 
 function Interface:_GetCommandPattern(cmdName)
@@ -216,7 +216,7 @@ function Interface:GetConnectionStatus()
 	return self.status
 end
 
-function Interface:_OnCommandReceived(cmdName, arguments, cmdId)
+function Interface:_OnCommandReceived(cmdName, arguments, cmdId, receivedTime)
 	local commandFunction, pattern = self:_GetCommandFunction(cmdName)
 	local fullCmd
 	if arguments ~= nil then
@@ -229,7 +229,11 @@ function Interface:_OnCommandReceived(cmdName, arguments, cmdId)
 		local pattern = self:_GetCommandPattern(cmdName)
 		if pattern then
 			local funArgs = {arguments:match(pattern)}
+			-- Spring.Utilities.TableEcho(funArgs, "funArgs")
 			if #funArgs ~= 0 then
+				if cmdName == "CLIENTSTATUS" then
+					funArgs[#funArgs+1] = receivedTime
+				end
 				commandFunction(self, unpack(funArgs))
 			else
 				Spring.Log(LOG_SECTION, LOG.ERROR, "Failed to match command: ", cmdName, ", args: " .. tostring(arguments) .. " with pattern: ", pattern)
@@ -254,6 +258,8 @@ function Interface:_OnCommandReceived(cmdName, arguments, cmdId)
 	end
 	self:_CallListeners("OnCommandReceived", fullCmd)
 end
+
+-- local printOnce = true
 
 function Interface:_SocketUpdate()
 	if self.client == nil then
@@ -283,19 +289,31 @@ function Interface:_SocketUpdate()
 		end
 		Spring.Log(LOG_SECTION, LOG.ERROR, "Error in select: " .. err)
 	end
+	local receivedTime = Spring.GetTimer()
+	-- Spring.Utilities.TableEcho(receivedTime, "receivedTime")
+	-- Spring.Echo("receivedTime", Spring.DiffTimers(Spring.GetTimer(), receivedTime))
 	for _, input in ipairs(readable) do
 		local s, status, commandsStr = input:receive('*a') --try to read all data
+		--if printOnce then
+		--	Spring.Utilities.TableEcho(s, "s")
+		--	Spring.Utilities.TableEcho(status, "status")
+		--	Spring.Utilities.TableEcho(commandsStr, "commandsStr")
+		--end
 		if (status == "timeout" or status == nil) and commandsStr ~= nil and commandsStr ~= "" then
 			Spring.Log(LOG_SECTION, LOG.DEBUG, commandsStr)
 			local commands = explode("\n", commandsStr)
 			commands[1] = self.buffer .. commands[1]
+			--Spring.Utilities.TableEcho(self.buffer, "self.buffer")
+			--Spring.Utilities.TableEcho(commands[1], "commands[1]")
 			for i = 1, #commands-1 do
 				local command = commands[i]
 				if command ~= nil then
-					self:CommandReceived(command)
+					self:CommandReceived(command, receivedTime)
 				end
 			end
 			self.buffer = commands[#commands]
+			-- Spring.Utilities.TableEcho(self.buffer, "self.buffer2")
+			-- Spring.Utilities.TableEcho(commands[#commands], "commands[#commands]")
 		elseif status == "closed" then
 			Spring.Log(LOG_SECTION, LOG.INFO, "Disconnected from server.")
 			input:close()
