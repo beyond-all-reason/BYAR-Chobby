@@ -59,7 +59,6 @@ local downloads = {} -- index table
 -- FB 2023-05-14 downloads a file, type can be any of game, map
 -- {resource,engine} not fully supported yet by launcher, though using resource here for engine downloads with workarounds!
 function WrapperLoopback.DownloadFile(name, type, resource)
-	Spring.Echo("WrapperLoopback DownloadFile")
 	if type:lower() == "resource" and not resource then
 		Spring.Echo("DownloadFile called with type resource, but no resouce infos given")
 		-- ToDo: Call Finished
@@ -73,8 +72,6 @@ function WrapperLoopback.DownloadFile(name, type, resource)
 		typeSent = type:lower() == "rapid" and "game" or type:lower(),
 		resource = resource -- {url, destination, extract}
 	})
-	Spring.Echo("sent download")
-	Spring.Utilities.TableEcho(downloads)
 
 	WG.Connector.Send("Download", {
 		name     = downloads[#downloads].nameSent,
@@ -85,9 +82,6 @@ end
 
 -- Starts a new spring instance, generally to play replays.
 function WrapperLoopback.StartNewSpring(args)
-	Spring.Echo("StartNewSpring")
-	Spring.Utilities.TableEcho(args)
-	Spring.Echo("StartNewSpring end")
 	WG.Connector.Send("StartNewSpring", args)
 end
 
@@ -101,12 +95,8 @@ local function GetDownloadByName(name)
 end
 
 local function GetDownloadByNameSent(nameSent)
-	Spring.Echo("GetDownloadByNameSent nameSent = ", nameSent, " downloads = ...")
-	Spring.Utilities.TableEcho(downloads)
 	for i, download in ipairs(downloads) do
-		Spring.Echo("i, download.nameSent", i, download.nameSent)
 		if download.nameSent == nameSent then
-			Spring.Echo("nameSent found at i=", i)
 			return download, i
 		end
 	end
@@ -126,14 +116,8 @@ end
 -- example nameReceived(windows): "Skipping C:\Beyond-All-ReasonTest\data\engine\105.1.1-1354-g72b2d55 bar: already exists."
 -- ToDo:Test with linux: With linux it should be like "Skipping /home/userXY/dir/to/data/engine/105.1.1-1354-g72b2d55 bar: already exists."
 local function FindNameReceivedInDownloads(nameReceived)
-	Spring.Echo("FindNameReceivedInDownloads nameReceived = ", nameReceived, " downloads = ...")
-	Spring.Utilities.TableEcho(downloads)
-
 	for i, download in ipairs(downloads) do
-		Spring.Echo("i", i , " download.nameSent", download.nameSent)
-		Spring.Echo("escaped download.nameSent", EscapeMinusPattern(download.nameSent))
 		if nameReceived:gsub("\\", "/"):find(EscapeMinusPattern(download.nameSent)) then -- replace backslashes(windows) with slashes, because that´s how we generated it in CoopHandler:local GetEnginePath()
-			Spring.Echo("nameReceived found at i=", i)
 			return download, i
 		end
 	end
@@ -141,15 +125,11 @@ local function FindNameReceivedInDownloads(nameReceived)
 end
 
 function WrapperLoopback.AbortDownload(name, type)
-	Spring.Echo("WrapperLoopback.AbortDownload(name,type)", name, type)
 	local download = GetDownloadByName(name)
 	if not download then
-		Spring.Echo("AbortDownload, no download found with name:", name)
 		-- ToDo: Handle this, e.g. set download = finished or aborted or failed or whatever
 		return false
 	end
-	Spring.Echo("AbortDownload, download found:")
-	Spring.Utilities.TableEcho(download)
 	WG.Connector.Send("AbortDownload", {
 		name = download.sentName,
 		type = download.sentType
@@ -169,10 +149,7 @@ local SkippingFile_SUFFIX = ": already exists."
 local download, dlIndex
 -- reports that download has ended/was aborted
 local function DownloadFinished(command)
-	Spring.Echo("WrapperLoopback:local DownloadFinished command = ...")	
-	Spring.Utilities.TableEcho(command)
 	if not command.name then
-		Spring.Echo("DownloadFinished without name") -- FB 2023-05-19: happens currenty with "resource"-downloads, don't log as error to prevent upload log popups
 		return false
 	end
 
@@ -182,18 +159,14 @@ local function DownloadFinished(command)
 		download, dlIndex = FindNameReceivedInDownloads(command.name)
 		if dlIndex then
 			Spring.Echo("Received 'Skipped'-Download-Finished, download= ...")
-			Spring.Utilities.TableEcho(download)
 		end
 	else
 		download, dlIndex = FindNameReceivedInDownloads(command.name)		
 	end
 
 	if not download then
-		Spring.Echo("DownloadFinished, no download found with name", command.name) -- FB 2023-05-19: Because resource downloads are producing endlesse repetitions of "Skipping..."-message, do not log as error to prevent upload log popups
 		return false
 	end
-	Spring.Echo("DownloadFinished, download found, download = ...")
-	Spring.Utilities.TableEcho(download)
 	
 	WG.DownloadWrapperInterface.DownloadFinished(download.name, download.type, command.isSuccess, command.isAborted)
 	table.remove(downloads, i)
@@ -201,21 +174,14 @@ end
 
 -- reports download progress. 100 might not indicate completion, wait for DownloadFinished
 local function DownloadProgress(command)
-	Spring.Echo("WrapperLoopback:local DownloadProgress; command = ...")
-	Spring.Utilities.TableEcho(command)
 	if not command.name then
-		Spring.Echo("WrapperLoopback:local DownloadProgress without name")
 		return false
 	end
 
 	local download, i = GetDownloadByNameSent(command.name)
 	if not download then
-		Spring.Echo("WrapperLoopback:local DownloadProgress, no download found with name", command.name) -- ERROR
-		Spring.Utilities.TableEcho(download)
 		return false
 	end
-	Spring.Echo("WrapperLoopback:local DownloadProgress, download found download = ...")
-	Spring.Utilities.TableEcho(download)
 	WG.DownloadWrapperInterface.DownloadFileProgress(download.name, command.progress * 100, command.total)
 end
 

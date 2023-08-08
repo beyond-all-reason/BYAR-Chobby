@@ -125,7 +125,6 @@ local function DownloadSortFunc(a, b)
 end
 
 local function DownloadQueueUpdate()
-	Spring.Echo("DownloadHandler:local DownloadQueueUpdate")
 	requestUpdate = false
 
 	if #downloadQueue == 0 then
@@ -134,10 +133,8 @@ local function DownloadQueueUpdate()
 	end
 	table.sort(downloadQueue, DownloadSortFunc)
 
-	Spring.Echo("front:")
 	local front = downloadQueue[1]
 	
-	Spring.Utilities.TableEcho(front)
 	if not front.active then
 		if USE_WRAPPER_DOWNLOAD and WG.WrapperLoopback and WG.WrapperLoopback.DownloadFile then
 			WG.WrapperLoopback.DownloadFile(front.name, typeMap[front.fileType], front.resource)
@@ -172,16 +169,12 @@ local function GetDownloadBySpringDownloadID(downloadList, springDownloadID)
 end
 
 local function GetDownloadIndexByName(downloadList, downloadName)
-	Spring.Echo("GetDownloadIndexByName", downloadName)
-	Spring.Utilities.TableEcho(downloadList)
 	for i = 1, #downloadList do
 		local data = downloadList[i]
 		if data.name == downloadName then
-			Spring.Echo("found index",  i)
 			return i
 		end
 	end
-	Spring.Echo("return nil")
 	return nil
 end
 
@@ -191,8 +184,6 @@ local function AssociatedSpringDownloadID(springDownloadID, name, fileType)
 		return false
 	end
 	downloadQueue[index].springDownloadID = springDownloadID
-	Spring.Echo("AssociatedSpringDownloadID downloadQueue")
-	Spring.Utilities.TableEcho(downloadQueue)
 end
 
 local function RemoveDownload(name, fileType, putInRemoveList, removalType)
@@ -201,16 +192,12 @@ local function RemoveDownload(name, fileType, putInRemoveList, removalType)
 	-- and retrying it up to retrycount times will succeed.
 	-- A game download will also return with failure often so we use VFS.ScanAllDirs() to check if we did actually
 	-- successfully download it: if we were truly unsuccessful, then we retry downloading it again.
-	Spring.Echo("RemoveDownload name, fileType, putInRemoveList,removalType",name, fileType, putInRemoveList,removalType)
 	local index = GetDownloadIndex(downloadQueue, name, fileType)
-	Spring.Echo("index=", index)
 	if not index then
-		Spring.Echo("not index")
 		return false
 	end
 
 	local downloadID = downloadQueue[index].id
-	Spring.Echo("downloadID=", downloadID)
 
 	if removalType == "success" then
 		CallListeners("DownloadFinished", downloadID, name, fileType)
@@ -285,8 +272,6 @@ function externalFunctions.QueueDownload(name, fileType, priority, retryCount, r
 		retryCount = retryCount or 0,
 		resource = resource,
 	}
-	Spring.Echo("DownloadHandler.external.QueueDownload downloadQueue:")
-	Spring.Utilities.TableEcho(downloadQueue)
 	requestUpdate = true
 	CallListeners("DownloadQueued", downloadCount, name, fileType, resource)
 end
@@ -351,28 +336,21 @@ end
 
 local function haveEngineDir(path)
 	local springExecutable = Platform.osFamily == "Windows" and "spring.exe" or "spring"
-	Spring.Echo("springExecutable", springExecutable)
-	Spring.Echo("haveEngineDir", VFS.FileExists(path .. "//" .. springExecutable))
 	return VFS.FileExists(path .. "//" .. springExecutable)
 end
 
 function externalFunctions.MaybeDownloadArchive(name, archiveType, priority, resource)
-	Spring.Echo("MaybeDownloadArchive", name, archiveType, priority, resource)
 	if archiveType == "resource" then
-		Spring.Echo("MaybeDownloadArchive resource")
 		local haveEngine = haveEngineDir(resource.destination)
-		Spring.Echo("MaybeDownloadArchive haveEngine", haveEngine)
 		if not haveEngine then
 			externalFunctions.QueueDownload(name, archiveType, priority, _, resource)
 		end
 		return
 
 	elseif not VFS.HasArchive(name) then
-		Spring.Echo("MaybeDownloadArchive not HasArchive")
 		externalFunctions.QueueDownload(name, archiveType, priority)
 		return
 	end
-	Spring.Echo("MaybeDownloadArchive HasArchive")
 end
 
 function externalFunctions.GetDownloadQueue()
@@ -384,8 +362,6 @@ end
 -- Wrapper Interface
 
 function wrapperFunctions.DownloadFinished(name, fileType, success, aborted)
-	Spring.Echo("wrapperFunctions DownloadFinished")
-	fileType = fileType and reverseTypeMap[fileType]
 	Spring.Echo("fileType=", fileType)
 	if fileType then
 		if (fileType == 'RAPID' or fileType == 'game') and SaveLobbyVersionGZPath then
@@ -405,16 +381,12 @@ function wrapperFunctions.DownloadFinished(name, fileType, success, aborted)
 end
 
 function wrapperFunctions.DownloadFileProgress(name, progress, totalLength)
-	Spring.Echo("DownloadFileProgress (name, progress, totalLength)", name, progress, totalLength)
 	local index = GetDownloadIndexByName(downloadQueue, name)
-	Spring.Echo("Index", index)
 	if not index then
-		Spring.Echo("not index")
 		return
 	end
 
 	totalLength = (tonumber(totalLength or 0) or 0)/1023^2
-	Spring.Echo("DownloadFileProgress, call Listeners('DownloadProgress', downloadQueue[index].id, totalLength*math.min(1, (tonumber(progress or 0) or 0)/100), totalLength, downloadQueue[index].name)",downloadQueue[index].id, totalLength*math.min(1, (tonumber(progress or 0) or 0)/100), totalLength, downloadQueue[index].name)
 	CallListeners("DownloadProgress", downloadQueue[index].id, totalLength*math.min(1, (tonumber(progress or 0) or 0)/100), totalLength, downloadQueue[index].name)
 end
 
@@ -432,15 +404,12 @@ function widget:Update()
 end
 
 function widget:DownloadProgress(downloadID, downloaded, total)
-	Spring.Echo("DownloadHandler:DownloadProgress")
 	local index = GetDownloadBySpringDownloadID(downloadQueue, downloadID)
 	if not index then
-		Spring.Echo("DownloadHandler:DownloadProgress not index")
 		return
 	end
 	downloaded = downloaded / 1024 / 1024
 	total = total / 1024 / 1024
-	Spring.Echo("DownloadHandler:DownloadProgress callingListeners(downloadQueue[index].id, downloaded, total, downloadQueue[index].name)", downloadQueue[index].id, downloaded, total, downloadQueue[index].name)
 	CallListeners("DownloadProgress", downloadQueue[index].id, downloaded, total, downloadQueue[index].name)
 end
 
@@ -455,7 +424,6 @@ function widget:DownloadStarted(downloadID)
 end
 
 function widget:DownloadFinished(downloadID)
-	Spring.Echo("DownloadHandler DownloadFinished")
 	local index = GetDownloadBySpringDownloadID(downloadQueue, downloadID)
 	if not index then
 		return
