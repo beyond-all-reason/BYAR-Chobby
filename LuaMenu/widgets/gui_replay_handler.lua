@@ -143,7 +143,6 @@ end
 local function CreateReplayEntry(
 	replayPath, engineName, gameName, mapName, players, time, winningAllyTeamIds
 )
-	Spring.Echo("CreateReplayEntry", replayPath, engineName, gameName, mapName, players, time, winningAllyTeamIds)
 
 	local Configuration = WG.Chobby.Configuration
 	local mapNameTruncated = StringUtilities.GetTruncatedStringWithDotDot(mapName, Configuration:GetFont(8), 180)
@@ -399,7 +398,6 @@ local function CreateReplayEntry(
 					"replay", gameName,
 					mapName, nil, nil, replayPath, offEngine and engineName
 				)
-
 			end
 		},
 		parent = replayPanel,
@@ -697,7 +695,6 @@ function ReplayHandler.GetControl()
 end
 
 function ReplayHandler.ReadReplayInfoDone(path, engine, game, map, players, time, winningAllyTeamIds)
-	Spring.Echo("ReadReplayInfoDone", path, engine, game, map, players, time, winningAllyTeamIds)
 	if not replayListWindow then
 		return
 	end

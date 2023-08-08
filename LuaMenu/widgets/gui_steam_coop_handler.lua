@@ -161,14 +161,11 @@ end
 
 -- outcome example: "105.1.1-1354-g72b2d55 BAR105" -> "engine/105.1.1-1354-g72b2d55 bar"
 local function GetEnginePath(engineVersion)
-	Spring.Echo("GetEnginePath", ("engine/" .. engineVersion:gsub(" BAR105", " bar")):lower())
 	return ("engine/" .. engineVersion:gsub(" BAR105", " bar")):lower() -- maybe there are more special cases to take in mind here for very old demos or future ones!
 end
 
 local function haveEngineVersion(engineVersion)
 	local springExecutable = Platform.osFamily == "Windows" and "spring.exe" or "spring"
-	Spring.Echo("springExecutable", springExecutable)
-	Spring.Echo("haveEngineVersion", VFS.FileExists(GetEnginePath(engineVersion) .. "//" .. springExecutable))
 	return VFS.FileExists(GetEnginePath(engineVersion) .. "//" .. springExecutable)
 end
 
@@ -185,18 +182,13 @@ end
 -- gameList = nil
 -- local oneTimeResourceDl = false
 local function CheckDownloads(gameName, mapName, DoneFunc, gameList, engineVersion)
-	Spring.Echo("CheckDownloads",gameName, mapName, DoneFunc, gameList, engineVersion)
 	local haveGame = (not gameName) or WG.Package.ArchiveExists(gameName)
-	Spring.Echo("haveGame", haveGame, not gameName)
 	if not haveGame then
-		Spring.Echo("not haveGame")
 		WG.DownloadHandler.MaybeDownloadArchive(gameName, "game", -1)
 	end
 
 	local haveMap = (not mapName) or VFS.HasArchive(mapName)
-	Spring.Echo("haveMap", haveMap, not mapName)
 	if not haveMap then
-		Spring.Echo("not haveMap")
 		WG.DownloadHandler.MaybeDownloadArchive(mapName, "map", -1)
 	end
 
@@ -210,32 +202,20 @@ local function CheckDownloads(gameName, mapName, DoneFunc, gameList, engineVersi
 	end
 
 	local haveEngine = not engineVersion or haveEngineVersion(engineVersion)
-	Spring.Echo("haveEngine", haveEngine, not engineVersion)
 	if not haveEngine then
-		--if oneTimeResourceDl then
-		--	Spring.Echo("oneTimeResourceDl = true")
-		--	return
-		--end
-		Spring.Echo("Url", GetEngineDownloadUrl(engineVersion))
-		Spring.Echo("destination", GetEnginePath(engineVersion))
-		Spring.Echo("Engine ", engineVersion, " not existing, attempt to download...")
 		WG.DownloadHandler.MaybeDownloadArchive(engineVersion, "resource", -1,{ -- FB 2023-05-14: Use resource download until engine-download is supported by launcher
 			url = GetEngineDownloadUrl(engineVersion),
 			destination = GetEnginePath(engineVersion),
 			extract = true,
 		})
-		oneTimeResourceDl = true
 	end
 
 	if haveGame and haveMap and haveEngine then
-		Spring.Echo("haveGame and haveMap and haveEngine")
 		return true
 	end
 
 	local function Update()
-		Spring.Echo("DownloadUpdateFunction")
 		if ((not gameName) or WG.Package.ArchiveExists(gameName)) and ((not mapName) or VFS.HasArchive(mapName)) and ((not engineVersion) or haveEngineVersion(engineVersion)) then
-			Spring.Echo("DownloadUpdateFunction all available")
 			if gameList then
 				for i = 1, #gameList do
 					if not WG.Package.ArchiveExists(gameList[i]) then
@@ -244,7 +224,6 @@ local function CheckDownloads(gameName, mapName, DoneFunc, gameList, engineVersi
 				end
 			end
 			DoneFunc()
-			Spring.Echo("DownloadUpdateFunction doneFunc done")
 			DownloadUpdateFunction = nil
 		end
 	end
@@ -403,19 +382,6 @@ end
 -- External functions: Widget <-> Widget
 
 function SteamCoopHandler.AttemptGameStart(gameType, gameName, mapName, scriptTable, newFriendsReplaceAI, newReplayFile, newEngineVersion)
-	-- Spring.Echo("AttemptGameStart coopClient", coopClient)
-	
-	--local newEngineName = string.gsub(string.gsub(string.gsub(newEngineVersion, " maintenance", ""), " develop", "")," BAR105", " bar")
-	--newEngineName = newEngineVersion
-	Spring.Echo("AttemptGameStart", gameType, gameName, mapName, scriptTable, newFriendsReplaceAI, newReplayFile, newEngineVersion)
-	-- gameType = replay
-	-- gameName = Beyond All Reason test-21542-7b3b45d
-	-- mapName = Koom Valley 3 3.1
-	-- scriptTable = nil
-	-- newFriendsReplaceAI = nil
-	-- newReplayFile = demos\20221201_233009_Koom Valley 3 3_105.1.1-1354-g72b2d55 BAR105.sdfz
-	-- newEngineVersion = 105.1.1-1354-g72b2d55 BAR105
-
 	if coopClient then -- false
 		local statusAndInvitesPanel = WG.Chobby.interfaceRoot.GetStatusAndInvitesPanel()
 		if statusAndInvitesPanel and statusAndInvitesPanel.GetChildByName("coopPanel") then
@@ -440,8 +406,6 @@ function SteamCoopHandler.AttemptGameStart(gameType, gameName, mapName, scriptTa
 		startReplayFile = newReplayFile
 		startEngineVersion = newEngineVersion
 
-		Spring.Echo("DownloadsComplete", gameType, scriptTable, newFriendsReplaceAI, newReplayFile, newEngineVersion)
-
 		CloseExclusivePopup()
 
 		local Configuration = WG.Chobby.Configuration
@@ -462,16 +426,12 @@ function SteamCoopHandler.AttemptGameStart(gameType, gameName, mapName, scriptTa
 			lastStart.newEngineVersion    = currentStart.newEngineVersion
 
 			if startEngineVersion then
-				Spring.Echo("startEngineVersion")
 				-- Only replay so far.
 				if not WG.WrapperLoopback then
-					Spring.Echo("Wrapper is required to watch replays with old engine versions.")
 					MakeExclusivePopup("Wrapper is required to watch replays with old engine versions.")
 					return
 				end
-				-- local engine = string.gsub(string.gsub(startEngineVersion, " maintenance", ""), " develop", "") -- useless line, we write var engine from scratch in next line
 				local engine = string.gsub(startEngineVersion, "BAR105", "bar") -- because this is the path we use
-				Spring.Echo("engine:", engine, startReplayFile, engine, WG.SettingsWindow.GetSettingsString())
 				local params = {
 					StartDemoName = startReplayFile, -- dont remove the 'demos/' string from it now
 					Engine = engine,
@@ -538,8 +498,6 @@ function SteamCoopHandler.AttemptGameStart(gameType, gameName, mapName, scriptTa
 		WG.WrapperLoopback.SteamHostGameRequest(args)
 	end
 
-	-- gameName = Beyond All Reason test-21542-7b3b45d
-	-- mapName = Koom Valley 3 3.1
 	if CheckDownloads(gameName, mapName, DownloadsComplete, _, newEngineVersion) then
 		DownloadsComplete()
 	end
@@ -555,13 +513,9 @@ end
 --------------------------------------------------------------------------------
 -- Widget Interface
 function DelayedInitialize()
-	Spring.Echo("DelayedInitialize")
 	local function downloadFinished(_, name)
-		Spring.Echo("DelayedInitialize name", name)
 		if DownloadUpdateFunction then
-			Spring.Echo("DelayedInitialize DownloadUpdateFunction = true")
 			DownloadUpdateFunction()
-			Spring.Echo("DelayedInitialize DownloadUpdateFunction done")
 
 			local index = downloading and downloading.downloads[name]
 			if not index then
