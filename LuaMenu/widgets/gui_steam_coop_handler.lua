@@ -382,7 +382,7 @@ end
 -- External functions: Widget <-> Widget
 
 function SteamCoopHandler.AttemptGameStart(gameType, gameName, mapName, scriptTable, newFriendsReplaceAI, newReplayFile, newEngineVersion)
-	if coopClient then -- false
+	if coopClient then -- ZK only, always false 
 		local statusAndInvitesPanel = WG.Chobby.interfaceRoot.GetStatusAndInvitesPanel()
 		if statusAndInvitesPanel and statusAndInvitesPanel.GetChildByName("coopPanel") then
 			WG.Chobby.InformationPopup("Only the host of the coop party can launch games.")

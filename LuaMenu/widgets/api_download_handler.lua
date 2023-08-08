@@ -134,7 +134,6 @@ local function DownloadQueueUpdate()
 	table.sort(downloadQueue, DownloadSortFunc)
 
 	local front = downloadQueue[1]
-	
 	if not front.active then
 		if USE_WRAPPER_DOWNLOAD and WG.WrapperLoopback and WG.WrapperLoopback.DownloadFile then
 			WG.WrapperLoopback.DownloadFile(front.name, typeMap[front.fileType], front.resource)
@@ -192,6 +191,7 @@ local function RemoveDownload(name, fileType, putInRemoveList, removalType)
 	-- and retrying it up to retrycount times will succeed.
 	-- A game download will also return with failure often so we use VFS.ScanAllDirs() to check if we did actually
 	-- successfully download it: if we were truly unsuccessful, then we retry downloading it again.
+
 	local index = GetDownloadIndex(downloadQueue, name, fileType)
 	if not index then
 		return false
@@ -362,7 +362,6 @@ end
 -- Wrapper Interface
 
 function wrapperFunctions.DownloadFinished(name, fileType, success, aborted)
-	Spring.Echo("fileType=", fileType)
 	if fileType then
 		if (fileType == 'RAPID' or fileType == 'game') and SaveLobbyVersionGZPath then
 			RestoreVersionGZ(SaveLobbyVersionGZPath)
