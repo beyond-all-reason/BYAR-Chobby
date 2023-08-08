@@ -26,8 +26,8 @@ function Configuration:init()
 	self.serverPort =  WG.Server.port
 
 	self.chatFontSize = 18
-
-	self.font = {
+	self.fontName = "fonts/Poppins-Regular.otf"
+	self.fontRaw = {
 		[0] = {font = "fonts/Poppins-Medium.otf", size = 17, outline = false, shadow = true},
 		[1] = {size = 15, outline = false, shadow = false},
 		[2] = {size = 17, outline = false, shadow = true},
@@ -37,6 +37,22 @@ function Configuration:init()
 		[6] = {size = 28, outline = true, shadow = false},
 		[7] = {size = 28, outline = false, shadow = true},
 	}
+	-- copy of skin Armada Blue
+	self.fontRaw[8] = {font = "fonts/n019003l.pfb", size = self.fontRaw[1].size, shadow = true, outlineColor = {0.05,0.05,0.05,0.9},}
+	self.fontRaw[9] = {font = "fonts/n019003l.pfb", size = self.fontRaw[2].size, shadow = true, outlineColor = {0.05,0.05,0.05,0.9},}
+	self.fontRaw[10] = {font = "fonts/n019003l.pfb", size = 14, shadow = true, outlineColor = {0.05,0.05,0.05,0.9},}
+
+	self.fontSpecial = {}
+	self.font = {}
+	for i = 0, #self.fontRaw do
+		self.font[i] = Font:New {
+			size         = self.fontRaw[i].size,
+			font         = self.fontRaw[i].font or self.fontName,
+			outline      = self.fontRaw[i].outline,
+			shadow       = self.fontRaw[i].shadow,
+			outlineColor = self.fontRaw[i].outlineColor or {0.05,0.05,0.05,0.7},
+		}
+	end
 
 	-- self.uiScale, WG.uiScale, and self.uiScalesForScreenSizes will be overridden in Configuration:SetConfigData;
 	-- We're setting default values here in case something tries to access it before we get there.
@@ -106,6 +122,8 @@ function Configuration:init()
 	self.founderColor = {0.7, 1, 0.65, 1}
 	self.ignoredUserNameColor = {0.6, 0.6, 0.6, 1}
 	self.userNameColor = {1, 1, 1, 1}
+	self.myUserNameColor = {0.8, 0.3, 0.9, 1}
+	self.friendsColor = {0.8, 0.4, 0.1, 1}
 
 	self.buttonFocusColor = {0.34,0.52,1,0.3}
 	self.buttonSelectedColor = {0.1, 0.58, 0.90, 0.9}--{1.0, 1.0, 1.0, 1.0}
@@ -115,6 +133,13 @@ function Configuration:init()
 		[1] = {0.85, 0.638, 0.137, 1.0},
 		[2] = {0.60, 0.45, 0.096, 1.0},
 		[3] = {0.40, 0.30, 0.064, 1.0},
+	}
+
+	self.voteColor = {
+		["yes"]   = {0.00, 1.00, 0.00, 1.0}, -- green
+		["no"]    = {1.00, 0.00, 0.00, 1.0}, -- red
+		["blank"] = {1.00, 0.80, 0.00, 1.0}, -- yellow
+		["initVote"] = {0.80, 0.80, 0.80, 1.0}, -- grey
 	}
 
 	self.showRank    = true
@@ -242,6 +267,7 @@ function Configuration:init()
 	self.debugMode = false
 	self.devMode = (VFS.FileExists("devmode.txt") and true) or false
 	self.enableProfiler = false
+	self.enableInspector = false
 	self.enableCacheRapidPool = true
 	self.showCampaignButton = false
 	self.showPlanetUnlocks = false
@@ -330,6 +356,18 @@ function Configuration:init()
 	for i = 1, #saneCharacterList do
 		self.saneCharacters[saneCharacterList[i]] = true
 	end
+
+	self.barMngSettings = {
+		autoBalance = true,
+		teamSize = true,
+		nbTeams = true,
+		balanceMode = true,
+		preset = true,
+		boss = true,
+	}
+	-- SAIDBATTLEEX Prefixes
+	self.BTLEX_JOINQUEUE = "You are now in the join-queue at position"
+	self.BTLEX_BARMANAGER = "* BarManager|"
 end
 
 ---------------------------------------------------------------------------------
@@ -605,6 +643,7 @@ function Configuration:GetConfigData()
 		debugMode = self.debugMode,
 		debugAutoWin = self.debugAutoWin,
 		enableProfiler = self.enableProfiler,
+		enableInspector = self.enableInspector,
 		enableCacheRapidPool= self.enableCacheRapidPool,
 		showCampaignButton = self.showCampaignButton,
 		showPlanetUnlocks = self.showPlanetUnlocks,
@@ -759,6 +798,14 @@ function Configuration:GetUserNameColor()
 	return self.userNameColor
 end
 
+function Configuration:GetMyUserNameColor()
+	return self.myUserNameColor
+end
+
+function Configuration:GetFriendsColor()
+	return self.friendsColor
+end
+
 -- NOTE: this one is in opengl range [0,1]
 function Configuration:GetButtonSelectedColor()
 	return self.buttonSelectedColor
@@ -776,16 +823,42 @@ function Configuration:GetTick()
 	return self:GetSuccessColor() .. "O"
 end
 
-function Configuration:GetFont(sizeScale, fontName)
-	if fontName == nil then fontName = 'fonts/Poppins-Regular.otf' end
-	return {
-		size = self.font[sizeScale].size,
-		outline = self.font[sizeScale].outline,
-		shadow = self.font[sizeScale].shadow,
-		font = fontName,
-		-- color        = {1,1,1,1},
-		outlineColor = {0.05,0.05,0.05,0.7},
-	}
+function Configuration:GetFont(sizeScale, specialName, specialData, rawSize)
+	if not specialName and not rawSize then
+		return self.font[sizeScale]
+	end
+	local size = (rawSize and sizeScale) or self.fontRaw[sizeScale].size
+	if not self.fontSpecial[size] then
+		self.fontSpecial[size] = {}
+	end
+	if not self.fontSpecial[size][specialName] then
+		specialData = specialData or {}
+		specialData.font = specialData.font or self.fontName
+		specialData.size = size
+		
+		specialData.color        = specialData.color or {1,1,1,1}
+		specialData.outlineColor = specialData.outlineColor or {0.05,0.05,0.05,0.9}
+		specialData.outline      = specialData.outline or false
+		specialData.shadow       = specialData.shadow or false
+		self.fontSpecial[size][specialName] = Font:New(specialData)
+	end
+	return self.fontSpecial[size][specialName]
+end
+
+function Configuration:GetHintFont(sizeScale, specialName, specialData, rawSize)
+	specialName = (specialName or "") .. "_hint_" .. sizeScale
+	specialData = specialData or {}
+	specialData.color = {1,1,1,0.48}
+	return self:GetFont(sizeScale, specialName, specialData, rawSize)
+end
+
+function Configuration:GetButtonFont(sizeScale, specialName, specialData, rawSize)
+	specialName = (specialName or "") .. "_button_" .. sizeScale
+	specialData = specialData or {}
+	specialData.outline = true
+	specialData.outlineWidth = 3
+	specialData.outlineHeight = 3
+	return self:GetFont(sizeScale, specialName, specialData, rawSize)
 end
 
 function Configuration:AllowNotification(playerName, playerList)

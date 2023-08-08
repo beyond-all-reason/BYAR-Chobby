@@ -13,29 +13,41 @@
 
 local welcomePanelItems = {
     {
+        Header = "Commander update survey!",
+        Url = "https://forms.gle/6iagp9r8EWPc3YUQ9",
+        Text = "\nWe would like to collect your feedback in a systematic way to use as supplementary data for the Game Design Team's discussion and ultimately decision on if and what tweaks should be applied. Thank you in advance for your time!\n",
+        UrlText = "Participate"
+    },
+    {
+        Header = "Welcome to Beyond All Reason",
+        Text = "Welcome back Commander. We hope you are ready for epic single player and multiplayer battles. Check out our Discord and join the community!\n",
+    },
+    {
+        Header = "Season 0 has started!",
+        Url = "https://www.beyondallreason.info/news/new-opportunities-ahead-season-zero-is-about-to-begin",
+        Text = "The OpenSkill uncertainty factor was reset for all players to its default value (the same as for new players). It's expected that your match rating (displayed in lobby) is lower than what it was before the reset, and likewise for your rank icon\n",
+        UrlText = "More info",
+    },
+    {
+        Header = "Commander Update",
+        Url = "https://www.beyondallreason.info/news/commander-update-details",
+        Text = "Commanders have been changed! They are now immune to the mighty D-Gun and their explosion does less damage. Their wreckage contains reduced metal value of 1250 (was 2000)\n",
+        UrlText = "More info",
+    },
+    {
         Header = "PRO 4v4 Tournament concluded!",
         Image = "LuaMenu/images/Group_141.png",
         Url = "https://www.youtube.com/watch?v=_dq9Xwfh4h4",
         Text = "\nCongratulations to the team BARcode!\nAs the dust slowly settles after the epic battles of 4v4 tourney, enjoy the tourney stream VOD! We really had a blast organising, casting an playing this one and sitting together with Chris Taylor (the creator of Total Annihilation) for a surprise interview.\n",
         UrlText = "Watch"
     },
-
-    {
-        Header = "Welcome to Beyond All Reason",
-        Text = "Welcome back Commander. We hope you are ready for epic single player and multiplayer battles. Check out our Discord and join the community!\n",
-    },
+    
     {
         Header = "Guides for new players",
         Url = "https://www.youtube.com/channel/UCAByJ5NKeMmQ95EIWgBtbEw",
         Text = "Requiem has created some guides for new players. If you're new to the game and want to learn the basics via video we highly recommend you check them out.\n",
         UrlText = "Link to video guides"
     },
-    
-    {
-        Header = "New Map: Faster Than Light 1.1",
-        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/faster_than_light_1.1.png",
-        Text = "1v1 windless space-platform map for competitive play.\nTight chokes favour positional strategy while raised platforms reward aggressive map control.\nMade by ShaunJS",
-    },    
 
     {
         Header = "Please help us test new engines!",
@@ -58,12 +70,12 @@ local welcomePanelItems = {
         Text = "We've just released a new engine update. Be sure to report any issues to #bugreports on the discord and thank you for bearing with us through any teething problems with it.."
     }, ]]--
 
-    {
-        Header = "Code of Conduct",
-        Url = "https://www.beyondallreason.info/code-of-conduct",
-        Text = "We recently updated our code of conduct; be sure to check it out. As our community growth we've added the ability to report problems, click a user and select 'report user' to alert the moderator team to an issue. See the full code of conduct at https://www.beyondallreason.info/code-of-conduct",
-        UrlText = "Code of Conduct Link"
-    },
+    --{
+    --    Header = "Code of Conduct",
+    --    Url = "https://www.beyondallreason.info/code-of-conduct",
+    --    Text = "We recently updated our code of conduct; be sure to check it out. As our community growth we've added the ability to report problems, click a user and select 'report user' to alert the moderator team to an issue. See the full code of conduct at https://www.beyondallreason.info/code-of-conduct",
+    --    UrlText = "Code of Conduct Link"
+    --},
 
     {
         Header = "Play with your friends: use our servers!",

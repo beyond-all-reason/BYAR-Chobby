@@ -49,9 +49,10 @@ local function traceLost(node)
 
 	for i,obj in pairs(Chili.DebugHandler.allObjects) do
 		if obj.name ~= "wnd_inspector" then
-			if (not obj.parent)and(not obj:InheritsFrom("screen")) then
-				local caption = ("%s: %s (redrawn: %i; disposed: %s)"):format(obj.classname, obj.name, obj._redrawCounter or 0, GetBooleanStr(obj.disposed))
+			if (not obj.parent)and(not obj:InheritsFrom("screen")) and (obj.classname ~= "treeviewnode") then
+				local caption = ("%s: %s (redrawn: %i; disposed: %s; from %s)"):format(obj.classname, obj.name, obj._redrawCounter or 0, GetBooleanStr(obj.disposed), obj.allocatedfrom or "")
 				local nodec = node:Add(caption)
+				Spring.Echo("Lost: "..caption)
 				trace(obj.children, nodec, 1, 1)
 			end
 		end
@@ -111,6 +112,7 @@ function widget:Initialize()
 		widgetHandler:RemoveWidget()
 		return
 	end
+	WG.Chobby.Configuration:SetConfigValue("enableInspector", true)
 
 	window0 = Chili.Window:New{
 		name = "wnd_inspector",
@@ -175,7 +177,12 @@ function widget:Initialize()
 					Chili.Button:New{
 						caption="visible objects",
 						classname = "option_button",
-						OnMouseUp = {function() tree0.root:Clear(); trace(Chili.Screen0.children, tree0.root) end},
+						OnMouseUp = {function() tree0.root:Clear(); 
+							for child in tree0.root.children do
+								child:Dispose()
+							end
+							
+							trace(Chili.Screen0.children, tree0.root) end},
 					},
 					Chili.Button:New{
 						caption="lost objects",
@@ -191,7 +198,9 @@ function widget:Initialize()
 						caption="close",
 						classname = "negative_button",
 						OnMouseUp = {function()
-							widgetHandler:RemoveWidget() end},
+										widgetHandler:RemoveWidget()
+										WG.Chobby.Configuration:SetConfigValue("enableInspector", false)
+									end},
 					},
 				},
 			},

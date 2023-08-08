@@ -51,6 +51,10 @@ local lastUserToChangeStartBoxes = ''
 local readyButton
 local btnStartBattle = nil
 
+local vote_votingsPattern = "(%d+)/(%d+).-:(%d+)"
+local vote_whoCalledPattern = "%* (.*) called a vote for command"
+local vote_mapPattern = 'set map (.*)"'
+
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 -- Download management
@@ -140,12 +144,14 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	local externalFunctions = {}
 
 	local btnMapLink = Button:New {
+		name = 'btnMapLink',
 		x = 3,
 		y = 0,
 		right = 3,
 		height = 20,
 		classname = "button_small",
 		caption = "",
+		noFont = true,
 		padding = {0, 0, 0, 0},
 		parent = rightInfo,
 		--tooltip = "Choose a different map",
@@ -159,6 +165,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	}
 
 	local startBoxPanel = Control:New{
+		name = 'startBoxPanel',
 		x = 0,
 		y = 22,
 		width = "100%",
@@ -169,6 +176,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	-- the buttons needed are:
 	-- splitV , splitH, splitC1_2, splitC2_2, split4, add, remove
 	local btnSplitV = Button:New{
+		name = 'btnSplitV',
 		x = "0%",
 		bottom = 0,
 		width = "12%",
@@ -177,6 +185,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		maxHeight = 50,
 		classname = "button_small",
 		caption = "",
+		noFont = true,
 		padding = {0, 0, 0, 0},
 		parent = startBoxPanel,
 		tooltip = "Split start boxes left vs right",
@@ -208,6 +217,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	}
 
 	local imSplitV = Image:New {
+		name = 'imSplitV',
 		x = 0,
 		y = 0,
 		right = 0,
@@ -219,6 +229,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	}
 
 	local btnSplitH = Button:New{
+		name = 'btnSplitH',
 		x = "12.5%",
 		bottom = 0,
 		width = '12%',
@@ -228,6 +239,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		parent = startBoxPanel,
 		classname = "button_small",
 		caption = "",
+		noFont = true,
 		padding = {0, 0, 0, 0},
 		tooltip = "Split start boxes top vs bottom",
 		OnClick = {
@@ -258,6 +270,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	}
 
 	local imSplitH = Image:New {
+		name = 'imSplitH',
 		x = 0,
 		y = 0,
 		right = 0,
@@ -269,6 +282,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	}
 
 	local btnSplitC1 = Button:New{
+		name = 'btnSplitC1',
 		x = "25%",
 		bottom = 0,
 		width = '12%',
@@ -278,6 +292,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		parent = startBoxPanel,
 		classname = "button_small",
 		caption = "",
+		noFont = true,
 		padding = {0, 0, 0, 0},
 		tooltip = "Split start boxes top left vs bottom right",
 		OnClick = {
@@ -308,6 +323,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	}
 
 	local imSplitC1 = Image:New {
+		name = 'imSplitC1',
 		x = 0,
 		y = 0,
 		right = 0,
@@ -319,6 +335,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	}
 
 	local btnSplitC2 = Button:New{
+		name = 'btnSplitC2',
 		x = "37.5%",
 		bottom = 0,
 		width = '12%',
@@ -328,6 +345,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		parent = startBoxPanel,
 		classname = "button_small",
 		caption = "",
+		noFont = true,
 		padding = {0, 0, 0, 0},
 		tooltip = "Split start boxes bottom left vs top right",
 		OnClick = {
@@ -358,6 +376,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	}
 
 	local imSplitC2 = Image:New {
+		name = 'imSplitC2',
 		x = 0,
 		y = 0,
 		right = 0,
@@ -370,6 +389,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 
 
 	local btnSplitC4 = Button:New{
+		name = 'btnSplitC4',
 		x = "50%",
 		bottom = 0,
 		width = '12%',
@@ -379,6 +399,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		parent = startBoxPanel,
 		classname = "button_small",
 		caption = "",
+		noFont = true,
 		padding = {0, 0, 0, 0},
 		tooltip = "Split start boxes into 4 corners for 4 teams",
 		OnClick = {
@@ -411,6 +432,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	}
 
 	local imSplitC4 = Image:New {
+		name = 'imSplitC4',
 		x = 0,
 		y = 0,
 		right = 0,
@@ -423,6 +445,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 
 
 	local btnSplitS4 = Button:New{
+		name = 'btnSplitS4',
 		x = "62.5%",
 		bottom = 0,
 		width = '12%',
@@ -432,6 +455,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		parent = startBoxPanel,
 		classname = "button_small",
 		caption = "",
+		noFont = true,
 		padding = {0, 0, 0, 0},
 		tooltip = "Split start boxes into 4 sides for 4 teams",
 		OnClick = {
@@ -464,6 +488,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	}
 
 	local imSplitS4 = Image:New {
+		name = 'imSplitS4',
 		x = 0,
 		y = 0,
 		right = 0,
@@ -476,6 +501,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 
 
 	local btnAddBox = Button:New{
+		name = 'btnAddBox',
 		x = "75%",
 		bottom = 0,
 		width = '12%',
@@ -485,6 +511,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		parent = startBoxPanel,
 		classname = "button_small",
 		caption = "",
+		noFont = true,
 		padding = {0, 0, 0, 0},
 		tooltip = "Add a new start box in the center",
 		OnClick = {
@@ -503,6 +530,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	}
 
 	local imAddBox = Image:New {
+		name = 'imAddBox',
 		x = 0,
 		y = 0,
 		right = 0,
@@ -514,6 +542,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	}
 
 	local btnClearBox = Button:New{
+		name = 'btnClearBox',
 		x = "87.5%",
 		bottom = 0,
 		width = '12%',
@@ -523,6 +552,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		parent = startBoxPanel,
 		classname = "button_small",
 		caption = "",
+		noFont = true,
 		padding = {0, 0, 0, 0},
 		tooltip = "Remove last start box",
 		OnClick = {
@@ -543,6 +573,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	}
 
 	local imClearBox = Image:New {
+		name = 'imClearBox',
 		x = 0,
 		y = 0,
 		right = 0,
@@ -595,7 +626,8 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		right = 20,
 		align = "center",
 		parent = btnMapLink,
-		fontsize = config:GetFont(2).size,
+		objectOverrideFont = config:GetFont(2),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
 	}
 	--[[
 	local imMapLink = Image:New {
@@ -629,6 +661,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	end
 
 	local minimapPanel = Panel:New {
+		name = 'minimapPanel',
 		x = 0,
 		y = 0,
 		right = 0,
@@ -654,6 +687,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 
 	local mapImageFile, needDownload = config:GetMinimapImage(battle.mapName)
 	local imMinimap = Image:New {
+		name = 'imMinimap',
 		x = 0,
 		y = 0,
 		right = 0,
@@ -677,7 +711,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 			caption = "Use Start Boxes",
 			checked = true,
 			tooltip = "All teams start together in pre-specified areas",
-			font = config:GetFont(2),
+			objectOverrideFont = config:GetFont(2),
 			parent = rightInfo,
 			OnClick = {function (obj)
 				config.gameConfig.useDefaultStartBoxes = obj.checked
@@ -688,6 +722,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	]]--
 	if config.devMode then 
 		local comboboxstartpostype = ComboBox:New{
+			name = 'comboboxstartpostype',
 			x = 0,
 			bottom = 100,
 			right = 0,
@@ -696,16 +731,15 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 			selectByName = true,
 			captionHorAlign = -12,
 			text = "",
-			font = config:GetFont(2),
+			objectOverrideFont = config:GetFont(2),
 			items = {"Fixed", "Random", "Choose In Game", "Choose Before Game"},
-			itemFontSize = config:GetFont(2).size,
 			selected = "Choose In Game",
 			OnSelectName = {
 				function (obj, selectedName)
 					for k,v in ipairs  {"Fixed", "Random", "Choose In Game", "Choose Before Game"} do
 						if selectedName == v then
 							battle.startPosType = k - 1
-							Spring.Echo("Selected startPosType", k,v, k-1,selectedName)
+							--Spring.Echo("Selected startPosType", k,v, k-1,selectedName)
 							return
 						end
 					end
@@ -728,15 +762,14 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 
 	if battleLobby.name ~= "singleplayer" then
 		readyButton = Button:New {
+			name = 'readyButton',
 			x = 0,
 			align = "right",
 			right = "50.5%",
 			bottom = 0,
 			height = 48,
 			classname = "ready_button",
-			font = config:GetFont(3),
-			disabledFont = config:GetFont(3),
-			hasDisabledFont = true,
+			objectOverrideFont = config:GetFont(3),
 			caption = i18n("ready"),
 			tooltip = i18n("ready_tooltip"), -- Set in OnUpdateUserBattleStatus
 			OnClick = {
@@ -750,6 +783,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		}
 
 		readyButtonCheck = Image:New {
+			name = 'readyButtonCheck',
 			--x = "5%",
 			y = 6,
 			right = "84%",
@@ -761,6 +795,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		}
 
 		readyButtonCheckArrow = Image:New {
+			name = 'readyButtonCheckArrow',
 			width = 16,
 			height = 16,
 			file = IMG_CHECKARROW,
@@ -773,15 +808,16 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	end
 
 	btnStartBattle = Button:New {
+		name = 'btnStartBattle',
 		x = ((battleLobby.name == "singleplayer") and 0 or "50.5%"),
 		right = 0,
 		bottom = 0,
 		height = 48,
 		caption = i18n("start"),
 		classname = "ready_button",
-		font = config:GetFont(3),
-		disabledFont = config:GetFont(3),
-		hasDisabledFont = true,
+		objectOverrideFont = config:GetFont(3),
+		-- disabledFont = config:GetFont(3),
+		-- hasDisabledFont = true,
 		tooltip = "Start the game, or call a vote to start multiplayer, or join a running game",
 		OnClick = {
 			function()
@@ -852,13 +888,14 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	end
 
 	btnSpectate = Button:New { -- Some properties set by SetButtonStatePlaying() after both buttons are initialised.
+		name = 'btnSpectate',
 		x = "50.5%",
 		right = 0,
 		bottom = 51,
 		height = 32,
 		classname = "playing_button",
 		caption = "",
-		font = config:GetFont(2),
+		objectOverrideFont = config:GetFont(2),
 		OnClick = {
 			function(obj)
 				if btnSpectate.selected then
@@ -888,13 +925,14 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	}
 
 	btnPlay = Button:New { -- Some properties set by SetButtonStatePlaying() after both buttons are initialised.
+		name = 'btnPlay',	
 		x = 0,
 		right = "50.5%",
 		bottom = 51,
 		height = 32,
 		classname = "playing_button",
 		caption = "",
-		font = config:GetFont(2),
+		objectOverrideFont = config:GetFont(2),
 		OnClick = {
 			function(obj)
 				if btnPlay.selected then
@@ -926,6 +964,8 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	-- Spring.Echo("debug_initialSetButtonStatePlayingafter")
 	
 	local function SetBtnPlayState(selected, caption)
+		local myBs = battleLobby:GetUserBattleStatus(battleLobby.myUserName) or {}
+		local myQueuePos = myBs.queuePos or "?"
 		-- Spring.Echo("SetBtnPlayState selected, caption", selected, caption)
 		if selected then
 			ButtonUtilities.SetButtonSelected(btnPlay)
@@ -942,7 +982,9 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 				btnPlay.tooltip = i18n("tooltip_join_queue")
 			end
 		end
-		ButtonUtilities.SetCaption(btnPlay, i18n(caption))
+		local newCaption = i18n(caption)
+		newCaption = caption ~= "queued" and newCaption or (newCaption .. " " ..myQueuePos)
+		ButtonUtilities.SetCaption(btnPlay, newCaption)
 		btnPlay.suppressButtonReaction = selected
 	end
 
@@ -1045,7 +1087,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		right = 5,
 		classname = "option_button",
 		caption = i18n("add_team") .. "\b",
-		font = config:GetFont(2),
+		objectOverrideFont = config:GetFont(2),
 		tooltip = "Add another team for players or AI to join into",
 		OnClick = {
 			function()
@@ -1079,13 +1121,14 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	leftOffset = leftOffset + 38
 
 	local btnPickMap = Button:New {
+		name = 'btnPickMap',
 		x = 5,
 		y = leftOffset,
 		height = 35,
 		right = 5,
 		classname = "option_button",
 		caption = i18n("pick_map") .. "\b",
-		font = config:GetFont(2),
+		objectOverrideFont = config:GetFont(2),
 		tooltip = "Select a map from the maps you have downloaded",
 		OnClick = {
 			function()
@@ -1098,13 +1141,14 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 
 	WG.ModoptionsPanel.LoadModotpions(battle.gameName, battleLobby)
 	local btnModoptions = Button:New {
+		name = 'btnModoptions',
 		x = 5,
 		y = leftOffset,
 		height = 35,
 		right = 5,
 		classname = "option_button",
 		caption = "Adv Options" .. "\b",
-		font = config:GetFont(2),
+		objectOverrideFont = config:GetFont(2),
 		tooltip = "Configure custom gameplay options",
 		OnClick = {
 			function()
@@ -1116,11 +1160,12 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	leftOffset = leftOffset + 40
 
 	local lblGame = Label:New {
+		name = 'lblGame',
 		x = 8,
 		y = leftOffset,
 		right = 3,
 		caption = WG.Chobby.Configuration.gameConfig.ShortenNameString(battle.gameName),
-		fontsize = config:GetFont(2).size,
+		objectOverrideFont = config:GetFont(2),
 		parent = leftInfo,
 		OnResize = {
 			function (obj, xSize, ySize)
@@ -1131,6 +1176,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	leftOffset = leftOffset + 26
 
 	local imHaveGame = Image:New {
+		name = 'imHaveGame',
 		x = 8,
 		y = leftOffset,
 		width = 15,
@@ -1139,15 +1185,17 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		parent = leftInfo,
 	}
 	local lblHaveGame = Label:New {
+		name = 'lblHaveGame',
 		x = 28,
 		y = leftOffset,
 		caption = "",
-		fontsize = config:GetFont(2).size,
+		objectOverrideFont = config:GetFont(2),
 		parent = leftInfo,
 	}
 	leftOffset = leftOffset + 25
 
 	local imHaveMap = Image:New {
+		name = 'imHaveMap',
 		x = 8,
 		y = leftOffset,
 		width = 15,
@@ -1156,21 +1204,22 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		parent = leftInfo,
 	}
 	local lblHaveMap = Label:New {
+		name = 'lblHaveMap',
 		x = 28,
 		y = leftOffset,
 		caption = "",
-		fontsize = config:GetFont(2).size,
+		objectOverrideFont = config:GetFont(2),
 		parent = leftInfo,
 	}
 	leftOffset = leftOffset + 30
 
 	local modoptionsHolder = Control:New {
+		name = 'modoptionsHolder',
 		x = 0,
 		y = leftOffset,
 		right = 0,
 		height = 120,
 		padding = {2, 0, 2, 0},
-		fontsize = config:GetFont(1).size,
 		autosize = false,
 		resizable = false,
 		tooltip = "All custom gameplay options are listed here",
@@ -1440,6 +1489,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		local oh = math.floor((bottom-top) * minimapPanelMaxSize / 200)
 		if currentStartRects[allyNo+1] then externalFunctions.RemoveStartRect(allyNo) end
 		local newStartRect = Window:New {
+			name = 'newStartRect'..tostring(allyNo + 1),
 
 			spadsSizes = {left = left,top = top,right = right,bottom = bottom, caption = tostring(allyNo + 1)},
 			x = ox,
@@ -1448,7 +1498,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 			height = oh,
 			minWidth = 15,
 			minHeight = 15,
-			font = WG.Chobby.Configuration:GetFont(2),
+			objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 			caption = tostring(allyNo + 1),
 			classname = "startbox_window",
 			parent = minimapPanel,
@@ -1561,7 +1611,7 @@ local function AddTeamButtons(parent, offX, joinFunc, aiFunc, unjoinable, disall
 			y = 0, --5
 			height = 24,
 			width = 95,
-			font = WG.Chobby.Configuration:GetFont(2),
+			objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 			caption = i18n("add_ai") .. "\b",
 			OnClick = {aiFunc},
 			classname = "button_small",
@@ -1577,7 +1627,7 @@ local function AddTeamButtons(parent, offX, joinFunc, aiFunc, unjoinable, disall
 			y = 0, --5
 			height = 24,
 			width = 95,
-			font = WG.Chobby.Configuration:GetFont(2),
+			objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 			caption = i18n("join") .. "\b",
 			OnClick = {joinFunc},
 			classname = "button_small",
@@ -1619,6 +1669,7 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 	local disallowBots = battle.disallowBots
 
 	local mainScrollPanel = ScrollPanel:New {
+		name = 'mainScrollPanel',
 		x = 0,
 		right = 0,
 		y = 1,
@@ -1628,6 +1679,7 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 	}
 
 	local mainStackPanel = Control:New {
+		name = 'mainStackPanel',
 		x = 0,
 		right = 0,
 		y = 0,
@@ -1637,6 +1689,7 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 	}
 	mainStackPanel._relativeBounds.bottom = nil
 	local spectatorScrollPanel = ScrollPanel:New {
+		name = 'spectatorScrollPanel',
 		x = 0,
 		right = 0,
 		y = 0,
@@ -1646,6 +1699,7 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 	}
 
 	local spectatorStackPanel = Control:New {
+		name = 'spectatorStackPanel',
 		x = 0,
 		right = 0,
 		y = 0,
@@ -1744,6 +1798,7 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 			end
 
 			local teamHolder = Control:New {
+				name = 'teamHolder',
 				name = teamIndex,
 				x = 0,
 				right = 0,
@@ -1754,17 +1809,19 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 			}
 
 			local label = Label:New {
+				name = 'label',
 				x = 5,
 				y = 0,
 				width = 120,
 				height = 25, --30
 				valign = "center",
-				font = WG.Chobby.Configuration:GetFont(2),
+				objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 				caption = humanName,
 				parent = teamHolder,
 			}
 			if teamIndex ~= -1 and teamIndex ~= -2 then
 				local seperator = Line:New {
+					name = 'seperator',
 					x = 0,
 					y = 20, --25
 					right = 0,
@@ -1793,15 +1850,31 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 				)
 			end
 			local teamStack = Control:New {
+				name = 'teamStack',
 				x = 0,
 				y = 26, --31
 				right = 0,
-				font = WG.Chobby.Configuration:GetFont(2),
+				objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 				bottom = 0,
 				padding = {0, 0, 0, 0},
 				parent = teamHolder,
 				preserveChildrenOrder = true,
 			}
+
+			local labelTeamPlayerCount = Label:New {
+				x = -20, -- hand crafted
+				y = 0,
+				width = 40,
+				height = 25, -- same as label (for team names)
+				align = "right",
+				valign = "center",
+				objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+				caption = "0",
+				parent = teamHolder,
+			}
+			local function UpdateTeamPlayerCount()
+				labelTeamPlayerCount.caption = string.format("%d", #teamStack.children)
+			end
 
 			local function UpdatePlayerPositions()
 				if teamIndex ~= -1 and teamIndex ~= -2 then
@@ -1894,6 +1967,7 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 					teamHolder:SetVisibility(true)
 					UpdatePlayerPositions()
 				end
+				UpdateTeamPlayerCount()
 			end
 
 			function teamData.RemoveTeam()
@@ -1961,6 +2035,7 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 
 				teamData.CheckRemoval()
 				PositionChildren(parentStack, parentScroll.height)
+				UpdateTeamPlayerCount()
 			end
 
 			team[teamIndex] = teamData
@@ -2068,6 +2143,7 @@ local function SetupVotePanel(votePanel, battle, battleID)
 	local currentMapName
 
 	local minimapPanel = Panel:New {
+		name = 'minimapPanel',
 		x = 0,
 		y = 0,
 		bottom = 0,
@@ -2076,12 +2152,14 @@ local function SetupVotePanel(votePanel, battle, battleID)
 		parent = votePanel,
 	}
 	local btnMinimap = Button:New {
+		name = 'btnMinimap',
 		x = 0,
 		y = 0,
 		right = 0,
 		bottom = 0,
 		classname = "option_button",
 		caption = "",
+		objectOverrideFont = WG.Chobby.Configuration:GetButtonFont(10),
 		parent = minimapPanel,
 		padding = {1,1,1,1},
 		OnClick = {
@@ -2093,6 +2171,7 @@ local function SetupVotePanel(votePanel, battle, battleID)
 		},
 	}
 	local imMinimap = Image:New {
+		name = 'imMinimap',
 		x = 0,
 		y = 0,
 		right = 0,
@@ -2102,6 +2181,7 @@ local function SetupVotePanel(votePanel, battle, battleID)
 	}
 
 	local activePanel = Control:New {
+		name = 'activePanel',
 		x = 0,
 		y = 0,
 		right = 0,
@@ -2112,11 +2192,13 @@ local function SetupVotePanel(votePanel, battle, battleID)
 
 	local buttonNo
 	local buttonYes = Button:New {
+		name = 'buttonYes',
 		x = offset,
 		y = 0,
 		bottom = 0,
 		width = height,
 		caption = "",
+		noFont = true,
 		classname = "positive_button",
 		tooltip = "Vote YES on the current poll",
 		OnClick = {
@@ -2133,6 +2215,7 @@ local function SetupVotePanel(votePanel, battle, battleID)
 		padding = {10,10,10,10},
 		children = {
 			Image:New {
+				name = 'buttonYes',
 				x = 0,
 				y = 0,
 				right = 0,
@@ -2146,11 +2229,13 @@ local function SetupVotePanel(votePanel, battle, battleID)
 	offset = offset + height
 
 	buttonNo = Button:New {
+		name = 'buttonNo',
 		x = offset,
 		y = 0,
 		bottom = 0,
 		width = height,
 		caption = "",
+		noFont = true,
 		classname = "negative_button",
 		tooltip = "Vote NO on the current poll",
 		OnClick = {
@@ -2181,16 +2266,18 @@ local function SetupVotePanel(votePanel, battle, battleID)
 	offset = offset + 2
 
 	local voteName = Label:New {
+		name = 'voteName',
 		x = offset,
 		y = 4,
 		width = 50,
 		bottom = height * 0.4,
-		font = config:GetFont(2),
+		objectOverrideFont = config:GetFont(2),
 		caption = "",
 		parent = activePanel,
 	}
 
 	local voteProgressNo = Progressbar:New {
+		name = 'voteProgressNo',
 		x = offset,
 		y = height * 0.90,
 		right = 55,
@@ -2199,9 +2286,11 @@ local function SetupVotePanel(votePanel, battle, battleID)
 		parent = activePanel,
 		tooltip = "How many players have voted yes out of the required number have voted to pass",
 		color     = {1, 0, 0, 1},
+		noFont = true,
 	}
 
 	local voteProgressYes = Progressbar:New {
+		name = 'voteProgressYes',
 		x = offset,
 		y = height * 0.80,
 		right = 55,
@@ -2210,15 +2299,17 @@ local function SetupVotePanel(votePanel, battle, battleID)
 		parent = activePanel,
 		tooltip = "How many players have voted no out of the required number have voted to fail",
 		color     = {0, 1, 0, 1},
+		noFont = true,
 	}
 
 	local voteCountLabel = Label:New {
+		name = 'voteCountLabel',
 		right = 5,
 		y = height * 0.5,
 		width = 50,
 		bottom = 0,
 		align = "left",
-		font = config:GetFont(2),
+		objectOverrideFont = config:GetFont(2),
 		caption = "20/50",
 		parent = activePanel,
 		tooltip = "How many votes have been cast (#yes / #needed)",
@@ -2232,12 +2323,13 @@ local function SetupVotePanel(votePanel, battle, battleID)
 	end
 
 	local voteResultLabel = Label:New {
+		name = 'voteResultLabel',
 		x = 5,
 		y = 4,
 		right = 0,
 		bottom = height * 0.4,
 		align = "left",
-		font = config:GetFont(2),
+		objectOverrideFont = config:GetFont(2),
 		caption = "",
 		parent = votePanel,
 	}
@@ -2327,8 +2419,11 @@ local function SetupVotePanel(votePanel, battle, battleID)
 		--HideVoteResult()
 	end
 
+	local function HideVotedUsers()
+		WG.LibLobby.lobby:_OnUserVoted(_, "default")
+	end
+
 	function externalFunctions.VoteEnd(message, success)
-		--Spring.Echo("VoteEnd(message, success)", message, success)
 		activePanel:SetVisibility(false)
 		minimapPanel:SetVisibility(false)
 		if message then oldTitle = message end
@@ -2341,16 +2436,18 @@ local function SetupVotePanel(votePanel, battle, battleID)
 		matchmakerModeEnabled = false
 		ResetButtons()
 		WG.Delay(HideVoteResult, 3)
+		WG.Delay(HideVotedUsers, 3)
+
 	end
 
 	function externalFunctions.ImmediateVoteEnd()
-		--Spring.Echo("ImmediateVoteEnd()")
 		activePanel:SetVisibility(false)
 		minimapPanel:SetVisibility(false)
 		if barManagerPresent then spadsStatusPanel:SetVisibility(true) end
 		matchmakerModeEnabled = false
 		ResetButtons()
 		HideVoteResult()
+		HideVotedUsers()
 	end
 
 	function externalFunctions.VoteButtonVisible(visible)
@@ -2363,6 +2460,9 @@ local function SetupVotePanel(votePanel, battle, battleID)
 		return matchmakerModeEnabled
 	end
 
+	function externalFunctions.visible()
+		return activePanel.visible
+	end
 
 	return externalFunctions
 end
@@ -2465,15 +2565,16 @@ local function SetupSpadsStatusPanel(battle, battleID)
 	local rows = 3
 	local cols = 3
 	local i = 0
-	for _, k in ipairs(spadsSettingsOrder) do
+	for j, k in ipairs(spadsSettingsOrder) do
 		local sts = spadsSettingsTable[k]
 		local xpos = tostring(math.fmod(i,cols) * 100/cols) ..'%'
 		local stslabel = Label:New {
+			name = 'stslabel'..tostring(j),
 			x = tostring(math.fmod(i,cols) * 100/cols + 1) ..'%',
 			y = tostring(math.floor(i/cols) * 100/rows + 1) ..'%',
 			width = tostring(100.0/cols -2 ) ..'%',
 			height = tostring(100.0/rows -2) ..'%',
-			--font = WG.Chobby.Configuration:GetFont(1),
+			objectOverrideFont = WG.Chobby.Configuration:GetFont(8),
 			align = "left",
 			valign = "center",
 			parent = spadsStatusPanel,
@@ -2483,6 +2584,7 @@ local function SetupSpadsStatusPanel(battle, battleID)
 
 		local stsCBdefault = sts.current
 		local stsCB = ComboBox:New{
+			name = 'stsCB'..tostring(j),
 			x = tostring(50/cols + math.fmod(i,cols) * 100/cols + 1 ) ..'%',
 			y = tostring(math.floor(i/cols) * 100/rows + 1) ..'%',
 			width = tostring(50.0/cols - 2) ..'%',
@@ -2491,12 +2593,11 @@ local function SetupSpadsStatusPanel(battle, battleID)
 			selectByName = true,
 			captionHorAlign = -1,
 			text = "winkydink",
-			--font = WG.Chobby.Configuration:GetFont(1),
+			objectOverrideFont = WG.Chobby.Configuration:GetFont(8),
 			items = sts.allowed,
 			align = "right",
 			valign = "center",
 			name = k,
-			--itemFontSize = Configuration:GetFont(1).size,
 			selected = stsCBdefault,
 			OnSelectName = {
 				function (obj, selectedName)
@@ -2516,13 +2617,14 @@ local function SetupSpadsStatusPanel(battle, battleID)
 	end
 
 	local balanceButton = Button:New {
+		name = 'balanceButton',
 		x = '1%',
 		y = '68%',
 		width = '31%',
 		height = '31%',
 		caption = "Balance",
 		tooltip = "Attempt to balance the teams. In Coop Preset this splits Humans and AIs.",
-		font = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		parent = spadsStatusPanel,
 		classname = "button_small",
 		OnClick = {
@@ -2533,13 +2635,14 @@ local function SetupSpadsStatusPanel(battle, battleID)
 	}
 
 	local lockButton = Button:New {
+		name = 'lockButton',
 		x = '34%',
 		y = '68%',
 		width = '31%',
 		height = '31%',
 		caption = "Lock",
 		tooltip = "Lock the battleroom, preventing everyone from joining",
-		font = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		parent = spadsStatusPanel,
 		classname = "button_small",
 		OnClick = {
@@ -2550,13 +2653,14 @@ local function SetupSpadsStatusPanel(battle, battleID)
 	}
 
 	local unlockButton = Button:New {
+		name = 'unlockButton',
 		x = '67%',
 		y = '68%',
 		width = '31%',
 		height = '31%',
 		caption = "Unlock",
 		tooltip = "Unlock the battleroom, to allow players to join",
-		font = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		parent = spadsStatusPanel,
 		classname = "button_small",
 		OnClick = {
@@ -2581,11 +2685,12 @@ local function InitializeSetupPage(subPanel, screenHeight, pageConfig, nextPage,
 	subPanel:SetVisibility(not prevPage)
 
 	local lblBattleTitle = Label:New {
+		name = 'lblBattleTitle',
 		x = "40%",
 		right = "40%",
 		y = buttonScale,
 		height = 30,
-		font = Configuration:GetFont(4),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(4),
 		align = "center",
 		valign = "center",
 		caption = pageConfig.humanName,
@@ -2595,13 +2700,14 @@ local function InitializeSetupPage(subPanel, screenHeight, pageConfig, nextPage,
 	local buttons = {}
 
 	local nextButton = Button:New {
+		name = 'nextButton',
 		x = "36%",
 		right = "36%",
 		y = 2*buttonScale + 5 + (#pageConfig.options)*buttonScale,
 		height = buttonHeight,
 		classname = "action_button",
 		caption = (nextPage and "Next") or i18n("start"),
-		font = Configuration:GetFont(buttonFont),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(buttonFont),
 		OnClick = {
 			function(obj)
 				subPanel:SetVisibility(false)
@@ -2622,12 +2728,14 @@ local function InitializeSetupPage(subPanel, screenHeight, pageConfig, nextPage,
 	local tipTextBox
 	if pageConfig.tipText then
 		tipTextBox = TextBox:New {
+			name = 'tipTextBox',
 			x = "26%",
 			y = 3*buttonScale + 20 + (#pageConfig.options)*buttonScale,
 			right = "26%",
 			height = 200,
 			align = "left",
-			fontsize = Configuration:GetFont(2).size,
+			objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+			objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
 			text = pageConfig.tipText,
 			parent = subPanel,
 		}
@@ -2635,6 +2743,7 @@ local function InitializeSetupPage(subPanel, screenHeight, pageConfig, nextPage,
 	end
 
 	local advButton = Button:New {
+		name = 'advButton',
 		x = "78%",
 		right = "5%",
 		bottom = "4%",
@@ -2642,7 +2751,7 @@ local function InitializeSetupPage(subPanel, screenHeight, pageConfig, nextPage,
 		classname = "option_button",
 		caption = "Advanced",
 		tooltip = i18n("advanced_button_tooltip"),
-		font = Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		OnClick = {
 			function(obj)
 				WG.Analytics.SendOnetimeEvent("lobby:singleplayer:skirmish:advanced")
@@ -2655,13 +2764,14 @@ local function InitializeSetupPage(subPanel, screenHeight, pageConfig, nextPage,
 
 	if prevPage then
 		Button:New {
+			name = 'prevPage',
 			x = "5%",
 			right = "78%",
 			bottom = "4%",
 			height = 48,
 			classname = "option_button",
 			caption = "Back",
-			font = Configuration:GetFont(2),
+			objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 			OnClick = {
 				function(obj)
 					subPanel:SetVisibility(false)
@@ -2687,6 +2797,7 @@ local function InitializeSetupPage(subPanel, screenHeight, pageConfig, nextPage,
 			caption = pageConfig.options[i]
 		end
 		buttons[i] = Button:New {
+			name = 'pageConfig.options'..tostring(i),
 			x = x,
 			y = y,
 			right = right,
@@ -2694,7 +2805,7 @@ local function InitializeSetupPage(subPanel, screenHeight, pageConfig, nextPage,
 			classname = "option_button",
 			caption = caption,
 			tooltip = tooltip,
-			font = Configuration:GetFont(buttonFont),
+			objectOverrideFont = WG.Chobby.Configuration:GetFont(buttonFont),
 			tooltip = pageConfig.optionTooltip and pageConfig.optionTooltip[i],
 			OnClick = {
 				function(obj)
@@ -2719,6 +2830,7 @@ local function InitializeSetupPage(subPanel, screenHeight, pageConfig, nextPage,
 		if pageConfig.minimap then
 			local mapImageFile, needDownload = Configuration:GetMinimapImage(pageConfig.options[i])
 			local imMinimap = Image:New {
+				name = 'pageConfig.minimap'..tostring(i),
 				x = 0,
 				y = 0,
 				right = 0,
@@ -2759,6 +2871,7 @@ local function SetupEasySetupPanel(mainWindow, standardSubPanel, setupData)
 	local pages = {}
 	for i = 1, #pageConfigs do
 		pages[i] = Control:New {
+			name = 'pageConfigs'..tostring(i),
 			x = 0,
 			y = panelOffset,
 			right = 0,
@@ -2798,6 +2911,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	if isSingleplayer then BOTTOM_SPACING = 5 end
 
 	mainWindow = Control:New {
+		name = 'mainWindow',
 		x = 0,
 		y = 0,
 		width = "100%",
@@ -2807,6 +2921,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	}
 
 	local subPanel = Control:New {
+		name = 'subPanel',
 		x = 0,
 		y = 47,
 		right = 0,
@@ -2820,6 +2935,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	end
 
 	local topPanel = Control:New {
+		name = 'topPanel',
 		x = 0,
 		y = 0,
 		right = 0,
@@ -2829,6 +2945,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	}
 
 	local bottomPanel = Control:New {
+		name = 'bottomPanel',
 		x = 0,
 		y = topPoportion .. "%",
 		right = 0,
@@ -2838,6 +2955,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	}
 
 	local playerPanel = Control:New {
+		name = 'playerPanel',
 		x = 0,
 		y = 0,
 		right = "52%",
@@ -2847,6 +2965,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	}
 
 	local spectatorPanel = Control:New {
+		name = 'spectatorPanel',
 		x = "67%",
 		y = 0,
 		right = 0,
@@ -2860,6 +2979,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 
 
 	spadsStatusPanel = Control:New{
+		name = 'spadsStatusPanel',
 		x = 0,
 		right = "33%",
 		bottom = 0,
@@ -2874,6 +2994,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	spadsStatusPanel:SetVisibility(not isSingleplayer) -- start hidden
 
 	local votePanel = Control:New {
+		name = 'votePanel',
 		x = 0,
 		right = "33%",
 		bottom = 0,
@@ -2887,6 +3008,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	local votePanel = SetupVotePanel(votePanel)
 
 	local leftInfo = Control:New {
+		name = 'leftInfo',
 		x = "48%",
 		y = 0,
 		right = "33%",
@@ -2896,6 +3018,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	}
 
 	local rightInfo = Control:New {
+		name = 'rightInfo',
 		x = "67%",
 		y = 0,
 		right = 0,
@@ -2907,11 +3030,12 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	local infoHandler = SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, battleLobby:GetMyUserName())
 
 	local btnQuitBattle = Button:New {
+		name = 'btnQuitBattle',
 		right = 12,
 		y = 7,
 		width = 80,
 		height = 45,
-		font = Configuration:GetFont(3),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		caption = (isSingleplayer and i18n("close")) or i18n("leave"),
 		classname = "negative_button",
 		tooltip = (isSingleplayer and "Close the battleroom") or "Leave the multiplayer battleroom",
@@ -2930,11 +3054,12 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	}
 
 	local btnInviteFriends = Button:New {
+		name = 'btnInviteFriends',
 		right = 101,
 		y = 7,
 		width = 180,
 		height = 45,
-		font = Configuration:GetFont(3),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		caption = i18n("invite_friends"),
 		classname = "option_button",
 		OnClick = {
@@ -2953,7 +3078,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		y = 19,
 		right = 100,
 		height = 30,
-		font = Configuration:GetFont(3),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		caption = "",
 		parent = mainWindow,
 		OnResize = {
@@ -2966,6 +3091,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	local battleTypeCombo
 	if isHost then
 		battleTypeCombo = ComboBox:New {
+			name = 'battleTypeCombo',
 			x = 13,
 			width = 125,
 			y = 12,
@@ -2974,9 +3100,8 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 			selectByName = true,
 			captionHorAlign = -12,
 			text = "",
-			font = Configuration:GetFont(3),
+			objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 			items = {"Coop", "Team", "1v1", "FFA", "Custom"},
-			itemFontSize = Configuration:GetFont(3).size,
 			selected = Configuration.battleTypeToHumanName[battle.battleMode or 0],
 			OnSelectName = {
 				function (obj, selectedName)
@@ -3044,6 +3169,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	local battleRoomConsole = WG.Chobby.Console("Battleroom Chat", MessageListener, true, nil, true)
 
 	local chatPanel = Control:New {
+		name = 'chatPanel',
 		x = 0,
 		y = 0,
 		bottom = 0,
@@ -3133,7 +3259,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 				-- if we were were in queuePos before switching to player, play a sound
 				if status.queuePos then
 					local Configuration = WG.Chobby.Configuration
-					Spring.PlaySoundFile("sounds/beep6.wav", Configuration.menuNotificationVolume or 1, "ui")
+					Spring.PlaySoundFile("sounds/BAR_Joined_queue6D_mixdown.wav", Configuration.menuNotificationVolume or 1, "ui")
 				end
 
 			-- we switched to spec
@@ -3216,6 +3342,9 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 
 	local function OnBattleIngameUpdate(listener, updatedBattleID, isRunning)
 		infoHandler.BattleIngameUpdate(updatedBattleID, isRunning)
+		if votePanel.visible and isRunning and battleID == updatedBattleID then
+			votePanel.VoteEnd("Match starting", true)
+		end
 	end
 
 	local function OnUpdateBattleInfo(listener, updatedBattleID, newInfo)
@@ -3316,9 +3445,6 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 
 	-- whoever wrote lua string parser needs to get rammed by a horse
 
-	local function initBattleStatusPanel(bs)
-	end
-
 	local function dontshowvote()
 	end
 
@@ -3345,10 +3471,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		-- i can still multi-vote!
 		if string.match(message, ". Hi .*! Current battle type is .*.$") then return false end
 
-		if string.match(message, ". BattleStatus = .*") then
-			initBattleStatusPanel(pyPartition(message,'"', true))
-			return true
-		end
+		if string.match(message, ". BattleStatus = .*") then return true end
 
 		if string.match(message, "Player .* has already been added in game") then return true end
 		
@@ -3383,9 +3506,10 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		-- https://github.com/beyond-all-reason/Beyond-All-Reason/blob/master/luaui/Widgets_BAR/gui_vote_interface.lua#L193
 
 		-- New vote:
-		if string.match(message, "called a vote for command .* .!vote y, !vote n, !vote b.") or string.match(message,"* Vote in progress: ") then -- [teh]BaNa called a vote for command "forcestart" [!vote y, !vote n, !vote b]
-			local newlycalledvote = string.match(message, " called a vote for command .*")
-
+		-- [teh]BaNa called a vote for command "forcestart" [!vote y, !vote n, !vote b]
+		-- [teh]cluster1[00], * Vote in progress: "set map DSDR 4.0" [y:1/2, n:0/1(2)] (25s remaining)
+		local newlycalledvote = string.match(message, "called a vote for command") 
+		if newlycalledvote or string.match(message,"Vote in progress") then 
 			local userwhocalledvote = nil
 			local ismapppoll = false
 			local mapname = ''
@@ -3394,14 +3518,12 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 			local novotes = 0
 			local timeleft = nil
 
-			if newlycalledvote == nil then -- [teh]cluster1[00], * Vote in progress: "set map DSDR 4.0" [y:1/2, n:0/1(2)] (25s remaining),
-				--* Vote in progress: "forcestart" [y:7/9(10), n:5/8(9)] (1s remaining)
-				local startOfVoteResults = pyPartition(message," [y:",false)
-				yesvotes = tonumber(pyPartition(startOfVoteResults,"/",true)) or 0
-				votesNeeded = tonumber(pyPartition(pyPartition(startOfVoteResults,"/",false), ",",true)) or
-							tonumber(pyPartition(pyPartition(startOfVoteResults,"/",false), "(",true)) or -1
-				novotes = tonumber(pyPartition(pyPartition(startOfVoteResults," n:",false),"/",true)) or 0
-				-- Spring.Echo("votes",message, 'yes:',yesvotes,"needed:",votesNeeded,"no:",novotes)
+			if newlycalledvote == nil then
+				yesvotes, votesNeeded, novotes = string.match(message, vote_votingsPattern)
+				yesvotes = tonumber(yesvotes)
+				votesNeeded = tonumber(votesNeeded or -1)
+				novotes = tonumber(novotes or 0)
+				-- Spring.Echo("votes", message, 'yes:', yesvotes, "needed:", votesNeeded, "no:", novotes)
 			end
 
 			local candidates = {}
@@ -3417,19 +3539,14 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 			}
 
 			if newlycalledvote then
-				userwhocalledvote = pyPartition(pyPartition(message," called a vote for command",true),"* ",false)
+				userwhocalledvote = string.match(message, vote_whoCalledPattern)
+				WG.LibLobby.lobby:_OnUserVoted(_, "initVote")
+				WG.LibLobby.lobby:_OnUserVoted(userwhocalledvote, "yes")
 			end 
 			--[teh]Behe_Chobby3 called a vote for command "set map Tetrad_V2" [!vote y, !vote n, !vote b]
 			if string.find(message, ' "set map ', nil, true) then
-				if newlycalledvote then
-					mapname = pyPartition(message,'called a vote for command "set map ',false)
-					mapname = pyPartition(mapname,'"',true)
-					ismapppoll = true
-				else
-					mapname = pyPartition(message,'Vote in progress: "set map ',false)
-					mapname = pyPartition(mapname,'"',true)
-					ismapppoll = true
-				end
+				mapname = string.match(message, vote_mapPattern)
+				ismapppoll = true
 			end
 
 			if string.match(message,"..s remaining.$") then
@@ -3443,24 +3560,24 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 			votePanel.VoteUpdate(title,nil, ismapppoll, candidates, votesNeeded, mapname, userwhocalledvote, newlycalledvote)
 			return true
 
-		elseif string.match(message, "^. Vote for command .* passed" ) then	--[21:13:58] * [teh]host * Vote for command "bSet coop 1" passed. --voteend
+		elseif string.match(message, "Vote for command.*passed" ) then	--[21:13:58] * [teh]host * Vote for command "bSet coop 1" passed. --voteend
 			votePanel.VoteEnd(nil, true)
 			return true
 
-		elseif string.match(message, "^. Vote for command .* failed" )then	--[21:13:58] * [teh]host * Vote for command "bSet coop 1" passed. --voteend
+		elseif string.match(message, "Vote for command.*failed" )then	--[21:13:58] * [teh]host * Vote for command "bSet coop 1" passed. --voteend
 			votePanel.VoteEnd(nil, false)
 			return true
 
-		elseif string.find(message, "* Vote cancelled by ", nil, true) then --votecancel
+		elseif string.find(message, "Vote cancelled by", nil, true) then --votecancel
 			--[14:42:53] * [teh]host * Vote cancelled by [teh]BaNa
 			votePanel.ImmediateVoteEnd()
 			return true
 
-		elseif string.find(message, "command executed directly by ", nil, true) and string.find(string.lower(message), " cancelling ", nil, true) then --votecancel
+		elseif string.find(message, "command executed directly by", nil, true) and string.find(string.lower(message), " cancelling ", nil, true) then --votecancel
 			--[14:43:19] * [teh]host * Cancelling "set map Throne Acidic" vote (command executed directly by [teh]Beherith)
 			votePanel.ImmediateVoteEnd()
 			return true
-		elseif string.find(message, "* Game starting, cancelling ", nil, true) then
+		elseif string.find(message, "Game starting, cancelling", nil, true) then
 			votePanel.ImmediateVoteEnd()
 			return false
 		end
@@ -3611,7 +3728,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	end
 
 	local function OnUpdateBattleTitle(listener, changedbattleID, newbattletitle)
-		Spring.Echo("battle_room: OnUpdateBattleTitle")
+		--Spring.Echo("battle_room: OnUpdateBattleTitle")
 		if battleID == changedbattleID then
 			UpdateBattleTitle()
 		end
@@ -3700,6 +3817,7 @@ function BattleRoomWindow.ShowMultiplayerBattleRoom(battleID)
 	battleLobby = WG.LibLobby.lobby
 
 	multiplayerWrapper = Control:New {
+		name = 'multiplayerWrapper',
 		x = 0,
 		y = 0,
 		width = "100%",

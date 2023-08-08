@@ -100,7 +100,8 @@ local function CreateModuleEntry(moduleDef, commConfig, level, slotNum, moduleLi
 		right = 0,
 		height = 20,
 		valign = 'center',
-		fontsize = WG.Chobby.Configuration:GetFont(3).size,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(3),
 		text = moduleDef.humanName,
 		parent = holder,
 	}
@@ -111,7 +112,8 @@ local function CreateModuleEntry(moduleDef, commConfig, level, slotNum, moduleLi
 		right = 0,
 		height = 20,
 		valign = 'center',
-		fontsize = WG.Chobby.Configuration:GetFont(3).size,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(3),
 		text = moduleDef.slotType,
 		parent = holder,
 	}
@@ -122,7 +124,8 @@ local function CreateModuleEntry(moduleDef, commConfig, level, slotNum, moduleLi
 		right = 0,
 		height = 20,
 		valign = 'center',
-		fontsize = WG.Chobby.Configuration:GetFont(3).size,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(3),
 		text = "" .. moduleDef.cost,
 		parent = holder,
 	}
@@ -186,7 +189,7 @@ CreateSlotEntry = function(commConfig, level, slotNum, configuratorStack, module
 		height = "100%",
 		x = 64,
 		right = 72,
-		fontsize = WG.Chobby.Configuration:GetFont(3).size,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		OnClick = {function() PopulateModuleList(moduleList, commConfig, level, slotNum, holder) end},
 	}
 	local buttonRemove = Button:New{
@@ -214,7 +217,7 @@ local function SetupConfigurator(commConfig, configuratorStack, moduleList)
 			parent = configuratorStack,
 			caption = "Level " .. (i + 1),
 			autosize = true,
-			fontsize = WG.Chobby.Configuration:GetFont(3).size,
+			objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		}
 		local slots = chassisDef.levelDefs[i].upgradeSlots
 		for j=1,#slots do
@@ -266,7 +269,8 @@ local function CreateCommEntry(commConfig, configuratorStack, moduleList)
 		right = 0,
 		height = 20,
 		valign = 'center',
-		fontsize = WG.Chobby.Configuration:GetFont(3).size,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(3),
 		text = commConfig.name,
 		parent = holder,
 	}
@@ -277,7 +281,8 @@ local function CreateCommEntry(commConfig, configuratorStack, moduleList)
 		right = 0,
 		height = 20,
 		valign = 'center',
-		fontsize = WG.Chobby.Configuration:GetFont(3).size,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(3),
 		text = chassisDef.humanName,
 		parent = holder,
 	}
@@ -296,7 +301,7 @@ local function InitializeControls(parentControl)
 		width = 180,
 		height = 30,
 		parent = parentControl,
-		font = WG.Chobby.Configuration:GetFont(3),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		caption = i18n("Configure commanders"),
 	}
 
@@ -305,7 +310,7 @@ local function InitializeControls(parentControl)
 		y = 7,
 		width = 80,
 		height = 45,
-		font =  WG.Chobby.Configuration:GetFont(3),
+		objectOverrideFont =  WG.Chobby.Configuration:GetFont(3),
 		caption = i18n("close"),
 		classname = "negative_button",
 		OnClick = {

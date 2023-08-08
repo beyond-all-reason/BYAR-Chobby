@@ -78,7 +78,6 @@ local this = EditBox
 local inherited = this.inherited
 
 --// =============================================================================
-
 function EditBox:New(obj)
 	obj = inherited.New(self, obj)
 	obj._interactedTime = Spring.GetTimer()

@@ -259,6 +259,10 @@ function Lobby:SayBattleEx(message)
 end
 
 function Lobby:ConnectToBattle(useSpringRestart, battleIp, battlePort, clientPort, scriptPassword, myName, gameName, mapName, engineName, battleType)
+	local battle = self.battles[self.myBattleID] or {}
+	gameName = gameName or battle.gameName
+	mapName = mapName or battle.mapName
+
 	if gameName and not VFS.HasArchive(gameName) then
 		local error = "Cannot start game: missing game file '" .. gameName .. "'."
 		Spring.Echo(error)
@@ -760,6 +764,9 @@ end
 ------------------------
 
 function Lobby:_OnAddIgnoreUser(userName)
+	if self.isIgnored[userName] then
+		return
+	end
 	table.insert(self.ignored, userName)
 	self.isIgnored[userName] = true
 	self.ignoredCount = self.ignoredCount + 1
@@ -769,6 +776,9 @@ function Lobby:_OnAddIgnoreUser(userName)
 end
 
 function Lobby:_OnRemoveIgnoreUser(userName)
+	if not self.isIgnored[userName] then
+		return
+	end
 	for i, v in pairs(self.ignored) do
 		if v == userName then
 			table.remove(self.ignored, i)
@@ -785,17 +795,22 @@ function Lobby:_OnRemoveIgnoreUser(userName)
 	self:_CallListeners("OnRemoveIgnoreUser", userName)
 end
 
-function Lobby:_OnIgnoreList(data)
-	self.ignored = data
-	self.ignoredCount = #data
-	self.isIgnored = {}
-	for _, userName in pairs(self.ignored) do
-		self.isIgnored[userName] = true
-		local userInfo = self:TryGetUser(userName)
-		userInfo.isIgnored = true
+function Lobby:_OnCleanIgnoreList()
+	local ignoredCp = ShallowCopy(self.ignored)
+	for _, userName in pairs(ignoredCp) do
+		self:_OnRemoveIgnoreUser(userName)
 	end
+end
 
-	self:_CallListeners("OnIgnoreList", self:Getignored())
+function Lobby:_OnIgnoreList(data)
+	return self
+end
+
+function Lobby:_OnIgnoreListEnd(igListNew)
+	self:_OnCleanIgnoreList()
+	for _, igUser in pairs(igListNew) do
+		self:_OnAddIgnoreUser(igUser.userName)
+	end
 end
 
 ------------------------
@@ -982,6 +997,15 @@ function Lobby:_OnUpdateBattleInfo(battleID, battleInfo)
 		battle.locked = false
 	end
 
+	if battleInfo.boss ~= nil then
+		battle.boss = battleInfo.boss
+	end
+	battle.autoBalance = battleInfo.autoBalance or battle.autoBalance
+	battle.teamSize = battleInfo.teamSize or battle.teamSize
+	battle.nbTeams = battleInfo.nbTeams or battle.nbTeams
+	battle.balanceMode = battleInfo.balanceMode or battle.balanceMode
+	battle.preset = battleInfo.preset or battle.preset
+
 	-- ZK specific
 	battle.runningSince = battleInfo.runningSince or battle.runningSince
 	battle.battleMode = battleInfo.battleMode or battle.battleMode
@@ -1103,10 +1127,53 @@ function Lobby:_OnRemoveAi(battleID, aiName, aiLib, allyNumber, owner)
 end
 
 function Lobby:_OnSaidBattle(userName, message, sayTime)
+	-- parse votes (yes|no|blank)
+	local messageL = message:lower()
+	if messageL:match("^!vote yes$") or messageL:match("^!vote y$") or messageL:match("^!yes$") or messageL:match("^!y$") then
+		self:_OnUserVoted(userName, "yes")
+	elseif messageL:match("^!vote no$") or messageL:match("^!vote n$") or messageL:match("^!no$") or messageL:match("^!n$") then
+		self:_OnUserVoted(userName, "no")
+	elseif messageL:match("^!vote blank$") or messageL:match("^!vote b$") or messageL:match("^!blank$") or messageL:match("^!b$") then
+		self:_OnUserVoted(userName, "blank")
+	end
+
 	self:_CallListeners("OnSaidBattle", userName, message, sayTime)
 end
 
+-- message = {"BattleStateChanged": {"locked": "locked", "autoBalance": "advanced", "teamSize": "8", "nbTeams": "2", "balanceMode": "clan;skill", "preset": "team", "boss": "Fireball"}}
+function Lobby:ParseBarManager(battleID, message)
+	local battleInfo = {}
+	local barManagerSettings = Spring.Utilities.json.decode(message)
+	if not barManagerSettings['BattleStateChanged'] then
+		return battleInfo
+	end
+	
+	for k, v in pairs(barManagerSettings['BattleStateChanged']) do
+		if k == "boss" and v == "" then
+			battleInfo[k] = false
+		elseif WG.Chobby.Configuration.barMngSettings[k] then
+			battleInfo[k] = v
+		end
+	end
+	return battleInfo
+end
+
 function Lobby:_OnSaidBattleEx(userName, message, sayTime)
+	
+	local found, bmMessage = startsWith(message, WG.Chobby.Configuration.BTLEX_BARMANAGER)
+	if found then
+		local battleID = self.users[userName] and self.users[userName].battleID
+		if not battleID then
+			Spring.Log(LOG_SECTION, LOG_WARNING, "couldn't match barmanager message to any known battle", tostring(founder))
+			return
+		end
+		local battleInfo = self:ParseBarManager(battleID, bmMessage)
+		if next(battleInfo) then
+			self:super("_OnUpdateBattleInfo", battleID, battleInfo)
+			-- 2023-07-04 FB: For now: proceed with CallListeners of SaidBattleEx, because gui_battle_room has its own parsing of barmanager message
+			-- return
+		end
+	end
 	self:_CallListeners("OnSaidBattleEx", userName, message, sayTime)
 end
 
@@ -1120,6 +1187,10 @@ end
 
 function Lobby:_OnVoteResponse(isYesVote)
 	self:_CallListeners("OnVoteResponse", isYesVote)
+end
+
+function Lobby:_OnUserVoted(userName, voteOption)
+	self:_CallListeners("OnUserVoted", userName, voteOption)
 end
 
 function Lobby:_OnSetModOptions(data)

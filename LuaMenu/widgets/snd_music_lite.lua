@@ -159,29 +159,22 @@ function widget:Initialize()
 
 	randomTrackList = {}
 	local originalSoundtrackEnabled = Spring.GetConfigInt('UseSoundtrackNew', 1)
-	local legacySoundtrackEnabled 	= Spring.GetConfigInt('UseSoundtrackOld', 0)
 	local customSoundtrackEnabled	= Spring.GetConfigInt('UseSoundtrackCustom', 1)
-	
+	local allowedExtensions = "{*.ogg,*.mp3}"
 	
 	local musicPlaylist = {}
 	-- Original Soundtrack List
 	if originalSoundtrackEnabled == 1 then
 		local musicDirOriginal 		= 'luamenu/configs/gameconfig/byar/lobbyMusic/original'
-		randomTrackList = playlistMerge(randomTrackList, VFS.DirList(musicDirOriginal, '*.ogg'))
-	end
-
-	-- Legacy Soundtrack List
-	if legacySoundtrackEnabled == 1 then
-		local musicDirLegacy 		= 'luamenu/configs/gameconfig/byar/lobbyMusic/legacy'
-		randomTrackList = playlistMerge(randomTrackList, VFS.DirList(musicDirLegacy, '*.ogg'))
+		randomTrackList = playlistMerge(randomTrackList, VFS.DirList(musicDirOriginal, allowedExtensions))
 	end
 
 	-- Custom Soundtrack List
 	if customSoundtrackEnabled == 1 then
 		local musicDirCustom 		= 'music/custom/menu'
-		randomTrackList = playlistMerge(randomTrackList, VFS.DirList(musicDirCustom, '*.ogg'))
+		randomTrackList = playlistMerge(randomTrackList, VFS.DirList(musicDirCustom, allowedExtensions))
 		local musicDirCustom2 		= 'music/custom/peace'
-		randomTrackList = playlistMerge(randomTrackList, VFS.DirList(musicDirCustom2, '*.ogg'))
+		randomTrackList = playlistMerge(randomTrackList, VFS.DirList(musicDirCustom2, allowedExtensions))
 	end
 
 	if randomTrackList == nil or #randomTrackList == 0 then

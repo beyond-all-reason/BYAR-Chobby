@@ -31,7 +31,21 @@ local friendUsers = {}
 local friendRequestUsers = {}
 local notificationUsers = {}
 
-local clanDownloadBegun = {}
+local namedUserList = {
+	battleUsers = battleUsers,
+	tooltipUsers = tooltipUsers,
+	singleplayerUsers = singleplayerUsers,
+	channelUsers = channelUsers,
+	debriefingUsers = debriefingUsers,
+	partyUsers = partyUsers,
+	popupUsers = popupUsers,
+	statusUsers = statusUsers,
+	profileUsers = profileUsers,
+	ladderUsers = ladderUsers,
+	friendUsers = friendUsers,
+	friendRequestUsers = friendRequestUsers,
+	notificationUsers = notificationUsers,
+}
 
 local userListList = {
 	battleUsers,
@@ -48,6 +62,8 @@ local userListList = {
 	friendRequestUsers,
 	notificationUsers,
 }
+
+local clanDownloadBegun = {}
 
 local IMAGE_DIR          = LUA_DIRNAME .. "images/"
 
@@ -68,6 +84,7 @@ local IMAGE_DOWNLOAD     = IMAGE_DIR .. "download.png"
 local IMAGE_UNKNOWN_SYNC = IMAGE_DIR .. "unknown_sync.png"
 local IMAGE_ONLINE       = IMAGE_DIR .. "online.png"
 local IMAGE_OFFLINE      = IMAGE_DIR .. "offline.png"
+local IMAGE_BOSS         = IMAGE_DIR .. "boss-icon.png"
 
 local IMAGE_CLAN_PATH    = "LuaUI/Configs/Clans/"
 local RANK_DIR           = LUA_DIRNAME .. "configs/gameConfig/zk/rankImages/"
@@ -78,9 +95,8 @@ local USER_CH_TOOLTIP_PREFIX = "user_chat_s_"
 
 local UserLevelToImageConfFunction
 
-local myFont1
-local myFont2
-local myFont3
+local votedUsers = {} -- 2023-06-29 FB: ToDo: Does not get reset, if user leaves battle during vote, but has no impact
+local usersAllowedToVote = {}
 
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
@@ -174,147 +190,30 @@ local function GetUserClanImage(userName, userControl)
 	return file, needDownload
 end
 
-local function GetUserComboBoxOptions(userName, isInBattle, userControl, showTeamColor, showSide)
-	local userInfo = userControl.lobby:GetUser(userName) or {}
-	local bs = userControl.lobby:GetUserBattleStatus(userName) or {}
-	local myUserName = userControl.lobby:GetMyUserName()
+local function GetUserComboBoxOptions(userName, isInBattle, control, showTeamColor, showSide)
+	local info = control.lobby:GetUser(userName) or {}
+	local bs = control.lobby:GetUserBattleStatus(userName) or {}
+	local myUserName = control.lobby:GetMyUserName()
+	local itsme = userName == myUserName
+	local iPlay = not control.lobby:GetMyIsSpectator()
 	local comboOptions = {}
+	local boss = info.battleID and control.lobby.battles[info.battleID] and control.lobby.battles[info.battleID].boss
+	local iAmBoss = boss and boss == myUserName
 
-	local myPartyID = userControl.lobby:GetMyPartyID()
-	local userPartyID = userControl.lobby:GetUserPartyID(userName)
-
-	local Configuration = WG.Chobby.Configuration
-
-	if (not bs.aiLib) and userName ~= myUserName then
-		comboOptions[#comboOptions + 1] = "Message"
-
-		if (not isInBattle) and userInfo.battleID then
-			local battle = lobby:GetBattle(userInfo.battleID)
-			if battle and Configuration:IsValidEngineVersion(battle.engineVersion) then
-				if not Configuration.showMatchMakerBattles and battle.isMatchMaker then
-					comboOptions[#comboOptions + 1] = "Watch Battle"
-				else
-					comboOptions[#comboOptions + 1] = "Join Battle"
-				end
-			end
-		end
-
-		if not Configuration.hidePartySystem and ((not myPartyID) or myPartyID ~= userPartyID) then
-			-- Do not show any party options for people already in my party.
-			if (not myPartyID) and userPartyID then
-				-- Join others party if they have one and I don't.
-				comboOptions[#comboOptions + 1] = "Join Party"
-			else
-				-- Invite user to make a party or join mine. Note that the
-				-- user might be in a party which is not visible to me. In
-				-- this case the command might be the same as join party.
-				comboOptions[#comboOptions + 1] = "Invite to Party"
-			end
-		end
-
-		if Configuration.canAuthenticateWithSteam and userControl.steamInvite and userInfo.steamID then
-			comboOptions[#comboOptions + 1] = "Invite to Campaign"
-		end
-
-		if userInfo.accountID and Configuration.gameConfig.link_userPage ~= nil then
-			comboOptions[#comboOptions + 1] = "User Page"
-		end
-
-		if userInfo.accountID and Configuration.gameConfig.link_reportPlayer ~= nil then
-			comboOptions[#comboOptions + 1] = "Report"
-		end
-		
-		if userInfo.isIgnored then
-			comboOptions[#comboOptions + 1] = "Unignore"
-		elseif not userInfo.isAdmin then
-		 	if (not Configuration.gameConfig.spadsLobbyFeatures) or
-		 		(Configuration.gameConfig.spadsLobbyFeatures and not userInfo.isBot) then
-		 		comboOptions[#comboOptions + 1] = "Ignore" --remove ignore for now
-		 	end
-		end
-
-
-		if userInfo.isFriend then
-			comboOptions[#comboOptions + 1] = "Unfriend"
-		else
-			if (Configuration.gameConfig.spadsLobbyFeatures ~= true ) or
-			(Configuration.gameConfig.spadsLobbyFeatures == true and not userInfo.isBot) then
-				comboOptions[#comboOptions + 1] = "Friend"
-			end
-		end
-	end
-
-	if userName == myUserName and userInfo.accountID and Configuration.gameConfig.link_userPage ~= nil then
-		-- Only add for myself since the same thing is added in the previous block
-		comboOptions[#comboOptions + 1] = "User Page"
-	end
-
-	if (userName == myUserName or bs.aiLib) and
-		not bs.isSpectator then
-		if showTeamColor then
-			comboOptions[#comboOptions + 1] = "Change Color"
-		end
-		if showSide then
-			comboOptions[#comboOptions + 1] = "Change Faction"
-		end
-	end
-
-
-	-- Change team of anyone with !force
-	if  Configuration.gameConfig.spadsLobbyFeatures and not bs.isSpectator and (isInBattle or bs.aiLib) then
-		comboOptions[#comboOptions + 1] = "Change Team"
-	end
-
-	-- Set the handicap value of anyone with !force
-	if  Configuration.gameConfig.spadsLobbyFeatures and not bs.isSpectator and (isInBattle or bs.aiLib) then
-		comboOptions[#comboOptions + 1] = "Add Bonus"
-	end
-
-	-- Ring: not bot and is in same battle
-	if not userInfo.isBot and Configuration.gameConfig.spadsLobbyFeatures and isInBattle and (not bs.aiLib) then
-		comboOptions[#comboOptions + 1] = "Ring"
-	end
-
-	-- Spec: in same battle, is not AI and is not spec:
-	if Configuration.gameConfig.spadsLobbyFeatures and
-		isInBattle and not bs.isSpectator and not bs.aiLib then
-		comboOptions[#comboOptions + 1] = "Force Spectator"
-	end
-
-	-- Spec: in same battle, is not AI and is not spec:
-	if Configuration.gameConfig.spadsLobbyFeatures and
-		isInBattle and not bs.isSpectator and not bs.aiLib then
-		comboOptions[#comboOptions + 1] = "Make Boss"
-	end
-
-	-- userControl.lobby:GetMyIsAdmin()
-	-- Let everyone start kick votes, but dont let they try to kick spads lobby bottomSpacing
-	if Configuration.gameConfig.spadsLobbyFeatures then
-		if userName ~= myUserName and not userInfo.isBot and
-			(isInBattle or (bs.aiLib and bs.owner == myUserName)) then
-			comboOptions[#comboOptions + 1] = "Kick"
-		end
-	else
-		if userName ~= myUserName and
-			(isInBattle or (bs.aiLib and bs.owner == myUserName)) then
-			comboOptions[#comboOptions + 1] = "Kick"
-		end
-	end
-
-	if userName ~= myUserName and not userInfo.isBot and not bs.aiLib then
-		comboOptions[#comboOptions + 1] = "Report User"
-	end
-
-	local whitelist = userControl.dropdownWhitelist
-	if whitelist then
-		local culled = {}
-		for i = 1, #comboOptions do
-			if whitelist[comboOptions[i]] then
-				culled[#culled + 1] = comboOptions[i]
-			end
-		end
-		comboOptions = culled
-	end
+	if not (itsme or bs.aiLib) then																					comboOptions[#comboOptions + 1] = "Message" end
+																													comboOptions[#comboOptions + 1] = "Copy Name"
+	if not (itsme or bs.aiLib or info.isBot) then																	comboOptions[#comboOptions + 1] = "Ring" end
+	if not (itsme or bs.aiLib or isInBattle) and info.battleID then													comboOptions[#comboOptions + 1] = "Join Battle" end
+	if not (itsme or bs.aiLib or info.isBot) then																	comboOptions[#comboOptions + 1] = info.isIgnored and "Unignore" or "Ignore"
+																													comboOptions[#comboOptions + 1] = info.isFriend and "Unfriend" or "Friend" end
+	if showSide and not bs.isSpectator and (itsme or (bs.aiLib and bs.owner == myUserName)) then					comboOptions[#comboOptions + 1] = "Change Faction" end
+	if isInBattle and not bs.isSpectator and (iAmBoss or iPlay or (bs.aiLib and bs.owner == myUserName)) then		comboOptions[#comboOptions + 1] = "Change Team"
+																													comboOptions[#comboOptions + 1] = "Add Bonus" end
+	if (iAmBoss or iPlay) and not bs.aiLib and isInBattle and not bs.isSpectator then								comboOptions[#comboOptions + 1] = "Force Spectator" end
+	if (iAmBoss or iPlay) and not (control.isSingleplayer or bs.aiLib or info.isBot) and isInBattle and userName ~= boss then	comboOptions[#comboOptions + 1] = "Make Boss" end
+	if (iAmBoss or iPlay) and not itsme and not info.isBot and isInBattle and not bs.aiLib then						comboOptions[#comboOptions + 1] = "Kickban" end
+	if bs.aiLib and bs.owner == myUserName and isInBattle then														comboOptions[#comboOptions + 1] = "Remove" end
+	if not itsme and not info.isBot and not bs.aiLib then															comboOptions[#comboOptions + 1] = "Report User" end
 
 	if #comboOptions == 0 then
 		comboOptions[1] = Label:New {
@@ -322,8 +221,7 @@ local function GetUserComboBoxOptions(userName, isInBattle, userControl, showTea
 			y = 0,
 			width = 100,
 			height = 30,
-			--font = Configuration:GetFont(1),
-			objectOverrideFont = myFont1,
+			objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
 			caption = "No Actions",
 		}
 	end
@@ -342,18 +240,18 @@ local function GetUserRankImageName(userName, userControl)
 	return image
 end
 
--- returns skill, skillUncertaintyColor
+-- returns skill, skillUncertaintyColorFont
 -- default to skill="  ", sigma = 0, if no skill is known for userName (skill wasn´t set yet in Interface:_OnSetScriptTags)
 -- skill format: "XX" or " X" (leading whitespace)
 -- takes skillUncertaintyColors values from configuration.lua
-local function GetUserSkill(userName, userControl)
+local function GetUserSkillFont(userName, userControl)
 	local config = WG.Chobby.Configuration
 	local skill = "  "
 	local sigma = 0
 
 	local bs = userControl.lobby:GetUserBattleStatus(userName) or {}
-	if userControl.isSingleplayer or bs.aiLib ~= nil or userControl.showSkillOpt == 1 then
-		return "  ", config.skillUncertaintyColors[sigma]
+	if userControl.isSingleplayer or bs.aiLib ~= nil or userControl.showSkill == false then
+		return "  ", config:GetFont(1)
 	end
 
 	local userInfo = userControl.lobby:GetUser(userName) or {}
@@ -363,7 +261,7 @@ local function GetUserSkill(userName, userControl)
 		skill = tostring(skill)
 	end
 	
-	if userControl.showSkillOpt == 3 and userInfo.skillUncertainty then
+	if config.showSkillOpt == 3 and userInfo.skillUncertainty then
 		-- sigma must be rounded to int; it´s used as array index
 		sigma = math.floor(userInfo.skillUncertainty+0.5)
 		if sigma > 3 then
@@ -372,7 +270,7 @@ local function GetUserSkill(userName, userControl)
 			sigma = 0
 		end
 	end
-	return skill, config.skillUncertaintyColors[sigma]
+	return skill, config:GetFont(1, "skill" .. sigma, {color = config.skillUncertaintyColors[sigma]})
 end
 
 local function GetUserStatusImages(userName, isInBattle, userControl)
@@ -381,6 +279,13 @@ local function GetUserStatusImages(userName, isInBattle, userControl)
 
 	if userInfo.pendingPartyInvite and not userControl.hideStatusInvite then
 		images[#images + 1] = IMAGE_PARTY_INVITE
+	end
+
+	if isInBattle then
+		local boss = userInfo.battleID and userControl.lobby.battles[userInfo.battleID] and userControl.lobby.battles[userInfo.battleID].boss
+		if boss and userName == boss then
+			images[#images + 1] = IMAGE_BOSS
+		end
 	end
 
 	if not isInBattle or userControl.isPlaying == false then
@@ -404,39 +309,51 @@ local function GetUserStatusImages(userName, isInBattle, userControl)
 	return images
 end
 
-local function GetUserNameColor(userName, userControl)
+local function GetUserNameColorFont(userName, userControl)
+	local Configuration = WG.Chobby.Configuration
+	
+	if usersAllowedToVote[userName] then
+		return userControl.tbName.font
+	end
+
 	local userInfo = userControl.lobby:GetUser(userName) or {}
 	if userControl.showModerator and userInfo.isAdmin then
-		return WG.Chobby.Configuration:GetModeratorColor()
+		return Configuration:GetFont(1, "Moderator", {color = Configuration:GetModeratorColor()} )
 	end
 	if userControl.showFounder and userInfo.battleID then
 		local battle = lobby:GetBattle(userInfo.battleID)
 		if battle and battle.founder == userName then
-			return WG.Chobby.Configuration:GetFounderColor()
+			return Configuration:GetFont(1, "Founder", {color = Configuration:GetFounderColor()} )
 		end
+	end
+	if not userControl.disableInteraction and userName == userControl.lobby:GetMyUserName() then
+		return Configuration:GetFont(1, "User", {color = Configuration:GetMyUserNameColor()} )
+	end
+	if userInfo.isFriend then
+		return Configuration:GetFont(1, "Friend", {color = Configuration:GetFriendsColor()})
 	end
 	if userInfo.isIgnored then
-		return WG.Chobby.Configuration:GetIgnoredUserNameColor()
+		return Configuration:GetFont(1, "Ignored", {color = Configuration:GetIgnoredUserNameColor()} )
 	end
-	return WG.Chobby.Configuration:GetUserNameColor()
+	return Configuration:GetFont(1, "UserName", {color = Configuration:GetUserNameColor()} )
 end
 
--- gets status name, image and color
+-- gets status name, image and colorFont
 -- used for large user displays
-local function GetUserStatus(userName, isInBattle, userControl)
+local function GetUserStatusFont(userName, isInBattle, userControl)
 	local userInfo = userControl.lobby:GetUser(userName) or {}
 	if userInfo.isOffline then
-		return IMAGE_OFFLINE, "offline", {0.5, 0.5, 0.5, 1}
+		return IMAGE_OFFLINE, "offline", WG.Chobby.Configuration:GetFont(1, "offline", {color = {0.5, 0.5, 0.5, 1}} )
 	elseif userInfo.isInGame or (userInfo.battleID and not isInBattle) then
 		if userInfo.isInGame then
-			return IMAGE_INGAME, "ingame", {1, 0.5, 0.5, 1}
+			return IMAGE_INGAME, "ingame", WG.Chobby.Configuration:GetFont(1, "ingame", {color = {1, 0.5, 0.5, 1}} )
 		else
-			return IMAGE_BATTLE, "battle", {0.5, 1, 0.5, 1}
+			return IMAGE_BATTLE, "battle", WG.Chobby.Configuration:GetFont(1, "battle", {color = {0.5, 1, 0.5, 1}} )
 		end
 	elseif userInfo.isAway then
-		return IMAGE_AFK, "afk", {0.5, 0.5, 1, 1}
+		return IMAGE_AFK, "afk", WG.Chobby.Configuration:GetFont(1, "afk", {color = {0.5, 0.5, 1, 1}} )
 	else
-		return IMAGE_ONLINE, "online", {1, 1, 1, 1}
+		return IMAGE_ONLINE, "online", WG.Chobby.Configuration:GetFont(1, "online", {color = {1, 1, 1, 1}} )
 	end
 end
 
@@ -482,13 +399,14 @@ local function UpdateUserControlStatus(userName, userControls)
 		return
 	end
 	if userControls.imStatusLarge then
-		local imgFile, status, fontColor = GetUserStatus(userName, isInBattle, userControls)
-		--userControls.tbName.font.color = fontColor
-		--userControls.tbName:Invalidate()
+		local imgFile, status, font = GetUserStatusFont(userName, isInBattle, userControls)
+		userControls.tbName.font = font
+		userControls.tbName:Invalidate()
 		userControls.imStatusLarge.file = imgFile
 		userControls.imStatusLarge:Invalidate()
-		--userControls.lblStatusLarge.font.color = fontColor
+		userControls.lblStatusLarge.font = font
 		userControls.lblStatusLarge:SetCaption(i18n(status .. "_status"))
+		return
 	elseif not userControls.statusImages then
 		return
 	end
@@ -496,14 +414,20 @@ local function UpdateUserControlStatus(userName, userControls)
 	local imageFiles = GetUserStatusImages(userName, userControls.isInBattle, userControls)
 	local imageControlCount = math.max(#userControls.statusImages, #imageFiles)
 
-	local statusImageOffset = userControls.nameStartY + userControls.nameActualLength + 3
+	local handiCapLength = 0
+	if userControls.lblHandicap and userControls.lblHandicap.visible then
+		handiCapLength = userControls.lblHandicap.font:GetTextWidth(userControls.lblHandicap.caption)
+	end
+
+	local statusImageOffset = userControls.nameStartY + userControls.nameActualLength + handiCapLength + 3
+
 	if userControls.maxNameLength then
 		if statusImageOffset + 21*(#imageFiles) > userControls.maxNameLength then
 			statusImageOffset = userControls.maxNameLength - 21*(#imageFiles)
 		end
 
 		local nameSpace = userControls.maxNameLength - userControls.nameStartY - (userControls.maxNameLength - statusImageOffset)
-		local truncatedName = StringUtilities.TruncateStringIfRequiredAndDotDot(userName, myFont1, nameSpace)
+		local truncatedName = StringUtilities.TruncateStringIfRequiredAndDotDot(userName, userControls.tbName.font, nameSpace)
 
 		if truncatedName then
 			userControls.tbName:SetText(truncatedName)
@@ -551,7 +475,7 @@ local function UpdateUserComboboxOptions(_, userName)
 	end
 end
 
-local function UpdateUserActivity(listener, userName)
+local function UpdateUserActivity(listener, userName, status)
 	for i = 1, #userListList do
 		local userList = userListList[i]
 		local userControls = userList[userName]
@@ -563,11 +487,21 @@ local function UpdateUserActivity(listener, userName)
 				userControls.imLevel:Invalidate()
 			end
 
-			--userControls.tbName.font.color = GetUserNameColor(userName, userControls)
-			--userControls.tbName:Invalidate()
+			userControls.tbName.font = GetUserNameColorFont(userName, userControls)
+			userControls.tbName:Invalidate()
 
 			UpdateUserStatusImage(userName, userControls)
 			UpdateUserControlStatus(userName, userControls)
+
+			if status and (status["skill"] or status["skillUncertainty"]) and userControls.showSkill then
+				local displaySkill = userControls.isPlaying and WG.Chobby.Configuration.showSkillOpt > 1
+				if displaySkill then
+					local skill, skillColorFont = GetUserSkillFont(userName, userControls)
+					userControls.tbSkill:SetText(skill)
+					userControls.tbSkill.font = skillColorFont
+					userControls.tbSkill:Invalidate()
+				end
+			end
 		end
 	end
 end
@@ -578,13 +512,21 @@ local function UpdateUserActivityList(listener, userList)
 	end
 end
 
-local function OnIgnoreList(listener, userName)
-	if userName then
-		local userInfo = lobby:GetUser(userName)
-		--Spring.Echo("OnIgnoreList(listener, userList)", userName,userInfo)
-		if userInfo then
-			userInfo.isIgnored = true
+-- only reacts to boss changes
+local function UpdateBattleInfo(listener, battleID, battleInfo)
+	if battleInfo.boss == nil then return end
+	
+	-- boss changed, so update all userComboBoxOptions in battleUsers to allow "Make boss" for previous boss again
+	for username, _ in pairs(battleUsers) do
+		UpdateUserComboboxOptions(_, username)
+	end
+
+	if battleInfo.boss == false then
+		for userName, userControls in pairs(battleUsers) do
+			UpdateUserControlStatus(userName, userControls)
 		end
+	elseif battleUsers[battleInfo.boss] ~= nil then
+		UpdateUserControlStatus(battleInfo.boss, battleUsers[battleInfo.boss])
 	end
 end
 
@@ -603,14 +545,23 @@ local function OnPartyLeft(listener, partyID, partyUsers)
 	end
 end
 
-local function UpdateUserBattleStatus(listener, userName)
+local function UpdateUserBattleStatus(listener, userName, battleStatusDiff)
+	local Configuration = WG.Chobby.Configuration
 	UpdateUserComboboxOptions(_, userName)
 	for i = 1, #userListList do
 		local userList = userListList[i]
 		local userControls = userList[userName]
 		if userControls then
+
+			-- if this battleStatus is about us and we are switching between spec and player > Then update ComboboxOption of all users in my battle, because the right to access options is dependent of our own spec status (e.g. changeTeam, AddBonus, MakeBoss, ForceSpectator... are only allowed if we are a player)
+			if userList == namedUserList["battleUsers"] and battleStatusDiff['isSpectator'] ~= nil and userName == userControls.lobby:GetMyUserName() then
+				for username, _ in pairs(battleUsers) do
+					UpdateUserComboboxOptions(_, username)
+				end
+			end
+
 			local bs = userControls.lobby:GetUserBattleStatus(userName) or {}
-			userControls.isPlaying = bs.isSpectator ~= nil and bs.isSpectator == false or false
+			userControls.isPlaying = bs.isSpectator == false
 			
 			local offset = 0
 			if userControls.tbQueuePos then
@@ -661,33 +612,38 @@ local function UpdateUserBattleStatus(listener, userName)
 			--]]
 
 			if not userControls.isSingleplayer then
-				-- Country: show if configured to show
-				userControls.imCountry:SetVisibility(userControls.showCountry)
-				if userControls.showCountry then	
-					offset = offset + 1
-					userControls.imCountry:SetPos(offset + 2)
-					offset = offset + 21
+				
+				if userControls.showCountry then
+					userControls.imCountry:SetVisibility(Configuration.showCountry)
+					if Configuration.showCountry then	
+						offset = offset + 1
+						userControls.imCountry:SetPos(offset + 2)
+						offset = offset + 21
+					end
 				end
 
-				-- Rank: show if configured to show
-				userControls.imLevel:SetVisibility(userControls.showRank)
 				if userControls.showRank then
-					offset = offset + 1
-					userControls.imLevel:SetPos(offset)
-					offset = offset + 21
+					userControls.imLevel:SetVisibility(Configuration.showRank)
+					if Configuration.showRank then
+						offset = offset + 1
+						userControls.imLevel:SetPos(offset)
+						offset = offset + 21
+					end
 				end
 
 				-- Skill: show only in battlelist (limited by spring lobby protocol, skill not available for users outside of own battle)
-				local showSkill = userControls.isPlaying and userControls.showSkillOpt > 1
-				userControls.tbSkill:SetVisibility(showSkill)
-				if showSkill then
-					offset = offset + 1
-					userControls.tbSkill:SetPos(offset)
-					offset = offset + 20
-					local skill, skillColor = GetUserSkill(userName, userControls)
-					userControls.tbSkill:SetText(skill)
-					--userControls.tbSkill.font.color = skillColor
-					userControls.tbSkill:Invalidate()
+				if userControls.showSkill then
+					local displaySkill = userControls.isPlaying and Configuration.showSkillOpt > 1
+					userControls.tbSkill:SetVisibility(displaySkill)
+					if displaySkill then
+						offset = offset + 2
+						userControls.tbSkill:SetPos(offset)
+						offset = offset + 18
+						local skill, skillColorFont = GetUserSkillFont(userName, userControls)
+						userControls.tbSkill:SetText(skill)
+						userControls.tbSkill.font = skillColorFont
+						userControls.tbSkill:Invalidate()
+					end
 				end
 			end
 
@@ -701,7 +657,7 @@ local function UpdateUserBattleStatus(listener, userName)
 				local sideSelected = bs.side ~= nil
 				userControls.imSide:SetVisibility(userControls.isPlaying and sideSelected)
 				if sideSelected then
-					userControls.imSide.file = WG.Chobby.Configuration:GetSideById(bs.side).logo
+					userControls.imSide.file = Configuration:GetSideById(bs.side).logo
 				end
 				if userControls.isPlaying and sideSelected then
 					offset = offset + 2
@@ -713,20 +669,17 @@ local function UpdateUserBattleStatus(listener, userName)
 			offset = offset + 2
 			userControls.tbName:SetPos(offset)
 			userControls.nameStartY = offset
-			local truncatedName = StringUtilities.TruncateStringIfRequiredAndDotDot(userName, myFont1, maxNameLength and (maxNameLength - offset))
+			local truncatedName = StringUtilities.TruncateStringIfRequiredAndDotDot(userName, userControls.tbName.font, maxNameLength and (maxNameLength - offset))
 			userControls.nameStartY = offset
 			userControls.maxNameLength = maxNameLength
-
-			--local nameColor = GetUserNameColor(userName, userControls)
-			--if nameColor then
-			--	userControls.tbName.font.color = nameColor
-			--	userControls.tbName:Invalidate()
-			--end
+			
+			userControls.tbName.font = GetUserNameColorFont(userName, userControls)
+			userControls.tbName:Invalidate()
 			if truncatedName then
 				userControls.tbName:SetText(truncatedName)
 				userControls.nameTruncated = true
 			end
-			userControls.nameActualLength = myFont1:GetTextWidth(userControls.tbName.text)
+			userControls.nameActualLength = userControls.tbName.font:GetTextWidth(userControls.tbName.text)
 			offset = offset + userControls.nameActualLength
 
 			if userControls.imTeamColor then
@@ -752,9 +705,10 @@ local function UpdateUserBattleStatus(listener, userName)
 						end
 						userControls.lblHandicap:SetCaption(handicaptxt)
 						userControls.lblHandicap:SetVisibility(true)
+						userControls.lblHandicap:SetPos(offset)
 					end
 				end
-				if not userControls.isPlaying then
+				if not userControls.isPlaying or handicap == nil then
 					-- If the player is spectating, don't show handicap label regardless of its value.
 					userControls.lblHandicap:SetVisibility(false)
 				end
@@ -762,6 +716,58 @@ local function UpdateUserBattleStatus(listener, userName)
 			end
 			UpdateUserControlStatus(userName, userControls) -- moves status images right of userName according to nameStartY and nameActualLength
 		end
+	end
+end
+
+-- 2023-06-29 FB: can be called in 3 modes
+-- 1. userName is given and voteOption is either yes/no/blank -> color of user is changed to green/red/orange
+-- 2. username nil and voteOption = default -> all username colors, that were changed before, are returned to default (e.g white or moderator/friend/bot color)
+-- 3. username nil and voteOption = initVote -> all username colors are overwritten with grey
+local function OnUserVoted(listener, userName, voteOption)
+	if voteOption ~= "yes" and voteOption ~= "no" and voteOption ~= "blank" and voteOption ~= "default" and voteOption ~= "initVote" then
+		return
+	end
+	
+	if not userName then
+		
+		if voteOption == "default" then -- revert all changed username colors to default after vote
+			usersAllowedToVote = {}
+			for _, userName2 in pairs(votedUsers) do
+				OnUserVoted(_, userName2, voteOption)
+			end
+			votedUsers = {}
+			
+		elseif voteOption == "initVote" --[[and next(votedUsers) == nil]] then -- set all playing battleUsers colors to white on vote start
+			OnUserVoted(_, _, "default") -- 1. revert any changed colors (could be spectator by now, too, or left battle)
+			for userName2, userControls2 in pairs(battleUsers) do -- 2. set all users that are allowed to vote to grey (allowed are only users that were "isPlaying" on time of vote start)
+				if userControls2.isPlaying then
+					usersAllowedToVote[userName2] = true
+					OnUserVoted(_, userName2, voteOption)
+				end
+			end
+		end
+		return
+	end
+	
+	local userControls = battleUsers[userName]
+	if not userControls then
+		return
+	end
+
+	if userControls.tbName then
+		if voteOption == "default" then
+			userControls.tbName.font = GetUserNameColorFont(userName, userControls)
+			userControls.tbName:Invalidate()
+			return
+		end
+		if userControls.isPlaying then
+			userControls.tbName.font = WG.Chobby.Configuration:GetFont(1, "vote1" .. voteOption, {color = WG.Chobby.Configuration.voteColor[voteOption]}) -- voteOption can be yes, no, blank, initVote
+			userControls.tbName:Invalidate()
+		end
+	end
+
+	if not votedUsers[userName] then
+		table.insert(votedUsers, userName)
 	end
 end
 
@@ -806,29 +812,29 @@ local function GetUserControls(userName, opts)
 
 	local Configuration = WG.Chobby.Configuration
 
-	userControls.showFounder       = showFounder
-	userControls.showModerator     = showModerator
-	userControls.isInBattle        = isInBattle
-	userControls.lobby             = (isSingleplayer and WG.LibLobby.localLobby) or lobby
-	userControls.isSingleplayer    = isSingleplayer
-	userControls.steamInvite       = opts.steamInvite
-	userControls.hideStatus        = opts.hideStatus
-	userControls.hideStatusInvite  = opts.hideStatusInvite
-	userControls.hideStatusIngame  = opts.hideStatusIngame
-	userControls.hideStatusAway    = opts.hideStatusAway
-	userControls.dropdownWhitelist = opts.dropdownWhitelist
-	userControls.showSkillOpt	   = opts.showSkillOpt or 1 -- default to 1=no
-	userControls.showRank          = opts.showRank or false
-	userControls.showCountry       = opts.showCountry or false
-	userControls.isSingleplayer    = opts.isSingleplayer or false -- is needed by UpdateUserBattleStatus
+	userControls.showFounder        = showFounder
+	userControls.showModerator      = showModerator
+	userControls.isInBattle         = isInBattle
+	userControls.lobby              = (isSingleplayer and WG.LibLobby.localLobby) or lobby
+	userControls.isSingleplayer     = isSingleplayer
+	userControls.disableInteraction = disableInteraction
+	userControls.steamInvite        = opts.steamInvite
+	userControls.hideStatus         = opts.hideStatus
+	userControls.hideStatusInvite   = opts.hideStatusInvite
+	userControls.hideStatusIngame   = opts.hideStatusIngame
+	userControls.hideStatusAway     = opts.hideStatusAway
+	userControls.dropdownWhitelist  = opts.dropdownWhitelist
+	userControls.showSkill          = opts.showSkill or false
+	userControls.showRank           = opts.showRank or false
+	userControls.showCountry        = opts.showCountry or false
+	userControls.isSingleplayer     = opts.isSingleplayer or false -- is needed by UpdateUserBattleStatus
 
 	local myBattleID = userControls.lobby:GetMyBattleID()
 	local userInfo = userControls.lobby:GetUser(userName) or {}
 	local bs = userControls.lobby:GetUserBattleStatus(userName) or {}
 
-	userControls.isPlaying = bs.isSpectator ~= nil and bs.isSpectator == false or false
+	userControls.isPlaying = bs.isSpectator == false
 	userControls.isInQueue = bs.queuePos and bs.queuePos > 0 or false
-
 	if reinitialize then
 		userControls.mainControl:ClearChildren()
 	else
@@ -859,12 +865,13 @@ local function GetUserControls(userName, opts)
 			tooltip = (not disableInteraction) and tooltip,
 			ignoreItemCaption = true,
 			selectByName = true,
-			itemFontSize = Configuration:GetFont(2).size,
+			showSelection = false,
+			objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 			itemHeight = 30,
 			selected = 0,
 			maxDropDownWidth = large and 220 or 150,
 			minDropDownHeight = 0,
-			maxDropDownHeight = 300,
+			maxDropDownHeight = 340,
 			items = GetUserComboBoxOptions(userName, isInBattle, userControls, showTeamColor, showSide),
 			OnOpen = {
 				function (obj)
@@ -883,17 +890,12 @@ local function GetUserControls(userName, opts)
 				function (obj, selectedName)
 					if selectedName == "Message" then
 						local chatWindow = WG.Chobby.interfaceRoot.OpenPrivateChat(userName)
-					elseif selectedName == "Kick" then
-						local userBattleInfo = userControls.lobby:GetUserBattleStatus(userName) or {}
-						if userBattleInfo and userBattleInfo.aiLib then
-							userControls.lobby:RemoveAi(userName)
-						else
-							if Configuration.gameConfig.spadsLobbyFeatures then
-								lobby:SayBattle("!kick "..userName)
-							else
-								userControls.lobby:KickUser(userName)
-							end
-						end
+					elseif selectedName == "Copy Name" then
+						Spring.SetClipboard(userName)
+					elseif selectedName == "Kickban" then
+						lobby:SayBattle("!kickban "..userName)
+					elseif selectedName == "Remove" then
+						userControls.lobby:RemoveAi(userName)
 					elseif selectedName == "Unfriend" then
 						userControls.lobby:Unfriend(userName)
 					elseif selectedName == "Friend" then
@@ -1047,12 +1049,8 @@ local function GetUserControls(userName, opts)
 							WG.BrowserHandler.OpenUrl(Configuration.gameConfig.link_reportPlayer(userInfo.accountID))
 						end
 					elseif selectedName == "Unignore" then
-						local userInfo = userControls.lobby:GetUser(userName)
-						userInfo.isIgnored = nil
 						userControls.lobby:Unignore(userName)
 					elseif selectedName == "Ignore" then
-						local userInfo = userControls.lobby:GetUser(userName)
-						userInfo.isIgnored = true
 						userControls.lobby:Ignore(userName)
 					elseif selectedName == "Report User" then
 						WG.TextEntryWindow.CreateTextEntryWindow({
@@ -1074,6 +1072,7 @@ local function GetUserControls(userName, opts)
 
 						})
 					end
+
 				
 				end
 			}
@@ -1160,8 +1159,8 @@ local function GetUserControls(userName, opts)
 			bottom = 5,
 			align = "left",
 			parent = userControls.mainControl,
-			-- fontsize = Configuration:GetFont(1).size,
-			objectOverrideFont = myFont1,
+			objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+			objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
 			text = tostring(queuePos),
 		}
 		userControls.tbQueuePos:Invalidate()
@@ -1172,74 +1171,70 @@ local function GetUserControls(userName, opts)
 			offset = offset - 2
 		end
 	end
-
-	local offset = offset + 1
-	userControls.imCountry = Image:New {
-		name = "imCountry",
-		x = offset + 2,
-		y = offsetY + 4,
-		width = 16,
-		height = 11,
-		parent = userControls.mainControl,
-		keepAspect = true,
-		file = GetUserCountryImage(userName, userControls),
-		--noFont = true,
-		objectOverrideFont = myFont1,
-	}
-	userControls.imCountry.font = nil
-	userControls.imCountry:SetVisibility(userControls.showCountry)
-	if userControls.showCountry then
-		offset = offset + 21
-	else
-		offset = offset - 1
-	end
-
+	
 	if not isSingleplayer then
-		
-		offset = offset + 1
-		userControls.imLevel = Image:New {
-			name = "imLevel",
-			x = offset,
-			y = offsetY + 1,
-			width = 19,
-			height = 19,
-			parent = userControls.mainControl,
-			keepAspect = false,
-			file = GetUserRankImageName(userName, userControls),
-			--noFont = true,
-			objectOverrideFont = myFont1,
-		}
-		userControls.imLevel.font = nil
-		userControls.imLevel:SetVisibility(userControls.showRank)
-		if userControls.showRank then
-			offset = offset + 21
-		else
-			offset = offset - 1
+		if userControls.showCountry then
+			offset = offset + 1
+			userControls.imCountry = Image:New {
+				name = "imCountry",
+				x = offset + 2,
+				y = offsetY + 4,
+				width = 16,
+				height = 11,
+				parent = userControls.mainControl,
+				keepAspect = true,
+				file = GetUserCountryImage(userName, userControls),
+			}
+			userControls.imCountry:SetVisibility(Configuration.showCountry)
+			if Configuration.showCountry then
+				offset = offset + 21
+			else
+				offset = offset - 1
+			end
 		end
 
-		-- skill only available when we are inside battle
-		local showSkill = userControls.isPlaying and userControls.showSkillOpt > 1 -- 1: no 2: Yes 3: Detailed
-		local skill, skillColor = GetUserSkill(userName, userControls)
-		offset = offset + 1
-		userControls.tbSkill = TextBox:New {
-			name = "skill",
-			x = offset,
-			y = offsetY + 4,
-			right = 0,
-			bottom = 5,
-			align = "left",
-			parent = userControls.mainControl,
-			--fontsize = Configuration:GetFont(1).size,
-			objectOverrideFont = myFont1,
-			text = skill,
-		}
-		--userControls.tbSkill.font.color = skillColor
-		--userControls.tbSkill:Invalidate()
-		userControls.tbSkill:SetVisibility(showSkill)
-		if showSkill then
-			offset = offset + 20
-		else
-			offset = offset - 1
+		if userControls.showRank then
+			offset = offset + 1
+			userControls.imLevel = Image:New {
+				name = "imLevel",
+				x = offset,
+				y = offsetY + 1,
+				width = 19,
+				height = 19,
+				parent = userControls.mainControl,
+				keepAspect = false,
+				file = GetUserRankImageName(userName, userControls),
+			}
+			userControls.imLevel:SetVisibility(Configuration.showRank)
+			if Configuration.showRank then
+				offset = offset + 21
+			else
+				offset = offset - 1
+			end
+		end
+
+		if userControls.showSkill then
+			local skill, skillColorFont = GetUserSkillFont(userName, userControls)
+			offset = offset + 2
+			userControls.tbSkill = TextBox:New {
+				name = "skill",
+				x = offset,
+				y = offsetY + 4,
+				right = 0,
+				bottom = 5,
+				align = "left",
+				parent = userControls.mainControl,
+				objectOverrideFont = skillColorFont,
+				objectOverrideHintFont = skillColorFont,
+				text = skill,
+			}
+			local displaySkill = userControls.isPlaying and Configuration.showSkillOpt > 1
+			userControls.tbSkill:SetVisibility(displaySkill)
+			if displaySkill then
+				offset = offset + 18
+			else
+				offset = offset - 2
+			end
 		end
 	end
 
@@ -1297,25 +1292,23 @@ local function GetUserControls(userName, opts)
 		bottom = 4,
 		align = "left",
 		parent = userControls.mainControl,
-		--fontsize = Configuration:GetFont(2).size,
-		
-		objectOverrideFont = myFont1,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(1),
 		text = userName,
 	}
-	local truncatedName = StringUtilities.TruncateStringIfRequiredAndDotDot(userName, myFont1, maxNameLength and (maxNameLength - offset))
+
+	local truncatedName = StringUtilities.TruncateStringIfRequiredAndDotDot(userName, userControls.tbName.font, maxNameLength and (maxNameLength - offset))
 	userControls.nameStartY = offset
 	userControls.maxNameLength = maxNameLength
 
-	--local nameColor = GetUserNameColor(userName, userControls)
-	--if nameColor then
-	--	userControls.tbName.font.color = nameColor
-	--	userControls.tbName:Invalidate()
-	--end
+	userControls.tbName.font = GetUserNameColorFont(userName, userControls)
+	userControls.tbName:Invalidate()
+
 	if truncatedName then
 		userControls.tbName:SetText(truncatedName)
 		userControls.nameTruncated = true
 	end
-	userControls.nameActualLength = myFont1:GetTextWidth(userControls.tbName.text)
+	userControls.nameActualLength = userControls.tbName.font:GetTextWidth(userControls.tbName.text)
 	offset = offset + userControls.nameActualLength
 
 	if showTeamColor then
@@ -1351,6 +1344,7 @@ local function GetUserControls(userName, opts)
 			y = offsetY + 2,
 			parent = userControls.mainControl,
 			caption = handicaptxt,
+			objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
 			tooltip = "Handicap",
 		}
 	end
@@ -1362,7 +1356,7 @@ local function GetUserControls(userName, opts)
 		if large then
 			offsetY = offsetY + 35
 			offset = 5
-			local imgFile, status, fontColor = GetUserStatus(userName, isInBattle, userControls)
+			local imgFile, status, font = GetUserStatusFont(userName, isInBattle, userControls)
 			userControls.imStatusLarge = Image:New {
 				name = "imStatusLarge",
 				x = offset,
@@ -1382,13 +1376,13 @@ local function GetUserControls(userName, opts)
 				valign = 'center',
 				parent = userControls.mainControl,
 				caption = i18n(status .. "_status"),
-				--font = Configuration:GetFont(1),
-				objectOverrideFont = myFont1,
+				objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
 			}
-			--userControls.lblStatusLarge.font.color = fontColor
-			--userControls.lblStatusLarge:Invalidate()
-			--userControls.tbName.font.color = fontColor
-			--userControls.tbName:Invalidate()
+			userControls.lblStatusLarge.font = font
+			userControls.lblStatusLarge:Invalidate()
+
+			userControls.tbName.font = font
+			userControls.tbName:Invalidate()
 		end
 	end
 
@@ -1398,14 +1392,14 @@ local function GetUserControls(userName, opts)
 		userControls.mainControl.OnResize[#userControls.mainControl.OnResize + 1] = function (obj, sizeX, sizeY)
 			local maxWidth = sizeX - userControls.nameStartY - 40
 			
-			local truncatedName = StringUtilities.GetTruncatedStringWithDotDot(userName, myFont1, maxWidth)
+			local truncatedName = StringUtilities.GetTruncatedStringWithDotDot(userName, userControls.tbName.font, maxWidth)
 			userControls.tbName:SetText(truncatedName)
 
-			offset = userControls.nameStartY + myFont1:GetTextWidth(userControls.tbName.text) + 3
+			offset = userControls.nameStartY + userControls.tbName.font:GetTextWidth(userControls.tbName.text) + 3
 			if userControls.imTeamColor then
 				offset = offset + 25
 			end
-			if userControls.statusImages then
+			if not large and userControls.statusImages then
 				for i = 1, #userControls.statusImages do
 					userControls.statusImages[i]:SetPos(offset)
 					offset = offset + 21
@@ -1415,14 +1409,11 @@ local function GetUserControls(userName, opts)
 	end
 
 	local function OnConfigurationChange(listener, key, value)
-		if key == "showCountry" then
-			userControls.showCountry = value
+		if key == "showCountry" and userControls.showCountry then
 			UpdateUserBattleStatus(_, userName)
-		elseif key == "showRank" then
-			userControls.showRank = value
+		elseif key == "showRank" and userControls.showRank then
 			UpdateUserBattleStatus(_, userName)
-		elseif key == "showSkillOpt" then
-			userControls.showSkillOpt = value
+		elseif key == "showSkillOpt" and userControls.showSkill then
 			UpdateUserBattleStatus(_, userName)
 		end
 	end
@@ -1490,9 +1481,9 @@ function userHandler.GetBattleUser(userName, isSingleplayer)
 		autoResize     = true,
 		isInBattle     = true,
 		showReady      = true,
-		showCountry    = WG.Chobby.Configuration.showCountry,
-		showRank       = WG.Chobby.Configuration.showRank,
-		showSkillOpt   = WG.Chobby.Configuration.showSkillOpt,
+		showCountry    = true,
+		showRank       = true,
+		showSkill      = true,
 		showSync       = WG.Chobby.Configuration.showSync,
 		showModerator  = true,
 		showFounder    = true,
@@ -1509,8 +1500,8 @@ function userHandler.GetTooltipUser(userName)
 		suppressSync   = true,
 		showModerator  = true,
 		showFounder    = true,
-		showCountry    = WG.Chobby.Configuration.showCountry,
-		showRank       = WG.Chobby.Configuration.showRank,
+		showCountry    = true,
+		showRank       = true,
 	})
 end
 
@@ -1615,9 +1606,6 @@ end
 
 local function AddListeners()
 	lobby:AddListener("OnFriendList", UpdateUserActivityList)
-	lobby:AddListener("OnIgnoreList", UpdateUserActivityList)
-	lobby:AddListener("OnIgnoreList", OnIgnoreList)
-	lobby:AddListener("Ignore", OnIgnoreList)
 	lobby:AddListener("OnUpdateUserStatus", UpdateUserActivity)
 
 	lobby:AddListener("OnFriend", UpdateUserActivity)
@@ -1637,6 +1625,9 @@ local function AddListeners()
 	lobby:AddListener("OnAddUser", UpdateUserCountry)
 	lobby:AddListener("OnUpdateUserBattleStatus", UpdateUserBattleStatus)
 	WG.LibLobby.localLobby:AddListener("OnUpdateUserBattleStatus", UpdateUserBattleStatus)
+
+	lobby:AddListener("OnUserVoted", OnUserVoted)
+	lobby:AddListener("OnUpdateBattleInfo", UpdateBattleInfo)
 end
 
 --------------------------------------------------------------------------------
@@ -1646,9 +1637,6 @@ end
 local function DelayedInitialize()
 	local Configuration = WG.Chobby.Configuration
 	
-	myFont1 = Font:New(Configuration:GetFont(1))
-	myFont2 = Font:New(Configuration:GetFont(2))
-	myFont3 = Font:New(Configuration:GetFont(3))
 	UserLevelToImageConfFunction = Configuration.gameConfig.rankFunction
 
 	local function onConfigurationChange(listener, key, value)

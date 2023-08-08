@@ -508,8 +508,8 @@ end
 Interface.commands["MOTD"] = Interface._OnMOTD
 Interface.commandPattern["MOTD"] = "([^\t]*)"
 
-function Interface:_OnAccepted()
-	self:super("_OnAccepted")
+function Interface:_OnAccepted(newName)
+	self:super("_OnAccepted", newName)
 end
 Interface.commands["ACCEPTED"] = Interface._OnAccepted
 Interface.commandPattern["ACCEPTED"] = "(%S+)"
@@ -988,19 +988,10 @@ end
 Interface.commands["SAIDBATTLE"] = Interface._OnSaidBattle
 Interface.commandPattern["SAIDBATTLE"] = "(%S+)%s+(.*)"
 
-local function startsWith(targetstring, pattern) 
-	if string.len(pattern) <= string.len(targetstring) and pattern == string.sub(targetstring,1, string.len(pattern)) then
-		return true, string.sub(targetstring, string.len(pattern) + 1)
-	else
-		return false
-	end
-end
-
 function Interface:_OnSaidBattleEx(userName, message)
-	local JoinQueue_PREFIX = "You are now in the join-queue at position"
-	local doesStartWith = startsWith(message, JoinQueue_PREFIX)
-	if doesStartWith then
+	if startsWith(message, WG.Chobby.Configuration.BTLEX_JOINQUEUE) then
 		self:_SendCommand(concat("c.battle.queue_status")) -- request the whole join-queue again, because server doesn´t always send s.battle.queue_status or sends it before the change took affect
+		return
 	end
 	self:super("_OnSaidBattleEx", userName, message)
 end
@@ -1936,19 +1927,25 @@ function Interface:_OnIgnoreListParse(tags)
 	self:_OnIgnoreList(userName, reason)
 end
 
+local igListNew = {}
 function Interface:_OnIgnoreList(userName, reason)
-	self:_CallListeners("OnIgnoreList", userName, reason)
+	local igUser = {
+		userName = userName,
+		reason = reason,
+	}
+	igListNew[#igListNew + 1] = igUser
 end
 Interface.commands["IGNORELIST"] = Interface._OnIgnoreListParse
 Interface.commandPattern["IGNORELIST"] = "(.+)"
 
 function Interface:_OnIgnoreListBegin()
-	self:_CallListeners("OnIgnoreListBegin")
+	igListNew = {}
 end
 Interface.commands["IGNORELISTBEGIN"] = Interface._OnIgnoreListBegin
 
 function Interface:_OnIgnoreListEnd()
-	self:_CallListeners("OnIgnoreListEnd")
+	self:super("_OnIgnoreListEnd", igListNew)
+	igListNew = {}	
 end
 Interface.commands["IGNORELISTEND"] = Interface._OnIgnoreListEnd
 
@@ -1983,6 +1980,12 @@ function Interface:_OnUpdateBattleTitle(battleID, battleTitle)
 end
 Interface.commands["s.battle.update_lobby_title"] = Interface._OnUpdateBattleTitle
 Interface.commandPattern["s.battle.update_lobby_title"] = "(%S+)%s+(.*)"
+
+function Interface:_OnBattleExtraData(battleID, data)
+	-- do nothing for now, but suppress errors in log
+end
+Interface.commands["s.battle.extra_data"] = Interface._OnBattleExtraData
+Interface.commandPattern["s.battle.extra_data"] = "(%S+)%s+(.*)"
 
 function Interface:_OnS_Client_Errorlog()
 	self:_CallListeners("OnS_Client_Errorlog")

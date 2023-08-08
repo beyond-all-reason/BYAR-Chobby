@@ -22,8 +22,6 @@ local IMG_UNREADY  = LUA_DIRNAME .. "images/downloadnotready.png"
 
 local MINIMAP_TOOLTIP_PREFIX = "minimap_tooltip_"
 
-local listFont2
-
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 -- Utilities
@@ -91,7 +89,19 @@ local function GetTerrainTypeBar(special, flat, hills, water)
   return terrainTypeString
 end
 
-local function GetCertifiedLevelBar(isCertified,isClassic)
+local function GetMapAge(LastUpdate)
+  local now = os.time()
+  local twoWeeksAgo = now - 60*60*24*14
+  local mapAge = 999999999
+  if ( LastUpdate == nil ) then LastUpdate = 1 end --some maps can  have lastUpdate = nil
+  if ( LastUpdate >= twoWeeksAgo ) then 
+	mapAge = now - LastUpdate end
+  return mapAge--if it's older then two weeks don't sort by age
+end
+
+local function GetCertifiedLevelBar(isCertified,isClassic,LastUpdate)
+  if ( LastUpdate == nil ) then LastUpdate = 1 end --some maps can  have lastUpdate = nil
+  if ( GetMapAge(LastUpdate) < 999999999) then return "   NEW!" end
   if isCertified then return "Certified" end
   if isClassic then return "Classic" end
   return "Unofficial"
@@ -152,7 +162,7 @@ local function CreateMapEntry(mapName, mapData, CloseFunc)--{"ResourceID":7098,"
 		classname = "battle_default_button",
 		padding = {0, 0, 0, 0},
 		tooltip = MINIMAP_TOOLTIP_PREFIX .. mapName .. "|" .. mapButtonCaption,
-		objectOverrideFont = listFont2,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		OnClick = {
 			function()
 				if (lobby.name == "singleplayer") or (mapData and mapData.IsInPool) then
@@ -195,7 +205,8 @@ local function CreateMapEntry(mapName, mapData, CloseFunc)--{"ResourceID":7098,"
 		width = 200,
 		height = 20,
 		valign = 'center',
-		objectOverrideFont = listFont2,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
 		text = mapName:gsub("_", " "),
 		parent = mapButton,
 	}
@@ -209,14 +220,15 @@ local function CreateMapEntry(mapName, mapData, CloseFunc)--{"ResourceID":7098,"
 		parent = mapButton,
 	}
 
-    local certificationLevel = GetCertifiedLevelBar( mapData and mapData.IsCertified, mapData and mapData.IsInPool)
+    local certificationLevel = GetCertifiedLevelBar( mapData and mapData.IsCertified, mapData and mapData.IsInPool, mapData and mapData.LastUpdate)
 	TextBox:New {
 			x = 655,
 			y = 12,
 			width = 160,
 			height = 20,
 			valign = 'center',
-			objectOverrideFont = listFont2,
+			objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+			objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
 			text = certificationLevel,
 			parent = mapButton,
 	}
@@ -230,7 +242,8 @@ local function CreateMapEntry(mapName, mapData, CloseFunc)--{"ResourceID":7098,"
 			width = 68,
 			height = 20,
 			valign = 'center',
-			objectOverrideFont = listFont2,
+			objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+			objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
 			text = mapSizeText,
 			parent = mapButton,
 		}
@@ -243,7 +256,8 @@ local function CreateMapEntry(mapName, mapData, CloseFunc)--{"ResourceID":7098,"
 			width = 98,
 			height = 20,
 			valign = 'center',
-			objectOverrideFont = listFont2,
+			objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+			objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
 			text = mapType,
 			parent = mapButton,
 		}
@@ -255,15 +269,16 @@ local function CreateMapEntry(mapName, mapData, CloseFunc)--{"ResourceID":7098,"
 			width = 160,
 			height = 20,
 			valign = 'center',
-			objectOverrideFont = listFont2,
+			objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+			objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
 			text = terrainType,
 			parent = mapButton,
 		}
 
-		sortData = {string.lower(mapName), (mapData.Width or 0)*100 + (mapData.Height or 0), string.lower(mapType), string.lower(terrainType), (haveMap and 1) or 0, string.lower(certificationLevel), (haveMap and ' '..mapName) or mapName}
+		sortData = {string.lower(mapName), (mapData.Width or 0)*100 + (mapData.Height or 0), string.lower(mapType), string.lower(terrainType), (haveMap and 1) or 0, string.lower(certificationLevel), string.format( "%09d", GetMapAge(mapData.LastUpdate) )  .. mapName }
 		sortData[8] = sortData[1] .. " " .. mapSizeText .. " " .. sortData[3] .. " " .. sortData[4] .. " " .. sortData[6] .. " " .. sortData[7]-- Used for text filter by name, type, terrain or size. Now includes HAX COLUMN.
 	else
-		sortData = {string.lower(mapName), 0, "", "", (haveMap and 1) or 0, certificationLevel,(haveMap and ' '..mapName) or mapName}
+		sortData = {string.lower(mapName), 0, "", "", (haveMap and 1) or 0, certificationLevel,"999999999" .. (haveMap and ' '..mapName) or mapName}
 		sortData[8] = sortData[1]
 	end
 
@@ -291,8 +306,6 @@ local function InitializeControls()
 	--Spring.Echo("LuaMenu KB", lmkb, "allocs", lmalloc, "Lua global KB", lgkb, "allocs", lgalloc)
 
 	local Configuration = WG.Chobby.Configuration
-
-    listFont2 = Font:New(Configuration:GetFont(2))
 
     local vsx, vsy = Spring.GetViewSizes()
 	local mapListWindow = Window:New {
@@ -329,8 +342,7 @@ local function InitializeControls()
 		y = 22,
 		height = 21,
 		parent = mapListWindow,
-		objectOverrideFont = listFont2,
-		--font = Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		--caption = "Select a Map. Choose a Certified map for the best experience!",
 		caption = maincaption,
 	}
@@ -371,7 +383,7 @@ local function InitializeControls()
 	--	align = "center",
 	--	valign = "center",
 	--	parent = loadingPanel,
-	--	objectOverrideFont = listFont2,
+	--	objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 	--	caption = "Loading",
 	--}
 
@@ -384,7 +396,7 @@ local function InitializeControls()
 		right = 15,
 		y = 54,
 		bottom = 15,
-		objectOverrideFont = listFont2,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		parent = mapListWindow,
 		resizable = false,
 		draggable = false,
@@ -463,8 +475,7 @@ local function InitializeControls()
 		width = 80,
 		height = 35,
 		caption = i18n("close"),
-		objectOverrideFont = listFont2,
-		--font = Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		classname = "negative_button",
 		parent = mapListWindow,
 		OnClick = {
@@ -482,8 +493,7 @@ local function InitializeControls()
 		width = 180,
 		height = 35,
 		caption = i18n("download_maps"),
-		objectOverrideFont = listFont2,
-		--font = Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		classname = "option_button",
 		parent = mapListWindow,
 		OnClick = {
@@ -504,7 +514,8 @@ local function InitializeControls()
 		height = 33,
 		text = '',
 		hint = i18n("type_to_filter"),
-		objectOverrideFont = listFont2,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
 		parent = mapListWindow,
 		OnKeyPress = {
 			function(obj, key, ...)

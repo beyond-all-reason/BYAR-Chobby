@@ -13,13 +13,8 @@ function Downloader:init(buttonsMode, tbl, timeout, updateListener, completeList
 		height = 20,
 		align = "left",
 		valign = "top",
-		fontsize = Configuration:GetFont(2).size,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		caption = "",
---[[ 		OnResize = {
-			function (obj, xSize, ySize)
-				obj:SetCaption(StringUtilities.GetTruncatedStringWithDotDot( or obj.caption, obj.font, xSize or obj.width))
-			end
-		} ]]
 	}
 
 	self.prDownload = Progressbar:New {
@@ -28,6 +23,7 @@ function Downloader:init(buttonsMode, tbl, timeout, updateListener, completeList
 		right = 0,
 		height = 30,
 		value = 0,
+		objectOverrideFont = WG.Chobby.Configuration:GetButtonFont(10),
 	}
 
 	self.queueLabel = Label:New {
@@ -37,7 +33,7 @@ function Downloader:init(buttonsMode, tbl, timeout, updateListener, completeList
 		height = 16,
 		align = "left",
 		valign = "center",
-		fontsize = Configuration:GetFont(2).size,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(queueFont),
 		caption = "Queue:",
 	}
 
@@ -48,7 +44,7 @@ function Downloader:init(buttonsMode, tbl, timeout, updateListener, completeList
 		bottom = 0,
 		align = "left",
 		valign = "top",
-		fontsize = Configuration:GetFont(2).size,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(queueFont),
 		caption = "",
 	}
 
@@ -82,7 +78,7 @@ function Downloader:init(buttonsMode, tbl, timeout, updateListener, completeList
 			width = 85,
 			caption = "Cancel",
 			classname = "negative_button",
-			font = Configuration:GetFont(2),
+			objectOverrideFont = Configuration:GetButtonFont(2),
 			OnClick = {
 				CancelFunc
 			},

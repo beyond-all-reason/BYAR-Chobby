@@ -102,7 +102,8 @@ local function InitializeCoopStatusHandler(name, text, leaveFunc, statusAndInvit
 		y = 18,
 		right = rightBound,
 		bottom = bottomBound,
-		fontsize = WG.Chobby.Configuration:GetFont(3).size,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(3),
 		text = text,
 		parent = panelHolder,
 	}
@@ -115,7 +116,7 @@ local function InitializeCoopStatusHandler(name, text, leaveFunc, statusAndInvit
 		bottom = 4,
 		padding = {0,0,0,0},
 		caption = i18n("leave"),
-		font = WG.Chobby.Configuration:GetFont(3),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		classname = "negative_button",
 		OnClick = {
 			function()

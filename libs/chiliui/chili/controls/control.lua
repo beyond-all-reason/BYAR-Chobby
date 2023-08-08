@@ -143,7 +143,7 @@ function Control:New(obj)
 	end
 
 	-- We don't create fonts for controls that don't need them
-	-- This should drastically use memory usage for some cases
+	-- This should drastically reduce memory usage for some cases
 	if obj.noFont then
 		obj.font = nil
 		obj.disabledFont = nil
@@ -179,6 +179,11 @@ function Control:New(obj)
 		end
 	end
 	obj:Realign()
+	if tracy then
+		local infostr, functionstr, arguments = Spring.Utilities.TraceEchoStr()
+		obj.allocatedfrom = functionstr
+		tracy.Message("Control:New:"..obj.name.." "..functionstr)
+	end
 
 	if WG.ChiliRedraw then
 		WG.ChiliRedraw.AddControl(obj, "New")

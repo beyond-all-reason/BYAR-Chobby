@@ -80,3 +80,11 @@ end
 function lshift(x, by)
   return x * 2 ^ by
 end
+
+function startsWith(targetstring, pattern)
+	if string.len(pattern) <= string.len(targetstring) and pattern == string.sub(targetstring,1, string.len(pattern)) then
+		return true, string.sub(targetstring, string.len(pattern) + 1)
+	else
+		return false
+	end
+end

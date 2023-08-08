@@ -41,7 +41,9 @@ function Font:New(obj)
 
 	--// Load the font
 	obj:_LoadFont()
-
+	--Spring.Echo("Font:New", obj.name)
+	local infostr, functionstr, arguments = Spring.Utilities.TraceEchoStr()
+	obj.allocatedfrom = functionstr
 	return obj
 end
 
