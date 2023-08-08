@@ -359,11 +359,10 @@ local function InitializeControls(window)
 	WG.DownloadHandler.AddListener("DownloadQueueUpdate", DownloadQueueUpdate)
 
 	local function DownloadProgress(_, _, sizeCurrent, sizeTotal, name)
-		Spring.Utilities.TableEcho(downloads)
 		if downloads[name] then
 			downloads[name].SetProgress(sizeCurrent, sizeTotal)
 		else
-			Spring.Echo("DownloadWindow:DownloadProgressListener not found")
+			Spring.Log(LOG_SECTION, LOG.ERROR, "DownloadWindow:DownloadProgressListener not found")
 		end
 	end
 

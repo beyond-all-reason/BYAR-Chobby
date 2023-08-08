@@ -56,11 +56,11 @@ end
 
 local downloads = {} -- index table
 
--- FB 2023-05-14 downloads a file, type can be any of game, map
--- {resource,engine} not fully supported yet by launcher, though using resource here for engine downloads with workarounds!
+-- FB 2023-05-14 downloads a file, type can be any of game, map, resource
+-- engine not supported yet by launcher, though using resource here for engine downloads with workarounds!
 function WrapperLoopback.DownloadFile(name, type, resource)
 	if type:lower() == "resource" and not resource then
-		Spring.Echo("DownloadFile called with type resource, but no resouce infos given")
+		Spring.Log(LOG_SECTION, LOG.ERROR, "DownloadFile called with type resource, but no resouce infos given")
 		-- ToDo: Call Finished
 		return false
 	end
@@ -110,11 +110,6 @@ local function EscapeMinusPattern(text)
 	return txt
 end
 
--- FB 2023-05-19: "resource"-downloads currently return no name in first DownloadFinished-command
--- and then returns endless DownloadFinished-commands with name = errormessage including the fullpath, so we use that fullpath for now
--- this function should work as well in future, as soon as launcher returns the original name of the download, which is for compatibility reason for now = destination ("engine/105.1.1-1354-g72b2d55 bar")
--- example nameReceived(windows): "Skipping C:\Beyond-All-ReasonTest\data\engine\105.1.1-1354-g72b2d55 bar: already exists."
--- ToDo:Test with linux: With linux it should be like "Skipping /home/userXY/dir/to/data/engine/105.1.1-1354-g72b2d55 bar: already exists."
 local function FindNameReceivedInDownloads(nameReceived)
 	for i, download in ipairs(downloads) do
 		if nameReceived:gsub("\\", "/"):find(EscapeMinusPattern(download.nameSent)) then -- replace backslashes(windows) with slashes, because that´s how we generated it in CoopHandler:local GetEnginePath()
@@ -153,18 +148,9 @@ local function DownloadFinished(command)
 		return false
 	end
 
-	-- use Skipping message to recognize finished download
-	-- example command.name = "Skipping C:\Beyond-All-ReasonTest\data\engine\105.1.1-1354-g72b2d55 bar: already exists."
-	if startsWith(command.name, SkippingFile_PREFIX) then
-		download, dlIndex = FindNameReceivedInDownloads(command.name)
-		if dlIndex then
-			Spring.Echo("Received 'Skipped'-Download-Finished, download= ...")
-		end
-	else
-		download, dlIndex = FindNameReceivedInDownloads(command.name)		
-	end
-
+	download, dlIndex = FindNameReceivedInDownloads(command.name)		
 	if not download then
+		Spring.Log(LOG_SECTION, LOG.ERROR, "Received command.name couldn't be matched to any known download:", command.name)
 		return false
 	end
 	
