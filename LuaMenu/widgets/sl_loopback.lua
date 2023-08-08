@@ -58,7 +58,7 @@ local downloads = {} -- index table
 
 -- FB 2023-05-14 downloads a file, type can be any of game, map
 -- {resource,engine} not fully supported yet by launcher, though using resource here for engine downloads with workarounds!
-function WrapperLoopback.DownloadFile(name, type, resource, debug_wherewecomefrom)
+function WrapperLoopback.DownloadFile(name, type, resource)
 	Spring.Echo("WrapperLoopback DownloadFile")
 	if type:lower() == "resource" and not resource then
 		Spring.Echo("DownloadFile called with type resource, but no resouce infos given")
