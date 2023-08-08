@@ -463,7 +463,6 @@ function SteamCoopHandler.AttemptGameStart(gameType, gameName, mapName, scriptTa
 
 			if startEngineVersion then
 				Spring.Echo("startEngineVersion")
-				if true then return end
 				-- Only replay so far.
 				if not WG.WrapperLoopback then
 					Spring.Echo("Wrapper is required to watch replays with old engine versions.")

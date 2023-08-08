@@ -140,7 +140,7 @@ local function DownloadQueueUpdate()
 	Spring.Utilities.TableEcho(front)
 	if not front.active then
 		if USE_WRAPPER_DOWNLOAD and WG.WrapperLoopback and WG.WrapperLoopback.DownloadFile then
-			WG.WrapperLoopback.DownloadFile(front.name, typeMap[front.fileType], front.resource, "DownloadQueueUpdate")
+			WG.WrapperLoopback.DownloadFile(front.name, typeMap[front.fileType], front.resource)
 			CallListeners("DownloadStarted", front.id, front.name, front.fileType)
 		else
 			VFS.DownloadArchive(front.name, front.fileType)
@@ -490,7 +490,7 @@ end
 
 
 local function TestDownload()
-	WG.WrapperLoopback.DownloadFile("Sands of Time v1.0", "MAP", "TestDownload")
+	WG.WrapperLoopback.DownloadFile("Sands of Time v1.0", "MAP")
 	Spring.Echo("TestDownload")
 	Chotify:Post({
 		title = "Download Failed",
