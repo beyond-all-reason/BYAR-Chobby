@@ -362,6 +362,7 @@ end
 -- Wrapper Interface
 
 function wrapperFunctions.DownloadFinished(name, fileType, success, aborted)
+	fileType = fileType and reverseTypeMap[fileType]
 	if fileType then
 		if (fileType == 'RAPID' or fileType == 'game') and SaveLobbyVersionGZPath then
 			RestoreVersionGZ(SaveLobbyVersionGZPath)
