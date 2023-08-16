@@ -1308,7 +1308,7 @@ local options={
 	{
 		key    = 'expandedcortexvehiclest2',
 		name   = 'Additional Cortex T2 Vehicles',
-		desc   = 'Adds Printer, an armored field engineer. Replaces Alligator with Salamander, a cheaper amphibious tank with precision heat rays',
+		desc   = 'Adds Forge, a combat engineer like the butler with a flamethrower. Adds Printer, an armored field engineer. Adds Heat Tiger, Tiger with a heat laser',
 		type   = 'bool',
 		section = 'options_experimental',
 		def  = false,
@@ -1317,7 +1317,7 @@ local options={
 	{
 		key    = 'experimentallegionfaction',
 		name   = 'Legion Faction',
-		desc   = '3rd experimental faction (does not work with unba enabled!)',
+		desc   = '3rd experimental faction',
 		type   = 'bool',
 		section = 'options_experimental',
 		def  = false,
