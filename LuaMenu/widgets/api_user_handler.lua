@@ -202,15 +202,15 @@ local function GetUserComboBoxOptions(userName, isInBattle, control, showTeamCol
 
 	if not (itsme or bs.aiLib) then																					comboOptions[#comboOptions + 1] = "Message" end
 																													comboOptions[#comboOptions + 1] = "Copy Name"
-	if not (itsme or bs.aiLib or info.isBot) then																	comboOptions[#comboOptions + 1] = "Ring" end
+	if isInBattle and not (itsme or bs.aiLib or info.isBot) then													comboOptions[#comboOptions + 1] = "Ring" end
 	if not (itsme or bs.aiLib or isInBattle) and info.battleID then													comboOptions[#comboOptions + 1] = "Join Battle" end
-	if not (itsme or bs.aiLib or info.isBot) then																	comboOptions[#comboOptions + 1] = info.isIgnored and "Unignore" or "Ignore"
-																													comboOptions[#comboOptions + 1] = info.isFriend and "Unfriend" or "Friend" end
+	if not (itsme or bs.aiLib or info.isBot) then																	comboOptions[#comboOptions + 1] = info.isFriend and "Unfriend" or "Friend"
+																													comboOptions[#comboOptions + 1] = info.isIgnored and "Unignore" or "Ignore" end
 	if showSide and not bs.isSpectator and (itsme or (bs.aiLib and bs.owner == myUserName)) then					comboOptions[#comboOptions + 1] = "Change Faction" end
 	if isInBattle and not bs.isSpectator and (iAmBoss or iPlay or (bs.aiLib and bs.owner == myUserName)) then		comboOptions[#comboOptions + 1] = "Change Team"
 																													comboOptions[#comboOptions + 1] = "Add Bonus" end
 	if (iAmBoss or iPlay) and not bs.aiLib and isInBattle and not bs.isSpectator then								comboOptions[#comboOptions + 1] = "Force Spectator" end
-	if (iAmBoss or iPlay) and not (control.isSingleplayer or bs.aiLib or info.isBot) and isInBattle and userName ~= boss then	comboOptions[#comboOptions + 1] = "Make Boss" end
+	if (iAmBoss or iPlay) and not (control.isSingleplayer or bs.aiLib or info.isBot) and isInBattle  then			comboOptions[#comboOptions + 1] =  userName ~= boss and "Make Boss" or "Disable Boss" end
 	if (iAmBoss or iPlay) and not itsme and not info.isBot and isInBattle and not bs.aiLib then						comboOptions[#comboOptions + 1] = "Kickban" end
 	if bs.aiLib and bs.owner == myUserName and isInBattle then														comboOptions[#comboOptions + 1] = "Remove" end
 	if not itsme and not info.isBot and not bs.aiLib then															comboOptions[#comboOptions + 1] = "Report User" end
@@ -1041,6 +1041,8 @@ local function GetUserControls(userName, opts)
 						lobby:SayBattle("!ring "..userName)
 					elseif selectedName == "Make Boss" then
 						lobby:SayBattle("!boss "..userName)
+					elseif selectedName == "Disable Boss" then
+						lobby:SayBattle("!boss")
 					elseif selectedName == "Force Spectator" then
 						lobby:SayBattle("!spec "..userName)
 					elseif selectedName == "Report" and Configuration.gameConfig.link_reportPlayer ~= nil then
