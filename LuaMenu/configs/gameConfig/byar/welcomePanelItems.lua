@@ -13,6 +13,11 @@
 
 local welcomePanelItems = {
     {
+        Header = "New Map: Lavender Bender v2!",
+        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/Lavender_Bender_v2.png",
+        Text = "1v1-4v4 map\nBy Johannes",
+    },   
+    {
         Header = "Commander update survey!",
         Url = "https://forms.gle/6iagp9r8EWPc3YUQ9",
         Text = "\nWe would like to collect your feedback in a systematic way to use as supplementary data for the Game Design Team's discussion and ultimately decision on if and what tweaks should be applied. Thank you in advance for your time!\n",
