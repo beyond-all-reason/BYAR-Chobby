@@ -262,8 +262,8 @@ local function CreateScenarioPanel(shortname, sPanel)
 		width = "100%",
 		height = "100%",
 		valign = 'top',
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
-		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(9),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(9),
 		text = summarytext,
 		parent = summarySP,
 		padding = {10,10,10,10},
@@ -275,10 +275,9 @@ local function CreateScenarioPanel(shortname, sPanel)
 		width = "50%",
 		height = "5%",
 		parent = sPanel,
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2, "scn_label", {font = "fonts/n019003l.pfb", color = {0.7, 0.7, 0.7, 1.0}}),
 		caption = "Victory",
 	}
-	lblvictoryText.font.color = {0.7, 0.7, 0.7, 1.0}
 
 	local victoryText = Label:New{
 		x = "16%",
@@ -286,7 +285,7 @@ local function CreateScenarioPanel(shortname, sPanel)
 		width = "50%",
 		height = "5%",
 		parent = sPanel,
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(9),
 		caption = scen.victorycondition,
 	}
 
@@ -296,10 +295,9 @@ local function CreateScenarioPanel(shortname, sPanel)
 		width = "50%",
 		height = "5%",
 		parent = sPanel,
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2, "scn_label"),
 		caption = "Loss" ,
 	}
-	lbllossText.font.color = {0.7, 0.7, 0.7, 1.0}
 
 	local lossText = Label:New{
 		x = "16%",
@@ -307,7 +305,7 @@ local function CreateScenarioPanel(shortname, sPanel)
 		width = "50%",
 		height = "5%",
 		parent = sPanel,
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(9),
 		caption = scen.losscondition,
 	}
 
@@ -317,11 +315,9 @@ local function CreateScenarioPanel(shortname, sPanel)
 		width = "50%",
 		height = "5%",
 		parent = sPanel,
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2, "scn_label"),
 		caption = "Difficulty",
 	}
-	lbldifficultyText.font.color = {0.7, 0.7, 0.7, 1.0}
-
 
 	local difficultyText = Label:New{
 		x = "16%",
@@ -339,11 +335,9 @@ local function CreateScenarioPanel(shortname, sPanel)
 		width = "50%",
 		height = "5%",
 		parent = sPanel,
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2, "scn_label"),
 		caption = "Est. Time",
 	}
-	lblpartimeText.font.color = {0.7, 0.7, 0.7, 1.0}
-
 
 	local partimeText = Label:New{
 		x = "16%",
@@ -351,7 +345,7 @@ local function CreateScenarioPanel(shortname, sPanel)
 		width = "50%",
 		height = "5%",
 		parent = sPanel,
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(9),
 		caption = tostring(math.ceil(scen.partime/60)) .. " minutes",
 	}
 
@@ -361,11 +355,9 @@ local function CreateScenarioPanel(shortname, sPanel)
 		width = "50%",
 		height = "5%",
 		parent = sPanel,
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2, "scn_label"),
 		caption = "Est. Resources" ,
 	}
-	lblparresourcesText.font.color = {0.7, 0.7, 0.7, 1.0}
-
 
 	local parresourcesText = Label:New{
 		x = "16%",
@@ -373,7 +365,7 @@ local function CreateScenarioPanel(shortname, sPanel)
 		width = "50%",
 		height = "5%",
 		parent = sPanel,
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(9),
 		caption =  tostring(math.ceil(scen.parresources/1000)) .. "K metal",
 	}
 
@@ -446,8 +438,8 @@ local function CreateScenarioPanel(shortname, sPanel)
 		width = "100%",
 		height = "100%",
 		valign = 'top',
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
-		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(9),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(9),
 		text = scen.briefing,
 		parent = briefingtextSP,
 
@@ -482,10 +474,9 @@ local function CreateScenarioPanel(shortname, sPanel)
 		width = "25%",
 		height = "5%",
 		parent = sPanel,
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2, "scn_label"),
 		caption = "My Best Time: ",
 	}
-	lblmytime.font.color = {0.7, 0.7, 0.7, 1.0}
 
 	local mytime = Label:New{
 		x = "76%",
@@ -503,10 +494,9 @@ local function CreateScenarioPanel(shortname, sPanel)
 		width = "25%",
 		height = "5%",
 		parent = sPanel,
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2, "scn_label"),
 		caption = "My Resources ",
 	}
-	lblmyresources.font.color = {0.7, 0.7, 0.7, 1.0}
 
 	local myresources = Label:New{
 		x = "76%",
@@ -525,11 +515,9 @@ local function CreateScenarioPanel(shortname, sPanel)
 			--width = "25%",
 			--height = "5%",
 			parent = sPanel,
-			objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+			objectOverrideFont = WG.Chobby.Configuration:GetFont(2, "scn_label"),
 			caption =  "Author: ".. scen.author,
 		}
-
-		lblauthor.font.color = {0.7, 0.7, 0.7, 1.0}
 	end
 
 	if math.floor(myscores.time) > 0 then
@@ -570,10 +558,9 @@ local function CreateScenarioPanel(shortname, sPanel)
 		width = "100",
 		height = "4%",
 		parent = sPanel,
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2, "scn_label"),
 		caption = "Faction",
 	}
-	sidelabel.font.color = {0.7, 0.7, 0.7, 1.0}
 
 	--[[
 	local sidechangebutton  = Button:New {
@@ -625,18 +612,15 @@ local function CreateScenarioPanel(shortname, sPanel)
 		parent = sPanel,
 	}
 
-
 	local difflabel = Label:New{
 		x = "0%",
 		y = "44%" ,
 		width = "100",
 		height = "4%",
 		parent = sPanel,
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2, "scn_label"),
 		caption = "Difficulty",
 	}
-	difflabel.font.color = {0.7, 0.7, 0.7, 1.0}
-
 
 	local function UpdateDifficulty(newdifficultyname)
 		for i, diff in pairs(scen.difficulties) do
