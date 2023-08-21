@@ -720,9 +720,8 @@ local function LoadConfigFile(filename, envParam)
 	end
 
 	local success, rvalue = pcall(VFS.Include, filename, envParam)
-	Spring.Echo("Remember to update handler.lua once the following is in basecontent: https://github.com/spring/spring/commit/ef6df34ae5dd4eba9b192f695f9b2724da0f83c2")
 	if (not success) then
-		Spring.Log(LUA_NAME, "warning", 'Failed to load: ' .. filename .. '  (' .. rvalue .. ')')
+		Spring.Log(LUA_NAME, "warning", 'Failed to load: ' .. filename .. '  (' .. tostring(rvalue) .. ')')
 	elseif (type(rvalue) ~= "table") then
 		Spring.Log(LUA_NAME, "warning", 'Failed to load: ' .. filename .. '  (table data expected, got ' .. type(rvalue) .. ')')
 	else
@@ -860,7 +859,7 @@ end
 function handler:Disable(name)
 	local ki = handler.knownInfos[name]
 	if (not ki) then
-		Spring.Log(LUA_NAME, "warning", "::Disable: Didn\'t found \"" .. name .. "\".")
+		Spring.Log(LUA_NAME, "warning", "::Disable: Didn\'t find \"" .. name .. "\".")
 		return false
 	end
 	if (not ki.active)and((order or 0) > 0) then
@@ -876,7 +875,7 @@ function handler:Disable(name)
 		handler:SaveOrderList()
 		return true
 	else
-		Spring.Log(LUA_NAME, "warning", "::Disable: Didn\'t found \"" .. name .. "\".")
+		Spring.Log(LUA_NAME, "warning", "::Disable: Didn\'t find \"" .. name .. "\".")
 	end
 end
 
