@@ -112,7 +112,10 @@ function widget:Initialize()
 		widgetHandler:RemoveWidget()
 		return
 	end
-	WG.Chobby.Configuration:SetConfigValue("enableInspector", true)
+	-- if this widget is enabled on startup then Configuration has not been loaded yet, so we can't access SetConfigValue. But it's ok. Wen only need to set the config value, when it's manually turned on by user.
+	if WG and WG.Chobby and WG.Chobby.Configuration then
+		WG.Chobby.Configuration:SetConfigValue("enableInspector", true)
+	end
 
 	window0 = Chili.Window:New{
 		name = "wnd_inspector",
