@@ -12,7 +12,7 @@ function widget:GetInfo()
 	}
 end
 
-include("keysym.h.lua")
+require("keysym.lua")
 
 LIBS_DIR = "libs/"
 LCS = loadstring(VFS.LoadFile(LIBS_DIR .. "lcs/LCS.lua"))
