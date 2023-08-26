@@ -45,6 +45,9 @@ end
 local removedwidgets = {}
 
 function widget:Update()
+	if widgetHandler:FindByName("Image Preloader") then
+		widgetHandler:DisableWidget("Image Preloader")
+	end
 	widgetHandler:EnableWidget("Rapid Pool Cache")
 	for i, widgetname in ipairs(unusedwidgets) do 
 		
