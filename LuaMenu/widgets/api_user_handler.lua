@@ -554,7 +554,7 @@ local function UpdateUserBattleStatus(listener, userName, battleStatusDiff)
 		if userControls then
 
 			-- if this battleStatus is about us and we are switching between spec and player > Then update ComboboxOption of all users in my battle, because the right to access options is dependent of our own spec status (e.g. changeTeam, AddBonus, MakeBoss, ForceSpectator... are only allowed if we are a player)
-			if userList == namedUserList["battleUsers"] and battleStatusDiff['isSpectator'] ~= nil and userName == userControls.lobby:GetMyUserName() then
+			if userList == namedUserList["battleUsers"] and battleStatusDiff and battleStatusDiff['isSpectator'] ~= nil and userName == userControls.lobby:GetMyUserName() then
 				for username, _ in pairs(battleUsers) do
 					UpdateUserComboboxOptions(_, username)
 				end
