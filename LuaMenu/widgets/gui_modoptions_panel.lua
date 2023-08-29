@@ -508,7 +508,8 @@ local function InitializeModoptionsDisplay()
 		modoptions = modoptions or {}
 		for key, value in pairs(modoptions) do
 			if modoptionDefaults[key] == nil or modoptionDefaults[key] ~= value then
-				text = text .. "\255\120\120\120" .. tostring(key) .. " = \255\255\255\255" .. tostring(value) .. "\n"
+				local shortenedValue = string.sub(tostring(value),1,)
+				text = text .. "\255\120\120\120" .. tostring(key) .. " = \255\255\255\255" .. shortenedValue .. "\n"
 				empty = false
 			end
 		end
