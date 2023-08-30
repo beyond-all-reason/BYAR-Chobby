@@ -502,14 +502,22 @@ local function InitializeModoptionsDisplay()
 		parent = mainScrollPanel,
 	}
 
+	local function shortenedValue(value)
+		value = tostring(value)
+		local valueLength = value:len()
+		if valueLength > 32 then
+			value = string.format("%d:%s_%s", valueLength, value:sub(1,16), value:sub(-16))
+		end
+		return value
+	end
+
 	local function OnSetModOptions(listener, modoptions)
 		local text = ""
 		local empty = true
 		modoptions = modoptions or {}
-		for key, value in pairs(modoptions) do
+		for key, value in pairs(modoptions) do		
 			if modoptionDefaults[key] == nil or modoptionDefaults[key] ~= value then
-				local shortenedValue = string.sub(tostring(value),1,32)
-				text = text .. "\255\120\120\120" .. tostring(key) .. " = \255\255\255\255" .. shortenedValue .. "\n"
+				text = text .. "\255\120\120\120" .. tostring(key) .. " = \255\255\255\255" .. shortenedValue(value) .. "\n"
 				empty = false
 			end
 		end
