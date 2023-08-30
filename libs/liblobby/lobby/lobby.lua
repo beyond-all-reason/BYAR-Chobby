@@ -731,7 +731,6 @@ function Lobby:_OnFriendList(friends)
 	for _, userName in pairs(self.friends) do
 		if not newFriendMap[userName] then
 			self:_OnUnfriend(userName)
-			self:_OnRemoveIgnoreUser(userName)
 		end
 	end
 
