@@ -720,7 +720,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		}
 	end
 	]]--
-	if config.devMode then 
+	if battleLobby.name == "singleplayer" or config.devMode then 
 		local comboboxstartpostype = ComboBox:New{
 			name = 'comboboxstartpostype',
 			x = 0,
