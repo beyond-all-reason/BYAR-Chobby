@@ -31,7 +31,14 @@ function Lobby:_Clean()
 	self.ignored = {} -- list
 	self.isIgnored = {} -- map
 	self.ignoredCount = 0
-	self.ignoreListRecieved = false
+	-- self.ignoreListRecieved = false -- ZK specific
+
+	self.avoided = {} -- list
+	self.blocked = {} -- list
+
+	self.relationship = {} -- map
+
+
 	self.loginInfoEndSent = false
 	self.userCountLimited = false
 
@@ -758,12 +765,22 @@ function Lobby:_OnFriendRequestList(friendRequests)
 	self:_CallListeners("OnFriendRequestList", self:GetFriendRequests())
 end
 
+function Lobby:printAvoidLists()
+	Spring.Utilities.TableEcho(self.ignored, "ignored")
+	Spring.Utilities.TableEcho(self.avoided, "avoided")
+	Spring.Utilities.TableEcho(self.blocked, "blocked")
+end
+
 ------------------------
 -- Ignore
 ------------------------
 
 function Lobby:_OnAddIgnoreUser(userName)
+	Spring.Echo("_OnAddIgnoreUser", userName)
+	self:_OnRemoveBlockUser(userName) -- because a user can either be ignored, (ignored and avoided) or (ignored and avoided and blocked)
+	self:_OnRemoveAvoidUser(userName)
 	if self.isIgnored[userName] then
+		Spring.Echo("_OnAddIgnoreUser: user already in ignorelist:", userName)
 		return
 	end
 	table.insert(self.ignored, userName)
@@ -772,10 +789,16 @@ function Lobby:_OnAddIgnoreUser(userName)
 	local userInfo = self:TryGetUser(userName)
 	userInfo.isIgnored = true
 	self:_CallListeners("OnAddIgnoreUser", userName)
+
+	self:printAvoidLists()
 end
 
 function Lobby:_OnRemoveIgnoreUser(userName)
+	Spring.Echo("_OnRemoveIgnoreUser", userName)
+	self:_OnRemoveBlockUser(userName)
+	self:_OnRemoveAvoidUser(userName)
 	if not self.isIgnored[userName] then
+		Spring.Echo("_OnRemoveIgnoreUser: user not found in in ignorelist:", userName)
 		return
 	end
 	for i, v in pairs(self.ignored) do
@@ -792,25 +815,158 @@ function Lobby:_OnRemoveIgnoreUser(userName)
 		userInfo.isIgnored = false
 	end
 	self:_CallListeners("OnRemoveIgnoreUser", userName)
+	self:printAvoidLists()
 end
 
-function Lobby:_OnCleanIgnoreList()
-	local ignoredCp = ShallowCopy(self.ignored)
-	for _, userName in pairs(ignoredCp) do
-		self:_OnRemoveIgnoreUser(userName)
+function Lobby:_OnIgnoreList(ignores)
+	Spring.Echo("_OnIgnoreList")
+	-- 1. remove users from current ignorelist, that are not in the received ignores
+	--    and remove users from received ignores, that are already on ignorelist
+	local ignored = ShallowCopy(self.ignored)
+	for _, userName in pairs(ignored) do
+		local indx = table.ifind(ignores, userName)
+		if not indx then
+			Spring.Echo("_OnIgnoreList: Removing from IgnoreList:", userName)
+			self:_OnRemoveIgnoreUser(userName)
+		else
+			Spring.Echo("_OnIgnoreList: Found user on current IgnoreList:", userName)
+			table.remove(ignores, indx)
+		end
+	end
+	-- 2. add new ignores to ignorelist
+	for _, userName in pairs(ignores) do
+		Spring.Echo("_OnIgnoreList: Addding new user to IgnoreList:", userName)
+		self:_OnAddIgnoreUser(userName)
+	end
+	Spring.Utilities.TableEcho(self.ignored, "ignored")
+end
+
+------------------------
+-- Avoid
+------------------------
+
+function Lobby:_OnAddAvoidUser(userName)
+	Spring.Echo("_OnAddAvoidUser", userName)
+	self:_OnRemoveBlockUser(userName) -- because a user can either be ignored, (ignored and avoided) or (ignored and avoided and blocked)
+	self:_OnAddIgnoreUser(userName) -- because "avoid" includes "ignore"
+	if table.ifind(self.avoided, userName) then
+		Spring.Echo("_OnAddAvoidUser: user already in avoidlist", userName)
+		return
+	end
+
+	table.insert(self.avoided, userName)
+	local userInfo = self:TryGetUser(userName)
+	userInfo.isAvoided = true
+	self:_CallListeners("OnAddAvoidUser", userName)
+	self:printAvoidLists()
+end
+
+function Lobby:_OnRemoveAvoidUser(userName)
+	Spring.Echo("_OnRemoveAvoidUser", userName)
+	self:_OnRemoveBlockUser(userName)
+	local indx = table.ifind(self.avoided, userName)
+	if not indx then
+		Spring.Echo("_OnRemoveAvoidUser: user not found in avoidlist:", userName)
+		return
+	end
+	table.remove(self.avoided, indx)
+	local userInfo = self:GetUser(userName)
+	-- don't need to create offline users in this case
+	if userInfo then
+		userInfo.isAvoided = false
+		self:_CallListeners("OnRemoveAvoidUser", userName)
+	end
+	self:printAvoidLists()
+end
+
+function Lobby:_OnAvoidList(avoids)
+	Spring.Echo("_OnAvoidList")
+	-- 1. remove users from current avoidlist, that are not in the received avoids
+	--    and remove users from received avoids, that are already on avoidlist
+	local avoided = ShallowCopy(self.avoided)
+	for _, userName in pairs(avoided) do
+		local indx = table.ifind(avoids, userName)
+		if not indx then
+			Spring.Echo("_OnAvoidList: Removing from AvoidList:", userName)
+			self:_OnRemoveAvoidUser(userName)
+		else
+			Spring.Echo("_OnAvoidList: Found user on current AvoidList:", userName)
+			table.remove(avoids, indx)
+		end
+	end
+	-- 2. add new avoids to avoidlist
+	for _, userName in pairs(avoids) do
+		Spring.Echo("_OnAvoidList: Addding new user to AvoidList:", userName)
+		self:_OnAddAvoidUser(userName)
+	end
+
+	Spring.Utilities.TableEcho(self.ignored, "ignored")
+	Spring.Utilities.TableEcho(self.avoided, "avoided")
+end
+
+------------------------
+-- Block
+------------------------
+
+function Lobby:_OnAddBlockUser(userName)
+	Spring.Echo("_OnAddBlockUser", userName)
+	self:_OnAddIgnoreUser(userName) -- because "block" includes "ignore" and "avoid"
+	self:_OnAddAvoidUser(userName)
+	if table.ifind(self.blocked, userName) then
+		Spring.Echo("_OnAddBlockUser: user already in blocklist", userName)
+		return
+	end
+
+	table.insert(self.blocked, userName)
+	local userInfo = self:TryGetUser(userName)
+	userInfo.isBlocked = true
+	self:_CallListeners("OnAddBlockUser", userName)
+	self:printAvoidLists()
+end
+
+function Lobby:_OnRemoveBlockUser(userName)
+	Spring.Echo("_OnRemoveBlockUser", userName)
+	local indx = table.ifind(self.blocked, userName)
+	if not indx then
+		Spring.Echo("_OnRemoveBlockUser: user not found in blocklist:", userName)
+		return
+	end
+	table.remove(self.blocked, indx)
+	local userInfo = self:GetUser(userName)
+	-- don't need to create offline users in this case
+	if userInfo then
+		userInfo.isBlocked = false
+		self:_CallListeners("OnRemoveBlockUser", userName)
+	end
+	self:printAvoidLists()
+end
+
+function Lobby:_OnBlockList(blocks)
+	Spring.Echo("_OnBlockList")
+	-- 1. remove users from current blocklist, that are not in the received blocks
+	--    and remove users from received blocks, that are already on blocklist
+	local blocked = ShallowCopy(self.blocked)
+	for _, userName in pairs(blocked) do
+		local indx = table.ifind(blocks, userName)
+		if not indx then
+			Spring.Echo("_OnBlockList: Removing from BlockList:", userName)
+			self:_OnRemoveBlockUser(userName)
+		else
+			Spring.Echo("_OnBlockList: Found user on current BlockList:", userName)
+			table.remove(blocks, indx)
+		end
+	end
+	-- 2. add new blocks to blocklist
+	for _, userName in pairs(blocks) do
+		Spring.Echo("_OnBlockList: Addding new user to BlockList:", userName)
+		self:_OnAddBlockUser(userName)
 	end
 end
 
-function Lobby:_OnIgnoreList(data)
-	return self
-end
 
-function Lobby:_OnIgnoreListEnd(igListNew)
-	self:_OnCleanIgnoreList()
-	for _, igUser in pairs(igListNew) do
-		self:_OnAddIgnoreUser(igUser.userName)
-	end
-end
+
+
+
 
 ------------------------
 -- Battle commands

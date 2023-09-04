@@ -141,6 +141,7 @@ end
 function Interface:Ignore(userName)
 	self:super("Ignore", userName)
 	self:_SendCommand(concat("IGNORE", "userName="..userName))
+	WG.Delay(self:IgnoreList(), 1)
 	return self
 end
 
@@ -153,6 +154,11 @@ end
 function Interface:IgnoreList()
 	self:super("IgnoreList")
 	self:_SendCommand("IGNORELIST")
+	return self
+end
+
+function Interface:c_user_list_relationships()
+	self:_SendCommand("c.user.list_relationships")
 	return self
 end
 
@@ -543,6 +549,8 @@ Interface.commands["REGISTRATIONDENIED"] = Interface._OnRegistrationDenied
 Interface.commandPattern["REGISTRATIONDENIED"] = "([^\t]+)"
 
 function Interface:_OnLoginInfoEnd()
+	self:c_user_list_relationships()
+	
 	self:super("_OnLoginInfoEnd")
 end
 Interface.commands["LOGININFOEND"] = Interface._OnLoginInfoEnd
@@ -680,6 +688,7 @@ Interface.commandPattern["UNFRIEND"] = "(.+)"
 function Interface:_OnFriendList(tags)
 	local tags = parseTags(tags)
 	local userName = getTag(tags, "userName", true)
+	if not self._friendList then self._friendList = {} end
 	table.insert(self._friendList, userName)
 end
 Interface.commands["FRIENDLIST"] = Interface._OnFriendList
@@ -1927,13 +1936,13 @@ function Interface:_OnIgnoreListParse(tags)
 	self:_OnIgnoreList(userName, reason)
 end
 
-local igListNew = {}
+local igListNew = {} -- list
 function Interface:_OnIgnoreList(userName, reason)
-	local igUser = {
-		userName = userName,
-		reason = reason,
-	}
-	igListNew[#igListNew + 1] = igUser
+	-- local igUser = {
+	-- 	userName = userName,
+	-- 	reason = reason,
+	-- }
+	table.insert(igListNew, userName)
 end
 Interface.commands["IGNORELIST"] = Interface._OnIgnoreListParse
 Interface.commandPattern["IGNORELIST"] = "(.+)"
@@ -1944,10 +1953,81 @@ end
 Interface.commands["IGNORELISTBEGIN"] = Interface._OnIgnoreListBegin
 
 function Interface:_OnIgnoreListEnd()
-	self:super("_OnIgnoreListEnd", igListNew)
-	igListNew = {}	
+	self:super("_OnIgnoreList", igListNew)
+	igListNew = {}
 end
 Interface.commands["IGNORELISTEND"] = Interface._OnIgnoreListEnd
+
+
+function Interface:_OnAvoidList(avoids)
+end
+
+function Interface:_OnBlockList(blocks)
+end
+
+function Interface:_On_s_user_list_relationships(data)
+	local relationships = Spring.Utilities.json.decode(Spring.Utilities.Base64Decode(data))
+	Spring.Utilities.TableEcho(relationships, "relationships")
+	if not (relationships.friends and relationships.follows and relationships.ignores and relationships.avoids and relationships.blocks) then
+		Spring.Utilities.TableEcho(relationships, "relationships")
+		Spring.Log(LOG_SECTION, LOG.ERROR, "missing keys in s.user.list_relationships" )
+	end
+	self:super("_OnFriendList", relationships.friends)
+	self:super("_OnIgnoreList", table.merge(table.merge(relationships.ignores, relationships.avoids), relationships.blocks))
+	self:super("_OnAvoidList", table.merge(relationships.avoids, relationships.blocks))
+	self:super("_OnBlockList", relationships.blocks)
+
+	-- ToDo: relationships.follows not yet completely implemented in teiserver
+end
+Interface.commands["s.user.list_relationships"] = Interface._On_s_user_list_relationships
+Interface.commandPattern["s.user.list_relationships"] = "(.+)"
+
+function Interface:_OnAddIgnoreUser(userName)
+	self:super("_OnAddIgnoreUser", userName)
+end
+function Interface:_OnAddAvoidUser(userName)
+	self:super("_OnAddAvoidUser", userName)
+end
+function Interface:_OnAddBlockUser(userName)
+	self:super("_OnAddBlockUser", userName)
+end
+
+-- OK cmd=c.user.block	userName=Fireball
+function Interface:_OnOK(tags)
+	local tags = parseTags(tags)
+	local cmd = getTag(tags, "cmd", true)
+	local userName = getTag(tags, "userName", true)
+	if cmd == 'c.user.ignore' then
+		self:super("_OnAddIgnoreUser", userName)
+	elseif cmd == 'c.user.avoid' then
+		self:super("_OnAddAvoidUser", userName)
+	elseif cmd == 'c.user.block' then
+		self:super("_OnAddBlockUser", userName)
+	else
+		Spring.Log(LOG_SECTION, LOG.WARNING, "Unknown OK received for command", cmd)
+	end
+end
+Interface.commands["OK"] = Interface._OnOK
+Interface.commandPattern["OK"] = "(.+)"
+
+-- NO cmd=c.user.block
+function Interface:_OnNo(tags)
+	local tags = parseTags(tags)
+	local cmd = getTag(tags, "cmd", true)
+	local userName = getTag(tags, "userName", true)
+	Spring.Log(LOG_SECTION, LOG.ERROR, "Command failed", cmd)
+	
+	-- if cmd == 'c.user.ignore' then
+	-- 	self:super("_OnAddIgnoreUser", userName)
+	-- elseif cmd == 'c.user.avoid' then
+	-- 	self:super("_OnAddAvoidUser", userName)
+	-- elseif cmd == 'c.user.block' then
+	-- 	self:super("_OnAddBlockUser", userName)
+	-- end
+end
+Interface.commands["OK"] = Interface._OnOK
+Interface.commandPattern["OK"] = "(.+)"
+
 
 function Interface:_OnInviteTeam(obj)
 	self:_CallListeners("OnInviteTeam", obj.userName)
