@@ -110,10 +110,6 @@ function Configuration:init()
 	self.IGNORE = 1
 	self.AVOID = 2
 	self.BLOCK = 3
-	self.DISREGARDSTATES = {}
-	self.DISREGARDSTATES[self.IGNORE] = "Ignore"
-	self.DISREGARDSTATES[self.AVOID] = "Avoid"
-	self.DISREGARDSTATES[self.BLOCK] = "Block"
 
 
 	self.ignoreLevel = false
@@ -805,7 +801,7 @@ function Configuration:GetFounderColor()
 end
 
 function Configuration:GetDisregardUserNameColor(status)
-	if not isnumber(status) or status < 1 or status > #DISREGARDSTATES then
+	if type(status) ~= "number" or status < 1 or status > 3 then
 		return self.disregardUserNameColor[self.IGNORE]
 	else
 		return self.disregardUserNameColor[status]

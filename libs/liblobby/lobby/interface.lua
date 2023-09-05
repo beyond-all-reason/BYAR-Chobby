@@ -1969,25 +1969,27 @@ function Interface:_OnDisregardList(blocks)
 end
 
 local function buildDisregardList(ignores, avoids, blocks)
+	local Configuration = WG.Chobby.Configuration
 	local disregardList = {}
 	for _, userName in ipairs(blocks) do
-		table.insert(disregardList, {userName = userName, status = BLOCK})
+		table.insert(disregardList, {userName = userName, status = Configuration.BLOCK})
 	end
 	for _, userName in ipairs(avoids) do
 		if table.ifind(disregardList, userName) then
-			Spring.Log(LOG_SECTION, LOG.ERROR, string.format("Found user in more then 1 blanked list (Blocks and Avoids):%s", userName))
+			Spring.Log(LOG_SECTION, LOG.ERROR, string.format("Found same user in 2 disregard lists (%s and %s):%s", "blocks", "avoids", userName))
 		else
-			table.insert(disregardList, {userName = userName, status = AVOID})
+			table.insert(disregardList, {userName = userName, status = Configuration.AVOID})
 		end
 	end
 	for _, userName in ipairs(ignores) do
 		local i = table.ifind(disregardList, userName)
 		if i then
-			Spring.Log(LOG_SECTION, LOG.ERROR, string.format("Found user in more then 1 blanked list (%ss and Ignores):%s", DISREGARDSTATES(disregardList[i][2]) , userName))
+			Spring.Log(LOG_SECTION, LOG.ERROR, string.format("Found same user in 2 disregard lists (%s and %s):%s", disregardList[i].status == Configuration.BLOCK and "blocks" or "avoids", "ignores" , userName))
 		else
-			table.insert(disregardList, {userName = userName, status = IGNORE})
+			table.insert(disregardList, {userName = userName, status = Configuration.IGNORE})
 		end
 	end
+	Spring.Utilities.TableEcho(disregardList, "disregardList")
 	return disregardList
 end
 

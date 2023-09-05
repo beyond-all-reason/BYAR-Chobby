@@ -652,15 +652,30 @@ local function GetUserTooltip(userName, userInfo, userBattleInfo, inBattleroom)
 		userTooltip.clan.Hide()
 	end
 
-	-- Ignore and Friend
-	if userInfo.isIgnored or userInfo.isFriend then
+	-- Disregard and Friend
+	if userInfo.isDisregarded or userInfo.isFriend then
 		if not userTooltip.friendIgnore then
 			userTooltip.friendIgnore = GetTooltipLine(userTooltip.mainControl, true)
 		end
+		local statusText = ""
+		if userInfo.isDisregarded then
+			if userInfo.isDisregarded == Configuration.IGNORE then
+				statusText = i18n("ignored_status")
+			elseif userInfo.isDisregarded == Configuration.AVOID then
+				statusText = i18n("avoided_status")
+			elseif userInfo.isDisregarded == Configuration.BLOCK then
+				statusText = i18n("blocked_status")
+			end
+			if userInfo.isFriend then
+				statusText = statusText .. " & " .. i18n("friend_status")
+			end
+		else
+			statusText = i18n("friend_status")
+		end
 		userTooltip.friendIgnore.Update(
 			offset,
-			userInfo.isIgnored and "Ignored" or "Friend",
-			userInfo.isIgnored and IMAGE_MUTE or IMAGE_FRIEND
+			statusText,
+			userInfo.isDisregarded and IMAGE_MUTE or IMAGE_FRIEND -- ToDo: Add images for Avoid and Block
 		)
 		offset = offset + 20
 	elseif userTooltip.friendIgnore then

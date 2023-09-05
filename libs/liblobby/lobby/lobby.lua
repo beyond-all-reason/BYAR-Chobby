@@ -732,7 +732,6 @@ function Lobby:_OnFriendList(friends)
 		local userName = friends[i]
 		if not self.isFriend[userName] then
 			self:_OnFriend(userName)
-			self:_OnRemoveIgnoreUser(userName)
 		end
 		newFriendMap[userName] = true
 	end
@@ -970,16 +969,30 @@ end
 ------------------------
 
 function Lobby:_OnDisregard(userName, status)
-	table.insert(self.disregarded, {userName = userName, status = status})
+	Spring.Echo("_OnDisregard", userName, status)
+	if self.isDisregarded[userName] then
+		for i = 1, #self.disregarded do
+			if self.disregarded[i].userName == userName then
+				self.disregarded[i].status = status
+				break
+			end
+		end
+	else
+		table.insert(self.disregarded, {userName = userName, status = status})
+	end
 	self.isDisregarded[userName] = status
 	local userInfo = self:TryGetUser(userName)
-	userInfo.isDisregard = status
-	self:_CallListeners("OnDisregard", userName, status)
+	userInfo.isDisregarded = status
+	self:_CallListeners("OnAddDisregardUser", userName)
 end
 
 function Lobby:_OnUnDisregard(userName)
-	for i, v in pairs(self.disregarded) do
-		if v == userName then
+	if not self.isDisregarded[userName] then
+		return
+	end
+
+	for i = 1, #self.disregarded do
+		if self.disregarded[i].userName == userName then
 			table.remove(self.disregarded, i)
 			break
 		end
@@ -988,9 +1001,9 @@ function Lobby:_OnUnDisregard(userName)
 	local userInfo = self:GetUser(userName)
 	-- don't need to create offline users in this case
 	if userInfo then
-		userInfo.isDisregard = nil
+		userInfo.isDisregarded = nil
 	end
-	self:_CallListeners("OnUnDisregard", userName)
+	self:_CallListeners("OnRemoveDisregardUser", userName)
 end
 
 function Lobby:_OnDisregardList(disregards)
@@ -998,7 +1011,8 @@ function Lobby:_OnDisregardList(disregards)
 	for i = 1, #disregards do
 		local userName = disregards[i].userName
 		local status = disregards[i].status
-		if not self.isDisregarded[userName] or self.isDisregarded[userName].status ~= status then
+		Spring.Echo(string.format("_OnDisregardList i=%d userName=%s status=%s", i, userName, status))
+		if not self.isDisregarded[userName] or not self.isDisregarded[userName] or self.isDisregarded[userName] ~= status then
 			self:_OnDisregard(userName, status)
 		end
 		newDisregardedMap[userName] = true
