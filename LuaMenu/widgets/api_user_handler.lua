@@ -318,13 +318,9 @@ local function GetUserStatusImages(userName, isInBattle, userControl)
 end
 
 local function GetUserNameColorFont(userName, userControl)
-	Spring.Echo("userhandler:GetUserNameColorFont = ", userName)
 	local Configuration = WG.Chobby.Configuration
-	
-
 
 	if usersAllowedToVote[userName] then
-		Spring.Echo("userhandler:GetUserNameColorFont:AllowedToVote")
 		return userControl.tbName.font
 	end
 
@@ -334,31 +330,24 @@ local function GetUserNameColorFont(userName, userControl)
 	end
 
 	if userControl.showModerator and userInfo.isAdmin then
-		Spring.Echo("userhandler:GetUserNameColorFont:Moderator")
 		return Configuration:GetFont(1, "Moderator", {color = Configuration:GetModeratorColor()} )
 	end
 	if userControl.showFounder and userInfo.battleID then
 		local battle = lobby:GetBattle(userInfo.battleID)
 		if battle and battle.founder == userName then
-			Spring.Echo("userhandler:GetUserNameColorFont:DisableInteraction:Founder")
 			return Configuration:GetFont(1, "Founder", {color = Configuration:GetFounderColor()} )
 		end
 	end
 	if not userControl.disableInteraction and userName == userControl.lobby:GetMyUserName() then
-		Spring.Echo("userhandler:GetUserNameColorFont:DisableInteraction")
 		return Configuration:GetFont(1, "User", {color = Configuration:GetMyUserNameColor()} )
 	end
 	-- priorize showing friend color over disregard color, though both may be applied at the same time. So user is reminded to unfriend.
 	if userInfo.isFriend then
-		Spring.Echo("userhandler:GetUserNameColorFont:isFriend")
 		return Configuration:GetFont(1, "Friend", {color = Configuration:GetFriendsColor()})
 	end
 	if userInfo.isDisregarded then
-		Spring.Echo("userhandler:GetUserNameColorFont: isDisregarded=", userInfo.isDisregarded)
-		if userControl.strikedUserName and userInfo.isDisregarded == 3 then
-			userControl.strikedUserName:SetVisibility(true)
-		else
-			userControl.strikedUserName:SetVisibility(false)
+		if userControl.strikedUserName then
+			userControl.strikedUserName:SetVisibility(userInfo.isDisregarded == 3)
 		end
 		return Configuration:GetFont(1, "Disregard" .. userInfo.isDisregarded, {color = Configuration:GetDisregardUserNameColor(userInfo.isDisregarded)} )
 	end
