@@ -1965,7 +1965,7 @@ end
 function Interface:_OnBlockList(blocks)
 end
 
-function Interface:_OnBlankedList(blocks)
+function Interface:_OnDisregardList(blocks)
 end
 
 local function buildDisregardList(ignores, avoids, blocks)
