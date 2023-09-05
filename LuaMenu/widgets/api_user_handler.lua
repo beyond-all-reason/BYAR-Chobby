@@ -325,9 +325,6 @@ local function GetUserNameColorFont(userName, userControl)
 	end
 
 	local userInfo = userControl.lobby:GetUser(userName) or {}
-	if not userInfo.isDisregarded and userControl.strikedUserName then
-		userControl.strikedUserName:SetVisibility(false)
-	end
 
 	if userControl.showModerator and userInfo.isAdmin then
 		return Configuration:GetFont(1, "Moderator", {color = Configuration:GetModeratorColor()} )
@@ -346,9 +343,6 @@ local function GetUserNameColorFont(userName, userControl)
 		return Configuration:GetFont(1, "Friend", {color = Configuration:GetFriendsColor()})
 	end
 	if userInfo.isDisregarded then
-		if userControl.strikedUserName then
-			userControl.strikedUserName:SetVisibility(userInfo.isDisregarded == 3)
-		end
 		return Configuration:GetFont(1, "Disregard" .. userInfo.isDisregarded, {color = Configuration:GetDisregardUserNameColor(userInfo.isDisregarded)} )
 	end
 	return Configuration:GetFont(1, "UserName", {color = Configuration:GetUserNameColor()} )
@@ -1336,21 +1330,6 @@ local function GetUserControls(userName, opts)
 	end
 	userControls.nameActualLength = userControls.tbName.font:GetTextWidth(userControls.tbName.text)
 	offset = offset + userControls.nameActualLength
-
-	-- userControls.strikedUserName.width = userControls.nameActualLength
-	-- userControls.strikedUserName:Invalidate()
-
-	userControls.strikedUserName = Line:New{
-		name = 'mystrike',
-		x = 0,
-		y = 1, --25
-		-- right = 0,
-		height = 4,
-		width = userControls.nameActualLength,
-		parent = userControls.tbName
-	}
-
-	userControls.strikedUserName:SetVisibility(false)
 
 	if showTeamColor then
 		offset = offset + 5
