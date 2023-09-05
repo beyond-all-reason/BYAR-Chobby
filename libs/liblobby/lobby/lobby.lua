@@ -998,7 +998,7 @@ function Lobby:_OnDisregardList(disregards)
 	for i = 1, #disregards do
 		local userName = disregards[i].userName
 		local status = disregards[i].status
-		if not self.isDisregardeded[userName] or self.isDisregardeded[userName].status ~= status then
+		if not self.isDisregarded[userName] or self.isDisregarded[userName].status ~= status then
 			self:_OnDisregard(userName, status)
 		end
 		newDisregardedMap[userName] = true
@@ -1010,7 +1010,7 @@ function Lobby:_OnDisregardList(disregards)
 		end
 	end
 
-	self:_CallListeners("OnDisregardList", self:GetDisregards())
+	--self:_CallListeners("OnDisregardList", self:GetDisregards())
 end
 
 
