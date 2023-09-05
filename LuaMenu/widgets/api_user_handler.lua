@@ -332,8 +332,8 @@ local function GetUserNameColorFont(userName, userControl)
 	if userInfo.isFriend then
 		return Configuration:GetFont(1, "Friend", {color = Configuration:GetFriendsColor()})
 	end
-	if userInfo.isIgnored then
-		return Configuration:GetFont(1, "Ignored", {color = Configuration:GetIgnoredUserNameColor()} )
+	if userInfo.isDisregard then
+		return Configuration:GetFont(1, "Disregard" .. userInfo.isDisregard, {color = Configuration:GetDisregardUserNameColor()} )
 	end
 	return Configuration:GetFont(1, "UserName", {color = Configuration:GetUserNameColor()} )
 end
@@ -1614,6 +1614,8 @@ local function AddListeners()
 	lobby:AddListener("OnUnfriend", UpdateUserActivity)
 	lobby:AddListener("OnAddIgnoreUser", UpdateUserActivity)
 	lobby:AddListener("OnRemoveIgnoreUser", UpdateUserActivity)
+	lobby:AddListener("OnAddDisregardUser", UpdateUserActivity)
+	lobby:AddListener("OnRemoveDisregardUser", UpdateUserActivity)
 
 	lobby:AddListener("OnPartyInviteSent", UpdateUserActivity)
 	lobby:AddListener("OnPartyInviteResponse", UpdateUserActivity)

@@ -5,6 +5,15 @@
 VFS.Include(LIB_LOBBY_DIRNAME .. "observable.lua")
 VFS.Include(LIB_LOBBY_DIRNAME .. "utilities.lua")
 
+local IGNORE = 1
+local AVOID = 2
+local BLOCK = 3
+local DISREGARDSTATES = {
+	IGNORE = "Ignore",
+	AVOID = "Avoid",
+	BLOCK = "Block",
+}
+
 function Lobby:init()
 	self.listeners = {}
 	-- don't use these fields directly, they are subject to change
@@ -35,8 +44,8 @@ function Lobby:_Clean()
 
 	self.avoided = {} -- list
 	self.blocked = {} -- list
-
-	self.relationship = {} -- map
+	self.disregarded = {} -- list
+	self.isDisregarded = {} -- map
 
 
 	self.loginInfoEndSent = false
@@ -963,9 +972,53 @@ function Lobby:_OnBlockList(blocks)
 	end
 end
 
+------------------------
+-- Disregard (Ignore/Avoid/Block)
+------------------------
 
+function Lobby:_OnDisregard(userName, status)
+	table.insert(self.disregards, {userName = userName, status = status})
+	self.isDisregard[userName] = status
+	local userInfo = self:TryGetUser(userName)
+	userInfo.isDisregard = status
+	self:_CallListeners("OnDisregard", userName, status)
+end
 
+function Lobby:_OnUnDisregard(userName)
+	for i, v in pairs(self.disregards) do
+		if v == userName then
+			table.remove(self.disregards, i)
+			break
+		end
+	end
+	self.isDisregard[userName] = nil
+	local userInfo = self:GetUser(userName)
+	-- don't need to create offline users in this case
+	if userInfo then
+		userInfo.isDisregard = nil
+	end
+	self:_CallListeners("OnUnDisregard", userName)
+end
 
+function Lobby:_OnDisregardList(disregards)
+	local newDisregardedMap = {}
+	for i = 1, #disregards do
+		local userName = disregards[i].userName
+		local status = disregards[i].status
+		if not self.isDisregarded[userName] or self.isDisregarded[userName].status ~= status then
+			self:_OnDisregard(userName, status)
+		end
+		newDisregardedMap[userName] = true
+	end
+
+	for _, userName in pairs(self.disregards) do
+		if not newDisregardedMap[userName] then
+			self:_OnUnDisregard(userName)
+		end
+	end
+
+	self:_CallListeners("OnDisregardList", self:GetDisregards())
+end
 
 
 ------------------------

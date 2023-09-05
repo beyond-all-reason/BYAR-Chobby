@@ -1965,17 +1965,48 @@ end
 function Interface:_OnBlockList(blocks)
 end
 
+function Interface:_OnBlankedList(blocks)
+end
+
+local function buildDisregardList(ignores, avoids, blocks)
+	local disregardList = {}
+	for _, userName in ipairs(blocks) do
+		table.insert(disregardList, {userName = userName, status = BLOCK})
+	end
+	for _, userName in ipairs(avoids) do
+		if table.ifind(disregardList, userName) then
+			Spring.Log(LOG_SECTION, LOG.ERROR, string.format("Found user in more then 1 blanked list (Blocks and Avoids):%s", userName))
+		else
+			table.insert(disregardList, {userName = userName, status = AVOID})
+		end
+	end
+	for _, userName in ipairs(ignores) do
+		local i = table.ifind(disregardList, userName)
+		if i then
+			Spring.Log(LOG_SECTION, LOG.ERROR, string.format("Found user in more then 1 blanked list (%ss and Ignores):%s", DISREGARDSTATES(disregardList[i][2]) , userName))
+		else
+			table.insert(disregardList, {userName = userName, status = IGNORE})
+		end
+	end
+	return disregardList
+end
+
 function Interface:_On_s_user_list_relationships(data)
 	local relationships = Spring.Utilities.json.decode(Spring.Utilities.Base64Decode(data))
 	Spring.Utilities.TableEcho(relationships, "relationships")
-	if not (relationships.friends and relationships.follows and relationships.ignores and relationships.avoids and relationships.blocks) then
+	if not (relationships and relationships.friends and relationships.follows and relationships.ignores and relationships.avoids and relationships.blocks) then
 		Spring.Utilities.TableEcho(relationships, "relationships")
-		Spring.Log(LOG_SECTION, LOG.ERROR, "missing keys in s.user.list_relationships" )
+		Spring.Log(LOG_SECTION, LOG.ERROR, "missing keys or json could not be parsed in s.user.list_relationships" )
+		return
 	end
+	
 	self:super("_OnFriendList", relationships.friends)
-	self:super("_OnIgnoreList", table.merge(table.merge(relationships.ignores, relationships.avoids), relationships.blocks))
-	self:super("_OnAvoidList", table.merge(relationships.avoids, relationships.blocks))
-	self:super("_OnBlockList", relationships.blocks)
+
+	self:super("_OnDisregardList", buildDisregardList(relationships.ignores, relationships.avoids, relationships.blocks))
+	
+	-- self:super("_OnIgnoreList", table.merge(table.merge(relationships.ignores, relationships.avoids), relationships.blocks))
+	-- self:super("_OnAvoidList", table.merge(relationships.avoids, relationships.blocks))
+	-- self:super("_OnBlockList", relationships.blocks)
 
 	-- ToDo: relationships.follows not yet completely implemented in teiserver
 end

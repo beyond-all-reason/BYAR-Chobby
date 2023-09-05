@@ -107,6 +107,15 @@ function Configuration:init()
 		lobby = {},
 	}
 
+	self.IGNORE = 1
+	self.AVOID = 2
+	self.BLOCK = 3
+	self.DISREGARDSTATES = {}
+	self.DISREGARDSTATES[self.IGNORE] = "Ignore"
+	self.DISREGARDSTATES[self.AVOID] = "Avoid"
+	self.DISREGARDSTATES[self.BLOCK] = "Block"
+
+
 	self.ignoreLevel = false
 
 	self.errorColor = "\255\255\0\0"
@@ -120,7 +129,12 @@ function Configuration:init()
 
 	self.moderatorColor = {0.2, 1.0, 0.2, 1}
 	self.founderColor = {0.7, 1, 0.65, 1}
-	self.ignoredUserNameColor = {0.6, 0.6, 0.6, 1}
+
+	self.disregardUserNameColor = {}
+	self.disregardUserNameColor[self.IGNORE] = {0.6, 0.6, 0.6, 1}
+	self.disregardUserNameColor[self.AVOID] = {0.8, 0.6, 0.6, 1}
+	self.disregardUserNameColor[self.BLOCK] = {0.6, 0.6, 0.8, 1}
+
 	self.userNameColor = {1, 1, 1, 1}
 	self.myUserNameColor = {0.8, 0.3, 0.9, 1}
 	self.friendsColor = {0.8, 0.4, 0.1, 1}
@@ -790,8 +804,12 @@ function Configuration:GetFounderColor()
 	return self.founderColor
 end
 
-function Configuration:GetIgnoredUserNameColor()
-	return self.ignoredUserNameColor
+function Configuration:GetDisregardUserNameColor(status)
+	if not isnumber(status) or status < 1 or status > #DISREGARDSTATES then
+		return self.disregardUserNameColor[self.IGNORE]
+	else
+		return self.disregardUserNameColor[status]
+	end
 end
 
 function Configuration:GetUserNameColor()
