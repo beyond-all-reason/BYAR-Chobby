@@ -110,6 +110,7 @@ function Configuration:init()
 	self.IGNORE = 1
 	self.AVOID = 2
 	self.BLOCK = 3
+	self.disregardStatusNames = {"IGNORE", "AVOID", "BLOCK"}
 
 
 	self.ignoreLevel = false
@@ -128,8 +129,8 @@ function Configuration:init()
 
 	self.disregardUserNameColor = {}
 	self.disregardUserNameColor[self.IGNORE] = {0.6, 0.6, 0.6, 1}
-	self.disregardUserNameColor[self.AVOID] = {0.8, 0.6, 0.6, 1}
-	self.disregardUserNameColor[self.BLOCK] = {0.6, 0.6, 0.8, 1}
+	self.disregardUserNameColor[self.AVOID] = {0.8, 0.8, 0.6, 1}
+	self.disregardUserNameColor[self.BLOCK] = {0.8, 0.6, 0.6, 1}
 
 	self.userNameColor = {1, 1, 1, 1}
 	self.myUserNameColor = {0.8, 0.3, 0.9, 1}
@@ -806,6 +807,14 @@ function Configuration:GetDisregardUserNameColor(status)
 	else
 		return self.disregardUserNameColor[status]
 	end
+end
+
+function Configuration:GetDisregardStatusName(status)
+	if type(status) ~= "number" or status < 1 or status > 3 then
+		Spring.Log(LOG_SECTION, LOG.ERROR, "invalid status", status)
+		return false
+	end
+	return self.disregardStatusNames[status]
 end
 
 function Configuration:GetUserNameColor()

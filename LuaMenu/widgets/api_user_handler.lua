@@ -191,6 +191,7 @@ local function GetUserClanImage(userName, userControl)
 end
 
 local function GetUserComboBoxOptions(userName, isInBattle, control, showTeamColor, showSide)
+	local Configuration = WG.Chobby.Configuration
 	local info = control.lobby:GetUser(userName) or {}
 	local bs = control.lobby:GetUserBattleStatus(userName) or {}
 	local myUserName = control.lobby:GetMyUserName()
@@ -205,7 +206,14 @@ local function GetUserComboBoxOptions(userName, isInBattle, control, showTeamCol
 	if isInBattle and not (itsme or bs.aiLib or info.isBot) then													comboOptions[#comboOptions + 1] = "Ring" end
 	if not (itsme or bs.aiLib or isInBattle) and info.battleID then													comboOptions[#comboOptions + 1] = "Join Battle" end
 	if not (itsme or bs.aiLib or info.isBot) then																	comboOptions[#comboOptions + 1] = info.isFriend and "Unfriend" or "Friend"
-																													comboOptions[#comboOptions + 1] = info.isIgnored and "Unignore" or "Ignore" end
+																													-- comboOptions[#comboOptions + 1] = info.isDisregarded and "Unignore"
+									      if info.isDisregarded and info.isDisregarded == Configuration.IGNORE then comboOptions[#comboOptions + 1] = "Unignore"
+																													comboOptions[#comboOptions + 1] = "Avoid"
+									  elseif info.isDisregarded and info.isDisregarded == Configuration.AVOID then  comboOptions[#comboOptions + 1] = "Unavoid"
+																													comboOptions[#comboOptions + 1] = "Block"
+									  elseif info.isDisregarded and info.isDisregarded == Configuration.BLOCK then  comboOptions[#comboOptions + 1] = "Unblock"
+									  else																		    comboOptions[#comboOptions + 1] = "Ignore"end
+	end
 	if showSide and not bs.isSpectator and (itsme or (bs.aiLib and bs.owner == myUserName)) then					comboOptions[#comboOptions + 1] = "Change Faction" end
 	if isInBattle and not bs.isSpectator and (iAmBoss or iPlay or (bs.aiLib and bs.owner == myUserName)) then		comboOptions[#comboOptions + 1] = "Change Team"
 																													comboOptions[#comboOptions + 1] = "Add Bonus" end
@@ -313,12 +321,18 @@ local function GetUserNameColorFont(userName, userControl)
 	Spring.Echo("userhandler:GetUserNameColorFont = ", userName)
 	local Configuration = WG.Chobby.Configuration
 	
+
+
 	if usersAllowedToVote[userName] then
 		Spring.Echo("userhandler:GetUserNameColorFont:AllowedToVote")
 		return userControl.tbName.font
 	end
 
 	local userInfo = userControl.lobby:GetUser(userName) or {}
+	if not userInfo.isDisregarded and userControl.strikedUserName then
+		userControl.strikedUserName:SetVisibility(false)
+	end
+
 	if userControl.showModerator and userInfo.isAdmin then
 		Spring.Echo("userhandler:GetUserNameColorFont:Moderator")
 		return Configuration:GetFont(1, "Moderator", {color = Configuration:GetModeratorColor()} )
@@ -341,6 +355,11 @@ local function GetUserNameColorFont(userName, userControl)
 	end
 	if userInfo.isDisregarded then
 		Spring.Echo("userhandler:GetUserNameColorFont: isDisregarded=", userInfo.isDisregarded)
+		if userControl.strikedUserName and userInfo.isDisregarded == 3 then
+			userControl.strikedUserName:SetVisibility(true)
+		else
+			userControl.strikedUserName:SetVisibility(false)
+		end
 		return Configuration:GetFont(1, "Disregard" .. userInfo.isDisregarded, {color = Configuration:GetDisregardUserNameColor(userInfo.isDisregarded)} )
 	end
 	return Configuration:GetFont(1, "UserName", {color = Configuration:GetUserNameColor()} )
@@ -879,7 +898,7 @@ local function GetUserControls(userName, opts)
 			selected = 0,
 			maxDropDownWidth = large and 220 or 150,
 			minDropDownHeight = 0,
-			maxDropDownHeight = 340,
+			maxDropDownHeight = 400,
 			items = GetUserComboBoxOptions(userName, isInBattle, userControls, showTeamColor, showSide),
 			OnOpen = {
 				function (obj)
@@ -1059,9 +1078,13 @@ local function GetUserControls(userName, opts)
 							WG.BrowserHandler.OpenUrl(Configuration.gameConfig.link_reportPlayer(userInfo.accountID))
 						end
 					elseif selectedName == "Unignore" then
-						userControls.lobby:Unignore(userName)
-					elseif selectedName == "Ignore" then
-						userControls.lobby:Ignore(userName)
+						userControls.lobby:c_user_reset_relationship(userName)
+					elseif selectedName == "Ignore" or selectedName == "Unavoid" then
+						userControls.lobby:c_user_relationship(userName, Configuration.IGNORE)
+					elseif selectedName == "Avoid" or selectedName == "Unblock" then
+						userControls.lobby:c_user_relationship(userName, Configuration.AVOID)
+					elseif selectedName == "Block" then
+						userControls.lobby:c_user_relationship(userName, Configuration.BLOCK)
 					elseif selectedName == "Report User" then
 						WG.TextEntryWindow.CreateTextEntryWindow({
 							defaultValue = "",
@@ -1307,6 +1330,10 @@ local function GetUserControls(userName, opts)
 		text = userName,
 	}
 
+
+
+
+
 	local truncatedName = StringUtilities.TruncateStringIfRequiredAndDotDot(userName, userControls.tbName.font, maxNameLength and (maxNameLength - offset))
 	userControls.nameStartY = offset
 	userControls.maxNameLength = maxNameLength
@@ -1320,6 +1347,21 @@ local function GetUserControls(userName, opts)
 	end
 	userControls.nameActualLength = userControls.tbName.font:GetTextWidth(userControls.tbName.text)
 	offset = offset + userControls.nameActualLength
+
+	-- userControls.strikedUserName.width = userControls.nameActualLength
+	-- userControls.strikedUserName:Invalidate()
+
+	userControls.strikedUserName = Line:New{
+		name = 'mystrike',
+		x = 0,
+		y = 1, --25
+		-- right = 0,
+		height = 4,
+		width = userControls.nameActualLength,
+		parent = userControls.tbName
+	}
+
+	userControls.strikedUserName:SetVisibility(false)
 
 	if showTeamColor then
 		offset = offset + 5
@@ -1620,8 +1662,6 @@ local function AddListeners()
 
 	lobby:AddListener("OnFriend", UpdateUserActivity)
 	lobby:AddListener("OnUnfriend", UpdateUserActivity)
-	lobby:AddListener("OnAddIgnoreUser", UpdateUserActivity)
-	lobby:AddListener("OnRemoveIgnoreUser", UpdateUserActivity)
 	lobby:AddListener("OnAddDisregardUser", UpdateUserActivity)
 	lobby:AddListener("OnRemoveDisregardUser", UpdateUserActivity)
 

@@ -138,29 +138,26 @@ function Interface:Unfriend(userName)
 	return self
 end
 
-function Interface:Ignore(userName)
-	self:super("Ignore", userName)
-	self:_SendCommand(concat("IGNORE", "userName="..userName))
-	WG.Delay(self:IgnoreList(), 1)
-	return self
-end
-
-function Interface:Unignore(userName)
-	self:super("Unignore", userName)
-	self:_SendCommand(concat("UNIGNORE", "userName="..userName))
-	return self
-end
-
-function Interface:IgnoreList()
-	self:super("IgnoreList")
-	self:_SendCommand("IGNORELIST")
-	return self
-end
-
 function Interface:c_user_list_relationships()
 	self:_SendCommand("c.user.list_relationships")
 	return self
 end
+
+function Interface:c_user_relationship(userName, status)
+	local statusName = WG.Chobby.Configuration:GetDisregardStatusName(status)
+	if not statusName then
+		return self
+	end
+	-- self:_SendCommand(concat("c.user.relationship", "userName=" .. userName) .. "\t" .. "closeness=" .. status)
+	self:_SendCommand(concat("c.user.relationship", userName) .. "\t" .. statusName)
+	return self
+end
+
+function Interface:c_user_reset_relationship(userName)
+	self:_SendCommand(concat("c.user.reset_relationship", userName))
+	return self
+end
+
 
 ------------------------
 -- Battle commands
@@ -1929,45 +1926,6 @@ end
 Interface.commands["UDPSOURCEPORT"] = Interface._OnUDPSourcePort
 Interface.commandPattern["UDPSOURCEPORT"] = "(%d+)"
 
-function Interface:_OnIgnoreListParse(tags)
-	local tags = parseTags(tags)
-	local userName = getTag(tags, "userName", true)
-	local reason = getTag(tags, "reason")
-	self:_OnIgnoreList(userName, reason)
-end
-
-local igListNew = {} -- list
-function Interface:_OnIgnoreList(userName, reason)
-	-- local igUser = {
-	-- 	userName = userName,
-	-- 	reason = reason,
-	-- }
-	table.insert(igListNew, userName)
-end
-Interface.commands["IGNORELIST"] = Interface._OnIgnoreListParse
-Interface.commandPattern["IGNORELIST"] = "(.+)"
-
-function Interface:_OnIgnoreListBegin()
-	igListNew = {}
-end
-Interface.commands["IGNORELISTBEGIN"] = Interface._OnIgnoreListBegin
-
-function Interface:_OnIgnoreListEnd()
-	self:super("_OnIgnoreList", igListNew)
-	igListNew = {}
-end
-Interface.commands["IGNORELISTEND"] = Interface._OnIgnoreListEnd
-
-
-function Interface:_OnAvoidList(avoids)
-end
-
-function Interface:_OnBlockList(blocks)
-end
-
-function Interface:_OnDisregardList(blocks)
-end
-
 local function buildDisregardList(ignores, avoids, blocks)
 	local Configuration = WG.Chobby.Configuration
 	local disregardList = {}
@@ -2001,41 +1959,42 @@ function Interface:_On_s_user_list_relationships(data)
 		Spring.Log(LOG_SECTION, LOG.ERROR, "missing keys or json could not be parsed in s.user.list_relationships" )
 		return
 	end
-	
+
 	self:super("_OnFriendList", relationships.friends)
 
-	self:super("_OnDisregardList", buildDisregardList(relationships.ignores, relationships.avoids, relationships.blocks))
-	
-	-- self:super("_OnIgnoreList", table.merge(table.merge(relationships.ignores, relationships.avoids), relationships.blocks))
-	-- self:super("_OnAvoidList", table.merge(relationships.avoids, relationships.blocks))
-	-- self:super("_OnBlockList", relationships.blocks)
+	self:_OnDisregardList(buildDisregardList(relationships.ignores, relationships.avoids, relationships.blocks))
 
-	-- ToDo: relationships.follows not yet completely implemented in teiserver
+	-- ToDo: relationships.follows > when implemented completly on teiserver
 end
 Interface.commands["s.user.list_relationships"] = Interface._On_s_user_list_relationships
 Interface.commandPattern["s.user.list_relationships"] = "(.+)"
 
-function Interface:_OnAddIgnoreUser(userName)
-	self:super("_OnAddIgnoreUser", userName)
-end
-function Interface:_OnAddAvoidUser(userName)
-	self:super("_OnAddAvoidUser", userName)
-end
-function Interface:_OnAddBlockUser(userName)
-	self:super("_OnAddBlockUser", userName)
-end
 
 -- OK cmd=c.user.block	userName=Fireball
 function Interface:_OnOK(tags)
+	local Configuration = WG.Chobby.Configuration
 	local tags = parseTags(tags)
 	local cmd = getTag(tags, "cmd", true)
 	local userName = getTag(tags, "userName", true)
+	local status = getTag(tags, "closeness", false)
+	if status then
+		status = status:lower()
+		status = status == "ignore" and Configuration.IGNORE or
+				 status == "avoid"  and Configuration.AVOID or
+				 status == "block"  and Configuration.BLOCK
+	end
 	if cmd == 'c.user.ignore' then
-		self:super("_OnAddIgnoreUser", userName)
+		self:_OnDisregard(userName, Configuration.IGNORE)
 	elseif cmd == 'c.user.avoid' then
-		self:super("_OnAddAvoidUser", userName)
+		self:_OnDisregard(userName, Configuration.AVOID)
 	elseif cmd == 'c.user.block' then
-		self:super("_OnAddBlockUser", userName)
+		self:_OnDisregard(userName, Configuration.BLOCK)
+	elseif cmd == 'c.user.relationship' and status then
+		self:_OnDisregard(userName, status)
+	elseif cmd == 'c.user.relationship' then
+		self:c_user_list_relationships()
+	elseif cmd == 'c.user.reset_relationship' then
+		self:_OnUnDisregard(userName)
 	else
 		Spring.Log(LOG_SECTION, LOG.WARNING, "Unknown OK received for command", cmd)
 	end
@@ -2048,15 +2007,7 @@ function Interface:_OnNo(tags)
 	local tags = parseTags(tags)
 	local cmd = getTag(tags, "cmd", true)
 	local userName = getTag(tags, "userName", true)
-	Spring.Log(LOG_SECTION, LOG.ERROR, "Command failed", cmd)
-	
-	-- if cmd == 'c.user.ignore' then
-	-- 	self:super("_OnAddIgnoreUser", userName)
-	-- elseif cmd == 'c.user.avoid' then
-	-- 	self:super("_OnAddAvoidUser", userName)
-	-- elseif cmd == 'c.user.block' then
-	-- 	self:super("_OnAddBlockUser", userName)
-	-- end
+	Spring.Log(LOG_SECTION, LOG.ERROR, "Command failed", cmd, userName)
 end
 Interface.commands["OK"] = Interface._OnOK
 Interface.commandPattern["OK"] = "(.+)"
