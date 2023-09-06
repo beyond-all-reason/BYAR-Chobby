@@ -5,8 +5,6 @@
 VFS.Include(LIB_LOBBY_DIRNAME .. "observable.lua")
 VFS.Include(LIB_LOBBY_DIRNAME .. "utilities.lua")
 
-
-
 function Lobby:init()
 	self.listeners = {}
 	-- don't use these fields directly, they are subject to change
@@ -29,10 +27,7 @@ function Lobby:_Clean()
 	self.hasFriendRequest = {} -- map
 	self.friendRequestCount = 0
 	self.friendListRecieved = false
-
-	self.disregarded = {} -- list
 	self.isDisregarded = {} -- map
-
 
 	self.loginInfoEndSent = false
 	self.userCountLimited = false
@@ -751,17 +746,6 @@ end
 ------------------------
 
 function Lobby:_OnDisregard(userName, status)
-	Spring.Echo("_OnDisregard", userName, status)
-	if self.isDisregarded[userName] then
-		for i = 1, #self.disregarded do
-			if self.disregarded[i].userName == userName then
-				self.disregarded[i].status = status
-				break
-			end
-		end
-	else
-		table.insert(self.disregarded, {userName = userName, status = status})
-	end
 	self.isDisregarded[userName] = status
 	local userInfo = self:TryGetUser(userName)
 	userInfo.isDisregarded = status
@@ -769,21 +753,12 @@ function Lobby:_OnDisregard(userName, status)
 end
 
 function Lobby:_OnUnDisregard(userName)
-	Spring.Echo("_OnUnDisregard", userName)
 	if not self.isDisregarded[userName] then
-		Spring.Echo("_OnUnDisregard username not disregarded")
 		return
 	end
 
-	for i = 1, #self.disregarded do
-		if self.disregarded[i].userName == userName then
-			table.remove(self.disregarded, i)
-			break
-		end
-	end
 	self.isDisregarded[userName] = nil
-	local userInfo = self:GetUser(userName)
-	-- don't need to create offline users in this case
+	local userInfo = self:GetUser(userName) -- don't need to create offline users in this case
 	if userInfo then
 		userInfo.isDisregarded = nil
 	end
@@ -795,22 +770,18 @@ function Lobby:_OnDisregardList(disregards)
 	for i = 1, #disregards do
 		local userName = disregards[i].userName
 		local status = disregards[i].status
-		Spring.Echo(string.format("_OnDisregardList i=%d userName=%s status=%s", i, userName, status))
-		if not self.isDisregarded[userName] or not self.isDisregarded[userName] or self.isDisregarded[userName] ~= status then
+		if not self.isDisregarded[userName] or self.isDisregarded[userName] ~= status then
 			self:_OnDisregard(userName, status)
 		end
 		newDisregardedMap[userName] = true
 	end
 
-	for _, userName in pairs(self.disregarded) do
+	for userName in pairs(self.isDisregarded) do
 		if not newDisregardedMap[userName] then
 			self:_OnUnDisregard(userName)
 		end
 	end
-
-	--self:_CallListeners("OnDisregardList", self:GetDisregards())
 end
-
 
 ------------------------
 -- Battle commands

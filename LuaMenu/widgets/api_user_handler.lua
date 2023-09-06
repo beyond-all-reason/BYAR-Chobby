@@ -206,13 +206,12 @@ local function GetUserComboBoxOptions(userName, isInBattle, control, showTeamCol
 	if isInBattle and not (itsme or bs.aiLib or info.isBot) then													comboOptions[#comboOptions + 1] = "Ring" end
 	if not (itsme or bs.aiLib or isInBattle) and info.battleID then													comboOptions[#comboOptions + 1] = "Join Battle" end
 	if not (itsme or bs.aiLib or info.isBot) then																	comboOptions[#comboOptions + 1] = info.isFriend and "Unfriend" or "Friend"
-																													-- comboOptions[#comboOptions + 1] = info.isDisregarded and "Unignore"
-									      if info.isDisregarded and info.isDisregarded == Configuration.IGNORE then comboOptions[#comboOptions + 1] = "Unignore"
+									  if info.isDisregarded and info.isDisregarded == Configuration.IGNORE then     comboOptions[#comboOptions + 1] = "Unignore"
 																													comboOptions[#comboOptions + 1] = "Avoid"
 									  elseif info.isDisregarded and info.isDisregarded == Configuration.AVOID then  comboOptions[#comboOptions + 1] = "Unavoid"
 																													comboOptions[#comboOptions + 1] = "Block"
 									  elseif info.isDisregarded and info.isDisregarded == Configuration.BLOCK then  comboOptions[#comboOptions + 1] = "Unblock"
-									  else																		    comboOptions[#comboOptions + 1] = "Ignore"end
+									  else																		    comboOptions[#comboOptions + 1] = "Ignore" end
 	end
 	if showSide and not bs.isSpectator and (itsme or (bs.aiLib and bs.owner == myUserName)) then					comboOptions[#comboOptions + 1] = "Change Faction" end
 	if isInBattle and not bs.isSpectator and (iAmBoss or iPlay or (bs.aiLib and bs.owner == myUserName)) then		comboOptions[#comboOptions + 1] = "Change Team"
@@ -881,7 +880,7 @@ local function GetUserControls(userName, opts)
 			selected = 0,
 			maxDropDownWidth = large and 220 or 150,
 			minDropDownHeight = 0,
-			maxDropDownHeight = 400,
+			maxDropDownHeight = 370,
 			items = GetUserComboBoxOptions(userName, isInBattle, userControls, showTeamColor, showSide),
 			OnOpen = {
 				function (obj)
@@ -1061,7 +1060,7 @@ local function GetUserControls(userName, opts)
 							WG.BrowserHandler.OpenUrl(Configuration.gameConfig.link_reportPlayer(userInfo.accountID))
 						end
 					elseif selectedName == "Unignore" then
-						userControls.lobby:c_user_reset_relationship(userName)
+						userControls.lobby:c_user_reset_relationship(userName) -- provisionally: removes disregards and follows
 					elseif selectedName == "Ignore" or selectedName == "Unavoid" then
 						userControls.lobby:c_user_relationship(userName, Configuration.IGNORE)
 					elseif selectedName == "Avoid" or selectedName == "Unblock" then
@@ -1312,10 +1311,6 @@ local function GetUserControls(userName, opts)
 		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(1),
 		text = userName,
 	}
-
-
-
-
 
 	local truncatedName = StringUtilities.TruncateStringIfRequiredAndDotDot(userName, userControls.tbName.font, maxNameLength and (maxNameLength - offset))
 	userControls.nameStartY = offset

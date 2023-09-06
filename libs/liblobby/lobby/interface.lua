@@ -145,10 +145,9 @@ end
 
 function Interface:c_user_relationship(userName, status)
 	local Configuration = WG.Chobby.Configuration
-	local statusName = WG.Chobby.Configuration:GetDisregardStatusName(status)
-	if not statusName then
-		return self
-	end
+
+	local statusName = Configuration:GetDisregardStatusName(status)
+	-- use these commands instead until c.user.relationship is completly implemented at teiserver (currently it returns an incomplete answer)
 	if status == Configuration.IGNORE then
 		self:_SendCommand(concat("c.user.ignore", userName))
 	elseif status == Configuration.AVOID then
@@ -161,11 +160,12 @@ function Interface:c_user_relationship(userName, status)
 	return self
 end
 
+-- removes follows, ignores, avoids, and block
+-- provisionally used to unignore sb. until unignore has a working dedicated command
 function Interface:c_user_reset_relationship(userName)
 	self:_SendCommand(concat("c.user.reset_relationship", userName))
 	return self
 end
-
 
 ------------------------
 -- Battle commands
@@ -554,8 +554,6 @@ Interface.commands["REGISTRATIONDENIED"] = Interface._OnRegistrationDenied
 Interface.commandPattern["REGISTRATIONDENIED"] = "([^\t]+)"
 
 function Interface:_OnLoginInfoEnd()
-	self:c_user_list_relationships()
-	
 	self:super("_OnLoginInfoEnd")
 end
 Interface.commands["LOGININFOEND"] = Interface._OnLoginInfoEnd
@@ -693,7 +691,10 @@ Interface.commandPattern["UNFRIEND"] = "(.+)"
 function Interface:_OnFriendList(tags)
 	local tags = parseTags(tags)
 	local userName = getTag(tags, "userName", true)
-	if not self._friendList then self._friendList = {} end
+	if not self._friendList then
+		Spring.Log(LOG_SECTION, LOG.ERROR, "Received FRIENDLIST command without preceding FRIENDLISTBEGIN")
+		self._friendList = {}
+	end
 	table.insert(self._friendList, userName)
 end
 Interface.commands["FRIENDLIST"] = Interface._OnFriendList
@@ -706,7 +707,7 @@ Interface.commands["FRIENDLISTBEGIN"] = Interface._OnFriendListBegin
 
 function Interface:_OnFriendListEnd()
 	self:super("_OnFriendList", self._friendList)
-	self._friendList = {}
+	self._friendList = nil
 end
 Interface.commands["FRIENDLISTEND"] = Interface._OnFriendListEnd
 
@@ -1955,24 +1956,21 @@ local function buildDisregardList(ignores, avoids, blocks)
 			table.insert(disregardList, {userName = userName, status = Configuration.IGNORE})
 		end
 	end
-	Spring.Utilities.TableEcho(disregardList, "disregardList")
 	return disregardList
 end
 
 function Interface:_On_s_user_list_relationships(data)
 	local relationships = Spring.Utilities.json.decode(Spring.Utilities.Base64Decode(data))
-	Spring.Utilities.TableEcho(relationships, "relationships")
+
 	if not (relationships and relationships.friends and relationships.follows and relationships.ignores and relationships.avoids and relationships.blocks) then
-		Spring.Utilities.TableEcho(relationships, "relationships")
 		Spring.Log(LOG_SECTION, LOG.ERROR, "missing keys or json could not be parsed in s.user.list_relationships" )
+		Spring.Utilities.TableEcho(relationships, "relationships")
 		return
 	end
 
 	self:super("_OnFriendList", relationships.friends)
-
 	self:_OnDisregardList(buildDisregardList(relationships.ignores, relationships.avoids, relationships.blocks))
-
-	-- ToDo: relationships.follows > when implemented completly on teiserver
+	-- ToDo: relationships.follows > waits until completly implemented at teiserver
 end
 Interface.commands["s.user.list_relationships"] = Interface._On_s_user_list_relationships
 Interface.commandPattern["s.user.list_relationships"] = "(.+)"
@@ -1984,25 +1982,16 @@ function Interface:_OnOK(tags)
 	local tags = parseTags(tags)
 	local cmd = getTag(tags, "cmd", true)
 	local userName = getTag(tags, "userName", true)
-	local status = getTag(tags, "closeness", false)
-	if status then
-		status = status:lower()
-		status = status == "ignore" and Configuration.IGNORE or
-				 status == "avoid"  and Configuration.AVOID or
-				 status == "block"  and Configuration.BLOCK
-	end
+
 	if cmd == 'c.user.ignore' then
 		self:_OnDisregard(userName, Configuration.IGNORE)
 	elseif cmd == 'c.user.avoid' then
 		self:_OnDisregard(userName, Configuration.AVOID)
 	elseif cmd == 'c.user.block' then
 		self:_OnDisregard(userName, Configuration.BLOCK)
-	elseif cmd == 'c.user.relationship' and status then
-		self:_OnDisregard(userName, status)
-	elseif cmd == 'c.user.relationship' then
-		self:c_user_list_relationships()
 	elseif cmd == 'c.user.reset_relationship' then
 		self:_OnUnDisregard(userName)
+		-- resets follows too: this waits until completly implemented at teiserver
 	else
 		Spring.Log(LOG_SECTION, LOG.WARNING, "Unknown OK received for command", cmd)
 	end
@@ -2010,16 +1999,14 @@ end
 Interface.commands["OK"] = Interface._OnOK
 Interface.commandPattern["OK"] = "(.+)"
 
--- NO cmd=c.user.block
 function Interface:_OnNo(tags)
 	local tags = parseTags(tags)
-	local cmd = getTag(tags, "cmd", true)
-	local userName = getTag(tags, "userName", true)
-	Spring.Log(LOG_SECTION, LOG.ERROR, "Command failed", cmd, userName)
+	local cmd = getTag(tags, "cmd", false) or "unknown"
+	local userName = getTag(tags, "userName", false) or "unknown"
+	Spring.Log(LOG_SECTION, LOG.ERROR, string.format("Server answered NO to command=%s and userName=%s", cmd, userName))
 end
 Interface.commands["OK"] = Interface._OnOK
 Interface.commandPattern["OK"] = "(.+)"
-
 
 function Interface:_OnInviteTeam(obj)
 	self:_CallListeners("OnInviteTeam", obj.userName)

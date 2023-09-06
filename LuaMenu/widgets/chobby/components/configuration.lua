@@ -112,7 +112,6 @@ function Configuration:init()
 	self.BLOCK = 3
 	self.disregardStatusNames = {"IGNORE", "AVOID", "BLOCK"}
 
-
 	self.ignoreLevel = false
 
 	self.errorColor = "\255\255\0\0"
@@ -803,7 +802,8 @@ end
 
 function Configuration:GetDisregardUserNameColor(status)
 	if type(status) ~= "number" or status < 1 or status > 3 then
-		return self.disregardUserNameColor[self.IGNORE]
+		Spring.Log(LOG_SECTION, LOG.ERROR, "Asked for a not existing disregard user name color:", status)
+		return self.userNameColor
 	else
 		return self.disregardUserNameColor[status]
 	end
@@ -811,8 +811,8 @@ end
 
 function Configuration:GetDisregardStatusName(status)
 	if type(status) ~= "number" or status < 1 or status > 3 then
-		Spring.Log(LOG_SECTION, LOG.ERROR, "invalid status", status)
-		return false
+		Spring.Log(LOG_SECTION, LOG.ERROR, "Asked for a not existing disregard status name:", status)
+		return "ERROR"
 	end
 	return self.disregardStatusNames[status]
 end
