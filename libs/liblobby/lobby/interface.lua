@@ -144,12 +144,20 @@ function Interface:c_user_list_relationships()
 end
 
 function Interface:c_user_relationship(userName, status)
+	local Configuration = WG.Chobby.Configuration
 	local statusName = WG.Chobby.Configuration:GetDisregardStatusName(status)
 	if not statusName then
 		return self
 	end
-	-- self:_SendCommand(concat("c.user.relationship", "userName=" .. userName) .. "\t" .. "closeness=" .. status)
-	self:_SendCommand(concat("c.user.relationship", userName) .. "\t" .. statusName)
+	if status == Configuration.IGNORE then
+		self:_SendCommand(concat("c.user.ignore", userName))
+	elseif status == Configuration.AVOID then
+		self:_SendCommand(concat("c.user.avoid", userName))
+	elseif status == Configuration.BLOCK then
+		self:_SendCommand(concat("c.user.block", userName))
+	else
+		Spring.Log(LOG_SECTION, LOG.ERROR, "Tried to send a non existing relationship change:", status)
+	end
 	return self
 end
 
