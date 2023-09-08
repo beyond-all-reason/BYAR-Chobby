@@ -159,25 +159,20 @@ end
 ------------------------
 -- Battle commands
 ------------------------
-
--- 2023-03-08 Fireball: stop sneaky changes to lobby´s battleStatus properties here - listeners depend on lobby´s event OnUpdateUserBattleStatus
---                      instead call _OnUpdateUserBattleStatus in SetBattleStatus, which sets the new values and spreads them correctly
 local function UpdateAndCreateMerge(userData, status)
 	local battleStatus = {}
 	local updated = false
 	if status.isReady ~= nil then
 		updated = updated or userData.isReady ~= status.isReady
 		battleStatus.isReady = status.isReady
-		-- userData.isReady     = status.isReady
 	else
-		battleStatus.isReady = userData.isReady -- self:GetMyIsReady()
+		battleStatus.isReady = userData.isReady
 	end
 	if status.teamNumber ~= nil then
 		updated = updated or userData.teamNumber ~= status.teamNumber
 		battleStatus.teamNumber = status.teamNumber
-		-- userData.teamNumber     = status.teamNumber
 	else
-		battleStatus.teamNumber = userData.teamNumber or 0 -- self:GetMyTeamNumber() or 0
+		battleStatus.teamNumber = userData.teamNumber or 0
 	end
 	if status.teamColor ~= nil then
 		if userData.teamColor == nil then
@@ -190,40 +185,34 @@ local function UpdateAndCreateMerge(userData, status)
 			end
 		end
 		battleStatus.teamColor = status.teamColor
-		-- userData.teamColor     = status.teamColor
 	else
-		battleStatus.teamColor = userData.teamColor -- self:GetMyTeamColor()
+		battleStatus.teamColor = userData.teamColor
 	end
 	if status.allyNumber ~= nil then
 		updated = updated or userData.allyNumber ~= status.allyNumber
 		battleStatus.allyNumber = status.allyNumber
-		-- userData.allyNumber     = status.allyNumber
 	else
-		battleStatus.allyNumber = userData.allyNumber or 0 -- self:GetMyAllyNumber() or 0
+		battleStatus.allyNumber = userData.allyNumber or 0
 	end
 	if status.isSpectator ~= nil then
 		updated = updated or userData.isSpectator ~= status.isSpectator
 		battleStatus.isSpectator = status.isSpectator
-		-- userData.isSpectator     = status.isSpectator
 	else
-		battleStatus.isSpectator = userData.isSpectator -- self:GetMyIsSpectator()
+		battleStatus.isSpectator = userData.isSpectator
 	end
 	if status.sync ~= nil then
 		updated = updated or userData.sync ~= status.sync
 		battleStatus.sync = status.sync
-		-- userData.sync     = status.sync
 	else
-		battleStatus.sync = userData.sync -- self:GetMySync()
+		battleStatus.sync = userData.sync
 	end
 	if status.side ~= nil then
 		updated = updated or userData.side ~= status.side
 		battleStatus.side = status.side
-		-- userData.side     = status.side
 	else
-		battleStatus.side = userData.side or 0 -- self:GetMySide() or 0
+		battleStatus.side = userData.side or 0
 	end
 
-	--battleStatus.isReady = not battleStatus.isSpectator
 	return battleStatus, updated
 end
 
@@ -924,6 +913,12 @@ function Interface:_OnUpdateBot(battleID, name, battleStatus, teamColor)
 	battleID = tonumber(battleID)
 	local status = ParseBattleStatus(battleStatus)
 	status.teamColor = ParseTeamColor(teamColor)
+	local knownBattleAI = table.ifind(self.battleAis, name)
+	if not knownBattleAI then
+		Spring.Log(LOG_SECTION, LOG.ERROR, string.format("Tried to update unknown bot:%s in battle:%s", name, battleID))
+		return
+	end
+	status.owner = self.userBattleStatus[name] and self.userBattleStatus[name].owner
 	self:_OnUpdateUserBattleStatus(name, status)
 end
 Interface.commands["UPDATEBOT"] = Interface._OnUpdateBot
