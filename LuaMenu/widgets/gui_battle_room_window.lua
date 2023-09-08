@@ -1662,6 +1662,13 @@ local function SortPlayersByQueued(a, b)
 	return string.lower(a.name) < string.lower(b.name)
 end
 
+local function SortTeams(a, b)
+	-- use abs to place queued(-1) above specs(-2)
+	local teamA = math.abs(tonumber(a.name))
+	local teamB = math.abs(tonumber(b.name))
+	return teamA < teamB
+end
+
 local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 
 	local SPACING = 24
@@ -1714,6 +1721,7 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 
 	local function PositionChildren(panel, minHeight)
 		local children = panel.children
+		table.sort(children, SortTeams)
 
 		minHeight = minHeight - 10
 
@@ -1982,7 +1990,6 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 
 			function teamData.CheckRemoval()
 				if teamStack:IsEmpty() and teamIndex ~= -2 then
-					local removeHolder = false
 
 					if disallowCustomTeams then
 						if teamIndex > 1 then
@@ -1994,14 +2001,8 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 						end
 					else
 						if teamIndex > 1 then
-							local maxTeam = 0
-							for teamID,_ in pairs(team) do
-								maxTeam = math.max(teamID, maxTeam)
-							end
-							if teamIndex == maxTeam then
-								teamData.RemoveTeam()
-								return true
-							end
+							teamData.RemoveTeam()
+							return true
 						elseif teamIndex == -1 then
 							teamHolder:SetVisibility(false)
 							return true

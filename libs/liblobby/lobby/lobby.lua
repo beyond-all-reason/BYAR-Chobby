@@ -1071,7 +1071,7 @@ function Lobby:_OnUpdateUserBattleStatus(userName, status)
 	local statusNew = status
 
 	if (statusNew.owner == nil and not self.users[userName]) or
-	   (statusNew.owner ~= nil and not self.users[statusNew.owner]) then
+		(statusNew.owner ~= nil and not self.users[statusNew.owner]) then
 		Spring.Log(LOG_SECTION, LOG.ERROR, "Tried to update non connected user in battle: ", userName)
 		return
 	end
