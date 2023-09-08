@@ -47,6 +47,20 @@ local tooltipOverride = nil
 
 --------------------------------------------------------------------------
 --------------------------------------------------------------------------
+-- Helpers
+local function sortfunc(t)
+	local st = {}
+	for k,v in pairs(t) do
+		if type(v) ~= "table" then 
+			table.insert(st, { k, v })
+		end
+	end
+	table.sort(st, function(a,b) return a[1] < b[1] end )
+	return st
+ end
+
+--------------------------------------------------------------------------
+--------------------------------------------------------------------------
 -- Initialization
 
 local function InitWindow()
@@ -508,17 +522,9 @@ local function GetBattleTooltip(battleID, battle)
 				y      = 200,
 				right  = 5,
 				bottom = 5,
-				parent = tipWindow,
 				margin = {0,0,0,0},
-				objectOverrideFont = WG.Chobby.Configuration:GetFont(14, "tooltip_debug", 
-						{
-							font             = "fonts/n019003l.pfb",
-							outline          = true,
-							autoOutlineColor = true,
-							outlineWidth     = 3,
-							outlineWeight    = 4,
-						}, true),
-				objectOverrideHintFont = WG.Chobby.Configuration:GetFont(14, "tooltip_debug", _, true),
+				objectOverrideFont = Configuration:GetFont(10),
+				objectOverrideHintFont = Configuration:GetFont(10),
 				parent = battleTooltip.mainControl,
 			}
 		end
@@ -528,16 +534,19 @@ local function GetBattleTooltip(battleID, battle)
 			battleTooltip.mainControl:AddChild(battleTooltip.debugText)
 		end
 
-		local text = "battleID = " .. battleID
-		for key, value in pairs(battle) do
-			text = text .. "\n" .. key .. " = " .. tostring(value)
+		local text = ""
+		local n = ""
+		local st = sortfunc(battle)
+		for _, kv in ipairs(st) do
+			text = text .. n .. kv[1] .. " = " .. tostring(kv[2])
+			n = "\n"
 		end
 
 		battleTooltip.debugText:SetText(text)
 		battleTooltip.debugText:UpdateLayout()
-		local _, _, numLines = battleTooltip.debugText.font:GetTextHeight(text)
-		local height = numLines * 14 + 8 + 7
 
+		local numLines = #battleTooltip.debugText.physicalLines
+		local height = numLines * Configuration.font[10].size
 		offset = offset + height
 	elseif battleTooltip.debugText and battleTooltip.debugText.parent then
 		battleTooltip.mainControl:RemoveChild(battleTooltip.debugText)
@@ -828,17 +837,9 @@ local function GetUserTooltip(userName, userInfo, userBattleInfo, inBattleroom)
 				y      = 200,
 				right  = 5,
 				bottom = 5,
-				parent = tipWindow,
 				margin = {0,0,0,0},
-				objectOverrideFont = WG.Chobby.Configuration:GetFont(14, "tooltip_debug", 
-						{
-							font             = "fonts/n019003l.pfb",
-							outline          = true,
-							autoOutlineColor = true,
-							outlineWidth     = 3,
-							outlineWeight    = 4,
-						}, true),
-				objectOverrideHintFont = WG.Chobby.Configuration:GetFont(14, "tooltip_debug", _, true),
+				objectOverrideFont = Configuration:GetFont(10),
+				objectOverrideHintFont = Configuration:GetFont(10),
 				parent = userTooltip.mainControl,
 			}
 		end
@@ -848,19 +849,27 @@ local function GetUserTooltip(userName, userInfo, userBattleInfo, inBattleroom)
 			userTooltip.mainControl:AddChild(userTooltip.debugText)
 		end
 
-		local text = userName
-		for key, value in pairs(userInfo) do
-			text = text .. "\n" .. key .. " = " .. tostring(value)
+
+		local st = sortfunc(userInfo)
+		local n = ""
+		local text = ""
+		for _, kv in ipairs(st) do
+			text = text .. n .. kv[1] .. " = " .. tostring(kv[2])
+			n = "\n"
 		end
-		for key, value in pairs(userBattleInfo) do
-			text = text .. "\n" .. key .. " = " .. tostring(value)
+		if next(userBattleInfo) then
+			text = text .. "\n" .. "────────────────"
+			st = sortfunc(userBattleInfo)
+			for _, kv in ipairs(st) do
+				text = text .. "\n" .. kv[1] .. " = " .. tostring(kv[2])
+			end
 		end
 
 		userTooltip.debugText:SetText(text)
 		userTooltip.debugText:UpdateLayout()
-		local _, _, numLines = userTooltip.debugText.font:GetTextHeight(text)
-		local height = numLines * 14 + 8 + 7
 
+		local numLines = #userTooltip.debugText.physicalLines
+		local height = numLines * Configuration.font[10].size
 		offset = offset + height
 	elseif userTooltip.debugText and userTooltip.debugText.parent then
 		userTooltip.mainControl:RemoveChild(userTooltip.debugText)
