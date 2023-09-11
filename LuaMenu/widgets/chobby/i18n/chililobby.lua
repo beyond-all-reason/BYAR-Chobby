@@ -278,6 +278,10 @@ return {
 		battle_status  = "In battle",
 		afk_status     = "Away",
 		online_status  = "Online",
+		friend_status  = "Friend",
+		ignored_status = "Ignored",
+		avoided_status   = "Avoided",
+		blocked_status   = "Blocked",
 
 		-- friend_list_window.lua
 		friend_request = "Friend request",

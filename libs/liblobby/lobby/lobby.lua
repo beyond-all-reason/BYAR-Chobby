@@ -27,11 +27,8 @@ function Lobby:_Clean()
 	self.hasFriendRequest = {} -- map
 	self.friendRequestCount = 0
 	self.friendListRecieved = false
+	self.isDisregarded = {} -- map
 
-	self.ignored = {} -- list
-	self.isIgnored = {} -- map
-	self.ignoredCount = 0
-	self.ignoreListRecieved = false
 	self.loginInfoEndSent = false
 	self.userCountLimited = false
 
@@ -195,18 +192,6 @@ function Lobby:DeclineFriendRequest(userName)
 end
 
 function Lobby:Unfriend(userName, steamID)
-	return self
-end
-
-function Lobby:Ignore(userName)
-	return self
-end
-
-function Lobby:Unignore(userName)
-	return self
-end
-
-function Lobby:IgnoreList()
 	return self
 end
 
@@ -581,7 +566,6 @@ function Lobby:_OnAddUser(userName, status)
 		userInfo = {
 			userName = userName,
 			isFriend = self.isFriend[userName],
-			isIgnored = self.isIgnored[userName],
 			hasFriendRequest = self.hasFriendRequest[userName],
 		}
 		self.users[userName] = userInfo
@@ -723,7 +707,6 @@ function Lobby:_OnFriendList(friends)
 		local userName = friends[i]
 		if not self.isFriend[userName] then
 			self:_OnFriend(userName)
-			self:_OnRemoveIgnoreUser(userName)
 		end
 		newFriendMap[userName] = true
 	end
@@ -759,56 +742,44 @@ function Lobby:_OnFriendRequestList(friendRequests)
 end
 
 ------------------------
--- Ignore
+-- Disregard (Ignore/Avoid/Block)
 ------------------------
 
-function Lobby:_OnAddIgnoreUser(userName)
-	if self.isIgnored[userName] then
-		return
-	end
-	table.insert(self.ignored, userName)
-	self.isIgnored[userName] = true
-	self.ignoredCount = self.ignoredCount + 1
+function Lobby:_OnDisregard(userName, status)
+	self.isDisregarded[userName] = status
 	local userInfo = self:TryGetUser(userName)
-	userInfo.isIgnored = true
-	self:_CallListeners("OnAddIgnoreUser", userName)
+	userInfo.isDisregarded = status
+	self:_CallListeners("OnAddDisregardUser", userName)
 end
 
-function Lobby:_OnRemoveIgnoreUser(userName)
-	if not self.isIgnored[userName] then
+function Lobby:_OnUnDisregard(userName)
+	if not self.isDisregarded[userName] then
 		return
 	end
-	for i, v in pairs(self.ignored) do
-		if v == userName then
-			table.remove(self.ignored, i)
-			break
-		end
-	end
-	self.isIgnored[userName] = false
-	self.ignoredCount = self.ignoredCount - 1
-	local userInfo = self:GetUser(userName)
-	-- don't need to create offline users in this case
+
+	self.isDisregarded[userName] = nil
+	local userInfo = self:GetUser(userName) -- don't need to create offline users in this case
 	if userInfo then
-		userInfo.isIgnored = false
+		userInfo.isDisregarded = nil
 	end
-	self:_CallListeners("OnRemoveIgnoreUser", userName)
+	self:_CallListeners("OnRemoveDisregardUser", userName)
 end
 
-function Lobby:_OnCleanIgnoreList()
-	local ignoredCp = ShallowCopy(self.ignored)
-	for _, userName in pairs(ignoredCp) do
-		self:_OnRemoveIgnoreUser(userName)
+function Lobby:_OnDisregardList(disregards)
+	local newDisregardedMap = {}
+	for i = 1, #disregards do
+		local userName = disregards[i].userName
+		local status = disregards[i].status
+		if not self.isDisregarded[userName] or self.isDisregarded[userName] ~= status then
+			self:_OnDisregard(userName, status)
+		end
+		newDisregardedMap[userName] = true
 	end
-end
 
-function Lobby:_OnIgnoreList(data)
-	return self
-end
-
-function Lobby:_OnIgnoreListEnd(igListNew)
-	self:_OnCleanIgnoreList()
-	for _, igUser in pairs(igListNew) do
-		self:_OnAddIgnoreUser(igUser.userName)
+	for userName in pairs(self.isDisregarded) do
+		if not newDisregardedMap[userName] then
+			self:_OnUnDisregard(userName)
+		end
 	end
 end
 
@@ -1731,13 +1702,6 @@ function Lobby:GetFriendRequests()
 	return ShallowCopy(self.friendRequests)
 end
 
--- ignore
-function Lobby:GetignoredCount()
-	return self.ignoredCount
-end
-function Lobby:Getignored()
-	return ShallowCopy(self.ignored)
-end
 
 -- battles
 function Lobby:GetBattleCount()

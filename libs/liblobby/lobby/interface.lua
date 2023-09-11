@@ -138,21 +138,32 @@ function Interface:Unfriend(userName)
 	return self
 end
 
-function Interface:Ignore(userName)
-	self:super("Ignore", userName)
-	self:_SendCommand(concat("IGNORE", "userName="..userName))
+function Interface:c_user_list_relationships()
+	self:_SendCommand("c.user.list_relationships")
 	return self
 end
 
-function Interface:Unignore(userName)
-	self:super("Unignore", userName)
-	self:_SendCommand(concat("UNIGNORE", "userName="..userName))
+function Interface:c_user_relationship(userName, status)
+	local Configuration = WG.Chobby.Configuration
+
+	local statusName = Configuration:GetDisregardStatusName(status)
+	-- use these commands instead until c.user.relationship is completly implemented at teiserver (currently it returns an incomplete answer)
+	if status == Configuration.IGNORE then
+		self:_SendCommand(concat("c.user.ignore", userName))
+	elseif status == Configuration.AVOID then
+		self:_SendCommand(concat("c.user.avoid", userName))
+	elseif status == Configuration.BLOCK then
+		self:_SendCommand(concat("c.user.block", userName))
+	else
+		Spring.Log(LOG_SECTION, LOG.ERROR, "Tried to send a non existing relationship change:", status)
+	end
 	return self
 end
 
-function Interface:IgnoreList()
-	self:super("IgnoreList")
-	self:_SendCommand("IGNORELIST")
+-- removes follows, ignores, avoids, and block
+-- provisionally used to unignore sb. until unignore has a working dedicated command
+function Interface:c_user_reset_relationship(userName)
+	self:_SendCommand(concat("c.user.reset_relationship", userName))
 	return self
 end
 
@@ -671,6 +682,10 @@ Interface.commandPattern["UNFRIEND"] = "(.+)"
 function Interface:_OnFriendList(tags)
 	local tags = parseTags(tags)
 	local userName = getTag(tags, "userName", true)
+	if not self._friendList then
+		Spring.Log(LOG_SECTION, LOG.ERROR, "Received FRIENDLIST command without preceding FRIENDLISTBEGIN")
+		self._friendList = {}
+	end
 	table.insert(self._friendList, userName)
 end
 Interface.commands["FRIENDLIST"] = Interface._OnFriendList
@@ -683,7 +698,7 @@ Interface.commands["FRIENDLISTBEGIN"] = Interface._OnFriendListBegin
 
 function Interface:_OnFriendListEnd()
 	self:super("_OnFriendList", self._friendList)
-	self._friendList = {}
+	self._friendList = nil
 end
 Interface.commands["FRIENDLISTEND"] = Interface._OnFriendListEnd
 
@@ -1944,34 +1959,78 @@ end
 Interface.commands["UDPSOURCEPORT"] = Interface._OnUDPSourcePort
 Interface.commandPattern["UDPSOURCEPORT"] = "(%d+)"
 
-function Interface:_OnIgnoreListParse(tags)
+local function buildDisregardList(ignores, avoids, blocks)
+	local Configuration = WG.Chobby.Configuration
+	local disregardList = {}
+	for _, userName in ipairs(blocks) do
+		table.insert(disregardList, {userName = userName, status = Configuration.BLOCK})
+	end
+	for _, userName in ipairs(avoids) do
+		if table.ifind(disregardList, userName) then
+			Spring.Log(LOG_SECTION, LOG.ERROR, string.format("Found same user in 2 disregard lists (%s and %s):%s", "blocks", "avoids", userName))
+		else
+			table.insert(disregardList, {userName = userName, status = Configuration.AVOID})
+		end
+	end
+	for _, userName in ipairs(ignores) do
+		local i = table.ifind(disregardList, userName)
+		if i then
+			Spring.Log(LOG_SECTION, LOG.ERROR, string.format("Found same user in 2 disregard lists (%s and %s):%s", disregardList[i].status == Configuration.BLOCK and "blocks" or "avoids", "ignores" , userName))
+		else
+			table.insert(disregardList, {userName = userName, status = Configuration.IGNORE})
+		end
+	end
+	return disregardList
+end
+
+function Interface:_On_s_user_list_relationships(data)
+	local relationships = Spring.Utilities.json.decode(Spring.Utilities.Base64Decode(data))
+
+	if not (relationships and relationships.friends and relationships.follows and relationships.ignores and relationships.avoids and relationships.blocks) then
+		Spring.Log(LOG_SECTION, LOG.ERROR, "missing keys or json could not be parsed in s.user.list_relationships" )
+		Spring.Utilities.TableEcho(relationships, "relationships")
+		return
+	end
+
+	self:super("_OnFriendList", relationships.friends)
+	self:_OnDisregardList(buildDisregardList(relationships.ignores, relationships.avoids, relationships.blocks))
+	-- ToDo: relationships.follows > waits until completly implemented at teiserver
+end
+Interface.commands["s.user.list_relationships"] = Interface._On_s_user_list_relationships
+Interface.commandPattern["s.user.list_relationships"] = "(.+)"
+
+
+-- OK cmd=c.user.block	userName=Fireball
+function Interface:_OnOK(tags)
+	local Configuration = WG.Chobby.Configuration
 	local tags = parseTags(tags)
+	local cmd = getTag(tags, "cmd", true)
 	local userName = getTag(tags, "userName", true)
-	local reason = getTag(tags, "reason")
-	self:_OnIgnoreList(userName, reason)
-end
 
-local igListNew = {}
-function Interface:_OnIgnoreList(userName, reason)
-	local igUser = {
-		userName = userName,
-		reason = reason,
-	}
-	igListNew[#igListNew + 1] = igUser
+	if cmd == 'c.user.ignore' then
+		self:_OnDisregard(userName, Configuration.IGNORE)
+	elseif cmd == 'c.user.avoid' then
+		self:_OnDisregard(userName, Configuration.AVOID)
+	elseif cmd == 'c.user.block' then
+		self:_OnDisregard(userName, Configuration.BLOCK)
+	elseif cmd == 'c.user.reset_relationship' then
+		self:_OnUnDisregard(userName)
+		-- resets follows too: this waits until completly implemented at teiserver
+	else
+		Spring.Log(LOG_SECTION, LOG.WARNING, "Unknown OK received for command", cmd)
+	end
 end
-Interface.commands["IGNORELIST"] = Interface._OnIgnoreListParse
-Interface.commandPattern["IGNORELIST"] = "(.+)"
+Interface.commands["OK"] = Interface._OnOK
+Interface.commandPattern["OK"] = "(.+)"
 
-function Interface:_OnIgnoreListBegin()
-	igListNew = {}
+function Interface:_OnNo(tags)
+	local tags = parseTags(tags)
+	local cmd = getTag(tags, "cmd", false) or "unknown"
+	local userName = getTag(tags, "userName", false) or "unknown"
+	Spring.Log(LOG_SECTION, LOG.ERROR, string.format("Server answered NO to command=%s and userName=%s", cmd, userName))
 end
-Interface.commands["IGNORELISTBEGIN"] = Interface._OnIgnoreListBegin
-
-function Interface:_OnIgnoreListEnd()
-	self:super("_OnIgnoreListEnd", igListNew)
-	igListNew = {}	
-end
-Interface.commands["IGNORELISTEND"] = Interface._OnIgnoreListEnd
+Interface.commands["OK"] = Interface._OnOK
+Interface.commandPattern["OK"] = "(.+)"
 
 function Interface:_OnInviteTeam(obj)
 	self:_CallListeners("OnInviteTeam", obj.userName)

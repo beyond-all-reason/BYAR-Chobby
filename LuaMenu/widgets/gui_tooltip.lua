@@ -27,7 +27,9 @@ local TOOLTIP_TEXT_NAME = "tooltipText"
 
 local IMAGE_MODERATOR    = LUA_DIRNAME .. "images/ranks/moderator.png"
 local IMAGE_FRIEND       = LUA_DIRNAME .. "images/ranks/friend.png"
-local IMAGE_MUTE         = LUA_DIRNAME .. "images/ranks/noChat.png"
+local IMAGE_IGNORE       = LUA_DIRNAME .. "images/ignored.png"
+local IMAGE_AVOID        = LUA_DIRNAME .. "images/avoided.png"
+local IMAGE_BLOCK        = LUA_DIRNAME .. "images/blocked.png"
 local IMAGE_AFK          = LUA_DIRNAME .. "images/away.png"
 local IMAGE_BATTLE       = LUA_DIRNAME .. "images/battle.png"
 local IMAGE_INGAME       = LUA_DIRNAME .. "images/ingame.png"
@@ -661,16 +663,31 @@ local function GetUserTooltip(userName, userInfo, userBattleInfo, inBattleroom)
 		userTooltip.clan.Hide()
 	end
 
-	-- Ignore and Friend
-	if userInfo.isIgnored or userInfo.isFriend then
+	-- Disregard and Friend
+	if userInfo.isDisregarded or userInfo.isFriend then
 		if not userTooltip.friendIgnore then
 			userTooltip.friendIgnore = GetTooltipLine(userTooltip.mainControl, true)
 		end
-		userTooltip.friendIgnore.Update(
-			offset,
-			userInfo.isIgnored and "Ignored" or "Friend",
-			userInfo.isIgnored and IMAGE_MUTE or IMAGE_FRIEND
-		)
+		local statusText = ""
+		local img = IMAGE_FRIEND
+		if userInfo.isDisregarded then
+			if userInfo.isDisregarded == Configuration.IGNORE then
+				statusText = i18n("ignored_status")
+				img = IMAGE_IGNORE
+			elseif userInfo.isDisregarded == Configuration.AVOID then
+				statusText = i18n("avoided_status")
+				img = IMAGE_AVOID
+			elseif userInfo.isDisregarded == Configuration.BLOCK then
+				statusText = i18n("blocked_status")
+				img = IMAGE_BLOCK
+			end
+			if userInfo.isFriend then
+				statusText = statusText .. " & " .. i18n("friend_status")
+			end
+		else
+			statusText = i18n("friend_status")
+		end
+		userTooltip.friendIgnore.Update(offset, statusText, img)
 		offset = offset + 20
 	elseif userTooltip.friendIgnore then
 		userTooltip.friendIgnore:Hide()

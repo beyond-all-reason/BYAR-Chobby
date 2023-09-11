@@ -191,6 +191,7 @@ local function GetUserClanImage(userName, userControl)
 end
 
 local function GetUserComboBoxOptions(userName, isInBattle, control, showTeamColor, showSide)
+	local Configuration = WG.Chobby.Configuration
 	local info = control.lobby:GetUser(userName) or {}
 	local bs = control.lobby:GetUserBattleStatus(userName) or {}
 	local myUserName = control.lobby:GetMyUserName()
@@ -205,7 +206,13 @@ local function GetUserComboBoxOptions(userName, isInBattle, control, showTeamCol
 	if isInBattle and not (itsme or bs.aiLib or info.isBot) then													comboOptions[#comboOptions + 1] = "Ring" end
 	if not (itsme or bs.aiLib or isInBattle) and info.battleID then													comboOptions[#comboOptions + 1] = "Join Battle" end
 	if not (itsme or bs.aiLib or info.isBot) then																	comboOptions[#comboOptions + 1] = info.isFriend and "Unfriend" or "Friend"
-																													comboOptions[#comboOptions + 1] = info.isIgnored and "Unignore" or "Ignore" end
+									  if info.isDisregarded and info.isDisregarded == Configuration.IGNORE then     comboOptions[#comboOptions + 1] = "Unignore"
+																													comboOptions[#comboOptions + 1] = "Avoid"
+									  elseif info.isDisregarded and info.isDisregarded == Configuration.AVOID then  comboOptions[#comboOptions + 1] = "Unavoid"
+																													comboOptions[#comboOptions + 1] = "Block"
+									  elseif info.isDisregarded and info.isDisregarded == Configuration.BLOCK then  comboOptions[#comboOptions + 1] = "Unblock"
+									  else																		    comboOptions[#comboOptions + 1] = "Ignore" end
+	end
 	if showSide and not bs.isSpectator and (itsme or (bs.aiLib and bs.owner == myUserName)) then					comboOptions[#comboOptions + 1] = "Change Faction" end
 	if isInBattle and not bs.isSpectator and (iAmBoss or iPlay or (bs.aiLib and bs.owner == myUserName)) then		comboOptions[#comboOptions + 1] = "Change Team"
 																													comboOptions[#comboOptions + 1] = "Add Bonus" end
@@ -311,12 +318,13 @@ end
 
 local function GetUserNameColorFont(userName, userControl)
 	local Configuration = WG.Chobby.Configuration
-	
+
 	if usersAllowedToVote[userName] then
 		return userControl.tbName.font
 	end
 
 	local userInfo = userControl.lobby:GetUser(userName) or {}
+
 	if userControl.showModerator and userInfo.isAdmin then
 		return Configuration:GetFont(1, "Moderator", {color = Configuration:GetModeratorColor()} )
 	end
@@ -329,11 +337,12 @@ local function GetUserNameColorFont(userName, userControl)
 	if not userControl.disableInteraction and userName == userControl.lobby:GetMyUserName() then
 		return Configuration:GetFont(1, "User", {color = Configuration:GetMyUserNameColor()} )
 	end
+	-- priorize showing friend color over disregard color, though both may be applied at the same time. So user is reminded to unfriend.
 	if userInfo.isFriend then
 		return Configuration:GetFont(1, "Friend", {color = Configuration:GetFriendsColor()})
 	end
-	if userInfo.isIgnored then
-		return Configuration:GetFont(1, "Ignored", {color = Configuration:GetIgnoredUserNameColor()} )
+	if userInfo.isDisregarded then
+		return Configuration:GetFont(1, "Disregard" .. userInfo.isDisregarded, {color = Configuration:GetDisregardUserNameColor(userInfo.isDisregarded)} )
 	end
 	return Configuration:GetFont(1, "UserName", {color = Configuration:GetUserNameColor()} )
 end
@@ -871,7 +880,7 @@ local function GetUserControls(userName, opts)
 			selected = 0,
 			maxDropDownWidth = large and 220 or 150,
 			minDropDownHeight = 0,
-			maxDropDownHeight = 340,
+			maxDropDownHeight = 370,
 			items = GetUserComboBoxOptions(userName, isInBattle, userControls, showTeamColor, showSide),
 			OnOpen = {
 				function (obj)
@@ -1051,9 +1060,13 @@ local function GetUserControls(userName, opts)
 							WG.BrowserHandler.OpenUrl(Configuration.gameConfig.link_reportPlayer(userInfo.accountID))
 						end
 					elseif selectedName == "Unignore" then
-						userControls.lobby:Unignore(userName)
-					elseif selectedName == "Ignore" then
-						userControls.lobby:Ignore(userName)
+						userControls.lobby:c_user_reset_relationship(userName) -- provisionally: removes disregards and follows
+					elseif selectedName == "Ignore" or selectedName == "Unavoid" then
+						userControls.lobby:c_user_relationship(userName, Configuration.IGNORE)
+					elseif selectedName == "Avoid" or selectedName == "Unblock" then
+						userControls.lobby:c_user_relationship(userName, Configuration.AVOID)
+					elseif selectedName == "Block" then
+						userControls.lobby:c_user_relationship(userName, Configuration.BLOCK)
 					elseif selectedName == "Report User" then
 						WG.TextEntryWindow.CreateTextEntryWindow({
 							defaultValue = "",
@@ -1612,8 +1625,8 @@ local function AddListeners()
 
 	lobby:AddListener("OnFriend", UpdateUserActivity)
 	lobby:AddListener("OnUnfriend", UpdateUserActivity)
-	lobby:AddListener("OnAddIgnoreUser", UpdateUserActivity)
-	lobby:AddListener("OnRemoveIgnoreUser", UpdateUserActivity)
+	lobby:AddListener("OnAddDisregardUser", UpdateUserActivity)
+	lobby:AddListener("OnRemoveDisregardUser", UpdateUserActivity)
 
 	lobby:AddListener("OnPartyInviteSent", UpdateUserActivity)
 	lobby:AddListener("OnPartyInviteResponse", UpdateUserActivity)
