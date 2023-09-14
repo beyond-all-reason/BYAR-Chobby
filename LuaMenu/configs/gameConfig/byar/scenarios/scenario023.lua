@@ -21,7 +21,7 @@ local scenariodata = {
 
 	]],
 
-	mapfilename		= "Lightside Darkside v2.0", -- the name of the map to be displayed here
+	mapfilename		= "Starwatcher 1.0", -- the name of the map to be displayed here
 	playerstartx	= "10%", -- X position of where player comm icon should be drawn, from top left of the map
 	playerstarty	= "10%", -- Y position of where player comm icon should be drawn, from top left of the map
 	partime 		= 180, -- par time in seconds
@@ -29,10 +29,10 @@ local scenariodata = {
 	difficulty		= 11, -- Percieved difficulty at 'normal' level: integer 1-10
     defaultdifficulty = "Bots", -- an entry of the difficulty table
     difficulties    = { -- Array for sortedness, Keys are text that appears in selector (as well as in scoring!), values are handicap levels
-		{name = "Bots", playerhandicap = "corak armpw 1000 30 3000" , enemyhandicap = 0},
-		{name = "Tanks", playerhandicap = "armbull armbull 300 30 2000" , enemyhandicap = 0},
-		{name = "Pathing", playerhandicap = "corcv armck 1000 30 4000" , enemyhandicap = 0},
-		{name = "Aircraft", playerhandicap = "corvamp armhawk 1000 50 3000" , enemyhandicap = 0},
+		{name = "Bots", playerhandicap = "corak armpw 650 10 2040" , enemyhandicap = 0},
+		{name = "Tanks", playerhandicap = "armbull armbull 650 10 2040" , enemyhandicap = 0},
+		{name = "Pathing", playerhandicap = "corcv armck 2000 15 11000" , enemyhandicap = 0},
+		{name = "Aircraft", playerhandicap = "corvamp armhawk 650 10 2040" , enemyhandicap = 0},
     },
     allowedsides     = {""}, --these are the permitted factions for this mission
 	victorycondition= "None", -- This is plaintext, but should be reflected in startscript
@@ -43,7 +43,7 @@ local scenariodata = {
         scenarioid = "benchmark_lightside", --must be present for scores
 		disablefactionpicker = true, -- this is needed to prevent faction picking outside of the allowedsides
 		benchmarkcommand = "luarules fightertest corak armpw 1000 30 3000", -- make sure the matches the debugcommands identically named modoption's info
-		benchmarkframes = 4000,
+		benchmarkframes = 2000,
 		-- quiteforce sucks, does not end the game. 
 		--unitloadout = {},	
 		--featureloadout = {},
@@ -87,7 +87,7 @@ local scenariodata = {
 	[modoptions]
 	{
         scenariooptions = __SCENARIOOPTIONS__;
-		debugcommands = 150:cheat|151:vsync 0|180:luarules fightertest __PLAYERHANDICAP__|4138:screenshot|4140:luarules fightertest|4300:vsync 1;
+		debugcommands = 1:cheat|5:luarules fightertest __PLAYERHANDICAP__|10:vsync 0|15:deselect|2005:screenshot|2006:luarules fightertest|2010:vsync 1;			
 	}
 
 	[allyTeam1]
