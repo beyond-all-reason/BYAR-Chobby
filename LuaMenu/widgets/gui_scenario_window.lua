@@ -326,7 +326,7 @@ local function CreateScenarioPanel(shortname, sPanel)
 		height = "5%",
 		parent = sPanel,
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
-		caption = tostring(scen.difficulty) .. "/10",
+		caption = tostring(scen.difficulty) .. "/15",
 	}
 
 	local lblpartimeText = Label:New{
@@ -824,7 +824,7 @@ local function MakeScenarioScrollPanelChildren()
 				--height = 30,
 				parent = scenSelectorButton,
 				objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
-				caption = string.format( "Difficulty: % 2d/10",scen.difficulty ),
+				caption = string.format( "Difficulty: % 2d/15",scen.difficulty ),
 			}
 
 			if scen.isnew then

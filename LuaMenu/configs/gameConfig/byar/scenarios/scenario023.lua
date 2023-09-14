@@ -26,7 +26,7 @@ local scenariodata = {
 	playerstarty	= "10%", -- Y position of where player comm icon should be drawn, from top left of the map
 	partime 		= 180, -- par time in seconds
 	parresources	= 1, -- par resource amount
-	difficulty		= 11, -- Percieved difficulty at 'normal' level: integer 1-10
+	difficulty		= 15, -- Percieved difficulty at 'normal' level: integer 1-10
     defaultdifficulty = "Bots", -- an entry of the difficulty table
     difficulties    = { -- Array for sortedness, Keys are text that appears in selector (as well as in scoring!), values are handicap levels
 		{name = "Bots", playerhandicap = "corak armpw 1000 30 3000" , enemyhandicap = 0},
