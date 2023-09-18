@@ -65,26 +65,27 @@ local userListList = {
 
 local clanDownloadBegun = {}
 
-local IMAGE_DIR          = LUA_DIRNAME .. "images/"
-
-local IMAGE_AFK          = IMAGE_DIR .. "away.png"
-local IMAGE_BATTLE       = IMAGE_DIR .. "battle.png"
-local IMAGE_INGAME       = IMAGE_DIR .. "ingame.png"
-local IMAGE_SOLO         = IMAGE_DIR .. "solo.png"
-local IMAGE_PARTY_INVITE = IMAGE_DIR .. "partyInvite.png"
-local IMAGE_FLAG_UNKNOWN = IMAGE_DIR .. "flags/unknown.png"
-local IMAGE_AUTOHOST     = IMAGE_DIR .. "ranks/robot.png"
-local IMAGE_MODERATOR    = IMAGE_DIR .. "ranks/moderator.png"
-local IMAGE_PLAYER       = IMAGE_DIR .. "ranks/player.png"
-local IMAGE_READY        = IMAGE_DIR .. "ready.png"
-local IMAGE_UNREADY      = IMAGE_DIR .. "unready.png"
-local IMAGE_DLREADY      = IMAGE_DIR .. "downloadready.png"
-local IMAGE_DLUNREADY    = IMAGE_DIR .. "downloadnotready.png"
-local IMAGE_DOWNLOAD     = IMAGE_DIR .. "download.png"
-local IMAGE_UNKNOWN_SYNC = IMAGE_DIR .. "unknown_sync.png"
-local IMAGE_ONLINE       = IMAGE_DIR .. "online.png"
-local IMAGE_OFFLINE      = IMAGE_DIR .. "offline.png"
-local IMAGE_BOSS         = IMAGE_DIR .. "boss-icon.png"
+local IMAGE_DIR            = LUA_DIRNAME .. "images/"
+  
+local IMAGE_AFK            = IMAGE_DIR .. "away.png"
+local IMAGE_BATTLE         = IMAGE_DIR .. "battle.png"
+local IMAGE_INGAME         = IMAGE_DIR .. "ingame.png"
+local IMAGE_SOLO           = IMAGE_DIR .. "solo.png"
+local IMAGE_PARTY_INVITE   = IMAGE_DIR .. "partyInvite.png"
+local IMAGE_FLAG_UNKNOWN   = IMAGE_DIR .. "flags/unknown.png"
+local IMAGE_AUTOHOST       = IMAGE_DIR .. "ranks/robot.png"
+local IMAGE_MODERATOR      = IMAGE_DIR .. "ranks/moderator.png"
+local IMAGE_PLAYER         = IMAGE_DIR .. "ranks/player.png"
+local IMAGE_READY          = IMAGE_DIR .. "ready.png"
+local IMAGE_UNREADY        = IMAGE_DIR .. "unready.png"
+local IMAGE_DLREADY        = IMAGE_DIR .. "downloadready.png"
+local IMAGE_DLUNREADY      = IMAGE_DIR .. "downloadnotready.png"
+local IMAGE_DOWNLOAD       = IMAGE_DIR .. "download.png"
+local IMAGE_UNKNOWN_SYNC   = IMAGE_DIR .. "unknown_sync.png"
+local IMAGE_ONLINE         = IMAGE_DIR .. "online.png"
+local IMAGE_OFFLINE        = IMAGE_DIR .. "offline.png"
+local IMAGE_BOSS           = IMAGE_DIR .. "boss-icon.png"
+local IMAGE_RUNNING_BATTLE = IMAGE_DIR .. "runningBattle.png"
 
 local IMAGE_CLAN_PATH    = "LuaUI/Configs/Clans/"
 local RANK_DIR           = LUA_DIRNAME .. "configs/gameConfig/zk/rankImages/"
@@ -523,20 +524,58 @@ end
 
 -- only reacts to boss changes
 local function UpdateBattleInfo(listener, battleID, battleInfo)
-	if battleInfo.boss == nil then return end
-	
-	-- boss changed, so update all userComboBoxOptions in battleUsers to allow "Make boss" for previous boss again
-	for username, _ in pairs(battleUsers) do
-		UpdateUserComboboxOptions(_, username)
+	local Configuration  = WG.Chobby.Configuration
+
+	if battleInfo.boss ~= nil then
+		-- boss changed, so update all userComboBoxOptions in battleUsers to allow "Make boss" for previous boss again
+		for username, _ in pairs(battleUsers) do
+			UpdateUserComboboxOptions(_, username)
+		end
+
+		if battleInfo.boss == false then
+			for userName, userControls in pairs(battleUsers) do
+				UpdateUserControlStatus(userName, userControls)
+			end
+		elseif battleUsers[battleInfo.boss] ~= nil then
+			UpdateUserControlStatus(battleInfo.boss, battleUsers[battleInfo.boss])
+		end
 	end
 
-	if battleInfo.boss == false then
-		for userName, userControls in pairs(battleUsers) do
-			UpdateUserControlStatus(userName, userControls)
+	if battleInfo.mapName ~= nil then
+		for userName, userControls in pairs(friendUsers) do	
+			local userInfo = userControls.lobby:TryGetUser(userName)
+			if userControls.minimapImage and userInfo.battleID and userInfo.battleID == battleID then
+				if battleInfo.mapName then
+					local mapImageFile, needDownload = Configuration:GetMinimapSmallImage(battleInfo.mapName)
+					userControls.minimapImage.file = mapImageFile
+					userControls.minimapImage.checkFileExists = needDownload
+					userControls.minimapImage:Show()
+				else
+					userControls.minimapImage:Hide()
+				end
+			end	
 		end
-	elseif battleUsers[battleInfo.boss] ~= nil then
-		UpdateUserControlStatus(battleInfo.boss, battleUsers[battleInfo.boss])
 	end
+end
+
+local function UpdateUserBattle(listener, battleID, userName)
+	if not friendUsers[userName] then
+		return
+	end
+	local userControls = friendUsers[userName]
+
+	if userControls.minimapImage then
+		local userInfo = userControls.lobby:TryGetUser(userName)
+		local battleInfo = userControls.lobby:GetBattle(battleID)
+		if battleID == userInfo.battleID and battleInfo.mapName then
+			local mapImageFile, needDownload = WG.Chobby.Configuration:GetMinimapSmallImage(battleInfo.mapName)
+			userControls.minimapImage.file = mapImageFile
+			userControls.minimapImage.checkFileExists = needDownload
+			userControls.minimapImage:Show()
+		else
+			userControls.minimapImage:Hide()
+		end
+	end	
 end
 
 local function OnPartyUpdate(listener, partyID, partyUsers)
@@ -1253,30 +1292,31 @@ local function GetUserControls(userName, opts)
 		end
 	end
 
-	local clanImage, needDownload = GetUserClanImage(userName, userControls)
-	if clanImage then
-		offset = offset + 1
-		userControls.imClan = Image:New {
-			name = "imClan",
-			x = offset,
-			y = offsetY + 1,
-			width = 21,
-			height = 19,
-			parent = userControls.mainControl,
-			keepAspect = true,
-			file = clanImage,
-			fallbackFile = Configuration:GetLoadingImage(1),
-			checkFileExists = needDownload,
-		}
-		offset = offset + 21
-	end
+	-- ZK specific
+	-- local clanImage, needDownload = GetUserClanImage(userName, userControls)
+	-- if clanImage then
+	-- 	offset = offset + 1
+	-- 	userControls.imClan = Image:New {
+	-- 		name = "imClan",
+	-- 		x = offset,
+	-- 		y = offsetY + 1,
+	-- 		width = 21,
+	-- 		height = 19,
+	-- 		parent = userControls.mainControl,
+	-- 		keepAspect = true,
+	-- 		file = clanImage,
+	-- 		fallbackFile = Configuration:GetLoadingImage(1),
+	-- 		checkFileExists = needDownload,
+	-- 	}
+	-- 	offset = offset + 21
+	-- end
 
 	if showSide then
 		offset = offset + 2
 		local file = nil
 		bs = bs or {}
 		if bs.side ~= nil then
-			file = WG.Chobby.Configuration:GetSideById(bs.side or 0).logo
+			file = Configuration:GetSideById(bs.side or 0).logo
 		end
 		userControls.imSide = Image:New {
 			name = "imSide",
@@ -1307,8 +1347,8 @@ local function GetUserControls(userName, opts)
 		bottom = 4,
 		align = "left",
 		parent = userControls.mainControl,
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
-		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(1),
+		objectOverrideFont = Configuration:GetFont(1),
+		objectOverrideHintFont = Configuration:GetFont(1),
 		text = userName,
 	}
 
@@ -1359,7 +1399,7 @@ local function GetUserControls(userName, opts)
 			y = offsetY + 2,
 			parent = userControls.mainControl,
 			caption = handicaptxt,
-			objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
+			objectOverrideFont = Configuration:GetFont(1),
 			tooltip = "Handicap",
 		}
 	end
@@ -1391,13 +1431,34 @@ local function GetUserControls(userName, opts)
 				valign = 'center',
 				parent = userControls.mainControl,
 				caption = i18n(status .. "_status"),
-				objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
+				objectOverrideFont = font,
 			}
-			userControls.lblStatusLarge.font = font
-			userControls.lblStatusLarge:Invalidate()
 
 			userControls.tbName.font = font
 			userControls.tbName:Invalidate()
+
+			local battle = userControls.lobby:GetBattle(userInfo.battleID)
+			local mapImageFile = nil
+			local needDownload = nil
+			if battle and battle.mapName then
+				local mapImageFile, needDownload = Configuration:GetMinimapSmallImage(battle.mapName)
+			end
+			if not userControls.minimapImage then
+				userControls.minimapImage = Image:New {
+					name = "minimapImage",
+					x = -76,
+					y = 6,
+					width = 70,
+					height = 70,
+					valign = 'top',
+					keepAspect = true,
+					file = mapImageFile,
+					fallbackFile = Configuration:GetLoadingImage(2),
+					checkFileExists = needDownload,
+					parent = userControls.mainControl,
+				}
+			end
+			userControls.minimapImage:SetVisibility(battle and battle.mapName and true or false)
 		end
 	end
 
@@ -1517,6 +1578,7 @@ function userHandler.GetTooltipUser(userName)
 		showFounder    = true,
 		showCountry    = true,
 		showRank       = true,
+		disableInteraction = true,
 	})
 end
 
@@ -1643,6 +1705,10 @@ local function AddListeners()
 
 	lobby:AddListener("OnUserVoted", OnUserVoted)
 	lobby:AddListener("OnUpdateBattleInfo", UpdateBattleInfo)
+	
+	lobby:AddListener("OnJoinedBattle", UpdateUserBattle)
+	lobby:AddListener("OnLeftBattle", UpdateUserBattle)
+
 end
 
 --------------------------------------------------------------------------------
