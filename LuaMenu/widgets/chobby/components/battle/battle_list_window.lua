@@ -1,10 +1,9 @@
 BattleListWindow = ListWindow:extends{}
 
-local BATTLE_RUNNING = LUA_DIRNAME .. "images/runningBattle.png"
-local BATTLE_NOT_RUNNING = LUA_DIRNAME .. "images/nothing.png"
+local IMG_BATTLE_RUNNING  = LUA_DIRNAME .. "images/ingame.png"
+local IMG_LOCK            = LUA_DIRNAME .. "images/lock.png"
+local IMG_KEY             = LUA_DIRNAME .. "images/key.png"
 
-local IMAGE_DLREADY      = LUA_DIRNAME .. "images/downloadready.png"
-local IMAGE_DLUNREADY    = LUA_DIRNAME .. "images/downloadnotready.png"
 
 function BattleListWindow:init(parent)
 
@@ -424,17 +423,17 @@ function BattleListWindow:MakeWatchBattle(battleID, battle)
 		checkFileExists = needDownload,
 		parent = minimap,
 	}
-	local runningImage = Image:New {
-		name = "runningImage",
+	local imgIsRunning = Image:New {
+		name = "imgIsRunning",
 		x = 0,
 		y = 0,
 		right = 0,
 		bottom = 0,
 		keepAspect = false,
-		file = BATTLE_RUNNING,
+		file =  IMG_BATTLE_RUNNING,
 		parent = minimap,
 	}
-	runningImage:BringToFront()
+	imgIsRunning:SetVisibility(battle.isRunning == true)
 
 	local playerCount = lobby:GetBattlePlayerCount(battleID)
 	local lblPlayersOnMap = Label:New {
@@ -515,16 +514,16 @@ function BattleListWindow:MakeJoinBattle(battleID, battle)
 
 	local imgIsRunning = Image:New {
 		name = "imgIsRunning",
-		x = 0, -- Apparently deleting this breaks some things, so let's throw it 10000 pixels to the left, lmao.
+		x = 0,
 		width = 20,
 		height = 20,
 		y = 0,
 		margin = {0, 0, 0, 0},
-		file = "LuaMenu/images/ingame.png",
+		file = IMG_BATTLE_RUNNING,
 		parent = parentButton,
 	}
 	imgIsRunning:SetVisibility(battle.isRunning == true)
-
+	
 	local lblTitle = Label:New {
 		name = "lblTitle",
 		x = "4%",
@@ -567,19 +566,6 @@ function BattleListWindow:MakeJoinBattle(battleID, battle)
 		checkFileExists = needDownload,
 		parent = minimap,
 	}
-	local runningImage = Image:New {
-		name = "runningImage",
-		x = -100000,
-		y = 0,
-		right = 0,
-		bottom = 0,
-		keepAspect = false,
-		--file = (battle.isRunning and BATTLE_RUNNING) or BATTLE_NOT_RUNNING,
-		file = "LuaMenu/images/ingame.png",
-		parent = minimap,
-	}
-	runningImage:SetVisibility(battle.isRunning == true)
-	--runningImage:BringToFront()
 
 	local lblMap = Label:New {
 		name = "mapCaption",
@@ -610,7 +596,7 @@ function BattleListWindow:MakeJoinBattle(battleID, battle)
 			align = "right",
 			valign = 'center',
 			margin = {0, 0, 0, 0},
-			file = "LuaMenu/images/key.png",
+			file = IMG_KEY,
 			parent = parentButton,
 		}
 	else
@@ -623,7 +609,7 @@ function BattleListWindow:MakeJoinBattle(battleID, battle)
 			align = "right",
 			valign = 'center',
 			margin = {0, 0, 0, 0},
-			file = CHOBBY_IMG_DIR .. "lock.png",
+			file = IMG_LOCK,
 			parent = parentButton,
 		}
 		imgLocked:SetVisibility(battle.locked == true)
@@ -1086,7 +1072,7 @@ function BattleListWindow:OnUpdateBattleInfo(battleID)
 	local password = battleButton:GetChildByName("password")
 
 	if imHaveMap or true then
-		-- Password Update
+	-- Password Update
 		if password and not battle.passworded then
 			password:Dispose()
 		elseif battle.passworded and not password then
@@ -1104,7 +1090,7 @@ function BattleListWindow:OnUpdateBattleInfo(battleID)
 
 		-- Resets title and truncates.
 		lblTitle.OnResize[1](lblTitle)
-		
+
 		-- Update minimap button if changed
 		if battleButton.previousMapName ~= battle.mapName then 
 			local minimapImage = battleButton:GetChildByName("minimap"):GetChildByName("minimapImage")
@@ -1140,15 +1126,15 @@ function BattleListWindow:OnUpdateBattleInfo(battleID)
 	else
 		-- Resets title and truncates.
 		local lblTitle = items.battleButton:GetChildByName("lblTitle")
-		lblTitle.OnResize[1](lblTitle)
+	lblTitle.OnResize[1](lblTitle)
 
 		local minimapImage = items.battleButton:GetChildByName("minimap"):GetChildByName("minimapImage")
-		minimapImage.file, minimapImage.checkFileExists = Configuration:GetMinimapSmallImage(battle.mapName)
-		minimapImage:Invalidate()
+	minimapImage.file, minimapImage.checkFileExists = Configuration:GetMinimapSmallImage(battle.mapName)
+	minimapImage:Invalidate()
 
 		local playersOnMapCaption = items.battleButton:GetChildByName("playersOnMapCaption")
-		local playerCount = lobby:GetBattlePlayerCount(battleID)
-		playersOnMapCaption:SetCaption(playerCount .. ((playerCount == 1 and " player on " ) or " players on ") .. battle.mapName:gsub("_", " "))
+	local playerCount = lobby:GetBattlePlayerCount(battleID)
+	playersOnMapCaption:SetCaption(playerCount .. ((playerCount == 1 and " player on " ) or " players on ") .. battle.mapName:gsub("_", " "))
 	end
 
 	self:UpdateButtonColor(battleID)
@@ -1167,18 +1153,8 @@ function BattleListWindow:OnBattleIngameUpdate(battleID, isRunning)
 		return
 	end
 
-	local runningImage = items.battleButton:GetChildByName("minimap"):GetChildByName("runningImage")
-	if isRunning then
-		runningImage.file = BATTLE_RUNNING
-	else
-		runningImage.file = BATTLE_NOT_RUNNING
-	end
-	runningImage:Invalidate()
-
 	local imgIsRunning = items.battleButton:GetChildByName("imgIsRunning")
-	if imgIsRunning then
-		imgIsRunning:SetVisibility(battle.isRunning == true)
-	end
+	imgIsRunning:SetVisibility(battle.isRunning == true)
 
 	self:UpdateButtonColor(battleID)
 	self:RecalculateOrder(battleID)

@@ -13,7 +13,7 @@ end
 local spGetMouseState           = Spring.GetMouseState
 local screenWidth, screenHeight = Spring.GetWindowGeometry()
 
-local MAX_WIDTH = 320
+local MAX_WIDTH = 640
 local MAX_WINDOW_WIDTH = MAX_WIDTH + 11
 
 local BATTLE_TOOLTIP_PREFIX = "battle_tooltip_"
@@ -33,11 +33,14 @@ local IMAGE_BLOCK        = LUA_DIRNAME .. "images/blocked.png"
 local IMAGE_AFK          = LUA_DIRNAME .. "images/away.png"
 local IMAGE_BATTLE       = LUA_DIRNAME .. "images/battle.png"
 local IMAGE_INGAME       = LUA_DIRNAME .. "images/ingame.png"
-local IMAGE_LOCK         = LUA_DIRNAME .. "widgets/chobby/images/lock.png"
+local IMAGE_LOCK         = LUA_DIRNAME .. "images/lock.png"
+local IMAGE_KEY          = LUA_DIRNAME .. "images/key.png"
 local BATTLE_RUNNING     = LUA_DIRNAME .. "images/runningBattle.png"
 local BATTLE_NOT_RUNNING = LUA_DIRNAME .. "images/nothing.png"
 
 local PASSWORD_EXPLAINATION = "Battle requires a password to join."
+local LOCKED_EXPLAINATION = "Battle is locked."
+
 
 --------------------------------------------------------------------------
 --------------------------------------------------------------------------
@@ -128,8 +131,8 @@ local function GetTooltipLine(parent, hasImage, fontSize, xOffset, imageWidth)
 		imageDisplay = Image:New {
 			x = xOffset,
 			y = 0,
-			width = imageWidth or 19,
-			height = 19,
+			width = imageWidth or 18,
+			height = 18,
 			parent = parent,
 			keepAspect = true,
 			file = nil,
@@ -138,7 +141,7 @@ local function GetTooltipLine(parent, hasImage, fontSize, xOffset, imageWidth)
 	end
 
 	textDisplay = TextBox:New {
-		x = (hasImage and ((imageWidth or 19) + 4 + xOffset)) or xOffset,
+		x = (hasImage and ((imageWidth or 18) + 4 + xOffset)) or xOffset,
 		y = 0,
 		right = 0,
 		height = 20,
@@ -169,7 +172,7 @@ local function GetTooltipLine(parent, hasImage, fontSize, xOffset, imageWidth)
 			end
 			imageDisplay.file = newImage
 			imageDisplay.checkFileExists = needDownload
-			imageDisplay:SetPos(nil, newPosition - 4)
+			imageDisplay:SetPos(nil, newPosition - 3)
 			imageDisplay:Invalidate()
 		end
 	end
@@ -183,7 +186,7 @@ local function GetTooltipLine(parent, hasImage, fontSize, xOffset, imageWidth)
 			if not imageDisplay.visible then
 				imageDisplay:Show()
 			end
-			imageDisplay:SetPos(nil, newPosition - 4)
+			imageDisplay:SetPos(nil, newPosition - 3)
 		end
 	end
 
@@ -210,181 +213,12 @@ local function GetTooltipLine(parent, hasImage, fontSize, xOffset, imageWidth)
 	return externalFunctions
 end
 
-local function GetBattleInfoHolder(parent, offset, battleID)
-	local externalFunctions = {}
-
-	local battle = lobby:GetBattle(battleID)
-	if not battle then
-		return nil
-	end
-
-	local Configuration = WG.Chobby.Configuration
-
-	local mainControl = Control:New {
-		x = 0,
-		y = offset,
-		right = 0,
-		height = 120,
-		padding = {0, 0, 0, 0},
-		parent = parent,
-	}
-
-	local lblTitle = Label:New {
-		name = "title",
-		x = 80,
-		y = 1,
-		right = 5,
-		height = 20,
-		valign = 'top',
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
-		caption = battle.title:sub(1, 60),
-		parent = mainControl,
-		OnResize = {
-			function (obj, xSize, ySize)
-				if battle then
-					obj:SetCaption(StringUtilities.GetTruncatedStringWithDotDot(battle.title, obj.font, obj.width))
-				end
-			end
-		}
-	}
-
-	local mapImageFile, needDownload = Configuration:GetMinimapSmallImage(battle.mapName)
-	local minimapImage = Image:New {
-		name = "minimapImage",
-		x = 6,
-		y = 0,
-		width = 70,
-		height = 70,
-		keepAspect = true,
-		file = mapImageFile,
-		fallbackFile = Configuration:GetLoadingImage(2),
-		checkFileExists = needDownload,
-		parent = mainControl,
-	}
-	local runningImage = Image:New {
-		name = "runningImage",
-		x = 6,
-		y = 0,
-		width = 70,
-		height = 70,
-		keepAspect = false,
-		file = (battle.isRunning and BATTLE_RUNNING) or BATTLE_NOT_RUNNING,
-		parent = mainControl,
-	}
-	runningImage:BringToFront()
-
-	local lblPlayers = Label:New {
-		name = "playersCaption",
-		x = 80,
-		y = 22,
-		right = 0,
-		height = 20,
-		valign = 'top',
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
-		caption = lobby:GetBattlePlayerCount(battleID) .. "/" .. battle.maxPlayers,
-		parent = mainControl,
-	}
-
-	local imgPassworded = Image:New {
-		name = "password",
-		x = 80,
-		y = 36,
-		height = 30,
-		width = 30,
-		margin = {0, 0, 0, 0},
-		file = IMAGE_LOCK,
-		parent = mainControl,
-	}
-	if not battle.passworded then
-		imgPassworded:Hide()
-	end
-
-	local lblGame = Label:New {
-		name = "game",
-		x = 125,
-		y = 22,
-		right = 5,
-		height = 20,
-		valign = 'top',
-		caption = battle.gameName:sub(1, 22),
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
-		parent = mainControl,
-		OnResize = {
-			function (obj, xSize, ySize)
-				if battle then
-					obj:SetCaption(StringUtilities.GetTruncatedStringWithDotDot(battle.gameName, obj.font, obj.width))
-				end
-			end
-		}
-	}
-
-	local lblMap = Label:New {
-		name = "mapCaption",
-		x = 125,
-		y = 40,
-		right = 5,
-		height = 20,
-		valign = 'center',
-		caption = battle.mapName:sub(1, 22),
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
-		parent = mainControl,
-		OnResize = {
-			function (obj, xSize, ySize)
-				if battle then
-					obj:SetCaption(StringUtilities.GetTruncatedStringWithDotDot(battle.mapName, obj.font, obj.width))
-				end
-			end
-		}
-	}
-
-	function externalFunctions.Update(offset, battleID)
-		battle = lobby:GetBattle(battleID)
-		if not battle then
-			if mainControl.visible then
-				mainControl:Hide()
-			end
-			return
-		end
-
-		if not mainControl.visible then
-			mainControl:Show()
-		end
-		mainControl:SetPos(nil, offset)
-
-		lblTitle:SetCaption(StringUtilities.GetTruncatedStringWithDotDot(battle.title, lblTitle.font, lblTitle.width))
-		lblPlayers:SetCaption(lobby:GetBattlePlayerCount(battleID) .. "/" .. battle.maxPlayers)
-		lblGame:SetCaption(StringUtilities.GetTruncatedStringWithDotDot(battle.gameName, lblTitle.font, lblTitle.width))
-		lblMap:SetCaption(StringUtilities.GetTruncatedStringWithDotDot(battle.mapName, lblTitle.font, lblTitle.width))
-
-		if battle.passworded and not imgPassworded.visible then
-			imgPassworded:Show()
-		end
-		if not battle.passworded and imgPassworded.visible then
-			imgPassworded:Hide()
-		end
-
-		minimapImage.file, minimapImage.checkFileExists = Configuration:GetMinimapSmallImage(battle.mapName)
-		minimapImage:Invalidate()
-
-		runningImage.file = (battle.isRunning and BATTLE_RUNNING) or BATTLE_NOT_RUNNING
-		runningImage:Invalidate()
-	end
-
-	function externalFunctions.Hide()
-		if mainControl.visible then
-			mainControl:Hide()
-		end
-	end
-
-	return externalFunctions
-end
-
 --------------------------------------------------------------------------
 --------------------------------------------------------------------------
 -- Battle tooltip
 local battleTooltip = {}
 
-local function GetBattleTooltip(battleID, battle)
+local function GetBattleTooltip(battleID, battle, showMapName)
 	local Configuration = WG.Chobby.Configuration
 
 	local width = 320
@@ -411,16 +245,27 @@ local function GetBattleTooltip(battleID, battle)
 	battleTooltip.title.Update(offset, truncatedName)
 	offset = offset + 25 -- * battleTooltip.title.GetLines() -- Not required with truncation
 
-	-- Battle Type
-	if battle.battleMode then
-		if not battleTooltip.battleMode then
-			battleTooltip.battleMode = GetTooltipLine(battleTooltip.mainControl)
+	-- Battle Type (ZK specific)
+	-- if battle.battleMode then
+	-- 	if not battleTooltip.battleMode then
+	-- 		battleTooltip.battleMode = GetTooltipLine(battleTooltip.mainControl)
+	-- 	end
+	-- 	local modeName = Configuration.battleTypeToName[battle.battleMode]
+	-- 	battleTooltip.battleMode.Update(offset, (modeName and i18n(modeName)) or "")
+	-- 	offset = offset + 21
+	-- elseif battleTooltip.battleMode then
+	-- 	battleTooltip.battleMode.Hide()
+	-- end
+
+	-- MapName
+	if showMapName and battle.mapName then
+		if not battleTooltip.mapName then
+			battleTooltip.mapName = GetTooltipLine(battleTooltip.mainControl)
 		end
-		local modeName = Configuration.battleTypeToName[battle.battleMode]
-		battleTooltip.battleMode.Update(offset, (modeName and i18n(modeName)) or "")
+		battleTooltip.mapName.Update(offset, "Map: " .. battle.mapName)
 		offset = offset + 21
-	elseif battleTooltip.battleMode then
-		battleTooltip.battleMode.Hide()
+	elseif battleTooltip.mapName then
+		battleTooltip.mapName.Hide()
 	end
 
 	-- Players and Spectators
@@ -435,7 +280,7 @@ local function GetBattleTooltip(battleID, battle)
 		end
 		battleTooltip.spectatorCount.Update(offset, "Spectators: " .. battle.spectatorCount)
 
-		offset = offset + 20
+		offset = offset + 21
 	elseif battleTooltip.playerCount then
 		battleTooltip.playerCount.Hide()
 	end
@@ -447,44 +292,61 @@ local function GetBattleTooltip(battleID, battle)
 			battleTooltip.password.Update(
 				offset,
 				PASSWORD_EXPLAINATION,
-				IMAGE_LOCK
+				IMAGE_KEY
 			)
 		end
 		battleTooltip.password.UpdatePosition(offset)
-		offset = offset + 20
+		offset = offset + 21
 	elseif battleTooltip.password then
 		battleTooltip.password.Hide()
 	end
 
-	if battle.isRunning then
+	-- Locked
+	if battle.locked then
+		if not battleTooltip.locked then
+			battleTooltip.locked = GetTooltipLine(battleTooltip.mainControl, true)
+			battleTooltip.locked.Update(
+				offset,
+				LOCKED_EXPLAINATION,
+				IMAGE_LOCK
+			)
+		end
+		battleTooltip.locked.UpdatePosition(offset)
+		offset = offset + 21
+	elseif battleTooltip.locked then
+		battleTooltip.locked.Hide()
+	end
+
+	-- ingame
+	if battle.isRunning and not (battle.locked or battle.passworded) then
 		if not battleTooltip.isRunning then
 			battleTooltip.isRunning = GetTooltipLine(battleTooltip.mainControl, true)
 		end
 		battleTooltip.isRunning.Update(
 			offset,
-			"Game in progress, join to spectate.",
-			IMAGE_INGAME
+			battle.isRunning and "Game in progress, join to spectate.",
+			battle.isRunning and IMAGE_INGAME or IMAGE_BATTLE
 		)
 		battleTooltip.isRunning.UpdatePosition(offset)
 		offset = offset + 20
-	elseif battleTooltip.isRunning then
-		battleTooltip.isRunning:Hide()
+	elseif battleTooltip.isRunning then 
+		battleTooltip.isRunning.Hide()
 	end
   
-	-- InGameSince
-	if battle.runningSince and battle.isRunning then
-		if not battleTooltip.inGameSince then
-			battleTooltip.inGameSince = GetTooltipLine(battleTooltip.mainControl, true)
-		end
-		battleTooltip.inGameSince.Update(
-			offset,
-			"Running for " .. Spring.Utilities.GetTimeToPast(battle.runningSince, true),
-			IMAGE_INGAME
-		)
-		offset = offset + 20
-	elseif battleTooltip.inGameSince then
-		battleTooltip.inGameSince:Hide()
-	end
+	-- -- InGameSince (ZK specific)
+	-- if battle.runningSince and battle.isRunning then
+	-- 	if not battleTooltip.inGameSince then
+	-- 		battleTooltip.inGameSince = GetTooltipLine(battleTooltip.mainControl, true)
+	-- 	end
+	-- 	battleTooltip.inGameSince.Update(
+	-- 		offset,
+	-- 		"Running for " .. Spring.Utilities.GetTimeToPast(battle.runningSince, true),
+	-- 		IMAGE_INGAME
+	-- 	)
+	-- 	offset = offset + 20
+	-- elseif battleTooltip.inGameSince then
+	-- 	battleTooltip.inGameSince:Hide()
+	-- end
 
 	-- Player list
 	local userListPosition = offset
@@ -506,7 +368,7 @@ local function GetBattleTooltip(battleID, battle)
 			local userName = battle.users[i]
 			local playerControl = WG.UserHandler.GetTooltipUser(userName)
 			battleTooltip.userList:AddChild(playerControl)
-			playerControl:SetPos(0, playerOffset)
+			playerControl:SetPos(6, playerOffset)
 			playerControl._relativeBounds.right = 0
 			playerControl:UpdateClientArea()
 			playerOffset = playerOffset + 20
@@ -650,18 +512,18 @@ local function GetUserTooltip(userName, userInfo, userBattleInfo, inBattleroom)
 	userTooltip.name.Update(offset, truncatedName)
 	offset = offset + 23
 
-	-- Clan
-	if userInfo.clan then
-		if not userTooltip.clan then
-			userTooltip.clan = GetTooltipLine(userTooltip.mainControl, true)
-		end
-
-		local clanFile, needDownload = WG.UserHandler.GetClanImage(userInfo.clan)
-		userTooltip.clan.Update(offset, "Clan: " .. userInfo.clan, clanFile, nil, nil, needDownload)
-		offset = offset + 20
-	elseif userTooltip.clan then
-		userTooltip.clan.Hide()
-	end
+	-- Clan (ZK specific)
+	-- if userInfo.clan then
+	-- 	if not userTooltip.clan then
+	-- 		userTooltip.clan = GetTooltipLine(userTooltip.mainControl, true)
+	-- 	end
+	-- 
+	-- 	local clanFile, needDownload = WG.UserHandler.GetClanImage(userInfo.clan)
+	-- 	userTooltip.clan.Update(offset, "Clan: " .. userInfo.clan, clanFile, nil, nil, needDownload)
+	-- 	offset = offset + 20
+	-- elseif userTooltip.clan then
+	-- 	userTooltip.clan.Hide()
+	-- end
 
 	-- Disregard and Friend
 	if userInfo.isDisregarded or userInfo.isFriend then
@@ -767,92 +629,192 @@ local function GetUserTooltip(userName, userInfo, userBattleInfo, inBattleroom)
 	end
 
 
-	if userInfo.badges and Configuration.gameConfig.badges then
-		if not userTooltip.badge then
-			userTooltip.badge = {}
-		end
-		local badgeDecs = Configuration.gameConfig.badges
-		local i = 1
-		while i <= #userInfo.badges do
-			if not userTooltip.badge[i] then
-				userTooltip.badge[i] = GetTooltipLine(userTooltip.mainControl, true, nil, nil, 46)
-			end
-			local badgeData = badgeDecs[userInfo.badges[i]]
-			if badgeData then
-				userTooltip.badge[i].Update(
-					offset,
-					badgeData.text,
-					badgeData.image
-				)
-				offset = offset + 20
-			else
-				userTooltip.badge[i]:Hide()
-			end
-			i = i + 1
-		end
-		while userTooltip.badge[i] do
-			userTooltip.badge[i]:Hide()
-			i = i + 1
-		end
-	elseif userTooltip.badge then
-		local i = 1
-		while userTooltip.badge[i] do
-			userTooltip.badge[i]:Hide()
-			i = i + 1
-		end
-	end
+	-- ZK specific
+	-- if userInfo.badges and Configuration.gameConfig.badges then
+	-- 	if not userTooltip.badge then
+	-- 		userTooltip.badge = {}
+	-- 	end
+	-- 	local badgeDecs = Configuration.gameConfig.badges
+	-- 	local i = 1
+	-- 	while i <= #userInfo.badges do
+	-- 		if not userTooltip.badge[i] then
+	-- 			userTooltip.badge[i] = GetTooltipLine(userTooltip.mainControl, true, nil, nil, 46)
+	-- 		end
+	-- 		local badgeData = badgeDecs[userInfo.badges[i]]
+	-- 		if badgeData then
+	-- 			userTooltip.badge[i].Update(
+	-- 				offset,
+	-- 				badgeData.text,
+	-- 				badgeData.image
+	-- 			)
+	-- 			offset = offset + 20
+	-- 		else
+	-- 			userTooltip.badge[i]:Hide()
+	-- 		end
+	-- 		i = i + 1
+	-- 	end
+	-- 	while userTooltip.badge[i] do
+	-- 		userTooltip.badge[i]:Hide()
+	-- 		i = i + 1
+	-- 	end
+	-- elseif userTooltip.badge then
+	-- 	local i = 1
+	-- 	while userTooltip.badge[i] do
+	-- 		userTooltip.badge[i]:Hide()
+	-- 		i = i + 1
+	-- 	end
+	-- end
 
-	-- InGameSince
-	if userInfo.inGameSince and userInfo.isInGame then
-		if not userTooltip.inGameSince then
-			userTooltip.inGameSince = GetTooltipLine(userTooltip.mainControl, true)
-		end
-		userTooltip.inGameSince.Update(
-			offset,
-			"In game for " .. Spring.Utilities.GetTimeToPast(userInfo.inGameSince, true),
-			IMAGE_INGAME
-		)
-		offset = offset + 20
-	elseif userTooltip.inGameSince then
-		userTooltip.inGameSince:Hide()
-	end
+	-- InGameSince (ZK specific)
+	-- if userInfo.inGameSince and userInfo.isInGame then
+	-- 	if not userTooltip.inGameSince then
+	-- 		userTooltip.inGameSince = GetTooltipLine(userTooltip.mainControl, true)
+	-- 	end
+	-- 	userTooltip.inGameSince.Update(
+	-- 		offset,
+	-- 		"In game for " .. Spring.Utilities.GetTimeToPast(userInfo.inGameSince, true),
+	-- 		IMAGE_INGAME
+	-- 	)
+	-- 	offset = offset + 20
+	-- elseif userTooltip.inGameSince then
+	-- 	userTooltip.inGameSince:Hide()
+	-- end
 
-	-- Away Since
-	if userInfo.awaySince and userInfo.isAway then
-		if not userTooltip.awaySince then
-			userTooltip.awaySince = GetTooltipLine(userTooltip.mainControl, true)
-		end
-		userTooltip.awaySince.Update(
-			offset,
-			"Idle for " .. Spring.Utilities.GetTimeToPast(userInfo.awaySince, true),
-			IMAGE_AFK
-		)
-		offset = offset + 20
-	elseif userTooltip.awaySince then
-		userTooltip.awaySince:Hide()
-	end
+	-- Away Since (ZK specific)
+	-- if userInfo.awaySince and userInfo.isAway then
+	-- 	if not userTooltip.awaySince then
+	-- 		userTooltip.awaySince = GetTooltipLine(userTooltip.mainControl, true)
+	-- 	end
+	-- 	userTooltip.awaySince.Update(
+	-- 		offset,
+	-- 		"Idle for " .. Spring.Utilities.GetTimeToPast(userInfo.awaySince, true),
+	-- 		IMAGE_AFK
+	-- 	)
+	-- 	offset = offset + 20
+	-- elseif userTooltip.awaySince then
+	-- 	userTooltip.awaySince:Hide()
+	-- end
 
 	-- In Battle
 	if (not inBattleroom) and userInfo.battleID and lobby:GetBattle(userInfo.battleID) then
+		local battle = lobby:GetBattle(userInfo.battleID)
+
 		if not userTooltip.battleInfoHolder then
-			userTooltip.battleInfoHolder = GetBattleInfoHolder(userTooltip.mainControl, offset, userInfo.battleID)
+			userTooltip.battleInfoHolder = Chili.Control:New {
+				x = 0,
+				y = offset,
+				width = 320,
+				height = 120,
+				padding = {0, 0, 0, 0},
+				parent = userTooltip.mainControl,
+			}
 		else
-			userTooltip.battleInfoHolder.Update(offset, userInfo.battleID)
+			userTooltip.battleInfoHolder:Show()
 		end
-		offset = offset + 75
+
+		local battleOffset = 0
+
+		-- show minimap inside user tooltip ?
+		-- if not userTooltip.runningImage then
+		-- 	userTooltip.runningImage = Image:New {
+		-- 		name = "runningImage",
+		-- 		x = 6,
+		-- 		y = battleOffset,
+		-- 		width = 70,
+		-- 		height = 70,
+		-- 		keepAspect = false,
+		-- 		file = BATTLE_RUNNING,
+		-- 		parent = userTooltip.battleInfoHolder,
+		-- 	}
+		-- end
+		-- userTooltip.runningImage:SetVisibility(battle.isRunning == true)
+-- 
+		-- local mapImageFile, needDownload = Configuration:GetMinimapSmallImage(battle.mapName)
+		-- if not userTooltip.minimapImage then
+		-- 	userTooltip.minimapImage = Image:New {
+		-- 		name = "minimapImage",
+		-- 		x = 6,
+		-- 		y = battleOffset,
+		-- 		width = 70,
+		-- 		height = 70,
+		-- 		valign = 'top',
+		-- 		keepAspect = true,
+		-- 		file = mapImageFile,
+		-- 		fallbackFile = Configuration:GetLoadingImage(2),
+		-- 		checkFileExists = needDownload,
+		-- 		parent = userTooltip.battleInfoHolder,
+		-- 	}
+		-- end
+		-- userTooltip.minimapImage.file = mapImageFile
+		-- userTooltip.minimapImage.fallbackFile = Configuration:GetLoadingImage(2)
+		-- userTooltip.minimapImage.checkFileExists = needDownload
+		-- userTooltip.minimapImage:Invalidate()
+		-- offset = offset + 25
+		-- battleOffset = battleOffset + 25
+-- 
+		-- if not userTooltip.lblMap then
+		-- 	userTooltip.lblMap = Label:New {
+		-- 		name = "mapCaption",
+		-- 		x = 6 + 70 + 5,
+		-- 		y = battleOffset,
+		-- 		right = 5,
+		-- 		height = 20,
+		-- 		valign = 'center',
+		-- 		caption = battle.mapName:sub(1, 22),
+		-- 		objectOverrideFont = WG.Chobby.Configuration:GetFont(9),
+		-- 		parent = userTooltip.battleInfoHolder,
+		-- 		OnResize = {
+		-- 			function (obj, xSize, ySize)
+		-- 				if battle then
+		-- 					obj:SetCaption(StringUtilities.GetTruncatedStringWithDotDot(battle.mapName, obj.font, obj.width))
+		-- 				end
+		-- 			end
+		-- 		}
+		-- 	}
+		-- end
+		-- userTooltip.lblMap:SetCaption(battle.mapName:sub(1, 22))
+		-- offset = offset + 45
+		-- battleOffset = battleOffset + 45
+
+		if not userTooltip.battleTooltipHolder then
+			userTooltip.battleTooltipHolder = Chili.Control:New {
+				x = 0,
+				y = battleOffset,
+				width = 320,
+				height = 120,
+				padding = {0, 0, 0, 0},
+				parent = userTooltip.battleInfoHolder,
+			}
+		else
+			userTooltip.battleTooltipHolder:ClearChildren()
+			userTooltip.battleTooltipHolder:Show()
+		end
+
+		local battleTooltipControl = GetBattleTooltip(userInfo.battleID, battle, true)
+		userTooltip.battleTooltipHolder:AddChild(battleTooltipControl)
+		local battleHeight = battleTooltipControl.clientHeight
+		local battleWidth = battleTooltipControl.clientWidth
+		userTooltip.battleTooltipHolder:SetPos(nil, nil, battleWidth, battleHeight)
+
+		offset = offset + battleHeight
+		battleOffset = battleOffset + battleHeight
+		width = math.max(width, battleWidth)
+		userTooltip.battleInfoHolder:SetPos(nil, nil, width, battleOffset)
 	elseif userTooltip.battleInfoHolder then
 		userTooltip.battleInfoHolder:Hide()
 	end
 
 	-- Debug Mode
 	if Configuration.debugMode then
-		offset = offset + 10
 
 		if not userTooltip.debugText then
 			userTooltip.debugText = Chili.TextBox:New{
-				x      = 5,
-				y      = 200,
+				x      = width,
+				y      = 7,
 				right  = 5,
+				minWidth = 160,
+				maxWidth = 320,
+				autosize = true,
 				bottom = 5,
 				margin = {0,0,0,0},
 				objectOverrideFont = Configuration:GetFont(10),
@@ -860,7 +822,7 @@ local function GetUserTooltip(userName, userInfo, userBattleInfo, inBattleroom)
 				parent = userTooltip.mainControl,
 			}
 		end
-		userTooltip.debugText:SetPos(nil, offset)
+		userTooltip.debugText:SetPos(width, 7)
 
 		if not userTooltip.debugText.parent then
 			userTooltip.mainControl:AddChild(userTooltip.debugText)
@@ -883,11 +845,10 @@ local function GetUserTooltip(userName, userInfo, userBattleInfo, inBattleroom)
 		end
 
 		userTooltip.debugText:SetText(text)
-		userTooltip.debugText:UpdateLayout()
-
 		local numLines = #userTooltip.debugText.physicalLines
-		local height = numLines * Configuration.font[10].size
-		offset = offset + height
+		local height = numLines * Configuration.font[10].size + 7
+		offset = math.max(offset, height)
+		width = width + userTooltip.debugText.clientWidth + 5 + 6
 	elseif userTooltip.debugText and userTooltip.debugText.parent then
 		userTooltip.mainControl:RemoveChild(userTooltip.debugText)
 	end
@@ -1018,7 +979,7 @@ local function CheckTooltipUpdate(newText)
 		if currentTooltipText ~= newText then
 			currentTooltipText = newText
 			UpdateTooltip(newText)
-			SetTooltipPos() 
+			SetTooltipPos()
 		else
 			-- Changed to dont update tooltip pos if not desired
 			if WG.Chobby.Configuration and WG.Chobby.Configuration.staticTooltipPositions ~= true then
