@@ -16,13 +16,6 @@ local screenWidth, screenHeight = Spring.GetWindowGeometry()
 local MAX_WIDTH = 640
 local MAX_WINDOW_WIDTH = MAX_WIDTH + 11
 
-local BATTLE_TOOLTIP_PREFIX = "battle_tooltip_"
-local USER_TOOLTIP_PREFIX = "user_"
-local USER_SP_TOOLTIP_PREFIX = "user_single_"
-local USER_MP_TOOLTIP_PREFIX = "user_battle_"
-local USER_CH_TOOLTIP_PREFIX = "user_chat_s_"
-local MINIMAP_TOOLTIP_PREFIX = "minimap_tooltip_"
-
 local TOOLTIP_TEXT_NAME = "tooltipText"
 
 local IMAGE_MODERATOR    = LUA_DIRNAME .. "images/ranks/moderator.png"
@@ -924,15 +917,16 @@ local function SetTooltipPos()
 end
 
 local function UpdateTooltip(inputText)
-	if inputText:starts(USER_TOOLTIP_PREFIX) then
+	local Configuration = WG.Chobby.Configuration
+	if inputText:starts(Configuration.USER_TOOLTIP_PREFIX) then
 		local userName = string.sub(inputText, 13)
 		local myLobby, inBattleroom
-		if inputText:starts(USER_SP_TOOLTIP_PREFIX) then
+		if inputText:starts(Configuration.USER_SP_TOOLTIP_PREFIX) then
 			myLobby = WG.LibLobby.localLobby
 			inBattleroom = true
 		else
 			myLobby = lobby
-			if inputText:starts(USER_MP_TOOLTIP_PREFIX) then
+			if inputText:starts(Configuration.USER_MP_TOOLTIP_PREFIX) then
 				inBattleroom = true
 			end
 		end
@@ -944,7 +938,7 @@ local function UpdateTooltip(inputText)
 		tipWindow:ClearChildren()
 		tipWindow:AddChild(tooltipControl)
 
-	elseif inputText:starts(BATTLE_TOOLTIP_PREFIX) then
+	elseif inputText:starts(Configuration.BATTLE_TOOLTIP_PREFIX) then
 		local battleID = tonumber(string.sub(inputText, 16))
 		local battle = lobby:GetBattle(battleID)
 		if battle then
@@ -953,7 +947,7 @@ local function UpdateTooltip(inputText)
 			tipWindow:ClearChildren()
 			tipWindow:AddChild(tooltipControl)
 		end
-	elseif inputText:starts(MINIMAP_TOOLTIP_PREFIX) then
+	elseif inputText:starts(Configuration.MINIMAP_TOOLTIP_PREFIX) then
 		local mapName = string.sub(inputText, 17)
 		local tooltiptext = ""
 		if mapName:find("|",1, true) then

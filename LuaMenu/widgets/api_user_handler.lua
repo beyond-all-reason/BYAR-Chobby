@@ -90,10 +90,6 @@ local IMAGE_RUNNING_BATTLE = IMAGE_DIR .. "runningBattle.png"
 local IMAGE_CLAN_PATH    = "LuaUI/Configs/Clans/"
 local RANK_DIR           = LUA_DIRNAME .. "configs/gameConfig/zk/rankImages/"
 
-local USER_SP_TOOLTIP_PREFIX = "user_single_"
-local USER_MP_TOOLTIP_PREFIX = "user_battle_"
-local USER_CH_TOOLTIP_PREFIX = "user_chat_s_"
-
 local UserLevelToImageConfFunction
 
 local votedUsers = {} -- 2023-06-29 FB: ToDo: Does not get reset, if user leaves battle during vote, but has no impact
@@ -886,7 +882,7 @@ local function GetUserControls(userName, opts)
 	if reinitialize then
 		userControls.mainControl:ClearChildren()
 	else
-		local tooltip = ((isSingleplayer and USER_SP_TOOLTIP_PREFIX) or (isInBattle and USER_MP_TOOLTIP_PREFIX) or USER_CH_TOOLTIP_PREFIX) .. userName
+		local tooltip = ((isSingleplayer and Configuration.USER_SP_TOOLTIP_PREFIX) or (isInBattle and Configuration.USER_MP_TOOLTIP_PREFIX) or Configuration.USER_CH_TOOLTIP_PREFIX) .. userName
 
 		local ControlType = ComboBox
 		if disableInteraction then

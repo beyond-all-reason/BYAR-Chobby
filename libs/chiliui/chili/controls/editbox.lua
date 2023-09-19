@@ -148,7 +148,7 @@ local function explode(div, str)
 
 --- Sets the EditBox text
 -- @string newtext text to be set
-function EditBox:SetText(newtext)
+function EditBox:SetText(newtext, tooltips, OnTextClick)
 	if (self.text == newtext) then
 		return
 	end
@@ -163,7 +163,7 @@ function EditBox:SetText(newtext)
 	self.lines = {}
 	self.physicalLines = {}
 	for _, line in pairs(explode("\n", self.text)) do
-		self:AddLine(line)
+		self:AddLine(line, tooltips, OnTextClick)
 	end
 	self:UpdateLayout()
 	self:Invalidate()

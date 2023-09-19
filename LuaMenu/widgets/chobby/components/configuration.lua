@@ -378,6 +378,14 @@ function Configuration:init()
 	-- SAIDBATTLEEX Prefixes
 	self.BTLEX_JOINQUEUE = "You are now in the join-queue at position"
 	self.BTLEX_BARMANAGER = "* BarManager|"
+
+	-- tooltip prefixes
+	self.USER_TOOLTIP_PREFIX    = "user_"
+	self.USER_SP_TOOLTIP_PREFIX = "user_single_"
+	self.USER_CH_TOOLTIP_PREFIX = "user_chat_s_"
+	self.USER_MP_TOOLTIP_PREFIX = "user_battle_"
+	self.BATTLE_TOOLTIP_PREFIX  = "battle_tooltip_"
+	self.MINIMAP_TOOLTIP_PREFIX = "minimap_tooltip_"
 end
 
 ---------------------------------------------------------------------------------
