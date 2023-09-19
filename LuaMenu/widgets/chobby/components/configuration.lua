@@ -153,7 +153,7 @@ function Configuration:init()
 	}
 
 	self.showRank    = true
-	self.showSkillOpt = 1 -- 1: No 2: Yes 3: Detailed (with Uncertainty)
+	self.showSkillOpt = 2 -- 1: No 2: Yes 3: Detailed (with Uncertainty)
 	self.showCountry = false
 
 	self.useLastGameSpectatorState = 1 --1: Remember Last 2: Always Spectator 3: Always Player
