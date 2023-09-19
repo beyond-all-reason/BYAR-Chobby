@@ -386,6 +386,10 @@ function Configuration:init()
 	self.USER_MP_TOOLTIP_PREFIX = "user_battle_"
 	self.BATTLE_TOOLTIP_PREFIX  = "battle_tooltip_"
 	self.MINIMAP_TOOLTIP_PREFIX = "minimap_tooltip_"
+
+	-- should be removed at about 1.1.2024 together with all other occurences of tempChangedShowSkill
+	-- remember if new default of showSkill was applied
+	self.tempChangedShowSkill = false
 end
 
 ---------------------------------------------------------------------------------
@@ -574,6 +578,15 @@ function Configuration:SetConfigData(data)
 		end
 	end
 
+	-- should be removed at 1.1.2024
+	-- replace showSkillOpt once , if it's not already above 1
+	if not self.tempChangedShowSkill then
+		if self.showSkillOpt == 1 then
+			self:SetConfigValue("showSkillOpt", 2)
+		end
+		self.tempChangedShowSkill = true
+	end
+
 	-- Fix old channel memory.
 	for key, value in pairs(self.channels) do
 		if string.find(key, "debriefing") or string.find(key, "party_") then
@@ -623,6 +636,7 @@ end
 
 function Configuration:GetConfigData()
 	return {
+		tempChangedShowSkill = self.tempChangedShowSkill, -- should be removed at 1.1.2024
 		autoLaunchAsSpectator = self.autoLaunchAsSpectator,
 		serverAddress = self.serverAddress,
 		serverPort = self.serverPort,
