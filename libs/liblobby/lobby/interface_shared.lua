@@ -159,6 +159,15 @@ function Interface:SendCommandToBuffer(cmdName)
 	return not self.bufferBypass[cmdName]
 end
 
+function Interface:DoActionsBeforeBuffer(cmdName, arguments)
+	if type(self.actionsBeforeBuffer) ~= "table" then
+		return
+	end
+	for i, action in pairs(self.actionsBeforeBuffer) do
+		action(cmdName, arguments)
+	end
+end
+
 function Interface:CommandReceived(command)
 	local cmdId, cmdName, arguments
 	local argumentsPos = false
@@ -180,7 +189,12 @@ function Interface:CommandReceived(command)
 		end
 	end
 
+	if argumentsPos then
+		arguments = command:sub(argumentsPos + 1)
+	end
+
 	if self.bufferCommandsEnabled and self:SendCommandToBuffer(cmdName) then
+		self:DoActionsBeforeBuffer(cmdName, arguments)
 		if not self.commandBuffer then
 			self.commandBuffer = {}
 			self.commandsInBuffer = 0
@@ -192,9 +206,6 @@ function Interface:CommandReceived(command)
 		return
 	end
 
-	if argumentsPos then
-		arguments = command:sub(argumentsPos + 1)
-	end
 
 	self:_OnCommandReceived(cmdName, arguments, cmdId)
 end
@@ -214,6 +225,20 @@ end
 -- status can be one of: "offline", "connected", "connected" and "disconnected"
 function Interface:GetConnectionStatus()
 	return self.status
+end
+
+function Interface:_GetFunArgs(cmdName, arguments)
+	local commandFunction, pattern = self:_GetCommandFunction(cmdName)
+	if not commandFunction then
+		return false
+	end
+	
+	local pattern = self:_GetCommandPattern(cmdName)
+	if not pattern then
+		return false
+	end
+	
+	return {arguments:match(pattern)}
 end
 
 function Interface:_OnCommandReceived(cmdName, arguments, cmdId)
