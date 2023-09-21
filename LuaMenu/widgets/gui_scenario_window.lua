@@ -702,7 +702,7 @@ local function CreateScenarioPanel(shortname, sPanel)
 					end
 
 					if not VFS.HasArchive(barversion) then
-						WG.Chobby.InformationPopup("You do no have the the latest game version, check your downloads tab or update the game.", {caption = "OK"})
+						WG.Chobby.InformationPopup("You do not have the latest game version, check your downloads tab or update the game.", {caption = "OK"})
 						return
 					end
 
