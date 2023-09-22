@@ -767,7 +767,7 @@ local function split16(bigNumStr)
     return lsb, msb
 end
 
-function Interface:ParseBattleStatus(battleStatus)
+local function ParseBattleStatus(battleStatus)
 	local lsb, msb = split16(battleStatus)
 	return {
 		isReady      = rshift(lsb, 1) % 2 == 1,
@@ -873,7 +873,7 @@ Interface.commands["UPDATEBATTLEINFO"] = Interface._OnUpdateBattleInfo
 Interface.commandPattern["UPDATEBATTLEINFO"] = "(%d+)%s+(%S+)%s+(%S+)%s+(%S+)%s+([^\t]+)"
 
 function Interface:_OnClientBattleStatus(userName, battleStatus, teamColor)
-	local status = self:ParseBattleStatus(battleStatus)
+	local status = ParseBattleStatus(battleStatus)
 	status.teamColor = ParseTeamColor(teamColor)
 
 	self:_OnUpdateUserBattleStatus(userName, status)
@@ -912,7 +912,7 @@ end
 
 function Interface:_OnAddBot(battleID, name, owner, battleStatus, teamColor, aiDll)
 	battleID = tonumber(battleID)
-	local status = self:ParseBattleStatus(battleStatus)
+	local status = ParseBattleStatus(battleStatus)
 	status.teamColor = ParseTeamColor(teamColor)
 	-- local ai, dll = unpack(explode("\t", aiDll)))
 	status.aiLib = aiDll
@@ -931,7 +931,7 @@ Interface.commandPattern["REMOVEBOT"] = "(%d+)%s+(%S+)"
 
 function Interface:_OnUpdateBot(battleID, name, battleStatus, teamColor)
 	battleID = tonumber(battleID)
-	local status = self:ParseBattleStatus(battleStatus)
+	local status = ParseBattleStatus(battleStatus)
 	status.teamColor = ParseTeamColor(teamColor)
 	local knownBattleAI = table.ifind(self.battleAis, name)
 	if not knownBattleAI then
@@ -962,7 +962,7 @@ local function testEncodeDecode()
 							bStatus.sync = sync
 							bStatus.side = side
 							bStatusStr = EncodeBattleStatus(bStatus)
-							retBStatus = WG.LibLobby.lobby:ParseBattleStatus(bStatusStr)
+							retBStatus = ParseBattleStatus(bStatusStr)
 							if	retBStatus.isReady ~= bStatus.isReady or
 								retBStatus.teamNumber ~= bStatus.teamNumber or
 								retBStatus.allyNumber ~= bStatus.allyNumber or
@@ -996,7 +996,7 @@ local function testEncodeDecode()
 	for allyNumber=0, 255, 1 do
 		bStatus.allyNumber = allyNumber
 		bStatusStr = EncodeBattleStatus(bStatus)
-		retBStatus = WG.LibLobby.lobby:ParseBattleStatus(bStatusStr)
+		retBStatus = ParseBattleStatus(bStatusStr)
 		if	retBStatus.allyNumber ~= bStatus.allyNumber then
 			error = true
 			Spring.Log(LOG_SECTION, LOG.NOTICE, bStatus.allyNumber)
@@ -1008,7 +1008,7 @@ local function testEncodeDecode()
 	for teamNumber=0, 255, 1 do 
 		bStatus.teamNumber = teamNumber
 		bStatusStr = EncodeBattleStatus(bStatus)
-		retBStatus = WG.LibLobby.lobby:ParseBattleStatus(bStatusStr)
+		retBStatus = ParseBattleStatus(bStatusStr)
 		if	retBStatus.teamNumber ~= bStatus.teamNumber then
 			error = true
 			Spring.Log(LOG_SECTION, LOG.NOTICE, bStatus.teamNumber)
