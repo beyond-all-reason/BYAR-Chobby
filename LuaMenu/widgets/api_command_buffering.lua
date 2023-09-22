@@ -34,12 +34,59 @@ local bufferBypass = {
 	BattlePollOutcome = true,
 }
 
+local function NotifyBecamePlayer(arguments)
+	local lobby = WG.LibLobby.lobby
+	local funArgs = lobby:_GetFunArgs("CLIENTBATTLESTATUS", arguments)
+	
+	if type(funArgs) ~= "table" or not (funArgs[1] and funArgs[2]) then
+		return false
+	end
+
+	-- am i mentioned ?
+	local myUserName = lobby:GetMyUserName()
+	if funArgs[1] ~= myUserName then
+		return false
+	end
+
+	-- is new status player ?
+	local status = lobby:ParseBattleStatus(funArgs[2]) or {}
+	if status.isSpectator then
+		return false
+	end
+
+	-- is my known status spectator ?
+	local myBs = lobby:GetUserBattleStatus(lobby.myUserName) or {}
+	if not myBs.isSpectator then
+	 	return false
+	end
+
+	-- this causes a normal CLIENTBATTLESTATUS being applied for all listeners (bypass buffering)
+	-- AND play the notification sound !
+	return true
+end
+
+
 local CMD_PER_UPDATE = 14
+
+local function AddBufferByPassFunctions()
+	local lobby = WG.LibLobby.lobby
+	if not lobby then
+		return
+	end
+
+	local myBs = lobby:GetUserBattleStatus(lobby.myUserName) or {}
+	if not myBs.isSpectator then
+		return
+	end
+	lobby.bufferBypass["CLIENTBATTLESTATUS"] = NotifyBecamePlayer
+
+end
 
 function widget:ActivateGame()
 	local lobby = WG.LibLobby.lobby
 	if not lobby.bufferCommandsEnabled then
-		lobby.bufferBypass = bufferBypass
+		lobby.bufferBypass = table.shallowcopy(bufferBypass)
+		AddBufferByPassFunctions()
 		lobby.bufferCommandsEnabled = true
 	end
 	--WG.Chobby.interfaceRoot.GetChatWindow():ClearHistory()

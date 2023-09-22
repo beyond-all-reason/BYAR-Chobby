@@ -152,9 +152,12 @@ function Interface:ProcessBuffer()
 	return true
 end
 
-function Interface:SendCommandToBuffer(cmdName)
+function Interface:SendCommandToBuffer(cmdName, arguments)
 	if not self.bufferBypass then
 		return true
+	end
+	if type(self.bufferBypass[cmdName]) == "function" then
+		return not self.bufferBypass[cmdName](arguments)
 	end
 	return not self.bufferBypass[cmdName]
 end
@@ -180,7 +183,11 @@ function Interface:CommandReceived(command)
 		end
 	end
 
-	if self.bufferCommandsEnabled and self:SendCommandToBuffer(cmdName) then
+	if argumentsPos then
+		arguments = command:sub(argumentsPos + 1)
+	end
+
+	if self.bufferCommandsEnabled and self:SendCommandToBuffer(cmdName, arguments) then
 		if not self.commandBuffer then
 			self.commandBuffer = {}
 			self.commandsInBuffer = 0
@@ -192,9 +199,6 @@ function Interface:CommandReceived(command)
 		return
 	end
 
-	if argumentsPos then
-		arguments = command:sub(argumentsPos + 1)
-	end
 
 	self:_OnCommandReceived(cmdName, arguments, cmdId)
 end
@@ -214,6 +218,20 @@ end
 -- status can be one of: "offline", "connected", "connected" and "disconnected"
 function Interface:GetConnectionStatus()
 	return self.status
+end
+
+function Interface:_GetFunArgs(cmdName, arguments)
+	local commandFunction, pattern = self:_GetCommandFunction(cmdName)
+	if not commandFunction then
+		return false
+	end
+	
+	local pattern = self:_GetCommandPattern(cmdName)
+	if not pattern then
+		return false
+	end
+	
+	return {arguments:match(pattern)}
 end
 
 function Interface:_OnCommandReceived(cmdName, arguments, cmdId)
