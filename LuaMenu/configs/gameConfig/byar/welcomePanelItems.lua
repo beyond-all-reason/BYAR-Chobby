@@ -5,18 +5,22 @@
         Url = "https://www.beyondallreason.info",
         UrlText = "Beyond All Reason Website",
         Image = "LuaMenu/configs/gameConfig/byar/images/bla.png",
-        Time = whatever the hell this thing does.
+        Time = "2023-05-06T14:00:00", -- needs to be in UTC and is converted to user's local timezone, shows the time difference 
     }
 ]]
 
-
-
 local welcomePanelItems = {
+    {
+        Header = "Introducing the Supreme Tournament!!!",
+        Text = "We are delighted to announce the SUPREME Tournament, an event that will genuinely highlight the incredible talent within our community.\n \nThis tournament will feature teams consisting of 8 players, with the option for up to 4 substitutes, battling it out on \"The Finest Map\" out there - Supreme Strait!\n \nRegistration deadline: 2023-10-06\nTournament start: 2023-10-07\n \nMatch days are going to be Saturdays and Sundays\n(1 per weekend for each team)\n \nWe invite everyone, regardless of their rank or experience level, to participate. Whether you wish to join with your friends or seek a team in our dedicated \"looking-for-team\" channel, we welcome you with open arms.\n \nJoin our Discord server and register now for the ultimate showdown!",
+        Url = "https://discord.gg/prG3A5kHyv",
+        UrlText = "Join tournament discord",
+    },
     {
         Header = "New Map: Lavender Bender v2!",
         Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/Lavender_Bender_v2.png",
         Text = "1v1-4v4 map\nBy Johannes",
-    },   
+    },
     {
         Header = "Commander update survey!",
         Url = "https://forms.gle/6iagp9r8EWPc3YUQ9",
