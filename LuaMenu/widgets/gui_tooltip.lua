@@ -11,6 +11,7 @@ function widget:GetInfo()
 end
 
 local spGetMouseState           = Spring.GetMouseState
+local spFormatTime              = Spring.Utilities.FormatTime
 local screenWidth, screenHeight = Spring.GetWindowGeometry()
 
 local MAX_WIDTH = 640
@@ -211,6 +212,11 @@ end
 -- Battle tooltip
 local battleTooltip = {}
 
+local function SetSpadsStatusRequested(battleID)
+	local battleInfo = {spadsStatusRequested = true}
+	lobby:super("_OnUpdateBattleInfo", battleID, battleInfo)
+end
+
 local function GetBattleTooltip(battleID, battle, showMapName)
 	local Configuration = WG.Chobby.Configuration
 
@@ -325,21 +331,71 @@ local function GetBattleTooltip(battleID, battle, showMapName)
 	elseif battleTooltip.isRunning then 
 		battleTooltip.isRunning.Hide()
 	end
-  
-	-- -- InGameSince (ZK specific)
-	-- if battle.runningSince and battle.isRunning then
-	-- 	if not battleTooltip.inGameSince then
-	-- 		battleTooltip.inGameSince = GetTooltipLine(battleTooltip.mainControl, true)
-	-- 	end
-	-- 	battleTooltip.inGameSince.Update(
-	-- 		offset,
-	-- 		"Running for " .. Spring.Utilities.GetTimeToPast(battle.runningSince, true),
-	-- 		IMAGE_INGAME
-	-- 	)
-	-- 	offset = offset + 20
-	-- elseif battleTooltip.inGameSince then
-	-- 	battleTooltip.inGameSince:Hide()
-	-- end
+
+	if not battleTooltip.runningOrEndedAt then
+		battleTooltip.runningOrEndedAt = GetTooltipLine(battleTooltip.mainControl)
+	end
+
+	local offset__OnUpdateBattleInfo = offset
+	local function UpdateRunningOrEndedAt(listener, _battleID, _battleInfo)
+		_battleInfo = _battleInfo or {}
+		if _battleID ~= battleID or not (_battleInfo.thisGameStartedAt or _battleInfo.lastGameEndedAt) then
+			return
+		end
+
+		local newMessage, elapsed
+		if _battleInfo.thisGameStartedAt then
+			elapsed = os.clock() - math.floor(_battleInfo.thisGameStartedAt)
+			newMessage = string.format("Running for %s", spFormatTime(elapsed, true)) -- ToDo: Replace with i18n
+		elseif _battleInfo.lastGameEndedAt then
+			if type(_battleInfo.lastGameEndedAt) == "string" and _battleInfo.lastGameEndedAt == "unknown" then
+				newMessage = "First game for this lobby" -- ToDo: Replace with i18n
+			else
+				elapsed = os.clock() - math.floor(_battleInfo.lastGameEndedAt)
+				newMessage = string.format("Last game ended %sago", spFormatTime(elapsed, true)) -- ToDo: Replace with i18n
+			end
+		end
+		battleTooltip.runningOrEndedAt.Update( offset__OnUpdateBattleInfo, newMessage)
+		lobby:RemoveListener("OnUpdateBattleInfo", listener)
+	end
+
+	local message = ""
+	if battle.isRunning then
+
+		message = "Fetching running time..."
+		if not battle.thisGameStartedAt then
+			if not battle.spadsStatusRequested then -- only allow one status request ever
+				SetSpadsStatusRequested(battleID)
+
+				lobby:RequestSpadsGameStatus(battle.founder)
+				lobby:AddListener("OnUpdateBattleInfo", UpdateRunningOrEndedAt)
+			end
+		else
+			local elapsed = os.clock() - math.floor(battle.thisGameStartedAt)
+			message = string.format("Running for %s", spFormatTime(elapsed, true)) -- ToDo: Replace with i18n
+		end
+
+	else -- battle not running
+		
+		message = "Fetching waiting time..."
+		if not battle.lastGameEndedAt then
+			if not battle.spadsStatusRequested then  -- only allow one status request ever
+				SetSpadsStatusRequested(battleID)
+
+				lobby:RequestSpadsBattleStatus(battle.founder)
+				lobby:AddListener("OnUpdateBattleInfo", UpdateRunningOrEndedAt)
+			end
+		else
+			if type(battle.lastGameEndedAt) == "string" and battle.lastGameEndedAt == "unknown" then
+				message = "First game for this lobby"
+			else
+				local elapsed = os.clock() - math.floor(battle.lastGameEndedAt)
+				message = string.format("Last game ended %sago", spFormatTime(elapsed, true))
+			end
+		end
+	end
+	battleTooltip.runningOrEndedAt.Update( offset, message)
+	offset = offset + 21
 
 	-- Player list
 	local userListPosition = offset

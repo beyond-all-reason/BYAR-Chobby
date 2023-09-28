@@ -5,6 +5,8 @@
 VFS.Include(LIB_LOBBY_DIRNAME .. "observable.lua")
 VFS.Include(LIB_LOBBY_DIRNAME .. "utilities.lua")
 
+local spJsonDecode = Spring.Utilities.json.decode
+
 function Lobby:init()
 	self.listeners = {}
 	-- don't use these fields directly, they are subject to change
@@ -789,7 +791,16 @@ end
 
 function Lobby:_OnBattleIngameUpdate(battleID, isRunning)
 	if self.battles[battleID] and self.battles[battleID].isRunning ~= isRunning then
-		self.battles[battleID].isRunning = isRunning
+		local battleInfo = self.battles[battleID]
+		if isRunning then -- switching to running state
+			battleInfo.thisGameStartedAt = os.clock()
+		else -- switching to lobby state
+			battleInfo.lastGameEndedAt = os.clock()
+			battleInfo.thisGameStartedAt = nil
+		end
+		self:super("_OnUpdateBattleInfo", battleID, battleInfo)
+
+		battleInfo.isRunning = isRunning -- sets self.battles[battleID].isRunning
 		self:_CallListeners("OnBattleIngameUpdate", battleID, isRunning)
 	end
 end
@@ -822,11 +833,11 @@ function Lobby:_OnBattleOpened(battleID, battle)
 		isRunning = battle.isRunning,
 
 		-- ZK specific
-		runningSince = battle.runningSince,
-		battleMode = battle.battleMode,
-		disallowCustomTeams = battle.disallowCustomTeams,
-		disallowBots = battle.disallowBots,
-		isMatchMaker = battle.isMatchMaker,
+		-- runningSince = battle.runningSince,
+		-- battleMode = battle.battleMode,
+		-- disallowCustomTeams = battle.disallowCustomTeams,
+		-- disallowBots = battle.disallowBots,
+		-- isMatchMaker = battle.isMatchMaker,
 	}
 	self.battleCount = self.battleCount + 1
 
@@ -976,20 +987,36 @@ function Lobby:_OnUpdateBattleInfo(battleID, battleInfo)
 	battle.balanceMode = battleInfo.balanceMode or battle.balanceMode
 	battle.preset = battleInfo.preset or battle.preset
 
+	battle.lastGameEndedAt = battleInfo.lastGameEndedAt or battle.lastGameEndedAt
+	battle.thisGameStartedAt = battleInfo.thisGameStartedAt or battle.thisGameStartedAt
+	battle.spadsStatusRequested = battleInfo.spadsStatusRequested or battle.spadsStatusRequested
+
 	-- ZK specific
-	battle.runningSince = battleInfo.runningSince or battle.runningSince
-	battle.battleMode = battleInfo.battleMode or battle.battleMode
-	if battleInfo.disallowCustomTeams ~= nil then
-		battle.disallowCustomTeams = battleInfo.disallowCustomTeams
-	end
-	if battleInfo.disallowBots ~= nil then
-		battle.disallowBots = battleInfo.disallowBots
-	end
-	if battleInfo.isMatchMaker ~= nil then
-		battle.isMatchMaker = battleInfo.isMatchMaker
-	end
+	-- battle.runningSince = battleInfo.runningSince or battle.runningSince
+	-- battle.battleMode = battleInfo.battleMode or battle.battleMode
+	-- if battleInfo.disallowCustomTeams ~= nil then
+	-- 	battle.disallowCustomTeams = battleInfo.disallowCustomTeams
+	-- end
+	-- if battleInfo.disallowBots ~= nil then
+	-- 	battle.disallowBots = battleInfo.disallowBots
+	-- end
+	-- if battleInfo.isMatchMaker ~= nil then
+	-- 	battle.isMatchMaker = battleInfo.isMatchMaker
+	-- end
 
 	self:_CallListeners("OnUpdateBattleInfo", battleID, battleInfo)
+end
+
+-- id must be 1, otherwise some properties return wrong values
+local JSONRPCBATTLE = '!#JSONRPC {"jsonrpc": "2.0", "method": "status", "params": ["game"], "id": 1}'
+function Lobby:RequestSpadsGameStatus(founder)
+	self:SayPrivate(founder, JSONRPCBATTLE)
+end
+
+-- id must be 1, otherwise some properties return wrong values
+local JSONRPCBATTLE = '!#JSONRPC {"jsonrpc": "2.0", "method": "status", "params": ["battle"], "id": 1}'
+function Lobby:RequestSpadsBattleStatus(founder)
+	self:SayPrivate(founder, JSONRPCBATTLE)
 end
 
 function Lobby:_OnUpdateBattleTitle(battleID, battleTitle)
@@ -1113,7 +1140,7 @@ end
 -- message = {"BattleStateChanged": {"locked": "locked", "autoBalance": "advanced", "teamSize": "8", "nbTeams": "2", "balanceMode": "clan;skill", "preset": "team", "boss": "Fireball"}}
 function Lobby:ParseBarManager(battleID, message)
 	local battleInfo = {}
-	local barManagerSettings = Spring.Utilities.json.decode(message)
+	local barManagerSettings = spJsonDecode(message)
 	if not barManagerSettings['BattleStateChanged'] then
 		return battleInfo
 	end
@@ -1287,7 +1314,68 @@ function Lobby:_OnSaidEx(chanName, userName, message, sayTime)
 	self:_CallListeners("OnSaidEx", chanName, userName, message, sayTime)
 end
 
+local function RpcGetGameStatus(rpc)
+	return rpc and rpc.result and rpc.result.game and rpc.result.game.status
+end
+
+local function RpcGetBattleStatus(rpc)
+	return rpc and rpc.result and rpc.result.battleLobby and rpc.result.battleLobby.status
+end
+
+-- fetch (battleStatus and delaySinceLastGame) or (gameStatus and gameTime)
+-- returns
+-- 1. status = nil | lobby | pregame | running
+-- 2. lastGameEndedAt = nil | timestamp
+-- 3. thisGameStartedAt = nil | timestamp
+function Lobby:ParseRPC(json)
+	local status = nil
+	local thisGameStartedAt = nil
+	local lastGameEndedAt = nil
+
+	local rpc = spJsonDecode(json)
+	local statusRpc = RpcGetGameStatus(rpc) or RpcGetBattleStatus(rpc)
+	
+	if statusRpc then
+		if statusRpc.gameTime and statusRpc.gameStatus then -- it's an answer to "status game"
+			thisGameStartedAt = math.floor(os.clock() - statusRpc.gameTime)
+			status = statusRpc.gameStatus == "waiting" and "pregame" or "running" -- "waiting" = startpos_choosing or "running"
+		elseif statusRpc.battleStatus then -- it's an answer to "status battle"
+			if statusRpc.delaySinceLastGame then
+				lastGameEndedAt = math.floor(os.clock() - statusRpc.delaySinceLastGame)
+				status = statusRpc.battleStatus == "waiting" and "lobby" or nil -- ("waiting" = in lobby) or ("running" = not in lobby (could be pregame or running, we don't know !!!))
+			else -- battles without previously running battles return null
+				lastGameEndedAt = "unknown" -- displayed in gui_tooltip as a new lobby
+			end
+		else
+			-- this case does not normally occur: it's indicating that sth. unexpected was received
+			Spring.Log(LOG_SECTION, LOG.ERROR, "Error parsing rpc spads message: \n" ..  json)
+		end
+	-- (else) "statusRpc" is nil if we ask for "status game" while the game is not running, so it's ok to stay with nil for thisGameStartedAt
+
+	end
+	return status, lastGameEndedAt, thisGameStartedAt
+end
+
+
+local MSG_PREFIX_JSONRPC = "!#JSONRPC "
 function Lobby:_OnSaidPrivate(userName, message, sayTime)
+	local found, json = startsWith(message, MSG_PREFIX_JSONRPC)
+	if found then
+		local battleID = self.users[userName] and self.users[userName].battleID
+		local battle = self.battles[battleID] or {}
+		local isFounder = battle.founder == userName
+
+		if isFounder then -- this message came from battle founder
+			local status, lastGameEndedAt, thisGameStartedAt = self:ParseRPC(json) -- ignore status: It's not used so far, it can give one additional info, that is pregame state - but it would need to be asked over and over again to use it as a precice state
+			lastGameEndedAt = lastGameEndedAt or self.battles[battleID].lastGameEndedAt -- use existing value if parsing returned nil (don't overwrite existing values by nil)
+			thisGameStartedAt = thisGameStartedAt or self.battles[battleID].thisGameStartedAt -- use existing value if parsing returned nil (don't overwrite existing values by nil)
+			if lastGameEndedAt ~= self.battles[battleID].lastGameEndedAt or thisGameStartedAt ~= self.battles[battleID].thisGameStartedAt then
+				local battleInfo = {lastGameEndedAt = lastGameEndedAt, thisGameStartedAt = thisGameStartedAt}
+				self:super("_OnUpdateBattleInfo", battleID, battleInfo)
+			end
+		end
+		return self -- hide this message
+	end
 	self:_CallListeners("OnSaidPrivate", userName, message, sayTime)
 end
 
