@@ -1384,6 +1384,9 @@ function Lobby:_OnSaidPrivateEx(userName, message, sayTime)
 end
 
 function Lobby:_OnSayPrivate(userName, message, sayTime)
+	if startsWith(message, MSG_PREFIX_JSONRPC) then
+		return self
+	end
 	self:_CallListeners("OnSayPrivate", userName, message, sayTime)
 end
 
