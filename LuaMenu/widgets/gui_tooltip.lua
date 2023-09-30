@@ -212,9 +212,105 @@ end
 -- Battle tooltip
 local battleTooltip = {}
 
+local spadsRequestQueue = {}
+local spadsRequestActive = false
+local spadsRequest = {}
+local recentSpadsRequestSent = os.clock()
+
 local function SetSpadsStatusRequested(battleID)
 	local battleInfo = {spadsStatusRequested = true}
 	lobby:super("_OnUpdateBattleInfo", battleID, battleInfo)
+end
+
+local function RequestSpadsStatus()
+	SetSpadsStatusRequested(spadsRequest.battle.battleID)
+	spadsRequest.time = os.clock()
+	if spadsRequest.battle.isRunning then
+		lobby:RequestSpadsGameStatus(spadsRequest.battle.founder)
+	else
+		lobby:RequestSpadsBattleStatus(spadsRequest.battle.founder)
+	end
+end
+
+local function MaybeSendNextSpadsStatusRequest()
+	if spadsRequestActive then
+		return
+	end
+
+	if #spadsRequestQueue == 0 then
+		return
+	end
+
+	spadsRequestActive = true
+	spadsRequest = spadsRequestQueue[#spadsRequestQueue]
+	table.remove(spadsRequestQueue, #spadsRequestQueue)
+
+	local timeUntilAllowed = math.max(0, 0.4 - (os.clock() - recentSpadsRequestSent))
+	WG.Delay(RequestSpadsStatus, timeUntilAllowed)
+end
+
+local function UpdateRunningOrEndedAt(listener, _battleID, _battleInfo)
+	if not spadsRequestActive then
+		return
+	end
+
+	local battle       = spadsRequest.battle
+	local offset       = spadsRequest.offset
+	local time         = spadsRequest.time
+
+	if battle.battleID ~= _battleID then
+		return
+	end
+
+	_battleInfo = _battleInfo or {}
+	if not (_battleInfo.thisGameStartedAt or _battleInfo.lastGameEndedAt) then
+		return
+	end
+	-- it's our answer
+
+	local newMessage, elapsed
+	if _battleInfo.thisGameStartedAt then
+		elapsed = os.clock() - math.floor(_battleInfo.thisGameStartedAt + 0.5)
+		newMessage = string.format("Running for %s", spFormatTime(elapsed, true)) -- ToDo: Replace with i18n
+
+	elseif _battleInfo.lastGameEndedAt then
+		if type(_battleInfo.lastGameEndedAt) == "string" and _battleInfo.lastGameEndedAt == "unknown" then
+			newMessage = "First game for this lobby" -- ToDo: Replace with i18n
+		else
+			elapsed = os.clock() - math.floor(_battleInfo.lastGameEndedAt)
+			newMessage = string.format("Last game ended %sago", spFormatTime(elapsed, true)) -- ToDo: Replace with i18n
+		end
+	end
+
+	if tipWindow.visible and battleTooltip and battleTooltip.runningOrEndedAt and battleTooltip.battleID and battleTooltip.battleID == _battleID then
+		battleTooltip.runningOrEndedAt.Update(offset, newMessage)
+	end
+
+	spadsRequestActive = false
+	spadsRequest = {}
+	recentSpadsRequestSent = time
+
+	MaybeSendNextSpadsStatusRequest()
+end
+
+local function QueueSpadsStatusRequest(battleID, offset)
+	local battle = lobby:GetBattle(battleID)
+	if battle.spadsStatusRequested then
+		return
+	end
+
+	table.insert(spadsRequestQueue, {
+		battle = battle,
+		offset = offset,
+	})
+
+	while #spadsRequestQueue > 1 do
+		table.remove(spadsRequestQueue, 1)
+	end
+
+	if not spadsRequestActive and #spadsRequestQueue == 1 then
+		MaybeSendNextSpadsStatusRequest()
+	end
 end
 
 local function GetBattleTooltip(battleID, battle, showMapName)
@@ -336,55 +432,23 @@ local function GetBattleTooltip(battleID, battle, showMapName)
 		battleTooltip.runningOrEndedAt = GetTooltipLine(battleTooltip.mainControl)
 	end
 
-	local offset__OnUpdateBattleInfo = offset
-	local function UpdateRunningOrEndedAt(listener, _battleID, _battleInfo)
-		_battleInfo = _battleInfo or {}
-		if _battleID ~= battleID or not (_battleInfo.thisGameStartedAt or _battleInfo.lastGameEndedAt) then
-			return
-		end
-
-		local newMessage, elapsed
-		if _battleInfo.thisGameStartedAt then
-			elapsed = os.clock() - math.floor(_battleInfo.thisGameStartedAt)
-			newMessage = string.format("Running for %s", spFormatTime(elapsed, true)) -- ToDo: Replace with i18n
-		elseif _battleInfo.lastGameEndedAt then
-			if type(_battleInfo.lastGameEndedAt) == "string" and _battleInfo.lastGameEndedAt == "unknown" then
-				newMessage = "First game for this lobby" -- ToDo: Replace with i18n
-			else
-				elapsed = os.clock() - math.floor(_battleInfo.lastGameEndedAt)
-				newMessage = string.format("Last game ended %sago", spFormatTime(elapsed, true)) -- ToDo: Replace with i18n
-			end
-		end
-		battleTooltip.runningOrEndedAt.Update( offset__OnUpdateBattleInfo, newMessage)
-		lobby:RemoveListener("OnUpdateBattleInfo", listener)
-	end
-
 	local message = ""
+	battleTooltip.battleID = battleID
 	if battle.isRunning then
 
 		message = "Fetching running time..."
 		if not battle.thisGameStartedAt then
-			if not battle.spadsStatusRequested then -- only allow one status request ever
-				SetSpadsStatusRequested(battleID)
-
-				lobby:RequestSpadsGameStatus(battle.founder)
-				lobby:AddListener("OnUpdateBattleInfo", UpdateRunningOrEndedAt)
-			end
+			QueueSpadsStatusRequest(battle.battleID, offset)
 		else
 			local elapsed = os.clock() - math.floor(battle.thisGameStartedAt)
 			message = string.format("Running for %s", spFormatTime(elapsed, true)) -- ToDo: Replace with i18n
 		end
 
 	else -- battle not running
-		
-		message = "Fetching waiting time..."
-		if not battle.lastGameEndedAt then
-			if not battle.spadsStatusRequested then  -- only allow one status request ever
-				SetSpadsStatusRequested(battleID)
 
-				lobby:RequestSpadsBattleStatus(battle.founder)
-				lobby:AddListener("OnUpdateBattleInfo", UpdateRunningOrEndedAt)
-			end
+		message = "Fetching last ended time ..."
+		if not battle.lastGameEndedAt then
+			QueueSpadsStatusRequest(battle.battleID, offset)
 		else
 			if type(battle.lastGameEndedAt) == "string" and battle.lastGameEndedAt == "unknown" then
 				message = "First game for this lobby"
@@ -1078,9 +1142,11 @@ function widget:Initialize()
 
 	InitWindow()
 	WG.TooltipHandler = TooltipHandler
+	lobby:AddListener("OnUpdateBattleInfo", UpdateRunningOrEndedAt)
 end
 
 function widget:Shutdown()
+	lobby:RemoveListener("OnUpdateBattleInfo", UpdateRunningOrEndedAt)
 	tipWindow:Dispose()
 end
 

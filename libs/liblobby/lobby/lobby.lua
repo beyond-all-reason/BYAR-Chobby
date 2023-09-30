@@ -6,6 +6,8 @@ VFS.Include(LIB_LOBBY_DIRNAME .. "observable.lua")
 VFS.Include(LIB_LOBBY_DIRNAME .. "utilities.lua")
 
 local spJsonDecode = Spring.Utilities.json.decode
+local spGetTimer = Spring.GetTimer
+local spDiffTimers = Spring.DiffTimers
 
 function Lobby:init()
 	self.listeners = {}
@@ -792,13 +794,15 @@ end
 function Lobby:_OnBattleIngameUpdate(battleID, isRunning)
 	if self.battles[battleID] and self.battles[battleID].isRunning ~= isRunning then
 		local battleInfo = self.battles[battleID]
-		if isRunning then -- switching to running state
-			battleInfo.thisGameStartedAt = os.clock()
-		else -- switching to lobby state
-			battleInfo.lastGameEndedAt = os.clock()
-			battleInfo.thisGameStartedAt = nil
+		if self.battles[battleID].isRunning ~= nil then
+			if isRunning then -- switching to running state
+				battleInfo.thisGameStartedAt = os.clock()
+			else -- switching to lobby state
+				battleInfo.lastGameEndedAt = os.clock()
+				battleInfo.thisGameStartedAt = nil
+			end
+			self:super("_OnUpdateBattleInfo", battleID, battleInfo)
 		end
-		self:super("_OnUpdateBattleInfo", battleID, battleInfo)
 
 		battleInfo.isRunning = isRunning -- sets self.battles[battleID].isRunning
 		self:_CallListeners("OnBattleIngameUpdate", battleID, isRunning)
