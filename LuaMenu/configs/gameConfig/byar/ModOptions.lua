@@ -535,13 +535,13 @@ local options={
 
 	{
 		key    = 'multiplier_energyconversion',
-		name   = 'Energy Conversion Multiplier (Range 0.1 - 10)',
-		desc   = 'Energy Conversion Multiplier',
+		name   = 'Energy Conversion Efficiency Multiplier (Range 0.1 - 1)',
+		desc   = 'Efficiency of energy convertors (lower means you get less metal per energy converted)',
 		type   =  "number",
 		section = 'options_resources',
 		def    = 1,
 		min    = 0.1,
-		max    = 10,
+		max    = 1,
 		step   = 0.1,
 	},
 
@@ -1061,7 +1061,7 @@ local options={
 			{key="allred", name="Force SimpleColors", desc="All players have simple colors enabled, enemies cannot be recognized from each other."},
 			{key="global", name="Shuffle Globally", desc="Player colors order is shuffled globally, everyone see the same colors"},
 			{key="local", name="Shuffle Locally", desc="Player colors order is shuffled locally, everyone see different colors"},
-			{key="disco", name="Shuffle Locally - DiscoMode", desc="Player colors order is shuffled locally, everyone see different colors that change every once a while randomly"},
+			{key="disco", name="Shuffle Locally - DiscoMode", desc="Player colors order is shuffled locally, everyone see different colors that change every 2 minutes"},
 		}
 	},
 
