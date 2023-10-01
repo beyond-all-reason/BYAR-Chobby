@@ -1012,12 +1012,17 @@ function BattleListWindow:JoinedBattle(battleID)
 		self:AddBattle(battleID)
 		return
 	end
+	local battleButton = items.battleButton
 
-	local playersCaption = items.battleButton:GetChildByName("playersCaption")
+	local playersCaption = battleButton:GetChildByName("playersCaption")
 	if playersCaption then
-		playersCaption:SetCaption(lobby:GetBattlePlayerCount(battleID) .. "/" .. battle.maxPlayers)
+		local newPlayerCount = lobby:GetBattlePlayerCount(battleID)
+		if battleButton.previousPlayerCount ~= newPlayerCount then 
+			playersCaption:SetCaption(newPlayerCount .. "/" .. battle.maxPlayers)
+			battleButton.previousPlayerCount = newPlayerCount
+		end
 	else
-		local playersOnMapCaption = items.battleButton:GetChildByName("playersOnMapCaption")
+		local playersOnMapCaption = battleButton:GetChildByName("playersOnMapCaption")
 		local playerCount = lobby:GetBattlePlayerCount(battleID)
 		playersOnMapCaption:SetCaption(playerCount .. ((playerCount == 1 and " player on " ) or " players on ") .. battle.mapName:gsub("_", " "))
 	end
@@ -1038,12 +1043,17 @@ function BattleListWindow:LeftBattle(battleID)
 		self:AddBattle(battleID)
 		return
 	end
+	local battleButton = items.battleButton
 
-	local playersCaption = items.battleButton:GetChildByName("playersCaption")
+	local playersCaption = battleButton:GetChildByName("playersCaption")
 	if playersCaption then
-		playersCaption:SetCaption(lobby:GetBattlePlayerCount(battleID) .. "/" .. battle.maxPlayers)
+		local newPlayerCount = lobby:GetBattlePlayerCount(battleID)
+		if battleButton.previousPlayerCount ~= newPlayerCount then 
+			playersCaption:SetCaption(newPlayerCount .. "/" .. battle.maxPlayers)
+			battleButton.previousPlayerCount = newPlayerCount
+		end
 	else
-		local playersOnMapCaption = items.battleButton:GetChildByName("playersOnMapCaption")
+		local playersOnMapCaption = battleButton:GetChildByName("playersOnMapCaption")
 		local playerCount = lobby:GetBattlePlayerCount(battleID)
 		playersOnMapCaption:SetCaption(playerCount .. ((playerCount == 1 and " player on " ) or " players on ") .. battle.mapName:gsub("_", " "))
 	end
@@ -1072,7 +1082,7 @@ function BattleListWindow:OnUpdateBattleInfo(battleID)
 	local password = battleButton:GetChildByName("password")
 
 	if imHaveMap or true then
-	-- Password Update
+		-- Password Update
 		if password and not battle.passworded then
 			password:Dispose()
 		elseif battle.passworded and not password then
@@ -1114,8 +1124,8 @@ function BattleListWindow:OnUpdateBattleInfo(battleID)
 		-- 	imHaveGame.file = (VFS.HasArchive(battle.gameName) and IMAGE_DLREADY or IMAGE_DLUNREADY)
 		-- end
 
-		--local gameCaption = items.battleButton:GetChildByName("gameCaption")
-		--gameCaption:SetCaption(self:_MakeGameCaption(battle))
+		-- local gameCaption = items.battleButton:GetChildByName("gameCaption")
+		-- gameCaption:SetCaption(self:_MakeGameCaption(battle))
 		local newPlayerCount = lobby:GetBattlePlayerCount(battleID)
 		if battleButton.previousPlayerCount ~= newPlayerCount then 
 			local playersCaption = battleButton:GetChildByName("playersCaption")
@@ -1126,15 +1136,15 @@ function BattleListWindow:OnUpdateBattleInfo(battleID)
 	else
 		-- Resets title and truncates.
 		local lblTitle = items.battleButton:GetChildByName("lblTitle")
-	lblTitle.OnResize[1](lblTitle)
+		lblTitle.OnResize[1](lblTitle)
 
 		local minimapImage = items.battleButton:GetChildByName("minimap"):GetChildByName("minimapImage")
-	minimapImage.file, minimapImage.checkFileExists = Configuration:GetMinimapSmallImage(battle.mapName)
-	minimapImage:Invalidate()
+		minimapImage.file, minimapImage.checkFileExists = Configuration:GetMinimapSmallImage(battle.mapName)
+		minimapImage:Invalidate()
 
 		local playersOnMapCaption = items.battleButton:GetChildByName("playersOnMapCaption")
-	local playerCount = lobby:GetBattlePlayerCount(battleID)
-	playersOnMapCaption:SetCaption(playerCount .. ((playerCount == 1 and " player on " ) or " players on ") .. battle.mapName:gsub("_", " "))
+		local playerCount = lobby:GetBattlePlayerCount(battleID)
+		playersOnMapCaption:SetCaption(playerCount .. ((playerCount == 1 and " player on " ) or " players on ") .. battle.mapName:gsub("_", " "))
 	end
 
 	self:UpdateButtonColor(battleID)
