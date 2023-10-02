@@ -223,7 +223,9 @@ local function SetSpadsStatusRequested(battleID)
 end
 
 local function RequestSpadsStatus()
-	SetSpadsStatusRequested(spadsRequest.battle.battleID)
+	-- 2023-10-02 FB: disabled one-time requests until timestamps of incoming protocol messages are stored during ingame-buffering
+	-- SetSpadsStatusRequested(spadsRequest.battle.battleID)
+
 	spadsRequest.time = os.clock()
 	if spadsRequest.battle.isRunning then
 		lobby:RequestSpadsGameStatus(spadsRequest.battle.founder)
@@ -295,9 +297,10 @@ end
 
 local function QueueSpadsStatusRequest(battleID, offset)
 	local battle = lobby:GetBattle(battleID)
-	if battle.spadsStatusRequested then
-		return
-	end
+	-- 2023-10-02 FB: disabled one-time requests until timestamps of incoming protocol messages are stored during ingame-buffering
+	-- if battle.spadsStatusRequested then
+	-- 	return
+	-- end
 
 	table.insert(spadsRequestQueue, {
 		battle = battle,

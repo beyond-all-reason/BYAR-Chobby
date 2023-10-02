@@ -796,9 +796,15 @@ function Lobby:_OnBattleIngameUpdate(battleID, isRunning)
 		local battleInfo = self.battles[battleID]
 		if self.battles[battleID].isRunning ~= nil then
 			if isRunning then -- switching to running state
-				battleInfo.thisGameStartedAt = os.clock()
+				-- 2023-10-02 FB: disabled one-time requests until timestamp of incoming protocol messages are stored during ingame-buffering
+				--                if we store the times here, they get applied on unbuffering and leading to totally wrong timestamps
+				-- battleInfo.thisGameStartedAt = os.clock()
+				battleInfo.thisGameStartedAt = nil
 			else -- switching to lobby state
-				battleInfo.lastGameEndedAt = os.clock()
+				-- 2023-10-02 FB: disabled one-time requests until timestamp of incoming protocol messages are stored during ingame-buffering
+				--                if we store the times here, they get applied on unbuffering and leading to totally wrong timestamps
+				-- battleInfo.lastGameEndedAt = os.clock()
+				battleInfo.lastGameEndedAt = nil
 				battleInfo.thisGameStartedAt = nil
 			end
 			self:super("_OnUpdateBattleInfo", battleID, battleInfo)
