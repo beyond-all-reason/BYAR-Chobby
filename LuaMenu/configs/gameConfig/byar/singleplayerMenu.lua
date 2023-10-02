@@ -11,6 +11,11 @@ local items = 	{
 		startWithTabOpen = 1,
 	},
 	{
+		name = "benchmark",
+		control = WG.BenchmarkingHandler.GetControl(),
+		startWithTabOpen = 1,
+	},
+	{
 		name = "load",
 		control = WG.LoadGameWindow.GetControl(),
 		entryCheck = WG.BattleRoomWindow.SetSingleplayerGame,

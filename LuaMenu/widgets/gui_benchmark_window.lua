@@ -3,12 +3,12 @@
 
 function widget:GetInfo()
 	return {
-		name      = "Scenario window",
-		desc      = "Handles Scenarios",
+		name      = "Benchmark window",
+		desc      = "Handles Benchmark",
 		author    = "Beherith",
 		date      = "2021 Feb.",
 		license   = "GNU LGPL, v2.1 or later",
-		layer     = -10000,
+		layer     = -9000,
 		enabled   = true  --  loaded by default?
 	}
 end
@@ -27,31 +27,20 @@ local reloadcount = 0
 local scenarioWindow
 local scenarios
 local scenariosorter
-local scenarioSelectorCombo
-local scenarioScrollPanel
-local scenarioPanel
-local scenarioSelectorPanel
+local benchmarkSelectorCombo
+local benchmarkScrollPanel
+local benchmarkPanel
+local benchmarkSelectorPanel
 local currentscenario
 local mybonus = 0
 local alreadyDownloaded = false
 local barversion = nil
---local myside = nil --duplicate
 local mydifficulty = {name = "Normal", playerhandicap = 100, enemyhandicap = 100}
 local myscores = {time = 0, resources = 0}
 local myside = nil
-
+local BENCH_DIR = "LuaMenu/configs/gameConfig/byar/scenarios/benchmark/"
 local scoreData = {} -- a table, with keys being scenario uniqueIDs, e.g.:
---[[
-{ supcrossingvsbarbs001 = {
-	"1.0" = {
-		"Easy" = {
-			time = 10000,
-			resources = 10000,
-		}
-	}
-	}
-}
---]]
+
 local unitdefname_to_humanname = {} -- from en.lua, attached at the end of the file
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
@@ -110,9 +99,9 @@ end
 
 local function LoadScenarios()
 	scenarios = {}
-	local files = VFS.DirList("LuaMenu/configs/gameConfig/byar/scenarios/")
+	local files = VFS.DirList(BENCH_DIR)
 	for i = 1, #files do
-		if string.find(files[i],".lua") and string.find (files[i], "scenario") then
+		if string.find(files[i],".lua") and string.find (files[i], "benchmark") then
 			local success, error = pcall ( function()
 				local newscen = VFS.Include(files[i])
 				scenarios[#scenarios+1] = newscen
@@ -185,11 +174,11 @@ end
 -- GUI
 
 
-local function CreateScenarioPanel(shortname, sPanel)
+local function CreateBenchmarkPanel(shortname, bPanel)
 	local Configuration = WG.Chobby.Configuration
 
 
-	sPanel:ClearChildren()
+	bPanel:ClearChildren()
 
 	local scen = scenarios[1]
 	for i, s in pairs(scenarios) do
@@ -223,7 +212,7 @@ local function CreateScenarioPanel(shortname, sPanel)
 		y = 0,
 		width = "50%",
 		height = "5%",
-		parent = sPanel,
+		parent = bPanel,
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		caption = scen.title,
 	}
@@ -233,7 +222,7 @@ local function CreateScenarioPanel(shortname, sPanel)
 		y = "5%",
 		width = "49%",
 		height = "14%",
-		parent = sPanel,
+		parent = bPanel,
 		horizontalScrollbar = true,
 	}
 
@@ -274,7 +263,7 @@ local function CreateScenarioPanel(shortname, sPanel)
 		y = "20%",
 		width = "50%",
 		height = "5%",
-		parent = sPanel,
+		parent = bPanel,
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2, "scn_label", {font = "fonts/n019003l.pfb", color = {0.7, 0.7, 0.7, 1.0}}),
 		caption = "Victory",
 	}
@@ -284,7 +273,7 @@ local function CreateScenarioPanel(shortname, sPanel)
 		y = "20%",
 		width = "50%",
 		height = "5%",
-		parent = sPanel,
+		parent = bPanel,
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(9),
 		caption = scen.victorycondition,
 	}
@@ -294,7 +283,7 @@ local function CreateScenarioPanel(shortname, sPanel)
 		y = "24%",
 		width = "50%",
 		height = "5%",
-		parent = sPanel,
+		parent = bPanel,
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2, "scn_label"),
 		caption = "Loss" ,
 	}
@@ -304,7 +293,7 @@ local function CreateScenarioPanel(shortname, sPanel)
 		y = "24%",
 		width = "50%",
 		height = "5%",
-		parent = sPanel,
+		parent = bPanel,
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(9),
 		caption = scen.losscondition,
 	}
@@ -314,7 +303,7 @@ local function CreateScenarioPanel(shortname, sPanel)
 		y = "28%",
 		width = "50%",
 		height = "5%",
-		parent = sPanel,
+		parent = bPanel,
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2, "scn_label"),
 		caption = "Difficulty",
 	}
@@ -324,7 +313,7 @@ local function CreateScenarioPanel(shortname, sPanel)
 		y = "28%",
 		width = "50%",
 		height = "5%",
-		parent = sPanel,
+		parent = bPanel,
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		caption = tostring(scen.difficulty) .. "/10",
 	}
@@ -334,7 +323,7 @@ local function CreateScenarioPanel(shortname, sPanel)
 		y = "32%",
 		width = "50%",
 		height = "5%",
-		parent = sPanel,
+		parent = bPanel,
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2, "scn_label"),
 		caption = "Est. Time",
 	}
@@ -344,7 +333,7 @@ local function CreateScenarioPanel(shortname, sPanel)
 		y = "32%",
 		width = "50%",
 		height = "5%",
-		parent = sPanel,
+		parent = bPanel,
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(9),
 		caption = tostring(math.ceil(scen.partime/60)) .. " minutes",
 	}
@@ -354,7 +343,7 @@ local function CreateScenarioPanel(shortname, sPanel)
 		y = "36%",
 		width = "50%",
 		height = "5%",
-		parent = sPanel,
+		parent = bPanel,
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2, "scn_label"),
 		caption = "Est. Resources" ,
 	}
@@ -364,7 +353,7 @@ local function CreateScenarioPanel(shortname, sPanel)
 		y = "36%",
 		width = "50%",
 		height = "5%",
-		parent = sPanel,
+		parent = bPanel,
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(9),
 		caption =  tostring(math.ceil(scen.parresources/1000)) .. "K metal",
 	}
@@ -379,7 +368,7 @@ local function CreateScenarioPanel(shortname, sPanel)
 		width = "47%",
 		keepAspect = true,
 		file =Configuration:GetMinimapImage(scen.mapfilename),
-		parent = sPanel,
+		parent = bPanel,
 		tooltip = scen.mapfilename,
 		padding = {0,0,0,0},
 	}
@@ -404,9 +393,8 @@ local function CreateScenarioPanel(shortname, sPanel)
 		height = "23%",
 		keepAspect = false,
 		crop = true,
-		file = "LuaMenu/configs/gameConfig/byar/scenarios/" .. scen.imagepath,
-		parent = sPanel,
-		--tooltip = scen.mapfilename,
+		file = BENCH_DIR .. scen.imagepath,
+		parent = bPanel,
 		padding = {10,10,10,10},
 	}
 
@@ -427,9 +415,8 @@ local function CreateScenarioPanel(shortname, sPanel)
 		y = "76%",
 		width = "74%",
 		bottom = 0,
-		parent = sPanel,
+		parent = bPanel,
 		horizontalScrollbar = true,
-		--padding = {10,10,10,10},
 	}
 
 	local briefingtext = TextBox:New {
@@ -452,7 +439,7 @@ local function CreateScenarioPanel(shortname, sPanel)
 		y = "67.5%",
 		width = "20%",
 		height = "5%",
-		parent = sPanel,
+		parent = bPanel,
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		caption = "Personal Records",
 	}
@@ -463,7 +450,7 @@ local function CreateScenarioPanel(shortname, sPanel)
 		y = "72.5%",
 		width = "20%",
 		height = "5%",
-		parent = sPanel,
+		parent = bPanel,
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		caption = "Difficulty: "..tostring(mydifficulty.name),
 	}
@@ -473,7 +460,7 @@ local function CreateScenarioPanel(shortname, sPanel)
 		y = "77.5%",
 		width = "25%",
 		height = "5%",
-		parent = sPanel,
+		parent = bPanel,
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2, "scn_label"),
 		caption = "My Best Time: ",
 	}
@@ -483,7 +470,7 @@ local function CreateScenarioPanel(shortname, sPanel)
 		y = "80.5%",
 		width = "25%",
 		height = "5%",
-		parent = sPanel,
+		parent = bPanel,
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		caption = SecondsToTimeString(myscores.time),
 	}
@@ -493,7 +480,7 @@ local function CreateScenarioPanel(shortname, sPanel)
 		y = "85%",
 		width = "25%",
 		height = "5%",
-		parent = sPanel,
+		parent = bPanel,
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2, "scn_label"),
 		caption = "My Resources ",
 	}
@@ -503,7 +490,7 @@ local function CreateScenarioPanel(shortname, sPanel)
 		y = "88%",
 		width = "25%",
 		height = "5%",
-		parent = sPanel,
+		parent = bPanel,
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		caption =  string.format( "%.2fK metal",myscores.resources/1000.0),
 	}
@@ -512,9 +499,7 @@ local function CreateScenarioPanel(shortname, sPanel)
 		local lblauthor = Label:New{
 			right = "1%",
 			bottom = "1%",
-			--width = "25%",
-			--height = "5%",
-			parent = sPanel,
+			parent = bPanel,
 			objectOverrideFont = WG.Chobby.Configuration:GetFont(2, "scn_label"),
 			caption =  "Author: ".. scen.author,
 		}
@@ -546,7 +531,7 @@ local function CreateScenarioPanel(shortname, sPanel)
 					})
 				end
 			},
-			parent = sPanel,
+			parent = bPanel,
 		}
 	end
 
@@ -557,37 +542,11 @@ local function CreateScenarioPanel(shortname, sPanel)
 		y = "40%" ,
 		width = "100",
 		height = "4%",
-		parent = sPanel,
+		parent = bPanel,
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2, "scn_label"),
 		caption = "Faction",
 	}
 
-	--[[
-	local sidechangebutton  = Button:New {
-		x = "25%",
-		y = "50%" ,
-		width = "100",
-		height = "4%",
-		caption = myside,
-		classname = "option_button",
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
-		tooltip = "Start the scenario",
-		OnClick = {
-			function(obj)
-					Spring.Echo("Changing side:")
-					WG.SideChangeWindow.CreateSideChangeWindow({
-						initialSide = myside or 0,
-						OnAccepted = function(sideId)
-								local sidedata = Configuration:GetSideData()
-								Spring.Echo("Chose side:",sideID,sidedata[sideID+1])
-								myside = sidedata[sideID+1]
-								obj:SetCaption(myside)
-							end
-					})
-			end
-		},
-		parent = sPanel,
-	}]]--
 
 	local sideCombo = ComboBox:New{
 		x = "16%",
@@ -598,7 +557,6 @@ local function CreateScenarioPanel(shortname, sPanel)
 		valign = "center",
 		align = "left",
 		selectByName = true,
-		--captionHorAlign = -32,
 		text = "HasText",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		items = scen.allowedsides or {"Armada"}, --{"Coop", "Team", "1v1", "FFA", "Custom"},
@@ -609,7 +567,7 @@ local function CreateScenarioPanel(shortname, sPanel)
 					myside = selectedName
 			end
 		},
-		parent = sPanel,
+		parent = bPanel,
 	}
 
 	local difflabel = Label:New{
@@ -617,7 +575,7 @@ local function CreateScenarioPanel(shortname, sPanel)
 		y = "44%" ,
 		width = "100",
 		height = "4%",
-		parent = sPanel,
+		parent = bPanel,
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2, "scn_label"),
 		caption = "Difficulty",
 	}
@@ -638,7 +596,6 @@ local function CreateScenarioPanel(shortname, sPanel)
 		valign = "left",
 		align = "left",
 		selectByName = true,
-		--captionHorAlign = -32,
 		text = "HasText",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		items = difficulties, --{"Coop", "Team", "1v1", "FFA", "Custom"},
@@ -646,10 +603,10 @@ local function CreateScenarioPanel(shortname, sPanel)
 		OnSelectName = {
 			function (obj, selectedName)
 				Spring.Echo("Difficulty selected:",selectedName)
-				UpdateDifficulty(selectedName,scenarioPanel)
+				UpdateDifficulty(selectedName,benchmarkPanel)
 			end
 		},
-		parent = sPanel,
+		parent = bPanel,
 	}
 
 
@@ -672,8 +629,6 @@ local function CreateScenarioPanel(shortname, sPanel)
 			end
 
 		end
-		--basescript = basescript:gsub("__PLAYERHANDICAP__",tostring(mydifficulty.playerhandicap))
-		--basescript = basescript:gsub("__ENEMYHANDICAP__",tostring(mydifficulty.enemyhandicap))
 		basescript = basescript:gsub("__BARVERSION__",tostring(barversion))
 		basescript = basescript:gsub("__MAPNAME__",tostring(scen.mapfilename))
 		basescript = basescript:gsub("__PLAYERSIDE__",tostring(myside or scen.allowedsides[1]))
@@ -688,10 +643,10 @@ local function CreateScenarioPanel(shortname, sPanel)
 		y = "51%",
 		right = 0,
 		height = "7%",
-		caption = "Start Scenario",
+		caption = "Begin Test",
 		classname = "ready_button",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
-		tooltip = "Start the scenario",
+		tooltip = "Initialize Benchmarking Test",
 		OnClick = {
 			function()
 					local scriptTxt = createstartscript()
@@ -719,7 +674,7 @@ local function CreateScenarioPanel(shortname, sPanel)
 					end
 			end
 		},
-		parent = sPanel,
+		parent = bPanel,
 	}
 	startmissionbutton:SetEnabled(true)
 	startmissionbutton:StyleReady()
@@ -729,13 +684,12 @@ end
 --------------------------------------------------------------------------------
 -- Controls
 
-local function MakeScenarioScrollPanelChildren()
-	-- reloadcount = reloadcount + 1
+local function MakeBenchmarkScrollPanelChildren()
 
 	local Configuration = WG.Chobby.Configuration
 
-	for i = #scenarioScrollPanel.children, 1, -1 do
-		scenarioScrollPanel:RemoveChild(scenarioScrollPanel.children[i])
+	for i = #benchmarkScrollPanel.children, 1, -1 do
+		benchmarkScrollPanel:RemoveChild(benchmarkScrollPanel.children[i])
 	end
 
 	local spitemlist = {}
@@ -755,7 +709,7 @@ local function MakeScenarioScrollPanelChildren()
 		end
 
 		local scenorderindex = i
-		local scenSelectorButton = Button:New {
+		local benchSelectorButton = Button:New {
 			name = scen.scenarioid .. "button",
 			x = "2%",
 			y = 105 * (#spitemlist -1),
@@ -764,25 +718,23 @@ local function MakeScenarioScrollPanelChildren()
 			caption = "",
 			classname = "battle_default_button",
 			objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
-			--objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
-			--tooltip = "",
 			OnClick = {
 				function()
 					if scen.error == nil then
-						scenarioPanel:SetVisibility(true)
-						scenarioSelectorPanel:SetVisibility(false)
-						scenarioSelectorCombo:Select(scen.title)
-						CreateScenarioPanel(scen.title,scenarioPanel)
+						benchmarkPanel:SetVisibility(true)
+						benchmarkSelectorPanel:SetVisibility(false)
+						benchmarkSelectorCombo:Select(scen.title)
+						CreateBenchmarkPanel(scen.title,benchmarkPanel)
 						backbutton:SetVisibility(true)
-						scenarioSelectorCombo:SetVisibility(true)
+						benchmarkSelectorCombo:SetVisibility(true)
 					end
 				end
 			},
-			parent = scenarioScrollPanel,
+			parent = benchmarkScrollPanel,
 		}
 		if scen.error then
 			local errormessage = TextBox:New{
-				parent = scenSelectorButton,
+				parent = benchSelectorButton,
 				objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
 				objectOverrideHintFont = WG.Chobby.Configuration:GetFont(1),
 				x = 0,
@@ -798,10 +750,9 @@ local function MakeScenarioScrollPanelChildren()
 				y = "1%",
 				x = "1%",
 				bottom = "1%",
-				--width = "47%",
 				keepAspect = true,
 				file =Configuration:GetMinimapImage(scen.mapfilename),
-				parent = scenSelectorButton,
+				parent = benchSelectorButton,
 				tooltip = scen.mapfilename,
 				padding = {0,0,0,0},
 			}
@@ -810,8 +761,7 @@ local function MakeScenarioScrollPanelChildren()
 				x = 100,
 				y = 10,
 				width = 300,
-				--height = 30,
-				parent = scenSelectorButton,
+				parent = benchSelectorButton,
 				objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 				caption = string.format( "%03d. %s",i+reloadcount, scen.title ),
 			}
@@ -821,8 +771,7 @@ local function MakeScenarioScrollPanelChildren()
 				right = "1%",
 				y = 10,
 				width = 100,
-				--height = 30,
-				parent = scenSelectorButton,
+				parent = benchSelectorButton,
 				objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 				caption = string.format( "Difficulty: % 2d/10",scen.difficulty ),
 			}
@@ -832,8 +781,7 @@ local function MakeScenarioScrollPanelChildren()
 					right = "1%",
 					bottom = 10,
 					width = 100,
-					--height = 30,
-					parent = scenSelectorButton,
+					parent = benchSelectorButton,
 					objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 					caption = string.format( "New!"),
 				}
@@ -858,8 +806,7 @@ local function MakeScenarioScrollPanelChildren()
 					x = 150,
 					y = "60%",
 					width = 500,
-					--height = 30,
-					parent = scenSelectorButton,
+					parent = benchSelectorButton,
 					objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 					caption = string.format( "Completed On: %s   Time: %s  Resources: %.2fK metal",mybestdiff, SecondsToTimeString(mybestscore.time), mybestscore.resources/1000.0 ),
 				}
@@ -868,27 +815,12 @@ local function MakeScenarioScrollPanelChildren()
 					x = 150,
 					y = "60%",
 					width = 500,
-					--height = 30,
-					parent = scenSelectorButton,
+					parent = benchSelectorButton,
 					objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 					caption = "Not completed yet",
 				}
 			end
 		end
-		--[[local spMinimapImg = Image:New {
-			y = "2%",
-			x = "2%",
-			bottom = "2%",
-			--width = "47%",
-			keepAspect = true,
-			file =Configuration:GetMinimapImage(scen.mapfilename),
-			parent = scenSelectorButton,
-			tooltip = scen.mapfilename,
-			padding = {0,0,0,0},
-		}]]--
-
-
-
 	end
 end
 
@@ -901,36 +833,33 @@ local function InitializeControls(parentControl)
 		x = 15,
 		y = 14,
 		width = 180,
-		--height = 30,
 		parent = parentControl,
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
-		caption = "Scenario",
+		caption = "Benchmark",
 	}
 
-	scenarioSelectorPanel = Control:New{
+	benchmarkSelectorPanel = Control:New{
 		x = "2%",
 		y = 55,
 		right = "2%",
 		bottom = '2%',
-
 		padding = {0,0,0,0},
 		parent = parentControl,
 	}
-	scenarioScrollPanel = ScrollPanel:New {
+	benchmarkScrollPanel = ScrollPanel:New {
 		x = 0,
 		right = 0,
 		y = 0,
 		bottom = 0,
-		parent = scenarioSelectorPanel,
+		parent = benchmarkSelectorPanel,
 		horizontalScrollbar = false,
 	}
 
-	scenarioPanel = Control:New{
+	benchmarkPanel = Control:New{
 		x = "2%",
 		y = 55,
 		right = "2%",
 		bottom = '2%',
-
 		padding = {0,0,0,0},
 		parent = parentControl,
 	}
@@ -946,42 +875,24 @@ local function InitializeControls(parentControl)
 		tooltip = "Back to the list of scenarios",
 		OnClick = {
 			function()
-				scenarioPanel:SetVisibility(false)
-				scenarioSelectorPanel:SetVisibility(true)
+				benchmarkPanel:SetVisibility(false)
+				benchmarkSelectorPanel:SetVisibility(true)
 				backbutton:SetVisibility(false)
-				--widget:Initialize()
 			end
 		},
 		parent = parentControl,
 	}
 	backbutton:SetVisibility(false)
---[[
-	local refreshbutton = Button:New {
-		x = "86%",
-		y = 14,
-		right = "10%",
-		height = 35,
-		caption = "R",
-		classname = "action_button",
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
-		tooltip = "Back to the list of scenarios",
-		OnClick = {
-			function()
-				MakeScenarioScrollPanelChildren()
-			end
-		},
-		parent = parentControl,
-	}
-]]--
-	-- make scenario scrollpanel children
-	MakeScenarioScrollPanelChildren()
+
+	-- make benchmark scrollpanel children
+	MakeBenchmarkScrollPanelChildren()
 
 	local cbitemlist = {}
 	for i, scen in ipairs(scenarios) do
 		cbitemlist[#cbitemlist+1] = scen.title
 	end
 
-	scenarioSelectorCombo = ComboBox:New{
+	benchmarkSelectorCombo = ComboBox:New{
 		x = 180,
 		right = "15%",
 		y = "16",
@@ -991,8 +902,6 @@ local function InitializeControls(parentControl)
 
 		valign = "top",
 		align = "left",
-		--captionAlign  = 0, -- these dont work
-		--captionHorAlign = 10,
 		text = "HasText",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		items = cbitemlist, --{"Coop", "Team", "1v1", "FFA", "Custom"},
@@ -1001,16 +910,15 @@ local function InitializeControls(parentControl)
 			function (obj, selectedName)
 				Spring.Echo(selectedName)
 				backbutton:SetVisibility(true)
-				scenarioPanel:SetVisibility(true)
-				scenarioSelectorPanel:SetVisibility(false)
-				CreateScenarioPanel(selectedName,scenarioPanel)
+				benchmarkPanel:SetVisibility(true)
+				benchmarkSelectorPanel:SetVisibility(false)
+				CreateBenchmarkPanel(selectedName,benchmarkPanel)
 			end
 		},
 		parent = parentControl,
 
 	}
 
-	--CreateScenarioPanel(1,scenarioPanel)
 
 	local externalFunctions = {parent = parent}
 
@@ -1024,12 +932,12 @@ end
 --------------------------------------------------------------------------------
 -- External Interface
 
-local ScenarioHandler = {}
+local BenchmarkingHandler = {}
 
-function ScenarioHandler.GetControl()
+function BenchmarkingHandler.GetControl()
 
 	local window = Control:New {
-		name = "ScenarioHandler",
+		name = "BenchmarkingHandler",
 		x = "0%",
 		y = "0%",
 		width = "100%",
@@ -1081,14 +989,14 @@ function widget:RecvLuaMsg(msg)
 			if won then
 				SetScore(decodedscenopts.scenarioid,decodedscenopts.version,decodedscenopts.difficulty, stats.endtime,resourcesused,won)
 				widget:Initialize()
-				MakeScenarioScrollPanelChildren()
+				MakeBenchmarkScrollPanelChildren()
 			end
 		end
 	end
 end
 
 function widget:GetConfigData()
-	Spring.Echo("Scenario Window GetConfigData")
+	Spring.Echo("Benchmark Window GetConfigData")
 	return {
 		scores = scoreData,
 	}
@@ -1096,7 +1004,7 @@ end
 
 function widget:SetConfigData(data)
 
-	Spring.Echo("Scenario Window SetConfigData")
+	Spring.Echo("Benchmark Window SetConfigData")
 	scoreData = data.scores or {}
 end
 
@@ -1114,7 +1022,7 @@ function widget:Initialize()
 
 	WG.Delay(DelayedInitialize, 1)
 
-	WG.ScenarioHandler = ScenarioHandler
+	WG.BenchmarkingHandler = BenchmarkingHandler
 
 	--test scoring
 end
@@ -1123,15 +1031,6 @@ function widget:Shutdown()
 	widgetHandler:DeregisterGlobal('ScenarioGameEnd')
 end
 
-
---[[
-local framenum = 0
-function widget:Update() -- just to check if this still runs, and yes
-	framenum = framenum + 1
-	if math.fmod(framenum,1000)==0 then
-	end
-end
-]]--
 
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
