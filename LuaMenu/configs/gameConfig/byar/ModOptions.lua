@@ -861,7 +861,7 @@ local options={
 	}
 	,	{
 		key = 'emprework',
-		name = 'Emp Rework',
+		name = 'EMP Rework',
 		desc = 'EMP is changed to slow units movement and firerate, before eventually stunning.',
 		type = 'bool',
 		section = 'options_experimental',
