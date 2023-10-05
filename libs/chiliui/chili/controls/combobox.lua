@@ -15,6 +15,7 @@ ComboBox = Button:Inherit{
 	defaultWidth  = 70,
 	defaultHeight = 20,
 	items = { "items" },
+	itemsTooltips = {},
 	itemHeight = 20,
 	selected = 1,
 	showSelection = true,
@@ -133,6 +134,9 @@ function ComboBox:MouseDown(x, y)
 						end
 					}
 				}
+				if self.itemsTooltips[i] then
+					newBtn.tooltip = self.itemsTooltips[i]
+				end
 				labels[#labels + 1] = newBtn
 				height = height + self.itemHeight
 				width = math.max(width, self.font:GetTextWidth(item))
