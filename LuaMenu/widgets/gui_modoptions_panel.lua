@@ -87,6 +87,7 @@ local function ProcessListOption(data, index)
 	local items = {}
 	local itemNameToKey = {}
 	local itemKeyToName = {}
+	local itemsTooltips = {}
 	for i, itemData in pairs(data.items) do
 		items[i] = itemData.name
 		itemNameToKey[itemData.name] = itemData.key
@@ -94,6 +95,10 @@ local function ProcessListOption(data, index)
 
 		if itemData.key == defaultKey then
 			defaultItem = i
+		end
+
+		if itemData.desc then
+			itemsTooltips[i] = itemData.desc
 		end
 	end
 
@@ -105,6 +110,7 @@ local function ProcessListOption(data, index)
 		valign = "center",
 		align = "left",
 		items = items,
+		itemsTooltips = itemsTooltips,
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		selectByName = true,
 		selected = defaultItem,
@@ -113,7 +119,8 @@ local function ProcessListOption(data, index)
 				localModoptions[data.key] = itemNameToKey[selectedName]
 			end
 		},
-		itemKeyToName = itemKeyToName -- Not a chili key
+		itemKeyToName = itemKeyToName, -- Not a chili key
+		tooltip = data.desc,
 	}
 	modoptionControlNames[data.key] = list
 
@@ -123,8 +130,6 @@ local function ProcessListOption(data, index)
 		width = 1600,
 		height = 32,
 		padding = {0, 0, 0, 0},
-
-    tooltip = data.desc,
 		children = {
 			label,
 			list
