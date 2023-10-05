@@ -20,6 +20,7 @@ local modoptionStructure = {}
 local battleLobby
 local localModoptions = {}
 local modoptionControlNames = {}
+local modoptions
 
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
@@ -480,6 +481,17 @@ local function CreateModoptionWindow()
 	local popupHolder = WG.Chobby.PriorityPopup(modoptionsSelectionWindow, CancelFunc, AcceptFunc)
 end
 
+local function getModOptionByKey(key)
+	local retOption = {}
+	for _, option in ipairs(modoptions) do
+		if option.key and option.key == key then
+			retOption = option
+			break
+		end
+	end
+	return retOption
+end
+
 local function InitializeModoptionsDisplay()
 	local currentLobby = battleLobby
 
@@ -517,7 +529,13 @@ local function InitializeModoptionsDisplay()
 		modoptions = modoptions or {}
 		for key, value in pairs(modoptions) do		
 			if modoptionDefaults[key] == nil or modoptionDefaults[key] ~= value then
-				text = text .. "\255\120\120\120" .. tostring(key) .. " = \255\255\255\255" .. shortenedValue(value) .. "\n"
+				local option = getModOptionByKey(key)
+				local name = option.name and option.name or key
+				text = text .. "\255\120\120\120"
+				if text ~= "" then
+					text = text .. "──────\n"
+				end
+				text = text .. tostring(name).. " = \255\255\255\255" .. shortenedValue(value) .. "\n"
 				empty = false
 			end
 		end
@@ -564,7 +582,7 @@ local modoptionsDisplay
 
 local ModoptionsPanel = {}
 
-function ModoptionsPanel.LoadModotpions(gameName, newBattleLobby)
+function ModoptionsPanel.LoadModoptions(gameName, newBattleLobby)
 	battleLobby = newBattleLobby
 
 	modoptions = WG.Chobby.Configuration.gameConfig.defaultModoptions

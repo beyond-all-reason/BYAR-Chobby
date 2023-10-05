@@ -1139,7 +1139,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	}
 	leftOffset = leftOffset + 38
 
-	WG.ModoptionsPanel.LoadModotpions(battle.gameName, battleLobby)
+	WG.ModoptionsPanel.LoadModoptions(battle.gameName, battleLobby)
 	local btnModoptions = Button:New {
 		name = 'btnModoptions',
 		x = 5,
