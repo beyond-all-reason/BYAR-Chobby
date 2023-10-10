@@ -886,6 +886,29 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 	local ww, wh = Spring.GetWindowGeometry()
 	local width = 3 * (formw  + 30) --used to be bout tree fiddy
 
+	self.window = Window:New {
+		x = math.floor((ww - width) / 2),
+		y = math.floor((wh - self.windowHeight) / 2),
+		width = width,
+		height = self.windowHeight,
+		caption = "",
+		noFont = true,
+		resizable = false,
+		draggable = false,
+		classname = windowClassname,
+		children = {},
+		parent = WG.Chobby.lobbyInterfaceHolder,
+		OnDispose = {
+			function()
+				self:RemoveListeners()
+			end
+		},
+		OnFocusUpdate = {
+			function(obj)
+				obj:BringToFront()
+			end
+		}
+	}
 
 	self.tabPanel = Chili.DetachableTabPanel:New {
 		x = 0,
@@ -900,6 +923,13 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 			[3] = { name = "reset", caption = "Recover/Change", children = recoverChildren, objectOverrideFont = WG.Chobby.Configuration:GetFont(2)},
 			--[3] = { name = "test", caption = "teset2", children = {self.testbutton}, objectOverrideFont = WG.Chobby.Configuration:GetFont(2)},
 		},
+		OnTabChange = {
+			function(obj, name)
+				if name == "register" and not Configuration.firstLoginEver then
+					WG.Chobby.InformationPopup(i18n("register_extra"), {width = 840, height = 400})
+				end
+			end
+		}
 	}
 
 	self.tabBarHolder = Control:New {
@@ -933,32 +963,8 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		}
 	}
 
-	self.window = Window:New {
-		x = math.floor((ww - width) / 2),
-		y = math.floor((wh - self.windowHeight) / 2),
-		width = width,
-		height = self.windowHeight,
-		caption = "",
-		noFont = true,
-		resizable = false,
-		draggable = false,
-		classname = windowClassname,
-		children = {
-			self.tabBarHolder,
-			self.contentsPanel,
-		},
-		parent = WG.Chobby.lobbyInterfaceHolder,
-		OnDispose = {
-			function()
-				self:RemoveListeners()
-			end
-		},
-		OnFocusUpdate = {
-			function(obj)
-				obj:BringToFront()
-			end
-		}
-	}
+	self.window:AddChild(self.tabBarHolder)
+	self.window:AddChild(self.contentsPanel)
 
 	self.window:BringToFront()
 
