@@ -637,6 +637,24 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 	}
 	recoverChildren[#recoverChildren+1] = self.txtChangePassword
 
+	self.btnChangePassword = Button:New {
+		x = pad + formw * 0 ,
+		y = pad + formh * 13 ,
+		width =   formw * 3 ,
+		height =  formh * 2 ,
+		caption = "Edit your password via a browser link",
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		classname = "negative_button",
+		OnClick = {
+			function()
+				WG.BrowserHandler.OpenUrl("https://server4.beyondallreason.info/teiserver/account/security/edit_password")
+			end
+		},
+	}
+	recoverChildren[#recoverChildren+1] = self.btnChangePassword
+	recoverChildren[#recoverChildren+1] = Line:New{x=5,y=formh * 17,right=5, height = 1}
+
+--[[
 	self.lblChangePasswordOld =  Label:New {
 		x = pad + formw * 0 ,
 		y = pad + formh * 13 ,
@@ -713,7 +731,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 	recoverChildren[#recoverChildren+1] = self.txtErrorChangePassword
 
 	recoverChildren[#recoverChildren+1] = Line:New{x=5,y=formh * 17,right=5, height = 1}
-
+]]--
 	---------------------------Change Email-------------------------------
 	self.txtChangeEmail = TextBox:New {
 		x = pad + formw * 0 ,
