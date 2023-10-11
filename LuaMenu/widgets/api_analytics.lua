@@ -455,7 +455,7 @@ local function GetInfologs()
 	end
 
 	local filenames = VFS.DirList(infologDirectory) -- ipairs
-	table.sort(filenames, function (a,b) return a > b end) -- reverse dir sort, we only need the most recent 5
+	table.sort(filenames, function (a,b) return a > b end) -- reverse dir sort, we only need the most recent 2
 
 	if PRINT_DEBUG then Spring.Echo("BAR Analytics: GetInfologs()", #filenames) end
 	for i=1, math.min(#filenames, 2) do
@@ -473,18 +473,24 @@ local function GetInfologs()
 					if WG.Chobby.ConfirmationPopup then
 						
 						local function reportinfolog()
+							if WG.Chobby.Configuration.uploadLogPromptDoNotAskAgain then
+								WG.Chobby.Configuration:SetConfigValue("uploadLogPrompt", "Always Yes")
+							end
 							--Spring.Echo("Uncompressed length:", string.len(fullinfolog), "Compressed base64 length:", string.len(compressedlog))
 							Spring.Echo("User agreed to upload infolog", filename, "with error", errortype)
 							Analytics.SendCrashReportOneTimeEvent(filename, errortype, errorkey, compressedlog, false)
 						end
 
 						local function dontreportinfolog()
+							if WG.Chobby.Configuration.uploadLogPromptDoNotAskAgain then
+								WG.Chobby.Configuration:SetConfigValue("uploadLogPrompt", "Always No")
+							end
 							Spring.Echo("User declined to upload infolog", filename, "with error", errortype)
 							compressedlog = Spring.Utilities.Base64Encode(VFS.ZlibCompress("private"))
 							Analytics.SendCrashReportOneTimeEvent(filename, errortype, errorkey, compressedlog, true)
 						end
 
-						WG.Chobby.ConfirmationPopup(reportinfolog, "BAR has detected a ["..errortype.."] error during one of your previous games in:\n    " .. filename .. "\nSuch infologs help us fix any bugs you may have encountered. This file contains information such as your username, your system configuration and the path the game was installed to. This data will not be made public.\nDo you agree to upload this infolog?\nYou can specify always yes or always no in the Settings tab -> Error log uploading.", nil, 550, 400, "Yes", "No", dontreportinfolog, nil)
+						WG.Chobby.ConfirmationPopup(reportinfolog, "BAR has detected a ["..errortype.."] error during one of your previous games in:\n    " .. filename .. "\nSuch infologs help us fix any bugs you may have encountered. This file contains information such as your username, your system configuration and the path the game was installed to. This data will not be made public.\nDo you agree to upload this infolog?\nYou can specify always yes or always no in the Settings tab -> Error log uploading.", "uploadLogPromptDoNotAskAgain", 550, 400, "Yes", "No", dontreportinfolog, nil)
 					end
 					return
 				else
