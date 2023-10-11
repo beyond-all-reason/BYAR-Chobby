@@ -490,7 +490,7 @@ local function GetInfologs()
 							Analytics.SendCrashReportOneTimeEvent(filename, errortype, errorkey, compressedlog, true)
 						end
 
-						WG.Chobby.ConfirmationPopup(reportinfolog, "BAR has detected a ["..errortype.."] error during one of your previous games in:\n    " .. filename .. "\nSuch infologs help us fix any bugs you may have encountered. This file contains information such as your username, your system configuration and the path the game was installed to. This data will not be made public.\nDo you agree to upload this infolog?\nYou can specify always yes or always no in the Settings tab -> Error log uploading.", "uploadLogPromptDoNotAskAgain", 550, 400, "Yes", "No", dontreportinfolog, nil)
+						WG.Chobby.ConfirmationPopup(reportinfolog, "BAR has detected a ["..errortype.."] error during one of your previous games in:\n •    " .. filename .. "\n \nSuch infologs help us fix any bugs you may have encountered.\n \nThis file contains information such as your username, your system configuration and the path the game was installed to. This data will not be made public.\n \nDo you agree to upload this infolog?\n \n → You can specify always yes or always no in the Settings tab -> Error log uploading.", "uploadLogPromptDoNotAskAgain", 900, 450, "Yes", "No", dontreportinfolog, nil)
 					end
 					return
 				else
