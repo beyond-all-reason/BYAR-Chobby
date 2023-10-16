@@ -858,24 +858,16 @@ local options={
 		type = 'bool',
 		section = 'options_experimental',
 		def = false,
-	}
-	,	{
+	},
+
+
+	{
 		key = 'emprework',
 		name = 'EMP Rework',
 		desc = 'EMP is changed to slow units movement and firerate, before eventually stunning.',
 		type = 'bool',
 		section = 'options_experimental',
 		def = false,
-	},
-
-	{
-		key    = 'experimentalmorphs',
-		name   = 'Upgradeable Units',
-		desc   = 'Upgradeable Units',
-		type   = 'bool',
-		section = 'options_experimental',
-		def  = false,
-		hidden = true,
 	},
 
 	{
