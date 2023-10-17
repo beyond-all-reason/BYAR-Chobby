@@ -235,7 +235,8 @@ local function RequestSpadsStatus()
 end
 
 local function MaybeSendNextSpadsStatusRequest()
-	if spadsRequestActive then
+	-- wait for spads answer or send next request after 2 seconds
+	if spadsRequestActive and (os.clock() - recentSpadsRequestSent) < 2.0 then
 		return
 	end
 
@@ -311,9 +312,7 @@ local function QueueSpadsStatusRequest(battleID, offset)
 		table.remove(spadsRequestQueue, 1)
 	end
 
-	if not spadsRequestActive and #spadsRequestQueue == 1 then
-		MaybeSendNextSpadsStatusRequest()
-	end
+	MaybeSendNextSpadsStatusRequest()
 end
 
 local function GetBattleTooltip(battleID, battle, showMapName)
