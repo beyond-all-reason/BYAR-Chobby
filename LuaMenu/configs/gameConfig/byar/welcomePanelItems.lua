@@ -17,9 +17,11 @@ local welcomePanelItems = {
         UrlText = "Join tournament discord",
     },
     {
-        Header = "New Map: Lavender Bender v2!",
-        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/Lavender_Bender_v2.png",
-        Text = "1v1-4v4 map\nBy Johannes",
+        Header = "Updated Map: Supreme Isthmus v1.6.1!",
+        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/Supreme_Isthmus_v1.6.1.png",
+        Url = "https://discord.com/channels/549281623154229250/1163431711955230781",
+        UrlText = "Join the thread on Discord",
+        Text = "New version of Isthmus is now live!\nCheck pins on Discord discussion for the list of changes.",
     },
     {
         Header = "Commander update survey!",
