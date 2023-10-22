@@ -269,5 +269,4 @@ sn['GB-NIR'] = "Northern Ireland"
 sn['GB-SCT'] = "Scotland"
 
 
-
 return sn
