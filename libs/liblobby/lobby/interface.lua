@@ -619,7 +619,7 @@ function Interface:_OnAddUser(userName, country, accountID, lobbyID)
 	self:super("_OnAddUser", userName, userTable)
 end
 Interface.commands["ADDUSER"] = Interface._OnAddUser
-Interface.commandPattern["ADDUSER"] = "(%S+)%s+(%S%S%-?%S?%S?%S?)%s+(%S+)%s*(.*)"
+Interface.commandPattern["ADDUSER"] = "(%S+)%s+(%S+)%s+(%S+)%s*(.*)"
 
 function Interface:_OnRemoveUser(userName)
 	for channelName, _ in pairs(self:GetChannels()) do
