@@ -1,4 +1,7 @@
-return {
+--note that new additions live at the base of the file, as some of the filenames can pose issues
+
+
+sn = {
 	AF = "Afghanistan",
 	AL = "Albania",
 	DZ = "Algeria",
@@ -250,3 +253,20 @@ return {
 	ZW = "Zimbabwe",
 	AX = "Aland Islands",
 }
+
+
+sn['ARM'] = "Armada"
+sn['CORE'] = "Cortex"
+sn['LEGION'] = "Legion"
+sn['BARB'] = "Beyond All Reason"
+sn['BARB2'] = "Beyond All Reason"
+sn['BARW'] = "Beyond All Reason"
+sn['BARW2'] = "Beyond All Reason"
+sn['EN-PIR'] = "The Seven Seas"
+sn['GB-ENG'] = "England"
+sn['GB-WLS'] = "Wales"
+sn['GB-NIR'] = "Northern Ireland"
+sn['GB-SCT'] = "Scotland"
+
+
+return sn
