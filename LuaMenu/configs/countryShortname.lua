@@ -265,7 +265,7 @@ sn['BARW2'] = "Beyond All Reason"
 sn['EN-PIR'] = "The Seven Seas"
 sn['GB-ENG'] = "England"
 sn['GB-WLS'] = "Wales"
-sn['GB-NI'] = "Northern Ireland"
+sn['GB-NIR'] = "Northern Ireland"
 sn['GB-SCT'] = "Scotland"
 
 
