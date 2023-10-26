@@ -132,7 +132,6 @@ function widget:Update()
 		StartTrack(newTrack)
 		previousTrack = newTrack
 	end
-	Spring.SetSoundStreamVolume(WG.Chobby.Configuration.menuMusicVolume)
 end
 
 local MusicHandler = {
