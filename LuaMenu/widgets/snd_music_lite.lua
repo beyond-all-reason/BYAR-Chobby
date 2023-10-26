@@ -65,23 +65,23 @@ end
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 
-local function StartTrack(trackName, volume)
+local function StartTrack(trackName)
 	trackName = trackName or GetRandomTrack(previousTrack)
-	volume = volume or WG.Chobby.Configuration.menuMusicVolume
+	local volume = WG.Chobby.Configuration.menuMusicVolume
 	Spring.Echo("Starting Track", trackName, volume)
 	if volume == 0 then
 		return
 	end
 	Spring.StopSoundStream()
-	Spring.PlaySoundStream(trackName, volume)
+	Spring.PlaySoundStream(trackName, 1)
 	Spring.SetSoundStreamVolume(volume)
 	playingTrack = true
 end
 
-local function LoopTrack(trackName, trackNameIntro, volume)
+local function LoopTrack(trackName, trackNameIntro)
 	trackNameIntro = trackNameIntro or trackName
 	loopTrack = trackName
-	StartTrack(trackNameIntro, volume)
+	StartTrack(trackNameIntro)
 end
 
 local function StopTrack()
@@ -93,7 +93,8 @@ end
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 
-local function SetTrackVolume(volume)
+local function SetTrackVolume()
+	local volume = WG.Chobby.Configuration.menuMusicVolume
 	if volume == 0 then
 		StopTrack()
 		return
@@ -102,7 +103,7 @@ local function SetTrackVolume(volume)
 		Spring.SetSoundStreamVolume(volume)
 		return
 	end
-	StartTrack(GetRandomTrack(), volume)
+	StartTrack(GetRandomTrack())
 	previousTrack = nil
 end
 
@@ -131,6 +132,7 @@ function widget:Update()
 		StartTrack(newTrack)
 		previousTrack = newTrack
 	end
+	Spring.SetSoundStreamVolume(WG.Chobby.Configuration.menuMusicVolume)
 end
 
 local MusicHandler = {
@@ -251,7 +253,7 @@ function widget:Initialize()
 
 	local function onConfigurationChange(listener, key, value)
 		if key == "menuMusicVolume" then
-			SetTrackVolume(value)
+			SetTrackVolume()
 		end
 	end
 	Configuration:AddListener("OnConfigurationChange", onConfigurationChange)
