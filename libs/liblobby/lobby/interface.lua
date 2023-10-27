@@ -1984,6 +1984,10 @@ local function buildDisregardList(ignores, avoids, blocks)
 end
 
 function Interface:_On_s_user_list_relationships(data)
+	if true then
+		Spring.Echo("Disabled s.user.list_relationships for now until full implementation done server side...")
+		return
+	end
 	local relationships = Spring.Utilities.json.decode(Spring.Utilities.Base64Decode(data))
 
 	if not (relationships and relationships.friends and relationships.follows and relationships.ignores and relationships.avoids and relationships.blocks) then
