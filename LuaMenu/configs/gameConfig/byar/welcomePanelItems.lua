@@ -17,13 +17,6 @@ local welcomePanelItems = {
         UrlText = "Join tournament discord",
     },
     {
-        Header = "Updated Map: Supreme Isthmus v1.6.1!",
-        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/Supreme_Isthmus_v1.6.1.png",
-        Url = "https://discord.com/channels/549281623154229250/1163431711955230781",
-        UrlText = "Join the thread on Discord",
-        Text = "New version of Isthmus is now live!\nCheck pins on Discord discussion for the list of changes.",
-    },
-    {
         Header = "Commander update survey!",
         Url = "https://forms.gle/6iagp9r8EWPc3YUQ9",
         Text = "\nWe would like to collect your feedback in a systematic way to use as supplementary data for the Game Design Team's discussion and ultimately decision on if and what tweaks should be applied. Thank you in advance for your time!\n",
