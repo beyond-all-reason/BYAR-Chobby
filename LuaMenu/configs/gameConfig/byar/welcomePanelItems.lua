@@ -23,29 +23,11 @@ local welcomePanelItems = {
     },
     {
         Header = nil,
-        Text = "Qualifiers start Oct 28 5PM CEST - Register your team today!",
-        Url = "https://www.start.gg/tournament/improvise-adapt-overcome/details",
-        UrlText = "Register at start.gg",
+        Text = "Qualifiers in progress - Register your team at ProfessorBAR's Discord by November 4th!",
+        Url = "https://discord.gg/geKweGfxS3",
+        UrlText = "Register on Discord",
     },
-    {
-        Header = "Commander update survey!",
-        Url = "https://forms.gle/6iagp9r8EWPc3YUQ9",
-        Text = "\nWe would like to collect your feedback in a systematic way to use as supplementary data for the Game Design Team's discussion and ultimately decision on if and what tweaks should be applied. Thank you in advance for your time!\n",
-        UrlText = "Participate"
-    },
-    {
-        Header = "Season 0 has started!",
-        Url = "https://www.beyondallreason.info/news/new-opportunities-ahead-season-zero-is-about-to-begin",
-        Text = "The OpenSkill uncertainty factor was reset for all players to its default value (the same as for new players). It's expected that your match rating (displayed in lobby) is lower than what it was before the reset, and likewise for your rank icon\n",
-        UrlText = "More info",
-    },
-    {
-        Header = "Commander Update",
-        Url = "https://www.beyondallreason.info/news/commander-update-details",
-        Text = "Commanders have been changed! They are now immune to the mighty D-Gun and their explosion does less damage. Their wreckage contains reduced metal value of 1250 (was 2000)\n",
-        UrlText = "More info",
-    },
-    
+
     {
         Header = "Guides for new players",
         Url = "https://www.youtube.com/channel/UCAByJ5NKeMmQ95EIWgBtbEw",
