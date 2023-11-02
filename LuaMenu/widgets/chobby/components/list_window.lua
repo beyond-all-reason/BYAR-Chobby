@@ -273,7 +273,7 @@ function ListWindow:UpdateFilters()
 			end
 		end
 	end
-	]]--
+	--]]
 
 	-- Create a localized lambda sort function and sort the visible ones
 	local listWindow = self
@@ -340,7 +340,7 @@ function ListWindow:UpdateFilters()
 		--Spring.Utilities.TraceEcho(4)
 		Spring.Echo("UpdateFilters:", numchanged, prevfilter,numinfilters, numinvisible, strchanged,comparisons)
 	end
-	]]--
+	--]]
 	
 	tracy.ZoneEnd()
 end

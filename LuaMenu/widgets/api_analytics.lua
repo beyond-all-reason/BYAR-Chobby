@@ -448,7 +448,7 @@ local function GetInfologs()
 	local compressedlog = Spring.Utilities.Base64Encode(VFS.ZlibCompress(testlog))
 	Spring.Echo("attempting to send test log", #testlog, #compressedlog)
 	Analytics.SendCrashReportOneTimeEvent("infolog.txt", "Testupload", "Testupload", compressedlog, true)
-	]]--
+	--]]
 
 	if onetimeEvents["reportedcrashes"] == nil then
 		onetimeEvents["reportedcrashes"] = {}

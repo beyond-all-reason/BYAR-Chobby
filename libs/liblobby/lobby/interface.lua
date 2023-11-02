@@ -1133,10 +1133,12 @@ Interface.commandPattern["SAYPRIVATE"] = "(%S+)%s+(.*)"
 ------------
 ------------
 
+--[[
 function Interface:CloseQueue(name)
 	self:_SendCommand(concat("CLOSEQUEUE", json.encode(name)))
 	return self
 end
+--]]
 
 function Interface:ConnectUser(userName, ip, port, engine, scriptPassword)
 	self:_SendCommand(concat("CONNECTUSER", json.encode({userName=userName, ip=ip, port=port, engine=engine, scriptPassword=scriptPassword})))
@@ -1690,6 +1692,7 @@ end
 Interface.commands["OPENBATTLEFAILED"] = Interface._OnOpenBattleFailed
 Interface.commandPattern["OPENBATTLEFAILED"] = "([^\t]+)"
 
+--[[ ZK only
 function Interface:_QueueOpened(obj)
 	self:_OnQueueOpened(obj.name, obj.title, obj.mapNames, nil, obj.gameNames)
 end
@@ -1704,7 +1707,7 @@ function Interface:_OnQueueLeft(obj)
 	self:_CallListeners("OnQueueLeft", obj.name, obj.userNames)
 end
 Interface.jsonCommands["QUEUELEFT"] = Interface._OnQueueLeft
-
+--]]
 function Interface:_OnReadyCheck(obj)
 	self:_CallListeners("OnReadyCheck", obj.name, obj.responseTime)
 end

@@ -42,9 +42,7 @@ function widget:Initialize()
 	for k, v in pairs(WG.Server) do
 		Spring.Log("liblobby", LOG.NOTICE, k, v)
 	end
-	if WG.Server.protocol == "zks" then
-		Interface = VFS.Include(LIB_LOBBY_DIRNAME .. "interface_zerok.lua", nil, VFS.RAW_FIRST)
-	elseif WG.Server.protocol == "spring" then
+	if WG.Server.protocol == "spring" then
 		Interface = VFS.Include(LIB_LOBBY_DIRNAME .. "interface.lua", nil, VFS.RAW_FIRST)
 	else
 		Spring.Log("liblobby", LOG.ERROR, "Invalid liblobby interface specified: " .. tostring(WG.Server.interface))

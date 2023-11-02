@@ -55,8 +55,6 @@ function Lobby:_Clean()
 	self.partyMap = {}
 	self.myPartyID = nil
 
-	self.planetwarsData = {}
-
 	self.team = nil
 
 	self.latency = 0 -- in ms
@@ -203,6 +201,7 @@ end
 -- Battle commands
 ------------------------
 
+-- unused in bar
 function Lobby:HostBattle(battleName, password)
 	return self
 end
@@ -359,9 +358,9 @@ function Lobby:SayPrivate(userName, message)
 end
 
 ------------------------
--- MatchMaking commands
+-- MatchMaking commands (ZK only)
 ------------------------
-
+--[[
 function Lobby:JoinMatchMaking(queueNamePossiblyList)
 	return self
 end
@@ -381,11 +380,12 @@ end
 function Lobby:RejectMatchMakingMatch()
 	return self
 end
+--]]
 
 ------------------------
--- Party commands
+-- Party commands (ZK Only)
 ------------------------
-
+--[[
 function Lobby:InviteToParty(userName)
 	return self
 end
@@ -397,35 +397,12 @@ end
 function Lobby:PartyInviteResponse(partyID, accepted)
 	return self
 end
+--]]
 
 ------------------------
--- Battle Propose commands
+-- Steam commands (ZK only)
 ------------------------
-
-function Lobby:BattleProposalRespond(userName, accepted)
-	return self
-end
-
-function Lobby:BattleProposalBattleInvite(userName, battleID, password)
-	return self
-end
-
-------------------------
--- Planetwars commands
-------------------------
-
-function Lobby:PwJoinPlanet(planetID)
-	return self
-end
-
-function Lobby:JoinFactionRequest(factionName)
-	return self
-end
-
-------------------------
--- Steam commands
-------------------------
-
+--[[
 function Lobby:SetSteamAuthToken(steamAuthToken)
 	self.steamAuthToken = steamAuthToken
 	return self
@@ -435,6 +412,7 @@ function Lobby:SetSteamDlc(steamDlc)
 	self.steamDlc = steamDlc
 	return self
 end
+--]]
 
 -------------------------------------------------
 -- END Client commands
@@ -960,7 +938,7 @@ function Lobby:_OnLeftBattle(battleID, userName)
 	self:_CallListeners("OnLeftBattle", battleID, userName)
 end
 
--- spectatorCount, locked, mapHash, mapName, engineVersion, runningSince, gameName, battleMode, disallowCustomTeams, disallowBots, isMatchMaker, maxPlayers, title, playerCount, passworded
+-- spectatorCount, locked, mapHash, mapName, engineVersion, runningSince, gameName, battleMode, disallowCustomTeams, disallowBots, maxPlayers, title, playerCount, passworded
 function Lobby:_OnUpdateBattleInfo(battleID, battleInfo)
 	local battle = self.battles[battleID]
 	if not battle then
@@ -1409,9 +1387,9 @@ function Lobby:_OnSayServerMessage(message, sayTime)
 end
 
 ------------------------
--- MatchMaking commands
+-- MatchMaking commands (ZK only)
 ------------------------
-
+--[[
 function Lobby:_OnQueueOpened(name, description, mapNames, maxPartySize, gameNames)
 	self.queues[name] = {
 		name = name,
@@ -1450,7 +1428,7 @@ function Lobby:_OnMatchMakerStatus(inMatchMaking, joinedQueueList, queueCounts, 
 		self.joinedQueueList = joinedQueueList
 		self.joinedQueues = {}
 		for i = 1, #joinedQueueList do
-			self.joinedQueues[joinedQueueList[i]] = true
+			self.joinedQueues[joinedQueueList[i] ] = true
 		end
 	else
 		self.joinedQueues = nil
@@ -1480,16 +1458,12 @@ end
 function Lobby:_OnMatchMakerReadyResult(isBattleStarting, areYouBanned)
 	self:_CallListeners("OnMatchMakerReadyResult", isBattleStarting, areYouBanned)
 end
-
-function Lobby:_OnUserCount(userCount)
-	self.fullUserCount = userCount
-	self:_CallListeners("OnUserCount", userCount)
-end
+--]]
 
 ------------------------
--- Party commands
+-- Party commands (ZK only)
 ------------------------
-
+--[[
 function Lobby:_OnPartyInviteRecieved(partyID, partyUsers, timeoutSeconds)
 	self:_CallListeners("OnPartyInviteRecieved", partyID, partyUsers, timeoutSeconds)
 end
@@ -1525,64 +1499,7 @@ function Lobby:_OnPartyInviteResponse(userName, accepted) -- Invite response rec
 	userInfo.pendingPartyInvite = false
 	self:_CallListeners("OnPartyInviteResponse", userName, accepted)
 end
-
-------------------------
--- Battle Propose commands
-------------------------
-
-function Lobby:_OnBattleProposalResponse(userName, accepted)
-	self:_CallListeners("OnBattleProposalResponse", userName, accepted)
-end
-
-function Lobby:_OnBattleProposalBattleInvite(userName, battleID, password)
-	self:_CallListeners("OnBattleProposalBattleInvite", userName, battleID, password)
-end
-
-------------------------
--- Planetwars Commands
-------------------------
-
-function Lobby:_OnPwStatus(planetWarsMode, minLevel)
-	self:_CallListeners("OnPwStatus", planetWarsMode, minLevel)
-end
-
-function Lobby:_OnPwMatchCommand(attackerFaction, defenderFactions, currentMode, planets, deadlineSeconds)
-	local modeSwitched = (self.planetwarsData.currentMode ~= currentMode) or (self.planetwarsData.attackerFaction ~= attackerFaction)
-	self.planetwarsData.attackerFaction  = attackerFaction
-	self.planetwarsData.defenderFactions = defenderFactions
-	self.planetwarsData.currentMode      = currentMode
-	self.planetwarsData.planets          = planets
-
-	Spring.Echo("OnPwMatchCommand modeSwitched", modeSwitched)
-	if modeSwitched then
-		self.planetwarsData.joinPlanet = nil
-		self.planetwarsData.attackingPlanet = nil
-	end
-
-	self:_CallListeners("OnPwMatchCommand", attackerFaction, defenderFactions, currentMode, planets, deadlineSeconds, modeSwitched)
-end
-
-function Lobby:_OnPwRequestJoinPlanet(planetID)
-	self:_CallListeners("OnPwRequestJoinPlanet", planetID)
-end
-
-function Lobby:_OnPwJoinPlanetSuccess(planetID)
-	self.planetwarsData.joinPlanet = planetID
-	self:_CallListeners("OnPwJoinPlanetSuccess", planetID)
-end
-
-function Lobby:_OnPwAttackingPlanet(planetID)
-	self.planetwarsData.attackingPlanet = planetID
-	self:_CallListeners("OnPwAttackingPlanet", planetID)
-end
-
-function Lobby:_OnPwFactionUpdate(factionData)
-	self.planetwarsData.factionMap = {}
-	self.planetwarsData.factionList = factionData
-	for i = 1, #factionData do
-		self.planetwarsData.factionMap[factionData[i].Shortcut] = true
-	end
-end
+--]]
 
 ------------------------
 -- News and community commands
@@ -1721,11 +1638,7 @@ end
 -- users
 -- Returns all users, visible users
 function Lobby:GetUserCount()
-	if self.fullUserCount then
-		return self.fullUserCount, self.userCount
-	else
-		return self.userCount, self.userCount
-	end
+	return self.userCount
 end
 
 -- gets the userInfo, or creates a new one with an offline user if it doesn't exist
@@ -1845,7 +1758,7 @@ function Lobby:GetBattlePlayerCount(battleID)
 				local s = string.format("GetBattlePlayerCount(ID: %s) #users = %d, #specs = %d, #players = %d, %s", battleID, #battle.users, battle.spectatorCount, playerCount, users)
 				Spring.Echo(s)
 			end
-		]]--
+		--]]
 		return math.max(0, playerCount)
 	end
 end
@@ -2011,14 +1924,6 @@ function Lobby:GetMyFaction()
 		return self.users[self.myUserName].faction
 	end
 	return false
-end
-
-function Lobby:GetFactionData(faction)
-	return faction and self.planetwarsData.factionMap and self.planetwarsData.factionMap[faction]
-end
-
-function Lobby:GetPlanetwarsData()
-	return self.planetwarsData
 end
 
 function Lobby:GetMySessionToken()

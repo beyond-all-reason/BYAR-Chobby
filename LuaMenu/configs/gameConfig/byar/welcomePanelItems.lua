@@ -54,7 +54,8 @@ local welcomePanelItems = {
         Url = nil, -- should be nil if you dont want a clickable link button
         Time = nil, --"",
         Text = "We've just released a new engine update. Be sure to report any issues to #bugreports on the discord and thank you for bearing with us through any teething problems with it.."
-    }, ]]--
+    },
+    --]]
 
     --{
     --    Header = "Code of Conduct",

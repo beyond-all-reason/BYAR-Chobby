@@ -57,7 +57,6 @@ function Lobby:_CallListeners(event, ...)
 			if functionaddresscache[listener] == nil then
 				local finfo = debug.getinfo(listener)
 				--Spring.Utilities.TableEcho(finfo)
-				--source = LuaMenu/Widgets/gui_planetwars_list_window.lua
 				local src = finfo.source or functionaddress
 				local srcsplit = src:split('/')
 				src = srcsplit[#srcsplit]		

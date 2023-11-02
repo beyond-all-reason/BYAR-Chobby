@@ -326,7 +326,7 @@ local function GetNewsEntry(parentHolder, index, headingSize, timeAsTooltip, top
 
 	local externalFunctions = {}
 
-	-- Fireball: vPositioning doesn´t matter here, overwritten by DoResize as soon as the control was created
+	-- Fireball: vPositioning doesn't matter here, overwritten by DoResize as soon as the control was created
 	function externalFunctions.AddEntry(entryData, parentPosition)
 		local textPos = 6
 		local headingPos = 2
@@ -337,7 +337,7 @@ local function GetNewsEntry(parentHolder, index, headingSize, timeAsTooltip, top
 			if not controls.linkButton then
 				controls.linkButton = Button:New {
 					x = 2,
-					y = offset + 6, -- Fireball: doesn´t matter, overwritten by DoResize, this is totally wrong
+					y = offset + 6, -- Fireball: doesn't matter, overwritten by DoResize, this is totally wrong
 					width = 280,
 					--right = 400,
 					align = "left",
@@ -362,10 +362,10 @@ local function GetNewsEntry(parentHolder, index, headingSize, timeAsTooltip, top
 		if not controls.heading then
 			controls.heading = TextBox:New{
 				x = 4, -- Fireball: Why not textpos(=6) ?
-				y = headFormat.inButton,	-- Fireball: doesn´t matter, overwritten by DoResize
+				y = headFormat.inButton,	-- Fireball: doesn't matter, overwritten by DoResize
 				right = 4,
 				height = headFormat.height,
-				align = "center", -- Fireball: What do we want to center here ? the heading is shown aligned to the left and it´s good. is this working at all ?
+				align = "center", -- Fireball: What do we want to center here ? the heading is shown aligned to the left and it's good. is this working at all ?
 				valign = "top",
 				text = entryData.heading,
 				objectOverrideFont = WG.Chobby.Configuration:GetButtonFont(7),
@@ -841,7 +841,7 @@ local function InitializeControls(window)
 				atTime = items[i].Time,
 				text = items[i].Text,
 
-	]]--
+	--]]
 
 	local welcomePanelItems = {}
 	if WG.Chobby.Configuration and WG.Chobby.Configuration.gameConfig and WG.Chobby.Configuration.gameConfig.welcomePanelItems then
@@ -869,7 +869,7 @@ local function InitializeControls(window)
 		forumHandler.ReplaceNews(forumItems)
 	end
 	lobby:AddListener("OnForumList", OnForumList)
-	]]--
+	--]]
 	-- Ladder Handler
 	--[[
 	local ladderHandler = GetLadderHandler(rightCenter)
@@ -881,7 +881,7 @@ local function InitializeControls(window)
 		ladderHandler.UpdateLadder(ladderItems)
 	end
 	lobby:AddListener("OnLadderList", OnLadderList)
-	]]--
+	--]]
 
 	--[[
 	-- Profile Handler
@@ -895,7 +895,7 @@ local function InitializeControls(window)
 		profileHandle.UpdateUserName()
 	end
 	lobby:AddListener("OnAccepted", OnAccepted)
-	]]--
+	--]]
 end
 
 --------------------------------------------------------------------------------
