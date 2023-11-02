@@ -1040,9 +1040,6 @@ local function GetLobbyTabControls()
 		children[#children + 1], offset = AddCheckboxSetting(offset, i18n("use_steam_browser"), "useSteamBrowser", true)
 	end
 	--children[#children + 1], offset = AddCheckboxSetting(offset, "Multiplayer in new window", "multiplayerLaunchNewSpring", true)
-	if not Configuration.gameConfig.disablePlanetwars then
-		children[#children + 1], offset = AddCheckboxSetting(offset, i18n("planetwars_notifications"), "planetwarsNotifications", false)
-	end
 	children[#children + 1], offset = AddCheckboxSetting(offset, i18n("ingame_notifcations"), "ingameNotifcations", true, nil , i18n("ingame_notifcations_tooltip"))
 	children[#children + 1], offset = AddCheckboxSetting(offset, i18n("non_friend_notifications"), "nonFriendNotifications", true, nil,  i18n("non_friend_notifications_tooltip"))
 	--children[#children + 1], offset = AddCheckboxSetting(offset, i18n("notifyForAllChat"), "notifyForAllChat", false)
@@ -1258,15 +1255,15 @@ local function GetVoidTabControls()
 	local cbInspector
 	cbInspector, offset = AddCheckboxSetting(offset, "Enable Inspector", "enableInspector", false, EnableInspectorFunc)
 	children[#children + 1] = cbInspector
-	children[#children + 1], offset = AddCheckboxSetting(offset, "Show Campaign button", "showCampaignButton", false, toggleCampaignFunc)
-	children[#children + 1], offset = AddCheckboxSetting(offset, "Show Planet Unlocks", "showPlanetUnlocks", false)
-	children[#children + 1], offset = AddCheckboxSetting(offset, "Show Planet Enemy Units", "showPlanetEnemyUnits", false)
-	children[#children + 1], offset = AddCheckboxSetting(offset, "Campaign Spawn Debug", "campaignSpawnDebug", false)
-	children[#children + 1], offset = AddCheckboxSetting(offset, "Edit Campaign", "editCampaign", false)
+	-- children[#children + 1], offset = AddCheckboxSetting(offset, "Show Campaign button", "showCampaignButton", false, toggleCampaignFunc)
+	-- children[#children + 1], offset = AddCheckboxSetting(offset, "Show Planet Unlocks", "showPlanetUnlocks", false)
+	-- children[#children + 1], offset = AddCheckboxSetting(offset, "Show Planet Enemy Units", "showPlanetEnemyUnits", false)
+	-- children[#children + 1], offset = AddCheckboxSetting(offset, "Campaign Spawn Debug", "campaignSpawnDebug", false)
+	-- children[#children + 1], offset = AddCheckboxSetting(offset, "Edit Campaign", "editCampaign", false)
 	children[#children + 1], offset = AddCheckboxSetting(offset, "Debug server messages", "activeDebugConsole", false)
 	children[#children + 1], offset = AddCheckboxSetting(offset, "Show channel bots", "displayBots", false)
 	-- children[#children + 1], offset = AddCheckboxSetting(offset, "Show wrong engines", "displayBadEngines2", false) -- moved to regular
-	children[#children + 1], offset = AddCheckboxSetting(offset, "Debug for MatchMaker", "showMatchMakerBattles", false)
+	-- children[#children + 1], offset = AddCheckboxSetting(offset, "Debug for MatchMaker", "showMatchMakerBattles", false)
 	children[#children + 1], offset = AddCheckboxSetting(offset, "Hide interface", "hideInterface", false)
 	--children[#children + 1], offset = AddCheckboxSetting(offset, "Neuter Settings", "doNotSetAnySpringSettings", false)
 	children[#children + 1], offset = AddCheckboxSetting(offset, "Aggressive Set Borderless", "agressivelySetBorderlessWindowed", false)
@@ -1422,48 +1419,48 @@ local function GetVoidTabControls()
 	}
 	offset = offset + ITEM_OFFSET
 
-	children[#children + 1] = Label:New {
-		x = 20,
-		y = offset + TEXT_OFFSET,
-		width = 90,
-		height = 30,
-		valign = "top",
-		align = "left",
-		parent = window,
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
-		caption = "Campaign",
-	}
-
-	local campaignSelectedName = Configuration.campaignConfigName
-	local campaignSelected = 1
-	for i = 1, #Configuration.campaignConfigOptions do
-		if Configuration.campaignConfigOptions[i] == campaignSelectedName then
-			campaignSelected = i
-			break
-		end
-	end
-
-	children[#children + 1] = ComboBox:New {
-		name = "campaignSelection",
-		x = COMBO_X,
-		y = offset,
-		width = COMBO_WIDTH,
-		height = 30,
-		right = 18,
-		parent = window,
-		items = Configuration.campaignConfigHumanNames,
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
-		selected = campaignSelected,
-		OnSelect = {
-			function (obj)
-				if freezeSettings then
-					return
-				end
-				Configuration:SetConfigValue("campaignConfigName", Configuration.campaignConfigOptions[obj.selected])
-			end
-		},
-	}
-	offset = offset + ITEM_OFFSET
+	--children[#children + 1] = Label:New {
+	--	x = 20,
+	--	y = offset + TEXT_OFFSET,
+	--	width = 90,
+	--	height = 30,
+	--	valign = "top",
+	--	align = "left",
+	--	parent = window,
+	--	objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+	--	caption = "Campaign",
+	--}
+--
+	--local campaignSelectedName = Configuration.campaignConfigName
+	--local campaignSelected = 1
+	--for i = 1, #Configuration.campaignConfigOptions do
+	--	if Configuration.campaignConfigOptions[i] == campaignSelectedName then
+	--		campaignSelected = i
+	--		break
+	--	end
+	--end
+--
+	--children[#children + 1] = ComboBox:New {
+	--	name = "campaignSelection",
+	--	x = COMBO_X,
+	--	y = offset,
+	--	width = COMBO_WIDTH,
+	--	height = 30,
+	--	right = 18,
+	--	parent = window,
+	--	items = Configuration.campaignConfigHumanNames,
+	--	objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+	--	selected = campaignSelected,
+	--	OnSelect = {
+	--		function (obj)
+	--			if freezeSettings then
+	--				return
+	--			end
+	--			Configuration:SetConfigValue("campaignConfigName", Configuration.campaignConfigOptions[obj.selected])
+	--		end
+	--	},
+	--}
+	--offset = offset + ITEM_OFFSET
 
 
 	children[#children + 1] = Label:New {

@@ -40,7 +40,7 @@ local function SetDiscordPlaying(details)
         public string joinSecret; /* max 128 bytes */
         public string spectateSecret; /* max 128 bytes */
         public bool instance;
-	]]--
+	--]]
 	prevDetails = details
 	prevTime = nil
 	WG.WrapperLoopback.DiscordUpdatePresence({
@@ -59,12 +59,8 @@ local function GetGameType(data)
 		return "Watching Replay"
 	end
 
-	if data.isCampaign then
-		return "Playing campaign on planet " .. data.planetName
-	end
-
 	local meString = ((data.isPlayer and "Playing ") or "Spectating ")
-	if teamOnePlayers == 0 then
+	if data.teamOnePlayers == 0 then
 		if data.isAI then
 			if data.isChicken then
 				return meString .. "Chicken vs AI"
@@ -75,9 +71,9 @@ local function GetGameType(data)
 		return "In custom game"
 	end
 
-	if teamTwoPlayers == 0 then
+	if data.teamTwoPlayers == 0 then
 		if data.isAI then
-			local friendType = ((teamPlayers > 1 and "coop") or "skirmish")
+			local friendType = ((data.teamPlayers > 1 and "coop") or "skirmish")
 			if data.isChicken then
 				return meString .. friendType .. " vs. AI with Chickens"
 			else
@@ -153,10 +149,7 @@ local function DelayedInitialize()
 		else
 			SetDiscordPlaying("Loading battle")
 		end
-		--if battleType and string.find(battleType, "campaign") then
-		--	SetDiscordPlaying("Playing Campaign")
-		--elseif battleType == "tutorial" then
-		--	SetDiscordPlaying("Playing Tutorial")
+
 		--elseif battleType == "skirmish" then
 		--	SetDiscordPlaying("Playing Skirmish")
 		--elseif battleType == "replay" then

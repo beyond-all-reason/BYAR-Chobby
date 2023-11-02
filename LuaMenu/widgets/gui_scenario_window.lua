@@ -587,7 +587,8 @@ local function CreateScenarioPanel(shortname, sPanel)
 			end
 		},
 		parent = sPanel,
-	}]]--
+	}
+	--]]
 
 	local sideCombo = ComboBox:New{
 		x = "16%",
@@ -885,10 +886,8 @@ local function MakeScenarioScrollPanelChildren()
 			parent = scenSelectorButton,
 			tooltip = scen.mapfilename,
 			padding = {0,0,0,0},
-		}]]--
-
-
-
+		}
+		--]]
 	end
 end
 
@@ -972,7 +971,7 @@ local function InitializeControls(parentControl)
 		},
 		parent = parentControl,
 	}
-]]--
+--]]
 	-- make scenario scrollpanel children
 	MakeScenarioScrollPanelChildren()
 
@@ -1131,7 +1130,7 @@ function widget:Update() -- just to check if this still runs, and yes
 	if math.fmod(framenum,1000)==0 then
 	end
 end
-]]--
+--]]
 
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------

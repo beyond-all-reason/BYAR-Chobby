@@ -17,11 +17,6 @@ function Interface:init()
 	self.finishedConnecting = false
 	self.listeners = {}
 
-	-- Inheritance is too shallow for interface_zerok.lua to get its own init.
-	if self.InheritanceIsBrokenWorkaroundInit then
-		self:InheritanceIsBrokenWorkaroundInit()
-	end
-
 	-- timeout (in seconds) until first message is received from server before disconnect is assumed
 	self.connectionTimeout = 50
 

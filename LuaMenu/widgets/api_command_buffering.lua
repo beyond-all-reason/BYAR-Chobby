@@ -18,8 +18,9 @@ end
 -- Variables
 
 local bufferBypass = {
-	Welcome = true,
 	Ping = true,
+	--[[ ZK only
+	Welcome = true,
 	AreYouReady = true,
 	AreYouReadyUpdate = true,
 	AreYouReadyResult = true,
@@ -32,6 +33,7 @@ local bufferBypass = {
 	BattleRemoved = true,
 	BattlePoll = true,
 	BattlePollOutcome = true,
+	--]]
 }
 
 local function NotifyBecamePlayer(arguments)

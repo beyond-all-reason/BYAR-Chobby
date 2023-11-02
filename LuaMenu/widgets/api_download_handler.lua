@@ -455,13 +455,6 @@ local function GetRequiredDownloads()
 		SaveVersionGZ(SaveLobbyVersionGZPath)
 		RestoreVersionGZ(SaveLobbyVersionGZPath .. "_cache.gz")
 	end
-	local campaignStartMaps = Configuration.campaignConfig and Configuration.campaignConfig.planetDefs
-	if campaignStartMaps then
-		campaignStartMaps = campaignStartMaps.startingPlanetMaps or {}
-		for i = 1, #campaignStartMaps do
-			externalFunctions.MaybeDownloadArchive(campaignStartMaps[i], "map", 1.5)
-		end
-	end
 
 	local skirmishPages = Configuration.gameConfig and Configuration.gameConfig.skirmishSetupData and Configuration.gameConfig.skirmishSetupData.pages
 	if skirmishPages then
