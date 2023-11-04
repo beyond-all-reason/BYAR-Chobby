@@ -22,10 +22,10 @@ local welcomePanelItems = {
         UrlText = "More info",
     },
     {
-        Header = "Live now!",
-        Text = nil,
-        Url = "https://www.twitch.tv/beyondallreasonofficial",
-        UrlText = "Watch on twitch.tv",
+        Header = nil,
+        Text = "Main event Nov. 11th/12th at 2PM CET - Qualifiers in progress - Register your team at ProfessorBAR's Discord!",
+        Url = "https://discord.gg/geKweGfxS3",
+        UrlText = "Register on Discord",
     },
 
     {
