@@ -614,7 +614,7 @@ function Lobby:_OnAddUser(userName, status)
 	if not userInfo then
 		userInfo = {
 			userName = userName,
-			isFriend = self.isFriendByID[status.accountID],
+			isFriend = status and status.accountID and self.isFriendByID[status.accountID] or false,
 			hasFriendRequest = self.hasFriendRequest[userName],
 		}
 		self.users[userName] = userInfo
@@ -634,7 +634,9 @@ function Lobby:_OnAddUser(userName, status)
 		end
 	end
 
-	self.usersByID[userInfo.accountID] = userName
+	if status and status.accountID then
+		self.usersByID[userInfo.accountID] = userName
+	end
 
 	self:_CallListeners("OnAddUser", userName, userInfo)
 end

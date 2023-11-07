@@ -949,7 +949,7 @@ local function GetUserControls(userName, opts)
 						if userInfo and userInfo.hasFriendRequest then
 							userControls.lobby:AcceptFriendRequestByID({userInfo.accountID})
 						else
-							userControls.lobby:FriendRequest({userInfo.accountID})
+							userControls.lobby:FriendRequestByID(userInfo.accountID)
 						end
 					--[[ ZK only
 					elseif selectedName == "Join Party" or selectedName == "Invite to Party" then
