@@ -75,6 +75,7 @@ return {
 		party_invite = "Party Invite",
 		party = "Party",
 		accept = "Accept",
+		rescind = "Rescind",
 		reject = "Reject",
 		ready = "   Ready",
 		apply = "Apply",
@@ -284,6 +285,9 @@ return {
 
 		-- friend_list_window.lua
 		friend_request = "Friend request",
+		friend_request_out = "Requested friend",
+		friend_request_accepted = "Friend request accepted",
+		friend_request_new = "New friend request",
 		decline = "Decline",
 		user_offline = "User is now offline",
 		user_online = "User is now online",
@@ -379,6 +383,7 @@ return {
 		party_invite = "Gruppeneinladung",
 		party = "Gruppe",
 		accept = "Akzeptieren",
+		rescind = "Abweisen",
 		reject = "Zurückweisen",
 		apply = "Anwenden",
 		enter_battle_password = "Bitte Passwort eingeben",
