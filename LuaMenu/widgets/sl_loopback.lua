@@ -136,7 +136,7 @@ local function ReplayInfo(command)
 
              }
 
-	]]--
+	--]]
 
 	WG.ReplayHandler.ReadReplayInfoDone(
 		command.relativePath,

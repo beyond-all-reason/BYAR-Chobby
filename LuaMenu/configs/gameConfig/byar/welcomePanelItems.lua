@@ -15,7 +15,7 @@ local welcomePanelItems = {
         Text = "Welcome back Commander. We hope you are ready for epic single player and multiplayer battles. Check out our Discord and join the community!\n",
     },
     {
-        Header = "Improvise, Adapt, Overcome - Insane 6v6 tourney is coming!",
+        Header = "Improvise, Adapt, Overcome - Insane 6v6 tourney!",
         Image = "LuaMenu/images/6v6Tournament.png",
         Text = "With just three weeks passing since the last official tournament, we are back with another one, and this time we are really going to shake things up. Are you ready to embrace the unexpected, think on your feet, and conquer challenges with your quick wit and creativity? Join us for the most exhilarating and mind-bending tournament of the year: the 'Improvise, Adapt, Overcome' 6v6 Tournament!\n\n",
         Url = "https://www.beyondallreason.info/news/improvise-adapt-overcome-insane-6v6-tourney-is-coming",
@@ -23,7 +23,7 @@ local welcomePanelItems = {
     },
     {
         Header = nil,
-        Text = "Qualifiers in progress - Register your team at ProfessorBAR's Discord by November 4th!",
+        Text = "Main event Nov. 11th/12th at 2PM CET - Qualifiers in progress - Register your team at ProfessorBAR's Discord!",
         Url = "https://discord.gg/geKweGfxS3",
         UrlText = "Register on Discord",
     },
@@ -54,7 +54,8 @@ local welcomePanelItems = {
         Url = nil, -- should be nil if you dont want a clickable link button
         Time = nil, --"",
         Text = "We've just released a new engine update. Be sure to report any issues to #bugreports on the discord and thank you for bearing with us through any teething problems with it.."
-    }, ]]--
+    },
+    --]]
 
     --{
     --    Header = "Code of Conduct",

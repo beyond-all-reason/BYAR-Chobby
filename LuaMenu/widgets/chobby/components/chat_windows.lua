@@ -877,7 +877,7 @@ function ChatWindows:GetPrivateChatConsole(userName, switchTo)
 			self:UpdateOldChatLinePosition(obj)
 		end
 		
-		local monospaced = lobby.users[userName] and lobby.users[userName].isBot
+		local monospaced = userName ~= "Coordinator" and lobby.users[userName] and lobby.users[userName].isBot
 		privateChatConsole = Console(chanName, MessageListener, nil, Resize, false, monospaced)
 		self.privateChatConsoles[chanName] = privateChatConsole
 

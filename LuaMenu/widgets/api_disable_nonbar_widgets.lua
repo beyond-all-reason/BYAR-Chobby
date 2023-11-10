@@ -16,25 +16,7 @@ end
 
 local unusedwidgets = {
 	--[[Community Window]]
-	[[Planetwars List Window]],
-	[[ZK Comm Config]],
-	[[SpringBoard Window]],
-	[[Queue status panel]],
-	[[Chili Visual Novel]],
-	[[Benchmark Handler]],
-	[[Campaign Technology Panel]],
 	[[Party status panel]],
-	[[Campaign Options Window]],
-	[[Campaign Handler ZK]],
-	[[Campaign Commander Loadout]],
-	[[Campaign Handler]],
-	[[Campaign Save/Load]],
-	[[Codex Handler]],
-	[[Tutorial Handler]],
-	[[Planet Battle Handler]],
-	[[ZK replay downloader]],
-	[[Rank update window]],
-	[[Missions Handles]],
 	[[bad widgets too]],
 	-- [[Discord Handler]], -- cant disable api widget?
 }

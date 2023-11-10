@@ -263,7 +263,7 @@ instVBO:Upload({
         0, 0, -100,
     }, 7, 1, 4, 6)
 Here is how you upload starting from 1st element and starting from 4th element in Lua array (-100) and finishing with 6th element (0), essentially it will upload (-100, 0, 0) into 7th attribute of 2nd instance.
-]]--
+--]]
 
 function pushElementInstance(iT,thisInstance, instanceID, updateExisting, noUpload, unitID) 
 	-- iT: instanceTable created with makeInstanceTable

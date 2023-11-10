@@ -335,9 +335,9 @@ local function GetBattleTooltip(battleID, battle, showMapName)
 		battleTooltip.title = GetTooltipLine(battleTooltip.mainControl, nil, 3)
 	end
 	local title = battle.title
-	if battle.isMatchMaker then
-		title = (title or "") .. " - Click to watch"
-	end
+	--if battle.isMatchMaker then
+	--	title = (title or "") .. " - Click to watch"
+	--end
 	local truncatedName = StringUtilities.GetTruncatedStringWithDotDot(title, battleTooltip.title.GetFont(), width - 10)
 	battleTooltip.title.Update(offset, truncatedName)
 	offset = offset + 25 -- * battleTooltip.title.GetLines() -- Not required with truncation

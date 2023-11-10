@@ -312,7 +312,7 @@ function BattleListWindow:SoftUpdate()
 		WG.Delay(RealSoftUpdate, 0.2)
 		self.softUpdateTimerRunning = true
 	end
-	]]--
+	--]]
 end
 
 function BattleListWindow:UpdateInfoPanel()

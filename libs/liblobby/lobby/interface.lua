@@ -102,41 +102,98 @@ end
 -- User commands
 ------------------------
 
+-- depricated, will be removed in near future
 function Interface:FriendList()
 	self:super("FriendList")
-	self:_SendCommand("FRIENDLIST", true)
+	-- self:_SendCommand("FRIENDLIST", true)
 	return self
 end
 
+-- depricated, will be removed in near future
 function Interface:FriendRequestList()
 	self:super("FriendRequestList")
-	self:_SendCommand("FRIENDREQUESTLIST", true)
+	-- self:_SendCommand("FRIENDREQUESTLIST", true)
 	return self
 end
 
+-- depricated, will be removed in near future
 function Interface:FriendRequest(userName)
 	self:super("FriendRequest", userName)
-	self:_SendCommand(concat("FRIENDREQUEST", "userName="..userName))
+	-- self:_SendCommand(concat("FRIENDREQUEST", "userName="..userName))
 	return self
 end
 
+function Interface:FriendRequestByID(userID)
+	self:super("FriendRequestByID", userID)
+	self:_SendCommand(concat("c.user.add_friend", userID))
+	return self
+end
+
+-- depricated, will be removed in near future
 function Interface:AcceptFriendRequest(userName)
 	self:super("AcceptFriendRequest", userName)
-	self:_SendCommand(concat("ACCEPTFRIENDREQUEST", "userName="..userName))
+	-- self:_SendCommand(concat("ACCEPTFRIENDREQUEST", "userName="..userName))
 	return self
 end
 
+function Interface:AcceptFriendRequestByID(userID)
+	self:super("AcceptFriendRequestByID", userID)
+	self:_SendCommand(concat("c.user.accept_friend_request", userID))
+	return self
+end
+
+-- depricated, will be removed in near future
 function Interface:DeclineFriendRequest(userName)
 	self:super("DeclineFriendRequest", userName)
-	self:_SendCommand(concat("DECLINEFRIENDREQUEST", "userName="..userName))
+	-- self:_SendCommand(concat("DECLINEFRIENDREQUEST", "userName="..userName))
 	return self
 end
 
-function Interface:Unfriend(userName)
-	self:super("Unfriend", userName)
-	self:_SendCommand(concat("UNFRIEND", "userName="..userName))
+function Interface:DeclineFriendRequestByID(userID)
+	self:super("DeclineFriendRequestByID", userID)
+	self:_SendCommand(concat("c.user.decline_friend_request", userID))
 	return self
 end
+
+-- can rescind multiple requests at once
+function Interface:RescindFriendRequestByIDs(userIDs)
+	self:super("RescindFriendRequestByIDs", userIDs)
+	self:_SendCommand(concat("c.user.rescind_friend_request", table.concat(userIDs, "\t")))
+	return self
+end
+
+-- depricated, will be removed in near future
+function Interface:Unfriend(userName)
+	self:super("Unfriend", userName)
+	-- self:_SendCommand(concat("UNFRIEND", "userName="..userName))
+	-- fake server response
+	-- self:_OnUnfriend(userName)
+	return self
+end
+
+function Interface:RemoveFriends(userIDs)
+	self:super("RemoveFriends", userIDs)
+	self:_SendCommand(concat("c.user.remove_friend", table.concat(userIDs, "\t")))
+	return self
+end
+
+------------------------------------------------------------------------------------------------
+-- Those Whois-commands are needed as long as we have a mixed protocol
+-- Currently some depend on userName, newer ones already use userIDs
+-- byar-chobby will ask for missing userID or userName depending on which info is known
+------------------------------------------------------------------------------------------------
+
+function Interface:Whois(userID)
+	self:_SendCommand(concat("c.user.whois", userID))
+	return self
+end
+
+function Interface:WhoisName(userName)
+	self:_SendCommand(concat("c.user.whoisName", userName))
+	return self
+end
+
+------------------------------------------------------------------------------------------------
 
 function Interface:c_user_list_relationships()
 	self:_SendCommand("c.user.list_relationships")
@@ -607,6 +664,29 @@ Interface.commands["QUEUED"] = Interface._OnQueued
 -- User commands
 ------------------------
 
+------------------------------------------------------------------------------------------------
+-- Those Whois-commands are needed as long as we have a mixed protocol
+-- Currently some depend on userName, newer ones already use userIDs
+-- byar-chobby will ask for missing userID or userName depending on which info is known
+------------------------------------------------------------------------------------------------
+
+function Interface:_OnWhois(id, data)
+	id = tonumber(id)
+	local userData = Spring.Utilities.json.decode(Spring.Utilities.Base64Decode(data))
+	self:super("_OnWhois", id, userData)
+end
+Interface.commands["s.user.whois"] = Interface._OnWhois
+Interface.commandPattern["s.user.whois"] = "(%d+)%s+(%S+)"
+
+function Interface:_OnWhoisName(userName, data)
+	local userData = Spring.Utilities.json.decode(Spring.Utilities.Base64Decode(data))
+	self:super("_OnWhoisName", userName, userData)
+end
+Interface.commands["s.user.whoisName"] = Interface._OnWhoisName
+Interface.commandPattern["s.user.whoisName"] = "(%S+)%s+(%S+)"
+
+------------------------------------------------------------------------------------------------
+
 function Interface:_OnAddUser(userName, country, accountID, lobbyID)
 	local userTable = {
 		-- constant
@@ -660,25 +740,61 @@ end
 Interface.commands["CLIENTSTATUS"] = Interface._OnClientStatus
 Interface.commandPattern["CLIENTSTATUS"] = "(%S+)%s+(%S+)"
 
---friends
+------------------------------------------------------------------------------------------------
+-- friends
+------------------------------------------------------------------------------------------------
+
+-- depricated, will be removed in near future
 -- NB: added the _Uber suffix so not to conflict with Lobby:_OnFriend
 function Interface:_OnFriend_Uber(tags)
 	local tags = parseTags(tags)
 	local userName = getTag(tags, "userName", true)
-	self:_OnFriend(userName)
+	-- self:_OnFriend(userName)
 end
 Interface.commands["FRIEND"] = Interface._OnFriend_Uber
 Interface.commandPattern["FRIEND"] = "(.+)"
 
+function Interface:_OnOutgoingFriendRequestByID(userID, answer)
+	userID = tonumber(userID)
+	if answer and answer ~= "success" then
+		Spring.Log(LOG_SECTION, LOG.WARNING, "error on acknowlege for friend addition. userID=" .. tostring(userID) .. " server message:" .. tostring(answer))
+		return
+	end
+	self:super("_OnOutgoingFriendRequestByID", userID)
+end
+Interface.commands["s.user.add_friend"] = Interface._OnOutgoingFriendRequestByID
+Interface.commandPattern["s.user.add_friend"] = "(%d+)%s+(%S+)"
+
+-- depricated, will be removed in near future
 -- NB: added the _Uber suffix so not to conflict with Lobby:_OnUnfriend
 function Interface:_OnUnfriend_Uber(tags)
 	local tags = parseTags(tags)
 	local userName = getTag(tags, "userName", true)
-	self:_OnUnfriend(userName)
+	-- self:_OnUnfriend(userName)
 end
 Interface.commands["UNFRIEND"] = Interface._OnUnfriend_Uber
 Interface.commandPattern["UNFRIEND"] = "(.+)"
 
+function Interface:_OnUnfriendByID(userID, answer)
+	userID = tonumber(userID)
+	if answer and answer ~= "success" then
+		Spring.Log(LOG_SECTION, LOG.WARNING, "error on acknowlege for friend remove. userID=" .. tostring(userID) .. " server message:" .. tostring(answer))
+		return
+	end
+	self:super("_OnUnfriendByID", userID)
+end
+Interface.commands["s.user.remove_friend"] = Interface._OnUnfriendByID
+Interface.commandPattern["s.user.remove_friend"] = "(%d+)%s+(%S+)"
+
+
+function Interface:_OnFriendDeletedByID(userID)
+	userID = tonumber(userID)
+	self:_OnUnfriendByID(userID)
+end
+Interface.commands["s.user.friend_deleted"] = Interface._OnFriendDeletedByID
+Interface.commandPattern["s.user.friend_deleted"] = "(%d+)"
+
+-- depricated, will be removed in near future
 function Interface:_OnFriendList(tags)
 	local tags = parseTags(tags)
 	local userName = getTag(tags, "userName", true)
@@ -691,26 +807,33 @@ end
 Interface.commands["FRIENDLIST"] = Interface._OnFriendList
 Interface.commandPattern["FRIENDLIST"] = "(.+)"
 
+-- depricated, will be removed in near future
 function Interface:_OnFriendListBegin()
 	self._friendList = {}
 end
 Interface.commands["FRIENDLISTBEGIN"] = Interface._OnFriendListBegin
 
+-- depricated, will be removed in near future
 function Interface:_OnFriendListEnd()
-	self:super("_OnFriendList", self._friendList)
+	-- self:super("_OnFriendList", self._friendList)
 	self._friendList = nil
 end
 Interface.commands["FRIENDLISTEND"] = Interface._OnFriendListEnd
 
+------------------------------------------------------------------------------------------------
 -- friend requests
-function Interface:_OnFriendRequest(tags)
-	local tags = parseTags(tags)
-	local userName = getTag(tags, "userName", true)
-	self:super("_OnFriendRequest", userName)
-end
-Interface.commands["FRIENDREQUEST"] = Interface._OnFriendRequest
-Interface.commandPattern["FRIENDREQUEST"] = "(.+)"
+------------------------------------------------------------------------------------------------
 
+-- depricated, will be removed in near future
+-- function Interface:_OnFriendRequest(tags)
+-- 	local tags = parseTags(tags)
+-- 	local userName = getTag(tags, "userName", true)
+-- 	self:super("_OnFriendRequest", userName)
+-- end
+-- Interface.commands["FRIENDREQUEST"] = Interface._OnFriendRequest
+-- Interface.commandPattern["FRIENDREQUEST"] = "(.+)"
+
+-- depricated, will be removed in near future
 function Interface:_OnFriendRequestList(tags)
 	local tags = parseTags(tags)
 	local userName = getTag(tags, "userName", true)
@@ -719,13 +842,15 @@ end
 Interface.commands["FRIENDREQUESTLIST"] = Interface._OnFriendRequestList
 Interface.commandPattern["FRIENDREQUESTLIST"] = "(.+)"
 
+-- depricated, will be removed in near future
 function Interface:_OnFriendRequestListBegin()
 	self._friendRequestList = {}
 end
 Interface.commands["FRIENDREQUESTLISTBEGIN"] = Interface._OnFriendRequestListBegin
 
+-- depricated, will be removed in near future
 function Interface:_OnFriendRequestListEnd()
-	self:super("_OnFriendRequestList", self._friendRequestList)
+	-- self:super("_OnFriendRequestList", self._friendRequestList)
 	self._friendRequestList = {}
 end
 Interface.commands["FRIENDREQUESTLISTEND"] = Interface._OnFriendRequestListEnd
@@ -1133,10 +1258,12 @@ Interface.commandPattern["SAYPRIVATE"] = "(%S+)%s+(.*)"
 ------------
 ------------
 
+--[[
 function Interface:CloseQueue(name)
 	self:_SendCommand(concat("CLOSEQUEUE", json.encode(name)))
 	return self
 end
+--]]
 
 function Interface:ConnectUser(userName, ip, port, engine, scriptPassword)
 	self:_SendCommand(concat("CONNECTUSER", json.encode({userName=userName, ip=ip, port=port, engine=engine, scriptPassword=scriptPassword})))
@@ -1690,6 +1817,7 @@ end
 Interface.commands["OPENBATTLEFAILED"] = Interface._OnOpenBattleFailed
 Interface.commandPattern["OPENBATTLEFAILED"] = "([^\t]+)"
 
+--[[ ZK only
 function Interface:_QueueOpened(obj)
 	self:_OnQueueOpened(obj.name, obj.title, obj.mapNames, nil, obj.gameNames)
 end
@@ -1704,7 +1832,7 @@ function Interface:_OnQueueLeft(obj)
 	self:_CallListeners("OnQueueLeft", obj.name, obj.userNames)
 end
 Interface.jsonCommands["QUEUELEFT"] = Interface._OnQueueLeft
-
+--]]
 function Interface:_OnReadyCheck(obj)
 	self:_CallListeners("OnReadyCheck", obj.name, obj.responseTime)
 end
@@ -1984,25 +2112,31 @@ local function buildDisregardList(ignores, avoids, blocks)
 end
 
 function Interface:_On_s_user_list_relationships(data)
-	if true then
-		Spring.Echo("Disabled s.user.list_relationships for now until full implementation done server side...")
-		return
-	end
 	local relationships = Spring.Utilities.json.decode(Spring.Utilities.Base64Decode(data))
 
-	if not (relationships and relationships.friends and relationships.follows and relationships.ignores and relationships.avoids and relationships.blocks) then
+	if not (relationships and relationships.friends and
+							  relationships.follows and
+							  relationships.ignores and
+							  relationships.avoids and
+							  relationships.blocks and
+							  relationships.incoming_friend_requests and
+							  relationships.outgoing_friend_requests) then
 		Spring.Log(LOG_SECTION, LOG.ERROR, "missing keys or json could not be parsed in s.user.list_relationships" )
 		Spring.Utilities.TableEcho(relationships, "relationships")
 		return
 	end
 
-	self:super("_OnFriendList", relationships.friends)
-	self:_OnDisregardList(buildDisregardList(relationships.ignores, relationships.avoids, relationships.blocks))
+	self:_OnFriendListByID(relationships.friends)
+	self:_OnFriendRequestListByID(relationships.incoming_friend_requests)
+	self:_OnOutgoingFriendRequestsByID(relationships.outgoing_friend_requests)
+	
+	-- ToDo: Disregards needs to get refactored to use userIDs now
+	-- self:_OnDisregardList(buildDisregardList(relationships.ignores, relationships.avoids, relationships.blocks))
+	
 	-- ToDo: relationships.follows > waits until completly implemented at teiserver
 end
 Interface.commands["s.user.list_relationships"] = Interface._On_s_user_list_relationships
 Interface.commandPattern["s.user.list_relationships"] = "(.+)"
-
 
 -- OK cmd=c.user.block	userName=Fireball
 function Interface:_OnOK(tags)
@@ -2035,6 +2169,71 @@ function Interface:_OnNo(tags)
 end
 Interface.commands["OK"] = Interface._OnOK
 Interface.commandPattern["OK"] = "(.+)"
+
+function Interface:_On_s_user_new_incoming_friend_request(userID)
+	userID = tonumber(userID)
+	self:_OnFriendRequestByID(userID, true)
+end
+Interface.commands["s.user.new_incoming_friend_request"] = Interface._On_s_user_new_incoming_friend_request
+Interface.commandPattern["s.user.new_incoming_friend_request"] = "(%d+)"
+
+function Interface:_On_s_user_accept_friend_request(userID, answer)
+	userID = tonumber(userID)
+	if answer ~= "success" then
+		Spring.Log(LOG_SECTION, LOG.WARNING, "error on acknowlege for friend request. userID=" .. tostring(userID) .. " server message:" .. tostring(answer))
+		return
+	end
+	self:_OnAcceptFriendRequestByID(userID)
+end
+Interface.commands["s.user.accept_friend_request"] = Interface._On_s_user_accept_friend_request
+Interface.commandPattern["s.user.accept_friend_request"] = "(%d+)%s+(%S+)"
+
+function Interface:_On_s_user_decline_friend_request(userID, answer)
+	userID = tonumber(userID)
+	if answer ~= "success" then
+		Spring.Log(LOG_SECTION, LOG.WARNING, "error on acknowlege for friend request. userID=" .. tostring(userID) .. " server message:" .. tostring(answer))
+		return
+	end
+	self:_OnDeclineFriendRequestByID(userID)
+end
+Interface.commands["s.user.decline_friend_request"] = Interface._On_s_user_decline_friend_request
+Interface.commandPattern["s.user.decline_friend_request"] = "(%d+)%s+(%S+)"
+
+function Interface:_On_s_user_rescind_friend_request(userID, answer)
+	userID = tonumber(userID)
+	if answer ~= "success" then
+		Spring.Log(LOG_SECTION, LOG.WARNING, "error on acknowlege for friend rescind. userID=" .. tostring(userID) .. " server message:" .. tostring(answer))
+		return
+	end
+	self:_OnRescindFriendRequestByID(userID)
+end
+Interface.commands["s.user.rescind_friend_request"] = Interface._On_s_user_rescind_friend_request
+Interface.commandPattern["s.user.rescind_friend_request"] = "(%d+)%s+(%S+)"
+
+function Interface:_On_s_user_friend_request_rescinded(userID)
+	userID = tonumber(userID)
+	self:_OnRemoveFriendRequestByID(userID)
+end
+Interface.commands["s.user.friend_request_rescinded"] = Interface._On_s_user_friend_request_rescinded
+Interface.commandPattern["s.user.friend_request_rescinded"] = "(%d+)"
+
+function Interface:_OnFriendRequestAcceptedByID(userID)
+	userID = tonumber(userID)
+	self:super("_OnFriendRequestAcceptedByID", userID)
+
+end
+Interface.commands["s.user.friend_request_accepted"] = Interface._OnFriendRequestAcceptedByID
+Interface.commandPattern["s.user.friend_request_accepted"] = "(%d+)"
+
+function Interface:_OnFriendRequestDeclinedByID(userID)
+	userID = tonumber(userID)
+	self:super("_OnFriendRequestDeclinedByID", userID)
+
+end
+Interface.commands["s.user.friend_request_declined"] = Interface._OnFriendRequestDeclinedByID
+Interface.commandPattern["s.user.friend_request_declined"] = "(%d+)"
+
+
 
 function Interface:_OnInviteTeam(obj)
 	self:_CallListeners("OnInviteTeam", obj.userName)

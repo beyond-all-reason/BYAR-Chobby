@@ -639,7 +639,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		file = IMG_LINK,
 		parent = btnMapLink,
 	}
-	]]--
+	--]]
 	local function SetMapName(mapName, width)
 		currentMapName = mapName
 		mapLinkWidth = width
@@ -683,7 +683,8 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 				WG.MapListPanel.Show(battleLobby, battle.mapName)
 			end
 		},
-	}]]--
+	}
+	--]]
 
 	local mapImageFile, needDownload = config:GetMinimapImage(battle.mapName)
 	local imMinimap = Image:New {
@@ -719,7 +720,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 
 		}
 	end
-	]]--
+	--]]
 	if battleLobby.name == "singleplayer" or config.devMode then 
 		local comboboxstartpostype = ComboBox:New{
 			name = 'comboboxstartpostype',
@@ -2139,7 +2140,7 @@ local function SetupVotePanel(votePanel, battle, battleID)
 
 	local buttonYesClickOverride
 	local buttonNoClickOverride
-	local matchmakerModeEnabled = false
+	-- local matchmakerModeEnabled = false
 
 	local currentMapName
 
@@ -2416,7 +2417,7 @@ local function SetupVotePanel(votePanel, battle, battleID)
 			ResetButtons()
 			externalFunctions.VoteButtonVisible(true)
 		end
-		matchmakerModeEnabled = (pollType == "quickplay")
+		-- matchmakerModeEnabled = (pollType == "quickplay")
 		--HideVoteResult()
 	end
 
@@ -2434,7 +2435,7 @@ local function SetupVotePanel(votePanel, battle, battleID)
 			voteResultLabel:Show()
 		end
 
-		matchmakerModeEnabled = false
+		-- matchmakerModeEnabled = false
 		ResetButtons()
 		WG.Delay(HideVoteResult, 3)
 		WG.Delay(HideVotedUsers, 3)
@@ -2445,7 +2446,7 @@ local function SetupVotePanel(votePanel, battle, battleID)
 		activePanel:SetVisibility(false)
 		minimapPanel:SetVisibility(false)
 		if barManagerPresent then spadsStatusPanel:SetVisibility(true) end
-		matchmakerModeEnabled = false
+		-- matchmakerModeEnabled = false
 		ResetButtons()
 		HideVoteResult()
 		HideVotedUsers()
@@ -2457,9 +2458,11 @@ local function SetupVotePanel(votePanel, battle, battleID)
 		buttonYes:SetVisibility(visible)
 	end
 
+	--[[
 	function externalFunctions.GetMatchmakerMode()
 		return matchmakerModeEnabled
 	end
+	--]]
 
 	function externalFunctions.visible()
 		return activePanel.visible
@@ -2559,7 +2562,7 @@ local function SetupSpadsStatusPanel(battle, battleID)
 			tooltip = "Do not touch",
 			spadscommand = "!clanMode",
 		},
-		]]--
+		--]]
 	}
 
 
@@ -2896,9 +2899,9 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	end
 
 	local Configuration = WG.Chobby.Configuration
-	if not Configuration.showMatchMakerBattles and battle.isMatchMaker then
-		return
-	end
+	-- if not Configuration.showMatchMakerBattles and battle.isMatchMaker then
+	-- 	return
+	-- end
 
 	local isSingleplayer = (battleLobby.name == "singleplayer")
 	showDefaultStartCheckbox = isSingleplayer
@@ -3382,6 +3385,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		votePanel.VoteEnd(message, success)
 	end
 
+	--[[ ZK only
 	local matchmakerCandidates = {
 		{
 			clickFunc = function()
@@ -3422,6 +3426,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		end
 		votePanel.VoteEnd((isBattleStarting and "Match starting") or "Not enough players", isBattleStarting)
 	end
+	--]]
 
 	local function pyPartition(s,p,left)
 		if string.find(s,p,nil,true) then
@@ -3747,9 +3752,9 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	battleLobby:AddListener("OnSaidBattle", OnSaidBattle)
 	battleLobby:AddListener("OnSaidBattleEx", OnSaidBattleEx)
 	battleLobby:AddListener("OnBattleClosed", externalFunctions.OnBattleClosed)
-	battleLobby:AddListener("OnMatchMakerReadyCheck", OnMatchMakerReadyCheck)
-	battleLobby:AddListener("OnMatchMakerReadyUpdate", OnMatchMakerReadyUpdate)
-	battleLobby:AddListener("OnMatchMakerReadyResult", OnMatchMakerReadyResult)
+	-- battleLobby:AddListener("OnMatchMakerReadyCheck", OnMatchMakerReadyCheck)
+	-- battleLobby:AddListener("OnMatchMakerReadyUpdate", OnMatchMakerReadyUpdate)
+	-- battleLobby:AddListener("OnMatchMakerReadyResult", OnMatchMakerReadyResult)
 	battleLobby:AddListener("OnRemoveStartRect", OnRemoveStartRect)
 	battleLobby:AddListener("OnAddStartRect", OnAddStartRect)
 	battleLobby:AddListener("OnRing", OnRing)
@@ -3773,9 +3778,9 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		oldLobby:RemoveListener("OnSaidBattle", OnSaidBattle)
 		oldLobby:RemoveListener("OnSaidBattleEx", OnSaidBattleEx)
 		oldLobby:RemoveListener("OnBattleClosed", externalFunctions.OnBattleClosed)
-		oldLobby:RemoveListener("OnMatchMakerReadyCheck", OnMatchMakerReadyCheck)
-		oldLobby:RemoveListener("OnMatchMakerReadyUpdate", OnMatchMakerReadyUpdate)
-		oldLobby:RemoveListener("OnMatchMakerReadyResult", OnMatchMakerReadyResult)
+		-- oldLobby:RemoveListener("OnMatchMakerReadyCheck", OnMatchMakerReadyCheck)
+		-- oldLobby:RemoveListener("OnMatchMakerReadyUpdate", OnMatchMakerReadyUpdate)
+		-- oldLobby:RemoveListener("OnMatchMakerReadyResult", OnMatchMakerReadyResult)
 		oldLobby:RemoveListener("OnRemoveStartRect", OnRemoveStartRect)
 		oldLobby:RemoveListener("OnAddStartRect", OnAddStartRect) -- or else they pile up XD
 		oldLobby:RemoveListener("OnRing", OnRing)
