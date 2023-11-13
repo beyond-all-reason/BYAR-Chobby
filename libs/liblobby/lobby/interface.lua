@@ -2087,28 +2087,28 @@ end
 Interface.commands["UDPSOURCEPORT"] = Interface._OnUDPSourcePort
 Interface.commandPattern["UDPSOURCEPORT"] = "(%d+)"
 
-local function buildDisregardList(ignores, avoids, blocks)
+local function buildDisregardListID(ignores, avoids, blocks)
 	local Configuration = WG.Chobby.Configuration
-	local disregardList = {}
-	for _, userName in ipairs(blocks) do
-		table.insert(disregardList, {userName = userName, status = Configuration.BLOCK})
+	local disregardListID = {}
+	for _, userID in ipairs(blocks) do
+		table.insert(disregardListID, {userID = userID, status = Configuration.BLOCK})
 	end
-	for _, userName in ipairs(avoids) do
-		if table.ifind(disregardList, userName) then
-			Spring.Log(LOG_SECTION, LOG.ERROR, string.format("Found same user in 2 disregard lists (%s and %s):%s", "blocks", "avoids", userName))
+	for _, userID in ipairs(avoids) do
+		if table.ifind(disregardListID, userID) then
+			Spring.Log(LOG_SECTION, LOG.ERROR, string.format("Found same user in 2 disregard lists (%s and %s):%s", "blocks", "avoids", userID))
 		else
-			table.insert(disregardList, {userName = userName, status = Configuration.AVOID})
+			table.insert(disregardListID, {userID = userID, status = Configuration.AVOID})
 		end
 	end
-	for _, userName in ipairs(ignores) do
-		local i = table.ifind(disregardList, userName)
+	for _, userID in ipairs(ignores) do
+		local i = table.ifind(disregardListID, userID)
 		if i then
-			Spring.Log(LOG_SECTION, LOG.ERROR, string.format("Found same user in 2 disregard lists (%s and %s):%s", disregardList[i].status == Configuration.BLOCK and "blocks" or "avoids", "ignores" , userName))
+			Spring.Log(LOG_SECTION, LOG.ERROR, string.format("Found same user in 2 disregard lists (%s and %s):%s", disregardListID[i].status == Configuration.BLOCK and "blocks" or "avoids", "ignores" , userID))
 		else
-			table.insert(disregardList, {userName = userName, status = Configuration.IGNORE})
+			table.insert(disregardListID, {userID = userID, status = Configuration.IGNORE})
 		end
 	end
-	return disregardList
+	return disregardListID
 end
 
 function Interface:_On_s_user_list_relationships(data)
@@ -2129,9 +2129,7 @@ function Interface:_On_s_user_list_relationships(data)
 	self:_OnFriendListByID(relationships.friends)
 	self:_OnFriendRequestListByID(relationships.incoming_friend_requests)
 	self:_OnOutgoingFriendRequestsByID(relationships.outgoing_friend_requests)
-	
-	-- ToDo: Disregards needs to get refactored to use userIDs now
-	-- self:_OnDisregardList(buildDisregardList(relationships.ignores, relationships.avoids, relationships.blocks))
+	self:_OnDisregardListID(buildDisregardListID(relationships.ignores, relationships.avoids, relationships.blocks))
 	
 	-- ToDo: relationships.follows > waits until completly implemented at teiserver
 end
