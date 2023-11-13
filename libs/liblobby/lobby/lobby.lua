@@ -33,7 +33,7 @@ function Lobby:_Clean()
 	self.friendRequestsByID = {} -- list
 	self.hasFriendRequest = {} -- map (maybe not needed at all?)
 	self.outgoingFriendRequestsByID = {} -- list
-	self.isDisregarded = {} -- map
+	self.isDisregardedID = {} -- map
 
 	self.loginInfoEndSent = false
 	self.userCountLimited = false
@@ -1028,39 +1028,89 @@ end
 ------------------------
 
 function Lobby:_OnDisregard(userName, status)
-	self.isDisregarded[userName] = status
-	local userInfo = self:TryGetUser(userName)
+	local userInfo = self:GetUser(userName)
+	if not userInfo then
+		Spring.Log(LOG_SECTION, LOG.ERROR, "Couldn't add disregard for username=" .. tostring(userName) .. " - userName not known.")
+		return
+	end
+	self.isDisregardedID[userInfo.accountID] = status
 	userInfo.isDisregarded = status
 	self:_CallListeners("OnAddDisregardUser", userName)
 end
 
 function Lobby:_OnUnDisregard(userName)
-	if not self.isDisregarded[userName] then
+	local userInfo = self:GetUser(userName)
+	if not userInfo then
+		Spring.Log(LOG_SECTION, LOG.ERROR, "Couldn't remove disregard for username=" .. tostring(userName) .. " - userName not known.")
 		return
 	end
-
-	self.isDisregarded[userName] = nil
-	local userInfo = self:GetUser(userName) -- don't need to create offline users in this case
-	if userInfo then
-		userInfo.isDisregarded = nil
+	if not self.isDisregardedID[userInfo.accountID] then
+		return
 	end
+	self.isDisregardedID[userInfo.accountID] = nil
+	userInfo.isDisregarded = nil
 	self:_CallListeners("OnRemoveDisregardUser", userName)
 end
 
-function Lobby:_OnDisregardList(disregards)
-	local newDisregardedMap = {}
-	for i = 1, #disregards do
-		local userName = disregards[i].userName
-		local status = disregards[i].status
-		if not self.isDisregarded[userName] or self.isDisregarded[userName] ~= status then
-			self:_OnDisregard(userName, status)
+function Lobby:_OnDisregardID(userID, status)
+	self.isDisregardedID[userID] = status
+	local userInfo = self:GetUserByID(userID)
+	if not userInfo then
+
+		local function OnWhois(listener, id, userData)
+			if id ~= userID then
+				return
+			end
+
+			self:RemoveListener("OnWhois", listener)
+
+			if userData.error then
+				Spring.Log(LOG_SECTION, LOG.WARNING, "Couldn't add disregarded user with id=" .. tostring(userID) .. ".Server message:" .. tostring(userData.error))
+			elseif not userData.name then
+				Spring.Log(LOG_SECTION, LOG.ERROR, "Couldn't add disregarded user  with id=" .. tostring(userID) .. ".Invalid server response (missing username)")
+			else
+				userInfo = self:GetUserByID(userID)
+				userInfo.isDisregarded = status
+				self:_CallListeners("OnAddDisregardUser", userInfo.userName)
+			end
 		end
-		newDisregardedMap[userName] = true
+		
+		self:AddListener("OnWhois", OnWhois)
+		self:Whois(userID)
+		
+		return
+	end
+	userInfo.isDisregarded = status
+	self:_CallListeners("OnAddDisregardUser", userInfo.userName)
+end
+
+function Lobby:_OnUnDisregardID(userID)
+	if not self.isDisregardedID[userID] then
+		return
 	end
 
-	for userName in pairs(self.isDisregarded) do
-		if not newDisregardedMap[userName] then
-			self:_OnUnDisregard(userName)
+	self.isDisregardedID[userID] = nil
+	local userInfo = self:GetUserByID(userID) -- don't need to create offline users in this case
+	if userInfo then
+		userInfo.isDisregarded = nil
+	end
+	self:_CallListeners("OnRemoveDisregardUser", userInfo.userName)
+end
+
+function Lobby:_OnDisregardListID(disregards)
+	local newDisregardedMapID = {}
+	for i = 1, #disregards do
+		local userID = disregards[i].userID
+		local status = disregards[i].status
+		if not self.isDisregardedID[userID] or self.isDisregardedID[userID] ~= status then
+			self:_OnDisregardID(userID, status)
+		end
+		newDisregardedMapID[userID] = true
+	end
+
+	for userID in pairs(self.isDisregardedID) do
+		if not newDisregardedMapID[userID] then
+			self:_OnUnDisregardID(userID)
 		end
 	end
 end
@@ -1973,6 +2023,16 @@ function Lobby:Whois(userID)
 end
 
 function Lobby:_OnWhois(id, userData)
+	local userInfo = self:GetUserByID(id)
+	if not userInfo and not userData.error then
+		userInfo = {
+			isOffline = true,
+			accountID = id,
+		}
+		self.users[userData.name] = userInfo
+		self.usersByID[id] = userData.name
+	end
+	userInfo.userName = userData.name
 	self:_CallListeners("OnWhois", id, userData)
 end
 
