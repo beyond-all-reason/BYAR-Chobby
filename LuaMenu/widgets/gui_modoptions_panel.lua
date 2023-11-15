@@ -288,6 +288,7 @@ local function ProcessStringOption(data, index)
 		useIME = false,
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		objectOverrideHintFont = WG.Chobby.Configuration:GetHintFont(2),
+		tooltip = data.desc,
 		OnFocusUpdate = {
 			function (obj)
 				if obj.focused then
