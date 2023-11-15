@@ -255,7 +255,7 @@ local function ProcessNumberOption(data, index)
 		width = 1600,
 		height = 32,
 		padding = {0, 0, 0, 0},
-    tooltip = data.desc,
+		tooltip = data.desc,
 		children = {
 			label,
 			numberBox
@@ -303,7 +303,7 @@ local function ProcessStringOption(data, index)
 	return Control:New {
 		x = 0,
 		y = index*32,
-		width = 600,
+		width = 1600,
 		height = 32,
 		padding = {0, 0, 0, 0},
 		children = {
