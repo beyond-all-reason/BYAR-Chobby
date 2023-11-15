@@ -1,9 +1,0 @@
-{
-	"server" : {
-		"address" : "zero-k.info",
-		"port" : 8200,
-		"serverName" : "Zero-K",
-		"protocol" : "zks"
-	},
-	"game" : "zk"
-}

@@ -623,7 +623,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 	recoverChildren[#recoverChildren+1] = self.txtErrorResetPassword
 
 	recoverChildren[#recoverChildren+1] = Line:New{x=5,y=formh * 11,right=5, height = 1}
-]]--
+--]]
 ---------------------------Change Password--------------------------------
 	self.txtChangePassword = TextBox:New {
 		x = pad + formw * 0 ,
@@ -637,6 +637,24 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 	}
 	recoverChildren[#recoverChildren+1] = self.txtChangePassword
 
+	self.btnChangePassword = Button:New {
+		x = pad + formw * 0 ,
+		y = pad + formh * 13 ,
+		width =   formw * 3 ,
+		height =  formh * 2 ,
+		caption = "Edit your password via a browser link",
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		classname = "negative_button",
+		OnClick = {
+			function()
+				WG.BrowserHandler.OpenUrl("https://server4.beyondallreason.info/teiserver/account/security/edit_password")
+			end
+		},
+	}
+	recoverChildren[#recoverChildren+1] = self.btnChangePassword
+	recoverChildren[#recoverChildren+1] = Line:New{x=5,y=formh * 17,right=5, height = 1}
+
+--[[
 	self.lblChangePasswordOld =  Label:New {
 		x = pad + formw * 0 ,
 		y = pad + formh * 13 ,
@@ -713,7 +731,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 	recoverChildren[#recoverChildren+1] = self.txtErrorChangePassword
 
 	recoverChildren[#recoverChildren+1] = Line:New{x=5,y=formh * 17,right=5, height = 1}
-
+--]]
 	---------------------------Change Email-------------------------------
 	self.txtChangeEmail = TextBox:New {
 		x = pad + formw * 0 ,
@@ -868,6 +886,29 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 	local ww, wh = Spring.GetWindowGeometry()
 	local width = 3 * (formw  + 30) --used to be bout tree fiddy
 
+	self.window = Window:New {
+		x = math.floor((ww - width) / 2),
+		y = math.floor((wh - self.windowHeight) / 2),
+		width = width,
+		height = self.windowHeight,
+		caption = "",
+		noFont = true,
+		resizable = false,
+		draggable = false,
+		classname = windowClassname,
+		children = {},
+		parent = WG.Chobby.lobbyInterfaceHolder,
+		OnDispose = {
+			function()
+				self:RemoveListeners()
+			end
+		},
+		OnFocusUpdate = {
+			function(obj)
+				obj:BringToFront()
+			end
+		}
+	}
 
 	self.tabPanel = Chili.DetachableTabPanel:New {
 		x = 0,
@@ -882,6 +923,13 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 			[3] = { name = "reset", caption = "Recover/Change", children = recoverChildren, objectOverrideFont = WG.Chobby.Configuration:GetFont(2)},
 			--[3] = { name = "test", caption = "teset2", children = {self.testbutton}, objectOverrideFont = WG.Chobby.Configuration:GetFont(2)},
 		},
+		OnTabChange = {
+			function(obj, name)
+				if name == "register" and not Configuration.firstLoginEver then
+					WG.Chobby.InformationPopup(i18n("register_extra"), {width = 840, height = 400})
+				end
+			end
+		}
 	}
 
 	self.tabBarHolder = Control:New {
@@ -915,32 +963,8 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		}
 	}
 
-	self.window = Window:New {
-		x = math.floor((ww - width) / 2),
-		y = math.floor((wh - self.windowHeight) / 2),
-		width = width,
-		height = self.windowHeight,
-		caption = "",
-		noFont = true,
-		resizable = false,
-		draggable = false,
-		classname = windowClassname,
-		children = {
-			self.tabBarHolder,
-			self.contentsPanel,
-		},
-		parent = WG.Chobby.lobbyInterfaceHolder,
-		OnDispose = {
-			function()
-				self:RemoveListeners()
-			end
-		},
-		OnFocusUpdate = {
-			function(obj)
-				obj:BringToFront()
-			end
-		}
-	}
+	self.window:AddChild(self.tabBarHolder)
+	self.window:AddChild(self.contentsPanel)
 
 	self.window:BringToFront()
 

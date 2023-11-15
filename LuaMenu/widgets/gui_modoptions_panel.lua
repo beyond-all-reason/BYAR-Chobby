@@ -20,6 +20,7 @@ local modoptionStructure = {}
 local battleLobby
 local localModoptions = {}
 local modoptionControlNames = {}
+local modoptions
 
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
@@ -86,6 +87,7 @@ local function ProcessListOption(data, index)
 	local items = {}
 	local itemNameToKey = {}
 	local itemKeyToName = {}
+	local itemsTooltips = {}
 	for i, itemData in pairs(data.items) do
 		items[i] = itemData.name
 		itemNameToKey[itemData.name] = itemData.key
@@ -93,6 +95,10 @@ local function ProcessListOption(data, index)
 
 		if itemData.key == defaultKey then
 			defaultItem = i
+		end
+
+		if itemData.desc then
+			itemsTooltips[i] = itemData.desc
 		end
 	end
 
@@ -104,6 +110,7 @@ local function ProcessListOption(data, index)
 		valign = "center",
 		align = "left",
 		items = items,
+		itemsTooltips = itemsTooltips,
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		selectByName = true,
 		selected = defaultItem,
@@ -112,7 +119,8 @@ local function ProcessListOption(data, index)
 				localModoptions[data.key] = itemNameToKey[selectedName]
 			end
 		},
-		itemKeyToName = itemKeyToName -- Not a chili key
+		itemKeyToName = itemKeyToName, -- Not a chili key
+		tooltip = data.desc,
 	}
 	modoptionControlNames[data.key] = list
 
@@ -122,8 +130,6 @@ local function ProcessListOption(data, index)
 		width = 1600,
 		height = 32,
 		padding = {0, 0, 0, 0},
-
-    tooltip = data.desc,
 		children = {
 			label,
 			list
@@ -282,6 +288,7 @@ local function ProcessStringOption(data, index)
 		useIME = false,
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		objectOverrideHintFont = WG.Chobby.Configuration:GetHintFont(2),
+		tooltip = data.desc,
 		OnFocusUpdate = {
 			function (obj)
 				if obj.focused then
@@ -344,8 +351,8 @@ local function CreateModoptionWindow()
 		caption = "",
 		name = "modoptionsSelectionWindow",
 		parent = WG.Chobby.lobbyInterfaceHolder,
-		width = 1600,
-		height = 900,
+		width = 1366,
+		height = 720,
 		resizable = true,
 		draggable = true,
 		classname = "main_window",
@@ -480,6 +487,17 @@ local function CreateModoptionWindow()
 	local popupHolder = WG.Chobby.PriorityPopup(modoptionsSelectionWindow, CancelFunc, AcceptFunc)
 end
 
+local function getModOptionByKey(key)
+	local retOption = {}
+	for _, option in ipairs(modoptions) do
+		if option.key and option.key == key then
+			retOption = option
+			break
+		end
+	end
+	return retOption
+end
+
 local function InitializeModoptionsDisplay()
 	local currentLobby = battleLobby
 
@@ -516,8 +534,14 @@ local function InitializeModoptionsDisplay()
 		local empty = true
 		modoptions = modoptions or {}
 		for key, value in pairs(modoptions) do		
-			if modoptionDefaults[key] == nil or modoptionDefaults[key] ~= value then
-				text = text .. "\255\120\120\120" .. tostring(key) .. " = \255\255\255\255" .. shortenedValue(value) .. "\n"
+			if modoptionDefaults[key] == nil or modoptionDefaults[key] ~= value or key == "ranked_game" then
+				local option = getModOptionByKey(key)
+				local name = option.name and option.name or key
+				text = text .. "\255\120\120\120"
+				if text ~= "\255\120\120\120" then
+					text = text .. "──────\n"
+				end
+				text = text .. tostring(name).. " = \255\255\255\255" .. shortenedValue(value) .. "\n"
 				empty = false
 			end
 		end
@@ -564,7 +588,7 @@ local modoptionsDisplay
 
 local ModoptionsPanel = {}
 
-function ModoptionsPanel.LoadModotpions(gameName, newBattleLobby)
+function ModoptionsPanel.LoadModoptions(gameName, newBattleLobby)
 	battleLobby = newBattleLobby
 
 	modoptions = WG.Chobby.Configuration.gameConfig.defaultModoptions

@@ -1,6 +1,6 @@
 Console = LCS.class{}
 
-function Console:init(channelName, sendMessageListener, noHistoryLoad, onResizeFunc, isBattleChat)
+function Console:init(channelName, sendMessageListener, noHistoryLoad, onResizeFunc, isBattleChat, monospaced)
 	self.listener = sendMessageListener
 	self.showDate = true
 	self.dateFormat = "%H:%M"
@@ -35,6 +35,13 @@ function Console:init(channelName, sendMessageListener, noHistoryLoad, onResizeF
 		bottom = 35,
 		verticalSmartScroll = true,
 	}
+
+	local font
+	if monospaced then
+		font = Configuration:GetFont(Configuration.chatFontSize, "consoleMono_" .. Configuration.chatFontSize, {font = "fonts/monospaced/SourceCodePro-Medium.otf", shadow = true}, true)
+	else
+		font = Configuration:GetFont(Configuration.chatFontSize, "console_" .. Configuration.chatFontSize, {font = "LuaMenu/widgets/chili/skins/evolved/fonts/n019003l.pfb", shadow = true}, true)
+	end
 	self.tbHistory = TextBox:New {
 		x = 0,
 		right = 0,
@@ -44,8 +51,8 @@ function Console:init(channelName, sendMessageListener, noHistoryLoad, onResizeF
 		lineSpacing = 2,
 		bottom = 0,
 		text = "",
-		objectOverrideFont = Configuration:GetFont(Configuration.chatFontSize, "console_" .. Configuration.chatFontSize, {font = "LuaMenu/widgets/chili/skins/evolved/fonts/n019003l.pfb", shadow = true}, true),
-		objectOverrideHintFont = Configuration:GetFont(Configuration.chatFontSize, "console_" .. Configuration.chatFontSize, {font = "LuaMenu/widgets/chili/skins/evolved/fonts/n019003l.pfb", shadow = true}, true),
+		objectOverrideFont = font,
+		objectOverrideHintFont = font,
 		parent = self.spHistory,
 		selectable = true,
 		subTooltips = true,
@@ -82,7 +89,11 @@ function Console:init(channelName, sendMessageListener, noHistoryLoad, onResizeF
 			self.ebInputText.font = Configuration:GetFont(value, "console_" .. value, {font = "LuaMenu/widgets/chili/skins/evolved/fonts/n019003l.pfb", shadow = true}, true)
 			self.ebInputText:UpdateLayout()
 
-			self.tbHistory.font = Configuration:GetFont(value, "console_" .. value, {font = "LuaMenu/widgets/chili/skins/evolved/fonts/n019003l.pfb", shadow = true}, true)
+			if monospaced then
+				self.tbHistory.font = Configuration:GetFont(Configuration.chatFontSize, "consoleMono_" .. Configuration.chatFontSize, {font = "fonts/monospaced/SourceCodePro-Medium.otf", shadow = true}, true)
+			else
+				self.tbHistory.font = Configuration:GetFont(Configuration.chatFontSize, "console_" .. Configuration.chatFontSize, {font = "LuaMenu/widgets/chili/skins/evolved/fonts/n019003l.pfb", shadow = true}, true)
+			end
 			self.tbHistory:UpdateLayout()
 		end
 	end
@@ -327,9 +338,6 @@ function Console:AddMessage(message, userName, dateOverride, color, thirdPerson,
 			}
 		end
 	end
-
-	-- ZK specific
-	-- onTextClick, textTooltip = WG.BattleProposalHandler.AddClickableInvites(userName, txt, message, onTextClick or {}, textTooltip or {})
 
 	txt = txt .. message
 	onTextClick, textTooltip = WG.BrowserHandler.AddClickableUrls(txt, onTextClick or {}, textTooltip or {})

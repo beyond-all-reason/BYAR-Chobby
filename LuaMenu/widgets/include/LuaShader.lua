@@ -305,7 +305,7 @@ function LuaShader:Compile()
 			end
 		end
 	end
-]]--
+--]]
 
 	self.shaderObj = gl.CreateShader(self.shaderParams)
 	local shaderObj = self.shaderObj

@@ -484,22 +484,14 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 	rightPanelTabs[#rightPanelTabs + 1] = {name = "settings", control = WG.SettingsWindow.GetControl()}
 	rightPanelTabs[#rightPanelTabs + 1] = {name = "downloads", control = WG.DownloadWindow.GetControl()}
 
-	local queueListWindow = WG.QueueListWindow.GetControl()
 	local battleListWindow, battleListWindowJoinBattle = WG.BattleListWindowHolder.GetControl()
-	local planetwarsListWindow = WG.PlanetwarsListWindow.GetControl()
 
 	local SINGLEPLAYER_INDEX = 1
 	local MULTIPLAYER_INDEX = 2
 	local HELP_INDEX = 4
 
 	local multiPlayerTabs = {}
-	if not WG.Chobby.Configuration.gameConfig.disableMatchMaking then
-		multiPlayerTabs[#multiPlayerTabs + 1] = {name = "matchmaking", control = queueListWindow}
-	end
 	multiPlayerTabs[#multiPlayerTabs + 1] = {name = "battle_list", control = battleListWindow}
-	if not WG.Chobby.Configuration.gameConfig.disablePlanetwars then
-		multiPlayerTabs[#multiPlayerTabs + 1] = {name = "planetwars", control = planetwarsListWindow}
-	end
 
 	local submenus = {
 		{
@@ -1196,7 +1188,7 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 
 	function externalFunctions.TryToJoinBattle(battleID)
 		local battle = battleID and lobby:GetBattle(battleID)
-		if battle then
+		if battle and (Configuration.displayBadEngines2 or Configuration:IsValidEngineVersion(battle.engineVersion)) then
 			battleListWindowJoinBattle(battle)
 		end
 	end

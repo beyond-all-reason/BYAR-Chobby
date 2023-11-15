@@ -18,50 +18,70 @@ end
 
 local playingTrack	-- boolean
 local previousTrack
+local previousTrackType = "intro" -- intro or peace
 local loopTrack	-- string trackPath
 local randomTrackList
 local openTrack
+local playedTracks = {}
+local introTracksIndex = 0
+local peaceTracksIndex = 0
 
 local function GetRandomTrack(previousTrack)
-	local trackCount = #randomTrackList
-	local previousTrackIndex
-	if previousTrack then
-		for i = 1, #randomTrackList do
-			if randomTrackList[i] == previousTrack then
-				trackCount = trackCount - 1
-				previousTrackIndex = i
-				break
+	-- randomTrackList
+	-- introTrackList
+	-- peaceTrackList
+	local nextTrack
+	local trackType
+	for i = 1, #randomTrackList do
+
+		if previousTrackType == "intro" or (not introTrackList[1]) then -- we're checking if there are any intro tracks
+			trackType = "peace"
+			peaceTracksIndex = peaceTracksIndex + 1
+			if not peaceTrackList[peaceTracksIndex] then
+				peaceTracksIndex = 1
 			end
+			nextTrack = peaceTrackList[peaceTracksIndex]
+		elseif previousTrackType == "peace" and introTrackList[1] then -- we're checking if there are any intro tracks
+			trackType = "intro"
+			introTracksIndex = introTracksIndex + 1
+			if not introTrackList[introTracksIndex] then
+				introTracksIndex = 1
+			end
+			nextTrack = introTrackList[introTracksIndex]
+		end
+
+		if not playedTracks[nextTrack] then
+			previousTrackType = trackType
+			playedTracks[nextTrack] = true
+			return nextTrack
 		end
 	end
 
-	local randomTrack = math.ceil(math.random()*trackCount)
-	if randomTrack == previousTrackIndex then
-		randomTrack = trackCount + 1
-	end
-	return randomTrackList[randomTrack]
+	playedTracks = {} -- there's a return in the for loop, if it failed, the list should be wiped
+	previousTrackType = "intro"
+	return introTrackList[math.random(#introTrackList)]
 end
 
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 
-local function StartTrack(trackName, volume)
+local function StartTrack(trackName)
 	trackName = trackName or GetRandomTrack(previousTrack)
-	volume = volume or WG.Chobby.Configuration.menuMusicVolume
+	local volume = WG.Chobby.Configuration.menuMusicVolume
 	Spring.Echo("Starting Track", trackName, volume)
 	if volume == 0 then
 		return
 	end
 	Spring.StopSoundStream()
-	Spring.PlaySoundStream(trackName, volume)
+	Spring.PlaySoundStream(trackName, 1)
 	Spring.SetSoundStreamVolume(volume)
 	playingTrack = true
 end
 
-local function LoopTrack(trackName, trackNameIntro, volume)
+local function LoopTrack(trackName, trackNameIntro)
 	trackNameIntro = trackNameIntro or trackName
 	loopTrack = trackName
-	StartTrack(trackNameIntro, volume)
+	StartTrack(trackNameIntro)
 end
 
 local function StopTrack()
@@ -73,7 +93,8 @@ end
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 
-local function SetTrackVolume(volume)
+local function SetTrackVolume()
+	local volume = WG.Chobby.Configuration.menuMusicVolume
 	if volume == 0 then
 		StopTrack()
 		return
@@ -82,7 +103,7 @@ local function SetTrackVolume(volume)
 		Spring.SetSoundStreamVolume(volume)
 		return
 	end
-	StartTrack(GetRandomTrack(), volume)
+	StartTrack(GetRandomTrack())
 	previousTrack = nil
 end
 
@@ -152,17 +173,25 @@ function playlistMerge(t1, t2)
 	return t1
 end
 
+function tableshuffle(sequence, firstIndex) -- doesn't seem like Chobby has common functions, so i'll put this here
+	firstIndex = firstIndex or 1
+	for i = firstIndex, #sequence - 2 + firstIndex do
+		local j = math.random(i, #sequence)
+		sequence[i], sequence[j] = sequence[j], sequence[i]
+	end
+end
+
 function widget:Initialize()
 
-	--math.randomseed( os.clock() )
-	--math.random(); math.random(); math.random()
+	math.randomseed( math.ceil(os.clock()*1000000) )
+	math.random(); math.random(); math.random()
+	Spring.Echo("RANDOMSEED", math.ceil(os.clock()*1000000))
 
 	randomTrackList = {}
 	local originalSoundtrackEnabled = Spring.GetConfigInt('UseSoundtrackNew', 1)
 	local customSoundtrackEnabled	= Spring.GetConfigInt('UseSoundtrackCustom', 1)
 	local allowedExtensions = "{*.ogg,*.mp3}"
-	
-	local musicPlaylist = {}
+
 	-- Original Soundtrack List
 	if originalSoundtrackEnabled == 1 then
 		local musicDirOriginal 		= 'luamenu/configs/gameconfig/byar/lobbyMusic/original'
@@ -183,15 +212,39 @@ function widget:Initialize()
 		return
 	end
 
-	for i = 1,1000 do
-		openTrackTest = randomTrackList[math.random(#randomTrackList)]
-		Spring.Echo("[LobbyMusicPlayer] OpenTrackTest path: "..openTrackTest)
-		if string.find(openTrackTest, "(intro)") or string.find(openTrackTest, "(INTRO)") then
-			openTrack = openTrackTest
-			break
+	-- put all intro tracks in separate list
+	introTrackList = {}
+	peaceTrackList = {}
+	for index, file in pairs(randomTrackList) do
+		local trackTest = file
+		if string.find(trackTest, "(intro)") or string.find(trackTest, "(INTRO)") then
+			introTrackList[#introTrackList+1] = trackTest
+		else
+			peaceTrackList[#peaceTrackList+1] = trackTest
 		end
-		if i == 1000 then
-			openTrack = randomTrackList[math.random(#randomTrackList)]
+	end
+
+	tableshuffle(introTrackList)
+	tableshuffle(peaceTrackList)
+
+	Spring.Echo("Intro Tracks")
+	for _, file in pairs(introTrackList) do
+		Spring.Echo(file)
+	end
+
+	Spring.Echo("Peace/Filler Tracks")
+	for _, file in pairs(peaceTrackList) do
+		Spring.Echo(file)
+	end
+
+	for i = 1,1000 do
+		openTrack = introTrackList[1]
+		introTracksIndex = 1
+		if openTrack then
+			break
+		else
+			openTrack = peaceTrackList[1]
+			peaceTracksIndex = 1
 		end
 	end
 
@@ -199,7 +252,7 @@ function widget:Initialize()
 
 	local function onConfigurationChange(listener, key, value)
 		if key == "menuMusicVolume" then
-			SetTrackVolume(value)
+			SetTrackVolume()
 		end
 	end
 	Configuration:AddListener("OnConfigurationChange", onConfigurationChange)

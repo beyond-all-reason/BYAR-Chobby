@@ -235,7 +235,8 @@ local function RequestSpadsStatus()
 end
 
 local function MaybeSendNextSpadsStatusRequest()
-	if spadsRequestActive then
+	-- wait for spads answer or send next request after 2 seconds
+	if spadsRequestActive and (os.clock() - recentSpadsRequestSent) < 2.0 then
 		return
 	end
 
@@ -311,9 +312,7 @@ local function QueueSpadsStatusRequest(battleID, offset)
 		table.remove(spadsRequestQueue, 1)
 	end
 
-	if not spadsRequestActive and #spadsRequestQueue == 1 then
-		MaybeSendNextSpadsStatusRequest()
-	end
+	MaybeSendNextSpadsStatusRequest()
 end
 
 local function GetBattleTooltip(battleID, battle, showMapName)
@@ -336,9 +335,9 @@ local function GetBattleTooltip(battleID, battle, showMapName)
 		battleTooltip.title = GetTooltipLine(battleTooltip.mainControl, nil, 3)
 	end
 	local title = battle.title
-	if battle.isMatchMaker then
-		title = (title or "") .. " - Click to watch"
-	end
+	--if battle.isMatchMaker then
+	--	title = (title or "") .. " - Click to watch"
+	--end
 	local truncatedName = StringUtilities.GetTruncatedStringWithDotDot(title, battleTooltip.title.GetFont(), width - 10)
 	battleTooltip.title.Update(offset, truncatedName)
 	offset = offset + 25 -- * battleTooltip.title.GetLines() -- Not required with truncation

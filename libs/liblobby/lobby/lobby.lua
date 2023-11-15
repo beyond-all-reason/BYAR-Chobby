@@ -17,6 +17,7 @@ end
 
 function Lobby:_Clean()
 	self.users = {} -- {username = {battlestatustable}}
+	self.usersByID = {} -- map (currently serves as a translation from userID to userName.)
 	self.userNamesLC = {} -- lookup table for (user name in lower Case) => userName
 	-- self.userNamesQueued = {}
 	self.userBySteamID = {}
@@ -25,13 +26,14 @@ function Lobby:_Clean()
 	self.SOURCE_DISCORD = 0
 
 	self.friends = {} -- list
+	self.friendsByID = {} -- list
 	self.isFriend = {} -- map
-	self.friendCount = 0
+	self.isFriendByID = {} -- map
 	self.friendRequests = {} -- list
-	self.hasFriendRequest = {} -- map
-	self.friendRequestCount = 0
-	self.friendListRecieved = false
-	self.isDisregarded = {} -- map
+	self.friendRequestsByID = {} -- list
+	self.hasFriendRequest = {} -- map (maybe not needed at all?)
+	self.outgoingFriendRequestsByID = {} -- list
+	self.isDisregardedID = {} -- map
 
 	self.loginInfoEndSent = false
 	self.userCountLimited = false
@@ -54,8 +56,6 @@ function Lobby:_Clean()
 
 	self.partyMap = {}
 	self.myPartyID = nil
-
-	self.planetwarsData = {}
 
 	self.team = nil
 
@@ -176,22 +176,76 @@ function Lobby:FriendRequestList()
 end
 
 function Lobby:FriendRequest(userName, steamID)
+	local userInfo = self:GetUser(userName)
+
+	if not (userInfo and userInfo.accountID) then
+		local function OnWhoisName(listener, name, userData)
+			if name ~= userName then
+				return
+			end
+
+			self:RemoveListener("OnWhoisName", listener)
+
+			if userData.error then
+				Spring.Log(LOG_SECTION, LOG.WARNING, "Couldn't add friend request for name=" .. tostring(userName) .. ".Server message:" .. tostring(userData.error))
+			elseif not userData.id then
+				Spring.Log(LOG_SECTION, LOG.ERROR, "Couldn't add friend request for name=" .. tostring(userName) .. ".Invalid server response (missing id)")
+			else
+				self:FriendRequestByID(userData.id)
+			end
+		end
+		
+		self:AddListener("OnWhoisName", OnWhoisName)
+		self:WhoisName(userName)
+		
+		return
+	end
+	self:FriendRequestByID(userInfo.accountID)
+	return self
+end
+
+function Lobby:FriendRequestByID(userID)
 	return self
 end
 
 function Lobby:AcceptFriendRequest(userName)
 	local user = self:GetUser(userName)
-	if user then
-		user.hasFriendRequest = false
+	if not (user and user.accountID) then
+		return
 	end
+
+	self:AcceptFriendRequestByID(user.accountID)
+	return self
+end
+
+function Lobby:AcceptFriendRequestByID(userID)
 	return self
 end
 
 function Lobby:DeclineFriendRequest(userName)
 	local user = self:GetUser(userName)
-	if user then
-		user.hasFriendRequest = false
+	if not (user and user.accountID) then
+		return
 	end
+	self:DeclineFriendRequestByID(user.accountID)
+	return self
+end
+
+function Lobby:DeclineFriendRequestByID(userID)
+	return self
+end
+
+function Lobby:RescindFriendRequest(userName)
+	local user = self:GetUser(userName)
+	if not (user and user.accountID) then
+		return
+	end
+
+	self:RescindFriendRequestByIDs({user.accountID})
+	return self
+end
+
+function Lobby:RescindFriendRequestByIDs(userIDs)
 	return self
 end
 
@@ -199,10 +253,15 @@ function Lobby:Unfriend(userName, steamID)
 	return self
 end
 
+function Lobby:RemoveFriends(userIDs)
+	return self
+end
+
 ------------------------
 -- Battle commands
 ------------------------
 
+-- unused in bar
 function Lobby:HostBattle(battleName, password)
 	return self
 end
@@ -359,9 +418,9 @@ function Lobby:SayPrivate(userName, message)
 end
 
 ------------------------
--- MatchMaking commands
+-- MatchMaking commands (ZK only)
 ------------------------
-
+--[[
 function Lobby:JoinMatchMaking(queueNamePossiblyList)
 	return self
 end
@@ -381,11 +440,12 @@ end
 function Lobby:RejectMatchMakingMatch()
 	return self
 end
+--]]
 
 ------------------------
--- Party commands
+-- Party commands (ZK Only)
 ------------------------
-
+--[[
 function Lobby:InviteToParty(userName)
 	return self
 end
@@ -397,35 +457,12 @@ end
 function Lobby:PartyInviteResponse(partyID, accepted)
 	return self
 end
+--]]
 
 ------------------------
--- Battle Propose commands
+-- Steam commands (ZK only)
 ------------------------
-
-function Lobby:BattleProposalRespond(userName, accepted)
-	return self
-end
-
-function Lobby:BattleProposalBattleInvite(userName, battleID, password)
-	return self
-end
-
-------------------------
--- Planetwars commands
-------------------------
-
-function Lobby:PwJoinPlanet(planetID)
-	return self
-end
-
-function Lobby:JoinFactionRequest(factionName)
-	return self
-end
-
-------------------------
--- Steam commands
-------------------------
-
+--[[
 function Lobby:SetSteamAuthToken(steamAuthToken)
 	self.steamAuthToken = steamAuthToken
 	return self
@@ -435,6 +472,7 @@ function Lobby:SetSteamDlc(steamDlc)
 	self.steamDlc = steamDlc
 	return self
 end
+--]]
 
 -------------------------------------------------
 -- END Client commands
@@ -564,12 +602,19 @@ function Lobby:_OnAddUser(userName, status)
 		self.userBySteamID[status.steamID] = userName
 	end
 
+	-- ToDo: untested and therefore commented out:
+	-- sb. changed userName
+	-- if self.usersByID[status.accountID] and self.usersByID[status.accountID] ~= userName then
+	-- 	self:_OnRemoveUser(self.usersByID[status.accountID])
+	-- 	-- self.users[userName] = nil -- delete outdated user completly
+	-- end
+
 	local userInfo = self.users[userName]
 	self.userCount = self.userCount + 1 -- correctly fix because lobby didnt clear user count on onAccepted
 	if not userInfo then
 		userInfo = {
 			userName = userName,
-			isFriend = self.isFriend[userName],
+			isFriend = status and status.accountID and self.isFriendByID[status.accountID] or false,
 			hasFriendRequest = self.hasFriendRequest[userName],
 		}
 		self.users[userName] = userInfo
@@ -588,6 +633,11 @@ function Lobby:_OnAddUser(userName, status)
 			userInfo[k] = v
 		end
 	end
+
+	if status and status.accountID then
+		self.usersByID[userInfo.accountID] = userName
+	end
+
 	self:_CallListeners("OnAddUser", userName, userInfo)
 end
 
@@ -612,7 +662,7 @@ function Lobby:_OnRemoveUser(userName)
 		userInfo.isFriend         = isFriend
 		userInfo.hasFriendRequest = hasFriendRequest
 	end
-	self.userCount = self.userCount - 1
+	self.userCount = self.userCount - 1 -- this shows: userCount reflects the "online users"
 	self:_CallListeners("OnRemoveUser", userName)
 end
 
@@ -679,31 +729,72 @@ end
 -- Friend
 ------------------------
 
-function Lobby:_OnFriend(userName)
+function Lobby:_OnFriend(userName, userID)
+	self:_OnRemoveFriendRequestByID(userID)
 	table.insert(self.friends, userName)
+	table.insert(self.friendsByID, userID)
 	self.isFriend[userName] = true
-	self.friendCount = self.friendCount + 1
-	local userInfo = self:TryGetUser(userName)
+	local userInfo = self:TryGetUser(userName, userID)
 	userInfo.isFriend = true
 	self:_CallListeners("OnFriend", userName)
 end
 
-function Lobby:_OnUnfriend(userName)
-	for i, v in pairs(self.friends) do
-		if v == userName then
-			table.remove(self.friends, i)
-			break
+function Lobby:_OnFriendByID(userID)
+	local userInfo = self:GetUserByID(userID)
+
+	if not userInfo then
+
+		local function OnWhois(listener, id, userData)
+			if id ~= userID then
+				return
+			end
+
+			self:RemoveListener("OnWhois", listener)
+
+			if userData.error then
+				Spring.Log(LOG_SECTION, LOG.WARNING, "Couldn't add friend with id=" .. tostring(userID) .. ".Server message:" .. tostring(userData.error))
+			elseif not userData.name then
+				Spring.Log(LOG_SECTION, LOG.ERROR, "Couldn't add friend with id=" .. tostring(userID) .. ".Invalid server response (missing username)")
+			else
+				self:_OnFriend(userData.name, userID)
+			end
 		end
+		
+		self:AddListener("OnWhois", OnWhois)
+		self:Whois(userID)
+		
+		return
 	end
-	self.isFriend[userName] = false
-	self.friendCount = self.friendCount - 1
-	local userInfo = self:GetUser(userName)
-	-- don't need to create offline users in this case
-	if userInfo then
-		userInfo.isFriend = false
-	end
-	self:_CallListeners("OnUnfriend", userName)
+	self:_OnFriend(userInfo.userName, userID)
 end
+
+function Lobby:_OnUnfriend(userName)
+	local user = self:GetUser(userName)
+	if not (user and user.accountID) then
+		return
+	end
+	self:_OnUnfriendByID(user.accountID)
+end
+
+function Lobby:_OnUnfriendByID(userID)
+	local user = self:GetUserByID(userID)
+	if not user then
+		return
+	end
+
+	local id = table.ifind(self.friends, user.userName)
+	if not id then
+		return
+	end
+	table.remove(self.friends, id)
+	i = table.ifind(self.friendsByID, userID)
+	table.remove(self.friendsByID, id)
+	self.isFriend[user.userName] = false
+	user.isFriend = false
+	self:_CallListeners("OnUnfriendByID", userID, user.userName)
+	self:_OnRemoveFriendRequestByID(userID)
+end
+
 
 function Lobby:_OnFriendList(friends)
 	local newFriendMap = {}
@@ -724,18 +815,154 @@ function Lobby:_OnFriendList(friends)
 	self:_CallListeners("OnFriendList", self:GetFriends())
 end
 
-function Lobby:_OnFriendRequest(userName)
+function Lobby:_OnFriendListByID(friendIDs)
+	local newFriendMap = {}
+	for i = 1, #friendIDs do
+		local userID = tonumber(friendIDs[i])
+		if not self.isFriendByID[userID] then
+			self:_OnFriendByID(userID)
+		end
+		newFriendMap[userID] = true
+	end
+
+	for _, userID in pairs(self.friendsByID) do
+		if not newFriendMap[userID] then
+			self:_OnUnfriendByID(userID)
+		end
+	end
+end
+
+function Lobby:_OnFriendRequest(userName, userID)
 	table.insert(self.friendRequests, userName)
+	table.insert(self.friendRequestsByID, userID)
 	self.hasFriendRequest[userName] = true
-	self.friendRequestCount = self.friendRequestCount + 1
-	local userInfo = self:TryGetUser(userName)
+	local userInfo = self:TryGetUser(userName, userID)
 	userInfo.hasFriendRequest = true
 	self:_CallListeners("OnFriendRequest", userName)
 end
 
+function Lobby:_OnOutgoingFriendRequest(userName, userID)
+	table.insert(self.outgoingFriendRequestsByID, userID)
+	local userInfo = self:TryGetUser(userName, userID)
+	userInfo.hasOutgoingFriendRequest = true
+	self:_CallListeners("OnOutgoingFriendRequest", userName)
+end
+
+function Lobby:_OnFriendRequestByID(userID, newRequest)
+	local userInfo = self:GetUserByID(userID)
+
+	if not userInfo then
+
+		local function OnWhois(listener, id, userData)
+			if id ~= userID then
+				return
+			end
+
+			self:RemoveListener("OnWhois", listener)
+
+			if userData.error then
+				Spring.Log(LOG_SECTION, LOG.WARNING, "Couldn't add friend request with id=" .. tostring(userID) .. ".Server message:" .. tostring(userData.error))
+			elseif not userData.name then
+				Spring.Log(LOG_SECTION, LOG.ERROR, "Couldn't add friend request with id=" .. tostring(userID) .. ".Invalid server response (missing username)")
+			else
+				self:_OnFriendRequest(userData.name, userID)
+				if newRequest then
+					self:_CallListeners("OnNewFriendRequestByID", userID, userData.name)
+				end
+			end
+		end
+		
+		self:AddListener("OnWhois", OnWhois)
+		self:Whois(userID)
+		
+		return
+	end
+	self:_OnFriendRequest(userInfo.userName, userID)
+	if newRequest then
+		self:_CallListeners("OnNewFriendRequestByID", userID, userInfo.userName)
+	end
+end
+
+function Lobby:_OnOutgoingFriendRequestByID(userID)
+	local userInfo = self:GetUserByID(userID)
+
+	if not userInfo then
+
+		local function OnWhois(listener, id, userData)
+			if id ~= userID then
+				return
+			end
+
+			self:RemoveListener("OnWhois", listener)
+
+			if userData.error then
+				Spring.Log(LOG_SECTION, LOG.WARNING, "Couldn't add outgoing friend request with id=" .. tostring(userID) .. ".Server message:" .. tostring(userData.error))
+			elseif not userData.name then
+				Spring.Log(LOG_SECTION, LOG.ERROR, "Couldn't add outgoing friend request with id=" .. tostring(userID) .. ".Invalid server response (missing username)")
+			else
+				self:_OnOutgoingFriendRequest(userData.name, userID)
+			end
+		end
+		
+		self:AddListener("OnWhois", OnWhois)
+		self:Whois(userID)
+		
+		return
+	end
+	self:_OnOutgoingFriendRequest(userInfo.userName, userID)
+end
+
+function Lobby:_OnRemoveFriendRequestByID(userID)
+	local user = self:GetUserByID(userID)
+	if not user then
+		return
+	end
+
+	local i = table.ifind(self.friendRequests, user.userName)
+	if not i then
+		return
+	end
+	table.remove(self.friendRequests, i)
+
+	i = table.ifind(self.friendRequestsByID, userID)
+	if not i then
+		return
+	end
+	table.remove(self.friendRequestsByID, i)
+	
+	self.hasFriendRequest[user.userName] = false
+	user.hasFriendRequest = false
+	self:_CallListeners("OnRemoveFriendRequestByID", userID, user.userName)
+end
+
+function Lobby:_OnRemoveOutgoingFriendRequestByID(userID)
+	local user = self:GetUserByID(userID)
+	if not user then
+		return
+	end
+
+	local i = table.ifind(self.outgoingFriendRequestsByID, userID)
+	if not i then
+		return
+	end
+	table.remove(self.outgoingFriendRequestsByID, i)
+
+	user.hasOutgoingFriendRequest = false
+	self:_CallListeners("OnRemoveOutgoingFriendRequestByID", userID, user.userName)
+end
+
+function Lobby:_OnFriendRequestAcceptedByID(userID)
+	local user = self:GetUserByID(userID)
+	if not user then
+		return
+	end
+	self:_OnRemoveOutgoingFriendRequestByID(userID)
+	self:_OnFriendByID(userID)
+	self:_CallListeners("OnFriendRequestAcceptedByID", userID, user.userName)
+end
+
 function Lobby:_OnFriendRequestList(friendRequests)
 	self.friendRequests = friendRequests
-	self.friendRequestCount = #friendRequests
 	for _, userName in pairs(self.friendRequests) do
 		self.hasFriendRequest[userName] = true
 		local userInfo = self:TryGetUser(userName)
@@ -745,44 +972,145 @@ function Lobby:_OnFriendRequestList(friendRequests)
 	self:_CallListeners("OnFriendRequestList", self:GetFriendRequests())
 end
 
+function Lobby:_OnFriendRequestListByID(friendRequests)
+	local newFriendMap = {}
+	for i = 1, #friendRequests do
+		local userID = tonumber(friendRequests[i])
+		if not self.friendRequestsByID[userID] then
+			self:_OnFriendRequestByID(userID)
+		end
+		newFriendMap[userID] = true
+	end
+
+	for _, userID in pairs(self.friendRequestsByID) do
+		if not newFriendMap[userID] then
+			self:_OnRemoveFriendRequest(userID)
+		end
+	end
+end
+
+function Lobby:_OnOutgoingFriendRequestsByID(friendRequests)
+	local newFriendMap = {}
+	for i = 1, #friendRequests do
+		local userID = tonumber(friendRequests[i])
+		if not self.outgoingFriendRequestsByID[userID] then
+			self:_OnOutgoingFriendRequestByID(userID)
+		end
+		newFriendMap[userID] = true
+	end
+
+	for _, userID in pairs(self.outgoingFriendRequestsByID) do
+		if not newFriendMap[userID] then
+			self:_OnRemoveOutgoingFriendRequest(userID)
+		end
+	end
+end
+
+function Lobby:_OnAcceptFriendRequestByID(userID)
+	self:_OnRemoveFriendRequestByID(userID)
+	self:_OnFriendByID(userID)
+end
+
+function Lobby:_OnDeclineFriendRequestByID(userID)
+	self:_OnRemoveFriendRequestByID(userID)
+end
+
+function Lobby:_OnRescindFriendRequestByID(userID)
+	self:_OnRemoveOutgoingFriendRequestByID(userID)
+end
+
+function Lobby:_OnFriendRequestDeclinedByID(userID)
+	self:_OnRemoveOutgoingFriendRequestByID(userID)
+end
+
 ------------------------
 -- Disregard (Ignore/Avoid/Block)
 ------------------------
 
 function Lobby:_OnDisregard(userName, status)
-	self.isDisregarded[userName] = status
-	local userInfo = self:TryGetUser(userName)
+	local userInfo = self:GetUser(userName)
+	if not userInfo then
+		Spring.Log(LOG_SECTION, LOG.ERROR, "Couldn't add disregard for username=" .. tostring(userName) .. " - userName not known.")
+		return
+	end
+	self.isDisregardedID[userInfo.accountID] = status
 	userInfo.isDisregarded = status
 	self:_CallListeners("OnAddDisregardUser", userName)
 end
 
 function Lobby:_OnUnDisregard(userName)
-	if not self.isDisregarded[userName] then
+	local userInfo = self:GetUser(userName)
+	if not userInfo then
+		Spring.Log(LOG_SECTION, LOG.ERROR, "Couldn't remove disregard for username=" .. tostring(userName) .. " - userName not known.")
 		return
 	end
-
-	self.isDisregarded[userName] = nil
-	local userInfo = self:GetUser(userName) -- don't need to create offline users in this case
-	if userInfo then
-		userInfo.isDisregarded = nil
+	if not self.isDisregardedID[userInfo.accountID] then
+		return
 	end
+	self.isDisregardedID[userInfo.accountID] = nil
+	userInfo.isDisregarded = nil
 	self:_CallListeners("OnRemoveDisregardUser", userName)
 end
 
-function Lobby:_OnDisregardList(disregards)
-	local newDisregardedMap = {}
-	for i = 1, #disregards do
-		local userName = disregards[i].userName
-		local status = disregards[i].status
-		if not self.isDisregarded[userName] or self.isDisregarded[userName] ~= status then
-			self:_OnDisregard(userName, status)
+function Lobby:_OnDisregardID(userID, status)
+	self.isDisregardedID[userID] = status
+	local userInfo = self:GetUserByID(userID)
+	if not userInfo then
+
+		local function OnWhois(listener, id, userData)
+			if id ~= userID then
+				return
+			end
+
+			self:RemoveListener("OnWhois", listener)
+
+			if userData.error then
+				Spring.Log(LOG_SECTION, LOG.WARNING, "Couldn't add disregarded user with id=" .. tostring(userID) .. ".Server message:" .. tostring(userData.error))
+			elseif not userData.name then
+				Spring.Log(LOG_SECTION, LOG.ERROR, "Couldn't add disregarded user  with id=" .. tostring(userID) .. ".Invalid server response (missing username)")
+			else
+				userInfo = self:GetUserByID(userID)
+				userInfo.isDisregarded = status
+				self:_CallListeners("OnAddDisregardUser", userInfo.userName)
+			end
 		end
-		newDisregardedMap[userName] = true
+		
+		self:AddListener("OnWhois", OnWhois)
+		self:Whois(userID)
+		
+		return
+	end
+	userInfo.isDisregarded = status
+	self:_CallListeners("OnAddDisregardUser", userInfo.userName)
+end
+
+function Lobby:_OnUnDisregardID(userID)
+	if not self.isDisregardedID[userID] then
+		return
 	end
 
-	for userName in pairs(self.isDisregarded) do
-		if not newDisregardedMap[userName] then
-			self:_OnUnDisregard(userName)
+	self.isDisregardedID[userID] = nil
+	local userInfo = self:GetUserByID(userID) -- don't need to create offline users in this case
+	if userInfo then
+		userInfo.isDisregarded = nil
+	end
+	self:_CallListeners("OnRemoveDisregardUser", userInfo.userName)
+end
+
+function Lobby:_OnDisregardListID(disregards)
+	local newDisregardedMapID = {}
+	for i = 1, #disregards do
+		local userID = disregards[i].userID
+		local status = disregards[i].status
+		if not self.isDisregardedID[userID] or self.isDisregardedID[userID] ~= status then
+			self:_OnDisregardID(userID, status)
+		end
+		newDisregardedMapID[userID] = true
+	end
+
+	for userID in pairs(self.isDisregardedID) do
+		if not newDisregardedMapID[userID] then
+			self:_OnUnDisregardID(userID)
 		end
 	end
 end
@@ -857,7 +1185,7 @@ end
 function Lobby:_OnBattleClosed(battleID)
 
 	if not (battleID and self.battles[battleID]) then
-		Spring.Log(LOG_SECTION, LOG.ERROR, "Lobby:_OnBattleClosed: Tried to close unknown battle " .. tostrong(battleID))
+		Spring.Log(LOG_SECTION, LOG.ERROR, "Lobby:_OnBattleClosed: Tried to close unknown battle " .. tostring(battleID))
 		return
 	end
 	local battle = self.battles[battleID]
@@ -960,7 +1288,7 @@ function Lobby:_OnLeftBattle(battleID, userName)
 	self:_CallListeners("OnLeftBattle", battleID, userName)
 end
 
--- spectatorCount, locked, mapHash, mapName, engineVersion, runningSince, gameName, battleMode, disallowCustomTeams, disallowBots, isMatchMaker, maxPlayers, title, playerCount, passworded
+-- spectatorCount, locked, mapHash, mapName, engineVersion, runningSince, gameName, battleMode, disallowCustomTeams, disallowBots, maxPlayers, title, playerCount, passworded
 function Lobby:_OnUpdateBattleInfo(battleID, battleInfo)
 	local battle = self.battles[battleID]
 	if not battle then
@@ -1409,9 +1737,9 @@ function Lobby:_OnSayServerMessage(message, sayTime)
 end
 
 ------------------------
--- MatchMaking commands
+-- MatchMaking commands (ZK only)
 ------------------------
-
+--[[
 function Lobby:_OnQueueOpened(name, description, mapNames, maxPartySize, gameNames)
 	self.queues[name] = {
 		name = name,
@@ -1450,7 +1778,7 @@ function Lobby:_OnMatchMakerStatus(inMatchMaking, joinedQueueList, queueCounts, 
 		self.joinedQueueList = joinedQueueList
 		self.joinedQueues = {}
 		for i = 1, #joinedQueueList do
-			self.joinedQueues[joinedQueueList[i]] = true
+			self.joinedQueues[joinedQueueList[i] ] = true
 		end
 	else
 		self.joinedQueues = nil
@@ -1480,16 +1808,12 @@ end
 function Lobby:_OnMatchMakerReadyResult(isBattleStarting, areYouBanned)
 	self:_CallListeners("OnMatchMakerReadyResult", isBattleStarting, areYouBanned)
 end
-
-function Lobby:_OnUserCount(userCount)
-	self.fullUserCount = userCount
-	self:_CallListeners("OnUserCount", userCount)
-end
+--]]
 
 ------------------------
--- Party commands
+-- Party commands (ZK only)
 ------------------------
-
+--[[
 function Lobby:_OnPartyInviteRecieved(partyID, partyUsers, timeoutSeconds)
 	self:_CallListeners("OnPartyInviteRecieved", partyID, partyUsers, timeoutSeconds)
 end
@@ -1525,64 +1849,7 @@ function Lobby:_OnPartyInviteResponse(userName, accepted) -- Invite response rec
 	userInfo.pendingPartyInvite = false
 	self:_CallListeners("OnPartyInviteResponse", userName, accepted)
 end
-
-------------------------
--- Battle Propose commands
-------------------------
-
-function Lobby:_OnBattleProposalResponse(userName, accepted)
-	self:_CallListeners("OnBattleProposalResponse", userName, accepted)
-end
-
-function Lobby:_OnBattleProposalBattleInvite(userName, battleID, password)
-	self:_CallListeners("OnBattleProposalBattleInvite", userName, battleID, password)
-end
-
-------------------------
--- Planetwars Commands
-------------------------
-
-function Lobby:_OnPwStatus(planetWarsMode, minLevel)
-	self:_CallListeners("OnPwStatus", planetWarsMode, minLevel)
-end
-
-function Lobby:_OnPwMatchCommand(attackerFaction, defenderFactions, currentMode, planets, deadlineSeconds)
-	local modeSwitched = (self.planetwarsData.currentMode ~= currentMode) or (self.planetwarsData.attackerFaction ~= attackerFaction)
-	self.planetwarsData.attackerFaction  = attackerFaction
-	self.planetwarsData.defenderFactions = defenderFactions
-	self.planetwarsData.currentMode      = currentMode
-	self.planetwarsData.planets          = planets
-
-	Spring.Echo("OnPwMatchCommand modeSwitched", modeSwitched)
-	if modeSwitched then
-		self.planetwarsData.joinPlanet = nil
-		self.planetwarsData.attackingPlanet = nil
-	end
-
-	self:_CallListeners("OnPwMatchCommand", attackerFaction, defenderFactions, currentMode, planets, deadlineSeconds, modeSwitched)
-end
-
-function Lobby:_OnPwRequestJoinPlanet(planetID)
-	self:_CallListeners("OnPwRequestJoinPlanet", planetID)
-end
-
-function Lobby:_OnPwJoinPlanetSuccess(planetID)
-	self.planetwarsData.joinPlanet = planetID
-	self:_CallListeners("OnPwJoinPlanetSuccess", planetID)
-end
-
-function Lobby:_OnPwAttackingPlanet(planetID)
-	self.planetwarsData.attackingPlanet = planetID
-	self:_CallListeners("OnPwAttackingPlanet", planetID)
-end
-
-function Lobby:_OnPwFactionUpdate(factionData)
-	self.planetwarsData.factionMap = {}
-	self.planetwarsData.factionList = factionData
-	for i = 1, #factionData do
-		self.planetwarsData.factionMap[factionData[i].Shortcut] = true
-	end
-end
+--]]
 
 ------------------------
 -- News and community commands
@@ -1719,17 +1986,18 @@ end
 -------------------------------------------------
 
 -- users
+
+function Lobby:GetUserId(userName)
+	return self
+end
+
 -- Returns all users, visible users
 function Lobby:GetUserCount()
-	if self.fullUserCount then
-		return self.fullUserCount, self.userCount
-	else
-		return self.userCount, self.userCount
-	end
+	return self.userCount
 end
 
 -- gets the userInfo, or creates a new one with an offline user if it doesn't exist
-function Lobby:TryGetUser(userName)
+function Lobby:TryGetUser(userName, userID)
 	local userInfo = self:GetUser(userName)
 	if type(userName) ~= "string" then
 		Spring.Log(LOG_SECTION, LOG.ERROR, "TryGetUser called with type: " .. tostring(type(userName)))
@@ -1743,7 +2011,37 @@ function Lobby:TryGetUser(userName)
 		}
 		self.users[userName] = userInfo
 	end
+	if userID then
+		userInfo.accountID = userID
+		self.usersByID[userID] = userName
+	end
 	return userInfo
+end
+
+function Lobby:Whois(userID)
+	return self
+end
+
+function Lobby:_OnWhois(id, userData)
+	local userInfo = self:GetUserByID(id)
+	if not userInfo and not userData.error then
+		userInfo = {
+			isOffline = true,
+			accountID = id,
+		}
+		self.users[userData.name] = userInfo
+		self.usersByID[id] = userData.name
+	end
+	userInfo.userName = userData.name
+	self:_CallListeners("OnWhois", id, userData)
+end
+
+function Lobby:WhoisName(userName)
+	return self
+end
+
+function Lobby:_OnWhoisName(userName, userData)
+	self:_CallListeners("OnWhoisName", userName, userData)
 end
 
 function Lobby:LearnAboutOfflineUser(userName, data)
@@ -1760,6 +2058,10 @@ end
 
 function Lobby:GetUser(userName)
 	return self.users[userName]
+end
+
+function Lobby:GetUserByID(userID)
+	return self.usersByID[userID] and self.users[self.usersByID[userID]]
 end
 
 function Lobby:GetLowerCaseUser(userNameLC)
@@ -1789,14 +2091,19 @@ end
 
 -- friends
 function Lobby:GetFriendCount()
-	return self.friendCount
+	return #self.friendsByID
 end
 -- returns friends table (not necessarily an array)
 function Lobby:GetFriends()
 	return ShallowCopy(self.friends)
 end
+
+function Lobby:GetFriendsByID()
+	return ShallowCopy(self.friendsByID)
+end
+
 function Lobby:GetFriendRequestCount()
-	return self.friendRequestCount
+	return #self.friendRequestsByID
 end
 -- returns friends table (not necessarily an array)
 function Lobby:GetFriendRequests()
@@ -1845,7 +2152,7 @@ function Lobby:GetBattlePlayerCount(battleID)
 				local s = string.format("GetBattlePlayerCount(ID: %s) #users = %d, #specs = %d, #players = %d, %s", battleID, #battle.users, battle.spectatorCount, playerCount, users)
 				Spring.Echo(s)
 			end
-		]]--
+		--]]
 		return math.max(0, playerCount)
 	end
 end
@@ -2011,14 +2318,6 @@ function Lobby:GetMyFaction()
 		return self.users[self.myUserName].faction
 	end
 	return false
-end
-
-function Lobby:GetFactionData(faction)
-	return faction and self.planetwarsData.factionMap and self.planetwarsData.factionMap[faction]
-end
-
-function Lobby:GetPlanetwarsData()
-	return self.planetwarsData
 end
 
 function Lobby:GetMySessionToken()

@@ -197,11 +197,12 @@ local function GetUserComboBoxOptions(userName, isInBattle, control, showTeamCol
 	local comboOptions = {}
 	local boss = info.battleID and control.lobby.battles[info.battleID] and control.lobby.battles[info.battleID].boss
 	local iAmBoss = boss and boss == myUserName
+	local validEngine = info.battleID and control.lobby.battles[info.battleID] and (Configuration.displayBadEngines2 or Configuration:IsValidEngineVersion(control.lobby.battles[info.battleID].engineVersion))
 
 	if not (itsme or bs.aiLib) then																					comboOptions[#comboOptions + 1] = "Message" end
 																													comboOptions[#comboOptions + 1] = "Copy Name"
 	if isInBattle and not (itsme or bs.aiLib or info.isBot) then													comboOptions[#comboOptions + 1] = "Ring" end
-	if not (itsme or bs.aiLib or isInBattle) and info.battleID then													comboOptions[#comboOptions + 1] = "Join Battle" end
+	if not (itsme or bs.aiLib or isInBattle) and info.battleID and validEngine then													comboOptions[#comboOptions + 1] = "Join Battle" end
 	if not (itsme or bs.aiLib or info.isBot) then																	comboOptions[#comboOptions + 1] = info.isFriend and "Unfriend" or "Friend"
 									  if info.isDisregarded and info.isDisregarded == Configuration.IGNORE then     comboOptions[#comboOptions + 1] = "Unignore"
 																													comboOptions[#comboOptions + 1] = "Avoid"
@@ -574,6 +575,7 @@ local function UpdateUserBattle(listener, battleID, userName)
 	end	
 end
 
+--[[ ZK only
 local function OnPartyUpdate(listener, partyID, partyUsers)
 	if partyID ~= lobby:GetMyPartyID() then
 		return
@@ -588,6 +590,7 @@ local function OnPartyLeft(listener, partyID, partyUsers)
 		UpdateUserComboboxOptions(_, partyUsers[i])
 	end
 end
+--]]
 
 local function UpdateUserBattleStatus(listener, userName, battleStatusDiff)
 	local Configuration = WG.Chobby.Configuration
@@ -941,40 +944,44 @@ local function GetUserControls(userName, opts)
 					elseif selectedName == "Remove" then
 						userControls.lobby:RemoveAi(userName)
 					elseif selectedName == "Unfriend" then
-						userControls.lobby:Unfriend(userName)
+						userControls.lobby:RemoveFriends({userInfo.accountID})
 					elseif selectedName == "Friend" then
 						local userInfo = userControls.lobby:GetUser(userName)
 						if userInfo and userInfo.hasFriendRequest then
-							userControls.lobby:AcceptFriendRequest(userName)
+							userControls.lobby:AcceptFriendRequestByID({userInfo.accountID})
 						else
-							userControls.lobby:FriendRequest(userName)
+							userControls.lobby:FriendRequestByID(userInfo.accountID)
 						end
+					--[[ ZK only
 					elseif selectedName == "Join Party" or selectedName == "Invite to Party" then
-						userControls.lobby:InviteToParty(userName)
-						local userInfo = userControls.lobby:GetUser(userName)
-						if WG.SteamHandler.GetIsSteamFriend(userInfo.steamID) and userInfo.isOffline then
-							WG.SteamHandler.InviteUserViaSteam(userName, userInfo.steamID)
-						end
+					 	userControls.lobby:InviteToParty(userName)
+					 	local userInfo = userControls.lobby:GetUser(userName)
+					 	if WG.SteamHandler.GetIsSteamFriend(userInfo.steamID) and userInfo.isOffline then
+					 		WG.SteamHandler.InviteUserViaSteam(userName, userInfo.steamID)
+					 	end
 					elseif selectedName == "Invite to Campaign" then
-						local userInfo = userControls.lobby:GetUser(userName)
-						if userInfo.steamID then
-							WG.WrapperLoopback.SteamInviteFriendToGame(userInfo.steamID)
-						end
+					 	local userInfo = userControls.lobby:GetUser(userName)
+					 	if userInfo.steamID then
+					 		WG.WrapperLoopback.SteamInviteFriendToGame(userInfo.steamID)
+					 	end
+					--]]
 					elseif selectedName == "Join Battle" then
 						local userInfo = userControls.lobby:GetUser(userName) or {}
 						if userInfo.battleID then
 							WG.Chobby.interfaceRoot.TryToJoinBattle(userInfo.battleID)
 						end
+					--[[ ZK only
 					elseif selectedName == "Watch Battle" then
 						local userInfo = userControls.lobby:GetUser(userName) or {}
 						if userInfo.battleID then
 							lobby:RejoinBattle(userInfo.battleID)
 						end
 					elseif selectedName == "User Page" and Configuration.gameConfig.link_userPage ~= nil then
-						local userInfo = userControls.lobby:GetUser(userName) or {}
-						if userInfo.accountID then
-							WG.BrowserHandler.OpenUrl(Configuration.gameConfig.link_userPage(userInfo.accountID))
-						end
+					 	local userInfo = userControls.lobby:GetUser(userName) or {}
+					 	if userInfo.accountID then
+					 		WG.BrowserHandler.OpenUrl(Configuration.gameConfig.link_userPage(userInfo.accountID))
+					 	end
+					--]]
 					elseif selectedName == "Change Color" then
 						local battleStatus = userControls.lobby:GetUserBattleStatus(userName) or {}
 						if battleStatus.isSpectator then
@@ -1678,20 +1685,28 @@ end
 -- Listeners
 
 local function AddListeners()
-	lobby:AddListener("OnFriendList", UpdateUserActivityList)
+	-- OnFriendList leads to duplicate updates, each friend is propagated by OnFriend already
+	-- lobby:AddListener("OnFriendList", UpdateUserActivityList)
+
 	lobby:AddListener("OnUpdateUserStatus", UpdateUserActivity)
 
 	lobby:AddListener("OnFriend", UpdateUserActivity)
-	lobby:AddListener("OnUnfriend", UpdateUserActivity)
+	
+	-- little dirty here. this one is meant to exist temporarily until api_user_handler is switched to use accountID as primary anchor
+	lobby:AddListener("OnUnfriendByID", function(listener, userID, userName)
+		UpdateUserActivity(_, userName)
+	end)
 	lobby:AddListener("OnAddDisregardUser", UpdateUserActivity)
 	lobby:AddListener("OnRemoveDisregardUser", UpdateUserActivity)
 
+	--[[ ZK only
 	lobby:AddListener("OnPartyInviteSent", UpdateUserActivity)
 	lobby:AddListener("OnPartyInviteResponse", UpdateUserActivity)
 
 	lobby:AddListener("OnPartyCreate", OnPartyUpdate)
 	lobby:AddListener("OnPartyUpdate", OnPartyUpdate)
 	lobby:AddListener("OnPartyLeft", OnPartyLeft)
+	--]]
 
 	lobby:AddListener("OnAddUser", UpdateUserActivity)
 	lobby:AddListener("OnRemoveUser", UpdateUserActivity)
