@@ -197,11 +197,12 @@ local function GetUserComboBoxOptions(userName, isInBattle, control, showTeamCol
 	local comboOptions = {}
 	local boss = info.battleID and control.lobby.battles[info.battleID] and control.lobby.battles[info.battleID].boss
 	local iAmBoss = boss and boss == myUserName
+	local validEngine = info.battleID and control.lobby.battles[info.battleID] and (Configuration.displayBadEngines2 or Configuration:IsValidEngineVersion(control.lobby.battles[info.battleID].engineVersion))
 
 	if not (itsme or bs.aiLib) then																					comboOptions[#comboOptions + 1] = "Message" end
 																													comboOptions[#comboOptions + 1] = "Copy Name"
 	if isInBattle and not (itsme or bs.aiLib or info.isBot) then													comboOptions[#comboOptions + 1] = "Ring" end
-	if not (itsme or bs.aiLib or isInBattle) and info.battleID then													comboOptions[#comboOptions + 1] = "Join Battle" end
+	if not (itsme or bs.aiLib or isInBattle) and info.battleID and validEngine then													comboOptions[#comboOptions + 1] = "Join Battle" end
 	if not (itsme or bs.aiLib or info.isBot) then																	comboOptions[#comboOptions + 1] = info.isFriend and "Unfriend" or "Friend"
 									  if info.isDisregarded and info.isDisregarded == Configuration.IGNORE then     comboOptions[#comboOptions + 1] = "Unignore"
 																													comboOptions[#comboOptions + 1] = "Avoid"

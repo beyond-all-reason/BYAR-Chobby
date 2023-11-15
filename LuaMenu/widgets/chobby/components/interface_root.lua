@@ -1188,7 +1188,7 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 
 	function externalFunctions.TryToJoinBattle(battleID)
 		local battle = battleID and lobby:GetBattle(battleID)
-		if battle then
+		if battle and (Configuration.displayBadEngines2 or Configuration:IsValidEngineVersion(battle.engineVersion)) then
 			battleListWindowJoinBattle(battle)
 		end
 	end
