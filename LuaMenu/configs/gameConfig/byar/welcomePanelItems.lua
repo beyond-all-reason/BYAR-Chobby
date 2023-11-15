@@ -14,18 +14,13 @@ local welcomePanelItems = {
         Header = "Welcome to Beyond All Reason",
         Text = "Welcome back Commander. We hope you are ready for epic single player and multiplayer battles. Check out our Discord and join the community!\n",
     },
+
     {
-        Header = "Improvise, Adapt, Overcome - Insane 6v6 tourney!",
+        Header = "Tournament Results: Improvise, Adapt, Overcome",
         Image = "LuaMenu/images/6v6Tournament.png",
-        Text = "With just three weeks passing since the last official tournament, we are back with another one, and this time we are really going to shake things up. Are you ready to embrace the unexpected, think on your feet, and conquer challenges with your quick wit and creativity? Join us for the most exhilarating and mind-bending tournament of the year: the 'Improvise, Adapt, Overcome' 6v6 Tournament!\n\n",
-        Url = "https://www.beyondallreason.info/news/improvise-adapt-overcome-insane-6v6-tourney-is-coming",
-        UrlText = "More info",
-    },
-    {
-        Header = nil,
-        Text = "Main event Nov. 11th/12th at 2PM CET - Qualifiers in progress - Register your team at ProfessorBAR's Discord!",
-        Url = "https://discord.gg/geKweGfxS3",
-        UrlText = "Register on Discord",
+        Text = "The heart-pounding Improvise, Adapt, Overcome 6v6 Tournament has concluded, and after an intense battle of wit and creativity, the podium is claimed by formidable teams!\n \n1st Place: BARCODE\n2nd Place: Washed Veterans\n3rd Place: Careless Tryhards\n \nCongratulations to these exceptional teams for showcasing their adaptability and emerging victorious in a competition that embraced the unexpected. If you missed it, be sure to watch the VOD now on Twitch!",
+        Url = "https://www.twitch.tv/videos/1975468314",
+        UrlText = "Watch on twitch.tv",
     },
 
     {
