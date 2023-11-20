@@ -302,6 +302,7 @@ function Configuration:init()
 	self.drawAtFullSpeed = false
 	self.fixFlicker = true
 	self.lastFactionChoice = 0
+	self.lastStartedBattleID = 0
 	self.lastGameSpectatorState = false
 	self.lobbyIdleSleep = false
 	self.rememberQueuesOnStart = false
@@ -687,6 +688,7 @@ function Configuration:GetConfigData()
 		drawAtFullSpeed = self.drawAtFullSpeed,
 		fixFlicker = self.fixFlicker,
 		lastFactionChoice = self.lastFactionChoice,
+		lastStartedBattleID = self.lastStartedBattleID,
 		lastGameSpectatorState = self.lastGameSpectatorState,
 		lobbyIdleSleep = self.lobbyIdleSleep,
 		rememberQueuesOnStart = self.rememberQueuesOnStart,

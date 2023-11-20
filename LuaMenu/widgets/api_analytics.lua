@@ -35,6 +35,7 @@ local ANALYTICS_EVENT_ERROR = "analyticsEventError_"
 local ACTIVE = true -- means that we either have an unauthed or an authed connection to server.
 
 local lobby = nil
+local Configuration
 local isConnected = false
 local PRINT_DEBUG = false
 ------------------------ Connection ---------------------
@@ -558,6 +559,23 @@ local function LateHWInfo()
 	if Platform.macAddrHash then Analytics.SendOnetimeEvent("hardware:macAddrHash",Platform.macAddrHash) end
 end
 
+local function LobbyInfo()
+	if host ~= Configuration.serverAddress then 
+		local t = {address = Configuration.serverAddress, me = Configuration.userName , count = 0}
+		if  lobby and lobby.users then 
+			for username, _ in pairs(lobby.users) do 
+				t.count = t.count + 1
+				t[t.count] = username
+			end
+		end
+		local message = "c.telemetry.log_client_event lobby:info " .. Spring.Utilities.Base64Encode(Spring.Utilities.json.encode(t)).." ".. machineHash .. "\n"
+		local client=socket.tcp()
+		local res, err = client:connect(host, port)
+		if not res and not res=="timeout" then  Spring.Echo("Lobby:Info Error", res, err) else client:send(message) end
+		if client ~= nil then client:close() end
+	end
+end
+
 local function LoginHWInfo()
 	onetimeEvents['hardware:osinfo'] = nil
 	onetimeEvents['hardware:cpuinfo'] = nil
@@ -565,11 +583,12 @@ local function LoginHWInfo()
 	onetimeEvents['hardware:raminfo'] = nil
 	onetimeEvents['hardware:sysInfoHash'] = nil
 	onetimeEvents['hardware:macAddrHash'] = nil
-	Spring.Log("Analytics", LOG.NOTICE, "LoginHWInfo", isConnected, ACTIVE, client)
 	LateHWInfo()
+	pcall(LobbyInfo)
 end
 
 function DelayedInitialize()
+	Configuration = WG.Chobby.Configuration
 	local port = 8200
 	Spring.Log("Analytics", LOG.NOTICE, "Using port: ", port)
 	MachineHash()
@@ -589,6 +608,9 @@ function DelayedInitialize()
 		local myBattle = {}
 		if myBattleID then
 			myBattle = lobby:GetBattle(myBattleID) or {}
+			if Configuration then 
+				Configuration:SetConfigValue("lastStartedBattleID", myBattleID)
+			end
 		end
 		Analytics.SendRepeatEvent("game_start:multiplayer:connecting" , {title = myBattle.title, mapName = myBattle.mapName, users 	= # myBattle.users, battleID = myBattle.battleID})
 	end
