@@ -213,20 +213,29 @@ end
 local battleTooltip = {}
 
 local spadsRequestQueue = {}
-local spadsRequestActive = false
-local spadsRequest = {}
-local recentSpadsRequestSent = os.clock()
+local spadsRequest = nil
+local allowedNextRequestClock = os.clock()
 
-local function SetSpadsStatusRequested(battleID)
-	local battleInfo = {spadsStatusRequested = true}
-	lobby:super("_OnUpdateBattleInfo", battleID, battleInfo)
-end
+-- start/resume sending requests
+-- executed on each update()
+local function StartResumeSpadsRequest()
+	if #spadsRequestQueue == 0 then
+		return
+	end
 
-local function RequestSpadsStatus()
-	-- 2023-10-02 FB: disabled one-time requests until timestamps of incoming protocol messages are stored during ingame-buffering
-	-- SetSpadsStatusRequested(spadsRequest.battle.battleID)
+	local diff = os.clock() - allowedNextRequestClock
+	if diff < 0 then
+		return
+	end
 
-	spadsRequest.time = os.clock()
+	-- pop most recent request
+	spadsRequest = spadsRequestQueue[#spadsRequestQueue]
+
+	-- empty request queue completly (we only want to ask for the most recent hovered battle)
+	spadsRequestQueue = {}
+
+	allowedNextRequestClock = os.clock() + 0.4
+
 	if spadsRequest.battle.isRunning then
 		lobby:RequestSpadsGameStatus(spadsRequest.battle.founder)
 	else
@@ -234,42 +243,25 @@ local function RequestSpadsStatus()
 	end
 end
 
-local function MaybeSendNextSpadsStatusRequest()
-	-- wait for spads answer or send next request after 2 seconds
-	if spadsRequestActive and (os.clock() - recentSpadsRequestSent) < 2.0 then
+local function OnUpdateBattleInfo(listener, _battleID, _battleInfo)
+	-- validate input
+	if not spadsRequest then
 		return
 	end
 
-	if #spadsRequestQueue == 0 then
-		return
-	end
-
-	spadsRequestActive = true
-	spadsRequest = spadsRequestQueue[#spadsRequestQueue]
-	table.remove(spadsRequestQueue, #spadsRequestQueue)
-
-	local timeUntilAllowed = math.max(0, 0.4 - (os.clock() - recentSpadsRequestSent))
-	WG.Delay(RequestSpadsStatus, timeUntilAllowed)
-end
-
-local function UpdateRunningOrEndedAt(listener, _battleID, _battleInfo)
-	if not spadsRequestActive then
-		return
-	end
-
-	local battle       = spadsRequest.battle
-	local offset       = spadsRequest.offset
-	local time         = spadsRequest.time
-
+	local battle       =  spadsRequest.battle
 	if battle.battleID ~= _battleID then
 		return
 	end
+	local offset       = spadsRequest.offset
 
 	_battleInfo = _battleInfo or {}
 	if not (_battleInfo.thisGameStartedAt or _battleInfo.lastGameEndedAt) then
 		return
 	end
-	-- it's our answer
+
+	-- end validation - it's about our request
+	spadsRequest = nil
 
 	local newMessage, elapsed
 	if _battleInfo.thisGameStartedAt then
@@ -288,31 +280,15 @@ local function UpdateRunningOrEndedAt(listener, _battleID, _battleInfo)
 	if tipWindow.visible and battleTooltip and battleTooltip.runningOrEndedAt and battleTooltip.battleID and battleTooltip.battleID == _battleID then
 		battleTooltip.runningOrEndedAt.Update(offset, newMessage)
 	end
-
-	spadsRequestActive = false
-	spadsRequest = {}
-	recentSpadsRequestSent = time
-
-	MaybeSendNextSpadsStatusRequest()
 end
 
 local function QueueSpadsStatusRequest(battleID, offset)
 	local battle = lobby:GetBattle(battleID)
-	-- 2023-10-02 FB: disabled one-time requests until timestamps of incoming protocol messages are stored during ingame-buffering
-	-- if battle.spadsStatusRequested then
-	-- 	return
-	-- end
 
 	table.insert(spadsRequestQueue, {
 		battle = battle,
 		offset = offset,
 	})
-
-	while #spadsRequestQueue > 1 do
-		table.remove(spadsRequestQueue, 1)
-	end
-
-	MaybeSendNextSpadsStatusRequest()
 end
 
 local function GetBattleTooltip(battleID, battle, showMapName)
@@ -1136,6 +1112,7 @@ end
 function widget:Update()
 	EvilHax()
 	CheckTooltipUpdate(GetTooltip())
+	StartResumeSpadsRequest()
 end
 
 function widget:Initialize()
@@ -1144,11 +1121,11 @@ function widget:Initialize()
 
 	InitWindow()
 	WG.TooltipHandler = TooltipHandler
-	lobby:AddListener("OnUpdateBattleInfo", UpdateRunningOrEndedAt)
+	lobby:AddListener("OnUpdateBattleInfo", OnUpdateBattleInfo)
 end
 
 function widget:Shutdown()
-	lobby:RemoveListener("OnUpdateBattleInfo", UpdateRunningOrEndedAt)
+	lobby:RemoveListener("OnUpdateBattleInfo", OnUpdateBattleInfo)
 	tipWindow:Dispose()
 end
 
