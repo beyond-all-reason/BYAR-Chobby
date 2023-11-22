@@ -1211,7 +1211,7 @@ function BattleListWindow:OpenHostWindow()
 		['[teh]clusterEU2'] = {limit = 70, current = 0, online = false, region = 'EU'},
 		['[teh]clusterEU3'] = {limit = 30, current = 0, online = false, region = 'EU'},
 		['[teh]clusterEU4'] = {limit = 150, current = 0, online = false, region = 'EU'}, 
-		--['[teh]clusterEU5'] = {limit = 150, current = 0, online = false, region = 'EU'},-- This is currently the engine testing host
+		['[teh]clusterEU5'] = {limit = 150, current = 0, online = false, region = 'EU'},
 		['[teh]clusterUS'] = {limit = 70, current = 0, online = false, region = 'US'},
 		['[teh]clusterUS2'] = {limit = 60, current = 0, online = false, region = 'US'},
 		['[teh]clusterUS3'] = {limit = 70, current = 0, online = false, region = 'US'},
@@ -1219,6 +1219,7 @@ function BattleListWindow:OpenHostWindow()
 		['[teh]clusterAU'] = {limit = 90, current = 0, online = false, region = 'AU'},
 	}
 
+	-- Try to check for their engine version too. It is unlikely that a cluster has multiple engines (except during a switch, so scratch that)
 	local numusers = 0
 	local users = lobby:GetUsers()
 	for name, _ in pairs(users) do
@@ -1228,7 +1229,7 @@ function BattleListWindow:OpenHostWindow()
 			if clusters[name] then -- cluster manager
 				clusters[name].online = true
 			else-- instance
-				manager = name:sub(1,-5)
+				local manager = name:sub(1,-5)
 				if clusters[manager] then
 					clusters[manager].current = clusters[manager].current + 1
 				end
