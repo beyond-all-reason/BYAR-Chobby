@@ -437,14 +437,12 @@ end
 local function SortReplays(replays)
 	local oldReplays = {}
 	local done = false
-	local i = #replays
 	repeat
-		if #replays == 0 or not string.match(replays[i], "(%d%d%d%d%d)") then
+		if #replays == 0 or not string.match(replays[#replays], "(%d%d%d%d%d)") then
 			done = true
 		else
-			table.insert(oldReplays, replays[i])
-			table.remove(replays, i)
-			i = #replays
+			table.insert(oldReplays, replays[#replays])
+			table.remove(replays, #replays)
 		end
 	until(done)
 
