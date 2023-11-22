@@ -432,7 +432,7 @@ end
 -- Controls
 
 -- VFS.DirList returns demos in alphabetical order; We need to have the most recent demos on the end of our replays-table
--- This function reads from end of replays and puts all demos from engines prior to 2114 to the beginnnig
+-- This function reads from end of replays and puts all demos from engines prior to 2113 to the beginnnig
 -- This is a hot-fix and won't sort by date. If testers did games with prior 2113 and newer in between, older demos will still be found at the very end !
 local function SortReplays(replays)
 	local oldReplays = {}
