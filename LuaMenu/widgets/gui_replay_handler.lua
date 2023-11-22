@@ -166,7 +166,7 @@ local function CreateReplayEntry(
 	-- Extract replay time from the filename
 	local replayDateString = string.format(
 		"%s-%s-%s %s:%s",
-		string.match(fileName, "(%d%d%d%d)(%d%d)(%d%d)_(%d%d)(%d%d)")
+		string.match(fileName, "(%d%d%d%d)-?(%d%d)-?(%d%d)_(%d%d)-?(%d%d)")
 	)
 
 	-- Compute the time of the replay
