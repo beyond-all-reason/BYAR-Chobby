@@ -141,6 +141,11 @@ function Interface:ProcessBuffer()
 		self.commandBuffer = false
 		self.commandsInBuffer = 0
 		self.bufferExecutionPos = 0
+		
+		-- Sending MYBATTLESTATUS is disabled while executing buffer, so send it one time after
+		if self:GetMyBattleID() then -- are we still in a battle ?
+			self:SetBattleStatus(self.userBattleStatus[self:GetMyUserName()], true) -- force
+		end
 		return false
 	end
 	self:CommandReceived(command)

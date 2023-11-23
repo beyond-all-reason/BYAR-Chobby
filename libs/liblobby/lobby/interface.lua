@@ -396,8 +396,10 @@ function Interface:LeaveBattle()
 	return self
 end
 
-function Interface:SetBattleStatus(status)
-	if not self._requestedBattleStatus then
+function Interface:SetBattleStatus(status, force)
+	-- don't send while unbuffering (because it can lead to a lot of calls after a long game and spads spam protection kicks us)
+	-- Instead SetBattleStatus is forced one-time directly when unbuffering finished (see Interface_shared - ProcessBuffer)
+	if not self._requestedBattleStatus or self.commandBuffer then
 		return
 	end
 	self:super("SetBattleStatus", status)
@@ -413,7 +415,7 @@ function Interface:SetBattleStatus(status)
 	local battleStatus, updated = UpdateAndCreateMerge(userData, status)
 
 	--next(status) will return nil if status is empty table, which it is when it is called from REQUESTBATTLESTATUS
-	if next(status) and not updated then
+	if not force and next(status) and not updated then
 		return self
 	end
 	local battleStatusString = EncodeBattleStatus(battleStatus)
