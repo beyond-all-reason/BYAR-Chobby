@@ -11,5 +11,4 @@ return {
 	AAI = true,
 	CircuitAI = true,
 	Shard = true,
-	BARb = true,
 }
