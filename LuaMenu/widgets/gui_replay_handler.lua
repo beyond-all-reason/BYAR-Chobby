@@ -438,7 +438,7 @@ local function SortReplays(replays)
 	local oldReplays = {}
 	local done = false
 	repeat
-		if #replays == 0 or not string.match(replays[#replays], "(%d%d%d%d%d)") then
+		if #replays == 0 or not string.match(replays[#replays], "(%d%d%d%d%d_)") then
 			done = true
 		else
 			table.insert(oldReplays, replays[#replays])
