@@ -200,9 +200,9 @@ local function GetUserComboBoxOptions(userName, isInBattle, control, showTeamCol
 	local validEngine = info.battleID and control.lobby.battles[info.battleID] and (Configuration.displayBadEngines2 or Configuration:IsValidEngineVersion(control.lobby.battles[info.battleID].engineVersion))
 
 	if not (itsme or bs.aiLib) then																					comboOptions[#comboOptions + 1] = "Message" end
-																													comboOptions[#comboOptions + 1] = "Copy Name"
 	if isInBattle and not (itsme or bs.aiLib or info.isBot) then													comboOptions[#comboOptions + 1] = "Ring" end
-	if not (itsme or bs.aiLib or isInBattle) and info.battleID and validEngine then													comboOptions[#comboOptions + 1] = "Join Battle" end
+	if not (itsme or bs.aiLib or isInBattle) and info.battleID and validEngine then									comboOptions[#comboOptions + 1] = "Join Battle" end
+	if not (itsme or info.isBot) then																				comboOptions[#comboOptions + 1] = "────────────────" end
 	if not (itsme or bs.aiLib or info.isBot) then																	comboOptions[#comboOptions + 1] = info.isFriend and "Unfriend" or "Friend"
 									  if info.isDisregarded and info.isDisregarded == Configuration.IGNORE then     comboOptions[#comboOptions + 1] = "Unignore"
 																													comboOptions[#comboOptions + 1] = "Avoid"
@@ -219,6 +219,7 @@ local function GetUserComboBoxOptions(userName, isInBattle, control, showTeamCol
 	if (iAmBoss or iPlay) and not itsme and not info.isBot and isInBattle and not bs.aiLib then						comboOptions[#comboOptions + 1] = "Kickban" end
 	if bs.aiLib and bs.owner == myUserName and isInBattle then														comboOptions[#comboOptions + 1] = "Remove" end
 	if not itsme and not info.isBot and not bs.aiLib then															comboOptions[#comboOptions + 1] = "Report User" end
+																													comboOptions[#comboOptions + 1] = "Copy Name"
 
 	if #comboOptions == 0 then
 		comboOptions[1] = Label:New {
