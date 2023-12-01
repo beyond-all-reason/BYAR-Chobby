@@ -928,7 +928,7 @@ local function GetUserTooltip(userName, userInfo, userBattleInfo, inBattleroom)
 			n = "\n"
 		end
 		if next(userBattleInfo) then
-			text = text .. "\n" .. "────────────────"
+			text = text .. "\n" .. "----------------"
 			st = sortfunc(userBattleInfo)
 			for _, kv in ipairs(st) do
 				text = text .. "\n" .. kv[1] .. " = " .. tostring(kv[2])

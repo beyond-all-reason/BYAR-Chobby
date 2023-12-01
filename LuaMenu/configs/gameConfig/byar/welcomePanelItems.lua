@@ -16,14 +16,6 @@ local welcomePanelItems = {
     },
 
     {
-        Header = "Tournament Results: Improvise, Adapt, Overcome",
-        Image = "LuaMenu/images/6v6Tournament.png",
-        Text = "The heart-pounding Improvise, Adapt, Overcome 6v6 Tournament has concluded, and after an intense battle of wit and creativity, the podium is claimed by formidable teams!\n \n1st Place: BARCODE\n2nd Place: Washed Veterans\n3rd Place: Careless Tryhards\n \nCongratulations to these exceptional teams for showcasing their adaptability and emerging victorious in a competition that embraced the unexpected. If you missed it, be sure to watch the VOD now on Twitch!",
-        Url = "https://www.twitch.tv/videos/1975468314",
-        UrlText = "Watch on twitch.tv",
-    },
-
-    {
         Header = "Guides for new players",
         Url = "https://www.youtube.com/channel/UCAByJ5NKeMmQ95EIWgBtbEw",
         Text = "Requiem has created some guides for new players. If you're new to the game and want to learn the basics via video we highly recommend you check them out.\n",
