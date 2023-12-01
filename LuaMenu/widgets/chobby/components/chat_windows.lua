@@ -321,7 +321,7 @@ function ChatWindows:init()
 		height = "10%",
 		caption = i18n("login_to_chat"),
 		classname = "button_small",
-		ovjectOverrideFont = WG.Chobby.Configuration:GetFont(4),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		parent = self.window,
 		OnClick = {function ()
 				Spring.Echo("Login")
@@ -338,7 +338,7 @@ function ChatWindows:init()
 					{
 						name = "debug",
 						caption = i18n("debug"),
-						ovjectOverrideFont = WG.Chobby.Configuration:GetFont(1),
+						objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
 						children = {self.debugConsole.panel}
 					},
 					false
