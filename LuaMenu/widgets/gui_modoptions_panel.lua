@@ -539,7 +539,7 @@ local function InitializeModoptionsDisplay()
 				local name = option.name and option.name or key
 				text = text .. "\255\120\120\120"
 				if text ~= "\255\120\120\120" then
-					text = text .. "──────\n"
+					text = text .. "------\n"
 				end
 				text = text .. tostring(name).. " = \255\255\255\255" .. shortenedValue(value) .. "\n"
 				empty = false
