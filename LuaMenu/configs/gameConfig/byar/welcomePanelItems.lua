@@ -16,11 +16,17 @@ local welcomePanelItems = {
     },
 
     {
-        Header = "Tournament Results: Improvise, Adapt, Overcome",
-        Image = "LuaMenu/images/6v6Tournament.png",
-        Text = "The heart-pounding Improvise, Adapt, Overcome 6v6 Tournament has concluded, and after an intense battle of wit and creativity, the podium is claimed by formidable teams!\n \n1st Place: BARCODE\n2nd Place: Washed Veterans\n3rd Place: Careless Tryhards\n \nCongratulations to these exceptional teams for showcasing their adaptability and emerging victorious in a competition that embraced the unexpected. If you missed it, be sure to watch the VOD now on Twitch!",
-        Url = "https://www.twitch.tv/videos/1975468314",
-        UrlText = "Watch on twitch.tv",
+        Header = "December Mentorship Drive",
+        Text = "We are now accepting applications for the Mentorship Program. Mentors are people with a solid core understanding of the game that are willing to help players learn the game. See requirements here:\n",
+        Url = "https://github.com/Zete0/Guides/blob/main/December%20Mentorship%20Drive%20Application.md",
+        UrlText = "More Info",
+    },
+
+    {
+        Header = nil,
+        Text = "If you'd like to apply for mentorship, please fill this form out and submit it by 9am (gmt) January 10th, 2024.",
+        Url = "https://docs.google.com/forms/d/1lWv8_IP8FgK-MI2yvxfdMYXrstHVOSeJIhIUrSmolCs/viewform?edit_requested=true",
+        UrlText = "Apply Here",
     },
 
     {
