@@ -537,9 +537,9 @@ local function InitializeModoptionsDisplay()
 			if modoptionDefaults[key] == nil or modoptionDefaults[key] ~= value or key == "ranked_game" then
 				local option = getModOptionByKey(key)
 				local name = option.name and option.name or key
-				text = text .. "\255\120\120\120"
-				if text ~= "\255\120\120\120" then
-					text = text .. "──────\n"
+				text = text .. "\255\255\255\255"
+				if text ~= "\255\255\255\255" then
+					text = text .. "\255\120\120\120" .. "------" .. "\n"
 				end
 				text = text .. tostring(name).. " = \255\255\255\255" .. shortenedValue(value) .. "\n"
 				empty = false
