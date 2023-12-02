@@ -16,6 +16,20 @@ local welcomePanelItems = {
     },
 
     {
+        Header = "December Mentorship Drive",
+        Text = "We are now accepting applications for the Mentorship Program. Mentors are people with a solid core understanding of the game that are willing to help players learn the game. See requirements here:\n",
+        Url = "https://github.com/Zete0/Guides/blob/main/December%20Mentorship%20Drive%20Application.md",
+        UrlText = "More Info",
+    },
+
+    {
+        Header = nil,
+        Text = "If you'd like to apply for mentorship, please fill this form out and submit it by 9am (gmt) January 10th, 2024.",
+        Url = "https://docs.google.com/forms/d/1lWv8_IP8FgK-MI2yvxfdMYXrstHVOSeJIhIUrSmolCs/viewform?edit_requested=true",
+        UrlText = "Apply Here",
+    },
+
+    {
         Header = "Guides for new players",
         Url = "https://www.youtube.com/channel/UCAByJ5NKeMmQ95EIWgBtbEw",
         Text = "Requiem has created some guides for new players. If you're new to the game and want to learn the basics via video we highly recommend you check them out.\n",
