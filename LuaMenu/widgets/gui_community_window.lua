@@ -346,6 +346,7 @@ local function GetNewsEntry(parentHolder, index, headingSize, timeAsTooltip, top
 					classname = "link_button",
 					objectOverrideFont = WG.Chobby.Configuration:GetButtonFont(0),
 					caption = entryData.urlText,
+					tooltip = "Opens a link to " .. entryData.link .. " in your browser.",
 					padding = {0, 0, 0, 0},
 					parent = holder,
 					OnClick = {
