@@ -18,7 +18,7 @@ local welcomePanelItems = {
     {
         Header = "December Mentorship Drive",
         Text = "We are now accepting applications for the Mentorship Program. Mentors are people with a solid core understanding of the game that are willing to help players learn the game. See requirements here:\n",
-        Url = "https://github.com/Zete0/Guides/blob/main/December%20Mentorship%20Drive%20Application.md",
+        Url = "https://github.com/Zete0/Guides/blob/main/December%20Mentorship%20Application.md",
         UrlText = "More Info",
     },
 
