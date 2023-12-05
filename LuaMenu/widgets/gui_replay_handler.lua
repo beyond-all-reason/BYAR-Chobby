@@ -164,10 +164,11 @@ local function CreateReplayEntry(
 	fileName = string.gsub(fileName, "%.sdfz", "")
 
 	-- Extract replay time from the filename
-	local replayDateString = string.format(
-		"%s-%s-%s %s:%s",
-		string.match(fileName, "(%d%d%d%d)-?(%d%d)-?(%d%d)_(%d%d)-?(%d%d)")
-	)
+	local t1, t2, t3, t4, t5 = string.match(fileName, "(%d%d%d%d)-?(%d%d)-?(%d%d)_(%d%d)-?(%d%d)")
+	if not (t1 and t2 and t3 and t4 and t5) then
+		return
+	end
+	local replayDateString = string.format("%s-%s-%s %s:%s", t1, t2, t3, t4, t5)
 
 	-- Compute the time of the replay
 	local hours, minutes = math.floor(time / 3600), math.floor(time / 60) % 60
