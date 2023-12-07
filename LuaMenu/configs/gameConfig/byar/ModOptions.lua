@@ -891,6 +891,15 @@ local options={
 	},
 
 	{
+		key = 'air_rework',
+		name = 'Air Rework',
+		desc = 'Prototype version with more maneuverable, slower air units and more differentiation between them.',
+		type = 'bool',
+		section = 'options_experimental',
+		def = false,
+	},
+
+	{
 		key    = 'experimentalimprovedtransports',
 		name   = 'Transport Units Rework',
 		desc   = 'Transport Units Rework',
