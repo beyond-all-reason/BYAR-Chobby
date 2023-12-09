@@ -19,8 +19,6 @@ function Configuration:init()
 		fileConfig.game = "zk"
 	end
 
-	WG.Server.address = "server4.beyondallreason.info"
-
 	--self.serverAddress = "localhost"
 	self.serverAddress = WG.Server.address
 	self.serverPort =  WG.Server.port
@@ -603,19 +601,6 @@ function Configuration:SetConfigData(data)
 
 	-- Fix old memory
 	self.game_settings.UnitIconDist = nil
-
-	--THIS IS FOR WHEN WE PULL THE PLUG, AUTOMATICALLY SWITCH OVER TO TEISERVER
-	if self.serverAddress == "road-flag.bnr.la" then
-		self.serverAddress = "server4.beyondallreason.info"
-	end
-
-	if self.serverAddress == "server3.beyondallreason.info" then
-		self.serverAddress = "server4.beyondallreason.info"
-	end
-
-	if self.serverAddress ~= "server4.beyondallreason.info" then
-		self.serverAddress = "server4.beyondallreason.info"
-	end
 
 	local newSpringsettings, onlyIfMissingSettings = VFS.Include(LUA_DIRNAME .. "configs/springsettings/springsettingsChanges.lua")
 	for key, value in pairs(newSpringsettings) do
