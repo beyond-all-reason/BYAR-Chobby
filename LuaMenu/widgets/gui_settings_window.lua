@@ -1064,61 +1064,61 @@ local function GetLobbyTabControls()
 	children[#children + 1], offset = AddCheckboxSetting(offset, "Rapid Pool Cache", "enableCacheRapidPool", true, enableCacheRapidPoolFunc)
 	--children[#children + 1], offset = AddCheckboxSetting(offset, i18n("keep_queues"), "rememberQueuesOnStart", false, nil, "Stay in matchmaker queues when a battle is launched.")
 
-
-	children[#children + 1] = Label:New {
-		x = 20,
-		y = offset + TEXT_OFFSET,
-		width = 110,
-		height = 40,
-		valign = "top",
-		align = "left",
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
-		caption = "Choose Server:",
-		tooltip = "Old Server is server3.beyondallreason.info, new one is server4.beyondallreason.info. Changing this will log you out of current server, click Login in top right to reconnect to new one, Currently we are on : server4.beyondallreason.info",
-	}
-
-	local barservers = {"server4.beyondallreason.info","server3.beyondallreason.info","bar.teifion.co.uk"}
-
+	local barservers = {"server4.beyondallreason.info"}
 	if WG.Chobby.Configuration.devMode then
 		barservers[#barservers + 1] = "localhost"
 	end
 
-	children[#children + 1] = ComboBox:New {
-		--name = data.name .. "_combo",
-		x = COMBO_X,
-		y = offset,
-		width = COMBO_WIDTH,
-		height = 30,
-		right = 18,
-		items = barservers,
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
-		selected = Configuration:GetServerAddress(),
-		tooltip = "Old Server is server3.beyondallreason.info, new is server4.beyondallreason.info. Changing this will log you out of current server, click Login in top right to reconnect to new one. Currently we are on: server4.beyondallreason.info",
-		OnSelect = {
-			function (obj, num)
-				if freezeSettings then -- so that it doesnt run when started, fucking yay
-					return
-				end
-				local oldserveraddress = Configuration:GetServerAddress()
-				local newserveraddress = barservers[num]
+	if #barservers > 1 then
+		children[#children + 1] = Label:New {
+			x = 20,
+			y = offset + TEXT_OFFSET,
+			width = 110,
+			height = 40,
+			valign = "top",
+			align = "left",
+			objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+			caption = "Choose Server:",
+			tooltip = "Changing this will log you out of current server, click Login in top right to reconnect to new one, Currently we are on : server4.beyondallreason.info",
+		}
 
-				Spring.Echo("Choosing a server in settings:",obj,num, oldserveraddress,newserveraddress)
+		children[#children + 1] = ComboBox:New {
+			--name = data.name .. "_combo",
+			x = COMBO_X,
+			y = offset,
+			width = COMBO_WIDTH,
+			height = 30,
+			right = 18,
+			items = barservers,
+			objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+			selected = Configuration:GetServerAddress(),
+			tooltip = "Changing this will log you out of current server, click Login in top right to reconnect to new one. Currently we are on: server4.beyondallreason.info",
+			OnSelect = {
+				function (obj, num)
+					if freezeSettings then -- so that it doesnt run when started, fucking yay
+						return
+					end
+					local oldserveraddress = Configuration:GetServerAddress()
+					local newserveraddress = barservers[num]
 
-				if oldserveraddress ~= newserveraddress then
-					Configuration.serverAddress = newserveraddress
+					Spring.Echo("Choosing a server in settings:",obj,num, oldserveraddress,newserveraddress)
 
-					if WG.LibLobby.lobby then -- force set the new one so that lobby:safeupdate doesnt fuck up
-						--Spring.Echo("FORCE SET",obj,num, barservers[num])
-						WG.LibLobby.lobby.host = newserveraddress
-						WG.LibLobby.lobby:Disconnect()
-						if WG.LoginWindowHandler then
-							WG.LoginWindowHandler.TryLogin()
+					if oldserveraddress ~= newserveraddress then
+						Configuration.serverAddress = newserveraddress
+
+						if WG.LibLobby.lobby then -- force set the new one so that lobby:safeupdate doesnt fuck up
+							--Spring.Echo("FORCE SET",obj,num, barservers[num])
+							WG.LibLobby.lobby.host = newserveraddress
+							WG.LibLobby.lobby:Disconnect()
+							if WG.LoginWindowHandler then
+								WG.LoginWindowHandler.TryLogin()
+							end
 						end
 					end
 				end
-			end
+			}
 		}
-	}
+	end
 
 	offset = offset + ITEM_OFFSET
 
