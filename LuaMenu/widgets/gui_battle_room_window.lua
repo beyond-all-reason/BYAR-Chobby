@@ -1140,6 +1140,21 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	}
 	leftOffset = leftOffset + 38
 
+	-- this is a kludge so that we can override default values for some specific ModOptions in singleplayer games
+	if battleLobby.name == "singleplayer" then
+		local modoptions = WG.Chobby.Configuration.gameConfig.defaultModoptions
+		for i = 1, #modoptions do
+			local data = modoptions[i]
+			-- default teamffa_start_boxes_shuffle to "off" for singleplayer games
+			-- teamffa_start_boxes_shuffle defaults to "on" for multiplayer games since it is desirable to hide start location
+			-- however in singleplayer it is a common scenario to play a pseudo-TeamFFA game against multiple AIs, and in this
+			-- case players typically do not want to be booted off their specifically chosen start box
+			if data.key == "teamffa_start_boxes_shuffle" then
+				data.def = false
+			end
+		end
+	end
+
 	WG.ModoptionsPanel.LoadModoptions(battle.gameName, battleLobby)
 	local btnModoptions = Button:New {
 		name = 'btnModoptions',
