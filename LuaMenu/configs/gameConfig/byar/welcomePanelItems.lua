@@ -16,6 +16,12 @@ local welcomePanelItems = {
     },
 
     {
+        Header = "New Map: Azurite Shores",
+        Text = " \nMoose just released a new map called Azurite Shores. A blue bay divides sandy beaches and brilliant crystal plateaus. For team games 2vs2 to 8vs8.",
+        Image = "LuaMenu/configs/gameConfig/byar/minimapOverride/Azurite_Shores_1.01.jpg",
+    },
+
+    {
         Header = "December Mentorship Drive",
         Text = "We are now accepting applications for the Mentorship Program. Mentors are people with a solid core understanding of the game that are willing to help players learn the game. See requirements here:\n",
         Url = "https://github.com/Zete0/Guides/blob/main/December%20Mentorship%20Application.md",
