@@ -84,6 +84,69 @@
         },
         {
             "package": {
+                "id": "manual-linux-no-cdn",
+                "display": "Alpha (no CDN)",
+                "platform": "linux"
+            },
+            "config_url": "https://launcher-config.beyondallreason.dev/config.json",
+            "env_variables": {
+                "PRD_RAPID_REPO_MASTER": "https://repos.beyondallreason.dev/repos.gz"
+            },
+            "auto_download": true,
+            "downloads": {
+                "games": ["byar:test", "byar-chobby:test"],
+                "resources": [
+                    {
+                        "url": "https://github.com/beyond-all-reason/spring/releases/download/spring_bar_%7BBAR105%7D105.1.1-2142-g35a026a/spring_bar_.BAR105.105.1.1-2142-g35a026a_linux-64-minimal-portable.7z",
+                        "destination": "engine/105.1.1-2142-g35a026a bar",
+                        "extract": true
+                    }
+                ]
+            },
+            "no_start_script": true,
+            "logs_s3_bucket": "bar-infologs",
+            "launch": {
+                "start_args": ["--menu", "rapid://byar-chobby:test"],
+                "engine": "105.1.1-2142-g35a026a bar",
+                "springsettings": {
+                    "RapidTagResolutionOrder": "repos.beyondallreason.dev"
+                }
+            }
+        },
+        {
+            "package": {
+                "id": "manual-win-no-cdn",
+                "display": "Alpha (no CDN)",
+                "platform": "win32"
+            },
+            "config_url": "https://launcher-config.beyondallreason.dev/config.json",
+            "env_variables": {
+                "PRD_RAPID_REPO_MASTER": "https://repos.beyondallreason.dev/repos.gz"
+            },
+            "silent": false,
+            "auto_download": true,
+            "downloads": {
+                "games": ["byar:test", "byar-chobby:test"],
+                "resources": [
+                    {
+                        "url": "https://github.com/beyond-all-reason/spring/releases/download/spring_bar_%7BBAR105%7D105.1.1-2142-g35a026a/spring_bar_.BAR105.105.1.1-2142-g35a026a_windows-64-minimal-portable.7z",
+                        "destination": "engine/105.1.1-2142-g35a026a bar",
+                        "extract": true
+                    }
+                ]
+            },
+            "no_start_script": true,
+            "logs_s3_bucket": "bar-infologs",
+            "launch": {
+                "start_args": ["--menu", "rapid://byar-chobby:test"],
+				"engine": "105.1.1-2142-g35a026a bar",
+                "springsettings": {
+                    "RapidTagResolutionOrder": "repos.beyondallreason.dev"
+                }
+            }
+        },
+        {
+            "package": {
                 "id": "manual-linux-test-engine",
                 "display": "Engine Test",
                 "platform": "linux"
@@ -105,7 +168,7 @@
                         "optional": true
                     },
                     {
-                        "url": "https://github.com/beyond-all-reason/spring/releases/download/spring_bar_%7BBAR105%7D105.1.1-2152-gb91f41c/spring_bar_.BAR105.105.1.1-2152-gb91f41c_linux-64-minimal-portable.7z",
+                        "url": "https://github.com/beyond-all-reason/spring/releases/download/spring_bar_%7BUpdateWeaponVectorsMT%7D105.1.1-2152-gb91f41c/spring_bar_.UpdateWeaponVectorsMT.105.1.1-2152-gb91f41c_linux-64-minimal-portable.7z",
                         "destination": "engine/105.1.1-2152-gb91f41c bar",
                         "extract": true
                     }
@@ -123,7 +186,7 @@
         },
         {
             "package": {
-                "id": "manual-win-test-engine",
+                "id": "manual-linux-test-engine",
                 "display": "Engine Test",
                 "platform": "win32"
             },
@@ -145,7 +208,7 @@
                         "optional": true
                     },
                     {
-                        "url": "https://github.com/beyond-all-reason/spring/releases/download/spring_bar_%7BBAR105%7D105.1.1-2152-gb91f41c/spring_bar_.BAR105.105.1.1-2152-gb91f41c_windows-64-minimal-portable.7z",
+                        "url": "https://github.com/beyond-all-reason/spring/releases/download/spring_bar_%7BUpdateWeaponVectorsMT%7D105.1.1-2152-gb91f41c/spring_bar_.UpdateWeaponVectorsMT.105.1.1-2152-gb91f41c_windows-64-minimal-portable.7z",
                         "destination": "engine/105.1.1-2152-gb91f41c bar",
                         "extract": true
                     }
