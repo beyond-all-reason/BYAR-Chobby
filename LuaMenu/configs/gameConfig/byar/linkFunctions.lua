@@ -7,7 +7,7 @@ local function link_replays()
 end
 
 local function link_maps()
-	return "https://springfiles.springrts.com/?type=1&filter=&category=map&tags="
+	return "https://www.beyondallreason.info/maps?mapname="
 end
 
 return link_homePage, link_replays, link_maps
