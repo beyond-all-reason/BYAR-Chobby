@@ -32,7 +32,7 @@ local scenariodata = {
 		{name = "Bots", playerhandicap = "corak armpw 650 10 2040" , enemyhandicap = 0},
 		{name = "Tanks", playerhandicap = "armbull armbull 650 10 2040" , enemyhandicap = 0},
 		{name = "Aircraft", playerhandicap = "corvamp armhawk 650 10 2040" , enemyhandicap = 0},
-		{name = "Collision", simspeed = "setspeed 20", playerhandicap = "armcs armcs 1300 2 1" , enemyhandicap = 0},
+		{name = "Collision", simspeed = "setspeed 20", playerhandicap = "coracsub coracsub 1300 2 1" , enemyhandicap = 0},
     },
     allowedsides     = {""}, --these are the permitted factions for this mission
 	victorycondition= "None", -- This is plaintext, but should be reflected in startscript
