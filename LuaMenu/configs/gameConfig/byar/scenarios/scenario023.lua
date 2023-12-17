@@ -32,7 +32,7 @@ local scenariodata = {
 		{name = "Bots", playerhandicap = "corak armpw 650 10 2040" , enemyhandicap = 0},
 		{name = "Tanks", playerhandicap = "armbull armbull 650 10 2040" , enemyhandicap = 0},
 		{name = "Aircraft", playerhandicap = "corvamp armhawk 650 10 2040" , enemyhandicap = 0},
-		{name = "Collision", simspeed = "setspeed 20", playerhandicap = "coracsub coracsub 1300 2 1" , enemyhandicap = 0},
+		{name = "Collision", simspeed = "setspeed 20", cpu80 = "speedcontrol 0", playerhandicap = "coracsub coracsub 1300 2 1" , enemyhandicap = 0},
     },
     allowedsides     = {""}, --these are the permitted factions for this mission
 	victorycondition= "None", -- This is plaintext, but should be reflected in startscript
@@ -87,7 +87,7 @@ local scenariodata = {
 	[modoptions]
 	{
         scenariooptions = __SCENARIOOPTIONS__;
-		debugcommands = 1:cheat|15:luarules fightertest __PLAYERHANDICAP__|20:vsync 0|25:deselect|30:__SIMSPEED__|2015:screenshot|2016:luarules fightertest|2020:vsync 1;
+		debugcommands = 1:cheat|15:luarules fightertest __PLAYERHANDICAP__|20:vsync 0|25:deselect|30:__SIMSPEED__|35:__CPU80__|2015:screenshot|2016:luarules fightertest|2020:vsync 1;
 	}
 
 	[allyTeam1]
