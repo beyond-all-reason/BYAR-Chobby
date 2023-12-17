@@ -245,6 +245,9 @@ return {
 		type_to_filter = "Type to filter",
 		maincaption_multiplayer = "Select a Map. Only Certified and Classic in Online.",
 		maincaption_singleplayer = "Select a Map. Certified maps are recommended.",
+		certified_only = "Unofficial maps are not available in online play.",
+		click_to_pick_map = "Click to choose this map.",
+		click_to_download_map = "Click to download this map.",
 
 		-- gui_keys_panel.lua
 		maincaption_keys = "Key Bindings",
