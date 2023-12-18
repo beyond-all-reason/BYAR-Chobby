@@ -136,20 +136,11 @@ local function CreateMapEntry(mapName, mapData, CloseFunc)--{"ResourceID":7098,"
     local haveMap = VFS.HasArchive(mapName)
 
     local mapButtonCaption = nil
-	if lobby.name == "singleplayer" then
-		if not haveMap and (mapData and mapData.IsInPool) then
-			mapButtonCaption = "Click to Download this map"
-		else
-			mapButtonCaption = "Click to choose this map"
-		end
+
+	if not haveMap then
+		mapButtonCaption = i18n("click_to_download_map")
 	else
-		if not haveMap and (mapData and mapData.IsInPool) then
-			mapButtonCaption = "Click to Download this map"
-		elseif not (mapData and mapData.IsInPool) then
-			mapButtonCaption = "Unofficial maps are not available in online play"
-		else
-			mapButtonCaption = "Click to choose this map"
-		end
+		mapButtonCaption = i18n("click_to_pick_map")
 	end
 
 	local mapButton = Button:New {
@@ -287,7 +278,7 @@ local function CreateMapEntry(mapName, mapData, CloseFunc)--{"ResourceID":7098,"
 	function externalFunctions.UpdateHaveMap()
 		haveMap = VFS.HasArchive(mapName)
 		imHaveGame.file = (haveMap and IMG_READY) or IMG_UNREADY
-		mapButton.tooltip = (not haveMap and "Click to Download this map") or nil
+		mapButton.tooltip = not haveMap or MINIMAP_TOOLTIP_PREFIX .. mapName .. "|" .. i18n("click_to_pick_map")
 		mapButton:Invalidate()
 		imHaveGame:Invalidate()
 		sortData[5] = (haveMap and 1) or 0 -- This line is pretty evil.
