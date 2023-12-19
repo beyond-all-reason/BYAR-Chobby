@@ -38,7 +38,6 @@ end
 function widget:Update()
 	if files == nil then
 		files = {}
-		AddDir("LuaMenu/widgets/chili/skins/evolved")
 		AddDir("LuaMenu/widgets/chili/skins/Armada Blues")
 		AddDir("LuaMenu/images")
 		AddDir("LuaMenu/images/ranks")
