@@ -361,7 +361,7 @@ local function AddSaveEntryButton(saveFile, saveList)
 		name = "saveDetails",
 		x = x,
 		y = 12,
-		right = 55,
+		right = 65,
 		height = 20,
 		valign = 'center',
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
