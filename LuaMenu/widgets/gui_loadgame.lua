@@ -185,10 +185,10 @@ local function LoadGameByFilename(filename)
 		local ssfFileName = SAVE_DIR .. '/' .. filename .. ".ssf"
 		-- we have an engine version mismatch, try in a different engine!
 		Spring.Echo("Off-engine savegame found, attempting to start with: ",game,saveData.map, nil,nil, ssfFileName,saveData.engineVersion)
-		
+
 		--This one does not work because the player IDs will mismatch and spam errors
 		--WG.SteamCoopHandler.AttemptGameStart("replay", game,saveData.map, nil,nil, ssfFileName,saveData.engineVersion)
-		
+
 		local script = [[
 			[GAME]
 			{
@@ -219,7 +219,7 @@ local function LoadGameByFilename(filename)
 		end
 		Spring.PauseSoundStream()
 		WG.WrapperLoopback.StartNewSpring(params)
-		
+
 		return
 	end
 	-- Gotta check engine version!
@@ -297,7 +297,7 @@ local function AddSaveEntryButton(saveFile, saveList)
 		width = 65,
 		caption = i18n("load"),
 		classname = "action_button",
-		objectOverrideFont = WG.Chobby.Configuration:GetButtonFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		OnClick = {
 			function()
 				if ingame then
@@ -343,7 +343,7 @@ local function AddSaveEntryButton(saveFile, saveList)
 	}
 
 	-- save date
-	x = x + 160
+	x = x + 200
 	local saveDate = TextBox:New {
 		name = "saveDate",
 		x = x + 10,
@@ -358,7 +358,7 @@ local function AddSaveEntryButton(saveFile, saveList)
 	}
 
 	-- save details
-	x = x + 160
+	x = x + 140
 	local details = TextBox:New {
 		name = "saveDetails",
 		x = x,
@@ -380,7 +380,7 @@ local function AddSaveEntryButton(saveFile, saveList)
 		width = 65,
 		height = 35,
 		bottom = 4,
-		caption = i18n("delete"),
+		caption = i18n("delete_replay"),
 		classname = "negative_button",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		OnClick = { function(self)
@@ -437,10 +437,10 @@ local function InitializeControls(parent)
 	}
 
 	local headings = {
-		{name = "Name", x = 10, width = 160},
-		{name = "Game", x = 10 + 160, width = 160},
-		{name = "Date", x = 10 + 160 + 160, width = 160},
-		{name = "Map" , x = 10 + 160 + 160+160, right = 10},
+		{name = "Name", x = 10, width = 165},
+		{name = "Game", x = 10 + 165, width = 210},
+		{name = "Date", x = 10 + 165 + 210, width = 130},
+		{name = "Map" , x = 10 + 165 + 210 + 130, right = 10},
 	}
 
 	local saveList = WG.Chobby.SortableList(listHolder, headings, 80, 3)
