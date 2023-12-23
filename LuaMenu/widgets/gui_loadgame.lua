@@ -366,7 +366,7 @@ local function AddSaveEntryButton(saveFile, saveList)
 
 	-- save gamename
 	x = x + 140
-	local shortenname = WG.Chobby.Configuration.gameConfig.ShortenNameString(saveFile.gameName .. saveFile.gameVersion)
+	local shortenname = WG.Chobby.Configuration.gameConfig.ShortenNameString(saveFile.gameName .. " " .. saveFile.gameVersion)
 	local gameName = TextBox:New {
 		name = "gameName",
 		x = x,
@@ -379,7 +379,6 @@ local function AddSaveEntryButton(saveFile, saveList)
 		text = shortenname,
 		parent = container,
 	}
-
 
 	-- delete button
 
