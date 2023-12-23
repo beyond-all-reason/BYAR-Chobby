@@ -308,55 +308,34 @@ local function AddSaveEntryButton(saveFile, saveList)
 		parent = container,
 	}
 
-	-- save name
-	local x = 10
-	local saveName = TextBox:New {
-		name = "saveName",
+	-- save's map and image
+
+	local x = 3
+
+	local mapImageFile, needDownload = Configuration:GetMinimapImage(saveFile.map)
+	local minimap = Panel:New {
+		name = "minimap",
 		x = x,
-		y = 12,
-		right = 0,
-		height = 20,
+		y = 3,
+		width = 74,
+		height = 74,
 		valign = 'center',
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
-		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
-		text = saveFile.filename,
+		padding = {1,1,1,1},
 		parent = container,
 	}
 
-	-- save's modgame name
-	x = x + 160
-
-	local shortenname = WG.Chobby.Configuration.gameConfig.ShortenNameString(saveFile.gameName .. "\n" .. saveFile.gameVersion)
-	local gameName = TextBox:New {
-		name = "gameName",
-		x = x,
-		y = 12,
+	local mapImage = Image:New {
+		x = 0, y = 0,
 		right = 0,
-		height = 20,
-		valign = 'center',
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
-		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
-		text = shortenname,
-		parent = container,
+		bottom = 0,
+		file = mapImageFile,
+		fallbackFile = Configuration:GetLoadingImage(3),
+		checkFileExists = needDownload,
+		parent = minimap,
 	}
 
-	-- save date
-	x = x + 200
-	local saveDate = TextBox:New {
-		name = "saveDate",
-		x = x + 10,
-		y = 12,
-		right = 0,
-		height = 20,
-		valign = 'center',
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
-		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
-		text = WriteDate(saveFile.date),
-		parent = container,
-	}
+	x = x + 80
 
-	-- save details
-	x = x + 140
 	local details = TextBox:New {
 		name = "saveDetails",
 		x = x,
@@ -369,6 +348,38 @@ local function AddSaveEntryButton(saveFile, saveList)
 		text = GetSaveDescText(saveFile),
 		parent = container,
 	}
+
+	-- save date
+	x = x + 220
+	local saveDate = TextBox:New {
+		name = "saveDate",
+		x = x + 10,
+		y = 12,
+		right = 65,
+		height = 20,
+		valign = 'center',
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
+		text = WriteDate(saveFile.date),
+		parent = container,
+	}
+
+	-- save gamename
+	x = x + 140
+	local shortenname = WG.Chobby.Configuration.gameConfig.ShortenNameString(saveFile.gameName .. saveFile.gameVersion)
+	local gameName = TextBox:New {
+		name = "gameName",
+		x = x,
+		y = 12,
+		right = 65,
+		height = 20,
+		valign = 'center',
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
+		text = shortenname,
+		parent = container,
+	}
+
 
 	-- delete button
 
@@ -435,10 +446,9 @@ local function InitializeControls(parent)
 	}
 
 	local headings = {
-		{name = "Name", x = 10, width = 165},
-		{name = "Game", x = 10 + 165, width = 210},
-		{name = "Date", x = 10 + 165 + 210, width = 130},
-		{name = "Map" , x = 10 + 165 + 210 + 130, right = 10},
+		{name = "Map", x = 10, width = 298},
+		{name = "Date", x = 10 + 298, width = 130},
+		{name = "Game" , x = 10 + 298 + 130, right = 10},
 	}
 
 	local saveList = WG.Chobby.SortableList(listHolder, headings, 80, 3)
