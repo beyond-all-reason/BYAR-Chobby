@@ -450,7 +450,7 @@ local function InitializeControls(parent)
 		{name = i18n("game_version"), x = 10 + 298 + 130, right = 10},
 	}
 
-	local saveList = WG.Chobby.SortableList(listHolder, headings, 80, 3)
+	local saveList = WG.Chobby.SortableList(listHolder, headings, 80, 3, false)
 	PopulateSaveList(saveList)
 
 	local externalFunctions = {}
