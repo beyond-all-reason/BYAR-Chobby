@@ -167,6 +167,12 @@
                 "display": "Dev Lobby",
                 "platform": "linux"
             },
+            "config_url": "https://launcher-config.beyondallreason.dev/config.json",
+            "env_variables": {
+                "PRD_HTTP_SEARCH_URL": "https://files-cdn.beyondallreason.dev/find",
+                "PRD_RAPID_USE_STREAMER": "false",
+                "PRD_RAPID_REPO_MASTER": "https://repos-cdn.beyondallreason.dev/repos.gz"
+            },
             "downloads": {
                 "resources": [
                     {
@@ -189,6 +195,12 @@
                 "id": "dev-lobby-windows",
                 "display": "Dev Lobby",
                 "platform": "win32"
+            },
+            "config_url": "https://launcher-config.beyondallreason.dev/config.json",
+            "env_variables": {
+                "PRD_HTTP_SEARCH_URL": "https://files-cdn.beyondallreason.dev/find",
+                "PRD_RAPID_USE_STREAMER": "false",
+                "PRD_RAPID_REPO_MASTER": "https://repos-cdn.beyondallreason.dev/repos.gz"
             },
             "downloads": {
                 "resources": [
