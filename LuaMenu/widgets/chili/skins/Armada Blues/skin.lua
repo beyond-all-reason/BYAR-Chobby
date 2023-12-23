@@ -388,7 +388,7 @@ skin.scrollpanel = {
   HKnobTileImage = ":cl:tech_scrollbar_knob.png",
   HKnobTiles     = {6,8,6,8},
 
-  KnobColorSelected = {0.15, 0.65, 0.85, 0.8},
+  KnobColorSelected = {0.15, 0.65, 0.95, 1.0},
 
   padding = {5, 5, 5, 0},
 
@@ -414,7 +414,7 @@ skin.scrollpanel_borderless = {
   HKnobTileImage = ":cl:tech_scrollbar_knob.png",
   HKnobTiles     = {6,8,6,8},
 
-  KnobColorSelected = {0.15, 0.65, 0.85, 0.8},
+  KnobColorSelected = {0.15, 0.65, 0.95, 1.0},
 
   padding = {5, 5, 5, 0},
 
