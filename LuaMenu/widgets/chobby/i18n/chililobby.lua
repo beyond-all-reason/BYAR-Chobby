@@ -17,6 +17,10 @@ return {
 		no_caps = "NO",
 		quit = "Quit",
 		back = "Back",
+		map = "Map",
+		date = "Date",
+		game_version = "Game Version",
+
 		-- console
 		type_here_to_chat = "Type here to chat. Press enter to send.",
 		-- login_window
@@ -60,6 +64,8 @@ return {
 		more = "More",
 		delete_replay = "Delete",
 		delete_replay_confirm = "Are you sure you want to delete this replay?",
+		delete_confirm = "Are you sure you want to delete this saved game?",
+		load_confirm = "Loading will lose any unsaved progress. Are you sure?",
 		replay_not_found = "Replay file not found, refresh the list!",
 		replay_different_version = "This replay requires a different engine version (will be downloaded automatically if necessary)",
 		--

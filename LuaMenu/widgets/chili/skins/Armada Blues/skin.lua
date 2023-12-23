@@ -4,12 +4,9 @@
 local skin = {
   info = {
     name    = "Armada Blues",
-    version = "0.4",
+    version = "0.5",
     author  = "Moose",
-    depend = {
-      "Evolved",
-    },
-
+    --depend = {"Evolved",},
   }
 }
 
@@ -31,25 +28,6 @@ skin.general = {
 
   --padding         = {5, 5, 5, 5}, --// padding: left, top, right, bottom
 }
-
-
-skin.icons = {
-  imageplaceholder = ":cl:placeholder.png",
-}
-
---[[ skin.button = {
-  TileImageBK = ":cl:tech_button_small2_bk.png",
-  TileImageFG = ":cl:tech_button_small2_fg.png",
-  tiles = {22, 22, 22, 22}, --// tile widths: left,top,right,bottom
-  padding = {10, 10, 10, 10},
-
-  backgroundColor = {0.55, 0.55, 0.55, 0.935},
-  focusColor  = {0.15, 0.65, 0.85, 0.9},
-  borderColor = {0.50, 0.50, 0.50, 0.0},
-
-  DrawControl = DrawButton,
-} ]]
-
 skin.button = {
   TileImageBK = ":cl:tech_button_small2_bk.png",
   TileImageFG = ":cl:tech_button_small2_fg.png",
@@ -64,8 +42,8 @@ skin.button = {
 }
 
 skin.button_bulb = {
-  TileImageBK = ":cl:tech_button_small_bk.png",
-  TileImageFG = ":cl:tech_button_small_fg.png",
+  TileImageBK = ":cl:extra/tech_button_small_bk.png",
+  TileImageFG = ":cl:extra/tech_button_small_fg.png",
   tiles = {4, 4, 4, 4}, --// tile widths: left,top,right,bottom
   padding = {5, 5, 5, 5},
   backgroundColor = {0.5, 0.5, 0.5, 0.935},
@@ -76,8 +54,8 @@ skin.button_bulb = {
 }
 
 skin.button_slimbulb = {
-  TileImageBK = ":cl:tech_button_action_bk.png",
-  TileImageFG = ":cl:tech_button_action_fg.png",
+  TileImageBK = ":cl:extra/tech_button_action_bk.png",
+  TileImageFG = ":cl:extra/tech_button_action_fg.png",
   tiles = {2, 2, 2, 2}, --// tile widths: left,top,right,bottom
   padding = {10, 10, 10, 10},
 
@@ -391,7 +369,7 @@ skin.scrollpanel = {
   HKnobTileImage = ":cl:tech_scrollbar_knob.png",
   HKnobTiles     = {6,8,6,8},
 
-  KnobColorSelected = {0.15, 0.65, 0.85, 0.8},
+  KnobColorSelected = {0.15, 0.65, 0.95, 1.0},
 
   padding = {5, 5, 5, 0},
 
@@ -417,7 +395,7 @@ skin.scrollpanel_borderless = {
   HKnobTileImage = ":cl:tech_scrollbar_knob.png",
   HKnobTiles     = {6,8,6,8},
 
-  KnobColorSelected = {0.15, 0.65, 0.85, 0.8},
+  KnobColorSelected = {0.15, 0.65, 0.95, 1.0},
 
   padding = {5, 5, 5, 0},
 
@@ -550,7 +528,7 @@ skin.main_window_small = {
   DrawResizeGrip = DrawResizeGrip,
 }
 
-skin.tech_mainwindow_very_small = {
+--[[ skin.tech_mainwindow_very_small = {
   TileImage = ":c:tech_mainwindow_very_small.png",
   tiles = {40, 30, 38, 38}, --// tile widths: left,top,right,bottom
   padding = {10, 6, 10, 6},
@@ -572,7 +550,7 @@ skin.tech_mainwindow_very_small = {
   DrawControl = DrawWindow,
   DrawDragGrip = function() end,
   DrawResizeGrip = DrawResizeGrip,
-}
+} ]]
 
 skin.overlay_window = {
   TileImage = ":c:tech_overlaywindow.png",

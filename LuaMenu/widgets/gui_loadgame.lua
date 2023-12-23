@@ -133,9 +133,7 @@ end
 
 local function GetSaveDescText(saveFile)
 	if not saveFile then return "" end
-	return (saveFile.description or "no description")
-		.. "\n" .. saveFile.map
-		.. "\n" .. i18n("time_ingame") .. ": " .. SecondsToClock((saveFile.totalGameframe or saveFile.gameframe or 0)/30)
+	return saveFile.map .. "\n" .. i18n("time_ingame") .. ": " .. SecondsToClock((saveFile.totalGameframe or saveFile.gameframe or 0)/30)
 end
 
 --------------------------------------------------------------------------------
@@ -185,10 +183,10 @@ local function LoadGameByFilename(filename)
 		local ssfFileName = SAVE_DIR .. '/' .. filename .. ".ssf"
 		-- we have an engine version mismatch, try in a different engine!
 		Spring.Echo("Off-engine savegame found, attempting to start with: ",game,saveData.map, nil,nil, ssfFileName,saveData.engineVersion)
-		
+
 		--This one does not work because the player IDs will mismatch and spam errors
 		--WG.SteamCoopHandler.AttemptGameStart("replay", game,saveData.map, nil,nil, ssfFileName,saveData.engineVersion)
-		
+
 		local script = [[
 			[GAME]
 			{
@@ -219,7 +217,7 @@ local function LoadGameByFilename(filename)
 		end
 		Spring.PauseSoundStream()
 		WG.WrapperLoopback.StartNewSpring(params)
-		
+
 		return
 	end
 	-- Gotta check engine version!
@@ -297,7 +295,7 @@ local function AddSaveEntryButton(saveFile, saveList)
 		width = 65,
 		caption = i18n("load"),
 		classname = "action_button",
-		objectOverrideFont = WG.Chobby.Configuration:GetButtonFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		OnClick = {
 			function()
 				if ingame then
@@ -310,45 +308,54 @@ local function AddSaveEntryButton(saveFile, saveList)
 		parent = container,
 	}
 
-	-- save name
-	local x = 10
-	local saveName = TextBox:New {
-		name = "saveName",
+	-- save's map and image
+
+	local x = 3
+
+	local mapImageFile, needDownload = Configuration:GetMinimapImage(saveFile.map)
+	local minimap = Panel:New {
+		name = "minimap",
 		x = x,
-		y = 12,
-		right = 0,
-		height = 20,
+		y = 3,
+		width = 74,
+		height = 74,
 		valign = 'center',
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
-		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
-		text = saveFile.filename,
+		padding = {1,1,1,1},
 		parent = container,
 	}
 
-	-- save's modgame name
-	x = x + 160
+	local mapImage = Image:New {
+		x = 0, y = 0,
+		right = 0,
+		bottom = 0,
+		file = mapImageFile,
+		fallbackFile = Configuration:GetLoadingImage(3),
+		checkFileExists = needDownload,
+		parent = minimap,
+	}
 
-	local shortenname = WG.Chobby.Configuration.gameConfig.ShortenNameString(saveFile.gameName .. "\n" .. saveFile.gameVersion)
-	local gameName = TextBox:New {
-		name = "gameName",
+	x = x + 80
+
+	local details = TextBox:New {
+		name = "saveDetails",
 		x = x,
 		y = 12,
-		right = 0,
+		width = 220,
 		height = 20,
 		valign = 'center',
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
-		text = shortenname,
+		text = GetSaveDescText(saveFile),
 		parent = container,
 	}
 
 	-- save date
-	x = x + 160
+	x = x + 220
 	local saveDate = TextBox:New {
 		name = "saveDate",
 		x = x + 10,
 		y = 12,
-		right = 0,
+		right = 65,
 		height = 20,
 		valign = 'center',
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
@@ -357,18 +364,19 @@ local function AddSaveEntryButton(saveFile, saveList)
 		parent = container,
 	}
 
-	-- save details
-	x = x + 160
-	local details = TextBox:New {
-		name = "saveDetails",
+	-- save gamename
+	x = x + 140
+	local shortenname = WG.Chobby.Configuration.gameConfig.ShortenNameString(saveFile.gameName .. " " .. saveFile.gameVersion)
+	local gameName = TextBox:New {
+		name = "gameName",
 		x = x,
 		y = 12,
-		right = 55,
+		right = 65,
 		height = 20,
 		valign = 'center',
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
-		text = GetSaveDescText(saveFile),
+		text = shortenname,
 		parent = container,
 	}
 
@@ -380,7 +388,7 @@ local function AddSaveEntryButton(saveFile, saveList)
 		width = 65,
 		height = 35,
 		bottom = 4,
-		caption = i18n("delete"),
+		caption = i18n("delete_replay"),
 		classname = "negative_button",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		OnClick = { function(self)
@@ -437,10 +445,9 @@ local function InitializeControls(parent)
 	}
 
 	local headings = {
-		{name = "Name", x = 10, width = 160},
-		{name = "Game", x = 10 + 160, width = 160},
-		{name = "Date", x = 10 + 160 + 160, width = 160},
-		{name = "Map" , x = 10 + 160 + 160+160, right = 10},
+		{name = i18n("map"), x = 10, width = 298},
+		{name = i18n("date"), x = 10 + 298, width = 130},
+		{name = i18n("game_version"), x = 10 + 298 + 130, right = 10},
 	}
 
 	local saveList = WG.Chobby.SortableList(listHolder, headings, 80, 3)

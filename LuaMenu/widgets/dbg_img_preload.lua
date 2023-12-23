@@ -38,10 +38,10 @@ end
 function widget:Update()
 	if files == nil then
 		files = {}
-		AddDir("LuaMenu/widgets/chili/skins/evolved")
 		AddDir("LuaMenu/widgets/chili/skins/Armada Blues")
 		AddDir("LuaMenu/images")
 		AddDir("LuaMenu/images/ranks")
+		AddDir("LuaMenu/images/flags")
 		AddDir("LuaMenu/configs/gameConfig/byar/minimapThumbnail")
 		AddDir("LuaMenu/configs/gameConfig/byar/scenarios")
 		AddDir("LuaMenu/configs/gameConfig/byar/skinning")
