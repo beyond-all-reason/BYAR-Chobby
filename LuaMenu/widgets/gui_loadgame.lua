@@ -446,9 +446,9 @@ local function InitializeControls(parent)
 	}
 
 	local headings = {
-		{name = "Map", x = 10, width = 298},
-		{name = "Date", x = 10 + 298, width = 130},
-		{name = "Game" , x = 10 + 298 + 130, right = 10},
+		{name = i18n("map"), x = 10, width = 298},
+		{name = i18n("date"), x = 10 + 298, width = 130},
+		{name = i18n("game_version"), x = 10 + 298 + 130, right = 10},
 	}
 
 	local saveList = WG.Chobby.SortableList(listHolder, headings, 80, 3)

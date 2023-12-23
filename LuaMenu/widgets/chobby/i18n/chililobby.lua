@@ -17,6 +17,10 @@ return {
 		no_caps = "NO",
 		quit = "Quit",
 		back = "Back",
+		map = "Map",
+		date = "Date",
+		game_version = "Game Version",
+
 		-- console
 		type_here_to_chat = "Type here to chat. Press enter to send.",
 		-- login_window
