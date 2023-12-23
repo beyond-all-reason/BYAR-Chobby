@@ -28,6 +28,7 @@ skin.general = {
 
   --padding         = {5, 5, 5, 5}, --// padding: left, top, right, bottom
 }
+
 skin.button = {
   TileImageBK = ":cl:tech_button_small2_bk.png",
   TileImageFG = ":cl:tech_button_small2_fg.png",
