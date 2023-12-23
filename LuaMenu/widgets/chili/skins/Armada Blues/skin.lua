@@ -28,25 +28,6 @@ skin.general = {
 
   --padding         = {5, 5, 5, 5}, --// padding: left, top, right, bottom
 }
-
-
-skin.icons = {
-  imageplaceholder = ":cl:placeholder.png",
-}
-
---[[ skin.button = {
-  TileImageBK = ":cl:tech_button_small2_bk.png",
-  TileImageFG = ":cl:tech_button_small2_fg.png",
-  tiles = {22, 22, 22, 22}, --// tile widths: left,top,right,bottom
-  padding = {10, 10, 10, 10},
-
-  backgroundColor = {0.55, 0.55, 0.55, 0.935},
-  focusColor  = {0.15, 0.65, 0.85, 0.9},
-  borderColor = {0.50, 0.50, 0.50, 0.0},
-
-  DrawControl = DrawButton,
-} ]]
-
 skin.button = {
   TileImageBK = ":cl:tech_button_small2_bk.png",
   TileImageFG = ":cl:tech_button_small2_fg.png",
