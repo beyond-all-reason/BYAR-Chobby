@@ -1132,14 +1132,14 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 			return true
 		end
 		if key == Spring.GetKeyCode("esc") then
+			if showTopBar then
+				SetMainInterfaceVisible(false)
+				return true
+			end
 			if rightPanelHandler.CloseTabs() or mainWindowHandler.CloseTabs() or
 					(backgroundCloseListener and backgroundCloseListener()) or
 					mainWindowHandler.BackOneLevel() or MakeExitPopup() then
 				return false
-			end
-			if showTopBar then
-				SetMainInterfaceVisible(false)
-				return true
 			end
 		end
 		return false
