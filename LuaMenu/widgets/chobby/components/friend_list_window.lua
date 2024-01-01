@@ -98,13 +98,24 @@ end
 
 function FriendListWindow:OnAddUser(userName)
 	local userInfo = lobby:TryGetUser(userName)
-	if userInfo.isFriend and WG.Chobby.Configuration:AllowNotification(userName) then
-		local userControl = WG.UserHandler.GetNotificationUser(userName)
-		userControl:SetPos(30, 30, 250, 20)
-		Chotify:Post({
-			title = i18n("user_online"),
-			body  = userControl,
-		})
+	if userInfo.isFriend then
+		if WG.Chobby.Configuration.friendsFilterOnline then
+			self:AddFriend(userInfo.userName)
+		end
+		if WG.Chobby.Configuration:AllowNotification(userName) then
+			local userControl = WG.UserHandler.GetNotificationUser(userName)
+			userControl:SetPos(30, 30, 250, 20)
+			Chotify:Post({
+				title = i18n("user_online"),
+				body  = userControl,
+			})
+		end
+	elseif WG.Chobby.Configuration.friendsFilterOnline then
+		if userInfo.hasOutgoingFriendRequest then
+			self:AddOutgoingFriendRequest(userInfo.userName)
+		elseif userInfo.hasFriendRequest then
+			self:AddFriendRequest(userInfo.userName)
+		end
 	end
 end
 
@@ -112,8 +123,15 @@ function FriendListWindow:OnRemoveUser(userName)
 	if (not lobby.status == "connected") then
 		return
 	end
-	local userInfo = lobby:TryGetUser(userName)
-	if userInfo and userInfo.isFriend and (not userInfo.isOffline) and WG.Chobby.Configuration:AllowNotification(userName) then
+	local userInfo = lobby:GetUser(userName)
+	if not userInfo then
+		return
+	end
+	if WG.Chobby.Configuration.friendsFilterOnline and
+		(userInfo.isFriend or userInfo.hasOutgoingFriendRequest or userInfo.hasFriendRequest) then
+			self:RemoveRow(userInfo.userName)
+	end
+	if userInfo.isFriend and WG.Chobby.Configuration:AllowNotification(userName) then
 		local userControl = WG.UserHandler.GetNotificationUser(userName)
 		userControl:SetPos(30, 30, 250, 20)
 		Chotify:Post({
@@ -126,6 +144,13 @@ end
 function FriendListWindow:OnFriend(userName)
 	if WG.Chobby.Configuration.friendActivityNotification then
 		interfaceRoot.GetRightPanelHandler().SetActivity("friends", lobby:GetFriendRequestCount())
+	end
+
+	if WG.Chobby.Configuration.friendsFilterOnline then
+		local userInfo = lobby:GetUser(userName)
+		if not userInfo or userInfo.isOffline then
+			return
+		end
 	end
 	self:AddFriend(userName)
 end
@@ -148,10 +173,22 @@ function FriendListWindow:OnFriendRequest(userName)
 	if WG.Chobby.Configuration.friendActivityNotification then
 		interfaceRoot.GetRightPanelHandler().SetActivity("friends", lobby:GetFriendRequestCount())
 	end
+	if WG.Chobby.Configuration.friendsFilterOnline then
+		local userInfo = lobby:GetUser(userName)
+		if not userInfo or userInfo.isOffline then
+			return
+		end
+	end
 	self:AddFriendRequest(userName)
 end
 
 function FriendListWindow:OnOutgoingFriendRequest(userName)
+	if WG.Chobby.Configuration.friendsFilterOnline then
+		local userInfo = lobby:GetUser(userName)
+		if not userInfo or userInfo.isOffline then
+			return
+		end
+	end
 	self:AddOutgoingFriendRequest(userName)
 end
 
@@ -200,6 +237,52 @@ function FriendListWindow:OnFriendRequestAcceptedByID(userID, userName)
 			title = i18n("friend_request_accepted"),
 			body  = userControl,
 		})
+	end
+end
+
+function FriendListWindow:HideOfflineFriends()
+	local outFriendRequests = lobby:GetOutgoingFriendRequestsByID()
+	for _, userID in pairs(outFriendRequests) do
+		local userInfo = lobby:GetUserByID(userID)
+		if not userInfo or userInfo.isOffline then
+			self:RemoveRow(userInfo.userName)
+		end
+	end
+
+	local friendRequests = lobby:GetFriendRequests()
+	for _, userName in pairs(friendRequests) do
+		local userInfo = lobby:GetUser(userName)
+		if not userInfo or userInfo.isOffline then
+			self:RemoveRow(userName)
+		end
+	end
+	
+	local friends = lobby:GetFriends()
+	for _, userName in pairs(friends) do
+		local userInfo = lobby:GetUser(userName)
+		if not userInfo or userInfo.isOffline then
+			self:RemoveRow(userName)
+		end
+	end
+end
+
+function FriendListWindow:ShowAllFriends()
+	self:Clear()
+
+	local outFriendRequests = lobby:GetOutgoingFriendRequestsByID()
+	for _, userID in pairs(outFriendRequests) do
+		local userInfo = lobby:GetUserByID(userID)
+		self:AddOutgoingFriendRequest(userInfo.userName)
+	end
+
+	local friendRequests = lobby:GetFriendRequests()
+	for _, userName in pairs(friendRequests) do
+		self:AddFriendRequest(userName)
+	end
+
+	local friends = lobby:GetFriends()
+	for _, userName in pairs(friends) do
+		self:AddFriend(userName)
 	end
 end
 
@@ -258,10 +341,38 @@ function FriendListWindow:init(parent)
 		}
 	end
 
+	self.checkOnlineOnly = Checkbox:New {
+		right = 120,
+		width = 120,
+		y = 15,
+		height = 30,
+		boxalign = "left",
+		boxsize = 20,
+		caption = i18n("friend_filter_online"),
+		checked = false,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		OnClick = {function (obj)
+			WG.Chobby.Configuration:SetConfigValue("friendsFilterOnline", obj.checked)
+		end},
+		parent = self.window,
+		tooltip = "Shows online friends only.",
+	}
+
 	self.btnSteamFriends:SetVisibility(Configuration.canAuthenticateWithSteam)
 	local function onConfigurationChange(listener, key, value)
 		if key == "canAuthenticateWithSteam" then
 			self.btnSteamFriends:SetVisibility(value)
+		elseif key == "friendsFilterOnline" then
+			-- user config is loaded after friend_list_window was initialized, so we toggle this checkbox accordingly when the config value arrives
+			if self.checkOnlineOnly.checked ~= value then
+				self.checkOnlineOnly:SetToggle(value)
+			end
+			
+			if value then
+				self:HideOfflineFriends()
+			else
+				self:ShowAllFriends()
+			end
 		end
 	end
 	Configuration:AddListener("OnConfigurationChange", onConfigurationChange)

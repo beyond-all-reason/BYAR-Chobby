@@ -33,6 +33,7 @@ function Lobby:_Clean()
 	self.friendRequestsByID = {} -- list
 	self.hasFriendRequest = {} -- map (maybe not needed at all?)
 	self.outgoingFriendRequestsByID = {} -- list
+	self.hasOutgoingFriendRequestsByID = {} -- map
 	self.isDisregardedID = {} -- map
 
 	self.loginInfoEndSent = false
@@ -616,6 +617,7 @@ function Lobby:_OnAddUser(userName, status)
 			userName = userName,
 			isFriend = status and status.accountID and self.isFriendByID[status.accountID] or false,
 			hasFriendRequest = self.hasFriendRequest[userName],
+			hasOutgoingFriendRequest = status and status.accountID and self.hasOutgoingFriendRequestsByID[status.accountID] or nil,
 		}
 		self.users[userName] = userInfo
 	else
@@ -652,15 +654,16 @@ function Lobby:_OnRemoveUser(userName)
 		self:_OnLeftBattle(userInfo.battleID, userName)
 	end
 
-	-- preserve isFriend/hasFriendRequest
-	local isFriend, hasFriendRequest = userInfo.isFriend, userInfo.hasFriendRequest
+	-- preserve isFriend/hasFriendRequest/hasOutgoingFriendRequest
+	local isFriend, hasFriendRequest, hasOutgoingFriendRequest = userInfo.isFriend, userInfo.hasFriendRequest, userInfo.hasOutgoingFriendRequest
 	local persistentUserInfo = self:_GetPersistentUserInfo(userName)
 	self.users[userName] = persistentUserInfo
 
-	if isFriend or hasFriendRequest then
+	if isFriend or hasFriendRequest or hasOutgoingFriendRequest then
 		userInfo = self:TryGetUser(userName)
 		userInfo.isFriend         = isFriend
 		userInfo.hasFriendRequest = hasFriendRequest
+		userInfo.hasOutgoingFriendRequest = hasOutgoingFriendRequest
 	end
 	self.userCount = self.userCount - 1 -- this shows: userCount reflects the "online users"
 	self:_CallListeners("OnRemoveUser", userName)
@@ -843,6 +846,7 @@ end
 
 function Lobby:_OnOutgoingFriendRequest(userName, userID)
 	table.insert(self.outgoingFriendRequestsByID, userID)
+	self.hasOutgoingFriendRequestsByID[userID] = true
 	local userInfo = self:TryGetUser(userName, userID)
 	userInfo.hasOutgoingFriendRequest = true
 	self:_CallListeners("OnOutgoingFriendRequest", userName)
@@ -946,6 +950,7 @@ function Lobby:_OnRemoveOutgoingFriendRequestByID(userID)
 		return
 	end
 	table.remove(self.outgoingFriendRequestsByID, i)
+	self.hasOutgoingFriendRequestsByID[userID] = false
 
 	user.hasOutgoingFriendRequest = false
 	self:_CallListeners("OnRemoveOutgoingFriendRequestByID", userID, user.userName)
@@ -993,7 +998,7 @@ function Lobby:_OnOutgoingFriendRequestsByID(friendRequests)
 	local newFriendMap = {}
 	for i = 1, #friendRequests do
 		local userID = tonumber(friendRequests[i])
-		if not self.outgoingFriendRequestsByID[userID] then
+		if not self.hasOutgoingFriendRequestsByID[userID] then
 			self:_OnOutgoingFriendRequestByID(userID)
 		end
 		newFriendMap[userID] = true
@@ -2110,6 +2115,9 @@ function Lobby:GetFriendRequests()
 	return ShallowCopy(self.friendRequests)
 end
 
+function Lobby:GetOutgoingFriendRequestsByID()
+	return ShallowCopy(self.outgoingFriendRequestsByID)
+end
 
 -- battles
 function Lobby:GetBattleCount()

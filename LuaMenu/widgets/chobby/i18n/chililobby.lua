@@ -299,6 +299,7 @@ return {
 		decline = "Decline",
 		user_offline = "User is now offline",
 		user_online = "User is now online",
+		friend_filter_online = " Only Online",
 
 		-- campaign handler
 		["load"] = "Load",

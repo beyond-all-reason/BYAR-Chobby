@@ -92,6 +92,8 @@ function Configuration:init()
 	self.battleFilterRedundantRegions = {"EU - ", "USA - ", "AUS - ","EU - ENGINE TESTING ","US - ","AU - ", "UK - "}
 	self.hostRegions = {"DE","EU","EU2","US","US2","AU"}
 
+	self.friendsFilterOnline = false
+
 	self.manualBorderless = {
 		game = {},
 		lobby = {},
@@ -720,6 +722,7 @@ function Configuration:GetConfigData()
 		showRank    = self.showRank,
 		showCountry = self.showCountry,
 		useLastGameSpectatorState = self.useLastGameSpectatorState,
+		friendsFilterOnline = self.friendsFilterOnline,
 	}
 end
 
