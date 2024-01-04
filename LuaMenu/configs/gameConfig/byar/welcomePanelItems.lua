@@ -16,9 +16,19 @@ local welcomePanelItems = {
     },
 
     {
-        Header = "New Map: Azurite Shores",
-        Text = " \nMoose just released a new map called Azurite Shores. A blue bay divides sandy beaches and brilliant crystal plateaus. For team games 2vs2 to 8vs8.",
-        Image = "LuaMenu/configs/gameConfig/byar/minimapOverride/Azurite_Shores_1.01.jpg",
+        Header = "PRO 2v2 Tournament details revealed!",
+        Text = "\n \nTournament day will be Jan 27th, 2024 14:00 UTC. Signups close Jan 15th 14:00 UTC. More info here:",
+        Url = "https://discord.com/channels/549281623154229250/697141979892416512/1192489567366959196",
+        UrlText = "More Info",
+        Image = "LuaMenu/images/welcomepanel/2vs2Tournament.png",
+        Time = "2024-01-27T14:00:00",
+    },
+
+    {
+        Header = nil,
+        Text = "Register your team by Jan 15th 14:00 UTC!\n",
+        Url = "https://forms.gle/nR6YvfcdRobyzziY9",
+        UrlText = "Register now!",
     },
 
     {
