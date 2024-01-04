@@ -58,13 +58,6 @@ local communityLines = {
 			WG.BrowserHandler.OpenUrl("https://www.beyondallreason.info/")
 		end
 	},
---	{
---		"Community forums.",
---		"Forums",
---		function ()
---			WG.BrowserHandler.OpenUrl("https://springrts.com/phpbb/viewforum.php?f=51")
---		end
---	},
 	{
 		"Code of conduct and terms of use.",
 		"Code of conduct",
@@ -81,17 +74,10 @@ local communityLines = {
 		end
 	},
 	{
-		"Official Twitter.",
-		"Twitter",
+		"Official X.",
+		"X",
 		function ()
-			WG.BrowserHandler.OpenUrl("https://twitter.com/BAR_RTS")
-		end
-	},
-	{
-		"Official Instagram.",
-		"Instagram",
-		function ()
-			WG.BrowserHandler.OpenUrl("https://www.instagram.com/beyondallreasonrts")
+			WG.BrowserHandler.OpenUrl("https://x.com/BAR_RTS")
 		end
 	},
 	{
