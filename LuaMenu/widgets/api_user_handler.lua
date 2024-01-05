@@ -1112,25 +1112,36 @@ local function GetUserControls(userName, opts)
 						userControls.lobby:c_user_relationship(userName, Configuration.AVOID)
 					elseif selectedName == "Block" then
 						userControls.lobby:c_user_relationship(userName, Configuration.BLOCK)
-					elseif selectedName == "Report User" then
-						WG.TextEntryWindow.CreateTextEntryWindow({
-							defaultValue = "",
-							caption = "Report "..userName,
-							labelCaption = "Report ".. userName .." for abusive behaviour or violation of the terms of service. Please specify a description of the event.",
-							width = 360,
-							--ebheight = 120,
-							oklabel = "Report",
-							disableAcceptHotkey = true,
-							url = 'https://www.beyondallreason.info/code-of-conduct',
-							OnAccepted = function(reportreason)
-								if isSingleplayer then
-									-- hell no
-								else
-									lobby:ReportPlayer(userName,"lobby","nil",reportreason)
-								end
-							end
+					elseif selectedName == "Report User" and not isSingleplayer then
+						WG.Chobby.ConfirmationPopup(
+							function()
+								lobby:ReportPlayer(userName, "lobby", "nil", "dummyReason")
+							end,
+							"Report ".. userName .."\n \n" .. "Open the Chat tab after clicking OK, check the message from Coordinator, click the link to the website and fill the report out there.",
+							nil,
+							nil,
+							nil,
+							"OK"
+						)
 
-						})
+						-- WG.TextEntryWindow.CreateTextEntryWindow({
+						-- 	defaultValue = "",
+						-- 	caption = "Report "..userName,
+						-- 	labelCaption = "Report ".. userName .." for abusive behaviour or violation of the terms of service. Please specify a description of the event.",
+						-- 	width = 360,
+						-- 	--ebheight = 120,
+						-- 	oklabel = "Report",
+						-- 	disableAcceptHotkey = true,
+						-- 	url = 'https://www.beyondallreason.info/code-of-conduct',
+						-- 	OnAccepted = function(reportreason)
+						-- 		if isSingleplayer then
+						-- 			-- hell no
+						-- 		else
+						-- 			lobby:ReportPlayer(userName,"lobby","nil",reportreason)
+						-- 		end
+						-- 	end
+-- 
+						-- })
 					end
 
 				
