@@ -2012,7 +2012,7 @@ local function GetSkillFromScriptTag(tag)
 		Spring.Log(LOG_SECTION, LOG.WARNING, "Could not parse scriptTag player/[..]", tag)
 		return
 	end
-	local l,p,d,value = string.match(skillParam, "(%(?)(%[?)(#?)(%d+%.?%d*)") -- ignore closings ")", "#", "]"
+	local l,p,d,value = string.match(skillParam, "(%(?)(%[?)(#?)(-?%d+%.?%d*)") -- ignore closings ")", "#", "]"
 	if value == "" then
 		Spring.Log(LOG_SECTION, LOG.WARNING, "Could not parse player/"..skillKey.."/[..]", skillParam)
 		return
