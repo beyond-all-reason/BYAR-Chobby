@@ -16,6 +16,12 @@ local welcomePanelItems = {
     },
 
     {
+        Header = "New Map: Hyperion Shale",
+        Text = " \nA new map by Moose is now available. Electric blue lava surrounds the Hyperion Shale; a 22x22 sized 5-way FFA for 5-10 players, or up to 12 players North vs South.",
+        Image = "LuaMenu/configs/gameConfig/byar/minimapOverride/Hyperion_Shale_1.0.jpg",
+    },
+
+    {
         Header = "PRO 2v2 Tournament details revealed!",
         Text = "\n \nTournament day will be Jan 27th, 2024 14:00 UTC. Signups close Jan 15th 14:00 UTC. More info here:",
         Url = "https://discord.com/channels/549281623154229250/697141979892416512/1192489567366959196",
