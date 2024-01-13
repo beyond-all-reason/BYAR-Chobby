@@ -270,11 +270,11 @@ local function GetUserSkillFont(userName, userControl)
 	
 	if config.showSkillOpt == 3 and userInfo.skillUncertainty then
 		sigma = tonumber(userInfo.skillUncertainty)
-		if sigma > 6.24 then
+		if sigma >= 5.0 then
 			uncertaintyColorIndex = 3
-		elseif sigma > 4.16 then
+		elseif sigma >= 3.0 then
 			uncertaintyColorIndex = 2
-		elseif sigma > 2.08 then
+		elseif sigma >= 2.0 then
 			uncertaintyColorIndex = 1
 		else
 			uncertaintyColorIndex = 0
