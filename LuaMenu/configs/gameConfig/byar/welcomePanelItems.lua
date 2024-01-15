@@ -16,14 +16,8 @@ local welcomePanelItems = {
     },
 
     {
-        Header = "New Map: Hyperion Shale",
-        Text = " \nA new map by Moose is now available. Electric blue lava surrounds the Hyperion Shale; a 22x22 sized 5-way FFA for 5-10 players, or up to 12 players North vs South.",
-        Image = "LuaMenu/configs/gameConfig/byar/minimapOverride/Hyperion_Shale_1.0.jpg",
-    },
-
-    {
-        Header = "PRO 2v2 Tournament details revealed!",
-        Text = "\n \nTournament day will be Jan 27th, 2024 14:00 UTC. Signups close Jan 15th 14:00 UTC. More info here:",
+        Header = "PRO 2v2 Tournament sign-ups extended!",
+        Text = "\n \nTournament day will be Jan 27th, 2024 14:00 UTC. Signups close Jan 18th 14:00 UTC. More info here:",
         Url = "https://discord.com/channels/549281623154229250/697141979892416512/1192489567366959196",
         UrlText = "More Info",
         Image = "LuaMenu/images/welcomepanel/2vs2Tournament.png",
@@ -32,23 +26,15 @@ local welcomePanelItems = {
 
     {
         Header = nil,
-        Text = "Register your team by Jan 15th 14:00 UTC!\n",
+        Text = "Register your team by Jan 18th 14:00 UTC!\n",
         Url = "https://forms.gle/nR6YvfcdRobyzziY9",
         UrlText = "Register now!",
     },
 
     {
-        Header = "December Mentorship Drive",
-        Text = "We are now accepting applications for the Mentorship Program. Mentors are people with a solid core understanding of the game that are willing to help players learn the game. See requirements here:\n",
-        Url = "https://github.com/Zete0/Guides/blob/main/December%20Mentorship%20Application.md",
-        UrlText = "More Info",
-    },
-
-    {
-        Header = nil,
-        Text = "If you'd like to apply for mentorship, please fill this form out and submit it by 9am (gmt) January 10th, 2024.",
-        Url = "https://docs.google.com/forms/d/1lWv8_IP8FgK-MI2yvxfdMYXrstHVOSeJIhIUrSmolCs/viewform?edit_requested=true",
-        UrlText = "Apply Here",
+        Header = "New Map: Hyperion Shale",
+        Text = " \nA new map by Moose is now available. Electric blue lava surrounds the Hyperion Shale; a 22x22 sized 5-way FFA for 5-10 players, or up to 12 players North vs South.",
+        Image = "LuaMenu/configs/gameConfig/byar/minimapOverride/Hyperion_Shale_1.0.jpg",
     },
 
     {
