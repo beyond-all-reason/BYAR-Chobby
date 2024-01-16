@@ -230,7 +230,7 @@ function Object:Inherit(class)
 
 	for i, v in pairs(self) do
 		if (class[i] == nil) and (i ~= "inherited") and (i ~= "__lowerkeys") then
-			t = type(v)
+			local t = type(v)
 			if (t == "table") --[[or(t == "metatable")--]] then
 				class[i] = table.shallowcopy(v)
 			else

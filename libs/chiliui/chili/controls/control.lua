@@ -120,13 +120,13 @@ function Control:New(obj)
 
 	if obj._hasCustomDrawControl then
 		if not obj.drawcontrolv2 then
-	local w = obj._widget or {whInfo = { name = "unknown" } }
-	local fmtStr = [[You are using a custom %s::DrawControl in widget "%s".
-	Please note that with Chili 2.1 the (self.x, self.y) translation is moved a level up and does not need to be done in DrawControl anymore.
-	When you adjusted your code set `drawcontrolv2 = true` in the respective control to disable this message.]]
-	Spring.Log("Chili", "warning", fmtStr:format(obj.name, w.whInfo.name))
+			local w = obj._widget or {whInfo = { name = "unknown" } }
+			local fmtStr = [[You are using a custom %s::DrawControl in widget "%s".
+			Please note that with Chili 2.1 the (self.x, self.y) translation is moved a level up and does not need to be done in DrawControl anymore.
+			When you adjusted your code set `drawcontrolv2 = true` in the respective control to disable this message.]]
+			Spring.Log("Chili", "warning", fmtStr:format(obj.name, w.whInfo.name))
 		else
-	obj._hasCustomDrawControl = false
+			obj._hasCustomDrawControl = false
 		end
 	end
 
