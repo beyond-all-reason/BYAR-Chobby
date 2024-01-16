@@ -38,25 +38,32 @@ Object = {
 	children_hidden = {},
 	childrenByName = CreateWeakTable(),
 
-	OnDispose       = {},
-	OnClick         = {},
+	OnDispose       = {}, -- used frequently so not optimized out
+	OnClick         = {}, -- used frequently so also not optimized out
+
+	-- The following tables eat a lot of memory, and 99% of the time are empty, so are only left here as comments to know which ones can be used
+	-- Ensure to check that the table is not nil before inserting into them. 
+	--[[
 	OnDblClick      = {},
 	OnMouseDown     = {},
 	OnMouseUp       = {},
 	OnMouseMove     = {},
 	OnMouseWheel    = {},
+	OnKeyPress      = {}, 
+	OnTextInput     = {}, 
+
 	OnMouseOver     = {},
 	OnMouseOut      = {},
-	OnKeyPress      = {},
-	OnTextInput     = {},
 	OnTextModified  = {},
 	OnTextEditing   = {},
 	OnFocusUpdate   = {},
+	
 	OnHide          = {},
 	OnShow          = {},
 	OnOrphan        = {},
 	OnParent        = {},
 	OnParentPost    = {}, -- Called after parent is set
+	]]--
 
 	disableChildrenHitTest = false, --// if set childrens are not clickable/draggable etc - their mouse events are not processed
 }
@@ -715,6 +722,7 @@ end
 --// =============================================================================
 
 function Object:CallListeners(listeners, ...)
+	if listeners == nil then return end
 	for i = 1, #listeners do
 		local eventListener = listeners[i]
 		if eventListener(self, ...) then
@@ -725,6 +733,7 @@ end
 
 
 function Object:CallListenersInverse(listeners, ...)
+	if listeners == nil then return end
 	for i = #listeners, 1, -1 do
 		local eventListener = listeners[i]
 		if eventListener(self, ...) then
