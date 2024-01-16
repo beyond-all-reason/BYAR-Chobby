@@ -254,6 +254,7 @@ local function GetUserSkillFont(userName, userControl)
 	local config = WG.Chobby.Configuration
 	local skill = "  "
 	local sigma = 0
+	local uncertaintyColorIndex = 0
 
 	local bs = userControl.lobby:GetUserBattleStatus(userName) or {}
 	if userControl.isSingleplayer or bs.aiLib ~= nil or userControl.showSkill == false then
@@ -268,15 +269,18 @@ local function GetUserSkillFont(userName, userControl)
 	end
 	
 	if config.showSkillOpt == 3 and userInfo.skillUncertainty then
-		-- sigma must be rounded to int; it´s used as array index
-		sigma = math.floor(userInfo.skillUncertainty+0.5)
-		if sigma > 3 then
-			sigma = 3
-		elseif sigma < 0 then
-			sigma = 0
+		sigma = tonumber(userInfo.skillUncertainty)
+		if sigma >= config.skillUncertaintyDistribution[3] then
+			uncertaintyColorIndex = 3
+		elseif sigma >= config.skillUncertaintyDistribution[2] then
+			uncertaintyColorIndex = 2
+		elseif sigma >= config.skillUncertaintyDistribution[1] then
+			uncertaintyColorIndex = 1
+		else
+			uncertaintyColorIndex = 0
 		end
 	end
-	return skill, config:GetFont(1, "skill" .. sigma, {color = config.skillUncertaintyColors[sigma]})
+	return skill, config:GetFont(1, "skill" .. sigma, {color = config.skillUncertaintyColors[uncertaintyColorIndex]})
 end
 
 local function GetUserStatusImages(userName, isInBattle, userControl)
