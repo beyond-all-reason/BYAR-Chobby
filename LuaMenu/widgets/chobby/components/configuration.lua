@@ -145,6 +145,15 @@ function Configuration:init()
 		[3] = {0.40, 0.30, 0.064, 1.0},
 	}
 
+	-- uncertainty smaller [1] will show skillUncertaintyColors[0]
+	-- uncertainty smaller [2] will show skillUncertaintyColors[1]
+	-- ...
+	self.skillUncertaintyDistribution = {
+		[1] = 1.5,
+		[2] = 2.0,
+		[3] = 3.0,
+	}
+
 	self.voteColor = {
 		["yes"]   = {0.00, 1.00, 0.00, 1.0}, -- green
 		["no"]    = {1.00, 0.00, 0.00, 1.0}, -- red
