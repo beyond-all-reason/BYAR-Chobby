@@ -14,13 +14,13 @@ BYAR mutator for [Chobby](https://github.com/spring-chobby/chobby)
 
 3. Open the install directory (there's a button for that in the launcher), and create a `games` directory, then clone this repository inside the `games` directory:
 
+**NOTE**: The `games` directory is `data/games` under windows, and just `games` under Linux.
+
 ```
 git clone https://github.com/beyond-all-reason/BYAR-Chobby.git BYAR-Chobby.sdd
 ```
 
 This should result in the following directory being present: `/path/to/install/dir/data/games/BYAR-Chobby.sdd/` under . (`Beyond-All-Reason\data\games\BYAR-Chobby.sdd\LuaMenu\configs\gameConfig` should be a correct path)
-
-**NOTE**: The games directory is `data/games` under windows, and just `games` under Linux.
 
 4. Choose the `Dev Lobby` config from the launcher's top right dropdown menu which will run the lobby version on your PC. You can now develop and test any BYAR specific lobby functionality.
 
