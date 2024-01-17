@@ -180,9 +180,10 @@ function Control:New(obj)
 	end
 	obj:Realign()
 	if tracy then
-		local infostr, functionstr, arguments = Spring.Utilities.TraceEchoStr()
-		obj.allocatedfrom = functionstr
-		tracy.Message("Control:New:"..obj.name.." "..functionstr)
+		--local infostr, functionstr, arguments = Spring.Utilities.TraceEchoStr()
+		--obj.allocatedfrom = functionstr
+		--tracy.Message("Control:New:"..obj.name.." "..functionstr)
+		--tracy.Message("Control:New:"..obj.name)
 	end
 
 	if WG.ChiliRedraw then
