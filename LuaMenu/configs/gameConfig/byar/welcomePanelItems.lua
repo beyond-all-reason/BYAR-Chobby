@@ -16,19 +16,19 @@ local welcomePanelItems = {
     },
 
     {
-        Header = "PRO 2v2 Tournament sign-ups extended!",
-        Text = "\n \nTournament day will be Jan 27th, 2024 14:00 UTC. Signups close Jan 18th 14:00 UTC. More info here:",
-        Url = "https://discord.com/channels/549281623154229250/697141979892416512/1192489567366959196",
-        UrlText = "More Info",
-        Image = "LuaMenu/images/welcomepanel/2vs2Tournament.png",
+        Header = "PRO 2v2 Tournament #3 is set to explode on January 27th!",
+        Text = "\nWith 48 teams vying for qualification, the PRO 2v2 BAR Tournament #3 is geared up to showcase the absolute pinnacle of duo performances. Get ready for an electrifying display of skill and top-tier gameplay as our leading players take center stage in this official annual event.",
+        Url = "https://www.beyondallreason.info/news/pro-2v2-tournament-3-january-27th",
+        UrlText = "Official Announcement",
+        Image = "LuaMenu/images/welcomepanel/2v2_2024.png",
         Time = "2024-01-27T14:00:00",
     },
 
     {
         Header = nil,
         Text = "Register your team by Jan 18th 14:00 UTC!\n",
-        Url = "https://forms.gle/nR6YvfcdRobyzziY9",
-        UrlText = "Register now!",
+        Url = "https://forms.gle/FHgKfh47D4WYJw7AA",
+        UrlText = "Register Now!",
     },
 
     {
