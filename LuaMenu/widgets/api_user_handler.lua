@@ -914,9 +914,8 @@ local function GetUserControls(userName, opts)
 			ignoreItemCaption = true,
 			selectByName = true,
 			showSelection = false,
-			objectOverrideFont = WG.Chobby.Configuration:GetFont(2,{
-				shadow = false,
-			}),
+			objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+			--objectOverrideFont = WG.Chobby.Configuration:GetFont(2,{shadow = false}), -- this for some reason allocates a new font object :(
 			itemHeight = 30,
 			selected = 0,
 			maxDropDownWidth = large and 220 or 150,
