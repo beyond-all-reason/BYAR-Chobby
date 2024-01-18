@@ -344,6 +344,10 @@ skin.progressbar = {
   TileImageBK = ":cl:tech_progressbar_empty.png",
   tiles       = {10, 10, 10, 10},
 
+  font = {
+    shadow = true,
+  },
+
   backgroundColor = {0,0,0,0.5},
 
   DrawControl = DrawProgressbar,
