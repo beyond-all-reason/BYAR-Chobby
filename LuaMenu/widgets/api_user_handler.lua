@@ -918,9 +918,8 @@ local function GetUserControls(userName, opts)
 			ignoreItemCaption = true,
 			selectByName = true,
 			showSelection = false,
-			objectOverrideFont = WG.Chobby.Configuration:GetFont(2,{
-				shadow = false,
-			}),
+			objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+			--objectOverrideFont = WG.Chobby.Configuration:GetFont(2,{shadow = false}), -- this for some reason allocates a new font object :(
 			itemHeight = 30,
 			selected = 0,
 			maxDropDownWidth = large and 220 or 150,
@@ -1522,6 +1521,23 @@ local function GetUserControls(userName, opts)
 
 	return userControls
 end
+local prevram = 0
+local function plotMem()
+	if tracy then
+		local ramuse = gcinfo()
+		Spring.LuaTracyPlot("ChobbyMem",  ramuse)
+		if ramuse > prevram then
+			tracy.Message((debug.getinfo(2, 'n') and debug.getinfo(2, 'n').name) or "???")
+		end
+		prevram = ramuse
+	end
+end
+local function GetUserControlsWrapper(userName,opts)
+	debug.sethook(plotMem, 'c r')
+	local res =  GetUserControlsWrapped(userName, opts)
+	debug.sethook()
+	return res
+end
 
 local function _GetUserDropdownMenu(userName, isInBattle)
 	local opts = {
@@ -1763,7 +1779,7 @@ end
 function widget:Initialize()
 	CHOBBY_DIR = LUA_DIRNAME .. "widgets/chobby/"
 	VFS.Include(LUA_DIRNAME .. "widgets/chobby/headers/exports.lua", nil, VFS.RAW_FIRST)
-
+	--Spring.LuaTracyPlotConfig("ChobbyMem","Number", true, true, 255)
 	AddListeners()
 	WG.Delay(DelayedInitialize, 0.1)
 

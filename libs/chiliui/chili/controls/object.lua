@@ -38,29 +38,37 @@ Object = {
 	children_hidden = {},
 	childrenByName = CreateWeakTable(),
 
-	OnDispose       = {},
-	OnClick         = {},
+	OnDispose       = {}, -- used frequently so not optimized out
+	OnClick         = {}, -- used frequently so also not optimized out
+
+	-- The following tables eat a lot of memory, and 99% of the time are empty, so are only left here as comments to know which ones can be used
+	-- Ensure to check that the table is not nil before inserting into them. 
+	--[[
 	OnDblClick      = {},
 	OnMouseDown     = {},
 	OnMouseUp       = {},
 	OnMouseMove     = {},
 	OnMouseWheel    = {},
+	OnKeyPress      = {}, 
+	OnTextInput     = {}, 
+
 	OnMouseOver     = {},
 	OnMouseOut      = {},
-	OnKeyPress      = {},
-	OnTextInput     = {},
 	OnTextModified  = {},
 	OnTextEditing   = {},
 	OnFocusUpdate   = {},
+	
 	OnHide          = {},
 	OnShow          = {},
 	OnOrphan        = {},
 	OnParent        = {},
 	OnParentPost    = {}, -- Called after parent is set
+	]]--
 
 	disableChildrenHitTest = false, --// if set childrens are not clickable/draggable etc - their mouse events are not processed
 }
 
+--[[
 do
 	local __lowerkeys = {}
 	Object.__lowerkeys = __lowerkeys
@@ -70,6 +78,8 @@ do
 		end
 	end
 end
+]]--
+
 
 local this = Object
 local inherited = this.inherited
@@ -92,14 +102,19 @@ function Object:New(obj)
 	obj = obj or {}
 
 	--// check if the user made some lower-/uppercase failures
+	--[[
 	for i, v in pairs(obj) do
 		if (not self[i]) and (isstring(i)) then
 			local correctName = self.__lowerkeys[i:lower()]
 			if (correctName) and (obj[correctName] == nil) then
-				obj[correctName] = v
+				Spring.Echo("__lowerkeys failure for ", i, "instead of ", correctName, type (v), 'wrapping')
+				Spring.Utilities.TraceFullEcho(5, 30,30)
+				local f = function(...) Spring.Echo("__lowerkeys CALLED!", correctname) return v(...) end
+				obj[correctName] = f
 			end
 		end
 	end
+	]]--
 
 	--// give name
 	if (not obj.name) then
@@ -215,7 +230,7 @@ function Object:Inherit(class)
 
 	for i, v in pairs(self) do
 		if (class[i] == nil) and (i ~= "inherited") and (i ~= "__lowerkeys") then
-			t = type(v)
+			local t = type(v)
 			if (t == "table") --[[or(t == "metatable")--]] then
 				class[i] = table.shallowcopy(v)
 			else
@@ -224,13 +239,15 @@ function Object:Inherit(class)
 		end
 	end
 
-	local __lowerkeys = {}
-	class.__lowerkeys = __lowerkeys
-	for i, v in pairs(class) do
-		if (type(i) == "string") then
-			__lowerkeys[i:lower()] = i
+	--[[
+		local __lowerkeys = {}
+		class.__lowerkeys = __lowerkeys
+		for i, v in pairs(class) do
+			if (type(i) == "string") then
+				__lowerkeys[i:lower()] = i
+			end
 		end
-	end
+	]]--
 
 	--setmetatable(class, {__index = self})
 
@@ -705,6 +722,7 @@ end
 --// =============================================================================
 
 function Object:CallListeners(listeners, ...)
+	if listeners == nil then return end
 	for i = 1, #listeners do
 		local eventListener = listeners[i]
 		if eventListener(self, ...) then
@@ -715,6 +733,7 @@ end
 
 
 function Object:CallListenersInverse(listeners, ...)
+	if listeners == nil then return end
 	for i = #listeners, 1, -1 do
 		local eventListener = listeners[i]
 		if eventListener(self, ...) then

@@ -361,7 +361,7 @@ function Lobby:ConnectToBattle(useSpringRestart, battleIp, battlePort, clientPor
 	end
 	Spring.Echo("Calling OnBattleAboutToStart Listeners...")
 	self:_CallListeners("OnBattleAboutToStart", battleType)
-	Spring.Echo("Game starts!")
+
 	if useSpringRestart then
 		local springURL = "spring://" .. self:GetMyUserName() .. ":" .. scriptPassword .. "@" .. battleIp .. ":" .. battlePort
 		Spring.Echo(springURL)

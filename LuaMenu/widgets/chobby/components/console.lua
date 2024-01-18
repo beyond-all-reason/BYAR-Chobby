@@ -70,7 +70,7 @@ function Console:init(channelName, sendMessageListener, noHistoryLoad, onResizeF
 			end
 			obj._inmousemove = true
 		end},
-		onResize = onResize
+		OnResize = onResize
 	}
 
 	self.ebInputText = EditBox:New {

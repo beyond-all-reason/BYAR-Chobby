@@ -103,6 +103,8 @@ function widget:Initialize()
 	local function OnBattleAboutToStart()
 		lobby:SetIngameStatus(true)
 		lobby:SetBattleStatus({ isReady = false })
+		Spring.Echo("Game starting, ensuring Chobby garbage is collected.")
+		collectgarbage("collect")
 	end
 	WG.LibLobby.localLobby:AddListener("OnBattleAboutToStart", OnBattleAboutToStart)
 	WG.LibLobby.lobby:AddListener("OnBattleAboutToStart", OnBattleAboutToStart)

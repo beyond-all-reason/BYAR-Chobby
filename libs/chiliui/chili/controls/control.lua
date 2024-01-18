@@ -120,13 +120,13 @@ function Control:New(obj)
 
 	if obj._hasCustomDrawControl then
 		if not obj.drawcontrolv2 then
-	local w = obj._widget or {whInfo = { name = "unknown" } }
-	local fmtStr = [[You are using a custom %s::DrawControl in widget "%s".
-	Please note that with Chili 2.1 the (self.x, self.y) translation is moved a level up and does not need to be done in DrawControl anymore.
-	When you adjusted your code set `drawcontrolv2 = true` in the respective control to disable this message.]]
-	Spring.Log("Chili", "warning", fmtStr:format(obj.name, w.whInfo.name))
+			local w = obj._widget or {whInfo = { name = "unknown" } }
+			local fmtStr = [[You are using a custom %s::DrawControl in widget "%s".
+			Please note that with Chili 2.1 the (self.x, self.y) translation is moved a level up and does not need to be done in DrawControl anymore.
+			When you adjusted your code set `drawcontrolv2 = true` in the respective control to disable this message.]]
+			Spring.Log("Chili", "warning", fmtStr:format(obj.name, w.whInfo.name))
 		else
-	obj._hasCustomDrawControl = false
+			obj._hasCustomDrawControl = false
 		end
 	end
 
@@ -180,9 +180,10 @@ function Control:New(obj)
 	end
 	obj:Realign()
 	if tracy then
-		local infostr, functionstr, arguments = Spring.Utilities.TraceEchoStr()
-		obj.allocatedfrom = functionstr
-		tracy.Message("Control:New:"..obj.name.." "..functionstr)
+		--local infostr, functionstr, arguments = Spring.Utilities.TraceEchoStr()
+		--obj.allocatedfrom = functionstr
+		--tracy.Message("Control:New:"..obj.name.." "..functionstr)
+		--tracy.Message("Control:New:"..obj.name)
 	end
 
 	if WG.ChiliRedraw then
@@ -1547,12 +1548,12 @@ function Control:HitTest(x, y)
 
 	if (self.noClickThrough and not IsTweakMode()) or (self.greedyHitTest and (
 		(self.tooltip)
-		or (#self.OnMouseDown > 0)
-		or (#self.OnMouseUp > 0)
-		or (#self.OnClick > 0)
-		or (#self.OnDblClick > 0)
-		or (#self.OnMouseMove > 0)
-		or (#self.OnMouseWheel > 0))) then
+		or (self.OnMouseDown and (#self.OnMouseDown > 0))
+		or (self.OnMouseUp and (#self.OnMouseUp > 0))
+		or (self.OnClick and (#self.OnClick > 0))
+		or (self.OnDblClick and (#self.OnDblClick > 0))
+		or (self.OnMouseMove and (#self.OnMouseMove > 0))
+		or (self.OnMouseWheel and (#self.OnMouseWheel > 0)))) then
 		return self
 	end
 
