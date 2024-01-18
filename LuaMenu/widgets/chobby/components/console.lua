@@ -38,9 +38,9 @@ function Console:init(channelName, sendMessageListener, noHistoryLoad, onResizeF
 
 	local font
 	if monospaced then
-		font = Configuration:GetFont(Configuration.chatFontSize, "consoleMono_" .. Configuration.chatFontSize, {font = "fonts/monospaced/SourceCodePro-Medium.otf", shadow = true}, true)
+		font = Configuration:GetFont(Configuration.chatFontSize, "consoleMono_" .. Configuration.chatFontSize, {font = "fonts/monospaced/SourceCodePro-Medium.otf"}, true)
 	else
-		font = Configuration:GetFont(Configuration.chatFontSize, "console_" .. Configuration.chatFontSize, {font = "fonts/n019003l.pfb", shadow = true}, true)
+		font = Configuration:GetFont(Configuration.chatFontSize, "console_" .. Configuration.chatFontSize, {font = "fonts/n019003l.pfb"}, true)
 	end
 	self.tbHistory = TextBox:New {
 		x = 0,
@@ -79,20 +79,20 @@ function Console:init(channelName, sendMessageListener, noHistoryLoad, onResizeF
 		height = 25,
 		right = 2,
 		text = "",
-		objectOverrideFont = Configuration:GetFont(Configuration.chatFontSize, "console_" .. Configuration.chatFontSize, {font = "fonts/n019003l.pfb", shadow = true}, true),
-		objectOverrideHintFont = Configuration:GetHintFont(Configuration.chatFontSize, "console_" .. Configuration.chatFontSize, {font = "fonts/n019003l.pfb", shadow = true}, true),
+		objectOverrideFont = Configuration:GetFont(Configuration.chatFontSize, "console_" .. Configuration.chatFontSize, {font = "fonts/n019003l.pfb"}, true),
+		objectOverrideHintFont = Configuration:GetHintFont(Configuration.chatFontSize, "console_" .. Configuration.chatFontSize, {font = "fonts/n019003l.pfb"}, true),
 		--hint = i18n("type_here_to_chat"),
 	}
 
 	local function onConfigurationChange(listener, key, value)
 		if key == "chatFontSize" then
-			self.ebInputText.font = Configuration:GetFont(value, "console_" .. value, {font = "fonts/n019003l.pfb", shadow = true}, true)
+			self.ebInputText.font = Configuration:GetFont(value, "console_" .. value, {font = "fonts/n019003l.pfb"}, true)
 			self.ebInputText:UpdateLayout()
 
 			if monospaced then
-				self.tbHistory.font = Configuration:GetFont(Configuration.chatFontSize, "consoleMono_" .. Configuration.chatFontSize, {font = "fonts/monospaced/SourceCodePro-Medium.otf", shadow = true}, true)
+				self.tbHistory.font = Configuration:GetFont(Configuration.chatFontSize, "consoleMono_" .. Configuration.chatFontSize, {font = "fonts/monospaced/SourceCodePro-Medium.otf"}, true)
 			else
-				self.tbHistory.font = Configuration:GetFont(Configuration.chatFontSize, "console_" .. Configuration.chatFontSize, {font = "fonts/n019003l.pfb", shadow = true}, true)
+				self.tbHistory.font = Configuration:GetFont(Configuration.chatFontSize, "console_" .. Configuration.chatFontSize, {font = "fonts/n019003l.pfb"}, true)
 			end
 			self.tbHistory:UpdateLayout()
 		end
