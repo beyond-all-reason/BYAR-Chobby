@@ -1208,7 +1208,7 @@ function BattleListWindow:OpenHostWindow()
 	local regions = {'EU','US','AU'}
 	local clusters = {
 		['[teh]cluster1'] = {limit = 80, current = 0, online = false, region = 'EU'},
-		['[teh]clusterEU2'] = {limit = 30, current = 0, online = false, region = 'EU'},
+		['[teh]clusterEU2'] = {limit = 50, current = 0, online = false, region = 'EU'},
 		['[teh]clusterEU3'] = {limit = 30, current = 0, online = false, region = 'EU'},
 		['[teh]clusterEU4'] = {limit = 150, current = 0, online = false, region = 'EU'}, 
 		['[teh]clusterEU5'] = {limit = 150, current = 0, online = false, region = 'EU'},
