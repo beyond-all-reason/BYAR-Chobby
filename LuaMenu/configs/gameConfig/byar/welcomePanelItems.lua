@@ -16,27 +16,13 @@ local welcomePanelItems = {
     },
 
     {
-        Header = "PRO 2v2 Tournament #3 is set to explode on January 27th!",
-        Text = "\nWith 48 teams vying for qualification, the PRO 2v2 BAR Tournament #3 is geared up to showcase the absolute pinnacle of duo performances. Get ready for an electrifying display of skill and top-tier gameplay as our leading players take center stage in this official annual event.",
-        Url = "https://www.beyondallreason.info/news/pro-2v2-tournament-3-january-27th",
-        UrlText = "Official Announcement",
+        Header = "LIVE NOW - PRO 2v2 Tournament #3",
+        Text = "\n48 teams, 2040$ prize pool and unreasonably PRO players - Watch live Beyond All Reason PRO 2v2 tournament!",
+        Url = "https://www.twitch.tv/beyondallreasonofficial",
+        UrlText = "Watch on twitch.tv",
         Image = "LuaMenu/images/welcomepanel/2v2_2024.png",
-        Time = "2024-01-27T14:00:00",
     },
-
-    {
-        Header = nil,
-        Text = "Register your team by Jan 18th 14:00 UTC!\n",
-        Url = "https://forms.gle/FHgKfh47D4WYJw7AA",
-        UrlText = "Register Now!",
-    },
-
-    {
-        Header = "New Map: Hyperion Shale",
-        Text = " \nA new map by Moose is now available. Electric blue lava surrounds the Hyperion Shale; a 22x22 sized 5-way FFA for 5-10 players, or up to 12 players North vs South.",
-        Image = "LuaMenu/configs/gameConfig/byar/minimapOverride/Hyperion_Shale_1.0.jpg",
-    },
-
+    
     {
         Header = "Guides for new players",
         Url = "https://www.youtube.com/channel/UCAByJ5NKeMmQ95EIWgBtbEw",
