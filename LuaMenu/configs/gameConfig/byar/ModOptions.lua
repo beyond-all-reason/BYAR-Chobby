@@ -556,12 +556,12 @@ local options={
 	{
 		key    = 'multiplier_energyconversion',
 		name   = 'Energy Conversion Efficiency Multiplier ',
-		desc   = '(Range 0.1 - 1). lower means you get less metal per energy converted',
+		desc   = '(Range 0.1 - 10). lower means you get less metal per energy converted',
 		type   =  "number",
 		section = 'options_resources',
 		def    = 1,
 		min    = 0.1,
-		max    = 1,
+		max    = 10,
 		step   = 0.1,
 	},
 
@@ -1090,16 +1090,6 @@ local options={
 			{key="disco", name="Local (Disco)", desc="Same as local, except that colors are reshuffled every 2 mins for extra spicyness."},
 			{key="allred", name="All red", desc="You cannot distinguish different players, they all have the same color (red by default, can be changed in accessibility settings). Diplomacy is very hard."},
 		},
-	},
-	
-	
-	{
-		key     = 'teamffa_start_boxes_shuffle',
-		name    = 'Shuffle TeamFFA start boxes',
-		desc    = "In TeamFFA games (more than 2 teams, excluding Raptors / Scavengers), start boxes will be randomly assigned to each team: team 1 might be assigned any start box rather than team 1 always being assigned start box 1.",
-		type    = 'bool',
-		section = 'options_extra',
-		def     = true,
 	},
 
 	{
