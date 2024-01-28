@@ -16,13 +16,13 @@ local welcomePanelItems = {
     },
 
     {
-        Header = "LIVE NOW - PRO 2v2 Tournament #3",
-        Text = "\n48 teams, 2040$ prize pool and unreasonably PRO players - Watch live Beyond All Reason PRO 2v2 tournament!",
-        Url = "https://www.twitch.tv/beyondallreasonofficial",
-        UrlText = "Watch on twitch.tv",
-        Image = "LuaMenu/images/welcomepanel/2v2_2024.png",
+        Header = "PRO 2v2 Tournament #3 champions: Raghna and Teddy!",
+        Text = "\nCongrats to the new 2v2 champions of BAR!",
+        Url = "https://www.twitch.tv/videos/2045154615",
+        UrlText = "Watch VOD on twitch.tv",
+        Image = "LuaMenu/images/welcomepanel/Leaderboard_2_8.png",
     },
-    
+
     {
         Header = "Guides for new players",
         Url = "https://www.youtube.com/channel/UCAByJ5NKeMmQ95EIWgBtbEw",
