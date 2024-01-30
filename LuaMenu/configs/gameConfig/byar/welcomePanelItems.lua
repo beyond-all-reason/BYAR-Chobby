@@ -18,8 +18,8 @@ local welcomePanelItems = {
     {
         Header = "PRO 2v2 Tournament #3 champions: Raghna and Teddy!",
         Text = "\nCongrats to the new 2v2 champions of BAR!",
-        Url = "https://www.twitch.tv/videos/2045154615",
-        UrlText = "Watch VOD on twitch.tv",
+        Url = "https://www.youtube.com/watch?v=ytLC_N9JhUw",
+        UrlText = "Watch VOD",
         Image = "LuaMenu/images/welcomepanel/Leaderboard_2_8.png",
     },
 
