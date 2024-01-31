@@ -125,8 +125,8 @@ function Object:New(obj)
 	for i, v in pairs(self) do --// `self` means the class here and not the instance!
 		if (i ~= "inherited") then
 			local t = type(v)
-			local ot = type(obj[i])
 			if (t == "table") or (t == "metatable") then
+				local ot = type(obj[i])
 				if (ot == "nil") then
 					obj[i] = {};
 					ot = "table";
