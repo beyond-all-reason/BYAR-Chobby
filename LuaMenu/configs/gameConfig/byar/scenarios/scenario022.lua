@@ -8,7 +8,7 @@ local scenariodata = {
 	imagepath		= "scenario022.jpg", -- placed next to lua file, should be 3:1 ratio banner style
 	imageflavor		= "River Assault", -- This text will be drawn over image
     summary         = [[After a ferocious battle, a Cortex Commander decided to join Armada forces. Unfortunately, other Cortex commanders discovered the intent of the treacherous plan and sent a mighty force to prevent it.]],
-	briefing 		= [[You will start with some Lazarus (Resurrection and Repair Bots), that can resurrect units from their wrecks. Your Only Hope is to hide your position and build a mighty army to crush all opposing forces.
+	briefing 		= [[You will start with some Lazarus (Resurrection and Repair Bots), that can resurrect units from their wrecks. Your only hope is to hide your position and build a mighty army to crush all opposing forces.
        
 	!!! DO NOT UNDERESTIMATE YOUR ENEMY !!!
       
