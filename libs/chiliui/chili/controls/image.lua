@@ -123,8 +123,7 @@ function Image:DrawControl()
 			local tw, th = TextureHandler.LoadTexture(0, file, self)
 			_DrawTextureAspect(0, 0, self.width, self.height, tw, th, self.flip)
 		end
-	else
-		if (self.crop) then
+	elseif (self.crop) then
 			if (file2) then
 				gl.Color(self.color2 or self.color)
 				
@@ -136,25 +135,22 @@ function Image:DrawControl()
 				local tw, th = TextureHandler.LoadTexture(0, file, self)
 				_DrawTextureCrop(0, 0, self.width, self.height, tw, th, self.flip)
 			end
-		else
-			if (file2) then
-				gl.Color(self.color2 or self.color)
-				TextureHandler.LoadTexture(0, file2, self)
-				if self.firstDraw then
-					gl.TextureInfo(file2)
-				end
-				gl.TexRect(0, 0, self.width, self.height, false, self.flip2)
-			end
-			if (file) then
-				gl.Color(self.color)
-				TextureHandler.LoadTexture(0, file, self)
-				if self.firstDraw then
-					gl.TextureInfo(file)
-				end
-				gl.TexRect(0, 0, self.width, self.height, false, self.flip)
-			end
+	elseif (self.uvs) then
+		if (file) then
+			gl.Color(self.color)
+			gl.TexRect(0,0,self.width, self.height, self.uvs[1], self.uvs[2], self.uvs[3], self.uvs[4])
 		end
-		self.firstDraw = false
+	else
+		if (file2) then
+			gl.Color(self.color2 or self.color)
+			TextureHandler.LoadTexture(0, file2, self)
+			gl.TexRect(0, 0, self.width, self.height, false, self.flip2)
+		end
+		if (file) then
+			gl.Color(self.color)
+			TextureHandler.LoadTexture(0, file, self)
+			gl.TexRect(0, 0, self.width, self.height, false, self.flip)
+		end
 	end
 	gl.Texture(0, false)
 end
