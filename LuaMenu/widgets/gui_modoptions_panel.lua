@@ -535,19 +535,6 @@ local function InitializeModoptionsDisplay()
 		modoptions = modoptions or {}
 		for key, value in pairs(modoptions) do
 			if modoptionDefaults[key] == nil or modoptionDefaults[key] ~= value or key == "ranked_game" then
-
-				-- 2024\02\03 Fireball: for debugging support-bugs ticket "Incorrect startinglocation"
-				if key == "teamffa_start_boxes_shuffle" and value ~= "0" then
-					Spring.Echo("teamffa_start_boxes_shuffle is shown though value is not 0 !!!"
-								.. "\n" .. "(modoptionDefaults[key] == nil) = " .. tostring(modoptionDefaults[key] == nil)
-								.. "\n" .. "(modoptionDefaults[key] ~= value) = " .. tostring(modoptionDefaults[key] ~= value)
-								.. "\n" .. "type of value:" .. type(value)
-								.. "\n" .. "type of modoptionDefaults[key]:" .. type(modoptionDefaults[key])
-								.. "\n" .. "value = [" .. tostring(value) .. "]"
-								.. "\n" .. "modoptionDefaults[key] = [" .. tostring(modoptionDefaults[key]) .. "]"
-							)
-				end
-
 				local option = getModOptionByKey(key)
 				local name = option.name and option.name or key
 				text = text .. "\255\255\255\255"
