@@ -138,6 +138,7 @@ function Image:DrawControl()
 	elseif (self.uvs) then
 		if (file) then
 			gl.Color(self.color)
+			TextureHandler.LoadTexture(0, file, self)
 			gl.TexRect(0,0,self.width, self.height, self.uvs[1], self.uvs[2], self.uvs[3], self.uvs[4])
 		end
 	else
