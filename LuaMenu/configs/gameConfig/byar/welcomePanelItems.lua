@@ -23,7 +23,7 @@ local welcomePanelItems = {
 
     {
         Header = "New Map: Salt Reef",
-        Text = "Phalange has released a new 4v4-8v8 map called Salt Reef. Blue crystals surround hills and flats of salinated sand and ice.",
+        Text = "\nPhalange has released a new 4v4-8v8 map called Salt Reef. Blue crystals surround hills and flats of salinated sand and ice.",
         Image = "LuaMenu/configs/gameConfig/byar/minimapOverride/Salt_Reef_v0.9.jpg",
     },
 
