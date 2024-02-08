@@ -56,7 +56,7 @@ TextureHandler._scream = Script.CreateScream()
 TextureHandler._scream.func = function()
 	requested = {}
 	for filename, tex in pairs(loaded) do
-		gl.DeleteList(tex.dl)
+		--gl.DeleteList(tex.dl)
 		gl.DeleteTexture(filename)
 	end
 	loaded = {}
@@ -75,7 +75,8 @@ function TextureHandler.LoadTexture(activeTexID, filename, obj)
 
 	local tex = loaded[filename]
 	if (tex) then
-		glActiveTexture(activeTexID, glCallList, tex.dl)
+		--glActiveTexture(activeTexID, glCallList, tex.dl)
+		gl.Texture(filename)
 		local texInfo = texInfoCache[filename]
 		if texInfo then
 			return texInfo[1], texInfo[2]
@@ -99,7 +100,7 @@ function TextureHandler.DeleteTexture(filename)
 	if (tex) then
 		tex.references = tex.references - 1
 		if (tex.references == 0) then
-			gl.DeleteList(tex.dl)
+			--gl.DeleteList(tex.dl)
 			gl.DeleteTexture(filename)
 			loaded[filename] = nil
 			texInfoCache[filename] = nil
@@ -144,7 +145,7 @@ function TextureHandler.Update()
 			local texInfo = gl.TextureInfo(filename)
 			if (texInfo or nullInfo).xsize > 0 then
 				local texture = {}
-				texture.dl = gl.CreateList(gl.Texture, filename)
+				--texture.dl = gl.CreateList(gl.Texture, filename)
 				loaded[filename] = texture
 				texInfoCache[filename] = {texInfo.xsize, texInfo.ysize}
 				for obj in pairs(objs) do
