@@ -1058,25 +1058,6 @@ local options={
 	},
 
 	{
-		key		= "unba",
-		name	= "UnbaCom",
-		desc	= "Commanders gaining upgrades with experience! Commander levels up with XP, gaining better weapons, more health and higher tech buildlist.",
-		type	= "bool",
-		def		= false,
-		section	= "options_extra",
-	},
-
-	{
-		key		= "unbatech",
-		name	= "UnbaTech",
-		desc	= "(Requires UnbaCom) Constructors cannot build Tech2 factories. In order to reach Tech2 you have to level up your commander.",
-		type	= "bool",
-		def		= false,
-		section	= "options_extra",
-		hidden = true,
-	},
-
-	{
 		key     = 'teamcolors_anonymous_mode',
 		name    = 'Anonymous Mode',
 		desc    = "Anonymize players by changing colors (based on chosen mode) and replacing names with question marks, making it harder to know who's who.",
