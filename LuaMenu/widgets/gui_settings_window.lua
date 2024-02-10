@@ -1073,11 +1073,11 @@ local function GetLobbyTabControls()
 		valign = "top",
 		align = "left",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
-		caption = "Choose Server:",
-		tooltip = "Old Server is server3.beyondallreason.info, new one is server4.beyondallreason.info. Changing this will log you out of current server, click Login in top right to reconnect to new one, Currently we are on : server4.beyondallreason.info",
+		caption = "Server Address",
+		tooltip = "Changing this will log you out of the current server, click 'Login' in the top right to reconnect. Current live server: server4.beyondallreason.info",
 	}
 
-	local barservers = {"server4.beyondallreason.info","server3.beyondallreason.info"}
+	local barservers = {"server4.beyondallreason.info",}
 
 	if WG.Chobby.Configuration.devMode then
 		barservers[#barservers + 1] = "localhost"
@@ -1093,7 +1093,7 @@ local function GetLobbyTabControls()
 		items = barservers,
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		selected = Configuration:GetServerAddress(),
-		tooltip = "Old Server is server3.beyondallreason.info, new is server4.beyondallreason.info. Changing this will log you out of current server, click Login in top right to reconnect to new one. Currently we are on: server4.beyondallreason.info",
+		tooltip = "Changing this will log you out of the current server, click 'Login' in the top right to reconnect. Current live server: server4.beyondallreason.info",
 		OnSelect = {
 			function (obj, num)
 				if freezeSettings then -- so that it doesnt run when started, fucking yay
@@ -1323,7 +1323,7 @@ local function GetVoidTabControls()
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
 		useIME = false,
-		tooltip = "Requires a lobby restart for changes to take effect. Old Server is road-flag.bnr.la, new will be server3.beyondallreason.info. Temporarily we are on server3.beyondallreason.info",
+		tooltip = "Requires a lobby restart for changes to take effect. Current live server: server4.beyondallreason.info",
 		OnFocusUpdate = {
 			function (obj)
 				if obj.focused then
