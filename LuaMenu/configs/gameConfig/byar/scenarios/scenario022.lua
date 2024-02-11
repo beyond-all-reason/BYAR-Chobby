@@ -19,10 +19,10 @@ Reinforcements:
  - The enemy will be getting reinforcements every 8 and 20 minutes.
     
 Tips:
- - To gain access to your Ally's units, build a Decoy Commander and capture one of your ally's constructor units. 
+ - To gain access to your ally's units, build a Decoy Commander and capture one of your ally's constructor units. 
  - Use radar jamming units and structures to hide your presence from enemy radar.
  - Resurrection bots will use Energy to resurrect units, at a flat cost of 75e per second while resurrecting.
- - You can issue Resurrect Area and Reclaim Area commands by right-click dragging after selecting the corresponding command (either through the menu in the lower left or the key assigned to the action).
+ - You can issue Resurrect Area and Reclaim Area commands by left-click dragging after selecting the corresponding command (either through the menu in the lower left or the key assigned to the action).
  - Repairing units does not cost any resources.
      
 Scoring:
