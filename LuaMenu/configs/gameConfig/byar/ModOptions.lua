@@ -899,12 +899,12 @@ local options={
 	},
 	
 	{
-		key = "skyshift",
-		name = "Skyshift: Air Rework",
-		desc = "A complete overhaul of air units and mechanics",
-		type = "bool",
+		key = 'skyshift',
+		name = 'Skyshift: Air Rework',
+		desc = 'A complete overhaul of air units and mechanics',
+		type = 'bool',
 		def = false,
-		section = "options_experimental",
+		section = 'options_experimental',
 		hidden = true,
 	},
 
