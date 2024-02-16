@@ -556,12 +556,12 @@ local options={
 	{
 		key    = 'multiplier_energyconversion',
 		name   = 'Energy Conversion Efficiency Multiplier ',
-		desc   = '(Range 0.1 - 10). lower means you get less metal per energy converted',
+		desc   = '(Range 0.1 - 2). lower means you get less metal per energy converted',
 		type   =  "number",
 		section = 'options_resources',
 		def    = 1,
 		min    = 0.1,
-		max    = 10,
+		max    = 2,
 		step   = 0.1,
 	},
 
@@ -897,6 +897,16 @@ local options={
 		section = 'options_experimental',
 		def = false,
 	},
+	
+	{
+		key = 'skyshift',
+		name = 'Skyshift: Air Rework',
+		desc = 'A complete overhaul of air units and mechanics',
+		type = 'bool',
+		def = false,
+		section = 'options_experimental',
+		hidden = true,
+	},
 
 	{
 		key    = 'experimentalimprovedtransports',
@@ -1055,25 +1065,6 @@ local options={
 		type   = 'bool',
 		section = 'options_extra',
 		def  = false,
-	},
-
-	{
-		key		= "unba",
-		name	= "UnbaCom",
-		desc	= "Commanders gaining upgrades with experience! Commander levels up with XP, gaining better weapons, more health and higher tech buildlist.",
-		type	= "bool",
-		def		= false,
-		section	= "options_extra",
-	},
-
-	{
-		key		= "unbatech",
-		name	= "UnbaTech",
-		desc	= "(Requires UnbaCom) Constructors cannot build Tech2 factories. In order to reach Tech2 you have to level up your commander.",
-		type	= "bool",
-		def		= false,
-		section	= "options_extra",
-		hidden = true,
 	},
 
 	{

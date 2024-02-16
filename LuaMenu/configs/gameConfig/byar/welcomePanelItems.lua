@@ -5,7 +5,7 @@
         Url = "https://www.beyondallreason.info",
         UrlText = "Beyond All Reason Website",
         Image = "LuaMenu/configs/gameConfig/byar/images/bla.png",
-        Time = "2023-05-06T14:00:00", -- needs to be in UTC and is converted to user's local timezone, shows the time difference 
+        Time = "2023-05-06T14:00:00", -- needs to be in UTC and is converted to user's local timezone, shows the time difference
     }
 ]]
 
@@ -13,6 +13,18 @@ local welcomePanelItems = {
     {
         Header = "Welcome to Beyond All Reason",
         Text = "Welcome back Commander. We hope you are ready for epic single player and multiplayer battles. Check out our Discord and join the community!\n",
+    },
+
+    {
+        Header = "New Map: Hide and Seek",
+        Text = "Moose has released a remake of the classic Zero-K map Hide and Seek. It is a 1vs1 map that has the start areas closer to middle than the average map and demands players to expand on all sides to survive. Thanks to FlorisXIV for the original!",
+        Image = "LuaMenu/configs/gameConfig/byar/minimapOverride/Hide_and_Seek_2.0.jpg",
+    },
+
+    {
+        Header = "New Map: Salt Reef",
+        Text = "\n \nPhalange has released a new 4v4-8v8 map called Salt Reef. Blue crystals surround hills and flats of salinated sand and ice.",
+        Image = "LuaMenu/configs/gameConfig/byar/minimapOverride/Salt_Reef_v0.9.jpg",
     },
 
     {
