@@ -99,6 +99,12 @@ local function ParseMiniMapFinished(command)
 	WG.MapHandler.ParseMiniMapFinished(command.mapPath, command.destinationPath)
 end
 
+-- Discord Rich Presence
+function WrapperLoopback.DiscordSetActivity(command)
+	WG.Connector.Send("DiscordSetActivity", command)
+end
+
+
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 -- Widget Interface

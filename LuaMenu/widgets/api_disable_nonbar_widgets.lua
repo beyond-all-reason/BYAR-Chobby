@@ -17,8 +17,7 @@ end
 local unusedwidgets = {
 	--[[Community Window]]
 	[[Party status panel]],
-	[[bad widgets too]],
-	-- [[Discord Handler]], -- cant disable api widget?
+	[[bad widgets too]]
 }
 
 function widget:Initialize()
