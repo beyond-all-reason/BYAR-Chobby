@@ -2,10 +2,10 @@
 --------------------------------------------------------------------------------
 function widget:GetInfo()
 	return {
-		name      = "Discord Handler",
-		desc      = "Handles discord stuff.",
+		name      = "Discord Rich Presence Handler",
+		desc      = "Handles setting and updating Discord Rich Presence activity",
 		author    = "GoogleFrog, Lexon",
-		date      = "19 December 2017",
+		date      = "17 February 2024",
 		license   = "GPL-v2",
 		layer     = 0,
 		enabled   = true,
