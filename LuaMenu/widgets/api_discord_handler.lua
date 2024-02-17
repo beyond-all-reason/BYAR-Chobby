@@ -126,6 +126,7 @@ local function DelayedInitialize()
 	lobby:AddListener("OnJoinBattle", OnJoinOrUpdateBattle)
 	lobby:AddListener("OnLeaveBattle", OnLeaveBattle)
 	lobby:AddListener("OnBattleIngameUpdate", OnJoinOrUpdateBattle)
+	lobby:AddListener("OnUpdateBattleInfo", OnJoinOrUpdateBattle)
 	lobby:AddListener("OnBattleAboutToStart", OnBattleAboutToStart)
 	WG.LibLobby.localLobby:AddListener("OnBattleAboutToStart", OnBattleAboutToStart)
 end
