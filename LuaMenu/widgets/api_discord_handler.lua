@@ -61,8 +61,6 @@ local function OnJoinOrUpdateBattle(listener, newBattleID)
 		return
 	end
 
-	Spring.Log("DISKORD", LOG.ERROR, "OnJoinOrUpdateBattle")
-
 	if newBattleID then
 		local battle = lobby:GetBattle(newBattleID)
 		local newPlayerCount = lobby:GetBattlePlayerCount(newBattleID)
