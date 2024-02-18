@@ -12,20 +12,26 @@ function widget:GetInfo()
 	}
 end
 
---------------------------------------------------------------------------------
---------------------------------------------------------------------------------
--- Globals
-
 local lobby
-local state, details, startTimestamp, playerCount, maxPlayerCount, partyId
+local isinGame
+local state, mapName, startTimestamp, playerCount, maxPlayerCount, partyId
 
 local function UpdateActivity(newState, newDetails, newStartTimestamp, newPlayerCount, newMaxPlayerCount, newPartyId)
-	state = newState or state
-	details = newDetails or details
-	startTimestamp = newStartTimestamp or startTimestamp
-	playerCount = newPlayerCount or playerCount
-	maxPlayerCount = newMaxPlayerCount or maxPlayerCount
-	partyId = newPartyId or partyId
+	-- Update only if something changed
+	if state == newState and
+		details == newDetails and
+		startTimestamp == newStartTimestamp and
+		playerCount == newPlayerCount and
+		maxPlayerCount == newMaxPlayerCount and
+		partyId == newPartyId
+	then return end
+
+	state = newState
+	details = newDetails
+	startTimestamp = newStartTimestamp
+	playerCount = newPlayerCount
+	maxPlayerCount = newMaxPlayerCount
+	partyId = newPartyId
 
 	WG.WrapperLoopback.DiscordSetActivity({
 		state = state,
@@ -37,30 +43,13 @@ local function UpdateActivity(newState, newDetails, newStartTimestamp, newPlayer
    })
 end
 
-local function ResetState(newState)
-	state = newState
-	details = nil
-	startTimestamp = nil
-	playerCount = nil
-	maxPlayerCount = nil
-	partyId = nil
-
-	UpdateActivity(state, nil, nil, nil, nil, nil)
-end
-
-
-local function GetStateFromBattle(battle)
-	-- Can't access in game status directly
-	-- If actually spectating -> spectating = true
-	-- If only in lobby -> spectating = nil
-	-- If playing -> spectating = false
-	local spectating = lobby:GetMyIsSpectator()
+local function GetStateFromBattle(battle, aboutToStart)
 	local running = battle.isRunning
-	local playing = spectating == false and running
+	local isSpectator = lobby:GetMyIsSpectator()
 
-	if spectating and running then
-		return "Spectating ongoing game"
-	elseif playing then
+	if isSpectator and running and isinGame then
+		return "Spectating game"
+	elseif isinGame and running then
 		return "Playing"
 	else
 		return "In" .. ((running and " running ") or " ") .. "lobby"
@@ -72,46 +61,41 @@ local function OnJoinOrUpdateBattle(listener, newBattleID)
 		return
 	end
 
+	Spring.Log("DISKORD", LOG.ERROR, "OnJoinOrUpdateBattle")
+
 	if newBattleID then
 		local battle = lobby:GetBattle(newBattleID)
-		playerCount = lobby:GetBattlePlayerCount(newBattleID)
-		maxPlayerCount = battle.maxPlayers
-		details = battle.mapName
-		state = GetStateFromBattle(battle)
+		local newPlayerCount = lobby:GetBattlePlayerCount(newBattleID)
+		local newMaxPlayerCount = battle.maxPlayers
+		local mapName = battle.mapName
+		local newState = GetStateFromBattle(battle)
+		local newStartTimestamp
 
 		if battle.isRunning then
-			startTimestamp = os.time() + (battle.thisGameStartedAt or 0)
+			newStartTimestamp = os.time() + (battle.thisGameStartedAt or 0)
+		else
+			newStartTimestamp = nil
 		end
-	else
-		state = nil
+		
+		UpdateActivity(newState, mapName, newStartTimestamp, newPlayerCount, newMaxPlayerCount, newBattleID)
 	end
-
-	UpdateActivity(state, details, startTimestamp, playerCount, maxPlayerCount, newBattleID)
 end
 
 local function OnLeaveBattle(listener, battleId)
-	ResetState("In menu")
+	UpdateActivity("In menu")
 end
 
-local function OnBattleAboutToStart(listener, battleType)--, gameName, mapName)
+local function OnBattleAboutToStart(listener, battleType, gameName, mapName)
 	if battleType == "replay" then
-		UpdateActivity("Watching replay", mapName, os.time(), nil, nil)
+		UpdateActivity("Watching replay", mapName, os.time())
 	elseif battleType == "skirmish" then
-		UpdateActivity("Skirmish", mapName, os.time(), nil, nil)
+		UpdateActivity("Skirmish", mapName, os.time())
 	else
 		-- Starting to play/spectate a multiplayer game
-		local battle = lobby:GetBattle(lobby:GetMyBattleID())
-		if battle then
-			state = GetStateFromBattle(battle)
-			startTimestamp = os.time() + (battle.thisGameStartedAt or 0)
-		end
-		UpdateActivity(state, mapName)
+		isinGame = true
+		OnJoinOrUpdateBattle(listener, lobby:GetMyBattleID())
 	end
 end
-
---------------------------------------------------------------------------------
---------------------------------------------------------------------------------
--- Initialization
 
 local function DelayedInitialize()
 	if WG.WrapperLoopback == nil or WG.WrapperLoopback.DiscordSetActivity == nil then
@@ -119,7 +103,7 @@ local function DelayedInitialize()
 		return
 	end
 
-	ResetState("In menu")
+	UpdateActivity("In menu")
 
 	lobby = WG.LibLobby.lobby
 
