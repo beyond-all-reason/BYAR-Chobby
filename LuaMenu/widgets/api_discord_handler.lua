@@ -14,32 +14,32 @@ end
 
 local lobby
 local isinGame
-local state, mapName, startTimestamp, playerCount, maxPlayerCount, partyId
+local state, mapName, startTimestamp, playerCount, maxPlayerCount, battleId
 
-local function UpdateActivity(newState, newDetails, newStartTimestamp, newPlayerCount, newMaxPlayerCount, newPartyId)
+local function UpdateActivity(newState, newMapName, newStartTimestamp, newPlayerCount, newMaxPlayerCount, newBattleId)
 	-- Update only if something changed
 	if state == newState and
-		details == newDetails and
+		mapName == newMapName and
 		startTimestamp == newStartTimestamp and
 		playerCount == newPlayerCount and
 		maxPlayerCount == newMaxPlayerCount and
-		partyId == newPartyId
+		battleId == newBattleId
 	then return end
 
 	state = newState
-	details = newDetails
+	mapName = newMapName
 	startTimestamp = newStartTimestamp
 	playerCount = newPlayerCount
 	maxPlayerCount = newMaxPlayerCount
-	partyId = newPartyId
+	battleId = newBattleId
 
 	WG.WrapperLoopback.DiscordSetActivity({
 		state = state,
-		details = details,
+		mapName = mapName,
 		startTimestamp = startTimestamp,
 		playerCount = playerCount,
 		maxPlayerCount = maxPlayerCount,
-		partyId = partyId
+		battleId = battleId
    })
 end
 
