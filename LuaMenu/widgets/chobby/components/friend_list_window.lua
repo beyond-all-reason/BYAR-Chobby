@@ -5,7 +5,7 @@ FriendListWindow = ListWindow:extends{}
 -----------------------------
 
 function FriendListWindow:CompareItems(userName1, userName2)
-	return userName1 < userName2
+	return userName1:lower() < userName2:lower()
 end
 
 function FriendListWindow:AddFriendRequest(userName)
