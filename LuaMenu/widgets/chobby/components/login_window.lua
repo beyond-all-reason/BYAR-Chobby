@@ -345,6 +345,31 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 	}
 	registerChildren[#registerChildren + 1] = self.lblRegistrationMultiplayer
 
+  if not (Configuration.firstLoginEver) then
+		self.altAcknowlegementLabel = Label:New {
+				x = 15,
+				width = 170,
+				y = 305,
+				height = 35,
+				caption = i18n("alt_acknowledgement"),
+				objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+			}
+		registerChildren[#registerChildren + 1] = self.altAcknowlegementLabel
+
+		self.TextAcknowledgementBox = EditBox:New {
+			x = 15,
+			width = '90%',
+	        y = 355,
+	        height = 35,
+			text = "",
+            hint = "Ask moderation on Discord for keyword",
+			objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+			objectOverrideHintFont = WG.Chobby.Configuration:GetFont(3),
+			useIME = false,
+		}
+		registerChildren[#registerChildren + 1] = self.TextAcknowledgementBox
+	end
+
 	self.cbAutoLogin = Checkbox:New {
 		x = 15,
 		width = 215,
@@ -1150,6 +1175,11 @@ function LoginWindow:tryRegister()
 		self.txtErrorRegister:SetText(Configuration:GetErrorColor() .. "Emails do not match.")
 		return
 	end
+
+    if (not Configuration.firstLoginEver) and (self.TextAcknowledgementBox.text ~= "Gargamel") then
+		self.txtErrorRegister:SetText(Configuration:GetErrorColor() .. "Contact moderation first (#open-ticket on Discord).")
+        return
+    end
 
 	WG.Analytics.SendOnetimeEvent("lobby:try_register")
 	self.txtErrorRegister:SetText("")
