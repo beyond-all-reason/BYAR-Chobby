@@ -440,6 +440,24 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 	}
 	loginChildren[#loginChildren+1] = self.btnLogin
 
+    if not (Configuration.firstLoginEver) then
+        self.btnDiscord = Button:New {
+            right = 273,
+            width = 130,
+            y = self.windowHeight - 143,
+            height = 70,
+            caption = "Discord",
+            objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+            classname = "option_button",
+            OnClick = {
+                function()
+                    WG.BrowserHandler.OpenUrl("https://discord.gg/beyond-all-reason")
+                end
+            },
+        }
+		registerChildren[#registerChildren + 1] = self.btnDiscord
+	end
+
 	self.btnRegister = Button:New {
 		right = 140,
 		width = 130,
