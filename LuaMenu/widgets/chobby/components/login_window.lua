@@ -960,7 +960,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		OnTabChange = {
 			function(obj, name)
 				if name == "register" and not Configuration.firstLoginEver then
-					WG.Chobby.InformationPopup(i18n("register_extra"), {width = 840, height = 400})
+					WG.Chobby.InformationPopup(i18n("register_extra"), {width = 840, height = 850})
 				end
 			end
 		}
@@ -1646,3 +1646,4 @@ function LoginWindow:declineAgreement()
 	lobby:Disconnect()
 	self.agreementWindow:Dispose()
 end
+
