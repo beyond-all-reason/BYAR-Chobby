@@ -38,6 +38,7 @@ return {
 		login_long = "Connect to server",
 		register_long = "Register your account",
 		register_extra = "Careful!\nIf you already have an account please don't create new ones, we don't allow smurfing/alt-accounts and they will be banned once detected.\n \n • If you need to rename there is a rename button in the account\n   management section\n • If you are unable to access your account you can request password\n   reset via the account management section or open a ticket on the discord\n • If you have had your main account moderated, creating new accounts\n   to evade that moderation will result in more severe action\n • If you need to have multiple accounts for some reason please open\n   a ticket to have the account(s) flagged to prevent automated systems\n   banning any alternates",
+        confirm_email = "Confirm email",
 		register_steam_long = "Enter a username for multiplayer",
 		autoLogin = "Login automatically",
 		authenticateSteam = "Authenticate with Steam",

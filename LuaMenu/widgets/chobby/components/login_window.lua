@@ -299,12 +299,46 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 			},
 		}
 		registerChildren[#registerChildren + 1] = self.ebEmail
+
+		self.txtConfirmEmail = TextBox:New {
+			x = 15,
+			width = 170,
+			y = 220,
+			height = 35,
+			text = i18n("confirm") .. ":",
+			objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+			objectOverrideHintFont = WG.Chobby.Configuration:GetFont(3),
+   		useIME = false,
+		}
+		registerChildren[#registerChildren + 1] = self.txtConfirmEmail
+
+		self.ebConfirmEmail = EditBox:New {
+			x = 135,
+			width = 200,
+			y = 211,
+			height = 35,
+			text = "",
+            hint = i18n('confirm_email'),
+			objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+			objectOverrideHintFont = WG.Chobby.Configuration:GetFont(3),
+			useIME = false,
+			OnKeyPress = {
+				function(obj, key, mods, ...)
+					if key == Spring.GetKeyCode("enter") or key == Spring.GetKeyCode("numpad_enter") then
+						if self.tabPanel.tabBar:IsSelected("register") then
+							self:tryRegister()
+						end
+					end
+				end
+			},
+		}
+		registerChildren[#registerChildren + 1] = self.ebConfirmEmail
 	end
 
   self.lblRegistrationMultiplayer = Label:New {
 		x = 15,
 		width = 170,
-		y = 220,
+		y = 260,
 		height = 35,
 		caption = "Required for online play only",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
@@ -1109,6 +1143,11 @@ function LoginWindow:tryRegister()
 
 	if self.ebPasswordRegister.text ~= self.ebConfirmPassword.text then
 		self.txtErrorRegister:SetText(Configuration:GetErrorColor() .. "Passwords do not match.")
+		return
+	end
+
+	if self.ebEmail.text ~= self.ebConfirmEmail.text then
+		self.txtErrorRegister:SetText(Configuration:GetErrorColor() .. "Emails do not match.")
 		return
 	end
 
