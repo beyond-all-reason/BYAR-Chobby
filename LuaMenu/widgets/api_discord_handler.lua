@@ -2,205 +2,124 @@
 --------------------------------------------------------------------------------
 function widget:GetInfo()
 	return {
-		name      = "Discord Handler",
-		desc      = "Handles discord stuff.",
-		author    = "GoogleFrog",
-		date      = "19 December 2017",
+		name      = "Discord Rich Presence Handler",
+		desc      = "Handles setting and updating Discord Rich Presence activity",
+		author    = "GoogleFrog, Lexon",
+		date      = "17 February 2024",
 		license   = "GPL-v2",
 		layer     = 0,
-		handler   = true,
 		enabled   = true,
 	}
 end
 
---------------------------------------------------------------------------------
---------------------------------------------------------------------------------
--- Globals
+local lobby
+local isinGame
+local state, mapName, startTimestamp, playerCount, maxPlayerCount, battleId
 
-local lobbyState, prevDetails, prevTime
+local function UpdateActivity(newState, newMapName, newStartTimestamp, newPlayerCount, newMaxPlayerCount, newBattleId)
+	-- Update only if something changed
+	if state == newState and
+		mapName == newMapName and
+		startTimestamp == newStartTimestamp and
+		playerCount == newPlayerCount and
+		maxPlayerCount == newMaxPlayerCount and
+		battleId == newBattleId
+	then return end
 
---------------------------------------------------------------------------------
---------------------------------------------------------------------------------
--- Utilities
+	state = newState
+	mapName = newMapName
+	startTimestamp = newStartTimestamp
+	playerCount = newPlayerCount
+	maxPlayerCount = newMaxPlayerCount
+	battleId = newBattleId
 
-local function SetDiscordPlaying(details)
-	--[[
-        public string state; /* max 128 bytes */
-        public string details; /* max 128 bytes */
-        public long startTimestamp;
-        public long endTimestamp;
-        public string largeImageKey; /* max 32 bytes */
-        public string largeImageText; /* max 128 bytes */
-        public string smallImageKey; /* max 32 bytes */
-        public string smallImageText; /* max 128 bytes */
-        public string partyId; /* max 128 bytes */
-        public int partySize;
-        public int partyMax;
-        public string matchSecret; /* max 128 bytes */
-        public string joinSecret; /* max 128 bytes */
-        public string spectateSecret; /* max 128 bytes */
-        public bool instance;
-	--]]
-	prevDetails = details
-	prevTime = nil
-	WG.WrapperLoopback.DiscordUpdatePresence({
-		details = prevDetails,
-		state = lobbyState,
-		--startTimestamp = os.time(),
-	})
+	WG.WrapperLoopback.DiscordSetActivity({
+		state = state,
+		mapName = mapName,
+		startTimestamp = startTimestamp,
+		playerCount = playerCount,
+		maxPlayerCount = maxPlayerCount,
+		battleId = battleId
+   })
 end
 
---------------------------------------------------------------------------------
---------------------------------------------------------------------------------
--- Rich Presense
+local function GetStateFromBattle(battle, aboutToStart)
+	local running = battle.isRunning
+	local isSpectator = lobby:GetMyIsSpectator()
 
-local function GetGameType(data)
-	if data.isReplay then
-		return "Watching Replay"
+	if isSpectator and running and isinGame then
+		return "Spectating game"
+	elseif isinGame and running then
+		return "Playing"
+	else
+		return "In" .. ((running and " running ") or " ") .. "lobby"
+	end
+end
+
+local function OnJoinOrUpdateBattle(listener, newBattleID)
+	if lobby:GetMyBattleID() ~= newBattleID then
+		return
 	end
 
-	local meString = ((data.isPlayer and "Playing ") or "Spectating ")
-	if data.teamOnePlayers == 0 then
-		if data.isAI then
-			if data.isChicken then
-				return meString .. "Chicken vs AI"
-			else
-				return meString .. "AI game"
-			end
-		end
-		return "In custom game"
-	end
+	if newBattleID then
+		local battle = lobby:GetBattle(newBattleID)
+		local newPlayerCount = lobby:GetBattlePlayerCount(newBattleID)
+		local newMaxPlayerCount = battle.maxPlayers
+		local mapName = battle.mapName
+		local newState = GetStateFromBattle(battle)
+		local newStartTimestamp
 
-	if data.teamTwoPlayers == 0 then
-		if data.isAI then
-			local friendType = ((data.teamPlayers > 1 and "coop") or "skirmish")
-			if data.isChicken then
-				return meString .. friendType .. " vs. AI with Chickens"
-			else
-				return meString .. friendType .. " vs. AI"
-			end
-		elseif data.isChicken then
-			return meString .. "chicken defense"
-		end
-		return meString .. "custom game"
-	end
-
-	local endStr = ""
-	if data.isAI then
-		if data.isChicken then
-			endStr = " with AI and chickens"
+		if battle.isRunning then
+			newStartTimestamp = os.time() + (battle.thisGameStartedAt or 0)
 		else
-			endStr = " with AI"
+			newStartTimestamp = nil
 		end
-	elseif data.isChicken then
-		endStr = " with chickens"
+		
+		UpdateActivity(newState, mapName, newStartTimestamp, newPlayerCount, newMaxPlayerCount, newBattleID)
 	end
+end
 
-	if data.isFFA then
-		return meString .. data.teamPlayers .. "-way FFA" .. endStr
+local function OnLeaveBattle(listener, battleId)
+	UpdateActivity("In menu")
+end
+
+local function OnBattleAboutToStart(listener, battleType, gameName, mapName)
+	if battleType == "replay" then
+		UpdateActivity("Watching replay", mapName, os.time())
+	elseif battleType == "skirmish" then
+		UpdateActivity("Skirmish", mapName, os.time())
+	else
+		-- Starting to play/spectate a multiplayer game
+		isinGame = true
+		OnJoinOrUpdateBattle(listener, lobby:GetMyBattleID())
 	end
-
-	return meString .. data.teamOnePlayers .. "v" .. data.teamTwoPlayers .. endStr
 end
-
-local function UpdateIngameString(data)
-	prevDetails = GetGameType(data)
-	prevTime = os.time()
-	WG.WrapperLoopback.DiscordUpdatePresence({
-		details = prevDetails,
-		startTimestamp = prevTime,
-		state = lobbyState,
-	})
-end
-
-local function RefreshState()
-	WG.WrapperLoopback.DiscordUpdatePresence({
-		details = prevDetails,
-		startTimestamp = prevTime,
-		state = lobbyState,
-	})
-end
-
---------------------------------------------------------------------------------
---------------------------------------------------------------------------------
--- Externals Functions
-
-local DiscordHandler = {}
-
-function DiscordHandler.SetIngameInfo(data)
-	UpdateIngameString(data)
-end
-
---------------------------------------------------------------------------------
---------------------------------------------------------------------------------
--- Initialization
 
 local function DelayedInitialize()
-	if WG.WrapperLoopback == nil or WG.WrapperLoopback.DiscordUpdatePresence == nil then
+	if WG.WrapperLoopback == nil or WG.WrapperLoopback.DiscordSetActivity == nil then
 		widgetHandler:RemoveWidget(widget)
 		return
 	end
 
-	SetDiscordPlaying("In menu")
+	UpdateActivity("In menu")
 
-	local function OnBattleAboutToStart(_, battleType)
-		if battleType == "replay" then
-			SetDiscordPlaying("Loading replay")
-		else
-			SetDiscordPlaying("Loading battle")
-		end
+	lobby = WG.LibLobby.lobby
 
-		--elseif battleType == "skirmish" then
-		--	SetDiscordPlaying("Playing Skirmish")
-		--elseif battleType == "replay" then
-		--	SetDiscordPlaying("Watching Replay")
-		--else
-		--	SetDiscordPlaying("Playing Multiplayer")
-		--end
-	end
-
-	local lobby = WG.LibLobby.lobby
-
+	lobby:AddListener("OnJoinBattle", OnJoinOrUpdateBattle)
+	lobby:AddListener("OnLeaveBattle", OnLeaveBattle)
+	lobby:AddListener("OnBattleIngameUpdate", OnJoinOrUpdateBattle)
+	lobby:AddListener("OnUpdateBattleInfo", OnJoinOrUpdateBattle)
 	lobby:AddListener("OnBattleAboutToStart", OnBattleAboutToStart)
 	WG.LibLobby.localLobby:AddListener("OnBattleAboutToStart", OnBattleAboutToStart)
-
-	local function InBattleUpdate(listener, newBattleID)
-		if myBattleID == newBattleID then
-			return
-		end
-
-		if newBattleID then
-			local battle = lobby:GetBattle(newBattleID)
-			lobbyState = "In" .. ((battle.isRunning and " running") or " ") .. " battle lobby"
-		else
-			lobbyState = nil
-		end
-		myBattleID = newBattleID
-		RefreshState()
-	end
-
-	local function OnBattleIngameUpdate(listener, updatedBattleID, isRunning)
-		if updatedBattleID ~= myBattleID then
-			return
-		end
-		lobbyState = "In" .. ((isRunning and " running") or " ") .. " battle lobby"
-		RefreshState()
-	end
-
-	lobby:AddListener("OnJoinBattle", InBattleUpdate)
-	lobby:AddListener("OnLeaveBattle", InBattleUpdate)
-	lobby:AddListener("OnBattleIngameUpdate", OnBattleIngameUpdate)
 end
 
 function widget:ActivateMenu()
-	if WG.WrapperLoopback == nil or WG.WrapperLoopback.DiscordUpdatePresence == nil then
+	if WG.WrapperLoopback == nil or WG.WrapperLoopback.DiscordSetActivity == nil then
 		widgetHandler:RemoveWidget(widget)
 		return
 	end
-	SetDiscordPlaying("In menu")
 end
 
 function widget:Initialize()
 	WG.Delay(DelayedInitialize, 0.5)
-	WG.DiscordHandler = DiscordHandler
 end
