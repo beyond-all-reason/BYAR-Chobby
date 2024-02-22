@@ -880,17 +880,15 @@ local function split16(bigNumStr)
     for i=1, string.len(bigNumStr) do -- for each character of the big number string
         local digit = string.len(bigNumStr)- i + 1 -- start with last character first
         local n = tonumber(string.sub(bigNumStr,digit,digit)) -- get the current character
-        print (i,string.sub(bigNumStr,i,i),n, digit)
         for k = 1, n do  -- for each number value of current character
             lsb = lsb + msbLsb10[i][2] -- add the 16bit LSB of 10*i'th power
             if lsb >= 65536 then -- if it overflows LSB, increment MSB
-                lsb = lsb - 65536 
+                lsb = lsb - 65536
                 msb = msb + 1
             end
             msb = msb + msbLsb10[i][1] -- add the 16 bit MSB of 10*i'th power
         end
     end
-    print (lsb, msb, lsb + msb *65536)
     return lsb, msb
 end
 
