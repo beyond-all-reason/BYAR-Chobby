@@ -1078,9 +1078,12 @@ local function GetLobbyTabControls()
 	}
 
 	local barservers = {"server4.beyondallreason.info",}
-
+	local defaultServerAddress = WG.Server.address -- = address from chobby_config.json
+	if not table.ifind(barservers, defaultServerAddress) then
+		table.insert(barservers, defaultServerAddress)
+	end
 	if WG.Chobby.Configuration.devMode then
-		barservers[#barservers + 1] = "localhost"
+		table.insert(barservers, "localhost")
 	end
 
 	children[#children + 1] = ComboBox:New {
