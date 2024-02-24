@@ -102,6 +102,27 @@ local communityLines = {
 		end
 	},
 	{
+		"Use Discord #open-ticket channel to talk to moderation team.",
+		"Contact moderation",
+		function ()
+			WG.BrowserHandler.OpenUrl("https://discord.com/channels/549281623154229250/1005537149564755989")
+		end
+	},
+	{
+		"Matches",
+		"Your match history",
+		function ()
+			WG.BrowserHandler.OpenUrl("https://server4.beyondallreason.info/battle")
+		end
+	},
+	{
+		"Relationship",
+        "Use to block, ignore, avoid, report players",
+		function ()
+			WG.BrowserHandler.OpenUrl("https://server4.beyondallreason.info/account/relationship/search")
+		end
+	},
+	{
 		"Contributors and developers.",
 		"Credits",
 		function ()
@@ -113,6 +134,13 @@ local communityLines = {
 		"Maps",
 		function ()
 			WG.BrowserHandler.OpenUrl("https://www.beyondallreason.info/maps")
+		end
+	},
+    {
+		"Browse and download replays.",
+		"Replays",
+		function ()
+			WG.BrowserHandler.OpenUrl("https://www.beyondallreason.info/replays")
 		end
 	},
 	{

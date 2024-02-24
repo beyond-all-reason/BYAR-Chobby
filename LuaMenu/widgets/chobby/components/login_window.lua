@@ -299,17 +299,76 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 			},
 		}
 		registerChildren[#registerChildren + 1] = self.ebEmail
+
+		self.txtConfirmEmail = TextBox:New {
+			x = 15,
+			width = 170,
+			y = 220,
+			height = 35,
+			text = i18n("confirm") .. ":",
+			objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+			objectOverrideHintFont = WG.Chobby.Configuration:GetFont(3),
+   		useIME = false,
+		}
+		registerChildren[#registerChildren + 1] = self.txtConfirmEmail
+
+		self.ebConfirmEmail = EditBox:New {
+			x = 135,
+			width = 200,
+			y = 211,
+			height = 35,
+			text = "",
+            hint = i18n('confirm_email'),
+			objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+			objectOverrideHintFont = WG.Chobby.Configuration:GetFont(3),
+			useIME = false,
+			OnKeyPress = {
+				function(obj, key, mods, ...)
+					if key == Spring.GetKeyCode("enter") or key == Spring.GetKeyCode("numpad_enter") then
+						if self.tabPanel.tabBar:IsSelected("register") then
+							self:tryRegister()
+						end
+					end
+				end
+			},
+		}
+		registerChildren[#registerChildren + 1] = self.ebConfirmEmail
 	end
 
   self.lblRegistrationMultiplayer = Label:New {
 		x = 15,
 		width = 170,
-		y = 220,
+		y = 260,
 		height = 35,
 		caption = "Required for online play only",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 	}
 	registerChildren[#registerChildren + 1] = self.lblRegistrationMultiplayer
+
+  if not (Configuration.firstLoginEver) then
+		self.altAcknowlegementLabel = Label:New {
+				x = 15,
+				width = 170,
+				y = 305,
+				height = 35,
+				caption = i18n("alt_acknowledgement"),
+				objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+			}
+		registerChildren[#registerChildren + 1] = self.altAcknowlegementLabel
+
+		self.TextAcknowledgementBox = EditBox:New {
+			x = 15,
+			width = '90%',
+	        y = 355,
+	        height = 35,
+			text = "",
+            hint = "Ask moderation on Discord for keyword",
+			objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+			objectOverrideHintFont = WG.Chobby.Configuration:GetFont(3),
+			useIME = false,
+		}
+		registerChildren[#registerChildren + 1] = self.TextAcknowledgementBox
+	end
 
 	self.cbAutoLogin = Checkbox:New {
 		x = 15,
@@ -380,6 +439,24 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		},
 	}
 	loginChildren[#loginChildren+1] = self.btnLogin
+
+    if not (Configuration.firstLoginEver) then
+        self.btnDiscord = Button:New {
+            right = 273,
+            width = 130,
+            y = self.windowHeight - 143,
+            height = 70,
+            caption = "Discord",
+            objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+            classname = "option_button",
+            OnClick = {
+                function()
+                    WG.BrowserHandler.OpenUrl("https://discord.com/channels/549281623154229250/1005537149564755989")
+                end
+            },
+        }
+		registerChildren[#registerChildren + 1] = self.btnDiscord
+	end
 
 	self.btnRegister = Button:New {
 		right = 140,
@@ -926,7 +1003,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		OnTabChange = {
 			function(obj, name)
 				if name == "register" and not Configuration.firstLoginEver then
-					WG.Chobby.InformationPopup(i18n("register_extra"), {width = 840, height = 400})
+					WG.Chobby.InformationPopup(i18n("register_extra"), {width = 840, height = 550})
 				end
 			end
 		}
@@ -1111,6 +1188,16 @@ function LoginWindow:tryRegister()
 		self.txtErrorRegister:SetText(Configuration:GetErrorColor() .. "Passwords do not match.")
 		return
 	end
+
+	if self.ebEmail.text ~= self.ebConfirmEmail.text then
+		self.txtErrorRegister:SetText(Configuration:GetErrorColor() .. "Emails do not match.")
+		return
+	end
+
+    if (not Configuration.firstLoginEver) and (self.TextAcknowledgementBox.text ~= "Gargamel") then
+		self.txtErrorRegister:SetText(Configuration:GetErrorColor() .. "Contact moderation first (#open-ticket on Discord).")
+        return
+    end
 
 	WG.Analytics.SendOnetimeEvent("lobby:try_register")
 	self.txtErrorRegister:SetText("")
@@ -1607,3 +1694,4 @@ function LoginWindow:declineAgreement()
 	lobby:Disconnect()
 	self.agreementWindow:Dispose()
 end
+
