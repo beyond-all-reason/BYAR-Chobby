@@ -451,7 +451,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
             classname = "option_button",
             OnClick = {
                 function()
-                    WG.BrowserHandler.OpenUrl("https://discord.gg/beyond-all-reason")
+                    WG.BrowserHandler.OpenUrl("https://discord.com/channels/549281623154229250/1005537149564755989")
                 end
             },
         }

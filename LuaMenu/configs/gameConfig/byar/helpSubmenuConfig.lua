@@ -105,7 +105,7 @@ local communityLines = {
 		"Use Discord #open-ticket channel to talk to moderation team.",
 		"Contact moderation",
 		function ()
-			WG.BrowserHandler.OpenUrl("https://discord.gg/mvVc9vH")
+			WG.BrowserHandler.OpenUrl("https://discord.com/channels/549281623154229250/1005537149564755989")
 		end
 	},
 	{
@@ -116,8 +116,8 @@ local communityLines = {
 		end
 	},
 	{
-        "Use to block, ignore, avoid, report players",
 		"Relationship",
+        "Use to block, ignore, avoid, report players",
 		function ()
 			WG.BrowserHandler.OpenUrl("https://server4.beyondallreason.info/account/relationship/search")
 		end
