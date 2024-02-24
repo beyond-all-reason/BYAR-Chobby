@@ -109,15 +109,15 @@ local communityLines = {
 		end
 	},
 	{
-		"Matches",
 		"Your match history",
+		"Matches",
 		function ()
 			WG.BrowserHandler.OpenUrl("https://server4.beyondallreason.info/battle")
 		end
 	},
 	{
+		"Use to block, ignore, avoid, report players",
 		"Relationship",
-        "Use to block, ignore, avoid, report players",
 		function ()
 			WG.BrowserHandler.OpenUrl("https://server4.beyondallreason.info/account/relationship/search")
 		end
