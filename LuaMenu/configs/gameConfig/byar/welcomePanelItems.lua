@@ -16,23 +16,21 @@ local welcomePanelItems = {
     },
 
     {
-        Header = "New Map: Hide and Seek",
-        Text = "Moose has released a remake of the classic Zero-K map Hide and Seek. It is a 1vs1 map that has the start areas closer to middle than the average map and demands players to expand on all sides to survive. Thanks to FlorisXIV for the original!",
-        Image = "LuaMenu/configs/gameConfig/byar/minimapOverride/Hide_and_Seek_2.0.jpg",
+        Header = "Map Update: Ancient Bastion",
+        Text =  " \n" ..  " \n" ..  "An ancient fortress, built to withstand an enemy long forgotten. Original by Russ838, updated by Nikuksis.",
+        Image = "LuaMenu/configs/gameConfig/byar/minimapOverride/Ancient_Bastion_Remake_0.5.jpg",
     },
 
     {
-        Header = "New Map: Salt Reef",
-        Text = "\n \nPhalange has released a new 4v4-8v8 map called Salt Reef. Blue crystals surround hills and flats of salinated sand and ice.",
-        Image = "LuaMenu/configs/gameConfig/byar/minimapOverride/Salt_Reef_v0.9.jpg",
+        Header = "New Map: Adamantium Factory",
+        Text = "64 manufacturing stations strewn on a factory floor. Resources are higher in the center stations. Made by Beherith.",
+        Image = "LuaMenu/configs/gameConfig/byar/minimapOverride/Adamantium_Factory_V1.jpg",
     },
 
     {
-        Header = "PRO 2v2 Tournament #3 champions: Raghna and Teddy!",
-        Text = "\nCongrats to the new 2v2 champions of BAR!",
-        Url = "https://www.youtube.com/watch?v=ytLC_N9JhUw",
-        UrlText = "Watch VOD",
-        Image = "LuaMenu/images/welcomepanel/Leaderboard_2_8.png",
+        Header = "New Map: Pinch Point",
+        Text =  " \n" ..  " \n" ..  "An island pair set in a tropical biome featuring a large central crossing and supporting islands to create tactical opportunities for all unit types. Made by Pinchy.",
+        Image = "LuaMenu/configs/gameConfig/byar/minimapOverride/Pinch_Point_1.01.jpg",
     },
 
     {
