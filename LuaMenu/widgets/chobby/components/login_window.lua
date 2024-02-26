@@ -1205,6 +1205,17 @@ function LoginWindow:tryRegister()
 	local password = (self.ebPasswordRegister.visible and self.ebPasswordRegister.text) or nil
 	local email = (self.emailRequired and self.ebEmail.visible and self.ebEmail.text) or nil
 	if username == '' then
+		self.txtErrorRegister:SetText(Configuration:GetErrorColor() .. "No username provided.")
+		return
+	end
+
+	if password == '' then
+		self.txtErrorRegister:SetText(Configuration:GetErrorColor() .. "No password provided.")
+		return
+	end
+
+	if email == '' then
+		self.txtErrorRegister:SetText(Configuration:GetErrorColor() .. "No email provided.")
 		return
 	end
 
