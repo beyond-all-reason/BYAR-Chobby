@@ -899,6 +899,15 @@ local options={
 	},
 	
 	{
+		key = 'proposed_unit_reworks',
+		name = 'Proposed Unit Reworks',
+		desc = 'Stilleto is reworked with a doubled metal and energy cost, lower aoe, and a more concentrated longer duration emp that is better suited for stunning specific targets.  Mauser and Quaker are reworked to have reduced range and increased speed and increased health to promote more dynamic play in early T2 while having them naturally fall off in late T2',
+		type = 'bool',
+		section = 'options_experimental',
+		def = false,
+	},
+	
+	{
 		key = 'skyshift',
 		name = 'Skyshift: Air Rework',
 		desc = 'A complete overhaul of air units and mechanics',
