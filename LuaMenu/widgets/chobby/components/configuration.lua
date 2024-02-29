@@ -19,7 +19,7 @@ function Configuration:init()
 		fileConfig.game = "zk"
 	end
 
-	--self.serverAddress = "localhost"
+	-- self.serverAddress = "localhost"
 	self.serverAddress = WG.Server.address
 	self.serverPort =  WG.Server.port
 
@@ -741,6 +741,11 @@ end
 
 function Configuration:SetConfigValue(key, value)
 	if self[key] == value then
+		return
+	end
+	-- when a local chobby-install previously used a server formatted like "server%d.beyondallreason.info", then ignore the locally saved address and use the one from chobby_config.json instead (which is already set at chobby start).
+	-- this way changes to chobby_config.json take effect for all users with unchanged serverAddress (still users using localhost or anything else stay uneffected)
+	if (key == "serverAddress" and string.find(value, "server%d.beyondallreason.info")) then
 		return
 	end
 	self[key] = value
