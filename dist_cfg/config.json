@@ -223,6 +223,17 @@
     "links": [
         {"title": "Privacy Policy", "url": "https://www.beyondallreason.info/privacy"}
     ],
+    "json_files": {
+        "chobby_config.json": {
+            "server" : {
+                "address"    : "server4.beyondallreason.info",
+                "port"       : 8200,
+                "protocol"   : "spring",
+                "serverName" : "BAR"
+            },
+            "game" : "byar"
+        }
+    },
     "default_springsettings": {
         "AdvUnitShading": 1,
         "AdvMapShading": 1,
