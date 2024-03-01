@@ -54,7 +54,6 @@
                 "PRD_RAPID_USE_STREAMER": "false",
                 "PRD_RAPID_REPO_MASTER": "https://repos-cdn.beyondallreason.dev/repos.gz"
             },
-            "silent": false,
             "auto_download": true,
             "downloads": {
                 "games": ["byar:test", "byar-chobby:test"],
@@ -133,7 +132,6 @@
                 "PRD_RAPID_USE_STREAMER": "false",
                 "PRD_RAPID_REPO_MASTER": "https://repos-cdn.beyondallreason.dev/repos.gz"
             },
-            "silent": false,
             "auto_download": true,
             "downloads": {
                 "games": ["byar:test", "byar-chobby:test"],
