@@ -16,22 +16,17 @@ local welcomePanelItems = {
     },
 
     {
-        Header = "Map Update: Ancient Bastion",
-        Text =  " \n" ..  " \n" ..  "An ancient fortress, built to withstand an enemy long forgotten. Original by Russ838, updated by Nikuksis.",
-        Image = "LuaMenu/configs/gameConfig/byar/minimapOverride/Ancient_Bastion_Remake_0.5.jpg",
+        Header = "New Map: The Rock Jungle",
+        Text = "East vs West battles over a lush jungle with a large river containing dense vegetation and many shallows. Original by SirArtturi, updated by Moose.",
+        Image = "LuaMenu/configs/gameConfig/byar/minimapOverride/The_Rock_Jungle_2.0.jpg",
     },
 
     {
-        Header = "New Map: Adamantium Factory",
-        Text = "64 manufacturing stations strewn on a factory floor. Resources are higher in the center stations. Made by Beherith.",
-        Image = "LuaMenu/configs/gameConfig/byar/minimapOverride/Adamantium_Factory_V1.jpg",
+        Header = "Map Update: Jade Empress",
+        Text =  "Huge island battlefield to fight on the mountains, beaches, grassland, and sea. Made by Ambulatory Cortex. V1.41 has many texture improvments, reduction in specular, and adjusts the height of shallow water to be pathable by land units.",
+        Image = "LuaMenu/configs/gameConfig/byar/minimapOverride/Jade_Empress_1.41.jpg",
     },
 
-    {
-        Header = "New Map: Pinch Point",
-        Text =  " \n" ..  " \n" ..  "An island pair set in a tropical biome featuring a large central crossing and supporting islands to create tactical opportunities for all unit types. Made by Pinchy.",
-        Image = "LuaMenu/configs/gameConfig/byar/minimapOverride/Pinch_Point_1.01.jpg",
-    },
 
     {
         Header = "Guides for new players",
