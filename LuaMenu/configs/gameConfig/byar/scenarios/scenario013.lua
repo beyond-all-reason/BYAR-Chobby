@@ -42,8 +42,8 @@ Scoring:
 	difficulty		= 1, -- Percieved difficulty at 'normal' level: integer 1-10
     defaultdifficulty = "Normal", -- an entry of the difficulty table
     difficulties    = { -- Array for sortedness, Keys are text that appears in selector (as well as in scoring!), values are handicap levels
-        {name = "Beginner", playerhandicap = 50 , enemyhandicap = 0},
-        {name = "Novice"  , playerhandicap = 25 , enemyhandicap = 0},
+        {name = "Beginner", playerhandicap = 50 , enemyhandicap = -50},
+        {name = "Novice"  , playerhandicap = 25 , enemyhandicap = -25},
         {name = "Normal"  , playerhandicap = 0  , enemyhandicap = 0},
         {name = "Hard"    , playerhandicap = 0, enemyhandicap = 50},
         {name = "Brutal"  , playerhandicap = 0, enemyhandicap = 100},
