@@ -89,7 +89,6 @@ Scoring:
 	{
         Side = __PLAYERSIDE__;
 		Handicap = __PLAYERHANDICAP__;
-		Handicap = 0;
 		RgbColor = 0 0.20999999 0.97999997;
 		AllyTeam = 0;
 		TeamLeader = 0;
