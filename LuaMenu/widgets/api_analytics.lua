@@ -175,7 +175,7 @@ function Analytics.SendCrashReportOneTimeEvent(filename, errortype, errorkey, co
 		end
 		onetimeEvents["reportedcrashes"][filename] = true
 	end
-	
+
 	if PRINT_DEBUG then Spring.Log("Chobby", LOG.WARNING, "Analytics Event", cmdName, args, isEvent, client, "C/A",isConnected, ACTIVE) end
 
 	if client == nil then
@@ -222,7 +222,7 @@ function Analytics.SendOnetimeEvent(eventName, value)
 		return
 	end
 	onetimeEvents[eventName] = true
-	
+
 	SendBARAnalytics(eventName, value, false)
 end
 
@@ -280,7 +280,7 @@ local function ParseInfolog(infologpath)
 		local userhastestversion = false
 		for i, line in ipairs(fileLines) do
 			-- look for game or chobby version mismatch, if $VERSION then return
-			
+
 			if string.find(line,"Chobby $VERSION\"", nil, true) then -- BYAR-Chobby or Chobby is dev mode, so dont report
 				--if not PRINT_DEBUG then return nil end
 				userhastestversion = true
@@ -288,9 +288,8 @@ local function ParseInfolog(infologpath)
 			if string.find(line, "Beyond All Reason $VERSION", nil, true) then -- Game is test version, no reporting
 				userhastestversion = true
 				--if not PRINT_DEBUG then return nil end
-				
+
 			end
-			
 
 			--plain old luaui errors:
 			-- [t=00:00:55.609414][f=-000001] Error: gl.CreateList: error(2) = [string "LuaUI/Widgets/gui_options.lua"]:576: attempt to perform arithmetic on field 'value' (a boolean value)
@@ -378,6 +377,12 @@ local function ParseInfolog(infologpath)
 				return "LuaUI", line, infolog
 			end
 
+			if (string.find(line, "] Error: [PoolArchive::operator()]", nil, true) and string.find(line," could not read file ", nil, true) )
+				or (string.find(line, "] Error: [PoolArchive::GetFileImpl]", nil, true) and string.find(line," failed to read file ", nil, true) ) then
+				--[t=00:00:32.274034][f=-000001] Error: [PoolArchive::operator()] could not read file GZIP reason: "C:\Program Files\Beyond-All-Reason\data\\pool\86\bb62a5817c16400370c72fd3adda9e.gz: incorrect data check", SYSTEM reason: "Unknown error" (bytesRead=-1 fileSize=4295404)
+				--[t=00:00:48.760963][f=-000001] Error: [PoolArchive::GetFileImpl] failed to read file "C:\Program Files\Beyond-All-Reason\data\\pool\86\bb62a5817c16400370c72fd3adda9e.gz" after 1000 tries
+				return "CorruptPool", line, infolog
+			end
 		end
 	else
 		Spring.Echo("Failed to open:", infologpath)
@@ -465,14 +470,16 @@ local function GetInfologs()
 			Spring.Echo("Already processed an error in ", filename)
 		else
 			local errortype, errorkey, fullinfolog = ParseInfolog(filename)
-			if errortype ~= nil then
-				
+			if errortype == "CorruptPool" then
+				WG.Chobby.ConfirmationPopup(nil, "Moose Test Moose Test Moose Test", "uploadLogPromptDoNotAskAgain", 900, 450, "Yes", "No", nil, nil)
+			elseif errortype ~= nil then
+
 				if PRINT_DEBUG then Spring.Echo("BAR Analytics: GetInfologs() found an error:", filename, errortype, errorkey) end 
 
 				local compressedlog = Spring.Utilities.Base64Encode(VFS.ZlibCompress(fullinfolog))
 				if WG.Chobby.Configuration.uploadLogPrompt == "Prompt" then
 					if WG.Chobby.ConfirmationPopup then
-						
+
 						local function reportinfolog()
 							if WG.Chobby.Configuration.uploadLogPromptDoNotAskAgain then
 								WG.Chobby.Configuration:SetConfigValue("uploadLogPrompt", "Always Yes")
