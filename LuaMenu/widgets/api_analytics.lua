@@ -466,17 +466,15 @@ local function GetInfologs()
 	if PRINT_DEBUG then Spring.Echo("BAR Analytics: GetInfologs()", #filenames) end
 	for i=1, math.min(#filenames, 2) do
 		local filename = filenames[i]
---[[ 		if onetimeEvents["reportedcrashes"][filename] ~= nil then -- we already reported this one
+ 		if onetimeEvents["reportedcrashes"][filename] ~= nil then -- we already reported this one
 			Spring.Echo("Already processed an error in ", filename)
-		else ]]
+		else
 			local errortype, errorkey, fullinfolog = ParseInfolog(filename)
-			local errortype = "CorruptPool"
-			local function YesFunc()
-				WG.WrapperLoopback.OpenFolder()
-			end
 			if errortype == "CorruptPool" then
+				local function YesFunc()
+					WG.WrapperLoopback.OpenFolder()
+				end
 				WG.Chobby.ConfirmationPopup(YesFunc, "Warning: BAR has detected corrupted game content." .. " \n \n" .. "Open the game data folder, delete the folders /Pool/ and /Packages/ and run the launcher again. This will redownload all game content." .. " \n \n" .. "Ignoring this will lead to crashes or other problems." .. " \n \n" .. "If game corruption continues to occur this may be an indication of hardware failure. Disable any active system overclocks and run a health check on memory and storage.", nil, 900, 450, "Game Data", "Ignore", nil, true)
-				ButtonUtilities.SetFontSizeScale(btnAccept, 0.1)
 			elseif errortype ~= nil then
 
 				if PRINT_DEBUG then Spring.Echo("BAR Analytics: GetInfologs() found an error:", filename, errortype, errorkey) end
@@ -518,7 +516,7 @@ local function GetInfologs()
 			end
 		end
 	end
---[[ end ]]
+end
 
 local function GetErrorLog()
 	local infolog = VFS.LoadFile("infolog.txt") or table.concat(VFS.DirList('.') or {},',') or "Unable to find infolog.txt"
