@@ -471,10 +471,35 @@ local function GetInfologs()
 		else
 			local errortype, errorkey, fullinfolog = ParseInfolog(filename)
 			if errortype == "CorruptPool" then
-				local function YesFunc()
-					WG.WrapperLoopback.OpenFolder()
+				local function DeletePoolAndPackages()
+					local poolpath = "pool/"
+					local poolFiles = VFS.DirList(poolpath, "*.gz", VFS.RAW, true)
+					if poolFiles then
+						Spring.Echo("Deleting Pool", #poolFiles)
+						for j = 1, #poolFiles do
+							os.remove(poolFiles[j])
+						end
+					else
+						Spring.Echo("Deleting Pool error")
+					end
+					local packagespath = "packages/"
+					local packagesFiles = VFS.DirList(packagespath, "*.sdp", VFS.RAW)
+					if packagesFiles then
+						Spring.Echo("Deleting Packages", #packagesFiles)
+						for k = 1, #packagesFiles do
+							os.remove(packagesFiles[k])
+						end
+					else
+						Spring.Echo("Deleting Packages error")
+					end
+					local function ExitSpring()
+						Spring.Echo("Quitting...")
+						Spring.Quit()
+					end
+					WG.Chobby.ConfirmationPopup(ExitSpring, "BAR must be exited and the launcher run again. This will redownload all game content.", nil, 900, 450, "Exit Now", "Exit Later", nil)
 				end
-				WG.Chobby.ConfirmationPopup(YesFunc, "Warning: BAR has detected corrupted game content." .. " \n \n" .. "Open the game data folder, delete the folders /Pool/ and /Packages/ and run the launcher again. This will redownload all game content." .. " \n \n" .. "Ignoring this will lead to crashes or other problems." .. " \n \n" .. "If game corruption continues to occur this may be an indication of hardware failure. Disable any active system overclocks and run a health check on memory and storage.", nil, 900, 450, "Game Data", "Ignore", nil, true)
+				--"Open the game data folder, delete the folders /Pool/ and /Packages/ and run the launcher again. This will redownload all game content." .. " \n \n" .. 
+				WG.Chobby.ConfirmationPopup(DeletePoolAndPackages, "Warning: BAR has detected corrupted game content." .. " \n \n" .. "Press Repair to reinitialize the game content. The game will then need to be exited and the launcher run again. This will redownload all game content." .. " \n \n" .. "Ignoring this will lead to crashes or other problems." .. " \n \n" .. "If game corruption continues to occur this may be an indication of hardware failure. Disable any active system overclocks and run a health check on memory and storage.", nil, 900, 450, "Repair", "Ignore", nil)
 			elseif errortype ~= nil then
 
 				if PRINT_DEBUG then Spring.Echo("BAR Analytics: GetInfologs() found an error:", filename, errortype, errorkey) end
