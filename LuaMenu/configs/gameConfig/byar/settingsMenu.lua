@@ -31,11 +31,15 @@ if infolog then
 			if addResolutions then
 				break
 			end
-			addResolutions = true
-			local width = string.sub(string.match(line, 'w=([0-9]*)'), 1)
-			local height = string.sub(string.match(line, 'h=([0-9]*)'), 1)
-			desktop = width..' x '..height
-			supportedResolutions[#supportedResolutions+1] = desktop
+			local w = string.match(line, 'w=([0-9]*)')
+			local h = string.match(line, 'h=([0-9]*)')
+			if w and h then	-- nil check cause sometimes this fails when line = "display=2 bounds=N/A modes=N/A"
+				addResolutions = true
+				local width = string.sub(w, 1)
+				local height = string.sub(h, 1)
+				desktop = width..' x '..height
+				supportedResolutions[#supportedResolutions+1] = desktop
+			end
 		end
 	end
 end
