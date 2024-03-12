@@ -69,8 +69,8 @@ function Lobby:_Clean()
 	self.myBattleID = nil
 	self.scriptPassword = nil
 	self.sessionToken = nil
-	am = Platform.macAddrHash or "0"
-	as = Platform.sysInfoHash or "0"
+	local am = Platform.macAddrHash or "0"
+	local as = Platform.sysInfoHash or "0"
 	self.agent = am.." "..as:sub(1,16)
 
 	-- reconnection delay in seconds
@@ -85,6 +85,7 @@ function Lobby:_PreserveData()
 		myUserName = self.myUserName,
 		host = self.host,
 		port = self.port,
+		myBattleID = self.myBattleID,
 	}
 end
 
@@ -1943,7 +1944,9 @@ function Lobby:_OnDisconnected(reason, intentional)
 
 	self:_PreserveData()
 	self:_Clean()
+	self.lastReconnectionAttempt = nil
 	self.disconnectTime = Spring.GetTimer()
+	self.disconnectTimeDelay = math.random()
 end
 
 function Lobby:Reconnect()
@@ -1954,7 +1957,39 @@ end
 function Lobby:SafeUpdate(...)
 	if (self.status == "disconnected" or self.status == "connecting") and self.disconnectTime ~= nil then
 		local currentTime = Spring.GetTimer()
-		if self.lastReconnectionAttempt == nil or Spring.DiffTimers(currentTime, self.lastReconnectionAttempt) > self.reconnectionDelay then
+
+		-- We must prevent users from immediately reconnecting upon a disconnect!
+		local timeSinceDisconnect
+		if self.disconnectTime then 
+			timeSinceDisconnect = Spring.DiffTimers(currentTime, self.disconnectTime)
+		end
+
+		local timeSinceReconnectionAttempt
+		if self.lastReconnectionAttempt then
+			timeSinceReconnectionAttempt = Spring.DiffTimers(currentTime, self.lastReconnectionAttempt)
+		end
+		
+		local totalHideInterface = WG and WG.CheckTotalHideInterface and WG.CheckTotalHideInterface()
+
+		--Spring.Echo("Lobby:SafeUpdate:", string.format("ingame = %s, tDC = %s, tRC = %s, rmul =%s", tostring(totalHideInterface), tostring(timeSinceDisconnect),tostring(timeSinceReconnectionAttempt), tostring(self.disconnectTimeDelay) ))
+
+		-- This needs additional leeway to prevent everyone from hammering back in. 
+		if timeSinceDisconnect then 
+			if totalHideInterface then 
+				-- we are probably ingame, so wait 60 + 240 * random secs to reconnect. (1-5 minutes)
+				if timeSinceDisconnect < 60 + self.disconnectTimeDelay * 240 then 
+					return 
+				end
+			else
+				-- We are probably just in the lobby, so wait 5 + 30 random seconds
+				if timeSinceDisconnect < 5 + self.disconnectTimeDelay * 30 then 
+					return 
+				end
+			end
+		end
+
+		-- Reconnect if we havent tried to reconnect, and also reconnect if more than reconnectionDelay secs have passed since lastReconnectionAttempt
+		if self.lastReconnectionAttempt == nil or (Spring.DiffTimers(currentTime, self.lastReconnectionAttempt) > self.reconnectionDelay) then
 			self:Reconnect()
 		end
 	end

@@ -73,7 +73,7 @@ local startTimer = Spring.GetTimer()
 local hideInterface = true
 local loadFade = 1
 
-local totalHideInterface = falase
+local totalHideInterface = false
 local loadTex = "MenuLoadscreens/loadscreen.png"
 
 function widget:DrawScreen()
