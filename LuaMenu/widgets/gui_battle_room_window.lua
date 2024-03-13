@@ -902,17 +902,24 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 				if btnSpectate.selected then
 					return
 				end
+
 				local battleStatus = battleLobby:GetUserBattleStatus(myUserName) or {}
-				if battleStatus.isSpectator and battleLobby.name ~= "singleplayer" then
-					battleLobby:SayBattle('$leaveq')
-					battleLobby:_OnUpdateUserBattleStatus(battleLobby:GetMyUserName(), {queuePos = 0}) -- we proactive change our queuePos; because we don't reliable receicve s.battle.queue_status on fast clicking play/spectate
-				end
+				local function becomeSpec()
 				battleLobby:SetBattleStatus({
 					isSpectator = true,
 					isReady = false
 				})
+				end
 
-				if battleLobby.name == "singleplayer" then
+				if battleLobby.name ~= "singleplayer" then
+					if battleStatus.isSpectator then
+						battleLobby:SayBattle('$leaveq')
+						battleLobby:_OnUpdateUserBattleStatus(battleLobby:GetMyUserName(), {queuePos = 0}) -- we proactive change our queuePos; because we don't reliable receicve s.battle.queue_status on fast clicking play/spectate
+						becomeSpec()
+					else
+						WG.Chobby.ConfirmationPopup(becomeSpec, "Moose Test", nil, 300, 150, "Yes", "No")
+					end
+				else
 					SetButtonStateSpectating()
 				end
 
@@ -926,7 +933,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	}
 
 	btnPlay = Button:New { -- Some properties set by SetButtonStatePlaying() after both buttons are initialised.
-		name = 'btnPlay',	
+		name = 'btnPlay',
 		x = 0,
 		right = "50.5%",
 		bottom = 51,
