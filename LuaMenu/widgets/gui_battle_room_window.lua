@@ -904,20 +904,22 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 				end
 
 				local battleStatus = battleLobby:GetUserBattleStatus(myUserName) or {}
+				local myBs = battleLobby:GetUserBattleStatus(battleLobby.myUserName) or {}
+				local iAmQueued = myBs.queuePos and myBs.queuePos > 0
 				local function becomeSpec()
-				battleLobby:SetBattleStatus({
-					isSpectator = true,
-					isReady = false
-				})
+					battleLobby:SayBattle('$leaveq')
+					battleLobby:_OnUpdateUserBattleStatus(battleLobby:GetMyUserName(), {queuePos = 0}) -- we proactive change our queuePos; because we don't reliable receicve s.battle.queue_status on fast clicking play/spectate
+					battleLobby:SetBattleStatus({
+						isSpectator = true,
+						isReady = false
+					})
 				end
 
 				if battleLobby.name ~= "singleplayer" then
-					if battleStatus.isSpectator then
-						battleLobby:SayBattle('$leaveq')
-						battleLobby:_OnUpdateUserBattleStatus(battleLobby:GetMyUserName(), {queuePos = 0}) -- we proactive change our queuePos; because we don't reliable receicve s.battle.queue_status on fast clicking play/spectate
+					if battleStatus.isSpectator and not iAmQueued then
 						becomeSpec()
 					else
-						WG.Chobby.ConfirmationPopup(becomeSpec, "Moose Test", nil, 300, 150, "Yes", "No")
+						WG.Chobby.ConfirmationPopup(becomeSpec, "Moose Test", nil, 350, 150, "Yes", "No")
 					end
 				else
 					SetButtonStateSpectating()
