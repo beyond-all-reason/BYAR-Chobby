@@ -16,17 +16,10 @@ local welcomePanelItems = {
     },
 
     {
-        Header = "New Map: The Rock Jungle",
-        Text = "East vs West battles over a lush jungle with a large river containing dense vegetation and many shallows. Original by SirArtturi, updated by Moose.",
-        Image = "LuaMenu/configs/gameConfig/byar/minimapOverride/The_Rock_Jungle_2.0.jpg",
+        Header = "New Map: Wanderlust",
+        Text = " \n" .. "Grassy lowlands on the sides and dry upper plateaus in the center. 1v1 to 3v3. Original by FlorisXIV, updated by Moose.",
+        Image = "LuaMenu/configs/gameConfig/byar/minimapOverride/Wanderlust_2.0.jpg",
     },
-
-    {
-        Header = "Map Update: Jade Empress",
-        Text =  "Huge island battlefield to fight on the mountains, beaches, grassland, and sea. Made by Ambulatory Cortex. V1.41 has many texture improvments, reduction in specular, and adjusts the height of shallow water to be pathable by land units.",
-        Image = "LuaMenu/configs/gameConfig/byar/minimapOverride/Jade_Empress_1.41.jpg",
-    },
-
 
     {
         Header = "Guides for new players",
