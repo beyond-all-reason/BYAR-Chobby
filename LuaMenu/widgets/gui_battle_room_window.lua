@@ -924,7 +924,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 					if battleStatus.isSpectator and not iAmQueued then
 						becomeSpec()
 					else
-						WG.Chobby.ConfirmationPopup(becomeSpec, i18n("queue_exit_confirm"), nil, 400, 200, i18n("yes"), i18n("no"))
+						WG.Chobby.ConfirmationPopup(becomeSpec, i18n("queue_exit_confirm"), nil, 400, 200, i18n("yes"), i18n("cancel"))
 					end
 				end
 
