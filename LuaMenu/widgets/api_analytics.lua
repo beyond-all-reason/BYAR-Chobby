@@ -395,15 +395,15 @@ local function ascii(s)
 	local res = {}
 	local validchars = 0
 	local invalidchars = 0
-	for i=1, string.len(s) do 
+	for i=1, string.len(s) do
 		local sub = string.sub(s,i,i)
-		local val = string.byte(sub) 
-		if (val >= 9) and (val <= 127) then 
-			validchars = validchars + 1 
+		local val = string.byte(sub)
+		if (val >= 9) and (val <= 127) then
+			validchars = validchars + 1
 			res[validchars] = sub
 		else
 			--print ("invalid character, number is ", val) 
-			invalidchars = invalidchars + 1 
+			invalidchars = invalidchars + 1
 		end
 	end
 	return table.concat(res)
@@ -498,7 +498,7 @@ local function GetInfologs()
 					end
 					WG.Chobby.ConfirmationPopup(ExitSpring, "BAR must be exited and the launcher run again. This will redownload all game content.", nil, 900, 450, "Exit Now", "Exit Later", nil)
 				end
-				WG.Chobby.ConfirmationPopup(DeletePoolAndPackages, "Warning: BAR has detected corrupted game content." .. " \n \n" .. "Press Repair to reinitialize the game content. The game will then need to be exited and the launcher run again. This will redownload all game content." .. " \n \n" .. "Ignoring this will lead to crashes or other problems." .. " \n \n" .. "If game corruption continues to occur this may be an indication of hardware failure. Disable any active system overclocks and run a health check on memory and storage.", nil, 900, 450, "Repair", "Ignore", nil)
+				WG.Chobby.ConfirmationPopup(DeletePoolAndPackages, "Warning: BAR has detected corrupted game content." .. " \n \n" .. errorkey  .. " \n \n" .. "Press Repair to reinitialize the game content. The game will then need to be exited and the launcher run again. This will redownload all game content." .. " \n \n" .. "Ignoring this will lead to crashes or other problems." .. " \n \n" .. "If game corruption continues to occur this may be an indication of hardware failure. Disable any active system overclocks and run a health check on memory and storage.", nil, 900, 450, "Repair", "Ignore", nil)
 			elseif errortype ~= nil then
 
 				if PRINT_DEBUG then Spring.Echo("BAR Analytics: GetInfologs() found an error:", filename, errortype, errorkey) end
