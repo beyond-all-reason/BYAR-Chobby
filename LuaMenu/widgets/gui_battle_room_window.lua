@@ -903,26 +903,29 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 					return
 				end
 
-				local battleStatus = battleLobby:GetUserBattleStatus(myUserName) or {}
-				local myBs = battleLobby:GetUserBattleStatus(battleLobby.myUserName) or {}
-				local iAmQueued = myBs.queuePos and myBs.queuePos > 0
-				local function becomeSpec()
-					battleLobby:SayBattle('$leaveq')
-					battleLobby:_OnUpdateUserBattleStatus(battleLobby:GetMyUserName(), {queuePos = 0}) -- we proactive change our queuePos; because we don't reliable receicve s.battle.queue_status on fast clicking play/spectate
+				if battleLobby.name == "singleplayer" then
+					SetButtonStateSpectating()
 					battleLobby:SetBattleStatus({
 						isSpectator = true,
 						isReady = false
 					})
-				end
-
-				if battleLobby.name ~= "singleplayer" then
+				else
+					local battleStatus = battleLobby:GetUserBattleStatus(myUserName) or {}
+					local myBs = battleLobby:GetUserBattleStatus(battleLobby.myUserName) or {}
+					local iAmQueued = myBs.queuePos and myBs.queuePos > 0
+					local function becomeSpec()
+						battleLobby:SayBattle('$leaveq')
+						battleLobby:_OnUpdateUserBattleStatus(battleLobby:GetMyUserName(), {queuePos = 0}) -- we proactive change our queuePos; because we don't reliable receicve s.battle.queue_status on fast clicking play/spectate
+						battleLobby:SetBattleStatus({
+							isSpectator = true,
+							isReady = false
+						})
+					end
 					if battleStatus.isSpectator and not iAmQueued then
 						becomeSpec()
 					else
-						WG.Chobby.ConfirmationPopup(becomeSpec, "Moose Test", nil, 350, 150, "Yes", "No")
+						WG.Chobby.ConfirmationPopup(becomeSpec, i18n("queue_warning"), nil, 400, 200, i18n("yes"), i18n("no"))
 					end
-				else
-					SetButtonStateSpectating()
 				end
 
 				WG.Analytics.SendOnetimeEvent("lobby:multiplayer:custom:spectate")
