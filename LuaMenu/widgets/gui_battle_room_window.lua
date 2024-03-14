@@ -921,10 +921,10 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 							isReady = false
 						})
 					end
-					if battleStatus.isSpectator and not iAmQueued then
+					if (battleStatus.isSpectator and not iAmQueued) or WG.Chobby.Configuration.queueExitConfirmPromptDoNotAskAgain then
 						becomeSpec()
 					else
-						WG.Chobby.ConfirmationPopup(becomeSpec, i18n("queue_exit_confirm"), "QueueExitConfirmPromptDoNotAskAgain", 450, 225, i18n("yes"), i18n("cancel"))
+						WG.Chobby.ConfirmationPopup(becomeSpec, i18n("queue_exit_confirm"), "queueExitConfirmPromptDoNotAskAgain", 450, 225, i18n("yes"), i18n("cancel"))
 					end
 				end
 
