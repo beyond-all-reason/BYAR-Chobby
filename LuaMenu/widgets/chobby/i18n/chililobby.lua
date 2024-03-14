@@ -243,6 +243,7 @@ return {
 		startbtn_votestart_tooltip = "Call a vote to start.",
 		startbtn_inprogress_tooltip = "Watch this in progress game.",
 		startbtn_gettingcontent_tooltip = "Please wait for downloads to finish before starting.",
+		queue_exit_confirm = "This will release your current place in the queue or game. Are you sure?",
 
 		-- gui_maplist_panel.lua
 

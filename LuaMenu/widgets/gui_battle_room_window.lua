@@ -856,7 +856,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 
 	local btnPlay
 	local btnSpectate
-	
+
 	local function SetButtonStatePlaying()
 		-- Spring.Echo("SetButtonStatePlaying !!!")
 		ButtonUtilities.SetButtonDeselected(btnSpectate)
@@ -877,7 +877,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		ButtonUtilities.SetButtonDeselected(btnPlay)
 		ButtonUtilities.SetCaption(btnPlay, i18n("play"))
 		btnPlay.suppressButtonReaction = false
-		
+
 		-- SpecBtn
 		ButtonUtilities.SetButtonSelected(btnSpectate)
 		btnSpectate.suppressButtonReaction = true
@@ -902,20 +902,32 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 				if btnSpectate.selected then
 					return
 				end
-				local battleStatus = battleLobby:GetUserBattleStatus(myUserName) or {}
-				if battleStatus.isSpectator and battleLobby.name ~= "singleplayer" then
-					battleLobby:SayBattle('$leaveq')
-					battleLobby:_OnUpdateUserBattleStatus(battleLobby:GetMyUserName(), {queuePos = 0}) -- we proactive change our queuePos; because we don't reliable receicve s.battle.queue_status on fast clicking play/spectate
-				end
-				battleLobby:SetBattleStatus({
-					isSpectator = true,
-					isReady = false
-				})
 
 				if battleLobby.name == "singleplayer" then
 					SetButtonStateSpectating()
+					battleLobby:SetBattleStatus({
+						isSpectator = true,
+						isReady = false
+					})
+				else
+					local battleStatus = battleLobby:GetUserBattleStatus(myUserName) or {}
+					local myBs = battleLobby:GetUserBattleStatus(battleLobby.myUserName) or {}
+					local iAmQueued = myBs.queuePos and myBs.queuePos > 0
+					local function becomeSpec()
+						battleLobby:SayBattle('$leaveq')
+						battleLobby:_OnUpdateUserBattleStatus(battleLobby:GetMyUserName(), {queuePos = 0}) -- we proactive change our queuePos; because we don't reliable receicve s.battle.queue_status on fast clicking play/spectate
+						battleLobby:SetBattleStatus({
+							isSpectator = true,
+							isReady = false
+						})
+					end
+					if battleStatus.isSpectator and not iAmQueued then
+						becomeSpec()
+					else
+						WG.Chobby.ConfirmationPopup(becomeSpec, i18n("queue_exit_confirm"), nil, 400, 200, i18n("yes"), i18n("no"))
+					end
 				end
-				
+
 				WG.Analytics.SendOnetimeEvent("lobby:multiplayer:custom:spectate")
 				if WG.Chobby.Configuration.useLastGameSpectatorState == 1 then
 					WG.Chobby.Configuration:SetConfigValue("lastGameSpectatorState", true)
@@ -926,7 +938,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	}
 
 	btnPlay = Button:New { -- Some properties set by SetButtonStatePlaying() after both buttons are initialised.
-		name = 'btnPlay',	
+		name = 'btnPlay',
 		x = 0,
 		right = "50.5%",
 		bottom = 51,
@@ -963,7 +975,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	-- Spring.Echo("debug_initialSetButtonStatePlayingbefore")
 	SetButtonStatePlaying()
 	-- Spring.Echo("debug_initialSetButtonStatePlayingafter")
-	
+
 	local function SetBtnPlayState(selected, caption)
 		local myBs = battleLobby:GetUserBattleStatus(battleLobby.myUserName) or {}
 		local myQueuePos = myBs.queuePos or "?"
@@ -1016,7 +1028,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		-- 	specSelected = specSelected,
 		-- 	specCaption  = specCaption,
 		-- }
-		
+
 		if not btnPlay then
 			-- Spring.Echo("SetBtnsPlaySpec btnPlay not initialized")
 			return
@@ -3231,10 +3243,10 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	-- 23/03/19 Fireball update: only react, when dependent status.properties are present = were updated for this current event
 	-- reacts to: isSpectator, isReady, queuePos
 	local function OnUpdateUserBattleStatus(listener, username, status)
-		
+
 		------------------------
 		-- Buttons Play and Spec
-	
+
 		local battleID = battleLobby:GetMyBattleID()
 		local maxPlayers = battleLobby.battles[battleID].maxPlayers
 		local playerCount = battleLobby:GetBattlePlayerCount(battleID)
@@ -3242,7 +3254,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		local iAmPlayer = myBs.isSpectator ~= nil and myBs.isSpectator == false
 		local iAmQueued = myBs.queuePos and myBs.queuePos > 0
 		-- Spring.Echo("OnUpdateUserBattleStatus battleID, maxPlayers, playerCount, iAmPlayer, iAmQueued", battleID, maxPlayers, playerCount, iAmPlayer, iAmQueued)
-		
+
 		-- somebody switched to player
 		if status.isSpectator ~= nil and status.isSpectator == false then
 			if not iAmPlayer then
@@ -3267,7 +3279,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		end
 		------------------------
 		-- (else) Update affects ME
-		
+
 		if status.isSpectator ~= nil then
 			-- we switched to player
 			if status.isSpectator == false then
@@ -3493,7 +3505,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		if string.match(message, ". BattleStatus = .*") then return true end
 
 		if string.match(message, "Player .* has already been added in game") then return true end
-		
+
 		return false -- false if it should be displayed to user, true if not
 	end
 
