@@ -1982,7 +1982,7 @@ function Lobby:SafeUpdate(...)
 				end
 			else
 				-- We are probably just in the lobby, so wait 5 + 30 random seconds
-				if timeSinceDisconnect < 5 + self.disconnectTimeDelay * 30 then 
+				if timeSinceDisconnect < 25 + self.disconnectTimeDelay * 35 then 
 					return 
 				end
 			end
