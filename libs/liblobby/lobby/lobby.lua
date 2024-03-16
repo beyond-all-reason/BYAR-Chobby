@@ -1981,8 +1981,8 @@ function Lobby:SafeUpdate(...)
 					return 
 				end
 			else
-				-- We are probably just in the lobby, so wait 5 + 30 random seconds
-				if timeSinceDisconnect < 5 + self.disconnectTimeDelay * 30 then 
+				-- We are probably just in the lobby, and need to wait at least 20 seconds for the server to flush the cache and allow us back in.
+				if timeSinceDisconnect < 25 + self.disconnectTimeDelay * 35 then 
 					return 
 				end
 			end

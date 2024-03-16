@@ -26,6 +26,12 @@ local playedTracks = {}
 local introTracksIndex = 0
 local peaceTracksIndex = 0
 
+local eventType = "none"
+local eventTrackPlayed = false
+
+local easterEggCountdown = Spring.GetConfigInt('ChobbyLaunchesCount', 0) + 1 -- Don't play easter egg intro song for first few launches to not make weird first impression
+Spring.SetConfigInt('ChobbyLaunchesCount', easterEggCountdown)
+
 local function GetRandomTrack(previousTrack)
 	-- randomTrackList
 	-- introTrackList
@@ -33,7 +39,6 @@ local function GetRandomTrack(previousTrack)
 	local nextTrack
 	local trackType
 	for i = 1, #randomTrackList do
-
 		if previousTrackType == "intro" or (not introTrackList[1]) then -- we're checking if there are any intro tracks
 			trackType = "peace"
 			peaceTracksIndex = peaceTracksIndex + 1
@@ -188,6 +193,7 @@ function widget:Initialize()
 	Spring.Echo("RANDOMSEED", math.ceil(os.clock()*1000000))
 
 	randomTrackList = {}
+	aprilFoolsTrackList = {}
 	local originalSoundtrackEnabled = Spring.GetConfigInt('UseSoundtrackNew', 1)
 	local customSoundtrackEnabled	= Spring.GetConfigInt('UseSoundtrackCustom', 1)
 	local allowedExtensions = "{*.ogg,*.mp3}"
@@ -196,6 +202,8 @@ function widget:Initialize()
 	if originalSoundtrackEnabled == 1 then
 		local musicDirOriginal 		= 'luamenu/configs/gameconfig/byar/lobbyMusic/original'
 		randomTrackList = playlistMerge(randomTrackList, VFS.DirList(musicDirOriginal, allowedExtensions))
+		local musicDirEventAprilFools = 'luamenu/configs/gameconfig/byar/lobbyMusic/event/aprilfools'
+		aprilFoolsTrackList = VFS.DirList(musicDirEventAprilFools, allowedExtensions)
 	end
 
 	-- Custom Soundtrack List
@@ -238,8 +246,15 @@ function widget:Initialize()
 	end
 
 	for i = 1,1000 do
-		openTrack = introTrackList[1]
-		introTracksIndex = 1
+		if (easterEggCountdown > 1 and tonumber(os.date("%m")) == 4 and tonumber(os.date("%d")) <= 3) or (easterEggCountdown > 10 and math.random(0,2137) == 0) then -- April Fools, with a very tiny chance to play the track on normal day
+			openTrack = aprilFoolsTrackList[math.random(1,#aprilFoolsTrackList)]
+		end
+		if openTrack then
+			break
+		else
+			openTrack = introTrackList[1]
+			introTracksIndex = 1
+		end
 		if openTrack then
 			break
 		else

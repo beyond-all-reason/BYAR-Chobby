@@ -936,7 +936,7 @@ function Interface:_OnBattleOpened(battleID, type, natType, founder, ip, port, m
 
 		spectatorCount = 1, -- To handle the founder joining as a spec
 		--playerCount = 0, -- to handle the founder joining as a spec
-		isRunning = self.users[founder].isInGame,
+		isRunning = (self.users[founder] and self.users[founder].isInGame) or false,
 
 		-- Spring stuff
 		-- unsupported
