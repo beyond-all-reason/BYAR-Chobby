@@ -1008,23 +1008,6 @@ local options={
 	},
 
 	{
-		key    = 'teamcolors_icon_dev_mode',
-		name   = "Icon Dev Mode ",
-		desc   = "(Don't use in normal games) Forces teamcolors to be an specific one, for all teams",
-		type   = 'list',
-		section = 'options_experimental',
-		def  = "disabled",
-		items={
-			{key="disabled", name="Disabled", desc="description"},
-			{key="armblue", name="Armada Blue", desc="description"},
-			{key="corred", name="Cortex Red", desc="description"},
-			{key="scavpurp", name="Scavenger Purple", desc="description"},
-			{key="raptororange", name="Raptor Orange", desc="description"},
-			{key="gaiagray", name="Gaia Gray", desc="description"},
-		}
-	},
-
-	{
 		key    		= 'faction_limiter',
 		name   		= 'Team Faction Limiter.',
 		desc   		= 'Input the factions a team should play, seperating teams by a comma, e.g. "armada cortex, legion" = cor/arm vs legion.',
@@ -1585,6 +1568,22 @@ local options={
 		type    = "string",
 		def     = "",
 	},
+	{
+		key    = 'teamcolors_icon_dev_mode',
+		name   = "Icon Dev Mode ",
+		desc   = "(Don't use in normal games) Forces teamcolors to be an specific one, for all teams",
+		type   = 'list',
+		section = 'dev',
+		def  = "disabled",
+		items={
+			{key="disabled", name="Disabled", desc="description"},
+			{key="armblue", name="Armada Blue", desc="description"},
+			{key="corred", name="Cortex Red", desc="description"},
+			{key="scavpurp", name="Scavenger Purple", desc="description"},
+			{key="raptororange", name="Raptor Orange", desc="description"},
+			{key="gaiagray", name="Gaia Gray", desc="description"},
+		}
+	},
 
 	---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 	---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -1599,7 +1598,7 @@ for i = 1, 9 do
 		key     = "tweakunits" .. i,
 		name    = "Tweak Units " .. i,
 		desc    = "A base64 encoded lua table of unit parameters to change.",
-		section = 'options_extra',
+		section = 'options',
 		type    = "string",
 		def     = "",
 		hidden = true,
@@ -1611,7 +1610,7 @@ for i = 1, 9 do
 		key     = "tweakdefs" .. i,
 		name    = "Tweak Defs " .. i,
 		desc    = "A base64 encoded snippet of code that modifies game definitions.",
-		section = 'options_extra',
+		section = 'options',
 		type    = "string",
 		def     = "",
 		hidden = true,
