@@ -306,14 +306,16 @@ function Interface:_SocketUpdate()
 		if (status == "timeout" or status == nil) and commandsStr ~= nil and commandsStr ~= "" then
 			Spring.Log(LOG_SECTION, LOG.DEBUG, commandsStr)
 			local commands = explode("\n", commandsStr)
-			commands[1] = self.buffer .. commands[1]
-			for i = 1, #commands-1 do
-				local command = commands[i]
-				if command ~= nil then
-					self:CommandReceived(command)
+			if commands ~= nil then
+				commands[1] = self.buffer .. commands[1]
+				for i = 1, #commands-1 do
+					local command = commands[i]
+					if command ~= nil then
+						self:CommandReceived(command)
+					end
 				end
+				self.buffer = commands[#commands]
 			end
-			self.buffer = commands[#commands]
 		elseif status == "closed" then
 			Spring.Log(LOG_SECTION, LOG.INFO, "Disconnected from server.")
 			input:close()
