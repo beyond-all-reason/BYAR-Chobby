@@ -1026,10 +1026,11 @@ local options={
 
 	{
 		key    		= 'faction_limiter',
-		name   		= 'Limit which factions a team can play.',
+		name   		= 'Team Faction Limiter.',
 		desc   		= 'Input the factions a team should play, seperating teams by a comma, e.g. "armada cortex, legion" = cor/arm vs legion.',
 		type   		= "string",
 		section		= 'options_experimental',
+		hidden		= true,
 		def			= "",
 	},
 
@@ -1297,16 +1298,6 @@ local options={
 		max    = 10,
 		step   = 0.1,
 	},
-
-	{
-		key     = "debugcommands",
-		name    = "Debug Commands",
-		desc    = "A pipe separated list of commands to execute at [gameframe]:luarules fightertest|100:forcequit...", -- example: debugcommands=150:cheat 1|200:luarules fightertest|600:quitforce;
-		section = 'options_experimental',
-		type    = "string",
-		def     = "",
-	},
-
 	{
 		key     = "defaultdecals",
 		name    = "Default Decals",
@@ -1565,6 +1556,34 @@ local options={
 		max    = 1000,
 		step   = 1,  -- quantization is aligned to the def value
 		-- (step <= 0) means that there is no quantization
+	},
+
+
+	---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+	---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+	-- DEV MODE ONLY SECTIONS
+	---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+	---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+	{
+		key    = 'dev',
+		name   = '_DEV',
+		desc   = '',
+		type   = 'section',
+	},
+	{
+		key    = 'hidden',
+		name   = '_HIDDEN',
+		desc   = 'When Dev Mode is detected options tagged as [hidden = true] get added here',
+		type   = 'section',
+	},
+
+	{
+		key     = "debugcommands",
+		name    = "Debug Commands",
+		desc    = "A pipe separated list of commands to execute at [gameframe]:luarules fightertest|100:forcequit...", -- example: debugcommands=150:cheat 1|200:luarules fightertest|600:quitforce;
+		section = 'dev',
+		type    = "string",
+		def     = "",
 	},
 
 	---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
