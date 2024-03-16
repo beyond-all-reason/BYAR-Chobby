@@ -1553,12 +1553,6 @@ local options={
 		desc   = '',
 		type   = 'section',
 	},
-	{
-		key    = 'hidden',
-		name   = '_HIDDEN',
-		desc   = 'When Dev Mode is detected options tagged as [hidden = true] get added here',
-		type   = 'section',
-	},
 
 	{
 		key     = "debugcommands",
