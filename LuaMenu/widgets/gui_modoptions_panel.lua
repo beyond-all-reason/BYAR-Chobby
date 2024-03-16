@@ -588,35 +588,14 @@ local modoptionsDisplay
 
 local ModoptionsPanel = {}
 
-function ModoptionsPanel.LoadModoptions(gameName, newBattleLobby)
-	battleLobby = newBattleLobby
-
-	modoptions = WG.Chobby.Configuration.gameConfig.defaultModoptions
-	modoptionDefaults = {}
+function ModoptionsPanel.RefreshModoptions()
+	local devmode = WG.Chobby.Configuration.devModoptions -- and WG.Chobby.Configuration.devMode
+	local postpendHiddenOptions = {}
 	modoptionStructure = {
 		sectionTitles = {},
 		sections = {}
 	}
-	if not modoptions then
-		return
-	end
-
-	local devmode = tracy and ((VFS.FileExists("devmode.txt") and true) or false)
-
-	-- Set modoptionDefaults
-	for i = 1, #modoptions do
-		local data = modoptions[i]
-		if data.key and data.def ~= nil then -- dont check for hidden here yet, as undefined defaults mean they will appear in the modopts list
-			if type(data.def) == "boolean" then
-				modoptionDefaults[data.key] = tostring((data.def and 1) or 0)
-			elseif type(data.def) == "number" then
-				-- can't use tostring because of float inaccuracy, eg. 0.6 ends up as "0.6000000002"
-				modoptionDefaults[data.key] = TextFromNum(data.def, data.step)
-			else
-				modoptionDefaults[data.key] = tostring(data.def)
-			end
-		end
-	end
+	modoptions = modoptions or {}
 
 	-- Populate the sections
 	for i = 1, #modoptions do
@@ -634,15 +613,10 @@ function ModoptionsPanel.LoadModoptions(gameName, newBattleLobby)
 					local options = modoptionStructure.sections[data.section].options
 					options[#options + 1] = data
 				elseif devmode then
-					data.section = "hidden"
-					modoptionStructure.sections[data.section] = modoptionStructure.sections[data.section] or {
-						title = data.section,
-						options = {}
-					}
-	
-					local options = modoptionStructure.sections[data.section].options
-					data.name = "HIDDEN_"..data.name
-					options[#options + 1] = data
+					if not data.name:find("HIDDEN") then
+						data.name = "(HIDDEN) "..data.name
+					end
+					postpendHiddenOptions[#postpendHiddenOptions+1] = data
 				end
 			end
 		end
@@ -650,7 +624,45 @@ function ModoptionsPanel.LoadModoptions(gameName, newBattleLobby)
 
 	if not devmode then
 		modoptionStructure.sections["dev"] = nil
+	else
+		for i = 1, #postpendHiddenOptions do
+			local data = postpendHiddenOptions[i]
+			modoptionStructure.sections[data.section] = modoptionStructure.sections[data.section] or {
+				title = data.section,
+				options = {}
+			}
+
+			local options = modoptionStructure.sections[data.section].options
+			options[#options + 1] = data
+		end
 	end
+end
+
+function ModoptionsPanel.LoadModoptions(gameName, newBattleLobby)
+	battleLobby = newBattleLobby
+
+	modoptions = WG.Chobby.Configuration.gameConfig.defaultModoptions
+	modoptionDefaults = {}
+	if not modoptions then
+		return
+	end
+
+	-- Set modoptionDefaults
+	for i = 1, #modoptions do
+		local data = modoptions[i]
+		if data.key and data.def ~= nil then -- dont check for hidden here yet, as undefined defaults mean they will appear in the modopts list
+			if type(data.def) == "boolean" then
+				modoptionDefaults[data.key] = tostring((data.def and 1) or 0)
+			elseif type(data.def) == "number" then
+				-- can't use tostring because of float inaccuracy, eg. 0.6 ends up as "0.6000000002"
+				modoptionDefaults[data.key] = TextFromNum(data.def, data.step)
+			else
+				modoptionDefaults[data.key] = tostring(data.def)
+			end
+		end
+	end
+
+	ModoptionsPanel.RefreshModoptions()
 end
 
 function ModoptionsPanel.ShowModoptions()
