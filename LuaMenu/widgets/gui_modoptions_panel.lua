@@ -601,6 +601,8 @@ function ModoptionsPanel.LoadModoptions(gameName, newBattleLobby)
 		return
 	end
 
+	local devmode = tracy and ((VFS.FileExists("devmode.txt") and true) or false)
+
 	-- Set modoptionDefaults
 	for i = 1, #modoptions do
 		local data = modoptions[i]
@@ -622,16 +624,32 @@ function ModoptionsPanel.LoadModoptions(gameName, newBattleLobby)
 		if data.type == "section" then
 			modoptionStructure.sectionTitles[data.key] = data.name
 		else
-			if data.section and data.hidden ~= true then
-				modoptionStructure.sections[data.section] = modoptionStructure.sections[data.section] or {
-					title = data.section,
-					options = {}
-				}
+			if data.section then
+				if data.hidden ~= true then
+					modoptionStructure.sections[data.section] = modoptionStructure.sections[data.section] or {
+						title = data.section,
+						options = {}
+					}
 
-				local options = modoptionStructure.sections[data.section].options
-				options[#options + 1] = data
+					local options = modoptionStructure.sections[data.section].options
+					options[#options + 1] = data
+				elseif devmode then
+					data.section = "hidden"
+					modoptionStructure.sections[data.section] = modoptionStructure.sections[data.section] or {
+						title = data.section,
+						options = {}
+					}
+	
+					local options = modoptionStructure.sections[data.section].options
+					data.name = "HIDDEN_"..data.name
+					options[#options + 1] = data
+				end
 			end
 		end
+	end
+
+	if not devmode then
+		modoptionStructure.sections["dev"] = nil
 	end
 end
 
