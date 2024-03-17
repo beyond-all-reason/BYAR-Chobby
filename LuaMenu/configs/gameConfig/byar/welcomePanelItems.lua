@@ -17,9 +17,7 @@ local welcomePanelItems = {
 
     {
         Header = "Recent Lobby Server Issues",
-        Text = "Since March 9 we have been experiencing ongoing issues with our Lobby server. The issue results in periods with lost connections and timeouts in lobby.
-We are investigating the best ways to mitigate it. We have a strong hypothesis but we aren't certain of it at this time.
-We appreciate your patience and keep in mind that this project is being run by volunteers.",
+        Text = "Since March 9 we have been experiencing ongoing issues with our Lobby server. The issue results in periods with lost connections and timeouts in lobby. We are investigating the best ways to mitigate it. We have a strong hypothesis but we aren't certain of it at this time. We appreciate your patience and keep in mind that this project is being run by volunteers.",
     },
 
     {
