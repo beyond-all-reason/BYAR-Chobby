@@ -76,9 +76,9 @@ Scoring:
 
 
 {name = 'corvp', x = 3656, y = 323, z = 3528, rot = 0 , team = 0},
-{name = 'cormex', x = 3848, y = 322, z = 3832, rot = 0 , team = 0},
+{name = 'cormex', x = 3856, y = 323, z = 3840, rot = -16384 , team = 0},
 {name = 'cormlv', x = 3542, y = 320, z = 3633, rot = -16384 , team = 0},
-{name = 'cormex', x = 3880, y = 325, z = 3432, rot = 0 , team = 0},
+{name = 'cormex', x = 3888, y = 325, z = 3424, rot = -16384 , team = 0},
 {name = 'cormlv', x = 3466, y = 322, z = 3271, rot = -16384 , team = 0},
 {name = 'cormlv', x = 3513, y = 321, z = 3557, rot = -16384 , team = 0},
 {name = 'corfav', x = 3514, y = 322, z = 3449, rot = -16384 , team = 0},
@@ -86,7 +86,7 @@ Scoring:
 {name = 'corfav', x = 3582, y = 319, z = 3628, rot = -16384 , team = 0},
 {name = 'corfav', x = 3512, y = 322, z = 3409, rot = -16384 , team = 0},
 {name = 'corfav', x = 3566, y = 322, z = 3375, rot = -16384 , team = 0},
-{name = 'cormex', x = 3464, y = 324, z = 3160, rot = 0 , team = 0},
+{name = 'cormex', x = 3456, y = 324, z = 3168, rot = -16384, team = 0},
 {name = 'corrad', x = 3696, y = 324, z = 3392, rot = 0 , team = 0},
 --{name = 'corestor', x = 3776, y = 321, z = 3552, rot = 0 , team = 0},
 {name = 'coradvsol', x = 3824, y = 319, z = 3680, rot = 0 , team = 0},
