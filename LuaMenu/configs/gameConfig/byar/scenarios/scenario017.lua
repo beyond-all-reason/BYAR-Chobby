@@ -33,7 +33,7 @@ The difficulty modifier will change the amount of resources you and the enemy re
 	playerstarty	= "50%", -- Y position of where player comm icon should be drawn, from top left of the map
 	partime 		= 1500, -- par time in seconds
 	parresources	= 50000, -- par resource amount
-	difficulty		= 1, -- Percieved difficulty at 'normal' level: integer 1-10
+	difficulty		= 3, -- Percieved difficulty at 'normal' level: integer 1-10
     defaultdifficulty = "Normal", -- an entry of the difficulty table
     difficulties    = { -- Array for sortedness, Keys are text that appears in selector (as well as in scoring!), values are handicap levels
         {name = "Beginner", playerhandicap = 50 , enemyhandicap = -50},
