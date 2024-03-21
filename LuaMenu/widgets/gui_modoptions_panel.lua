@@ -622,6 +622,8 @@ function ModoptionsPanel.RefreshModoptions()
 			end
 		end
 	end
+
+	-- Remove any categories unsuitable for current user's state
 	if not devmode then
 		modoptionStructure.sections["dev"] = nil
 	end
@@ -637,19 +639,19 @@ function ModoptionsPanel.RefreshModoptions()
 			options[#options + 1] = data
 		end
 	else
-		local keepRaptors, keepScav = false, false
+		local removeRaptors, removeScav = true, true
 		for name, value in pairs(battleLobby.userBattleStatus) do
-			if name:find("ScavengersAI%(") then
-				keepScav = true
-			elseif name:find("RaptorsAI%(") then
-				keepRaptors = true
+			if removeScav and name:find("ScavengersAI%(") then
+				removeScav = false
+			elseif removeRaptors and name:find("RaptorsAI%(") then
+				removeRaptors = false
 			end
 		end
-		if not keepRaptors then
-			modoptionStructure.sections["raptor_defense_options"] = nil
-		end
-		if not keepScav then
+		if removeScav then
 			modoptionStructure.sections["scav_defense_options"] = nil
+		end
+		if removeRaptors then
+			modoptionStructure.sections["raptor_defense_options"] = nil
 		end
 	end
 end
