@@ -203,9 +203,8 @@ function Configuration:init()
 	-- Do not ask again tests.
 	self.confirmation_mainMenuFromBattle = false
 	self.confirmation_battleFromBattle = false
-
 	self.leaveMultiplayerOnMainMenu = false
-
+	self.queueExitConfirmPromptDoNotAskAgain = false
 	self.backConfirmation = {
 		multiplayer = {
 			self.leaveMultiplayerOnMainMenu and {
@@ -732,6 +731,7 @@ function Configuration:GetConfigData()
 		showCountry = self.showCountry,
 		useLastGameSpectatorState = self.useLastGameSpectatorState,
 		friendsFilterOnline = self.friendsFilterOnline,
+		queueExitConfirmPromptDoNotAskAgain = self.queueExitConfirmPromptDoNotAskAgain,
 	}
 end
 
