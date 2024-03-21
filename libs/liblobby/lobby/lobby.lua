@@ -1458,6 +1458,11 @@ function Lobby:_OnAddAi(battleID, aiName, status)
 	table.insert(self.battleAis, aiName)
 	self:_OnUpdateUserBattleStatus(aiName, status)
 	self:_CallListeners("OnAddAi", aiName, status)
+	if aiName:find("RaptorsAI") and WG.ModoptionsPanel then
+		WG.ModoptionsPanel.RefreshModoptions()
+	elseif aiName:find("ScavengersAI") and WG.ModoptionsPanel then
+		WG.ModoptionsPanel.RefreshModoptions()
+	end
 end
 
 function Lobby:_OnRemoveAi(battleID, aiName, aiLib, allyNumber, owner)
@@ -1469,6 +1474,11 @@ function Lobby:_OnRemoveAi(battleID, aiName, aiLib, allyNumber, owner)
 	end
 	self:_CallListeners("OnLeftBattle", battleID, aiName)
 	self.userBattleStatus[aiName] = nil
+	if aiName:find("RaptorsAI") and WG.ModoptionsPanel then
+		WG.ModoptionsPanel.RefreshModoptions()
+	elseif aiName:find("ScavengersAI") and WG.ModoptionsPanel then
+		WG.ModoptionsPanel.RefreshModoptions()
+	end
 end
 
 function Lobby:_OnSaidBattle(userName, message, sayTime)

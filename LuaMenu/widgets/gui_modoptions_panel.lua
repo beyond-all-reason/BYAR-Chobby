@@ -589,7 +589,8 @@ local modoptionsDisplay
 local ModoptionsPanel = {}
 
 function ModoptionsPanel.RefreshModoptions()
-	local devmode = WG.Chobby.Configuration.devModoptions -- and WG.Chobby.Configuration.devMode
+	local showHidden = WG.Chobby.Configuration.devModoptions
+	local devmode = WG.Chobby.Configuration.devMode
 	local postpendHiddenOptions = {}
 	modoptionStructure = {
 		sectionTitles = {},
@@ -612,7 +613,7 @@ function ModoptionsPanel.RefreshModoptions()
 
 					local options = modoptionStructure.sections[data.section].options
 					options[#options + 1] = data
-				elseif devmode then
+				elseif showHidden and devmode then
 					if not data.name:find("HIDDEN") then
 						data.name = "(HIDDEN) "..data.name
 					end
@@ -621,10 +622,9 @@ function ModoptionsPanel.RefreshModoptions()
 			end
 		end
 	end
-
 	if not devmode then
 		modoptionStructure.sections["dev"] = nil
-	else
+	elseif showHidden then
 		for i = 1, #postpendHiddenOptions do
 			local data = postpendHiddenOptions[i]
 			modoptionStructure.sections[data.section] = modoptionStructure.sections[data.section] or {
@@ -634,6 +634,21 @@ function ModoptionsPanel.RefreshModoptions()
 
 			local options = modoptionStructure.sections[data.section].options
 			options[#options + 1] = data
+		end
+	else
+		local keepRaptors, keepScav = false, false
+		for name, value in pairs(battleLobby.userBattleStatus) do
+			if name:find("ScavengersAI%(") then
+				keepScav = true
+			elseif name:find("RaptorsAI%(") then
+				keepRaptors = true
+			end
+		end
+		if not keepRaptors then
+			modoptionStructure.sections["raptor_defense_options"] = nil
+		end
+		if not keepScav then
+			modoptionStructure.sections["scav_defense_options"] = nil
 		end
 	end
 end
