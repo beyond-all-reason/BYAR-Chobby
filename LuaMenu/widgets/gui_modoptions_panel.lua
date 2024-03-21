@@ -624,7 +624,8 @@ function ModoptionsPanel.RefreshModoptions()
 	end
 	if not devmode then
 		modoptionStructure.sections["dev"] = nil
-	elseif showHidden then
+	end
+	if showHidden and devmode then
 		for i = 1, #postpendHiddenOptions do
 			local data = postpendHiddenOptions[i]
 			modoptionStructure.sections[data.section] = modoptionStructure.sections[data.section] or {
