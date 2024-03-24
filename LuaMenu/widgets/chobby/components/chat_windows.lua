@@ -431,7 +431,13 @@ function ChatWindows:ProcessChat(chanName, userName, message, msgDate, notifyCol
 	if not channelConsole then
 		return
 	end
-	local iAmMentioned = (string.find(message, lobby:GetMyUserName(), 1, true) and userName ~= lobby:GetMyUserName()) -- needs 1, true or brackets will screw it up
+
+	-- When we attempt to process messages that happen while we are disconnected:
+	local lobbyUserName = lobby and lobby:GetMyUserName()
+	if not lobbyUserName then 
+		lobbyUserName = userName
+	end
+	local iAmMentioned = (string.find(message, lobbyUserName, 1, true) and userName ~= lobbyUserName) -- needs 1, true or brackets will screw it up
 	local chatColour = (iAmMentioned and notifyColor) or chatColor
 	if self:IsChannelSelected(chanName) and self.activeUnreadMessages and self.activeUnreadMessages ~= 0 then
 		self.activeUnreadMessages = self.activeUnreadMessages + 1

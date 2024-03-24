@@ -69,7 +69,7 @@ return {
 		delete_confirm = "Are you sure you want to delete this saved game?",
 		load_confirm = "Loading will lose any unsaved progress. Are you sure?",
 		replay_not_found = "Replay file not found, refresh the list!",
-		replay_different_version = "This replay requires a different engine version (will be downloaded automatically if necessary)",
+		replay_different_version = "This replay requires a different engine version (FIXME download automatically if necessary)",
 		--
 		start_download = 'Start download',
 		download_noun = 'Download',
@@ -86,7 +86,6 @@ return {
 		rescind = "Rescind",
 		reject = "Reject",
 		ready = "   Ready",
-		apply = "Apply",
 		enter_battle_password = "Enter Battle Password",
 		set_window_position = "Set Window Position",
 		set_resolution = "Set Resolution",
@@ -118,6 +117,7 @@ return {
 		community = "Community",
 		report_a_bug = "Report A Bug",
 		benchmark = "Benchmark",
+		exit_lobby_confirm = "Exit lobby and return to desktop?",
 		["exit"] = "Exit",
 		matchMaking = "Matchmaking",
 		finding_match = "Finding Match",
@@ -135,7 +135,6 @@ return {
 		queues = "Queues",
 		custom_games = "Custom games",
 		spectate_running_games = "Select a game to watch",
-		community = "Community",
 		social = "Social",
 		hub = "Hub",
 		download = "Download",
@@ -161,8 +160,6 @@ return {
 
 		tooltip_is_spectator = "You will spectate this game when it starts.",
 		tooltip_become_spectator = "Press to watch the game as a spectator.",
-		tooltip_leave_queue = "Press to leave the join-queue and become a normal spectator.",
-		
 		tooltip_is_player = "You will play in this game when it starts.",
 		tooltip_become_player = "Press to play in this game.",
 		tooltip_join_queue = "Press to enter the join-queue.",
@@ -247,6 +244,7 @@ return {
 		startbtn_votestart_tooltip = "Call a vote to start.",
 		startbtn_inprogress_tooltip = "Watch this in progress game.",
 		startbtn_gettingcontent_tooltip = "Please wait for downloads to finish before starting.",
+		queue_exit_confirm = "This will release your current place in the queue or game. Are you sure?",
 
 		-- gui_maplist_panel.lua
 
@@ -396,7 +394,6 @@ return {
 		accept = "Akzeptieren",
 		rescind = "Abweisen",
 		reject = "Zurückweisen",
-		apply = "Anwenden",
 		enter_battle_password = "Bitte Passwort eingeben",
 		set_window_position = "Fenster positionieren",
 		set_resolution = "Auflösung wählen",
@@ -425,6 +422,7 @@ return {
 		instruction = "Anleitung",
 		community = "Gemeinschaft",
 		report_a_bug = "Fehler melden",
+		exit_lobby_confirm = "Verlassen Sie die Lobby und kehren Sie zum Desktop zurück?",
 		["exit"] = "Exit",
 		matchMaking = "Spielvermittlung",
 		finding_match = "Suche nach Spielen",
@@ -442,7 +440,6 @@ return {
 		queues = "Warteschlangen",
 		custom_games = "Spezielle Spiele",
 		spectate_running_games = "Schaue bei einem Spiel zu",
-		community = "Gemeinschaft",
 		social = "Soziales",
 		hub = "Hub",
 		download = "Download",

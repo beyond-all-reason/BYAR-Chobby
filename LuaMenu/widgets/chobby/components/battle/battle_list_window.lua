@@ -324,7 +324,12 @@ function BattleListWindow:UpdateInfoPanel()
 	if noBattles then
 		self.infoPanel:SetVisibility(true)
 		self.infoPanel:BringToFront()
-		self.infoLabel:SetCaption("No battle rooms found, report this to us on Discord!\nIf the server was just restarted\nwait a few minutes.")
+		if lobby.status == "connected" then 
+			self.infoLabel:SetCaption("No battle rooms found, report this to us on Discord!\nIf the server was just restarted,\nthen wait a few minutes.")
+		else
+			self.infoLabel:SetCaption("You are not connected to the server.\nPlease wait 30 seconds while we automatically reconnect you.")
+		end
+
 		return
 	end
 
