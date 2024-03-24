@@ -392,7 +392,7 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 	end
 
 	local function MakeExitPopup()
-		ConfirmationPopup(ExitSpring, "Are you sure you want to quit?", nil, 315, 200)
+		ConfirmationPopup(ExitSpring, i18n("exit_lobby_confirm"), nil, 315, 200)
 		return true
 	end
 
