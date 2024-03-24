@@ -16,11 +16,6 @@ local welcomePanelItems = {
     },
 
     {
-        Header = "Recent Lobby Server Issues",
-        Text = "Since March 9 we have been experiencing ongoing issues with our Lobby server. The issue results in periods with lost connections and timeouts in lobby. We are investigating the best ways to mitigate it. We have a strong hypothesis but we aren't certain of it at this time. We appreciate your patience and keep in mind that this project is being run by volunteers.",
-    },
-
-    {
         Header = "New Map: Wanderlust",
         Text = " \n" .. "Grassy lowlands on the sides and dry upper plateaus in the center. 1v1 to 3v3. Original by FlorisXIV, updated by Moose.",
         Image = "LuaMenu/configs/gameConfig/byar/minimapOverride/Wanderlust_2.0.jpg",

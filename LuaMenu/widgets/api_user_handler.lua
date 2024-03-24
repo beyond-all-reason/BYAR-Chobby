@@ -215,11 +215,12 @@ local function GetUserComboBoxOptions(userName, isInBattle, control, showTeamCol
 	if isInBattle and not bs.isSpectator and (iAmBoss or iPlay or (bs.aiLib and bs.owner == myUserName)) then		comboOptions[#comboOptions + 1] = "Change Team"
 																													comboOptions[#comboOptions + 1] = "Add Bonus" end
 	if (iAmBoss or iPlay) and not bs.aiLib and isInBattle and not bs.isSpectator then								comboOptions[#comboOptions + 1] = "Force Spectator" end
-	if (iAmBoss or iPlay) and not (control.isSingleplayer or bs.aiLib or info.isBot) and isInBattle  then			comboOptions[#comboOptions + 1] =  userName ~= boss and "Make Boss" or "Disable Boss" end
 	if (iAmBoss or iPlay) and not itsme and not info.isBot and isInBattle and not bs.aiLib then						comboOptions[#comboOptions + 1] = "Kickban" end
 	if bs.aiLib and bs.owner == myUserName and isInBattle then														comboOptions[#comboOptions + 1] = "Remove" end
 	if not itsme and not info.isBot and not bs.aiLib then															comboOptions[#comboOptions + 1] = "Report User" end
 																													comboOptions[#comboOptions + 1] = "Copy Name"
+	if (iAmBoss or iPlay) and not (control.isSingleplayer or bs.aiLib or info.isBot) and isInBattle  then			comboOptions[#comboOptions + 1] = "\255\120\120\120" .. "--------------"
+																													comboOptions[#comboOptions + 1] =  userName ~= boss and "Make Boss" or "Disable Boss" end
 
 	if #comboOptions == 0 then
 		comboOptions[1] = Label:New {
