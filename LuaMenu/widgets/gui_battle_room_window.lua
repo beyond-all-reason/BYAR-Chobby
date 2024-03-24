@@ -1152,8 +1152,13 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	}
 	leftOffset = leftOffset + 38
 
+
+	-- modoptions
+	WG.ModoptionsPanel.LoadModoptions(battle.gameName, battleLobby)
+	local modoptions = WG.ModoptionsPanel.ReturnModoptions()
+
+
 	-- this is a kludge so that we can override default values for some specific ModOptions in singleplayer games
-	local modoptions = WG.Chobby.Configuration.gameConfig.defaultModoptions
 	for i = 1, #modoptions do
 		local data = modoptions[i]
 		-- default teamffa_start_boxes_shuffle to "off" for singleplayer games
@@ -1165,7 +1170,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		end
 	end
 
-	WG.ModoptionsPanel.LoadModoptions(battle.gameName, battleLobby)
+
 	local btnModoptions = Button:New {
 		name = 'btnModoptions',
 		x = 5,
@@ -1184,6 +1189,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		parent = leftInfo,
 	}
 	leftOffset = leftOffset + 40
+
 
 	local lblGame = Label:New {
 		name = 'lblGame',
