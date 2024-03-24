@@ -1458,10 +1458,14 @@ function Lobby:_OnAddAi(battleID, aiName, status)
 	table.insert(self.battleAis, aiName)
 	self:_OnUpdateUserBattleStatus(aiName, status)
 	self:_CallListeners("OnAddAi", aiName, status)
-	if aiName:find("RaptorsAI") and WG.ModoptionsPanel then
-		WG.ModoptionsPanel.RefreshModoptions()
-	elseif aiName:find("ScavengersAI") and WG.ModoptionsPanel then
-		WG.ModoptionsPanel.RefreshModoptions()
+	if WG.ModoptionsPanel then
+		if status.aiLib then
+			-- aiLib name might end up containing but not being the full string depending on adding user's lobby
+			-- we can't check battleLobby.battleAis as that stores names, which might not match ai type
+			if status.aiLib:find("RaptorsAI") or status.aiLib:find("ScavengersAI") then
+				WG.ModoptionsPanel.RefreshModoptions()
+			end
+		end
 	end
 end
 
@@ -1474,9 +1478,8 @@ function Lobby:_OnRemoveAi(battleID, aiName, aiLib, allyNumber, owner)
 	end
 	self:_CallListeners("OnLeftBattle", battleID, aiName)
 	self.userBattleStatus[aiName] = nil
-	if aiName:find("RaptorsAI") and WG.ModoptionsPanel then
-		WG.ModoptionsPanel.RefreshModoptions()
-	elseif aiName:find("ScavengersAI") and WG.ModoptionsPanel then
+	if WG.ModoptionsPanel then
+		-- aiLib is a lie, nothing passes it in
 		WG.ModoptionsPanel.RefreshModoptions()
 	end
 end

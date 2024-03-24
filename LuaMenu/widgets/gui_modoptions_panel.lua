@@ -613,6 +613,7 @@ function ModoptionsPanel.RefreshModoptions()
 
 					local options = modoptionStructure.sections[data.section].options
 					options[#options + 1] = data
+
 				elseif showHidden and devmode then
 					if not data.name:find("HIDDEN") then
 						data.name = "(HIDDEN) "..data.name
@@ -641,10 +642,14 @@ function ModoptionsPanel.RefreshModoptions()
 	else
 		local removeRaptors, removeScav = true, true
 		for name, value in pairs(battleLobby.userBattleStatus) do
-			if removeScav and name:find("ScavengersAI%(") then
-				removeScav = false
-			elseif removeRaptors and name:find("RaptorsAI%(") then
-				removeRaptors = false
+			if value.aiLib then
+				-- aiLib name might end up containing but not being the full string depending on adding user's lobby
+				-- we can't check battleLobby.battleAis as that stores names, which might not match ai type
+				if value.aiLib:find("RaptorsAI") then
+					removeRaptors = false
+				elseif value.aiLib:find("ScavengersAI") then
+					removeScav = false
+				end
 			end
 		end
 		if removeScav then
