@@ -8,6 +8,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    if: github.repository == 'beyond-all-reason/BYAR-Chobby'
     permissions:
       id-token: write
     steps:
