@@ -509,9 +509,9 @@ local function GetInfologs()
 						WG.Chobby.ConfirmationPopup(YesFunc, "There was a problem removing the corrupted data." .. " \n \n" .. "Open the game data folder, delete the folders /Pool/ and /Packages/ and then run the launcher again with updates checked." .. " \n \n" .. "This will close the game and redownload all of the game content.", nil, 900, 450, "Game Data", "Ignore", nil)
 						return
 					end
-					WG.Chobby.ConfirmationPopup(ExitSpring, "BAR must be exited and the launcher run again. This will redownload some game content.", nil, 900, 450, "Exit Now", "Exit Later", nil)
+					WG.Chobby.ConfirmationPopup(ExitSpring, "Deletion of corrupted data was successful." .. " \n \n" .. "BAR must be exited and the launcher run again. This will redownload some game content.", nil, 900, 450, "Exit Now", "Exit Later", nil)
 				end
-				WG.Chobby.ConfirmationPopup(DeletePoolAndPackages, "Warning: BAR has detected corrupted game content." .. " \n \n" .. errorkey  .. " \n \n" .. "Press Repair to redownload the corrupted game content. The game will then need to be exited and the launcher run again with updates checked. This will redownload the corrupted game content." .. " \n \n" .. "Ignoring this will lead to crashes or other problems." .. " \n \n" .. "If game corruption continues to occur this may be an indication of hardware failure. Disable any active system overclocks and run a health check on memory and storage.", nil, 900, 450, "Repair", "Ignore", nil)
+				WG.Chobby.ConfirmationPopup(DeletePoolAndPackages, "Warning: BAR has detected corrupted game content." .. " \n \n" .. errorkey  .. " \n \n" .. "Press Repair to redownload the corrupted game content. The game will then need to be exited and the launcher run again with updates checked." .. " \n \n" .. "Ignoring this will lead to crashes or other problems." .. " \n \n" .. "If game corruption continues to occur this may be an indication of hardware failure. Disable any active system overclocks and run a health check on memory and storage.", nil, 900, 450, "Repair", "Ignore", nil)
 			elseif errortype ~= nil then
 
 				if PRINT_DEBUG then Spring.Echo("BAR Analytics: GetInfologs() found an error:", filename, errortype, errorkey) end
