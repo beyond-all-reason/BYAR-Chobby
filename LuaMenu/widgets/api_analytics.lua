@@ -474,7 +474,7 @@ local function GetInfologs()
 				local function DeletePoolAndPackages()
 					local poolpath = "pool/"
 					-- Define the pattern to match filename with 30 char + .gz extension and 2 char location path
-					local pattern =	".*(%w%w)\\(%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w\.gz)\:.*\""
+					local pattern =	".*(%w%w)\\(%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w\.gz).*\""
 					local corruptPoolpath, corruptPoolfilename = string.match(errorkey, pattern)
 					-- Get pool files but check packages first
 					local poolFiles = VFS.DirList(poolpath .. corruptPoolpath .. "/", corruptPoolfilename, VFS.RAW)
