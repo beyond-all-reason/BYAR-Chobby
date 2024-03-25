@@ -175,7 +175,7 @@ function Analytics.SendCrashReportOneTimeEvent(filename, errortype, errorkey, co
 		end
 		onetimeEvents["reportedcrashes"][filename] = true
 	end
-	
+
 	if PRINT_DEBUG then Spring.Log("Chobby", LOG.WARNING, "Analytics Event", cmdName, args, isEvent, client, "C/A",isConnected, ACTIVE) end
 
 	if client == nil then
@@ -222,7 +222,7 @@ function Analytics.SendOnetimeEvent(eventName, value)
 		return
 	end
 	onetimeEvents[eventName] = true
-	
+
 	SendBARAnalytics(eventName, value, false)
 end
 
@@ -280,7 +280,7 @@ local function ParseInfolog(infologpath)
 		local userhastestversion = false
 		for i, line in ipairs(fileLines) do
 			-- look for game or chobby version mismatch, if $VERSION then return
-			
+
 			if string.find(line,"Chobby $VERSION\"", nil, true) then -- BYAR-Chobby or Chobby is dev mode, so dont report
 				--if not PRINT_DEBUG then return nil end
 				userhastestversion = true
@@ -288,9 +288,8 @@ local function ParseInfolog(infologpath)
 			if string.find(line, "Beyond All Reason $VERSION", nil, true) then -- Game is test version, no reporting
 				userhastestversion = true
 				--if not PRINT_DEBUG then return nil end
-				
+
 			end
-			
 
 			--plain old luaui errors:
 			-- [t=00:00:55.609414][f=-000001] Error: gl.CreateList: error(2) = [string "LuaUI/Widgets/gui_options.lua"]:576: attempt to perform arithmetic on field 'value' (a boolean value)
@@ -378,6 +377,12 @@ local function ParseInfolog(infologpath)
 				return "LuaUI", line, infolog
 			end
 
+			if (string.find(line, "] Error: [PoolArchive::operator()]", nil, true) and string.find(line," could not read file ", nil, true) )
+				or (string.find(line, "] Error: [PoolArchive::GetFileImpl]", nil, true) and string.find(line," failed to read file ", nil, true) ) then
+				--[t=00:00:32.274034][f=-000001] Error: [PoolArchive::operator()] could not read file GZIP reason: "C:\Program Files\Beyond-All-Reason\data\\pool\86\bb62a5817c16400370c72fd3adda9e.gz: incorrect data check", SYSTEM reason: "Unknown error" (bytesRead=-1 fileSize=4295404)
+				--[t=00:00:48.760963][f=-000001] Error: [PoolArchive::GetFileImpl] failed to read file "C:\Program Files\Beyond-All-Reason\data\\pool\86\bb62a5817c16400370c72fd3adda9e.gz" after 1000 tries
+				return "CorruptPool", line, infolog
+			end
 		end
 	else
 		Spring.Echo("Failed to open:", infologpath)
@@ -390,15 +395,15 @@ local function ascii(s)
 	local res = {}
 	local validchars = 0
 	local invalidchars = 0
-	for i=1, string.len(s) do 
+	for i=1, string.len(s) do
 		local sub = string.sub(s,i,i)
-		local val = string.byte(sub) 
-		if (val >= 9) and (val <= 127) then 
-			validchars = validchars + 1 
+		local val = string.byte(sub)
+		if (val >= 9) and (val <= 127) then
+			validchars = validchars + 1
 			res[validchars] = sub
 		else
 			--print ("invalid character, number is ", val) 
-			invalidchars = invalidchars + 1 
+			invalidchars = invalidchars + 1
 		end
 	end
 	return table.concat(res)
@@ -461,18 +466,60 @@ local function GetInfologs()
 	if PRINT_DEBUG then Spring.Echo("BAR Analytics: GetInfologs()", #filenames) end
 	for i=1, math.min(#filenames, 2) do
 		local filename = filenames[i]
-		if onetimeEvents["reportedcrashes"][filename] ~= nil then -- we already reported this one
+ 		if onetimeEvents["reportedcrashes"][filename] ~= nil then -- we already reported this one
 			Spring.Echo("Already processed an error in ", filename)
 		else
 			local errortype, errorkey, fullinfolog = ParseInfolog(filename)
-			if errortype ~= nil then
-				
-				if PRINT_DEBUG then Spring.Echo("BAR Analytics: GetInfologs() found an error:", filename, errortype, errorkey) end 
+			if errortype == "CorruptPool" then
+				local function DeletePoolAndPackages()
+					local poolpath = "pool/"
+					-- Define the pattern to match filename with 30 char + .gz extension and 2 char location path
+					local pattern =	".*(%w%w)\\(%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w\.gz).*\""
+					local corruptPoolpath, corruptPoolfilename = string.match(errorkey, pattern)
+					-- Get pool files but check packages first
+					local poolFiles = VFS.DirList(poolpath .. corruptPoolpath .. "/", corruptPoolfilename, VFS.RAW)
+					local packagespath = "packages/"
+					local packagesFiles = VFS.DirList(packagespath, "*.sdp", VFS.RAW)
+					if packagesFiles then
+						Spring.Echo("Deleting Packages", #packagesFiles)
+						for k = 1, #packagesFiles do
+							os.remove(packagesFiles[k])
+						end
+					else
+						Spring.Echo("Deleting Packages error")
+						poolFiles = nil --If we can't delete packages first we don't delete pool
+					end
+
+					local function ExitSpring()
+						Spring.Echo("Quitting...")
+						Spring.Quit()
+					end
+
+					if poolFiles and #poolFiles > 0 then
+						Spring.Echo("Deleting Pool", #poolFiles)
+						for j = 1, #poolFiles do
+							os.remove(poolFiles[j])
+						end
+					else
+						Spring.Echo("Deleting Pool error")
+						local function YesFunc()
+							WG.WrapperLoopback.OpenFolder()
+							ExitSpring()
+						end
+						WG.Chobby.ConfirmationPopup(YesFunc, "There was a problem removing the corrupted data." .. " \n \n" .. "Press the button to open the Game Data folder, delete the folders /Pool/ and /Packages/ and then run the launcher again with updates checked." .. " \n \n" .. "This will close the game and redownload all of the game content.", nil, 900, 450, "Game Data", "Ignore", nil)
+						return
+					end
+					WG.Chobby.ConfirmationPopup(ExitSpring, "Deletion of corrupted data was successful." .. " \n \n" .. "BAR must be exited and the launcher run again." .. " \n \n" .. "This will close the game and redownload some game content.", nil, 900, 450, "Exit Now", "Exit Later", nil)
+				end
+				WG.Chobby.ConfirmationPopup(DeletePoolAndPackages, "Warning: BAR has detected corrupted game content." .. " \n \n" .. errorkey  .. " \n \n" .. "Press Repair to redownload the corrupted game content. The game will then need to be exited and the launcher run again with updates checked." .. " \n \n" .. "Ignoring this will lead to crashes or other problems." .. " \n \n" .. "If game corruption continues to occur this may be an indication of hardware failure. Disable any active system overclocks and run a health check on memory and storage.", nil, 900, 450, "Repair", "Ignore", nil)
+			elseif errortype ~= nil then
+
+				if PRINT_DEBUG then Spring.Echo("BAR Analytics: GetInfologs() found an error:", filename, errortype, errorkey) end
 
 				local compressedlog = Spring.Utilities.Base64Encode(VFS.ZlibCompress(fullinfolog))
 				if WG.Chobby.Configuration.uploadLogPrompt == "Prompt" then
 					if WG.Chobby.ConfirmationPopup then
-						
+
 						local function reportinfolog()
 							if WG.Chobby.Configuration.uploadLogPromptDoNotAskAgain then
 								WG.Chobby.Configuration:SetConfigValue("uploadLogPrompt", "Always Yes")
