@@ -472,6 +472,12 @@ local function GetInfologs()
 			local errortype, errorkey, fullinfolog = ParseInfolog(filename)
 			if errortype == "CorruptPool" then
 				local function DeletePoolAndPackages()
+					local poolpath = "pool/"
+					-- Define the pattern to match filename with 30 char + .gz extension and 2 char location path
+					local pattern =	".*(%w%w)\\(%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w\.gz)\:.*\""
+					local corruptPoolpath, corruptPoolfilename = string.match(errorkey, pattern)
+					-- Get pool files but check packages first
+					local poolFiles = VFS.DirList(poolpath .. corruptPoolpath .. "/", corruptPoolfilename, VFS.RAW)
 					local packagespath = "packages/"
 					local packagesFiles = VFS.DirList(packagespath, "*.sdp", VFS.RAW)
 					if packagesFiles then
@@ -481,24 +487,31 @@ local function GetInfologs()
 						end
 					else
 						Spring.Echo("Deleting Packages error")
+						poolFiles = nil --If we can't delete packages first we don't delete pool
 					end
-					local poolpath = "pool/"
-					local poolFiles = VFS.DirList(poolpath, "*.gz", VFS.RAW, true)
-					if poolFiles then
+
+					local function ExitSpring()
+						Spring.Echo("Quitting...")
+						Spring.Quit()
+					end
+
+					if poolFiles and #poolFiles > 0 then
 						Spring.Echo("Deleting Pool", #poolFiles)
 						for j = 1, #poolFiles do
 							os.remove(poolFiles[j])
 						end
 					else
 						Spring.Echo("Deleting Pool error")
+						local function YesFunc()
+							WG.WrapperLoopback.OpenFolder()
+							ExitSpring()
+						end
+						WG.Chobby.ConfirmationPopup(YesFunc, "There was a problem removing the corrupted data." .. " \n \n" .. "Open the game data folder, delete the folders /Pool/ and /Packages/ and then run the launcher again with updates checked." .. " \n \n" .. "This will close the game and redownload all of the game content.", nil, 900, 450, "Game Data", "Ignore", nil)
+						return
 					end
-					local function ExitSpring()
-						Spring.Echo("Quitting...")
-						Spring.Quit()
-					end
-					WG.Chobby.ConfirmationPopup(ExitSpring, "BAR must be exited and the launcher run again. This will redownload all game content.", nil, 900, 450, "Exit Now", "Exit Later", nil)
+					WG.Chobby.ConfirmationPopup(ExitSpring, "BAR must be exited and the launcher run again. This will redownload some game content.", nil, 900, 450, "Exit Now", "Exit Later", nil)
 				end
-				WG.Chobby.ConfirmationPopup(DeletePoolAndPackages, "Warning: BAR has detected corrupted game content." .. " \n \n" .. errorkey  .. " \n \n" .. "Press Repair to reinitialize the game content. The game will then need to be exited and the launcher run again. This will redownload all game content." .. " \n \n" .. "Ignoring this will lead to crashes or other problems." .. " \n \n" .. "If game corruption continues to occur this may be an indication of hardware failure. Disable any active system overclocks and run a health check on memory and storage.", nil, 900, 450, "Repair", "Ignore", nil)
+				WG.Chobby.ConfirmationPopup(DeletePoolAndPackages, "Warning: BAR has detected corrupted game content." .. " \n \n" .. errorkey  .. " \n \n" .. "Press Repair to redownload the corrupted game content. The game will then need to be exited and the launcher run again with updates checked. This will redownload the corrupted game content." .. " \n \n" .. "Ignoring this will lead to crashes or other problems." .. " \n \n" .. "If game corruption continues to occur this may be an indication of hardware failure. Disable any active system overclocks and run a health check on memory and storage.", nil, 900, 450, "Repair", "Ignore", nil)
 			elseif errortype ~= nil then
 
 				if PRINT_DEBUG then Spring.Echo("BAR Analytics: GetInfologs() found an error:", filename, errortype, errorkey) end
