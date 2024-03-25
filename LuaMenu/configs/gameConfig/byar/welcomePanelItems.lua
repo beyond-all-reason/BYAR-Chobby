@@ -16,9 +16,11 @@ local welcomePanelItems = {
     },
 
     {
-        Header = "New Map: Wanderlust",
-        Text = " \n" .. "Grassy lowlands on the sides and dry upper plateaus in the center. 1v1 to 3v3. Original by FlorisXIV, updated by Moose.",
-        Image = "LuaMenu/configs/gameConfig/byar/minimapOverride/Wanderlust_2.0.jpg",
+        Header = "Beyond All Reason Alpha Championship Cup #4",
+        Text = "Format: 1v1 - Double Elimination",
+        --Image = "LuaMenu/images/welcomepanel/1vs1Tournament.png",
+        Url = "https://challonge.com/beyondallreasoncup4",
+        UrlText = "Signup and Details",
     },
 
     {
