@@ -591,7 +591,8 @@ local ModoptionsPanel = {}
 function ModoptionsPanel.LoadModoptions(gameName, newBattleLobby)
 	battleLobby = newBattleLobby
 
-	if not VFS.HasArchive(gameName) then
+	if not (gameName and VFS.HasArchive(gameName)) then
+		Spring.Log(LOG_SECTION, LOG.ERROR, "Missing game archive, cannot fetch modoptions")
 		return
 	end
 
@@ -650,7 +651,9 @@ function ModoptionsPanel.ReturnModoptions()
 end
 
 function ModoptionsPanel.ShowModoptions()
-	CreateModoptionWindow()
+	if modoptions then
+		CreateModoptionWindow()
+	end
 end
 
 function ModoptionsPanel.GetModoptionsControl()
