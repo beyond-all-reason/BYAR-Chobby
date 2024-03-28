@@ -591,7 +591,17 @@ local ModoptionsPanel = {}
 function ModoptionsPanel.LoadModoptions(gameName, newBattleLobby)
 	battleLobby = newBattleLobby
 
-	modoptions = WG.Chobby.Configuration.gameConfig.defaultModoptions
+	if not (gameName and VFS.HasArchive(gameName)) then
+		Spring.Log(LOG_SECTION, LOG.ERROR, "Missing game archive, cannot fetch modoptions")
+		return
+	end
+
+	local function LoadModOptions()
+		return VFS.Include("modoptions.lua", nil, VFS.ZIP)
+	end
+
+	modoptions = VFS.UseArchive(gameName, LoadModOptions)
+
 	modoptionDefaults = {}
 	modoptionStructure = {
 		sectionTitles = {},
@@ -635,8 +645,15 @@ function ModoptionsPanel.LoadModoptions(gameName, newBattleLobby)
 	end
 end
 
+-- call after LoadModoptions
+function ModoptionsPanel.ReturnModoptions()
+	return modoptions
+end
+
 function ModoptionsPanel.ShowModoptions()
-	CreateModoptionWindow()
+	if modoptions then
+		CreateModoptionWindow()
+	end
 end
 
 function ModoptionsPanel.GetModoptionsControl()
