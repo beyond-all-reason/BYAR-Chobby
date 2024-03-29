@@ -215,6 +215,8 @@ return {
 		keep_queues = "Stay in MM queues on launch",
 		simplifiedSkirmishSetup = "Simple skirmish setup",
 		debugMode = "Debug mode",
+		ShowhiddenModopions = "Show Hidden Modoptions",
+		ShowhiddenTooltip = "WARNING: Hidden options may not work. Rearranges Tabs",
 		animate_lobby = "Lobby animations",
 		animate_lobby_tooltip = "Toggles lobby animations, it doesnt do very much, best to ignore this unless you are experiencing issues",
 		account = "Account",
