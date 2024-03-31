@@ -46,7 +46,7 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 	local statusButtonWidth = 265
 	local statusButtonWidthSmall = 265
 
-	local topBarHeight = 49
+	local topBarHeight = 42
 
 	-- Switch to single panel mode when below the minimum screen width
 	local minScreenWidth = 1350
@@ -909,10 +909,6 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 	-- Top bar initialisation
 	-------------------------------------------------------------------
 
-	local function LeaveGameFunction()
-		Spring.Reload("")
-	end
-
 	local switchToMenuButton = Button:New {
 		y = 2,
 		right = 3,
@@ -920,7 +916,7 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 		height = 38,
 		name = "switchToMenuButton",
 		caption = "Menu",
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		parent = ingameInterfaceHolder,
 		resizable = false,
 		draggable = false,
@@ -933,13 +929,14 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 		}
 	}
 	local switchToGameButton = Button:New {
-		x = "50.12%",
-		right = "30%",
-		y = 3,
-		bottom = 9,
+		y = 2,
+		right = 3,
+		width = 150,
+		height = 38,
 		name = "switchToGameButton",
-		caption = "Return to Battle",
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(5),
+		caption = "Back to Game",
+		captionHorAlign = 5,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		parent = holder_topBar,
 		resizable = false,
 		draggable = false,
@@ -951,14 +948,19 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 			end
 		}
 	}
+
+	local function LeaveGameFunction()
+		Spring.Reload("")
+	end
+
 	local leaveGameButton = Button:New {
-		x = "30%",
-		right = "50.12%",
-		y = 3,
-		bottom = 9,
+		y = 2,
+		right = 156,
+		width = 108,
+		height = 38,
 		name = "leaveGameButton",
-		caption = "Leave Battle",
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(5),
+		caption = "Leave",
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		parent = holder_topBar,
 		resizable = false,
 		draggable = false,
@@ -979,7 +981,7 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 		file = IMAGE_TOP_BACKGROUND,
 		parent = holder_topBar,
 		keepAspect = false,
-		color = {1, 1, 1, 0.87},
+		color = {0, 0, 0, 0.0},
 	}
 
 	-------------------------------------------------------------------
