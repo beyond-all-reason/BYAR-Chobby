@@ -246,7 +246,7 @@ function widget:Initialize()
 	end
 
 	for i = 1,1000 do
-		if (easterEggCountdown > 1 and tonumber(os.date("%m")) == 4 and tonumber(os.date("%d")) <= 3) or (easterEggCountdown > 10 and math.random(0,2137) == 0) then -- April Fools, with a very tiny chance to play the track on normal day
+		if (easterEggCountdown > 1 and tonumber(os.date("%m")) == 4 and tonumber(os.date("%d")) <= 3 and tonumber(os.date("%H")) <= 6) or (easterEggCountdown > 10 and math.random(0,2137) == 0) then -- April Fools, with a very tiny chance to play the track on normal day
 			openTrack = aprilFoolsTrackList[math.random(1,#aprilFoolsTrackList)]
 		end
 		if openTrack then
