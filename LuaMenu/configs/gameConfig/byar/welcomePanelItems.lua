@@ -16,8 +16,13 @@ local welcomePanelItems = {
     },
 
     {
+        Header = "ATG and Isthmus restored",
+        Text = "All That Glitters and Supreme Isthmus have been restored to the map rotation after a brief absence.",
+    },
+
+    {
         Header = "Big game updates!!!",
-        Text = "Together with The Highest BAR Council, Game Design Team, Community and Moderation Committee and a bunch of random devs we decided on some uncontroversial yet very urgent updates aimed to enhance the player experience. Read below for the details." .. " \n" .. " \n" .. "Keeping the map roster tidy:" .. " \n" .. " \n" .. "We are removing two absolute lowest quality maps from the pool, after surveying a wide array of players we came to the conclusion they are just bad. These maps are so unpopular I can't even name them... Something that rhymes with Tall Cat Twitters and Extreme Hummus!" .. " \n" .. " \n" .. "Trees and Critters:" .. " \n" .. " \n" .. "Something menacing lurks in the bushes; beware of interrupting its slumber!" .. " \n" .. " \n" .. "New musics and boomboxes:" .. " \n" .. " \n" .. "We decided to change the tone of our soundtrack a little bit, a lot of people complained it is a bit too serious and dramatic so we remixed the tunes. Capture boomboxes to make it even more epic!" .. " \n" .. " \n" .. "Hats on:" .. " \n" .. " \n" .. "Upon a number of requests form the community we are finally introducing paid cosmetics for units, the first batch is free! Weeee!" .. " \n" .. " \n" .. "More epic changes to discover:" .. " \n" .. " \n" .. "We might have changes some more stuff but I don't even have the whole intel. Find them out!",
+        Text = "Together with The Highest BAR Council, Game Design Team, Community and Moderation Committee and a bunch of random devs we decided on some uncontroversial yet very urgent updates aimed to enhance the player experience. Read below for the details." .. " \n" .. " \n" .. "Trees and Critters:" .. " \n" .. " \n" .. "Something menacing lurks in the bushes; beware of interrupting its slumber!" .. " \n" .. " \n" .. "New musics and boomboxes:" .. " \n" .. " \n" .. "We decided to change the tone of our soundtrack a little bit, a lot of people complained it is a bit too serious and dramatic so we remixed the tunes. Capture boomboxes to make it even more epic!" .. " \n" .. " \n" .. "Hats on:" .. " \n" .. " \n" .. "Upon a number of requests form the community we are finally introducing paid cosmetics for units, the first batch is free! Weeee!" .. " \n" .. " \n" .. "More epic changes to discover:" .. " \n" .. " \n" .. "We might have changes some more stuff but I don't even have the whole intel. Find them out!",
     },
 
     {
