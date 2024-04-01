@@ -367,6 +367,7 @@ local function CreateModoptionWindow()
 
 	for key, data in pairs(modoptionStructure.sections) do
 		local caption = modoptionStructure.sectionTitles[data.title] or data.title
+		local weight = modoptionStructure.sectionWeights[data.title] or -#tabs
 		local fontSize = 2
 		local tooltip = data.desc
 		local origCaption = caption
@@ -379,9 +380,12 @@ local function CreateModoptionWindow()
 			caption = caption,
 			tooltip = tooltip,
 			objectOverrideFont = WG.Chobby.Configuration:GetFont(fontSize),
-			children = PopulateTab(data.options)
+			children = PopulateTab(data.options),
+			weight = data.weight or weight
 		}
 	end
+
+	table.sort(tabs, function(a,b) return a.weight > b.weight end)
 
 	local tabPanel = Chili.DetachableTabPanel:New {
 		x = 4,
@@ -597,6 +601,7 @@ function ModoptionsPanel.RefreshModoptions()
 	local postpendHiddenOptions = {}
 	modoptionStructure = {
 		sectionTitles = {},
+		sectionWeights = {},
 		sections = {}
 	}
 
@@ -605,6 +610,7 @@ function ModoptionsPanel.RefreshModoptions()
 		local data = modoptions[i]
 		if data.type == "section" then
 			modoptionStructure.sectionTitles[data.key] = data.name
+			modoptionStructure.sectionWeights[data.key] = data.weight
 		else
 			if data.section then
 				if data.hidden ~= true then
