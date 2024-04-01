@@ -588,6 +588,59 @@ local modoptionsDisplay
 
 local ModoptionsPanel = {}
 
+function ModoptionsPanel.RefreshModoptions()
+	if not (modoptions and battleLobby) then
+		return
+	end
+	local showHidden = WG.Chobby.Configuration.ShowhiddenModopions
+	local devmode = WG.Chobby.Configuration.devMode
+	local postpendHiddenOptions = {}
+	modoptionStructure = {
+		sectionTitles = {},
+		sections = {}
+	}
+
+	-- Populate the sections
+	for i = 1, #modoptions do
+		local data = modoptions[i]
+		if data.type == "section" then
+			modoptionStructure.sectionTitles[data.key] = data.name
+		else
+			if data.section then
+				if data.hidden ~= true then
+					modoptionStructure.sections[data.section] = modoptionStructure.sections[data.section] or {
+						title = data.section,
+						options = {}
+					}
+
+					local options = modoptionStructure.sections[data.section].options
+					options[#options + 1] = data
+				elseif showHidden and devmode then
+					if not data.name:find("(HIDDEN)") then
+						data.name = "(HIDDEN) "..data.name
+					end
+					postpendHiddenOptions[#postpendHiddenOptions + 1] = data
+				end
+			end
+		end
+	end
+
+	if not devmode then
+		modoptionStructure.sections["dev"] = nil
+	end
+	if showHidden and devmode then
+		for i = 1, #postpendHiddenOptions do
+			local data = postpendHiddenOptions[i]
+			modoptionStructure.sections[data.section] = modoptionStructure.sections[data.section] or {
+				title = data.section,
+				options = {}
+			}
+			local options = modoptionStructure.sections[data.section].options
+			options[#options + 1] = data
+		end	
+	end
+end
+
 function ModoptionsPanel.LoadModoptions(gameName, newBattleLobby)
 	battleLobby = newBattleLobby
 
@@ -603,10 +656,6 @@ function ModoptionsPanel.LoadModoptions(gameName, newBattleLobby)
 	modoptions = VFS.UseArchive(gameName, LoadModOptions)
 
 	modoptionDefaults = {}
-	modoptionStructure = {
-		sectionTitles = {},
-		sections = {}
-	}
 	if not modoptions then
 		return
 	end
@@ -627,22 +676,7 @@ function ModoptionsPanel.LoadModoptions(gameName, newBattleLobby)
 	end
 
 	-- Populate the sections
-	for i = 1, #modoptions do
-		local data = modoptions[i]
-		if data.type == "section" then
-			modoptionStructure.sectionTitles[data.key] = data.name
-		else
-			if data.section and data.hidden ~= true then
-				modoptionStructure.sections[data.section] = modoptionStructure.sections[data.section] or {
-					title = data.section,
-					options = {}
-				}
-
-				local options = modoptionStructure.sections[data.section].options
-				options[#options + 1] = data
-			end
-		end
-	end
+	ModoptionsPanel.RefreshModoptions()
 end
 
 -- call after LoadModoptions
