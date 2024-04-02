@@ -202,6 +202,8 @@ function widget:Initialize()
 	if originalSoundtrackEnabled == 1 then
 		local musicDirOriginal 		= 'luamenu/configs/gameconfig/byar/lobbyMusic/original'
 		randomTrackList = playlistMerge(randomTrackList, VFS.DirList(musicDirOriginal, allowedExtensions))
+	end
+	if true then
 		local musicDirEventAprilFools = 'luamenu/configs/gameconfig/byar/lobbyMusic/event/aprilfools'
 		aprilFoolsTrackList = VFS.DirList(musicDirEventAprilFools, allowedExtensions)
 	end
