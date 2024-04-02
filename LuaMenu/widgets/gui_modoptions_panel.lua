@@ -536,7 +536,7 @@ local function InitializeModoptionsDisplay()
 	local function OnSetModOptions(listener, modopts)
 		local text = ""
 		local empty = true
-		modopts = modopts or {}
+		modoptions = modoptions or {}
 		for key, value in pairs(modopts) do
 			if modoptionDefaults[key] == nil or modoptionDefaults[key] ~= value or key == "ranked_game" then
 				local option = getModOptionByKey(key)
