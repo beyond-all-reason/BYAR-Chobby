@@ -39,14 +39,14 @@ local function GetRandomTrack(previousTrack)
 	local nextTrack
 	local trackType
 	for i = 1, #randomTrackList do
-		if previousTrackType == "intro" or (not introTrackList[1]) then -- we're checking if there are any intro tracks
+		if (previousTrackType == "intro" or (not introTrackList[1])) and peaceTrackList[1] then -- we're checking if there are any peace tracks
 			trackType = "peace"
 			peaceTracksIndex = peaceTracksIndex + 1
 			if not peaceTrackList[peaceTracksIndex] then
 				peaceTracksIndex = 1
 			end
 			nextTrack = peaceTrackList[peaceTracksIndex]
-		elseif previousTrackType == "peace" and introTrackList[1] then -- we're checking if there are any intro tracks
+		elseif (previousTrackType == "peace" or (not peaceTrackList[1])) and introTrackList[1] then -- we're checking if there are any intro tracks
 			trackType = "intro"
 			introTracksIndex = introTracksIndex + 1
 			if not introTrackList[introTracksIndex] then
@@ -55,16 +55,11 @@ local function GetRandomTrack(previousTrack)
 			nextTrack = introTrackList[introTracksIndex]
 		end
 
-		if not playedTracks[nextTrack] then
+		if nextTrack and trackType then
 			previousTrackType = trackType
-			playedTracks[nextTrack] = true
 			return nextTrack
 		end
 	end
-
-	playedTracks = {} -- there's a return in the for loop, if it failed, the list should be wiped
-	previousTrackType = "intro"
-	return introTrackList[math.random(#introTrackList)]
 end
 
 --------------------------------------------------------------------------------
