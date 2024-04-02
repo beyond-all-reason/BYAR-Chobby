@@ -660,7 +660,19 @@ function ModoptionsPanel.LoadModoptions(gameName, newBattleLobby)
 		return VFS.Include("modoptions.lua", nil, VFS.ZIP)
 	end
 
-	modoptions = VFS.UseArchive(gameName, LoadModOptions)
+	do
+		local alreadyLoaded = false
+		for _, archive in pairs(VFS.GetLoadedArchives()) do
+			if archive == gameName then
+				alreadyLoaded = true
+			end
+		end
+		if alreadyLoaded then
+			modoptions = VFS.Include("modoptions.lua", nil, VFS.ZIP)
+		else
+			modoptions = VFS.UseArchive(gameName, LoadModOptions)
+		end
+	end
 
 	modoptionDefaults = {}
 	if not modoptions then
