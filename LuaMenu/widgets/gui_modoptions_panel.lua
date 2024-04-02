@@ -665,6 +665,7 @@ function ModoptionsPanel.LoadModoptions(gameName, newBattleLobby)
 		for _, archive in pairs(VFS.GetLoadedArchives()) do
 			if archive == gameName then
 				alreadyLoaded = true
+				break
 			end
 		end
 		if alreadyLoaded then
