@@ -243,7 +243,7 @@ local function CreateMapEntry(mapName, mapData, CloseFunc)--{"ResourceID":7098,"
 	}
 
 	local favouriteImg = Image:New {
-		x = 750,
+		x = 748,
 		y = 2,
 		width = 24,
 		height = 24,
