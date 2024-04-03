@@ -246,7 +246,7 @@ local function CreateMapEntry(mapName, mapData, CloseFunc)--{"ResourceID":7098,"
 		width = 24,
 		height = 24,
 		caption = "",
-		checked = isFavourite or false,
+		checked = isFavourite,
 		classname = "favourite_check",
 		parent = root,
  		OnClick = {
