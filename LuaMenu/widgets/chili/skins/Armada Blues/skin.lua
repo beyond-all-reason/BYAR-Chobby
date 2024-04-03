@@ -202,6 +202,14 @@ skin.battle_default_button = { --Blue
   DrawControl = DrawButton,
 }
 
+skin.favourite_check = {
+  TileImageFG = ":cl:star_on.png",
+  TileImageBK = ":cl:star_off.png",
+  tiles = {0, 0, 0, 0}, --// tile widths: left,top,right,bottom
+  boxsize     = 24,
+
+  DrawControl = DrawCheckbox,
+}
 
 skin.combobox = {
 	TileImageBK = ":cl:combobox_ctrl.png",

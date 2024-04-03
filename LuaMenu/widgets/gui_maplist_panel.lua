@@ -21,8 +21,6 @@ local favMaps = {}
 local FILE_FAV_MAPS = "favourite_maps.txt"
 local IMG_READY    	= LUA_DIRNAME .. "images/downloadready.png"
 local IMG_UNREADY  	= LUA_DIRNAME .. "images/downloadnotready.png"
-local IMG_STAR_OFF  = LUA_DIRNAME .. "images/star_off.png"
-local IMG_STAR_ON  	= LUA_DIRNAME .. "images/star_on.png"
 
 local MINIMAP_TOOLTIP_PREFIX = "minimap_tooltip_"
 
@@ -242,15 +240,17 @@ local function CreateMapEntry(mapName, mapData, CloseFunc)--{"ResourceID":7098,"
 			parent = mapButton,
 	}
 
-	local favouriteImg = Image:New {
+	local favouriteBtn = Checkbox:New {
 		x = 748,
 		y = 2,
 		width = 24,
 		height = 24,
-		file = (isFavourite and IMG_STAR_ON) or IMG_STAR_OFF,
+		caption = "",
+		checked = isFavourite,
+		classname = "favourite_check",
 		parent = root,
-		OnClick = {
-			function (self)
+ 		OnClick = {
+			function ()
 				if isFavourite then
 					isFavourite = false;
 					favMaps[mapName] = nil;
@@ -258,8 +258,6 @@ local function CreateMapEntry(mapName, mapData, CloseFunc)--{"ResourceID":7098,"
 					isFavourite = true;
 					favMaps[mapName] = 1;
 				end
-
-				self.file = (isFavourite and IMG_STAR_ON) or IMG_STAR_OFF;
 			end
 		}
 	}
