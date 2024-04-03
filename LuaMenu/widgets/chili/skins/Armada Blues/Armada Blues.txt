@@ -1,0 +1,18 @@
+Armada Blues
+By Moose
+
+Based on the Evolved skin for Chili, so most of the images in this folder are from Evolved.
+
+The following images were made for Beyond All Reason by;
+Moose:
+tech_mainwindow_cool.png
+tech_mainwindow_cool_small.png
+Nikusis:
+tech_button_small2_fg.png
+tech_button_bright_small_fg.png
+tech_button_bright_small_bk.png
+tech_button_small2_bk.png
+tech_button_dark_small_fg.png
+yzch:
+star_off.png
+star_on.png
