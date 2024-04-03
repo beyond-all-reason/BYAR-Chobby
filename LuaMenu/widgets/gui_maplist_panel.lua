@@ -21,9 +21,6 @@ local favMaps = {}
 local FILE_FAV_MAPS = "favourite_maps.txt"
 local IMG_READY    	= LUA_DIRNAME .. "images/downloadready.png"
 local IMG_UNREADY  	= LUA_DIRNAME .. "images/downloadnotready.png"
-local IMG_STAR_OFF  = LUA_DIRNAME .. "images/star_off.png"
-local IMG_STAR_ON  	= LUA_DIRNAME .. "images/star_on.png"
-local IMG_STAR_HOVER= LUA_DIRNAME .. "images/star_hover.png"
 
 local MINIMAP_TOOLTIP_PREFIX = "minimap_tooltip_"
 
