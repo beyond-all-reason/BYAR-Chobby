@@ -16,6 +16,7 @@ function SortableList:init(holder, headings, itemHeight, defaultSort, sortDirect
 	self.sortDataById = {}
 	self.items = 0
 	self.identifierList = {}
+	self.priorityList = {}
 
 	self.headingButtons = {}
 
@@ -218,6 +219,13 @@ end
 function SortableList:UpdateOrder()
 	local function SortFunction(a, b)
 		local noNil = self.sortDataById[a] and self.sortDataById[b] and self.sortDataById[a][self.sortBy] and self.sortDataById[b][self.sortBy]
+
+		if self.priorityList[a] == nil and self.priorityList[b] ~= nil then
+			return noNil and false
+		elseif self.priorityList[a] ~= nil and self.priorityList[b] == nil then
+			return noNil and true
+		end
+
 		if self.smallToLarge then
 			return noNil and self.sortDataById[a][self.sortBy] < self.sortDataById[b][self.sortBy]
 		else
