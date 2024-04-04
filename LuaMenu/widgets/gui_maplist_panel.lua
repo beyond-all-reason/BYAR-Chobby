@@ -17,8 +17,10 @@ end
 local mapListWindow
 local lobby
 local loadRate = 1
-local IMG_READY    = LUA_DIRNAME .. "images/downloadready.png"
-local IMG_UNREADY  = LUA_DIRNAME .. "images/downloadnotready.png"
+local favMaps = {}
+local FILE_FAV_MAPS = "favourite_maps.txt"
+local IMG_READY    	= LUA_DIRNAME .. "images/downloadready.png"
+local IMG_UNREADY  	= LUA_DIRNAME .. "images/downloadnotready.png"
 
 local MINIMAP_TOOLTIP_PREFIX = "minimap_tooltip_"
 
@@ -134,6 +136,7 @@ local function CreateMapEntry(mapName, mapData, CloseFunc)--{"ResourceID":7098,"
 	local Configuration = WG.Chobby.Configuration
 
     local haveMap = VFS.HasArchive(mapName)
+	local isFavourite = favMaps[mapName] ~= nil;
 
     local mapButtonCaption = nil
 
@@ -143,15 +146,28 @@ local function CreateMapEntry(mapName, mapData, CloseFunc)--{"ResourceID":7098,"
 		mapButtonCaption = i18n("click_to_pick_map")
 	end
 
+	local root = Panel:New {
+		x = 0,
+		y = 0,
+		width = 774,
+		height = 60,
+		resizable = false,
+		draggable = false,
+		padding = {0,0,0,0},
+		noFont = true,
+	}
+
 	local mapButton = Button:New {
 		x = 0,
 		y = 0,
-		width = "100%",
+		width = 748,
+		height = "100%",
 		caption = "",
 		resizable = false,
 		draggable = false,
 		classname = "battle_default_button",
 		padding = {0, 0, 0, 0},
+		parent = root,
 		tooltip = MINIMAP_TOOLTIP_PREFIX .. mapName .. "|" .. mapButtonCaption,
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		OnClick = {
@@ -224,6 +240,28 @@ local function CreateMapEntry(mapName, mapData, CloseFunc)--{"ResourceID":7098,"
 			parent = mapButton,
 	}
 
+	local favouriteBtn = Checkbox:New {
+		x = 748,
+		y = 2,
+		width = 24,
+		height = 24,
+		caption = "",
+		checked = isFavourite,
+		classname = "favourite_check",
+		parent = root,
+ 		OnClick = {
+			function ()
+				if isFavourite then
+					isFavourite = false;
+					favMaps[mapName] = nil;
+				else
+					isFavourite = true;
+					favMaps[mapName] = 1;
+				end
+			end
+		}
+	}
+
 	local sortData
 	if mapData then
 		local mapSizeText = (mapData.Width or " ?") .. "x" .. (mapData.Height or " ?")
@@ -284,7 +322,7 @@ local function CreateMapEntry(mapName, mapData, CloseFunc)--{"ResourceID":7098,"
 		sortData[5] = (haveMap and 1) or 0 -- This line is pretty evil.
 	end
 
-	return mapButton, sortData, externalFunctions
+	return root, sortData, externalFunctions
 end
 
 --------------------------------------------------------------------------------
@@ -303,7 +341,7 @@ local function InitializeControls()
 		classname = "main_window",
 		parent = WG.Chobby.lobbyInterfaceHolder,
 		height = math.max(700, WG.Chobby.lobbyInterfaceHolder.height -100),
-		width = 810,
+		width = 834,
 		resizable = false,
 		draggable = false,
 		padding = {0, 0, 0, 0},
@@ -340,6 +378,14 @@ local function InitializeControls()
 
 	local function CloseFunc()
 		mapListWindow:Hide()
+
+		--Save "favourite maps" data to file
+		local favMapsFile = io.open(FILE_FAV_MAPS, "w");
+		favMapsFile:write(Spring.Utilities.GetEngineVersion() .. "\n"); --Game version is always first line
+		for mapName in pairs(favMaps) do
+			favMapsFile:write(mapName .. "\n");
+		end
+		io.close(favMapsFile);
 	end
 
 	local filterTerms
@@ -408,6 +454,7 @@ local function InitializeControls()
 	local featuredMapIndex = 1
 	local mapFuncs = {}
 	local mapList = WG.Chobby.SortableList(listHolder, headings, 60, 1, true, false, ItemInFilter)
+	mapList.priorityList = favMaps
 
 	local function AddTheNextBatchOfMaps()
 		local mapItems = {}
@@ -454,6 +501,27 @@ local function InitializeControls()
 		mapList:UpdateOrder()
 	end
 
+	local function FetchFavouriteMaps()
+		--Clear table first
+		for mapName, _ in pairs(favMaps) do
+			favMaps[mapName] = nil
+		end
+
+		--Load new
+		if VFS.FileExists(FILE_FAV_MAPS) then
+			local favouriteMapsData = VFS.LoadFile(FILE_FAV_MAPS)
+			local fileVersion --In which game version was file created (useful in case of changing file write/read structure in future)
+			for mapName in string.gmatch(favouriteMapsData, "[^\r\n]+") do
+				if fileVersion == nil then --First line will always be file version
+					fileVersion = mapName
+				else
+					favMaps[mapName] = 1
+				end
+			end
+		end --Otherwise -> no favourite maps/empty table
+	end
+
+	FetchFavouriteMaps()
 	WG.Delay(AddTheNextBatchOfMaps, 0.5 / loadRate)
 
 	-------------------------

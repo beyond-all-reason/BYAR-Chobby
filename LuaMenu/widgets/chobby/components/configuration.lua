@@ -283,6 +283,7 @@ function Configuration:init()
 	self.simplifiedSkirmishSetup = false
 	self.debugMode = false
 	self.devMode = (VFS.FileExists("devmode.txt") and true) or false
+	self.ShowhiddenModopions = false
 	self.enableProfiler = false
 	self.enableInspector = false
 	self.enableCacheRapidPool = true

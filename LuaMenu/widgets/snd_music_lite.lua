@@ -39,14 +39,14 @@ local function GetRandomTrack(previousTrack)
 	local nextTrack
 	local trackType
 	for i = 1, #randomTrackList do
-		if previousTrackType == "intro" or (not introTrackList[1]) then -- we're checking if there are any intro tracks
+		if (previousTrackType == "intro" or (not introTrackList[1])) and peaceTrackList[1] then -- we're checking if there are any peace tracks
 			trackType = "peace"
 			peaceTracksIndex = peaceTracksIndex + 1
 			if not peaceTrackList[peaceTracksIndex] then
 				peaceTracksIndex = 1
 			end
 			nextTrack = peaceTrackList[peaceTracksIndex]
-		elseif previousTrackType == "peace" and introTrackList[1] then -- we're checking if there are any intro tracks
+		elseif (previousTrackType == "peace" or (not peaceTrackList[1])) and introTrackList[1] then -- we're checking if there are any intro tracks
 			trackType = "intro"
 			introTracksIndex = introTracksIndex + 1
 			if not introTrackList[introTracksIndex] then
@@ -55,16 +55,11 @@ local function GetRandomTrack(previousTrack)
 			nextTrack = introTrackList[introTracksIndex]
 		end
 
-		if not playedTracks[nextTrack] then
+		if nextTrack and trackType then
 			previousTrackType = trackType
-			playedTracks[nextTrack] = true
 			return nextTrack
 		end
 	end
-
-	playedTracks = {} -- there's a return in the for loop, if it failed, the list should be wiped
-	previousTrackType = "intro"
-	return introTrackList[math.random(#introTrackList)]
 end
 
 --------------------------------------------------------------------------------
@@ -202,6 +197,8 @@ function widget:Initialize()
 	if originalSoundtrackEnabled == 1 then
 		local musicDirOriginal 		= 'luamenu/configs/gameconfig/byar/lobbyMusic/original'
 		randomTrackList = playlistMerge(randomTrackList, VFS.DirList(musicDirOriginal, allowedExtensions))
+	end
+	if true then
 		local musicDirEventAprilFools = 'luamenu/configs/gameconfig/byar/lobbyMusic/event/aprilfools'
 		aprilFoolsTrackList = VFS.DirList(musicDirEventAprilFools, allowedExtensions)
 	end
@@ -246,7 +243,7 @@ function widget:Initialize()
 	end
 
 	for i = 1,1000 do
-		if (easterEggCountdown > 1 and tonumber(os.date("%m")) == 4 and tonumber(os.date("%d")) <= 3) or (easterEggCountdown > 10 and math.random(0,2137) == 0) then -- April Fools, with a very tiny chance to play the track on normal day
+		if (easterEggCountdown > 1 and tonumber(os.date("%m")) == 4 and tonumber(os.date("%d")) <= 1) or (easterEggCountdown > 5 and tonumber(os.date("%m")) == 4 and tonumber(os.date("%d")) <= 2 and tonumber(os.date("%H")) <= 6) or (easterEggCountdown > 10 and math.random(0,2137) == 0) then -- April Fools, with a very tiny chance to play the track on normal day
 			openTrack = aprilFoolsTrackList[math.random(1,#aprilFoolsTrackList)]
 		end
 		if openTrack then

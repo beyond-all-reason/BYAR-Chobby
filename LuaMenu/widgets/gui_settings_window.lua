@@ -1253,6 +1253,7 @@ local function GetVoidTabControls()
 
 
 	children[#children + 1], offset = AddCheckboxSetting(offset, i18n("debugMode"), "debugMode", false)
+	children[#children + 1], offset = AddCheckboxSetting(offset, i18n("ShowhiddenModopions"), "ShowhiddenModopions", false, WG.ModoptionsPanel.RefreshModoptions, i18n("ShowhiddenTooltip"))
 	children[#children + 1], offset = AddCheckboxSetting(offset, "Debug Auto Win", "debugAutoWin", false)
 	children[#children + 1], offset = AddCheckboxSetting(offset, "Enable Profiler", "enableProfiler", false, EnableProfilerFunc)
 	local cbInspector

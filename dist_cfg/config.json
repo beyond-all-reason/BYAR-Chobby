@@ -26,8 +26,8 @@
                         "optional": true
                     },
                     {
-                        "url": "https://github.com/beyond-all-reason/spring/releases/download/spring_bar_%7BBAR105%7D105.1.1-2414-g91273e4/spring_bar_.BAR105.105.1.1-2414-g91273e4_linux-64-minimal-portable.7z",
-                        "destination": "engine/105.1.1-2414-g91273e4 bar",
+                        "url": "https://github.com/beyond-all-reason/spring/releases/download/spring_bar_%7BBAR105%7D105.1.1-2449-gf1234a9/spring_bar_.BAR105.105.1.1-2449-gf1234a9_linux-64-minimal-portable.7z",
+                        "destination": "engine/105.1.1-2449-gf1234a9 bar",
                         "extract": true
                     }
                 ]
@@ -36,7 +36,7 @@
             "logs_s3_bucket": "bar-infologs",
             "launch": {
                 "start_args": ["--menu", "rapid://byar-chobby:test"],
-                "engine": "105.1.1-2414-g91273e4 bar",
+                "engine": "105.1.1-2449-gf1234a9 bar",
                 "springsettings": {
                     "RapidTagResolutionOrder": "repos-cdn.beyondallreason.dev;repos.beyondallreason.dev"
                 }
@@ -65,8 +65,8 @@
                         "optional": true
                     },
                     {
-                        "url": "https://github.com/beyond-all-reason/spring/releases/download/spring_bar_%7BBAR105%7D105.1.1-2414-g91273e4/spring_bar_.BAR105.105.1.1-2414-g91273e4_windows-64-minimal-portable.7z",
-                        "destination": "engine/105.1.1-2414-g91273e4 bar",
+                        "url": "https://github.com/beyond-all-reason/spring/releases/download/spring_bar_%7BBAR105%7D105.1.1-2449-gf1234a9/spring_bar_.BAR105.105.1.1-2449-gf1234a9_windows-64-minimal-portable.7z",
+                        "destination": "engine/105.1.1-2449-gf1234a9 bar",
                         "extract": true
                     }
                 ]
@@ -75,7 +75,7 @@
             "logs_s3_bucket": "bar-infologs",
             "launch": {
                 "start_args": ["--menu", "rapid://byar-chobby:test"],
-                "engine": "105.1.1-2414-g91273e4 bar",
+                "engine": "105.1.1-2449-gf1234a9 bar",
                 "springsettings": {
                     "RapidTagResolutionOrder": "repos-cdn.beyondallreason.dev;repos.beyondallreason.dev"
                 }
@@ -104,8 +104,8 @@
                         "optional": true
                     },
                     {
-                        "url": "https://github.com/beyond-all-reason/spring/releases/download/spring_bar_%7BBAR105%7D105.1.1-2414-g91273e4/spring_bar_.BAR105.105.1.1-2414-g91273e4_linux-64-minimal-portable.7z",
-                        "destination": "engine/105.1.1-2414-g91273e4 bar",
+                        "url": "https://github.com/beyond-all-reason/spring/releases/download/spring_bar_%7BBAR105%7D105.1.1-2449-gf1234a9/spring_bar_.BAR105.105.1.1-2449-gf1234a9_linux-64-minimal-portable.7z",
+                        "destination": "engine/105.1.1-2449-gf1234a9 bar",
                         "extract": true
                     }
                 ]
@@ -114,7 +114,7 @@
             "logs_s3_bucket": "bar-infologs",
             "launch": {
                 "start_args": ["--menu", "rapid://byar-chobby:test"],
-                "engine": "105.1.1-2414-g91273e4 bar",
+                "engine": "105.1.1-2449-gf1234a9 bar",
                 "springsettings": {
                     "RapidTagResolutionOrder": "repos-cdn.beyondallreason.dev;repos.beyondallreason.dev"
                 }
@@ -143,8 +143,8 @@
                         "optional": true
                     },
                     {
-                        "url": "https://github.com/beyond-all-reason/spring/releases/download/spring_bar_%7BBAR105%7D105.1.1-2414-g91273e4/spring_bar_.BAR105.105.1.1-2414-g91273e4_windows-64-minimal-portable.7z",
-                        "destination": "engine/105.1.1-2414-g91273e4 bar",
+                        "url": "https://github.com/beyond-all-reason/spring/releases/download/spring_bar_%7BBAR105%7D105.1.1-2449-gf1234a9/spring_bar_.BAR105.105.1.1-2449-gf1234a9_windows-64-minimal-portable.7z",
+                        "destination": "engine/105.1.1-2449-gf1234a9 bar",
                         "extract": true
                     }
                 ]
@@ -153,7 +153,7 @@
             "logs_s3_bucket": "bar-infologs",
             "launch": {
                 "start_args": ["--menu", "rapid://byar-chobby:test"],
-                "engine": "105.1.1-2414-g91273e4 bar",
+                "engine": "105.1.1-2449-gf1234a9 bar",
                 "springsettings": {
                     "RapidTagResolutionOrder": "repos-cdn.beyondallreason.dev;repos.beyondallreason.dev"
                 }
@@ -174,8 +174,8 @@
             "downloads": {
                 "resources": [
                     {
-                        "url": "https://github.com/beyond-all-reason/spring/releases/download/spring_bar_%7BBAR105%7D105.1.1-2414-g91273e4/spring_bar_.BAR105.105.1.1-2414-g91273e4_linux-64-minimal-portable.7z",
-                        "destination": "engine/105.1.1-2414-g91273e4 bar",
+                        "url": "https://github.com/beyond-all-reason/spring/releases/download/spring_bar_%7BBAR105%7D105.1.1-2449-gf1234a9/spring_bar_.BAR105.105.1.1-2449-gf1234a9_linux-64-minimal-portable.7z",
+                        "destination": "engine/105.1.1-2449-gf1234a9 bar",
                         "extract": true
                     }
                 ]
@@ -185,7 +185,7 @@
             "logs_s3_bucket": "bar-infologs",
             "launch": {
                 "start_args": ["--menu", "BYAR Chobby $VERSION"],
-                "engine": "105.1.1-2414-g91273e4 bar"
+                "engine": "105.1.1-2449-gf1234a9 bar"
             }
         },
         {
@@ -203,8 +203,8 @@
             "downloads": {
                 "resources": [
                     {
-                        "url": "https://github.com/beyond-all-reason/spring/releases/download/spring_bar_%7BBAR105%7D105.1.1-2414-g91273e4/spring_bar_.BAR105.105.1.1-2414-g91273e4_windows-64-minimal-portable.7z",
-                        "destination": "engine/105.1.1-2414-g91273e4 bar",
+                        "url": "https://github.com/beyond-all-reason/spring/releases/download/spring_bar_%7BBAR105%7D105.1.1-2449-gf1234a9/spring_bar_.BAR105.105.1.1-2449-gf1234a9_windows-64-minimal-portable.7z",
+                        "destination": "engine/105.1.1-2449-gf1234a9 bar",
                         "extract": true
                     }
                 ]
@@ -214,7 +214,7 @@
             "logs_s3_bucket": "bar-infologs",
             "launch": {
                 "start_args": ["--menu", "BYAR Chobby $VERSION"],
-                "engine": "105.1.1-2414-g91273e4 bar"
+                "engine": "105.1.1-2449-gf1234a9 bar"
             }
         }
     ],
