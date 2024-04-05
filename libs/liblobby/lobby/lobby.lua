@@ -178,6 +178,7 @@ function Lobby:FriendRequestList()
 end
 
 function Lobby:FriendRequest(userName, steamID)
+	if userName == self.myUserName then return end
 	local userInfo = self:GetUser(userName)
 
 	if not (userInfo and userInfo.accountID) then
@@ -196,10 +197,9 @@ function Lobby:FriendRequest(userName, steamID)
 				self:FriendRequestByID(userData.id)
 			end
 		end
-		
+
 		self:AddListener("OnWhoisName", OnWhoisName)
 		self:WhoisName(userName)
-		
 		return
 	end
 	self:FriendRequestByID(userInfo.accountID)
