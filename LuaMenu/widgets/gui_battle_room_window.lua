@@ -1155,6 +1155,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 
 	-- modoptions
 	WG.ModoptionsPanel.LoadModoptions(battle.gameName, battleLobby)
+	-- if load modoptions failed there may be modoptions from the previous game
 	local modoptions = WG.ModoptionsPanel.ReturnModoptions()
 
 
@@ -1174,7 +1175,9 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 
 	local tooltip = modoptions
 			and "Configure custom gameplay options"
-			or "Error: Could not retrieve modoptions, your game files may be corrupted or the lobby may be invalid"
+			--or "Error: Could not retrieve modoptions, your game files may be corrupted or the lobby may be invalid"
+			or "Game Update may still be downloading"
+	local modoptionsLoaded = modoptions
 	local btnModoptions = Button:New {
 		name = 'btnModoptions',
 		x = 5,
@@ -1184,15 +1187,49 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		classname = "option_button",
 		caption = "Adv Options" .. "\b",
 		objectOverrideFont = config:GetFont(2),
+		disabledFont = config:GetFont(3),
+		hasDisabledFont = true,
 		tooltip = tooltip,
 		OnClick = {
 			function()
-				WG.ModoptionsPanel.ShowModoptions()
+				if modoptionsLoaded then
+					WG.ModoptionsPanel.ShowModoptions()
+				end
 			end
 		},
 		parent = leftInfo,
 	}
 	leftOffset = leftOffset + 40
+
+	-- gray out the button if we don't have a modoptions panel to show
+	if not modoptions then
+		-- cosmetics when disabled
+		btnModoptions.suppressButtonReaction = true
+		btnModoptions:SetEnabled(false)
+	end
+
+	-- the modoptions panel needing a refresh is independant on if we have a modoptions panel from a diffrent version to fall back onto
+	if not VFS.HasArchive(battle.gameName) then
+		-- Listener function to re-enable the button
+		local function gameArchiveReady(k,v)
+			if VFS.HasArchive(battle.gameName) then
+				WG.ModoptionsPanel.LoadModoptions(battle.gameName, battleLobby)
+
+				-- cosmetics for re-enabling
+				btnModoptions.suppressButtonReaction = false
+				btnModoptions.tooltip = "Configure custom gameplay options"
+				btnModoptions:SetEnabled(true)
+				modoptionsLoaded = true
+
+				local modoptionspanelExternalFunctions = WG.ModoptionsPanel.GetModoptionsControl()
+				modoptionspanelExternalFunctions:Update()
+
+				WG.DownloadHandler.RemoveListener("DownloadFinished", gameArchiveReady)
+			end
+		end
+
+		WG.DownloadHandler.AddListener("DownloadFinished", gameArchiveReady)
+	end
 
 
 	local lblGame = Label:New {
