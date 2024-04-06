@@ -3068,29 +3068,29 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 
 	local infoHandler = SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, battleLobby:GetMyUserName())
 
-	local btnQuitBattle = Button:New {
-		name = 'btnQuitBattle',
-		right = 12,
-		y = 7,
-		width = 80,
-		height = 45,
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
-		caption = (isSingleplayer and i18n("close")) or i18n("leave"),
-		classname = "negative_button",
-		tooltip = (isSingleplayer and "Close the battleroom") or "Leave the multiplayer battleroom",
-		OnClick = {
-			function()
-				battleLobby:LeaveBattle()
-				if not isSingleplayer then -- Avoid jumping from Singleplayer Skirmish to a Multiplayer Battles list window
+	if not isSingleplayer then
+		local btnQuitBattle = Button:New {
+			name = 'btnQuitBattle',
+			right = 12,
+			y = 7,
+			width = 80,
+			height = 45,
+			objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+			caption = i18n("leave"),
+			classname = "negative_button",
+			tooltip = "Leave the multiplayer battleroom",
+			OnClick = {
+				function()
+					battleLobby:LeaveBattle()
 					local multiplayerSubmenu = WG.Chobby and WG.Chobby.interfaceRoot and WG.Chobby.interfaceRoot.OpenMultiplayerTabByName
 					if multiplayerSubmenu then
 						multiplayerSubmenu("battle_list")
 					end
 				end
-			end
-		},
-		parent = mainWindow,
-	}
+			},
+			parent = mainWindow,
+		}
+	end
 
 	local btnInviteFriends = Button:New {
 		name = 'btnInviteFriends',
