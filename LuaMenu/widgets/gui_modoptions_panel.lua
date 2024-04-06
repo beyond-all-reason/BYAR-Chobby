@@ -533,14 +533,14 @@ local function InitializeModoptionsDisplay()
 		return value
 	end
 
+	local panelModoptions
+
 	local function OnSetModOptions(listener, modopts)
-		if not modopts then
-			return
-		end
 		local text = ""
 		local empty = true
-		modoptions = modopts
-		for key, value in pairs(modoptions) do
+		panelModoptions = modopts or panelModoptions or {}
+		if not modoptions then return end
+		for key, value in pairs(panelModoptions) do
 			if modoptionDefaults[key] == nil or modoptionDefaults[key] ~= value or key == "ranked_game" then
 				local option = getModOptionByKey(key)
 				local name = option.name and option.name or key
@@ -676,6 +676,40 @@ function ModoptionsPanel.LoadModoptions(gameName, newBattleLobby)
 			modoptions = VFS.UseArchive(gameName, LoadModOptions)
 		end
 	end
+
+	-- adjust the modoptions for singleplayer/multiplayer
+	if modoptions then
+		-- singleplayer adjustments
+		if battleLobby.name == "singleplayer" then
+			for i = 1, #modoptions do
+				local data = modoptions[i]
+				if data.key == "teamffa_start_boxes_shuffle" then
+					data.def = false
+				end
+
+				if data.visible == "mp" then
+					data.hidden = true
+				end
+				if data.spdef then
+					data.def = data.spdef
+				end
+			end
+		-- multiplayer adjustments
+		else
+			for i = 1, #modoptions do
+				local data = modoptions[i]
+
+				if data.visible == "sp" then
+					data.hidden = true
+				end
+				if data.mpdef then
+					data.def = data.mpdef
+				end
+			end
+		end
+	end
+
+
 
 	modoptionDefaults = {}
 	if not modoptions then
