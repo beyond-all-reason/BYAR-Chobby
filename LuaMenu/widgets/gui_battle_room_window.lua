@@ -1174,7 +1174,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		classname = "option_button",
 		caption = "Adv Options" .. "\b",
 		objectOverrideFont = config:GetFont(2),
-		disabledFont = config:GetFont(3),
+		objectOverrideDisabledFont = config:GetFont(1),
 		hasDisabledFont = true,
 		tooltip = tooltip,
 		OnClick = {
