@@ -1155,26 +1155,16 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 
 	-- modoptions
 	WG.ModoptionsPanel.LoadModoptions(battle.gameName, battleLobby)
+	-- if load modoptions failed there may be modoptions from the previous game
 	local modoptions = WG.ModoptionsPanel.ReturnModoptions()
 
 
-	-- this is a kludge so that we can override default values for some specific ModOptions in singleplayer games
-	if modoptions then
-		for i = 1, #modoptions do
-			local data = modoptions[i]
-			-- default teamffa_start_boxes_shuffle to "off" for singleplayer games
-			-- teamffa_start_boxes_shuffle defaults to "on" for multiplayer games since it is desirable to hide start location
-			-- however in singleplayer it is a common scenario to play a pseudo-TeamFFA game against multiple AIs, and in this
-			-- case players typically do not want to be booted off their specifically chosen start box
-			if data.key == "teamffa_start_boxes_shuffle" then
-				data.def = not (battleLobby.name == "singleplayer")
-			end
-		end
-	end
 
 	local tooltip = modoptions
 			and "Configure custom gameplay options"
-			or "Error: Could not retrieve modoptions, your game files may be corrupted or the lobby may be invalid"
+			--or "Error: Could not retrieve modoptions, your game files may be corrupted or the lobby may be invalid"
+			or "Game Update may still be downloading"
+	local modoptionsLoaded = modoptions
 	local btnModoptions = Button:New {
 		name = 'btnModoptions',
 		x = 5,
@@ -1184,15 +1174,49 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		classname = "option_button",
 		caption = "Adv Options" .. "\b",
 		objectOverrideFont = config:GetFont(2),
+		objectOverrideDisabledFont = config:GetFont(1),
+		hasDisabledFont = true,
 		tooltip = tooltip,
 		OnClick = {
 			function()
-				WG.ModoptionsPanel.ShowModoptions()
+				if modoptionsLoaded then
+					WG.ModoptionsPanel.ShowModoptions()
+				end
 			end
 		},
 		parent = leftInfo,
 	}
 	leftOffset = leftOffset + 40
+
+	-- gray out the button if we don't have a modoptions panel to show
+	if not modoptions then
+		-- cosmetics when disabled
+		btnModoptions.suppressButtonReaction = true
+		btnModoptions:SetEnabled(false)
+	end
+
+	-- the modoptions panel needing a refresh is independant on if we have a modoptions panel from a diffrent version to fall back onto
+	if not VFS.HasArchive(battle.gameName) then
+		-- Listener function to re-enable the button
+		local function gameArchiveReady(k,v)
+			if VFS.HasArchive(battle.gameName) then
+				WG.ModoptionsPanel.LoadModoptions(battle.gameName, battleLobby)
+
+				-- cosmetics for re-enabling
+				btnModoptions.suppressButtonReaction = false
+				btnModoptions.tooltip = "Configure custom gameplay options"
+				btnModoptions:SetEnabled(true)
+				modoptionsLoaded = true
+
+				local modoptionspanelExternalFunctions = WG.ModoptionsPanel.GetModoptionsControl()
+				modoptionspanelExternalFunctions:Update()
+
+				WG.DownloadHandler.RemoveListener("DownloadFinished", gameArchiveReady)
+			end
+		end
+
+		WG.DownloadHandler.AddListener("DownloadFinished", gameArchiveReady)
+	end
 
 
 	local lblGame = Label:New {
@@ -3068,29 +3092,29 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 
 	local infoHandler = SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, battleLobby:GetMyUserName())
 
-	local btnQuitBattle = Button:New {
-		name = 'btnQuitBattle',
-		right = 12,
-		y = 7,
-		width = 80,
-		height = 45,
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
-		caption = (isSingleplayer and i18n("close")) or i18n("leave"),
-		classname = "negative_button",
-		tooltip = (isSingleplayer and "Close the battleroom") or "Leave the multiplayer battleroom",
-		OnClick = {
-			function()
-				battleLobby:LeaveBattle()
-				if not isSingleplayer then -- Avoid jumping from Singleplayer Skirmish to a Multiplayer Battles list window
+	if not isSingleplayer then
+		local btnQuitBattle = Button:New {
+			name = 'btnQuitBattle',
+			right = 12,
+			y = 7,
+			width = 80,
+			height = 45,
+			objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+			caption = i18n("leave"),
+			classname = "negative_button",
+			tooltip = "Leave the multiplayer battleroom",
+			OnClick = {
+				function()
+					battleLobby:LeaveBattle()
 					local multiplayerSubmenu = WG.Chobby and WG.Chobby.interfaceRoot and WG.Chobby.interfaceRoot.OpenMultiplayerTabByName
 					if multiplayerSubmenu then
 						multiplayerSubmenu("battle_list")
 					end
 				end
-			end
-		},
-		parent = mainWindow,
-	}
+			},
+			parent = mainWindow,
+		}
+	end
 
 	local btnInviteFriends = Button:New {
 		name = 'btnInviteFriends',

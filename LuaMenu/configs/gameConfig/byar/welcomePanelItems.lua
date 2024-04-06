@@ -16,6 +16,12 @@ local welcomePanelItems = {
     },
 
     {
+        Header = "New Map: World in Flames",
+        Text = " \n" .. " \n" .. "A world-sized geographically sourced map for up to 12-way FFA. Made by Soaptastesok",
+        Image = "LuaMenu/configs/gameConfig/byar/minimapOverride/World_In_Flames_v1.5.jpg",
+    },
+
+    {
         Header = "Beyond All Reason Alpha Championship Cup #4",
         Text = "Format: 1v1 - Double Elimination",
         --Image = "LuaMenu/images/welcomepanel/1vs1Tournament.png",
