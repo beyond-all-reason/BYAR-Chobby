@@ -1159,19 +1159,6 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	local modoptions = WG.ModoptionsPanel.ReturnModoptions()
 
 
-	-- this is a kludge so that we can override default values for some specific ModOptions in singleplayer games
-	if modoptions then
-		for i = 1, #modoptions do
-			local data = modoptions[i]
-			-- default teamffa_start_boxes_shuffle to "off" for singleplayer games
-			-- teamffa_start_boxes_shuffle defaults to "on" for multiplayer games since it is desirable to hide start location
-			-- however in singleplayer it is a common scenario to play a pseudo-TeamFFA game against multiple AIs, and in this
-			-- case players typically do not want to be booted off their specifically chosen start box
-			if data.key == "teamffa_start_boxes_shuffle" then
-				data.def = not (battleLobby.name == "singleplayer")
-			end
-		end
-	end
 
 	local tooltip = modoptions
 			and "Configure custom gameplay options"
