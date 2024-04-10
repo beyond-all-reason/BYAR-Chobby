@@ -17,7 +17,7 @@ local welcomePanelItems = {
 
     {
         Header = "BAR is accepting donations again! ",
-        Text = " \n" .. "Dear Commanders, we are delighted to announce the reopening of our donation platform after a longer-than-expected hiatus. Support BAR with our newly reopened donation platform!",
+        Text = "Dear Commanders, we are delighted to announce the reopening of our donation platform after a longer-than-expected hiatus." .. " \n" .. " \n" .. "As we've been hard at work refining BAR to ensure maximum enjoyment for our ever-expanding community, we repeatedly placed donation efforts on hold to focus on other priorities." .. " \n" .. " \n" .. "Support BAR with our newly reopened donation platform!",
         Image = "LuaMenu/images/donate.png",
         Url = "https://www.beyondallreason.info/news/support-bar-with-our-newly-reopened-donation-platform",
         UrlText = "Read Announcement",
