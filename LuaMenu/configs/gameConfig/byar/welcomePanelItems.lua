@@ -16,9 +16,11 @@ local welcomePanelItems = {
     },
 
     {
-        Header = "New Map: World in Flames",
-        Text = " \n" .. " \n" .. "A world-sized geographically sourced map for up to 12-way FFA. Made by Soaptastesok",
-        Image = "LuaMenu/configs/gameConfig/byar/minimapOverride/World_In_Flames_v1.5.jpg",
+        Header = "BAR is accepting donations again! ",
+        Text = " \n" .. "Dear Commanders, we are delighted to announce the reopening of our donation platform after a longer-than-expected hiatus. Support BAR with our newly reopened donation platform!",
+        Image = "LuaMenu/images/donate.png",
+        Url = "https://www.beyondallreason.info/news/support-bar-with-our-newly-reopened-donation-platform",
+        UrlText = "Read Announcement",
     },
 
     {
