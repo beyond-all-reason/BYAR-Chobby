@@ -199,7 +199,7 @@ function widget:Initialize()
 		randomTrackList = playlistMerge(randomTrackList, VFS.DirList(musicDirOriginal, allowedExtensions))
 	end
 	if true then
-		local musicDirEventBoombox = 'luamenu/configs/gameconfig/byar/lobbyMusic/event/aprilfools'
+		local musicDirEventBoombox = 'luamenu/configs/gameconfig/byar/lobbyMusic/event/boombox'
 		booxmboxTrackList = VFS.DirList(musicDirEventBoombox, allowedExtensions)
 	end
 
