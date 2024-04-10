@@ -281,7 +281,7 @@ local function CreateMapEntry(mapName, mapData, CloseFunc)--{"ResourceID":7098,"
 
 		local playerCount = mapData.PlayerCount or '0'
 		if string.len(playerCount)== 1 then
-			playerCount = "0" .. playerCount
+			playerCount = " " .. playerCount
 		end		
         TextBox:New {
 			x = 356,
