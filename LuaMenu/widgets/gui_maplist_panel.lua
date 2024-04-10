@@ -313,7 +313,7 @@ local function CreateMapEntry(mapName, mapData, CloseFunc)--{"ResourceID":7098,"
 		local testtextbox = TextBox:New {
 			x = 478,
 			y = 12,
-			width = 160,
+			width = 150,
 			height = 20,
 			valign = 'center',
 			objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
@@ -464,8 +464,8 @@ local function InitializeControls()
 		{name = "#", tooltip = "Ideal max playercount (in total)",x = 354, width = 28},
 		{name = "Type", tooltip = "Each map is designed with a specific gameplay setup in mind, but can be played as you desire.\n- 1v1: Designed for small, competitive games\n- Teams: Has resources for multiple players\n- FFA: Free-for-all games", x = 384, width = 100},
 		{name = "Terrain", tooltip = "Water maps have underwater resources, and feature naval combat. Bots perform better than vehicles on Hilly maps. Metal maps have unlimited Metal resources.", x = 486, width = 142},
-		{name = "", tooltip = "Downloaded", x = 631, width = 40, image = "LuaMenu/images/download.png"},
-		{name = "Certified", tooltip = "Certified maps guarantee the best experience, Classic maps offer a great variety of gameplay, and third party maps are marked as Unofficial", x = 671, width = 100},
+		{name = "", tooltip = "Downloaded", x = 630, width = 40, image = "LuaMenu/images/download.png"},
+		{name = "Certified", tooltip = "Certified maps guarantee the best experience, Classic maps offer a great variety of gameplay, and third party maps are marked as Unofficial", x = 672, width = 100},
 		{name = "", tooltip = "Certified maps guarantee the best experience, Classic maps offer a great variety of gameplay, and third party maps are marked as Unofficial", x = 735, width = 10},
 	}
 
