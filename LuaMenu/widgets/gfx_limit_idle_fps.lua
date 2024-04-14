@@ -57,6 +57,9 @@ local vsyncValueOffscreen = maxVsync
 local isLinux = string.find(Platform.osName:lower(), 'linux')	-- not sure what exact implications linux has, but someone reported flickering
 
 local isIntel = (Platform ~= nil and Platform.gpuVendor == 'Intel')
+local isNvidia = (Platform ~= nil and Platform.gpuVendor == 'Nvidia')
+local isAmd = (Platform ~= nil and Platform.gpuVendor == 'AMD') or (not isIntel and not isNvidia)
+
 --if isIntel or isLinux then
 	maxVsync = 4	-- intel seems to no support vsync above 4 (but haven't tested the new intel XE)
 	vsyncValueHibernate = maxVsync
@@ -288,7 +291,7 @@ function widget:AllowDraw()
 	--if (isIntel or isLinux or WG.Chobby.Configuration.fixFlicker) then
 	--	return true
 	--end
-	if msaaLevel == 0 then
+	if msaaLevel == 0 or isAmd then
 		return true
 	end
 	if isIdle then
