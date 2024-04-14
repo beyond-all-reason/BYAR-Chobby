@@ -13,6 +13,8 @@ function widget:GetInfo()
 	}
 end
 
+local msaaLevel = tonumber(Spring.GetConfigInt("MSAALevel", 0))	-- msaaLevel 0 will induce the lobby flicker glitch
+
 local idleTime = 0.5
 local idleFps = 10	-- lower numbers will result in more severe flicker on some card/driver settings
 local sleepTime = 1
@@ -279,7 +281,12 @@ function widget:TextEditing()
 end
 
 function widget:AllowDraw()
-	if (isIntel or isLinux or WG.Chobby.Configuration.fixFlicker) then return true end
+	--if (isIntel or isLinux or WG.Chobby.Configuration.fixFlicker) then
+	--	return true
+	--end
+	if msaaLevel == 0 then
+		return true
+	end
 	if isIdle then
 		if os.clock() > nextFrameTime then
 			if isOffscreen then
