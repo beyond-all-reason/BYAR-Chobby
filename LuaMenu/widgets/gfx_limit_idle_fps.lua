@@ -15,6 +15,10 @@ end
 
 local msaaLevel = tonumber(Spring.GetConfigInt("MSAALevel", 0))	-- msaaLevel 0 will induce the lobby flicker glitch
 
+--if msaaLevel == 0 then
+--	Spring.SetConfigInt("MSAALevel", 1)
+--end
+
 local idleTime = 0.5
 local idleFps = 10	-- lower numbers will result in more severe flicker on some card/driver settings
 local sleepTime = 1
@@ -53,7 +57,7 @@ local vsyncValueOffscreen = maxVsync
 local isLinux = string.find(Platform.osName:lower(), 'linux')	-- not sure what exact implications linux has, but someone reported flickering
 
 local isIntel = (Platform ~= nil and Platform.gpuVendor == 'Intel')
-if isIntel or isLinux then
+--if isIntel or isLinux then
 	maxVsync = 4	-- intel seems to no support vsync above 4 (but haven't tested the new intel XE)
 	vsyncValueHibernate = maxVsync
 	vsyncValueOffscreen = maxVsync
@@ -63,7 +67,7 @@ if isIntel or isLinux then
 	sleepFps = 15
 	hibernateTime = 2
 	hibernateFps = 2
-end
+--end
 
 -- detect display frequency > 60 and set vsyncValueIdle to 6
 local infolog = VFS.LoadFile("infolog.txt")
