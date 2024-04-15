@@ -202,7 +202,7 @@ local function GetUserComboBoxOptions(userName, isInBattle, control, showTeamCol
 	if not (itsme or bs.aiLib) then																					comboOptions[#comboOptions + 1] = "Message" end
 	if isInBattle and not (itsme or bs.aiLib or info.isBot) then													comboOptions[#comboOptions + 1] = "Ring" end
 	if not (itsme or bs.aiLib or isInBattle) and info.battleID and validEngine then									comboOptions[#comboOptions + 1] = "Join Battle" end
-	if not (itsme or bs.aiLib or info.isBot) then																	comboOptions[#comboOptions + 1] = "\255\120\120\120" .. "--------------" end
+	if not (itsme or bs.aiLib or info.isBot) then																	comboOptions[#comboOptions + 1] = "\255\128\128\128" .. "--------------" end
 	if not (itsme or bs.aiLib or info.isBot) then																	comboOptions[#comboOptions + 1] = info.isFriend and "Unfriend" or "Friend"
 									  if info.isDisregarded and info.isDisregarded == Configuration.IGNORE then     comboOptions[#comboOptions + 1] = "Unignore"
 																													comboOptions[#comboOptions + 1] = "Avoid"
@@ -219,7 +219,7 @@ local function GetUserComboBoxOptions(userName, isInBattle, control, showTeamCol
 	if bs.aiLib and bs.owner == myUserName and isInBattle then														comboOptions[#comboOptions + 1] = "Remove" end
 	if not itsme and not info.isBot and not bs.aiLib then															comboOptions[#comboOptions + 1] = "Report User" end
 																													comboOptions[#comboOptions + 1] = "Copy Name"
-	if (iAmBoss or iPlay) and not (control.isSingleplayer or bs.aiLib or info.isBot) and isInBattle  then			comboOptions[#comboOptions + 1] = "\255\120\120\120" .. "--------------"
+	if (iAmBoss or iPlay) and not (control.isSingleplayer or bs.aiLib or info.isBot) and isInBattle  then			comboOptions[#comboOptions + 1] = "\255\128\128\128" .. "--------------"
 																													comboOptions[#comboOptions + 1] =  userName ~= boss and "Make Boss" or "Disable Boss" end
 
 	if #comboOptions == 0 then
@@ -1127,7 +1127,6 @@ local function GetUserControls(userName, opts)
 							nil,
 							"OK"
 						)
-
 						-- WG.TextEntryWindow.CreateTextEntryWindow({
 						-- 	defaultValue = "",
 						-- 	caption = "Report "..userName,
@@ -1144,11 +1143,8 @@ local function GetUserControls(userName, opts)
 						-- 			lobby:ReportPlayer(userName,"lobby","nil",reportreason)
 						-- 		end
 						-- 	end
--- 
 						-- })
 					end
-
-				
 				end
 			}
 		}
