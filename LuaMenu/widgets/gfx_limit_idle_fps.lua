@@ -37,6 +37,8 @@ local nextFrameTime = os.clock()
 local frameDelayTime = 0
 local enabled = false
 
+local msaaLevel = tonumber(Spring.GetConfigInt("MSAALevel", 0))
+
 local vsyncValueGame = Spring.GetConfigInt("VSync",1)
 if vsyncValueGame > 3 then
 	vsyncValueGame = 1
@@ -51,6 +53,9 @@ local vsyncValueOffscreen = maxVsync
 local isLinux = string.find(Platform.osName:lower(), 'linux')	-- not sure what exact implications linux has, but someone reported flickering
 
 local isIntel = (Platform ~= nil and Platform.gpuVendor == 'Intel')
+local isNvidia = (Platform ~= nil and Platform.gpuVendor == 'Nvidia')
+local isAmd = (Platform ~= nil and Platform.gpuVendor == 'AMD') or (not isIntel and not isNvidia)
+
 if isIntel or isLinux then
 	maxVsync = 4	-- intel seems to no support vsync above 4 (but haven't tested the new intel XE)
 	vsyncValueHibernate = maxVsync
@@ -278,8 +283,14 @@ function widget:TextEditing()
 	logUserInput()
 end
 
+-- Enables Draw{Genesis,Screen,ScreenPost} callins if true is returned, otherwise they are called once every 30 seconds. Only active when a game isn't running.
 function widget:AllowDraw()
-	if (isIntel or isLinux or WG.Chobby.Configuration.fixFlicker) then return true end
+	if WG.Chobby.Configuration.fixFlicker then
+		return true
+	end
+	if msaaLevel == 0 then	-- msaaLevel 0 will induce the lobby flicker glitch
+		return true
+	end
 	if isIdle then
 		if os.clock() > nextFrameTime then
 			if isOffscreen then

@@ -26,8 +26,8 @@
                         "optional": true
                     },
                     {
-                        "url": "https://github.com/beyond-all-reason/spring/releases/download/spring_bar_%7BBAR105%7D105.1.1-2449-gf1234a9/spring_bar_.BAR105.105.1.1-2449-gf1234a9_linux-64-minimal-portable.7z",
-                        "destination": "engine/105.1.1-2449-gf1234a9 bar",
+                        "url": "https://github.com/beyond-all-reason/spring/releases/download/spring_bar_%7BBAR105%7D105.1.1-2314-g9e0bf7d/spring_bar_.BAR105.105.1.1-2314-g9e0bf7d_linux-64-minimal-portable.7z",
+                        "destination": "engine/105.1.1-2314-g9e0bf7d bar",
                         "extract": true
                     }
                 ]
@@ -36,7 +36,7 @@
             "logs_s3_bucket": "bar-infologs",
             "launch": {
                 "start_args": ["--menu", "rapid://byar-chobby:test"],
-                "engine": "105.1.1-2449-gf1234a9 bar",
+                "engine": "105.1.1-2314-g9e0bf7d bar",
                 "springsettings": {
                     "RapidTagResolutionOrder": "repos-cdn.beyondallreason.dev;repos.beyondallreason.dev"
                 }
@@ -65,8 +65,8 @@
                         "optional": true
                     },
                     {
-                        "url": "https://github.com/beyond-all-reason/spring/releases/download/spring_bar_%7BBAR105%7D105.1.1-2449-gf1234a9/spring_bar_.BAR105.105.1.1-2449-gf1234a9_windows-64-minimal-portable.7z",
-                        "destination": "engine/105.1.1-2449-gf1234a9 bar",
+                        "url": "https://github.com/beyond-all-reason/spring/releases/download/spring_bar_%7BBAR105%7D105.1.1-2314-g9e0bf7d/spring_bar_.BAR105.105.1.1-2314-g9e0bf7d_windows-64-minimal-portable.7z",
+                        "destination": "engine/105.1.1-2314-g9e0bf7d bar",
                         "extract": true
                     }
                 ]
@@ -75,7 +75,7 @@
             "logs_s3_bucket": "bar-infologs",
             "launch": {
                 "start_args": ["--menu", "rapid://byar-chobby:test"],
-                "engine": "105.1.1-2449-gf1234a9 bar",
+                "engine": "105.1.1-2314-g9e0bf7d bar",
                 "springsettings": {
                     "RapidTagResolutionOrder": "repos-cdn.beyondallreason.dev;repos.beyondallreason.dev"
                 }
@@ -161,6 +161,84 @@
         },
         {
             "package": {
+                "id": "manual-linux-rmlui-engine",
+                "display": "Engine RmlUi",
+                "platform": "linux"
+            },
+            "config_url": "https://launcher-config.beyondallreason.dev/config.json",
+            "env_variables": {
+                "PRD_HTTP_SEARCH_URL": "https://files-cdn.beyondallreason.dev/find",
+                "PRD_RAPID_USE_STREAMER": "false",
+                "PRD_RAPID_REPO_MASTER": "https://repos-cdn.beyondallreason.dev/repos.gz"
+            },
+            "auto_download": true,
+            "downloads": {
+                "games": ["byar:test", "byar-chobby:test"],
+                "resources": [
+                    {
+                        "url": "https://pool-init.beyondallreason.dev/data.7z",
+                        "destination": "pool",
+                        "extract": true,
+                        "optional": true
+                    },
+                    {
+                        "url": "https://github.com/beyond-all-reason/spring/releases/download/rmlui-integration-preview-v4/spring_bar_.rmlui-integration.105.1.1-2542-g27654c0_linux-64-minimal-portable.7z",
+                        "destination": "engine/105.1.1-2542-g27654c0 bar rmlui",
+                        "extract": true
+                    }
+                ]
+            },
+            "no_start_script": true,
+            "logs_s3_bucket": "bar-infologs",
+            "launch": {
+                "start_args": ["--menu", "rapid://byar-chobby:test"],
+                "engine": "105.1.1-2542-g27654c0 bar rmlui",
+                "springsettings": {
+                    "RapidTagResolutionOrder": "repos-cdn.beyondallreason.dev;repos.beyondallreason.dev"
+                }
+            }
+        },
+        {
+            "package": {
+                "id": "manual-win-rmlui-engine",
+                "display": "Engine RmlUi",
+                "platform": "win32"
+            },
+            "config_url": "https://launcher-config.beyondallreason.dev/config.json",
+            "env_variables": {
+                "PRD_HTTP_SEARCH_URL": "https://files-cdn.beyondallreason.dev/find",
+                "PRD_RAPID_USE_STREAMER": "false",
+                "PRD_RAPID_REPO_MASTER": "https://repos-cdn.beyondallreason.dev/repos.gz"
+            },
+            "auto_download": true,
+            "downloads": {
+                "games": ["byar:test", "byar-chobby:test"],
+                "resources": [
+                    {
+                        "url": "https://pool-init.beyondallreason.dev/data.7z",
+                        "destination": "pool",
+                        "extract": true,
+                        "optional": true
+                    },
+                    {
+                        "url": "https://github.com/beyond-all-reason/spring/releases/download/rmlui-integration-preview-v4/spring_bar_.rmlui-integration.105.1.1-2542-g27654c0_windows-64-minimal-portable.7z",
+                        "destination": "engine/105.1.1-2542-g27654c0 bar rmlui",
+                        "extract": true
+                    }
+                ]
+            },
+            "no_start_script": true,
+            "logs_s3_bucket": "bar-infologs",
+            "launch": {
+                "start_args": ["--menu", "rapid://byar-chobby:test"],
+                "engine": "105.1.1-2542-g27654c0 bar rmlui",
+                "springsettings": {
+                    "RapidTagResolutionOrder": "repos-cdn.beyondallreason.dev;repos.beyondallreason.dev"
+                }
+            }
+        },
+        {
+            "package": {
                 "id": "dev-lobby-linux",
                 "display": "Dev Lobby",
                 "platform": "linux"
@@ -174,8 +252,8 @@
             "downloads": {
                 "resources": [
                     {
-                        "url": "https://github.com/beyond-all-reason/spring/releases/download/spring_bar_%7BBAR105%7D105.1.1-2449-gf1234a9/spring_bar_.BAR105.105.1.1-2449-gf1234a9_linux-64-minimal-portable.7z",
-                        "destination": "engine/105.1.1-2449-gf1234a9 bar",
+                        "url": "https://github.com/beyond-all-reason/spring/releases/download/spring_bar_%7BBAR105%7D105.1.1-2314-g9e0bf7d/spring_bar_.BAR105.105.1.1-2314-g9e0bf7d_linux-64-minimal-portable.7z",
+                        "destination": "engine/105.1.1-2314-g9e0bf7d bar",
                         "extract": true
                     }
                 ]
@@ -185,7 +263,7 @@
             "logs_s3_bucket": "bar-infologs",
             "launch": {
                 "start_args": ["--menu", "BYAR Chobby $VERSION"],
-                "engine": "105.1.1-2449-gf1234a9 bar"
+                "engine": "105.1.1-2314-g9e0bf7d bar"
             }
         },
         {
@@ -203,8 +281,8 @@
             "downloads": {
                 "resources": [
                     {
-                        "url": "https://github.com/beyond-all-reason/spring/releases/download/spring_bar_%7BBAR105%7D105.1.1-2449-gf1234a9/spring_bar_.BAR105.105.1.1-2449-gf1234a9_windows-64-minimal-portable.7z",
-                        "destination": "engine/105.1.1-2449-gf1234a9 bar",
+                        "url": "https://github.com/beyond-all-reason/spring/releases/download/spring_bar_%7BBAR105%7D105.1.1-2314-g9e0bf7d/spring_bar_.BAR105.105.1.1-2314-g9e0bf7d_windows-64-minimal-portable.7z",
+                        "destination": "engine/105.1.1-2314-g9e0bf7d bar",
                         "extract": true
                     }
                 ]
@@ -214,7 +292,7 @@
             "logs_s3_bucket": "bar-infologs",
             "launch": {
                 "start_args": ["--menu", "BYAR Chobby $VERSION"],
-                "engine": "105.1.1-2449-gf1234a9 bar"
+                "engine": "105.1.1-2314-g9e0bf7d bar"
             }
         }
     ],

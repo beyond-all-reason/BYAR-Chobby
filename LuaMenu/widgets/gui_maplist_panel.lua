@@ -149,7 +149,7 @@ local function CreateMapEntry(mapName, mapData, CloseFunc)--{"ResourceID":7098,"
 	local root = Panel:New {
 		x = 0,
 		y = 0,
-		width = 774,
+		width = 794,
 		height = 60,
 		resizable = false,
 		draggable = false,
@@ -160,7 +160,7 @@ local function CreateMapEntry(mapName, mapData, CloseFunc)--{"ResourceID":7098,"
 	local mapButton = Button:New {
 		x = 0,
 		y = 0,
-		width = 748,
+		width = 768,
 		height = "100%",
 		caption = "",
 		resizable = false,
@@ -219,7 +219,7 @@ local function CreateMapEntry(mapName, mapData, CloseFunc)--{"ResourceID":7098,"
 	}
 
 	local imHaveGame = Image:New {
-		x = 612,
+		x = 632,
 		y = 12,
 		width = 20,
 		height = 20,
@@ -229,7 +229,7 @@ local function CreateMapEntry(mapName, mapData, CloseFunc)--{"ResourceID":7098,"
 
     local certificationLevel = GetCertifiedLevelBar( mapData and mapData.IsCertified, mapData and mapData.IsInPool, mapData and mapData.LastUpdate)
 	TextBox:New {
-			x = 655,
+			x = 675,
 			y = 12,
 			width = 160,
 			height = 20,
@@ -241,13 +241,14 @@ local function CreateMapEntry(mapName, mapData, CloseFunc)--{"ResourceID":7098,"
 	}
 
 	local favouriteBtn = Checkbox:New {
-		x = 748,
+		x = 768,
 		y = 2,
 		width = 24,
 		height = 24,
 		caption = "",
 		checked = isFavourite,
 		classname = "favourite_check",
+		tooltip = "Favourited maps will always appear on top.",
 		parent = root,
  		OnClick = {
 			function ()
@@ -278,9 +279,26 @@ local function CreateMapEntry(mapName, mapData, CloseFunc)--{"ResourceID":7098,"
 		}
 
 
+		local playerCount = mapData.PlayerCount or '0'
+		if string.len(playerCount)== 1 then
+			playerCount = " " .. playerCount
+		end
+        TextBox:New {
+			x = 356,
+			y = 12,
+			width = 22,
+			height = 20,
+			valign = 'center',
+			objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+			objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
+			text = playerCount,
+			parent = mapButton,
+		}
+
+
 		local mapType = GetMapTypeBar(mapData.Is1v1, mapData.IsTeam, mapData.IsFFA)
 		local maptypetextbox = TextBox:New {
-			x = 356,
+			x = 386,
 			y = 12,
 			width = 98,
 			height = 20,
@@ -293,9 +311,9 @@ local function CreateMapEntry(mapName, mapData, CloseFunc)--{"ResourceID":7098,"
 
 		local terrainType = GetTerrainTypeBar(mapData.Special, mapData.Flat, mapData.Hills, mapData.Water)
 		local testtextbox = TextBox:New {
-			x = 468,
+			x = 478,
 			y = 12,
-			width = 160,
+			width = 150,
 			height = 20,
 			valign = 'center',
 			objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
@@ -304,11 +322,11 @@ local function CreateMapEntry(mapName, mapData, CloseFunc)--{"ResourceID":7098,"
 			parent = mapButton,
 		}
 
-		sortData = {string.lower(mapName), (mapData.Width or 0)*100 + (mapData.Height or 0), string.lower(mapType), string.lower(terrainType), (haveMap and 1) or 0, string.lower(certificationLevel), string.format( "%09d", GetMapAge(mapData.LastUpdate) )  .. mapName }
-		sortData[8] = sortData[1] .. " " .. mapSizeText .. " " .. sortData[3] .. " " .. sortData[4] .. " " .. sortData[6] .. " " .. sortData[7]-- Used for text filter by name, type, terrain or size. Now includes HAX COLUMN.
+		sortData = {string.lower(mapName), (mapData.Width or 0)*100 + (mapData.Height or 0), playerCount, string.lower(mapType), string.lower(terrainType), (haveMap and 1) or 0, string.lower(certificationLevel), string.format( "%09d", GetMapAge(mapData.LastUpdate) )  .. mapName }
+		sortData[9] = sortData[1] .. " " .. mapSizeText .. " " .. sortData[3] .. " " .. sortData[4] .. " " .. sortData[5] .. " " .. sortData[7] .. " " .. sortData[8]-- Used for text filter by name, type, terrain or size. Now includes HAX COLUMN.
 	else
-		sortData = {string.lower(mapName), 0, "", "", (haveMap and 1) or 0, certificationLevel,"999999999" .. (haveMap and ' '..mapName) or mapName}
-		sortData[8] = sortData[1]
+		sortData = {string.lower(mapName), 0, "", "", "", (haveMap and 1) or 0, certificationLevel,"999999999" .. (haveMap and ' '..mapName) or mapName}
+		sortData[9] = sortData[1]
 	end
 
 	local externalFunctions = {}
@@ -319,7 +337,7 @@ local function CreateMapEntry(mapName, mapData, CloseFunc)--{"ResourceID":7098,"
 		mapButton.tooltip = not haveMap or MINIMAP_TOOLTIP_PREFIX .. mapName .. "|" .. i18n("click_to_pick_map")
 		mapButton:Invalidate()
 		imHaveGame:Invalidate()
-		sortData[5] = (haveMap and 1) or 0 -- This line is pretty evil.
+		sortData[6] = (haveMap and 1) or 0 -- This line is pretty evil.
 	end
 
 	return root, sortData, externalFunctions
@@ -341,7 +359,7 @@ local function InitializeControls()
 		classname = "main_window",
 		parent = WG.Chobby.lobbyInterfaceHolder,
 		height = math.max(700, WG.Chobby.lobbyInterfaceHolder.height -100),
-		width = 834,
+		width = 854,
 		resizable = false,
 		draggable = false,
 		padding = {0, 0, 0, 0},
@@ -394,7 +412,7 @@ local function InitializeControls()
 			return true
 		end
 
-		local textToSearch = sortData[8]
+		local textToSearch = sortData[9]
 		for i = 1, #filterTerms do
 			if not string.find(textToSearch, filterTerms[i]) then
 				return false
@@ -443,11 +461,12 @@ local function InitializeControls()
 	local headings = {
 		{name = "Name", x = 22, width = 248},
 		{name = "Size", tooltip = "Choose larger maps for longer games.",x = 272, width = 80},
-		{name = "Type", tooltip = "Each map is designed with a specific gameplay setup in mind, but can be played as you desire.\n- 1v1: Designed for small, competitive games\n- Teams: Has resources for multiple players\n- FFA: Free-for-all games", x = 354, width = 110},
-		{name = "Terrain", tooltip = "Water maps have underwater resources, and feature naval combat. Bots perform better than vehicles on Hilly maps. Metal maps have unlimited Metal resources.", x = 466, width = 142},
-		{name = "", tooltip = "Downloaded", x = 610, width = 40, image = "LuaMenu/images/download.png"},
-		{name = "Certified", tooltip = "Certified maps guarantee the best experience, Classic maps offer a great variety of gameplay, and third party maps are marked as Unofficial", x = 652, width = 100},
-		{name = "", tooltip = "Certified maps guarantee the best experience, Classic maps offer a great variety of gameplay, and third party maps are marked as Unofficial", x = 753, width = 10},
+		{name = "#", tooltip = "Ideal max playercount (in total)",x = 354, width = 28},
+		{name = "Type", tooltip = "Each map is designed with a specific gameplay setup in mind, but can be played as you desire.\n- 1v1: Designed for small, competitive games\n- Teams: Has resources for multiple players\n- FFA: Free-for-all games", x = 384, width = 100},
+		{name = "Terrain", tooltip = "Water maps have underwater resources, and feature naval combat. Bots perform better than vehicles on Hilly maps. Metal maps have unlimited Metal resources.", x = 486, width = 142},
+		{name = "", tooltip = "Downloaded", x = 630, width = 40, image = "LuaMenu/images/download.png"},
+		{name = "Certified", tooltip = "Certified maps guarantee the best experience, Classic maps offer a great variety of gameplay, and third party maps are marked as Unofficial", x = 672, width = 100},
+		{name = "", tooltip = "Sort by default order", x = 774, width = 16},
 	}
 
 	local featuredMapList = WG.CommunityWindow.LoadStaticCommunityData().MapItems or {}
@@ -463,7 +482,7 @@ local function InitializeControls()
 			if featuredMapList[featuredMapIndex] then
 				local mapName = featuredMapList[featuredMapIndex].Name
 				control, sortData, mapFuncs[mapName] = CreateMapEntry(mapName, featuredMapList[featuredMapIndex], CloseFunc)
-				local certification = sortData[6]
+				local certification = sortData[7]
 				if lobby.name == "singleplayer" or certification ~= "Unofficial" then
 					mapItems[#mapItems + 1] = {mapName, control, sortData}
 				end
@@ -480,7 +499,7 @@ local function InitializeControls()
 				if info and info.modtype == 3 and not mapFuncs[info.name] then
 					addedmaps[info.name] = true
 					control, sortData, mapFuncs[info.name] = CreateMapEntry(info.name, Configuration.gameConfig.mapDetails[info.name] , CloseFunc)
-					local certification = sortData[6]
+					local certification = sortData[7]
 					if lobby.name == "singleplayer" or certification ~= "Unofficial" then
 						mapItems[#mapItems + 1] = {info.name, control, sortData}
 					end
@@ -489,15 +508,15 @@ local function InitializeControls()
 			mapList:AddItems(mapItems)
 		end
 		for mapname, mapdetails in pairs(Configuration.gameConfig.mapDetails) do
-			if addedmaps[mapname] == nil then 
+			if addedmaps[mapname] == nil then
 				control, sortData, mapFuncs[mapname] = CreateMapEntry(mapname, mapdetails , CloseFunc)
-				local certification = sortData[6]
+				local certification = sortData[7]
 				if lobby.name == "singleplayer" or certification ~= "Unofficial" then
 					mapList:AddItem(mapname, control, sortData)
 				end
 			end
 		end
-		mapList.sortBy = 7
+		mapList.sortBy = 8
 		mapList:UpdateOrder()
 	end
 

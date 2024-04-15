@@ -188,7 +188,7 @@ function widget:Initialize()
 	Spring.Echo("RANDOMSEED", math.ceil(os.clock()*1000000))
 
 	randomTrackList = {}
-	aprilFoolsTrackList = {}
+	booxmboxTrackList = {}
 	local originalSoundtrackEnabled = Spring.GetConfigInt('UseSoundtrackNew', 1)
 	local customSoundtrackEnabled	= Spring.GetConfigInt('UseSoundtrackCustom', 1)
 	local allowedExtensions = "{*.ogg,*.mp3}"
@@ -199,8 +199,8 @@ function widget:Initialize()
 		randomTrackList = playlistMerge(randomTrackList, VFS.DirList(musicDirOriginal, allowedExtensions))
 	end
 	if true then
-		local musicDirEventAprilFools = 'luamenu/configs/gameconfig/byar/lobbyMusic/event/aprilfools'
-		aprilFoolsTrackList = VFS.DirList(musicDirEventAprilFools, allowedExtensions)
+		local musicDirEventBoombox = 'luamenu/configs/gameconfig/byar/lobbyMusic/event/boombox'
+		booxmboxTrackList = VFS.DirList(musicDirEventBoombox, allowedExtensions)
 	end
 
 	-- Custom Soundtrack List
@@ -243,8 +243,9 @@ function widget:Initialize()
 	end
 
 	for i = 1,1000 do
-		if (easterEggCountdown > 1 and tonumber(os.date("%m")) == 4 and tonumber(os.date("%d")) <= 1) or (easterEggCountdown > 5 and tonumber(os.date("%m")) == 4 and tonumber(os.date("%d")) <= 2 and tonumber(os.date("%H")) <= 6) or (easterEggCountdown > 10 and math.random(0,2137) == 0) then -- April Fools, with a very tiny chance to play the track on normal day
-			openTrack = aprilFoolsTrackList[math.random(1,#aprilFoolsTrackList)]
+		if Spring.GetConfigInt("boomboxcaptured", 0) == 1 then -- Play Beyond All Rhythm once on next launch after capturing a boombox
+			openTrack = booxmboxTrackList[math.random(1,#booxmboxTrackList)]
+			Spring.SetConfigInt("boomboxcaptured", 0)
 		end
 		if openTrack then
 			break
