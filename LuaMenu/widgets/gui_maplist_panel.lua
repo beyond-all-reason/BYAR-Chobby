@@ -282,7 +282,7 @@ local function CreateMapEntry(mapName, mapData, CloseFunc)--{"ResourceID":7098,"
 		local playerCount = mapData.PlayerCount or '0'
 		if string.len(playerCount)== 1 then
 			playerCount = " " .. playerCount
-		end		
+		end
         TextBox:New {
 			x = 356,
 			y = 12,
@@ -325,7 +325,7 @@ local function CreateMapEntry(mapName, mapData, CloseFunc)--{"ResourceID":7098,"
 		sortData = {string.lower(mapName), (mapData.Width or 0)*100 + (mapData.Height or 0), playerCount, string.lower(mapType), string.lower(terrainType), (haveMap and 1) or 0, string.lower(certificationLevel), string.format( "%09d", GetMapAge(mapData.LastUpdate) )  .. mapName }
 		sortData[9] = sortData[1] .. " " .. mapSizeText .. " " .. sortData[3] .. " " .. sortData[4] .. " " .. sortData[5] .. " " .. sortData[7] .. " " .. sortData[8]-- Used for text filter by name, type, terrain or size. Now includes HAX COLUMN.
 	else
-		sortData = {string.lower(mapName), 0, "", "", (haveMap and 1) or 0, certificationLevel,"999999999" .. (haveMap and ' '..mapName) or mapName}
+		sortData = {string.lower(mapName), 0, "", "", "", (haveMap and 1) or 0, certificationLevel,"999999999" .. (haveMap and ' '..mapName) or mapName}
 		sortData[9] = sortData[1]
 	end
 
@@ -499,7 +499,7 @@ local function InitializeControls()
 				if info and info.modtype == 3 and not mapFuncs[info.name] then
 					addedmaps[info.name] = true
 					control, sortData, mapFuncs[info.name] = CreateMapEntry(info.name, Configuration.gameConfig.mapDetails[info.name] , CloseFunc)
-					local certification = sortData[6]
+					local certification = sortData[7]
 					if lobby.name == "singleplayer" or certification ~= "Unofficial" then
 						mapItems[#mapItems + 1] = {info.name, control, sortData}
 					end
@@ -508,7 +508,7 @@ local function InitializeControls()
 			mapList:AddItems(mapItems)
 		end
 		for mapname, mapdetails in pairs(Configuration.gameConfig.mapDetails) do
-			if addedmaps[mapname] == nil then 
+			if addedmaps[mapname] == nil then
 				control, sortData, mapFuncs[mapname] = CreateMapEntry(mapname, mapdetails , CloseFunc)
 				local certification = sortData[7]
 				if lobby.name == "singleplayer" or certification ~= "Unofficial" then
