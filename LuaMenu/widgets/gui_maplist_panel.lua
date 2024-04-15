@@ -226,7 +226,6 @@ local function CreateMapEntry(mapName, mapData, CloseFunc)--{"ResourceID":7098,"
 		file = (haveMap and IMG_READY) or IMG_UNREADY,
 		parent = mapButton,
 	}
-	
 
     local certificationLevel = GetCertifiedLevelBar( mapData and mapData.IsCertified, mapData and mapData.IsInPool, mapData and mapData.LastUpdate)
 	TextBox:New {
@@ -249,6 +248,7 @@ local function CreateMapEntry(mapName, mapData, CloseFunc)--{"ResourceID":7098,"
 		caption = "",
 		checked = isFavourite,
 		classname = "favourite_check",
+		tooltip = "Favourited maps will always appear on top.",
 		parent = root,
  		OnClick = {
 			function ()
@@ -466,7 +466,7 @@ local function InitializeControls()
 		{name = "Terrain", tooltip = "Water maps have underwater resources, and feature naval combat. Bots perform better than vehicles on Hilly maps. Metal maps have unlimited Metal resources.", x = 486, width = 142},
 		{name = "", tooltip = "Downloaded", x = 630, width = 40, image = "LuaMenu/images/download.png"},
 		{name = "Certified", tooltip = "Certified maps guarantee the best experience, Classic maps offer a great variety of gameplay, and third party maps are marked as Unofficial", x = 672, width = 100},
-		{name = "", tooltip = "Certified maps guarantee the best experience, Classic maps offer a great variety of gameplay, and third party maps are marked as Unofficial", x = 735, width = 10},
+		{name = "", tooltip = "Sort by default order", x = 774, width = 16},
 	}
 
 	local featuredMapList = WG.CommunityWindow.LoadStaticCommunityData().MapItems or {}
