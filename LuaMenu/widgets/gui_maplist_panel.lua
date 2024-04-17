@@ -601,7 +601,7 @@ local function InitializeControls()
 					return
 				end
 				local visibleItemIds = mapList:GetVisibleItemIds()
-				if #visibleItemIds[1] and lobby then
+				if visibleItemIds[1] and #visibleItemIds[1] and lobby then
 					lobby:SelectMap(visibleItemIds[1])
 					CloseFunc()
 				end
