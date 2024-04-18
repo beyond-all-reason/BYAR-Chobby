@@ -472,12 +472,26 @@ local function GetInfologs()
 			local errortype, errorkey, fullinfolog = ParseInfolog(filename)
 			if errortype == "CorruptPool" then
 				local function DeletePoolAndPackages()
-					local poolpath = "pool/"
 					-- Define the pattern to match filename with 30 char + .gz extension and 2 char location path
 					local pattern =	".*(%w%w)\\(%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w\.gz).*\""
-					local corruptPoolpath, corruptPoolfilename = string.match(errorkey, pattern)
-					-- Get pool files but check packages first
-					local poolFiles = VFS.DirList(poolpath .. corruptPoolpath .. "/", corruptPoolfilename, VFS.RAW)
+
+					-- Make a table of corrupt pool files
+					local poolpath = "pool/"
+					local poolFiles = {}
+					local corruptFiles = {}
+					--Spring.Echo(fullinfolog)
+					for corruptPoolpath, corruptPoolfilename in string.gmatch(fullinfolog, pattern) do
+						corruptFiles[#corruptFiles + 1] = {path = corruptPoolpath, filename = corruptPoolfilename}
+					end
+					Spring.Echo("Found this many corrupt files", #corruptFiles)
+					Spring.Utilities.TableEcho(corruptFiles)
+
+					for _, corruptFile in ipairs(corruptFiles) do
+						poolFiles = VFS.DirList(poolpath .. corruptFile.path .. "/", corruptFile.filename, VFS.RAW)
+					end
+					Spring.Echo("Verified corrupt files", #poolFiles)
+
+					-- Delete packages before pool
 					local packagespath = "packages/"
 					local packagesFiles = VFS.DirList(packagespath, "*.sdp", VFS.RAW)
 					if packagesFiles then
@@ -500,6 +514,7 @@ local function GetInfologs()
 						for j = 1, #poolFiles do
 							os.remove(poolFiles[j])
 						end
+						--cleanup here
 					else
 						Spring.Echo("Deleting Pool error")
 						local function YesFunc()
@@ -509,9 +524,9 @@ local function GetInfologs()
 						WG.Chobby.ConfirmationPopup(YesFunc, "There was a problem removing the corrupted data." .. " \n \n" .. "Press the button to open the Game Data folder, delete the folders /Pool/ and /Packages/ and then run the launcher again with updates checked." .. " \n \n" .. "This will close the game and redownload all of the game content.", nil, 900, 450, "Game Data", "Ignore", nil)
 						return
 					end
-					WG.Chobby.ConfirmationPopup(ExitSpring, "Deletion of corrupted data was successful." .. " \n \n" .. "BAR must be exited and the launcher run again." .. " \n \n" .. "This will close the game and redownload some game content.", nil, 900, 450, "Exit Now", "Exit Later", nil)
+					WG.Chobby.ConfirmationPopup(ExitSpring, "Deletion of corrupted data was successful." .. " \n \n" .. "BAR must be exited and the launcher run again with updates checked." .. " \n \n" .. "This will close the game and redownload some game content.", nil, 900, 450, "Exit Now", "Exit Later", nil)
 				end
-				WG.Chobby.ConfirmationPopup(DeletePoolAndPackages, "Warning: BAR has detected corrupted game content." .. " \n \n" .. errorkey  .. " \n \n" .. "Press Repair to redownload the corrupted game content. The game will then need to be exited and the launcher run again with updates checked." .. " \n \n" .. "Ignoring this will lead to crashes or other problems." .. " \n \n" .. "If game corruption continues to occur this may be an indication of hardware failure. Disable any active system overclocks and run a health check on memory and storage.", nil, 900, 450, "Repair", "Ignore", nil)
+				WG.Chobby.ConfirmationPopup(DeletePoolAndPackages, "Warning: BAR has detected corrupted game content." .. " \n \n" .. errorkey  .. " \n \n" .. "Press Repair to remove the corrupted game content. The game will then need to be exited and the launcher run again with updates checked." .. " \n \n" .. "Ignoring this will lead to crashes or other problems." .. " \n \n" .. "If game corruption continues to occur this may be an indication of hardware failure. Disable any active system overclocks and run a health check on memory and storage.", nil, 900, 450, "Repair", "Ignore", nil)
 			elseif errortype ~= nil then
 
 				if PRINT_DEBUG then Spring.Echo("BAR Analytics: GetInfologs() found an error:", filename, errortype, errorkey) end
