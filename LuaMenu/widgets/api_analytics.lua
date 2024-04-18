@@ -489,7 +489,7 @@ local function GetInfologs()
 					for _, corruptFile in ipairs(corruptFiles) do
 						poolFiles = VFS.DirList(poolpath .. corruptFile.path .. "/", corruptFile.filename, VFS.RAW)
 					end
-					Spring.Echo("Verified corrupt files", #poolFiles)
+					Spring.Echo("Verified this many corrupt files", #poolFiles)
 
 					-- Delete packages before pool
 					local packagespath = "packages/"
