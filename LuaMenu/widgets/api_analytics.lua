@@ -483,7 +483,7 @@ local function GetInfologs()
 					for corruptPoolpath, corruptPoolfilename in string.gmatch(fullinfolog, pattern) do
 						Spring.Echo("A")
 						Spring.Utilities.TableEcho(corruptFiles)
-						corruptFiles[#corruptFiles + 1] = {path = corruptPoolpath, filename = corruptPoolfilename}
+						table.insert(corruptFiles, #corruptFiles + 1, {path = corruptPoolpath, filename = corruptPoolfilename})
 						Spring.Echo("B")
 						Spring.Utilities.TableEcho(corruptFiles)
 					end
