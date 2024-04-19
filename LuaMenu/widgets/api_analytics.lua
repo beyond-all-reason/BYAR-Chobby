@@ -485,7 +485,6 @@ local function GetInfologs()
 						table.insert(corruptFiles, #corruptFiles + 1, {path = corruptPoolpath, filename = corruptPoolfilename})
 					end
 					Spring.Echo("Found this many corrupt files", #corruptFiles)
-					Spring.Utilities.TableEcho(corruptFiles)
 
 					for _, corruptFile in ipairs(corruptFiles) do
 						local realFiles = VFS.DirList(poolpath .. corruptFile.path .. "/", corruptFile.filename, VFS.RAW)
