@@ -476,7 +476,7 @@ local function GetInfologs()
 					-- Define the pattern to match filename with 30 char + .gz extension and 2 char location path
 					local pattern =	"[^\n](%w%w)[\\/](%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w.gz)[^\n]"
 
-					-- Make a table of corrupt pool files
+					-- Make a table of corrupt pool files from infolog
 					local poolpath = "pool/"
 					local poolFiles = {}
 					local corruptFiles = {}
@@ -517,8 +517,12 @@ local function GetInfologs()
 						for j = 1, #poolFiles do
 							os.remove(poolFiles[j])
 						end
-						--cleanup here
+						table.remove(packagesFiles)
+						table.remove(corruptFiles)
+						table.remove(poolFiles)
 					else
+						table.remove(packagesFiles)
+						table.remove(corruptFiles)
 						Spring.Echo("Deleting Pool error")
 						local function YesFunc()
 							WG.WrapperLoopback.OpenFolder()
