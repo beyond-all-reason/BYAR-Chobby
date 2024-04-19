@@ -1045,7 +1045,6 @@ local function GetLobbyTabControls()
 	--children[#children + 1], offset = AddCheckboxSetting(offset, i18n("notifyForAllChat"), "notifyForAllChat", false)
 	--children[#children + 1], offset = AddCheckboxSetting(offset, i18n("only_featured_maps"), "onlyShowFeaturedMaps", true)
 	--children[#children + 1], offset = AddCheckboxSetting(offset, i18n("simplifiedSkirmishSetup"), "simplifiedSkirmishSetup", true) -- not used by BAR
-	children[#children + 1], offset = AddCheckboxSetting(offset, i18n("simple_ai_list"), "simpleAiList", true, nil,  i18n("simple_ai_list_tooltip")) -- should be default on, no need for configuration?
 	children[#children + 1], offset = AddCheckboxSetting(offset, i18n("animate_lobby"), "animate_lobby", true, nil, i18n("animate_lobby_tooltip"))
 	children[#children + 1], offset = AddCheckboxSetting(offset, i18n("drawFullSpeed"), "drawAtFullSpeed", false, nil, i18n("drawFullSpeed_tooltip"))
 	children[#children + 1], offset = AddCheckboxSetting(offset, i18n("fixFlicker"), "fixFlicker", true, nil, i18n("fixFlicker_tooltip"))
@@ -1272,6 +1271,9 @@ local function GetVoidTabControls()
 	--children[#children + 1], offset = AddCheckboxSetting(offset, "Neuter Settings", "doNotSetAnySpringSettings", false)
 	children[#children + 1], offset = AddCheckboxSetting(offset, "Aggressive Set Borderless", "agressivelySetBorderlessWindowed", false)
 	children[#children + 1], offset = AddCheckboxSetting(offset, "Use wrong engine", "useWrongEngine", false)
+
+	children[#children + 1], offset = AddCheckboxSetting(offset, i18n("simple_ai_list"), "simpleAiList", true, nil,  i18n("simple_ai_list_tooltip")) -- should be default on, no need for configuration?
+
 	children[#children + 1], offset = AddCheckboxSetting(offset, "Show old AI versions", "showOldAiVersions", false)
 	children[#children + 1], offset = AddCheckboxSetting(offset, "Show AIOptions", "showAiOptions", true)
 	if Configuration.gameConfig.filterEmptyRegionalAutohosts then
