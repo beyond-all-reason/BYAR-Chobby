@@ -40,15 +40,7 @@ local function GetLobbyName()
 			byarchobbyrapidTag = string.gsub(byarchobbyrapidTag, "BYAR Chobby test%-", "")
 		end
 	end
-	local chobbyrapidTag = 'chobby:test'
-	if chobbyrapidTag and VFS.GetNameFromRapidTag then
-		local rapidName = VFS.GetNameFromRapidTag(chobbyrapidTag)
-		if rapidName then
-			chobbyrapidTag = rapidName
-			chobbyrapidTag = string.gsub(chobbyrapidTag, "Chobby test%-", "")
-		end
-	end
-	local lobbyname = 'Chobby:'..byarchobbyrapidTag..'/'..chobbyrapidTag
+	local lobbyname = 'Chobby:'..byarchobbyrapidTag
 	--Spring.Utilities.TraceFullEcho()
 	return lobbyname
 end
