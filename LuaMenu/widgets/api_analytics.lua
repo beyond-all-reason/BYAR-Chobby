@@ -464,6 +464,7 @@ local function GetInfologs()
 	table.sort(filenames, function (a,b) return a > b end) -- reverse dir sort, we only need the most recent 2
 
 	if PRINT_DEBUG then Spring.Echo("BAR Analytics: GetInfologs()", #filenames) end
+
 	for i=1, math.min(#filenames, 2) do
 		local filename = filenames[i]
  		if onetimeEvents["reportedcrashes"][filename] ~= nil then -- we already reported this one
@@ -473,7 +474,7 @@ local function GetInfologs()
 			if errortype == "CorruptPool" then
 				local function DeletePoolAndPackages()
 					-- Define the pattern to match filename with 30 char + .gz extension and 2 char location path
-					local pattern =	".*(%w%w)\\(%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w\.gz).*\""
+					local pattern =	".*(%w%w)[\\/](%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w.gz).*"
 
 					-- Make a table of corrupt pool files
 					local poolpath = "pool/"
