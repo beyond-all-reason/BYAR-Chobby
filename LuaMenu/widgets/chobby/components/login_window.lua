@@ -38,12 +38,12 @@ function createTabGroup(ctrls, visibleFunc)
 end
 
 local function GetLobbyName()
-	local byarchobbyrapidTag = 'byar-chobby:test'
-	if byarchobbyrapidTag and VFS.GetNameFromRapidTag then
-		local rapidName = VFS.GetNameFromRapidTag(byarchobbyrapidTag)
-		if rapidName then
-			byarchobbyrapidTag = rapidName
-			byarchobbyrapidTag = string.gsub(byarchobbyrapidTag, "BYAR Chobby test%-", "")
+	local byarchobbyrapidTag = "unknown"
+	for i,v in ipairs(VFS.GetLoadedArchives()) do 
+		if string.find(v,"BYAR Chobby ", nil, true) then
+			byarchobbyrapidTag = string.gsub(string.gsub(v,"test%-", ""), "BYAR Chobby ", "")
+			byarchobbyrapidTag = string.gsub(byarchobbyrapidTag, "[^%w]", " ")
+			break
 		end
 	end
 	local lobbyname = 'Chobby:'..byarchobbyrapidTag 

@@ -40,7 +40,7 @@ local function GetLobbyName()
 			break
 		end
 	end
-	local lobbyname = 'Chobby '..byarchobbyrapidTag
+	local lobbyname = 'Chobby:'..byarchobbyrapidTag
 	--Spring.Utilities.TraceFullEcho()
 	return lobbyname
 end
