@@ -474,7 +474,7 @@ local function GetInfologs()
 			if errortype == "CorruptPool" then
 				local function DeletePoolAndPackages()
 					-- Define the pattern to match filename with 30 char + .gz extension and 2 char location path
-					local pattern =	".*(%w%w)[\\/](%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w.gz).*"
+					local pattern =	"[^\n](%w%w)[\\/](%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w%w.gz)[^\n]"
 
 					-- Make a table of corrupt pool files
 					local poolpath = "pool/"
@@ -482,10 +482,10 @@ local function GetInfologs()
 					local corruptFiles = {}
 					--Spring.Echo(fullinfolog)
 					for corruptPoolpath, corruptPoolfilename in string.gmatch(fullinfolog, pattern) do
-						Spring.Echo("A")
+						Spring.Echo("C")
 						Spring.Utilities.TableEcho(corruptFiles)
 						table.insert(corruptFiles, #corruptFiles + 1, {path = corruptPoolpath, filename = corruptPoolfilename})
-						Spring.Echo("B")
+						Spring.Echo("D")
 						Spring.Utilities.TableEcho(corruptFiles)
 					end
 					Spring.Echo("Found this many corrupt files", #corruptFiles)
