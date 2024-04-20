@@ -528,7 +528,7 @@ local function GetInfologs()
 							WG.WrapperLoopback.OpenFolder()
 							ExitSpring()
 						end
-						WG.Chobby.ConfirmationPopup(YesFunc, "There was a problem removing the corrupted data." .. " \n \n" .. "Press the button to open the Game Data folder, delete the folders /Pool/ and /Packages/ and then run the launcher again with updates checked." .. " \n \n" .. "This will close the game and redownload all of the game content.", nil, 900, 450, "Game Data", "Ignore", nil)
+						WG.Chobby.ConfirmationPopup(YesFunc, "There was a problem removing the corrupted data." .. " \n \n" .. "Press the button to open the Game Data folder, delete the folders /Pool/ and /Packages/, and then run the launcher again with updates checked." .. " \n \n" .. "This will close the game and redownload all of the game content.", nil, 900, 450, "Game Data", "Ignore", nil)
 						return
 					end
 					WG.Chobby.ConfirmationPopup(ExitSpring, "Deletion of corrupted data was successful." .. " \n \n" .. "BAR must be exited and the launcher run again with updates checked." .. " \n \n" .. "This will close the game and redownload some game content.", nil, 900, 450, "Exit Now", "Exit Later", nil)
