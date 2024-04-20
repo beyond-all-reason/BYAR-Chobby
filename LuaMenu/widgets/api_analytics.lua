@@ -484,7 +484,7 @@ local function GetInfologs()
 					for corruptPoolpath, corruptPoolfilename in string.gmatch(fullinfolog, pattern) do
 						table.insert(corruptFiles, #corruptFiles + 1, {path = corruptPoolpath, filename = corruptPoolfilename})
 					end
-					Spring.Echo("Found this many corrupt files", #corruptFiles)
+					Spring.Echo("Found corrupt files", #corruptFiles)
 
 					for _, corruptFile in ipairs(corruptFiles) do
 						local realFiles = VFS.DirList(poolpath .. corruptFile.path .. "/", corruptFile.filename, VFS.RAW)
@@ -492,7 +492,7 @@ local function GetInfologs()
 							table.insert(poolFiles, file)
 						end
 					end
-					Spring.Echo("Verified this many corrupt files", #poolFiles)
+					Spring.Echo("Verified corrupt files", #poolFiles)
 
 					-- Delete all packages before pool
 					local packagespath = "packages/"
