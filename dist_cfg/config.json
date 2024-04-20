@@ -182,8 +182,8 @@
                         "optional": true
                     },
                     {
-                        "url": "https://github.com/beyond-all-reason/spring/releases/download/rmlui-integration-preview-v4/spring_bar_.rmlui-integration.105.1.1-2542-g27654c0_linux-64-minimal-portable.7z",
-                        "destination": "engine/105.1.1-2542-g27654c0 bar rmlui",
+                        "url": "https://github.com/beyond-all-reason/spring/releases/download/rmlui-integration-preview-v5/spring_bar_.rmlui-integration.105.1.1-2546-g80fc8a7_linux-64-minimal-portable.7z",
+                        "destination": "engine/105.1.1-2546-g80fc8a7 bar rmlui",
                         "extract": true
                     }
                 ]
@@ -192,7 +192,7 @@
             "logs_s3_bucket": "bar-infologs",
             "launch": {
                 "start_args": ["--menu", "rapid://byar-chobby:test"],
-                "engine": "105.1.1-2542-g27654c0 bar rmlui",
+                "engine": "105.1.1-2546-g80fc8a7 bar rmlui",
                 "springsettings": {
                     "RapidTagResolutionOrder": "repos-cdn.beyondallreason.dev;repos.beyondallreason.dev"
                 }
@@ -221,8 +221,8 @@
                         "optional": true
                     },
                     {
-                        "url": "https://github.com/beyond-all-reason/spring/releases/download/rmlui-integration-preview-v4/spring_bar_.rmlui-integration.105.1.1-2542-g27654c0_windows-64-minimal-portable.7z",
-                        "destination": "engine/105.1.1-2542-g27654c0 bar rmlui",
+                        "url": "https://github.com/beyond-all-reason/spring/releases/download/rmlui-integration-preview-v5/spring_bar_.rmlui-integration.105.1.1-2546-g80fc8a7_windows-64-minimal-portable.7z",
+                        "destination": "engine/105.1.1-2546-g80fc8a7 bar rmlui",
                         "extract": true
                     }
                 ]
@@ -231,7 +231,7 @@
             "logs_s3_bucket": "bar-infologs",
             "launch": {
                 "start_args": ["--menu", "rapid://byar-chobby:test"],
-                "engine": "105.1.1-2542-g27654c0 bar rmlui",
+                "engine": "105.1.1-2546-g80fc8a7 bar rmlui",
                 "springsettings": {
                     "RapidTagResolutionOrder": "repos-cdn.beyondallreason.dev;repos.beyondallreason.dev"
                 }
