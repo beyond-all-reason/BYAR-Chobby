@@ -65,6 +65,17 @@ function parseTags(tags)
 	return tagsMap
 end
 
+function parseMultiCommandMessage(message)
+	local trimmedFilteredMatches = {}
+	for commandPart in message:gmatch "[^\n]+" do
+		if commandPart:len() > 0 and (commandPart:find "!" or commandPart:find "$") then
+			table.insert(trimmedFilteredMatches, commandPart:match "^()%s*$" and '' or commandPart:match "^%s*(.*%S)")
+		end
+	end
+
+	return trimmedFilteredMatches
+end
+
 function getTag(tags, tagName, mandatory)
 	local value = tags[tagName]
 	if mandatory and value == nil then
