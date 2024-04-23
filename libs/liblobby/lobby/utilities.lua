@@ -69,12 +69,20 @@ function trim6(s)
 	return s:match "^()%s*$" and "" or s:match "^%s*(.*%S)"
  end
 
-function parseMultiCommandMessage(message)
+function ParseMultiCommandMessage(message)
 	local trimmedFilteredMatches = {}
+	local broken = {}
 	for commandPart in message:gmatch "[^\n]+" do
-		if commandPart:len() > 0 and (commandPart:find "!" or commandPart:find "$") then
-			table.insert(trimmedFilteredMatches, trim6(commandPart))
+		local trimmed = trim6(commandPart)
+		if trimmed:len() > 0 and (trimmed:find "!" or trimmed:find "$") then
+			table.insert(trimmedFilteredMatches, trimmed)
+		else
+			table.insert(broken, trimmed)
 		end
+	end
+
+	for _, v in ipairs(broken) do
+		table.insert(trimmedFilteredMatches, v)
 	end
 
 	return trimmedFilteredMatches
