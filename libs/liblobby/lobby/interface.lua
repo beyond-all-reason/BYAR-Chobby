@@ -432,13 +432,9 @@ end
 -- end
 
 function Interface:SayBattle(message)
-	if (message:find("!") or message:find("$")) and message:find("\n") then
-		for _, multiMessage in ipairs(parseMultiCommandMessage(message)) do
-			self:super("SayBattle", multiMessage):_SendCommand(concat("SAYBATTLE", multiMessage))
-		end
-		return self
-	end
-	return self:super("SayBattle", message):_SendCommand(concat("SAYBATTLE", message))
+	self:super("SayBattle", message)
+	self:_SendCommand(concat("SAYBATTLE", message))
+	return self
 end
 
 function Interface:SayBattleEx(message)
