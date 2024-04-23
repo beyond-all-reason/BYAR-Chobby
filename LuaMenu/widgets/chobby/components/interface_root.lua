@@ -100,15 +100,15 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 	lobbyInterfaceHolder.drawTimer = Spring.GetTimer()
 	version_font = WG.Chobby.Configuration:GetFont(1, "version_font", {color = {0.7, 0.7, 0.7, 1}}) -- Grey color
 
-	local byarchobbyrapidTag = 'byar-chobby:test'
-	if byarchobbyrapidTag and VFS.GetNameFromRapidTag then
-		local rapidName = VFS.GetNameFromRapidTag(byarchobbyrapidTag)
-		if rapidName then
-			byarchobbyrapidTag = rapidName
-			byarchobbyrapidTag = string.gsub(byarchobbyrapidTag, "BYAR Chobby test%-", "")
+	
+	local byarchobbyrapidTag = "unknown"
+	for i,v in ipairs(VFS.GetLoadedArchives()) do 
+		if string.find(v,"BYAR Chobby ", nil, true) then
+			byarchobbyrapidTag = string.gsub(string.gsub(v,"test%-", ""), "BYAR Chobby ", "")
+			byarchobbyrapidTag = string.gsub(byarchobbyrapidTag, "[^%w]", " ")
+			break
 		end
 	end
-
 
 	local label_version = Label:New {
 		--x = "68.5%",
@@ -119,7 +119,7 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 		parent = lobbyInterfaceHolder,
 		objectOverrideFont = version_font,
 		caption = "Game: " .. Configuration.gameConfig.ShortenNameString(Configuration:GetDefaultGameName()) .. "  Engine: " .. Configuration:GetTruncatedEngineVersion() .. "  "
-			.. 'Chobby: ' .. byarchobbyrapidTag ,
+			.. 'Chobby:' .. byarchobbyrapidTag,
 		align = "right",
 		valign = 'bottom',
 	}

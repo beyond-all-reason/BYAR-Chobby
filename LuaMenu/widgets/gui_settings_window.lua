@@ -138,7 +138,6 @@ local function SetLobbyFullscreenMode(mode, borderOverride)
 	end
 
 	local Configuration = WG.Chobby.Configuration
-	local needAgressiveSetting = (mode ~= 2) and (currentMode ~= 2)
 
 	if (currentMode == 2 or not currentMode) and lobbyFullscreen == 2 then
 		SaveWindowPos()
@@ -235,16 +234,6 @@ local function SetLobbyFullscreenMode(mode, borderOverride)
 	if delayedModeSet == mode and delayedBorderOverride then
 		delayedModeSet = nil
 		delayedBorderOverride = nil
-	elseif needAgressiveSetting then
-		delayedModeSet = mode
-		delayedBorderOverride = borderOverride
-		currentMode = 2
-
-		-- not sure why this is needed, disabled the switching cause else borderless is like windowed, without the border, but not fullscreen
-		--Spring.SetConfigInt("WindowBorderless", 0, false)
-		--Spring.SetConfigInt("Fullscreen", 0)
-
-		WG.Delay(SetLobbyFullscreenMode, 0.8)
 	end
 end
 
@@ -1045,7 +1034,6 @@ local function GetLobbyTabControls()
 	--children[#children + 1], offset = AddCheckboxSetting(offset, i18n("notifyForAllChat"), "notifyForAllChat", false)
 	--children[#children + 1], offset = AddCheckboxSetting(offset, i18n("only_featured_maps"), "onlyShowFeaturedMaps", true)
 	--children[#children + 1], offset = AddCheckboxSetting(offset, i18n("simplifiedSkirmishSetup"), "simplifiedSkirmishSetup", true) -- not used by BAR
-	children[#children + 1], offset = AddCheckboxSetting(offset, i18n("simple_ai_list"), "simpleAiList", true, nil,  i18n("simple_ai_list_tooltip")) -- should be default on, no need for configuration?
 	children[#children + 1], offset = AddCheckboxSetting(offset, i18n("animate_lobby"), "animate_lobby", true, nil, i18n("animate_lobby_tooltip"))
 	children[#children + 1], offset = AddCheckboxSetting(offset, i18n("drawFullSpeed"), "drawAtFullSpeed", false, nil, i18n("drawFullSpeed_tooltip"))
 	children[#children + 1], offset = AddCheckboxSetting(offset, i18n("fixFlicker"), "fixFlicker", true, nil, i18n("fixFlicker_tooltip"))
@@ -1272,6 +1260,9 @@ local function GetVoidTabControls()
 	--children[#children + 1], offset = AddCheckboxSetting(offset, "Neuter Settings", "doNotSetAnySpringSettings", false)
 	children[#children + 1], offset = AddCheckboxSetting(offset, "Aggressive Set Borderless", "agressivelySetBorderlessWindowed", false)
 	children[#children + 1], offset = AddCheckboxSetting(offset, "Use wrong engine", "useWrongEngine", false)
+
+	children[#children + 1], offset = AddCheckboxSetting(offset, i18n("simple_ai_list"), "simpleAiList", true, nil,  i18n("simple_ai_list_tooltip")) -- should be default on, no need for configuration?
+
 	children[#children + 1], offset = AddCheckboxSetting(offset, "Show old AI versions", "showOldAiVersions", false)
 	children[#children + 1], offset = AddCheckboxSetting(offset, "Show AIOptions", "showAiOptions", true)
 	if Configuration.gameConfig.filterEmptyRegionalAutohosts then

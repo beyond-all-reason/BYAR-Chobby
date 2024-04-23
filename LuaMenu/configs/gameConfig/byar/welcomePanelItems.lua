@@ -12,24 +12,23 @@
 local welcomePanelItems = {
     {
         Header = "Welcome to Beyond All Reason",
-        Text = "Welcome back Commander. We hope you are ready for epic single player and multiplayer battles. Check out our Discord and join the community!\n",
+        Text = "Welcome back Commander. We hope you are ready for epic Singleplayer and Multiplayer battles. Check out our Discord and join the community!\n",
     },
 
     {
         Header = "BAR is accepting donations again! ",
-        Text = "Dear Commanders, we are delighted to announce the reopening of our donation platform after a longer-than-expected hiatus." .. " \n" .. " \n" .. "As we've been hard at work refining BAR to ensure maximum enjoyment for our ever-expanding community, we repeatedly placed donation efforts on hold to focus on other priorities." .. " \n" .. " \n" .. "Support BAR with our newly reopened donation platform!",
+        Text = "Dear Commanders, we are delighted to announce the reopening of our donation platform after a longer-than-expected hiatus." .. " \n" .. " \n" .. "As we've been hard at work refining BAR to ensure maximum enjoyment for our ever-expanding community, we repeatedly placed donation efforts on hold to focus on other priorities." .. " \n" .. " \n" .. "Support BAR with our newly reopened donation platform!" .. " \n",
         Image = "LuaMenu/images/donate.png",
         Url = "https://www.beyondallreason.info/news/support-bar-with-our-newly-reopened-donation-platform",
         UrlText = "Read Announcement",
     },
 
     {
-        Header = "Beyond All Reason Alpha Championship Cup #4",
-        Text = "Format: 1v1 - Double Elimination",
-        --Image = "LuaMenu/images/welcomepanel/1vs1Tournament.png",
-        Url = "https://challonge.com/beyondallreasoncup4",
-        UrlText = "Signup and Details",
+        Header = "New Map: Esker Creek",
+        Text = " \n" .. "An 8v8 lane map by RebelNode.",
+        Image = "LuaMenu/configs/gameConfig/byar/minimapOverride/Esker_Creek_1.3.jpg",
     },
+
 
     {
         Header = "Guides for new players",
