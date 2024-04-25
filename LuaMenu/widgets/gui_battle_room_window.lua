@@ -3282,7 +3282,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		-- Buttons Play and Spec
 
 		local battleID = battleLobby:GetMyBattleID()
-		local maxPlayers = battleLobby.battles[battleID].maxPlayers
+		local maxPlayers = battleLobby.battles[battleID].maxPlayers or 0
 		local playerCount = battleLobby:GetBattlePlayerCount(battleID)
 		local myBs = battleLobby:GetUserBattleStatus(battleLobby.myUserName) or {}
 		local iAmPlayer = myBs.isSpectator ~= nil and myBs.isSpectator == false
