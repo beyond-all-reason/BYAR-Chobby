@@ -273,17 +273,6 @@ function Configuration:init()
 		end
 	end
 
-	self.devMode = false
-	local dirList = VFS.DirList("/")
-	for i = 1,#dirList do
-		local match = string.find(dirList[i], "devmode")
-		if match ~= nil then
-			Spring.Echo("Found devmode file, enabling developer mode", dirList[i])
-			self.devMode = true
-			break
-		end
-	end
-
 	self.autoLaunchAsSpectator = true
 	self.lastLoginChatLength = 25
 	self.notifyForAllChat = true
@@ -293,6 +282,7 @@ function Configuration:init()
 	self.addFriendWindowButton = true
 	self.simplifiedSkirmishSetup = false
 	self.debugMode = false
+	self.devMode = VFS.FileExists("devmode.txt") or VFS.FileExists("devmode.txt.txt") or VFS.FileExists("devmode.rtf.txt")
 	self.ShowhiddenModopions = false
 	self.enableProfiler = false
 	self.enableInspector = false
