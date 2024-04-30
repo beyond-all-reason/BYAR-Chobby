@@ -282,7 +282,7 @@ function Configuration:init()
 	self.addFriendWindowButton = true
 	self.simplifiedSkirmishSetup = false
 	self.debugMode = false
-	self.devMode = (VFS.FileExists("devmode.txt") and true) or false
+	self.devMode = VFS.FileExists("devmode.txt") or VFS.FileExists("devmode.txt.txt") or VFS.FileExists("devmode.rtf.txt")
 	self.ShowhiddenModopions = false
 	self.enableProfiler = false
 	self.enableInspector = false
