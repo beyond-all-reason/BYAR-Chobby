@@ -677,39 +677,6 @@ function ModoptionsPanel.LoadModoptions(gameName, newBattleLobby)
 		end
 	end
 
-	-- adjust the modoptions for singleplayer/multiplayer
-	if modoptions then
-		-- singleplayer adjustments
-		if battleLobby.name == "singleplayer" then
-			for i = 1, #modoptions do
-				local data = modoptions[i]
-				if data.key == "teamffa_start_boxes_shuffle" then
-					data.def = false
-				end
-
-				if data.visible == "mp" then
-					data.hidden = true
-				end
-				if data.spdef then
-					data.def = data.spdef
-				end
-			end
-		-- multiplayer adjustments
-		else
-			for i = 1, #modoptions do
-				local data = modoptions[i]
-
-				if data.visible == "sp" then
-					data.hidden = true
-				end
-				if data.mpdef then
-					data.def = data.mpdef
-				end
-			end
-		end
-	end
-
-
 
 	modoptionDefaults = {}
 	if not modoptions then

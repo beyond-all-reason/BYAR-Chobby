@@ -65,6 +65,29 @@ function parseTags(tags)
 	return tagsMap
 end
 
+function trim6(s)
+	return s:match "^()%s*$" and "" or s:match "^%s*(.*%S)"
+ end
+
+function ParseMultiCommandMessage(message)
+	local trimmedFilteredMatches = {}
+	local broken = {}
+	for commandPart in message:gmatch "[^\n]+" do
+		local trimmed = trim6(commandPart)
+		if trimmed:len() > 0 and (trimmed:find "!" or trimmed:find "$") then
+			table.insert(trimmedFilteredMatches, trimmed)
+		else
+			table.insert(broken, trimmed)
+		end
+	end
+
+	for _, v in ipairs(broken) do
+		table.insert(trimmedFilteredMatches, v)
+	end
+
+	return trimmedFilteredMatches
+end
+
 function getTag(tags, tagName, mandatory)
 	local value = tags[tagName]
 	if mandatory and value == nil then

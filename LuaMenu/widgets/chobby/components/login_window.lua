@@ -957,7 +957,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 
 	self.window = Window:New {
 		x = math.floor((ww - width) / 2),
-		y = math.floor((wh - self.windowHeight) / 2),
+		y = math.floor(math.max(0,(wh - self.windowHeight) / 2)),
 		width = width,
 		height = self.windowHeight,
 		caption = "",

@@ -432,8 +432,18 @@ end
 -- end
 
 function Interface:SayBattle(message)
-	self:super("SayBattle", message)
-	self:_SendCommand(concat("SAYBATTLE", message))
+	if (message:find("!") or message:find("$")) and message:find("\n") then
+		for _, multiCommandPart in ipairs(ParseMultiCommandMessage(message)) do
+			self:super("SayBattle", multiCommandPart):_SendCommand(concat("SAYBATTLE", multiCommandPart))
+		end
+	else
+		self:super("SayBattle", message):_SendCommand(concat("SAYBATTLE", message))
+	end
+	
+	-- Prevent crash for tweakdef referencing "legcomlvl" (NuttyB)
+	if message:find("tweakdef") and message:find("bGVnY29tbHZsM") then
+		self:SetModOptions({experimentallegionfaction = 1}):SayBattleEx("enabled legion faction since it is referenced in the tweakdef")
+	end
 	return self
 end
 

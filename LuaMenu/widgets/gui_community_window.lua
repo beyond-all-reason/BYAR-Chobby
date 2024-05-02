@@ -110,7 +110,7 @@ local function AddLinkButton(scroll, name, tooltip, link, x, right, y, bottom)
 				if globalSizeMode == 2 then
 					ButtonUtilities.SetFontSizeScale(obj, 5)
 				else
-					ButtonUtilities.SetFontSizeScale(obj, 4)
+					ButtonUtilities.SetFontSizeScale(obj, 2)
 				end
 			end
 		},
