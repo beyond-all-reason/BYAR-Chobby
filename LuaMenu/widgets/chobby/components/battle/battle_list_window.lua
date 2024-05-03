@@ -1238,7 +1238,7 @@ function BattleListWindow:OpenHostWindow()
 	for _, userName in ipairs(sortedusers) do
 		if lobby.users[userName].isBot and string.find(userName,"Host[", nil, true) == 1 then
 			-- Parse the region, cluster number, instance number
-			local clustermanager = string.gmatch(userName, '^(Host%[%a%d%])$')
+			local clustermanager = string.gmatch(userName, '^(Host%[%a+%d+%])$')
 			if clustermanager then  -- this is a manager
 				if clusters[clustermanager] then 
 					clusters[clustermanager].online = true
@@ -1247,7 +1247,7 @@ function BattleListWindow:OpenHostWindow()
 					clusters[clustermanager] = {limit = 80,  current = 0, online = true, region = 'EU'}
 				end
 			else
-				local clustermanager, instancenumber = string.gmatch(userName, '^(Host%[%a%d%])%[(%d)%]$')
+				local clustermanager, instancenumber = string.gmatch(userName, '^(Host%[%a+%d+%])%[(%d+)%]$')
 				if clustermanager and clusters[clustermanager] then
 					clusters[clustermanager].online = true
 					clusters[clustermanager].current = clusters[clustermanager].current + 1
