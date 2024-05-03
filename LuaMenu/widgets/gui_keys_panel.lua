@@ -32,8 +32,6 @@ imgCaptions[4] = "Grid Keys"
 imgCaptions[5] = "Grid CTRL Keys"
 imgCaptions[6] = "Grid ALT Keys"
 
-local imgAspectRatio = 1.78
-
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 -- Utilities
@@ -66,7 +64,7 @@ local function InitializeControls()
 	-------------------------
 	-- Buttons
 	-------------------------
-	
+
 	local offsetX = 20
 	local imgBtns = {}
 	for i, img in ipairs(images) do
@@ -104,7 +102,7 @@ local function InitializeControls()
 			end
 		},
 	}
-	
+
 	-------------------------
 	-- Key Binding Image
 	-------------------------
