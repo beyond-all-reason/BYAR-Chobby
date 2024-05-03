@@ -1156,6 +1156,9 @@ function isInValidUserName(username)
 				return "Username contains banned word: "..badword
 			end
 		end
+		if string.lower(string.sub(username,1,5)) == 'host[' then 
+			return "Username Host[...  is reserved internally."
+		end
 		return false
 	else
 		--print (username .. " is not OK: " .. ( string.match(username,validUserNameRegex) or "") )

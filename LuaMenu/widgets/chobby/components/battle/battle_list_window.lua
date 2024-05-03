@@ -1211,35 +1211,49 @@ end
 function BattleListWindow:OpenHostWindow()
 	-- Enumerate all known clusters and their number of children
 	local regions = {'EU','US','AU'}
+
+
+
 	local clusters = {
-		['[teh]cluster1'] = {limit = 80, current = 0, online = false, region = 'EU'},
-		['[teh]clusterEU2'] = {limit = 50, current = 0, online = false, region = 'EU'},
-		['[teh]clusterEU3'] = {limit = 30, current = 0, online = false, region = 'EU'},
-		['[teh]clusterEU4'] = {limit = 100, current = 0, online = false, region = 'EU'},  -- de-prioritizes because contabo are cpu thieves
-		['[teh]clusterEU5'] = {limit = 100, current = 0, online = false, region = 'EU'},
-		['[teh]clusterEU6'] = {limit = 100, current = 0, online = false, region = 'EU'},
-		['[teh]clusterUS'] = {limit = 70, current = 0, online = false, region = 'US'},
-		['[teh]clusterUS2'] = {limit = 30, current = 0, online = false, region = 'US'},
-		['[teh]clusterUS3'] = {limit = 70, current = 0, online = false, region = 'US'},
-		['[teh]clusterUS4'] = {limit = 150, current = 0, online = false, region = 'US'},
-		['[teh]clusterAU'] = {limit = 90, current = 0, online = false, region = 'AU'},
+		['Host[AU1]'] = {limit = 80,  current = 0, online = false, region = 'AU'},
+		['Host[EU1]'] = {limit = 80,  current = 0, online = false, region = 'EU'},
+		['Host[EU2]'] = {limit = 80,  current = 0, online = false, region = 'EU'},
+		['Host[EU3]'] = {limit = 25,  current = 0, online = false, region = 'EU'},
+		['Host[EU4]'] = {limit = 150, current = 0, online = false, region = 'EU'},  -- this is pointed to integration server
+		['Host[EU5]'] = {limit = 150, current = 0, online = false, region = 'EU'},
+		['Host[EU6]'] = {limit = 120, current = 0, online = false, region = 'EU'},
+		['Host[US1]'] = {limit = 80,  current = 0, online = false, region = 'US'},
+		['Host[US2]'] = {limit = 60,  current = 0, online = false, region = 'US'},
+		['Host[US3]'] = {limit = 80,  current = 0, online = false, region = 'US'},
+		['Host[US4]'] = {limit = 150, current = 0, online = false, region = 'US'},
 	}
 
 	-- Try to check for their engine version too. It is unlikely that a cluster has multiple engines (except during a switch, so scratch that)
+	-- Also check if user is bot!
 	local numusers = 0
 	local users = lobby:GetUsers()
-	for name, _ in pairs(users) do
-		if string.find(name,"[teh]cluster", nil, true) then
-			-- shorten it
-			--Spring.Echo(name)
-			if clusters[name] then -- cluster manager
-				clusters[name].online = true
-			else-- instance
-				local manager = name:sub(1,-5)
-				if clusters[manager] then
-					clusters[manager].current = clusters[manager].current + 1
+	local sortedusers = {}
+	for username, _ in pairs(users) do sortedusers[#sortedusers+1] = username end
+	table.sort(sortedusers)
+	for _, userName in ipairs(sortedusers) do
+		if lobby.users[userName].isBot and string.find(userName,"Host[", nil, true) == 1 then
+			-- Parse the region, cluster number, instance number
+			local clustermanager = string.gmatch(userName, '^(Host%[%a%d%])$')
+			if clustermanager then  -- this is a manager
+				if clusters[clustermanager] then 
+					clusters[clustermanager].online = true
+				else
+					-- This seems to be a novel cluster, we could initialize it with some sane defaults:
+					clusters[clustermanager] = {limit = 80,  current = 0, online = true, region = 'EU'}
+				end
+			else
+				local clustermanager, instancenumber = string.gmatch(userName, '^(Host%[%a%d%])%[(%d)%]$')
+				if clustermanager and clusters[clustermanager] then
+					clusters[clustermanager].online = true
+					clusters[clustermanager].current = clusters[clustermanager].current + 1
 				end
 			end
+
 		end
 	end
 
