@@ -47,11 +47,13 @@ end
 
 local function InitializeControls()
 	local Configuration = WG.Chobby.Configuration
+	local ww, wh = Spring.GetWindowGeometry()
+
 	local keysWindow = Window:New {
 		classname = "main_window",
 		parent = WG.Chobby.lobbyInterfaceHolder,
-		width = WG.Chobby.lobbyInterfaceHolder.width - 100,
-		height = (WG.Chobby.lobbyInterfaceHolder.width - 100) / imgAspectRatio,
+		width = ww - 100,
+		height = wh - 100,
 		resizable = false,
 		draggable = false,
 		padding = {0, 0, 0, 0},
@@ -65,7 +67,7 @@ local function InitializeControls()
 	-- Buttons
 	-------------------------
 	
-	local offsetX = 100
+	local offsetX = 20
 	local imgBtns = {}
 	for i, img in ipairs(images) do
 		imgBtns[imgCaptions[i]] = Button:New {
@@ -112,8 +114,8 @@ local function InitializeControls()
 		x = 1,
 		y = buttonsHeight+3,
 		name = "imKeys",
-		width = WG.Chobby.lobbyInterfaceHolder.width -120,
-		height = (WG.Chobby.lobbyInterfaceHolder.width -120) / imgAspectRatio,
+		width = ww - 120,
+		height = wh - 120,
 		parent = keysWindow,
 		keepAspect = true,
 		file = images[1],
@@ -121,11 +123,12 @@ local function InitializeControls()
 
 	WG.Chobby.lobbyInterfaceHolder.OnResize = WG.Chobby.lobbyInterfaceHolder.OnResize or {}
 	WG.Chobby.lobbyInterfaceHolder.OnResize[#WG.Chobby.lobbyInterfaceHolder.OnResize +1] = function()
+		local ww, wh = Spring.GetWindowGeometry()
 
-		local neww = WG.Chobby.lobbyInterfaceHolder.width -100
+		local neww = ww - 100
 		local newx = (WG.Chobby.lobbyInterfaceHolder.width-neww) / 2
 
-		local newh = (WG.Chobby.lobbyInterfaceHolder.width - 100) / imgAspectRatio
+		local newh = wh - 100
 		local newy = (WG.Chobby.lobbyInterfaceHolder.height - newh) / 2
 
 		keysWindow:SetPos(
@@ -135,10 +138,10 @@ local function InitializeControls()
 			newh
 		)
 
-		local neww = WG.Chobby.lobbyInterfaceHolder.width -120
-		local newx = (WG.Chobby.lobbyInterfaceHolder.width-neww) / 2
+		local neww = ww - 120
+		local newx = (WG.Chobby.lobbyInterfaceHolder.width - ww) / 2
 
-		local newh = (WG.Chobby.lobbyInterfaceHolder.width - 120) / imgAspectRatio
+		local newh = wh - 120
 		local newy = (WG.Chobby.lobbyInterfaceHolder.height - newh) / 2
 
 		imKeys:SetPos(
