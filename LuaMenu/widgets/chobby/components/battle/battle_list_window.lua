@@ -10,6 +10,22 @@ function BattleListWindow:init(parent)
 	self:super("init", parent, "Play or watch a game", true, nil, nil, nil, 34)
 	self.name = "BattleListWindow"
 
+	self.searchbar = EditBox:New{
+		y = 11,
+		right = 302,
+		width = 300,
+		height = 37,
+		hint = "search for lobby, map or player",
+		text = "",
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2, "scn_label", {font = "fonts/n019003l.pfb", color = {0.5, 0.5, 0.5, 1.0}}),
+		useIME = false,
+		-- classname = "option_button",
+		parent = self.window,
+		OnTextModified = { },
+	}
+
+
 	if not Configuration.gameConfig.disableBattleListHostButton then
 		self.btnNewBattle = Button:New {
 			--x = 260,
