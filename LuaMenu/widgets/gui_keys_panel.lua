@@ -17,20 +17,20 @@ end
 local keysWindow
 
 local images = {}
-images[1] = LUA_DIRNAME .. "images/keybinds_defaults/BAR_Keyboard_Shortcuts.png"
-images[2] = LUA_DIRNAME .. "images/keybinds_defaults/BAR_Keyboard_Shortcuts_CTRL.png"
-images[3] = LUA_DIRNAME .. "images/keybinds_defaults/BAR_Keyboard_Shortcuts_ALT.png"
-images[4] = LUA_DIRNAME .. "images/keybinds_defaults/BAR_Keyboard_Shortcuts_GRID.png"
-images[5] = LUA_DIRNAME .. "images/keybinds_defaults/BAR_Keyboard_Shortcuts_GRID_CTRL.png"
-images[6] = LUA_DIRNAME .. "images/keybinds_defaults/BAR_Keyboard_Shortcuts_GRID_ALT.png"
+images[1] = LUA_DIRNAME .. "images/keybinds/grid_keys.png"
+images[2] = LUA_DIRNAME .. "images/keybinds/grid_keys_CTRL.png"
+images[3] = LUA_DIRNAME .. "images/keybinds/grid_keys_ALT.png"
+images[4] = LUA_DIRNAME .. "images/keybinds/legacy_keys.png"
+images[5] = LUA_DIRNAME .. "images/keybinds/legacy_keys_CTRL.png"
+images[6] = LUA_DIRNAME .. "images/keybinds/legacy_keys_ALT.png"
 
 local imgCaptions = {}
-imgCaptions[1] = "Default Keys"
-imgCaptions[2] = "CTRL Keys"    
-imgCaptions[3] = "ALT Keys" 
-imgCaptions[4] = "Grid Keys"
-imgCaptions[5] = "Grid CTRL Keys"
-imgCaptions[6] = "Grid ALT Keys"
+imgCaptions[1] = "Keys"
+imgCaptions[2] = "CTRL Keys"
+imgCaptions[3] = "ALT Keys"
+imgCaptions[4] = "Legacy Keys"
+imgCaptions[5] = "Legacy CTRL Keys"
+imgCaptions[6] = "Legacy ALT Keys"
 
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
