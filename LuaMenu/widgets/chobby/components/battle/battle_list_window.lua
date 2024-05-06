@@ -27,8 +27,12 @@ function BattleListWindow:init(parent)
 				Configuration.gameConfig.battleListOnlyShow = input.text
 				-- string.lower(self.text):split(" ")
 				--initiate the update
-				self:SoftUpdate()
+				-- force an update
 				Spring.Echo("entered to search:"..input.text)
+				if Configuration.battleFilterRedundant then
+					self:UpdateAllBattleIDs()
+				end
+				self:UpdateFilters()
 			end
 		}
 	}
@@ -702,7 +706,23 @@ function BattleListWindow:ItemInFilter(id)
 	local battle = lobby:GetBattle(id)
 	local filterString = Configuration.gameConfig.battleListOnlyShow
 	if filterString ~= nil and filterString ~= "" then
-		local filterToGame = string.find(battle.title, filterString, nil, false)
+		-- Spring.Echo("filtering by"..filterString.." in gamename: "..battle.title)
+		local lobbyStrings = {battle.title, battle.mapName}
+
+		for _, user in ipairs(battle.users) do
+			table.insert(lobbyStrings, user)
+		end
+
+		local filterToGame = nil
+
+		local i = 1
+		while i <= #lobbyStrings do
+			filterToGame = string.find(string.lower(lobbyStrings[i]), string.lower(filterString), nil, true)
+			if filterToGame ~= nil then
+				break;
+			end
+			i=i+1
+		end
 		if filterToGame == nil then
 			return false
 		end
