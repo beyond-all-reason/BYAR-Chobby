@@ -383,6 +383,13 @@ local function ParseInfolog(infologpath)
 				--[t=00:00:48.760963][f=-000001] Error: [PoolArchive::GetFileImpl] failed to read file "C:\Program Files\Beyond-All-Reason\data\\pool\86\bb62a5817c16400370c72fd3adda9e.gz" after 1000 tries
 				return "CorruptPool", line, infolog
 			end
+
+			if (string.find(line, "] Warning:", nil, true) and string.find(line," This stacktrace indicates a problem with your graphics card driver, ", nil, true) )
+				or (string.find(line, "] Error:", nil, true) and string.find(line," This stacktrace indicates a problem with your graphics card driver, ", nil, true) ) then
+				--[t=08:52:35.906100][f=0057171] Warning: This stacktrace indicates a problem with your graphics card driver, please try upgrading it. Specifically recommended is the latest version; do not forget to use a driver removal utility first.
+				--[t=01:04:41.755395][f=0025823] Error: This stacktrace indicates a problem with your graphics card driver, please try upgrading it. Specifically recommended is the latest version; do not forget to use a driver removal utility first.
+				return "GraphicsDriverProblem", line, infolog
+			end
 		end
 	else
 		Spring.Echo("Failed to open:", infologpath)
@@ -471,6 +478,10 @@ local function GetInfologs()
 			Spring.Echo("Already processed an error in ", filename)
 		else
 			local errortype, errorkey, fullinfolog = ParseInfolog(filename)
+			local function ExitSpring()
+				Spring.Echo("Quitting...")
+				Spring.Quit()
+			end
 			if errortype == "CorruptPool" then
 				local function DeletePoolAndPackages()
 					-- Define the pattern to match filename with 30 char + .gz extension and 2 char location path
@@ -507,11 +518,6 @@ local function GetInfologs()
 						poolFiles = nil --If we can't delete packages first we don't delete pool
 					end
 
-					local function ExitSpring()
-						Spring.Echo("Quitting...")
-						Spring.Quit()
-					end
-
 					if poolFiles and #poolFiles > 0 then
 						Spring.Echo("Deleting Pool", #poolFiles)
 						for j = 1, #poolFiles do
@@ -534,6 +540,8 @@ local function GetInfologs()
 					WG.Chobby.ConfirmationPopup(ExitSpring, "Deletion of corrupted data was successful." .. " \n \n" .. "BAR must be exited and the launcher run again with updates checked." .. " \n \n" .. "This will close the game and redownload some game content.", nil, 900, 450, "Exit Now", "Exit Later", nil)
 				end
 				WG.Chobby.ConfirmationPopup(DeletePoolAndPackages, "Warning: BAR has detected corrupted game content." .. " \n \n" .. errorkey  .. " \n \n" .. "Press Repair to remove the corrupted game content. The game will then need to be exited and the launcher run again with updates checked." .. " \n \n" .. "Ignoring this will lead to crashes or other problems." .. " \n \n" .. "If game corruption continues to occur this may be an indication of hardware failure. Disable any active system overclocks and run a health check on memory and storage.", nil, 900, 450, "Repair", "Ignore", nil)
+			elseif errortype == "GraphicsDriverProblem" then
+				WG.Chobby.ConfirmationPopup(ExitSpring, "Warning: BAR has detected a problem with your graphics card drivers." .. " \n \n" .. "Graphics driver corruption can be caused by unexpected shutdowns, conflicting software during installation, or hardware problems." .. " \n \n" .. "Exit the game and uninstall your existing graphics drivers. Then install the latest ones from the official website of the chip manufacturer of your GPU (Nvidia, AMD, or Intel). If problems persist then try uninstalling and reinstalling the drivers again using a driver removal utility." .. " \n \n" .. "Ignoring this will lead to crashes or other problems.", nil, 900, 450, "Exit Now", "Exit Later", nil)
 			elseif errortype ~= nil then
 
 				if PRINT_DEBUG then Spring.Echo("BAR Analytics: GetInfologs() found an error:", filename, errortype, errorkey) end
