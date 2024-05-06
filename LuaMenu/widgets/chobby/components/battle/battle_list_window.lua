@@ -703,22 +703,19 @@ function BattleListWindow:ItemInFilter(id)
 	local battle = lobby:GetBattle(id)
 	local filterString = Configuration.gameConfig.battleListOnlyShow
 	if filterString ~= nil and filterString ~= "" then
-		-- Spring.Echo("filtering by"..filterString.." in gamename: "..battle.title)
-		local lobbyStrings = {battle.title, battle.mapName}
-
+		local battleStrings = {battle.title, battle.mapName}
 		for _, user in ipairs(battle.users) do
-			table.insert(lobbyStrings, user)
+			table.insert(battleStrings, user)
 		end
 
 		local filterToGame = nil
 
-		local i = 1
-		while i <= #lobbyStrings do
-			filterToGame = string.find(string.lower(lobbyStrings[i]), string.lower(filterString), nil, true)
+		-- try to find the filterString in one battleString {battle.title, battle.mapName, battle.users}
+		for _, battleString in ipairs(battleStrings) do
+			filterToGame = string.find(string.lower(battleString), string.lower(filterString), nil, true)
 			if filterToGame ~= nil then
 				break;
 			end
-			i=i+1
 		end
 		if filterToGame == nil then
 			return false
