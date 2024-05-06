@@ -15,7 +15,7 @@ function BattleListWindow:init(parent)
 		right = 302,
 		width = 300,
 		height = 37,
-		hint = "search for lobby, map or player",
+		hint = i18n("searchbar_hint"),
 		text = "",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2, "scn_label", {font = "fonts/n019003l.pfb", color = {0.5, 0.5, 0.5, 1.0}}),
@@ -25,10 +25,7 @@ function BattleListWindow:init(parent)
 		OnTextModified = {
 			function (input)
 				Configuration.gameConfig.battleListOnlyShow = input.text
-				-- string.lower(self.text):split(" ")
-				--initiate the update
 				-- force an update
-				Spring.Echo("entered to search:"..input.text)
 				if Configuration.battleFilterRedundant then
 					self:UpdateAllBattleIDs()
 				end
