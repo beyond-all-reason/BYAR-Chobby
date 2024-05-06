@@ -22,7 +22,15 @@ function BattleListWindow:init(parent)
 		useIME = false,
 		-- classname = "option_button",
 		parent = self.window,
-		OnTextModified = { },
+		OnTextModified = {
+			function (input)
+				Configuration.gameConfig.battleListOnlyShow = input.text
+				-- string.lower(self.text):split(" ")
+				--initiate the update
+				self:SoftUpdate()
+				Spring.Echo("entered to search:"..input.text)
+			end
+		}
 	}
 
 
@@ -693,8 +701,8 @@ end
 function BattleListWindow:ItemInFilter(id)
 	local battle = lobby:GetBattle(id)
 	local filterString = Configuration.gameConfig.battleListOnlyShow
-	if filterString ~= nil then
-		local filterToGame = string.find(battle.gameName, filterString)
+	if filterString ~= nil and filterString ~= "" then
+		local filterToGame = string.find(battle.title, filterString, nil, false)
 		if filterToGame == nil then
 			return false
 		end
