@@ -46,6 +46,9 @@ local gpuinfo = ""
 local osinfo = ""
 local raminfo = ""
 
+local promptWidth = 900
+local promptHeight = 450
+
 local function lines(str)
 	local t = {}
 	local function helper(line) table.insert(t, line) return "" end
@@ -534,14 +537,14 @@ local function GetInfologs()
 							WG.WrapperLoopback.OpenFolder()
 							ExitSpring()
 						end
-						WG.Chobby.ConfirmationPopup(YesFunc, "There was a problem removing the corrupted data." .. " \n \n" .. "Press the button to open the Game Data folder, delete the folders /Pool/ and /Packages/, and then run the launcher again with updates checked." .. " \n \n" .. "This will close the game and redownload all of the game content.", nil, 900, 450, "Game Data", "Ignore", nil)
+						WG.Chobby.ConfirmationPopup(YesFunc, "There was a problem removing the corrupted data." .. " \n \n" .. "Press the button to open the Game Data folder, delete the folders /Pool/ and /Packages/, and then run the launcher again with updates checked." .. " \n \n" .. "This will close the game and redownload all of the game content.", nil, promptWidth, promptHeight, "Game Data", "Ignore", nil)
 						return
 					end
-					WG.Chobby.ConfirmationPopup(ExitSpring, "Deletion of corrupted data was successful." .. " \n \n" .. "BAR must be exited and the launcher run again with updates checked." .. " \n \n" .. "This will close the game and redownload some game content.", nil, 900, 450, "Exit Now", "Exit Later", nil)
+					WG.Chobby.ConfirmationPopup(ExitSpring, "Deletion of corrupted data was successful." .. " \n \n" .. "BAR must be exited and the launcher run again with updates checked." .. " \n \n" .. "This will close the game and redownload some game content.", nil, promptWidth, promptHeight, "Exit Now", "Exit Later", nil)
 				end
-				WG.Chobby.ConfirmationPopup(DeletePoolAndPackages, "Warning: BAR has detected corrupted game content." .. " \n \n" .. errorkey  .. " \n \n" .. "Press Repair to remove the corrupted game content. The game will then need to be exited and the launcher run again with updates checked." .. " \n \n" .. "Ignoring this will lead to crashes or other problems." .. " \n \n" .. "If game corruption continues to occur this may be an indication of hardware failure. Disable any active system overclocks and run a health check on memory and storage.", nil, 900, 450, "Repair", "Ignore", nil)
+				WG.Chobby.ConfirmationPopup(DeletePoolAndPackages, "Warning: BAR has detected corrupted game content." .. " \n \n" .. errorkey  .. " \n \n" .. "Press Repair to remove the corrupted game content. The game will then need to be exited and the launcher run again with updates checked." .. " \n \n" .. "Ignoring this will lead to crashes or other problems." .. " \n \n" .. "If game corruption continues to occur this may be an indication of hardware failure. Disable any active system overclocks and run a health check on memory and storage.", nil, promptWidth, promptHeight, "Repair", "Ignore", nil)
 			elseif errortype == "GraphicsDriverProblem" then
-				WG.Chobby.ConfirmationPopup(ExitSpring, "Warning: BAR has detected a problem with your graphics card drivers." .. " \n \n" .. "Graphics driver corruption can be caused by unexpected shutdowns, conflicting software during installation, or hardware problems." .. " \n \n" .. "Exit the game and uninstall your existing graphics drivers. Then install the latest ones from the official website of the chip manufacturer of your GPU (Nvidia, AMD, or Intel). If problems persist then try uninstalling and reinstalling the drivers again using a driver removal utility." .. " \n \n" .. "Ignoring this will lead to crashes or other problems.", nil, 900, 450, "Exit Now", "Exit Later", nil)
+				WG.Chobby.ConfirmationPopup(ExitSpring, "Warning: BAR has detected a problem with your graphics card drivers." .. " \n \n" .. "Graphics driver corruption can be caused by unexpected shutdowns, conflicting software during installation, or hardware problems." .. " \n \n" .. "Exit the game and uninstall your existing graphics drivers. Then install the latest ones from the official website of the chip manufacturer of your GPU (Nvidia, AMD, or Intel). If problems persist then try uninstalling and reinstalling the drivers again using a driver removal utility." .. " \n \n" .. "Ignoring this will lead to crashes or other problems.", nil, promptWidth, promptHeight, "Exit Now", "Exit Later", nil)
 			elseif errortype ~= nil then
 
 				if PRINT_DEBUG then Spring.Echo("BAR Analytics: GetInfologs() found an error:", filename, errortype, errorkey) end
@@ -568,7 +571,7 @@ local function GetInfologs()
 							Analytics.SendCrashReportOneTimeEvent(filename, errortype, errorkey, compressedlog, true)
 						end
 
-						WG.Chobby.ConfirmationPopup(reportinfolog, "BAR has detected a ["..errortype.."] error during one of your previous games in:\n •    " .. filename .. "\n \nSuch infologs help us fix any bugs you may have encountered.\n \nThis file contains information such as your username, your system configuration and the path the game was installed to. This data will not be made public.\n \nDo you agree to upload this infolog?\n \n → You can specify always yes or always no in the Settings tab -> Error log uploading.", "uploadLogPromptDoNotAskAgain", 900, 450, "Yes", "No", dontreportinfolog, nil)
+						WG.Chobby.ConfirmationPopup(reportinfolog, "BAR has detected a ["..errortype.."] error during one of your previous games in:\n •    " .. filename .. "\n \nSuch infologs help us fix any bugs you may have encountered.\n \nThis file contains information such as your username, your system configuration and the path the game was installed to. This data will not be made public.\n \nDo you agree to upload this infolog?\n \n → You can specify always yes or always no in the Settings tab -> Error log uploading.", "uploadLogPromptDoNotAskAgain", promptWidth, promptHeight, "Yes", "No", dontreportinfolog, nil)
 					end
 					return
 				else
