@@ -1223,21 +1223,61 @@ function BattleListWindow:OpenHostWindow()
 		['[teh]clusterUS3'] = {limit = 70, current = 0, online = false, region = 'US'},
 		['[teh]clusterUS4'] = {limit = 150, current = 0, online = false, region = 'US'},
 		['[teh]clusterAU'] = {limit = 90, current = 0, online = false, region = 'AU'},
+
+		['Host[AU1]'] = {limit = 80,  current = 0, online = false, region = 'AU'},
+		['Host[EU1]'] = {limit = 80,  current = 0, online = false, region = 'EU'},
+		['Host[EU2]'] = {limit = 80,  current = 0, online = false, region = 'EU'},
+		['Host[EU3]'] = {limit = 25,  current = 0, online = false, region = 'EU'},
+		['Host[EU4]'] = {limit = 150, current = 0, online = false, region = 'EU'},  -- this is pointed to integration server
+		['Host[EU5]'] = {limit = 150, current = 0, online = false, region = 'EU'},
+		['Host[EU6]'] = {limit = 120, current = 0, online = false, region = 'EU'},
+		['Host[US1]'] = {limit = 80,  current = 0, online = false, region = 'US'},
+		['Host[US2]'] = {limit = 60,  current = 0, online = false, region = 'US'},
+		['Host[US3]'] = {limit = 80,  current = 0, online = false, region = 'US'},
+		['Host[US4]'] = {limit = 150, current = 0, online = false, region = 'US'},
 	}
 
 	-- Try to check for their engine version too. It is unlikely that a cluster has multiple engines (except during a switch, so scratch that)
 	local numusers = 0
 	local users = lobby:GetUsers()
-	for name, _ in pairs(users) do
-		if string.find(name,"[teh]cluster", nil, true) then
+
+	-- Delete this section in the future:
+	for userName, _ in pairs(users) do
+		if string.find(userName,"[teh]cluster", nil, true) then
 			-- shorten it
 			--Spring.Echo(name)
-			if clusters[name] then -- cluster manager
-				clusters[name].online = true
+			if clusters[userName] then -- cluster manager
+				clusters[userName].online = true
 			else-- instance
-				local manager = name:sub(1,-5)
+				local manager = userName:sub(1,-5)
 				if clusters[manager] then
 					clusters[manager].current = clusters[manager].current + 1
+				end
+			end
+		end
+	end
+
+	local hostPrefix = "Host["
+	local sortedusers = {}
+	for username, _ in pairs(users) do sortedusers[#sortedusers+1] = username end
+	table.sort(sortedusers)
+
+	for _, userName in ipairs(sortedusers) do
+		if lobby.users[userName].isBot and string.sub(userName, 1, string.len(hostPrefix)) == hostPrefix then
+			-- Parse the region, cluster number, instance number
+			local clustermanager = string.gmatch(userName, '^(Host%[%a+%d+%])$')
+			if clustermanager then  -- this is a manager
+				if clusters[clustermanager] then 
+					clusters[clustermanager].online = true
+				else
+					-- This seems to be a novel cluster, we could initialize it with some sane defaults:
+					clusters[clustermanager] = {limit = 80,  current = 0, online = true, region = 'EU'}
+				end
+			else
+				local clustermanager, instancenumber = string.gmatch(userName, '^(Host%[%a+%d+%])%[(%d+)%]$')
+				if clustermanager and clusters[clustermanager] then
+					clusters[clustermanager].online = true
+					clusters[clustermanager].current = clusters[clustermanager].current + 1
 				end
 			end
 		end
@@ -1249,19 +1289,27 @@ function BattleListWindow:OpenHostWindow()
 		local sum = 0
 		for manager, data in pairs(clusters) do
 			if data.region == targetregion and data.online then
-				emptiness[manager] = 1.0 - data.current/data.limit
-				sum = sum + emptiness[manager]
+				-- The relative probability of a cluster being picked is a product of
+				-- 1. The current fullness of the cluster
+				-- 2. The actual capacity of the cluster itself.
+				-- Any one of these measures by themselves are insufficient, because of repeated sampling. 
+				-- if its only actual capacity, then smaller clusters wont ever get loaded
+
+				local probability =  (1.0 - data.current/data.limit) * (data.limit - data.current)
+				probability = math.max(probability, 0)
+				sum = sum + probability
+				emptiness[manager] = probability
 				Spring.Echo("Manager", manager, data.current,  data.limit, emptiness[manager], sum)
 			end
 		end
 
 		-- choose
-		local r = math.random() * sum
-		local tot = 0
-		for manager,prob in pairs(emptiness) do
-			tot = tot + prob
-			if r <= tot then
-				Spring.Echo("Found a manager for this request", manager, tot, prob, r)
+		local randomval = math.random() * sum
+		local total = 0
+		for manager, probability in pairs(emptiness) do
+			total = total + probability
+			if randomval <= total then
+				Spring.Echo("Found a manager for this request", manager, total, probability, randomval)
 				return manager, nil
 			end
 		end
@@ -1270,13 +1318,11 @@ function BattleListWindow:OpenHostWindow()
 			return '[teh]clusterEU2' , "No cluster managers"
 		else
 			Spring.Echo("Couldnt find host in ", targetregion)
-			for manager,prob in pairs(emptiness) do
+			for manager, probability in pairs(emptiness) do
 				return manager, "no free hosts"
 			end
 		end
 	end
-
-	local currentInstances = {}
 
 	local hostBattleWindow = Window:New {
 		caption = "",
