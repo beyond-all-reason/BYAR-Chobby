@@ -24,15 +24,15 @@ local welcomePanelItems = {
     },
 
     {
-        Header = "New Map: Feast of Hades",
-        Text = " \n" .. "3v3-6v6 map, up to 8v8 with left vs right starting boxes. By Phalange.",
-        Image = "LuaMenu/configs/gameConfig/byar/minimapOverride/Feast_of_Hades_0.9.jpg",
+        Header = "New Map: Hera Planum",
+        Text = " \n" .. "Ancient eroded craters leave narrow paths on a vast plateau. Some geothermal activity remains in this barren environment. By Phalange.",
+        Image = "LuaMenu/configs/gameConfig/byar/minimapOverride/Hera_Planum_0.91.jpg",
     },
 
     {
-        Header = "New Map: Hellas Basin",
-        Text = " \n" .. "An 8v8 map with two seas divided by one bridge. Prove your skills and win on this red planet battlefield. By Nikuksis.",
-        Image = "LuaMenu/configs/gameConfig/byar/minimapOverride/Hellas_Basin_v1.2.jpg",
+        Header = "New Map: Feast of Hades",
+        Text = " \n" .. "3v3-6v6 map, up to 8v8 with left vs right starting boxes. By Phalange.",
+        Image = "LuaMenu/configs/gameConfig/byar/minimapOverride/Feast_of_Hades_0.9.jpg",
     },
 
     {
