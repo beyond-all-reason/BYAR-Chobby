@@ -1,5 +1,7 @@
 LoginWindow = LCS.class{}
 
+include "LuaMenu/widgets/chobby/utilities/word_library.lua"
+
 --TODO: make this a util function, maybe even add this support to chili as a whole?
 function createTabGroup(ctrls, visibleFunc)
 	for i = 1, #ctrls do
@@ -1140,8 +1142,6 @@ function LoginWindow:tryLogin()
 end
 
 function isInValidUserName(username)
-	local badwords = {"fuck","cunt","shit","cock","faggot","adolf","hitler","nigger"}
-
 	validUserNameRegex = "^[a-zA-Z%d%[%]_]+$"
 	if string.match(username,validUserNameRegex) and string.len( username) == string.len( string.match(username,validUserNameRegex)) then
 		--print (username .. " is OK")
@@ -1151,10 +1151,9 @@ function isInValidUserName(username)
 		if string.len(username) <3 then
 			return "Username too short, at least 3 characters"
 		end
-		for index, badword in ipairs(badwords) do
-			if string.match(string.lower( username),badword) then
-				return "Username contains banned word: "..badword
-			end
+		local blacklisted = Word_Library.FindBlacklistedString(username)
+		if blacklisted then
+			return "Username contains banned word/phrase: "..blacklisted
 		end
 		return false
 	else
