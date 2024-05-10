@@ -251,7 +251,7 @@ return {
 
 		-- gui_maplist_panel.lua
 
-		mapsearch_hint = "Search for any map",
+		mapsearch_hint = "Search for a map",
 		maincaption_multiplayer = "Select a Map. Only Certified and Classic in Online.",
 		maincaption_singleplayer = "Select a Map. Certified maps are recommended.",
 		click_to_pick_map = "Click to choose this map.",
