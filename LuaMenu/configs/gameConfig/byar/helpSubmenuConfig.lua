@@ -168,6 +168,7 @@ local communityLines = {
 					defaultValue = "",
 					caption = "Upload Infolog",
 					labelCaption = "Your infolog.txt contains sensitive information such as your username and install location. These will be kept private. Please fill in the reason with a description of the problem you encountered. Click \"Send\" to send the infolog, escape or enter to cancel.",
+					hint = "Type a description of the error",
 					width = 500,
 					--ebheight = 120,
 					oklabel = "Send",
