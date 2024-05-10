@@ -247,7 +247,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		hint = "Confirm password",
 		passwordInput = true,
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
-		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(3),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(11),
 		OnKeyPress = {
 			function(obj, key, mods, ...)
 				if key == Spring.GetKeyCode("enter") or key == Spring.GetKeyCode("numpad_enter") then
@@ -280,7 +280,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 			height = 35,
 			text = "",
 			objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
-			objectOverrideHintFont = WG.Chobby.Configuration:GetFont(3),
+			objectOverrideHintFont = WG.Chobby.Configuration:GetFont(11),
 			useIME = false,
 			OnKeyPress = {
 				function(obj, key, mods, ...)
@@ -314,7 +314,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 			text = "",
             hint = i18n('confirm_email'),
 			objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
-			objectOverrideHintFont = WG.Chobby.Configuration:GetFont(3),
+			objectOverrideHintFont = WG.Chobby.Configuration:GetFont(11),
 			useIME = false,
 			OnKeyPress = {
 				function(obj, key, mods, ...)
@@ -353,12 +353,12 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		self.TextAcknowledgementBox = EditBox:New {
 			x = 15,
 			width = '90%',
-	        y = 355,
+	        y = 365,
 	        height = 35,
 			text = "",
             hint = "Ask moderation on Discord for keyword",
 			objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
-			objectOverrideHintFont = WG.Chobby.Configuration:GetFont(3),
+			objectOverrideHintFont = WG.Chobby.Configuration:GetFont(11),
 			useIME = false,
 		}
 		registerChildren[#registerChildren + 1] = self.TextAcknowledgementBox

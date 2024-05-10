@@ -591,9 +591,9 @@ local function InitializeControls()
 		width = 180,
 		height = 33,
 		text = '',
-		hint = i18n("type_to_filter"),
+		hint = i18n("mapsearch_hint"),
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
-		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(11),
 		parent = mapListWindow,
 		OnKeyPress = {
 			function(obj, key, ...)
