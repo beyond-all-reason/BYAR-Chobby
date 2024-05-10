@@ -1710,7 +1710,7 @@ function BattleListWindow:JoinBattle(battle, _, _, joinAsPlayer)
 			text = "",
 			hint = i18n("password"),
 			objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
-			objectOverrideHintFont = WG.Chobby.Configuration:GetFont(3),
+			objectOverrideHintFont = WG.Chobby.Configuration:GetFont(11),
 			passwordInput = true,
 			useIME = false,
 			parent = passwordWindow,
