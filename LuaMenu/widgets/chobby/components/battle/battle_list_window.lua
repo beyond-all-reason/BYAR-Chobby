@@ -10,6 +10,31 @@ function BattleListWindow:init(parent)
 	self:super("init", parent, "Play or watch a game", true, nil, nil, nil, 34)
 	self.name = "BattleListWindow"
 
+	self.searchbar = EditBox:New{
+		y = 11,
+		right = 302,
+		width = 300,
+		height = 37,
+		hint = i18n("searchbar_hint"),
+		text = "",
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2, "scn_label", {font = "fonts/n019003l.pfb", color = {0.5, 0.5, 0.5, 1.0}}),
+		useIME = false,
+		-- classname = "option_button",
+		parent = self.window,
+		OnTextModified = {
+			function (input)
+				Configuration.gameConfig.battleListOnlyShow = input.text
+				-- force an update
+				if Configuration.battleFilterRedundant then
+					self:UpdateAllBattleIDs()
+				end
+				self:UpdateFilters()
+			end
+		}
+	}
+
+
 	if not Configuration.gameConfig.disableBattleListHostButton then
 		self.btnNewBattle = Button:New {
 			--x = 260,
@@ -677,8 +702,21 @@ end
 function BattleListWindow:ItemInFilter(id)
 	local battle = lobby:GetBattle(id)
 	local filterString = Configuration.gameConfig.battleListOnlyShow
-	if filterString ~= nil then
-		local filterToGame = string.find(battle.gameName, filterString)
+	if filterString ~= nil and filterString ~= "" then
+		local battleStrings = {battle.title, battle.mapName}
+		for _, user in ipairs(battle.users) do
+			table.insert(battleStrings, user)
+		end
+
+		local filterToGame = nil
+
+		-- try to find the filterString in one battleString {battle.title, battle.mapName, battle.users}
+		for _, battleString in ipairs(battleStrings) do
+			filterToGame = string.find(string.lower(battleString), string.lower(filterString), nil, true)
+			if filterToGame ~= nil then
+				break;
+			end
+		end
 		if filterToGame == nil then
 			return false
 		end
