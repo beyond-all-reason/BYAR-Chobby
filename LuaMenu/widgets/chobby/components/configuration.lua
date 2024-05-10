@@ -39,6 +39,7 @@ function Configuration:init()
 	self.fontRaw[8] = {font = "fonts/n019003l.pfb", size = self.fontRaw[1].size, shadow = true, outlineColor = {0.05,0.05,0.05,0.9},}
 	self.fontRaw[9] = {font = "fonts/n019003l.pfb", size = self.fontRaw[2].size, shadow = true, outlineColor = {0.05,0.05,0.05,0.9},}
 	self.fontRaw[10] = {font = "fonts/n019003l.pfb", size = 14, shadow = true, outlineColor = {0.05,0.05,0.05,0.9},}
+	self.fontRaw[11] = {font = "fonts/n019003l.pfb", size = 17, shadow = true, outline = false, color = {0.5,0.5,0.5,0.9},}
 
 	self.fontSpecial = {}
 	self.font = {}
@@ -49,6 +50,7 @@ function Configuration:init()
 			outline      = self.fontRaw[i].outline,
 			shadow       = self.fontRaw[i].shadow,
 			outlineColor = self.fontRaw[i].outlineColor or {0.05,0.05,0.05,0.7},
+			color		 = self.fontRaw[i].color or {1,1,1,1},
 		}
 	end
 
