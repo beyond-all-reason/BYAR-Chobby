@@ -26,6 +26,7 @@ local function CreateTextEntryWindow(opts)
 		parent = screen0,
 		width = opts.width or 280,
 		height = opts.height or 330,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(5),
 		resizable = false,
 		draggable = opts.draggable or false,
 		classname = "main_window",
@@ -44,7 +45,7 @@ local function CreateTextEntryWindow(opts)
 
 	local lblTitle = TextBox:New {
 		x = "0%",
-		y = "5%",
+		y = "10%",
 		width = "90%",
 		height = (opts.height or 330) /2,
 		align = "center",
