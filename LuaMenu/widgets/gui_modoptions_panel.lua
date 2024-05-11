@@ -220,8 +220,9 @@ local function ProcessNumberOption(data, index)
 		height = 30,
 		text   = oldText,
 		useIME = false,
+		hint = data.hint,
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
-		objectOverrideHintFont = WG.Chobby.Configuration:GetHintFont(2),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(11),
 		tooltip = data.desc,
 		OnFocusUpdate = {
 			function (obj)
@@ -286,8 +287,9 @@ local function ProcessStringOption(data, index)
 		height = 30,
 		text   = oldText,
 		useIME = false,
+		hint = data.hint,
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
-		objectOverrideHintFont = WG.Chobby.Configuration:GetHintFont(2),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(11),
 		tooltip = data.desc,
 		OnFocusUpdate = {
 			function (obj)
