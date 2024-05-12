@@ -136,10 +136,10 @@ local function InitializeControls()
 		local ww, wh = Spring.GetWindowGeometry()
 
 		local neww = ww - 100
-		local newx = (WG.Chobby.lobbyInterfaceHolder.width-neww) / 2
+		local newx = (ww - neww) / 2
 
 		local newh = wh - 100
-		local newy = (WG.Chobby.lobbyInterfaceHolder.height - newh) / 2
+		local newy = (wh - newh) / 2
 
 		keysWindow:SetPos(
 			newx,
@@ -152,7 +152,7 @@ local function InitializeControls()
 		local newx = (WG.Chobby.lobbyInterfaceHolder.width - ww) / 2
 
 		local newh = wh - 120
-		local newy = (WG.Chobby.lobbyInterfaceHolder.height - newh) / 2
+		local newy = (WG.Chobby.lobbyInterfaceHolder.height - wh) / 2
 
 		imKeys:SetPos(
 			newx,
