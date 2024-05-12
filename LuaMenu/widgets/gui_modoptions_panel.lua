@@ -358,7 +358,7 @@ local function CreateModoptionWindow()
 		width = math.min(1366, ww - 50),
 		height = math.min(720, wh - 50),
 		resizable = true,
-		draggable = true,
+		draggable = false,
 		classname = "main_window",
 	}
 
@@ -493,6 +493,24 @@ local function CreateModoptionWindow()
 	}
 
 	local popupHolder = WG.Chobby.PriorityPopup(modoptionsSelectionWindow, CancelFunc, AcceptFunc)
+
+	WG.Chobby.lobbyInterfaceHolder.OnResize = WG.Chobby.lobbyInterfaceHolder.OnResize or {}
+	WG.Chobby.lobbyInterfaceHolder.OnResize[#WG.Chobby.lobbyInterfaceHolder.OnResize +1] = function()
+		local ww, wh = Spring.GetWindowGeometry()
+
+		local neww = math.min(1366, ww - 50)
+		local newx = (WG.Chobby.lobbyInterfaceHolder.width - neww) / 2
+
+		local newh = math.min(720, wh - 50)
+		local newy = (WG.Chobby.lobbyInterfaceHolder.height - newh) / 2
+
+		modoptionsSelectionWindow:SetPos(
+			newx,
+			newy,
+			neww,
+			newh
+		)
+	end
 end
 
 local function getModOptionByKey(key)
