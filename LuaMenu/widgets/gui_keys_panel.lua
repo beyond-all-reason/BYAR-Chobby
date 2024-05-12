@@ -67,6 +67,18 @@ local function InitializeControls()
 
 	local offsetX = 20
 	local imgBtns = {}
+
+	local buttonsHolder = Control:New {
+		x = 0,
+		y = 0,
+		right = 100,
+		bottom = 0,
+		name = "buttonsHolder",
+		parent = keysWindow,
+		padding = {0, 0, 0, 0},
+		children = {}
+    }
+
 	for i, img in ipairs(images) do
 		imgBtns[imgCaptions[i]] = Button:New {
 			x = offsetX,
@@ -76,7 +88,7 @@ local function InitializeControls()
 			caption = imgCaptions[i],
 			objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 			classname = "negative_button",
-			parent = keysWindow,
+			parent = buttonsHolder,
 			backgroundColor = {0.8, 0.8, 1, 0.4},
 			OnClick = {
 				function()
