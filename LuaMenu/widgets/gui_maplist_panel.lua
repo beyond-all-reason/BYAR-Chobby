@@ -348,18 +348,14 @@ end
 -- Controls
 
 local function InitializeControls()
-	-- ghetto profiling to prove the maplist is a memory hog
-	--local lmkb, lmalloc, lgkb, lgalloc = Spring.GetLuaMemUsage()
-	--Spring.Echo("LuaMenu KB", lmkb, "allocs", lmalloc, "Lua global KB", lgkb, "allocs", lgalloc)
-
 	local Configuration = WG.Chobby.Configuration
 
-    local vsx, vsy = Spring.GetViewSizes()
+    local ww, wh = Spring.GetWindowGeometry()
 	local mapListWindow = Window:New {
 		classname = "main_window",
 		parent = WG.Chobby.lobbyInterfaceHolder,
-		height = math.max(700, WG.Chobby.lobbyInterfaceHolder.height -100),
-		width = 854,
+		height = wh -100,
+		width = math.min(854, ww -100),
 		resizable = false,
 		draggable = false,
 		padding = {0, 0, 0, 0},
@@ -367,16 +363,32 @@ local function InitializeControls()
 
 	WG.Chobby.lobbyInterfaceHolder.OnResize = WG.Chobby.lobbyInterfaceHolder.OnResize or {}
 	WG.Chobby.lobbyInterfaceHolder.OnResize[#WG.Chobby.lobbyInterfaceHolder.OnResize +1] = function()
-		-- Spring.Echo("Resized parent of mapListWindow")
-		--mapListWindow.height =  math.max(700, WG.Chobby.lobbyInterfaceHolder.height -100)
-		local newh = math.max(WG.Chobby.lobbyInterfaceHolder.height -100)
-		local newy = math.max(0,(WG.Chobby.lobbyInterfaceHolder.height-newh)/2)
+		local ww, wh = Spring.GetWindowGeometry()
+
+		local neww = math.min(854, ww -100)
+		local newx = (ww - neww) / 2
+
+		local newh = wh -100
+		local newy = (wh - newh) / 2
+
 		mapListWindow:SetPos(
-			nil,
+			newx,
 			newy,
-			nil,
-			newh)
+			neww,
+			newh
+		)
 	end
+
+	local captionHolder = Control:New {
+		x = 0,
+		y = 0,
+		right = 283,
+		bottom = 0,
+		name = "captionHolder",
+		parent = mapListWindow,
+		padding = {0, 0, 0, 0},
+		children = {}
+    }
 
 	local maincaption = i18n("maincaption_singleplayer")
 	if	lobby.name ~= "singleplayer" then
@@ -388,9 +400,8 @@ local function InitializeControls()
 		right = 5,
 		y = 22,
 		height = 21,
-		parent = mapListWindow,
+		parent = captionHolder,
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
-		--caption = "Select a Map. Choose a Certified map for the best experience!",
 		caption = maincaption,
 	}
 
