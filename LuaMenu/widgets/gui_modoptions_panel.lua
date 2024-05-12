@@ -349,12 +349,14 @@ end
 -- Modoptions Window Handler
 
 local function CreateModoptionWindow()
+	local ww, wh = Spring.GetWindowGeometry()
+
 	local modoptionsSelectionWindow = Window:New {
 		caption = "",
 		name = "modoptionsSelectionWindow",
 		parent = WG.Chobby.lobbyInterfaceHolder,
-		width = 1366,
-		height = 720,
+		width = math.min(1366, ww - 50),
+		height = math.min(720, wh - 50),
 		resizable = true,
 		draggable = true,
 		classname = "main_window",
