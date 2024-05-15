@@ -84,7 +84,6 @@ return {
 		party_invite = "Party Invite",
 		party = "Party",
 		accept = "Accept",
-		rescind = "Rescind",
 		reject = "Reject",
 		ready = "   Ready",
 		enter_battle_password = "Enter Battle Password",
