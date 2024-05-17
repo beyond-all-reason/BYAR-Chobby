@@ -3901,6 +3901,7 @@ function BattleRoomWindow.ShowMultiplayerBattleRoom(battleID)
 						obj:AddChild(battleWindow)
 					end
 				end
+				BattleRoomWindow.UpdateMinimapstartBoxes()
 			end
 		},
 		OnHide = {
