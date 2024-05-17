@@ -500,7 +500,7 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 			titleText = i18n("singleplayercoop"),
 		},
 		{
-			name = "multiplayer",
+			name = "multiplayer_and_coop",
 			entryCheck = WG.LoginWindowHandler.TryLoginMultiplayer,
 			tabs = multiPlayerTabs,
 			cleanupFunction = Configuration.leaveMultiplayerOnMainMenu and CleanMultiplayerState or nil,
@@ -668,10 +668,13 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 			status_userWindow:UpdateClientArea()
 
 			holder_topImage:SetPos(nil, topOffset, nil, titleHeight + imageFudge)
+
+			submenus[2].button.captionAlign = -10
+			ButtonUtilities.SetCaption(submenus[2].button, i18n("multiplayer_and_coop"))
 		else
-			rightPanelHandler.Rescale(2, 55, nil, nil, buttonSpacingSmall)
+			rightPanelHandler.Rescale(2, 35, nil, nil, buttonSpacingSmall)
 			battleStatusPanelHandler.Rescale(2, nil, statusButtonWidthSmall)
-			RescaleMainWindow(2, 55, 46, buttonSpacingSmall)
+			RescaleMainWindow(2, 35, 46, buttonSpacingSmall)
 
 			-- Make main buttons thinner
 			mainWindow_mainContent:SetPos(mainButtonsWidthSmall, chatTabHolderHeight)
@@ -721,6 +724,9 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 			status_userWindow:UpdateClientArea()
 
 			holder_topImage:SetPos(nil, topOffset, nil, titleHeightSmall + imageFudge + chatTabHolderHeight)
+
+			submenus[2].button.captionAlign = 0
+			ButtonUtilities.SetCaption(submenus[2].button, i18n("multiplayer"))
 		end
 
 		heading_image.file = Configuration:GetHeadingImage(doublePanelMode, mainWindowHandler.GetSubheadingName())
