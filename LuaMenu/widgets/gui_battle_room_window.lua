@@ -4043,26 +4043,30 @@ function BattleRoomWindow.GetSingleplayerControl(setupData)
 						end
 					end
 				end
-				local function updateMinimapstartBoxesDelayed()
-					if mainWindowFunctions and mainWindowFunctions.GetInfoHandler() then 
-						local infoHandler = mainWindowFunctions.GetInfoHandler()
-						--Spring.Utilities.TableEcho(infoHandler)
-						infoHandler.rightInfo:Invalidate()
-						infoHandler.UpdateStartRectPositionsInMinimap()
-						--Spring.Echo("Updating infoHandler.rightInfo:UpdateClientArea()")
-						infoHandler.rightInfo:UpdateClientArea()
-					end
-				end
-
-				if WG.Delay then
-					WG.Delay(updateMinimapstartBoxesDelayed, 0.5)
-				end
-
+				BattleRoomWindow.UpdateMinimapstartBoxes()
 			end
 		},
 	}
 
 	return singleplayerWrapper
+end
+
+function BattleRoomWindow.UpdateMinimapstartBoxes()
+	local function IsMousePressed()
+		local x,y, lmb, mmb, rmb = Spring.GetMouseState()
+		return lmb or mmb or rmb
+	end
+
+	if mainWindowFunctions and mainWindowFunctions.GetInfoHandler() and not IsMousePressed() then
+		local infoHandler = mainWindowFunctions.GetInfoHandler()
+		infoHandler.rightInfo:Invalidate()
+		infoHandler.UpdateStartRectPositionsInMinimap()
+		infoHandler.rightInfo:UpdateClientArea()
+	end
+
+	if WG.Delay then
+		WG.Delay(BattleRoomWindow.UpdateMinimapstartBoxes, 0.5)
+	end
 end
 
 function GetStarterEnemyAIColorAssignment(i)
