@@ -123,7 +123,7 @@ local function playerWidget(playerInfo)
 	-- Textbox with the user's name
 	local userTextBox = TextBox:New {
 		name = "userName",
-		x = 18, y = 0, width = 116, height = PLAYER_HEIGHT,
+		x = 18, y = 0, width = 115, height = PLAYER_HEIGHT,
 		valign = "top",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(8),
 		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(8),
