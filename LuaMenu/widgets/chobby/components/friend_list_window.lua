@@ -78,7 +78,7 @@ function FriendListWindow:AddOutgoingFriendRequest(userName)
 		y = 50,
 		width = 100,
 		height = 30,
-		caption = i18n("rescind"),
+		caption = i18n("cancel"),
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		classname = "option_button",
 		OnClick = {
