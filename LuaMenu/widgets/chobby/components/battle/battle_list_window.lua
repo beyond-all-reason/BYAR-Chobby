@@ -1249,29 +1249,29 @@ function BattleListWindow:OpenHostWindow()
 	-- Enumerate all known clusters and their number of children
 	local regions = {'EU','US','AU'}
 	local clusters = {
-		['[teh]cluster1'] = {limit = 80, current = 0, online = false, region = 'EU'},
-		['[teh]clusterEU2'] = {limit = 50, current = 0, online = false, region = 'EU'},
-		['[teh]clusterEU3'] = {limit = 30, current = 0, online = false, region = 'EU'},
-		['[teh]clusterEU4'] = {limit = 100, current = 0, online = false, region = 'EU'},  -- de-prioritizes because contabo are cpu thieves
-		['[teh]clusterEU5'] = {limit = 100, current = 0, online = false, region = 'EU'},
-		['[teh]clusterEU6'] = {limit = 100, current = 0, online = false, region = 'EU'},
-		['[teh]clusterUS'] = {limit = 70, current = 0, online = false, region = 'US'},
-		['[teh]clusterUS2'] = {limit = 30, current = 0, online = false, region = 'US'},
-		['[teh]clusterUS3'] = {limit = 70, current = 0, online = false, region = 'US'},
-		['[teh]clusterUS4'] = {limit = 150, current = 0, online = false, region = 'US'},
-		['[teh]clusterAU'] = {limit = 90, current = 0, online = false, region = 'AU'},
+		['[teh]cluster1'] = {limit = 80, current = 0, online = false, priority = 1.0, region = 'EU'},
+		['[teh]clusterEU2'] = {limit = 50, current = 0, online = false, priority = 1.0, region = 'EU'},
+		['[teh]clusterEU3'] = {limit = 30, current = 0, online = false, priority = 1.0, region = 'EU'},
+		['[teh]clusterEU4'] = {limit = 100, current = 0, online = false, priority = 1.0, region = 'EU'},  -- de-prioritizes because contabo are cpu thieves
+		['[teh]clusterEU5'] = {limit = 100, current = 0, online = false, priority = 1.0, region = 'EU'},
+		['[teh]clusterEU6'] = {limit = 100, current = 0, online = false, priority = 1.0, region = 'EU'},
+		['[teh]clusterUS'] = {limit = 70, current = 0, online = false, priority = 1.0, region = 'US'},
+		['[teh]clusterUS2'] = {limit = 30, current = 0, online = false, priority = 1.0, region = 'US'},
+		['[teh]clusterUS3'] = {limit = 70, current = 0, online = false, priority = 1.0, region = 'US'},
+		['[teh]clusterUS4'] = {limit = 150, current = 0, online = false, priority = 1.0, region = 'US'},
+		['[teh]clusterAU'] = {limit = 90, current = 0, online = false, priority = 1.0, region = 'AU'},
 
-		['Host[AU1]'] = {limit = 80,  current = 0, online = false, region = 'AU'},
-		['Host[EU1]'] = {limit = 80,  current = 0, online = false, region = 'EU'},
-		['Host[EU2]'] = {limit = 80,  current = 0, online = false, region = 'EU'},
-		['Host[EU3]'] = {limit = 25,  current = 0, online = false, region = 'EU'},
-		['Host[EU4]'] = {limit = 150, current = 0, online = false, region = 'EU'},  -- this is pointed to integration server
-		['Host[EU5]'] = {limit = 150, current = 0, online = false, region = 'EU'},
-		['Host[EU6]'] = {limit = 120, current = 0, online = false, region = 'EU'},
-		['Host[US1]'] = {limit = 80,  current = 0, online = false, region = 'US'},
-		['Host[US2]'] = {limit = 60,  current = 0, online = false, region = 'US'},
-		['Host[US3]'] = {limit = 80,  current = 0, online = false, region = 'US'},
-		['Host[US4]'] = {limit = 150, current = 0, online = false, region = 'US'},
+		['Host[AU1]'] = {limit = 80,  current = 0, online = false, priority = 1.0, region = 'AU'},
+		['Host[EU1]'] = {limit = 80,  current = 0, online = false, priority = 1.0, region = 'EU'},
+		['Host[EU2]'] = {limit = 80,  current = 0, online = false, priority = 1.0, region = 'EU'},
+		['Host[EU3]'] = {limit = 25,  current = 0, online = false, priority = 1.0, region = 'EU'},
+		['Host[EU4]'] = {limit = 150, current = 0, online = false, priority = 1.0, region = 'EU'},  -- this is pointed to integration server
+		['Host[EU5]'] = {limit = 150, current = 0, online = false, priority = 0.4, region = 'EU'},  -- Test deprioritizatoin
+		['Host[EU6]'] = {limit = 120, current = 0, online = false, priority = 1.0, region = 'EU'},
+		['Host[US1]'] = {limit = 80,  current = 0, online = false, priority = 1.0, region = 'US'},
+		['Host[US2]'] = {limit = 60,  current = 0, online = false, priority = 1.0, region = 'US'},
+		['Host[US3]'] = {limit = 80,  current = 0, online = false, priority = 1.0, region = 'US'},
+		['Host[US4]'] = {limit = 150, current = 0, online = false, priority = 1.0, region = 'US'},
 	}
 
 	-- Try to check for their engine version too. It is unlikely that a cluster has multiple engines (except during a switch, so scratch that)
@@ -1308,7 +1308,7 @@ function BattleListWindow:OpenHostWindow()
 					clusters[clustermanager].online = true
 				else
 					-- This seems to be a novel cluster, we could initialize it with some sane defaults:
-					clusters[clustermanager] = {limit = 80,  current = 0, online = true, region = 'EU'}
+					clusters[clustermanager] = {limit = 80,  current = 0, online = true, priority = 1.0, region = 'EU'}
 				end
 			else
 				local clustermanager, instancenumber = string.match(userName, '^(Host%[%a+%d+%])%[(%d+)%]$')
@@ -1333,7 +1333,7 @@ function BattleListWindow:OpenHostWindow()
 				-- if its only actual capacity, then smaller clusters wont ever get loaded
 
 				local probability =  (1.0 - data.current/data.limit) * (data.limit - data.current)
-				probability = math.max(probability, 0)
+				probability = math.max(probability * (data.priority or 1.0), 0)
 				sum = sum + probability
 				emptiness[manager] = probability
 				Spring.Echo("Manager", manager, data.current,  data.limit, emptiness[manager], sum)
