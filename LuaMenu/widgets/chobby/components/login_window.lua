@@ -1185,7 +1185,7 @@ function LoginWindow:tryRegister()
 		return
 	end
 
-    if (not Configuration.firstLoginEver) and (self.TextAcknowledgementBox.text ~= "Gargamel") then
+    if (not Configuration.firstLoginEver) and (VFS.CalculateHash(self.TextAcknowledgementBox.text, 1) ~= "a374635fe062d9b6694049d64b3f3c69527e7a0a63628b2374fed654da7388e549aa7a5294e3b05295b6a450edf22b5b4f289955c56e281085f65680fbdbe052") then
 		self.txtErrorRegister:SetText(Configuration:GetErrorColor() .. "Contact moderation first (#open-ticket on Discord).")
         return
     end
