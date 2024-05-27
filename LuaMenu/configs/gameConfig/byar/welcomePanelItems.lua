@@ -16,6 +16,11 @@ local welcomePanelItems = {
     },
 
     {
+        Header = "Server Maintainence",
+        Text = "On Wednesday, 7AM GMT We will be performing some maintainence on the server for about an hour, and performing the Season 1 Update",
+    },
+
+    {
         Header = "BAR is accepting donations again! ",
         Text = "Dear Commanders, we are delighted to announce the reopening of our donation platform after a longer-than-expected hiatus." .. " \n" .. " \n" .. "As we've been hard at work refining BAR to ensure maximum enjoyment for our ever-expanding community, we repeatedly placed donation efforts on hold to focus on other priorities." .. " \n" .. " \n" .. "Support BAR with our newly reopened donation platform!" .. " \n",
         Image = "LuaMenu/images/donate.png",
