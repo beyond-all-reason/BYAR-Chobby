@@ -1083,6 +1083,7 @@ local function GetLobbyTabControls()
 	end
 	if WG.Chobby.Configuration.devMode then
 		table.insert(barservers, "localhost")
+		table.insert(barservers, "server5.beyondallreason.info") -- Integration server
 	end
 
 	children[#children + 1] = ComboBox:New {
