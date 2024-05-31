@@ -1261,13 +1261,16 @@ function BattleListWindow:OpenHostWindow()
 		['[teh]clusterUS4'] = {limit = 150, current = 0, online = false, priority = 1.0, region = 'US'},
 		['[teh]clusterAU'] = {limit = 90, current = 0, online = false, priority = 1.0, region = 'AU'},
 
-		['Host[AU1]'] = {limit = 80,  current = 0, online = false, priority = 1.0, region = 'AU'},
+		['Host[AU1]'] = {limit = 80,  current = 0, online = false, priority = 0.2, region = 'AU'}, -- lower priority because its at contabo
+		['Host[AU2]'] = {limit = 40,  current = 0, online = false, priority = 1.0, region = 'AU'}, -- higher priority OVH host
+
 		['Host[EU1]'] = {limit = 120, current = 0, online = false, priority = 0.3, region = 'EU'}, -- Lower priority because it is on a SSDNodes host, which isnt the best regarding latency 
 		['Host[EU2]'] = {limit = 80,  current = 0, online = false, priority = 1.0, region = 'EU'},
 		['Host[EU3]'] = {limit = 25,  current = 0, online = false, priority = 1.0, region = 'EU'},
 		['Host[EU4]'] = {limit = 150, current = 0, online = false, priority = 1.0, region = 'EU'},  -- this is pointed to integration server
 		['Host[EU5]'] = {limit = 150, current = 0, online = false, priority = 0.4, region = 'EU'},  -- Test deprioritizatoin
 		['Host[EU6]'] = {limit = 120, current = 0, online = false, priority = 1.0, region = 'EU'},
+		
 		['Host[US1]'] = {limit = 80,  current = 0, online = false, priority = 1.0, region = 'US'},
 		['Host[US2]'] = {limit = 60,  current = 0, online = false, priority = 1.0, region = 'US'},
 		['Host[US3]'] = {limit = 80,  current = 0, online = false, priority = 1.0, region = 'US'},
