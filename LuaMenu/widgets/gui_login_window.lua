@@ -182,9 +182,7 @@ local function InitializeListeners()
 
 	local queueTime = 1
 	local function OnQueued(listener)
-		if currentLoginWindow then
-			currentLoginWindow.txtError:SetText("Waiting in Login Queue for "..tostring(queueTime) .. " seconds (~7)")
-		end
+		currentLoginWindow.txtError:SetText("Waiting in Login Queue for "..tostring(queueTime) .. " seconds (~7)")
 		queueTime = queueTime + 1
 		if WG and WG.Delay then
 			local function login_queue_heartbeat()
@@ -196,23 +194,11 @@ local function InitializeListeners()
 		end
 	end
 
-	function OnLoginInfoEnd()
-		-- Activate the multiplayer battle tab when login data is done
-		if WG and WG.Chobby and WG.Chobby.interfaceRoot and WG.Chobby.interfaceRoot.OpenMultiplayerTabByName then 
-			-- Pass the name of the tab
-			WG.Chobby.interfaceRoot.OpenMultiplayerTabByName("battle_list")
-			lobby:RemoveListener("OnLoginInfoEnd", OnLoginInfoEnd)
-		end
-
-	end
-	
-
 	lobby:AddListener("OnRegistrationAccepted", OnRegistrationAccepted)
 	lobby:AddListener("OnRegistrationDenied", OnRegistrationDenied)
 	lobby:AddListener("OnAccepted", OnLoginAccepted)
 	lobby:AddListener("OnDenied", OnLoginDenied)
 	lobby:AddListener("OnQueued", OnQueued)
-	lobby:AddListener("OnLoginInfoEnd", OnLoginInfoEnd)
 
 	-- Stored register on connect
 	local function OnConnect()
@@ -264,8 +250,6 @@ end
 --------------------------------------------------------------------------------
 -- Widget Interface
 
-
-
 function widget:Initialize()
 	CHOBBY_DIR = LUA_DIRNAME .. "widgets/chobby/"
 	VFS.Include(LUA_DIRNAME .. "widgets/chobby/headers/exports.lua", nil, VFS.RAW_FIRST)
@@ -277,7 +261,7 @@ function widget:Initialize()
 end
 
 function widget:Update()
-	WG.Delay(CheckAutologin, 1.5)
+	--WG.Delay(CheckAutologin, 1.5)
 	WG.Delay(CheckFirstTimeRegister, 1.8)
 	widgetHandler:RemoveCallIn("Update")
 end

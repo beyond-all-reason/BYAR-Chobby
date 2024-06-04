@@ -615,10 +615,8 @@ function Lobby:_OnAddUser(userName, status)
 	-- 	-- self.users[userName] = nil -- delete outdated user completly
 	-- end
 
-	-- Strange bug, Teiserver seems to send ADDUSER twice for each user. The first time with CLIENTSTATUS, then second time without
-
 	local userInfo = self.users[userName]
-
+	self.userCount = self.userCount + 1 -- correctly fix because lobby didnt clear user count on onAccepted
 	if not userInfo then
 		userInfo = {
 			userName = userName,
@@ -627,14 +625,7 @@ function Lobby:_OnAddUser(userName, status)
 			hasOutgoingFriendRequest = status and status.accountID and self.hasOutgoingFriendRequestsByID[status.accountID] or nil,
 		}
 		self.users[userName] = userInfo
-
-		-- New user we definitely didnt know about before
-		self.userCount = self.userCount + 1 
 	else
-		-- A user we knew about, who went offline, but now has come back online again
-		if userInfo.isOffline == true then 
-			self.userCount = self.userCount + 1 
-		end
 		userInfo.isOffline = false
 	end
 
@@ -679,8 +670,6 @@ function Lobby:_OnRemoveUser(userName)
 		userInfo.hasFriendRequest = hasFriendRequest
 		userInfo.hasOutgoingFriendRequest = hasOutgoingFriendRequest
 	end
-
-	userInfo.isOffline = true
 	self.userCount = self.userCount - 1 -- this shows: userCount reflects the "online users"
 	self:_CallListeners("OnRemoveUser", userName)
 end

@@ -360,24 +360,11 @@ function ChatWindows:init()
 	lobby:AddListener("OnDisconnected",
 		function ()
 			if self.tabPanel.tabBar.visible then
-			--	self.tabPanel.tabBar:Hide()
-			--	self.joinButton:Hide()
+				self.tabPanel.tabBar:Hide()
+				self.joinButton:Hide()
 			end
-
-			-- self.window:ClearChildren()
-			-- self.window:AddChild(self.loginButton)
-			-- Instead of showing this, how about disabling the text entry boxen with "Login required for chat"
-			-- The point being that they need to be enabled again :D
-			
-			for chanName, channelConsole in pairs(self.channelConsoles) do
-				if channelConsole.ebInputText then
-					channelConsole.ebInputText.hint = "Login required for chat."
-					channelConsole.ebInputText.editable = false
-					channelConsole.ebInputText.selectable = false
-					channelConsole.ebInputText:Update()
-				end
-			end
-
+			self.window:ClearChildren()
+			self.window:AddChild(self.loginButton)
 		end
 	)
 
@@ -386,16 +373,6 @@ function ChatWindows:init()
 				self.tabPanel.tabBar:Show()
 				self.joinButton:Show()
 			end
-
-			for chanName, channelConsole in pairs(self.channelConsoles) do
-				if channelConsole.ebInputText then
-					channelConsole.ebInputText.hint = ""
-					channelConsole.ebInputText.editable = true
-					channelConsole.ebInputText.selectable = true
-					channelConsole.ebInputText:Update()
-				end
-			end
-
 			self.window:ClearChildren()
 			self.window:AddChild(self.chatWindow)
 		end
@@ -800,7 +777,7 @@ function ChatWindows:GetChannelConsole(chanName)
 			-- keep it nil like scum
 			-- userListPanel = UserListPanel(function() return {}  end, 22, true)
 		else
-			userListPanel = UserListPanel(function() return lobby:GetChannel(chanName) end, 22, true, nil, chanName)
+			userListPanel = UserListPanel(function() return lobby:GetChannel(chanName) end, 22, true)
 		end
 		self.userListPanels[chanName] = userListPanel
 		local caption = "#" .. chanName
