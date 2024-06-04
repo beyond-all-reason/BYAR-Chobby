@@ -2,10 +2,11 @@ UserListPanel = LCS.class {}
 
 LOG_SECTION = "UserListPanel"
 
-function UserListPanel:init(userUpdateFunction, spacing, showCount, getUserFunction)
+function UserListPanel:init(userUpdateFunction, spacing, showCount, getUserFunction, channelName)
 	self.userUpdateFunction = userUpdateFunction
 	self.spacing = spacing
 	self.getUserFunction = getUserFunction
+	self.channelName = channelName
 
 	self.userComponentMap = {}
 	self.users = {}
@@ -169,6 +170,7 @@ function UserListPanel:AddUser(userName, alignComponents)
 		end
 		index = index + 1
 	end
+	--Spring.Echo("Added user ", userName, "to channel", self.channelName)
 	table.insert(self.users, index, userName)
 
 	local userControl =
@@ -194,7 +196,7 @@ function UserListPanel:RemoveUser(userName, alignComponents)
 	end
 	if index == nil then
 		if WG.Chobby.Configuration and WG.Chobby.Configuration.devMode then
-			Spring.Log(LOG_SECTION, LOG.ERROR, "Cannot find user to remove: " .. tostring(userName)) -- only show to devs for now
+			--Spring.Log(LOG_SECTION, LOG.ERROR, self.channelName ,"Cannot find user to remove: " .. tostring(userName)) -- only show to devs for now
 		end
 		return
 	end
