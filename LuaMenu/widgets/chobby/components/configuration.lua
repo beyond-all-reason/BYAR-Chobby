@@ -1076,11 +1076,18 @@ function Configuration:GetPlayerName(allowBlank)
 end
 
 function Configuration:GetDefaultGameName()
+	local rapidTag = "byar:test"
 	if not self.gameConfig then
+		Spring.Log(LOG_SECTION, LOG.ERROR, "self.gameConfig not present in Configuration:GetDefaultGameName()")
 		return false
 	end
+	
+	if self.gameConfig and self.gameConfig._defaultGameRapidTag then 
+		rapidTag = self.gameConfig._defaultGameRapidTag
+	else
+		Spring.Log(LOG_SECTION, LOG.ERROR, "self.gameConfig._defaultGameRapidTag not present in Configuration:GetDefaultGameName()")
+	end
 
-	local rapidTag = self.gameConfig._defaultGameRapidTag
 	if rapidTag and VFS.GetNameFromRapidTag then
 		local rapidName = VFS.GetNameFromRapidTag(rapidTag)
 		if rapidName then
