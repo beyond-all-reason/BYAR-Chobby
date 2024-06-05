@@ -1085,7 +1085,8 @@ function Configuration:GetDefaultGameName()
 	if self.gameConfig and self.gameConfig._defaultGameRapidTag then 
 		rapidTag = self.gameConfig._defaultGameRapidTag
 	else
-		Spring.Log(LOG_SECTION, LOG.ERROR, "self.gameConfig._defaultGameRapidTag not present in Configuration:GetDefaultGameName()")
+		Spring.Log(LOG_SECTION, LOG.ERROR, "self.gameConfig._defaultGameRapidTag not present in Configuration:GetDefaultGameName(), using: Beyond All Reason $VERSION")
+		return "Beyond All Reason $VERSION"
 	end
 
 	if rapidTag and VFS.GetNameFromRapidTag then
