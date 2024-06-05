@@ -16,8 +16,8 @@ local welcomePanelItems = {
     },
 
     {
-        Header = "Server Maintainence",
-        Text = "On Wednesday, 7AM GMT We will be performing some maintainence on the server for about an hour, and performing the Season 1 Update",
+        Header = "Season 1 has launched!",
+        Text = "On Wednesday, 7AM GMT a new season has officially commenced! Climb to the top of the leaderboards now..." .. " \n" .. " \n" .. "Your rating uncertainity has been bumped up to 5 to speed up the progress. Additionally an uncertainity floor has been added to make sure players don't get stuck with their progression after many games played" .. " \n",
     },
 
     {
