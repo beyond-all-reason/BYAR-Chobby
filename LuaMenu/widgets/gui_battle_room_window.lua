@@ -3106,9 +3106,11 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 			OnClick = {
 				function()
 					battleLobby:LeaveBattle()
-					local multiplayerSubmenu = WG.Chobby and WG.Chobby.interfaceRoot and WG.Chobby.interfaceRoot.OpenMultiplayerTabByName
-					if multiplayerSubmenu then
-						multiplayerSubmenu("battle_list")
+					if WG and WG.Chobby and 
+						WG.Chobby.interfaceRoot and 
+						WG.Chobby.interfaceRoot.OpenMultiplayerTabByName then 
+
+						WG.Chobby.interfaceRoot.OpenMultiplayerTabByName("Multiplayer")
 					end
 				end
 			},
