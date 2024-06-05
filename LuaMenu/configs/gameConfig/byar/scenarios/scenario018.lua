@@ -13,8 +13,6 @@ local scenariodata = {
 You start the game with Fatboy, Gunslinger, Welder, a Compass radar bot, some Ghost spies, and two Lazarus resurrections bots, and just enough energy to keep the spies cloaked, and the radar in working condition. 
  
 The Cortex Commander also has his technology crippled, and does not have access to Tier 2 units, but if left to his devices, could amass a critical force of T1 units capable of overpowering your ragtag band. 
-
-Our intelligence reports that Cortex have laid a minefield along the bridge, so be extremely cautious when approaching it. 
  
 Tips:
  - Ghosts are cloakable, stealthy spies, that can be self-destructed for a large EMP blast to stun groups of units.
@@ -24,7 +22,6 @@ Tips:
  - Compass has a very long line-of-sight, but is extremely fragile.
  - Lazarus can resurrect wrecked units, however, wrecks can be reduced to useless heaps by area-of-effect damage.
  - All mobile units can be ordered to Hold Position, to prevent them from moving to engage targets in their vision.
- - There may be useful wrecks on different areas of the map, that may assist you in your mission.
  
 Scoring:
  - Time taken to complete the scenario
@@ -371,7 +368,7 @@ The difficulty modifier will change the amount of resources you and the enemy re
 		},
 			
 		featureloadout = {
-			{name = 'cormlv_dead', x = 274, y = 199, z = 140, rot = 0 , scale = 1.0, resurrectas = "cormlv"},
+			--{name = 'cormlv_dead', x = 274, y = 199, z = 140, rot = 0 , scale = 1.0, resurrectas = "cormlv"},
 		}
     },
     -- https://github.com/spring/spring/blob/105.0/doc/StartScriptFormat.txt
