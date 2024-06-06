@@ -19,6 +19,7 @@ end
 
 local bufferBypass = {
 	Ping = true,
+	RING = true,
 	--[[ ZK only
 	Welcome = true,
 	AreYouReady = true,
