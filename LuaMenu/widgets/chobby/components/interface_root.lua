@@ -494,17 +494,24 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 	multiPlayerTabs[#multiPlayerTabs + 1] = {name = "battle_list", control = battleListWindow}
 
 	-- Goals:
-	-- [ ] Separate the 6 menus
-	-- [ ] Multiplayer, Skirmish, Scenarios, Load Game, Replays, Help
-	-- [ ] No back button
-	-- [ ] Always get to the first needed one
+	-- [X] Separate the 6 menus
+	-- [X] Multiplayer, Skirmish, Scenarios, Load Game, Replays, Help
+	-- [X] No back button
+	-- [X] Always get to the first needed one
 	-- [ ] Allow SP while queued for MP
 	-- [ ] Hide chat panels in single panel mode
 		-- [ ] In single panel mode, when coordinater dm's you with play rating limits, the battleroom is hidden
-	-- [ ] Try it first with all tabs in a single menu
+	-- [X] Try it first with all tabs in a single menu
 		-- Funnily enough, this kind of works
+	-- [X] Fix MP tab not triggering when not auto logging in
 
 	local singleplayerConfig = Configuration.gameConfig.singleplayerConfig
+
+	local multiplayerentrycheck = function (ToggleShowFunc, obj, newTab)
+		WG.LoginWindowHandler.TryLoginMultiplayer()
+		ToggleShowFunc(obj, newTab)
+	end
+
 
 	local submenus = {
 		{
@@ -513,8 +520,8 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 			tabs = {
 				{
 					name = "Multiplayer", 
-					control = battleListWindow,
-					--titleText = "Multiplayer and Coop", doesnt work
+					control = battleListWindow,			
+					entryCheck = multiplayerentrycheck,
 				},
 				singleplayerConfig[1],
 				singleplayerConfig[2],
