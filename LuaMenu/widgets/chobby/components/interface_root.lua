@@ -487,39 +487,45 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 	local battleListWindow, battleListWindowJoinBattle = WG.BattleListWindowHolder.GetControl()
 
 	local SINGLEPLAYER_INDEX = 1
-	local MULTIPLAYER_INDEX = 2
-	local HELP_INDEX = 4
+	local MULTIPLAYER_INDEX = 1
+	local HELP_INDEX = 1
 
 	local multiPlayerTabs = {}
 	multiPlayerTabs[#multiPlayerTabs + 1] = {name = "battle_list", control = battleListWindow}
 
+	-- Goals:
+	-- [ ] Separate the 6 menus
+	-- [ ] Multiplayer, Skirmish, Scenarios, Load Game, Replays, Help
+	-- [ ] No back button
+	-- [ ] Always get to the first needed one
+	-- [ ] Allow SP while queued for MP
+	-- [ ] Hide chat panels in single panel mode
+		-- [ ] In single panel mode, when coordinater dm's you with play rating limits, the battleroom is hidden
+	-- [ ] Try it first with all tabs in a single menu
+		-- Funnily enough, this kind of works
+
+	local singleplayerConfig = Configuration.gameConfig.singleplayerConfig
+
 	local submenus = {
 		{
-			name = "singleplayer",
-			tabs = Configuration.gameConfig.singleplayerConfig,
-			titleText = i18n("singleplayercoop"),
-			--startWithTabOpen = 1,
-		},
-		{
-			name = "multiplayer_and_coop",
-			entryCheck = WG.LoginWindowHandler.TryLoginMultiplayer,
-			tabs = multiPlayerTabs,
-			cleanupFunction = Configuration.leaveMultiplayerOnMainMenu and CleanMultiplayerState or nil,
-			twoline = true,
-			--startWithTabOpen = 1,
-		},
-		{
-			name = "replays",
+			name = "Main Menu",
+			titleText = "Main Menu",
 			tabs = {
-				{name = "replays", control = WG.ReplayHandler.GetControl()},
+				{
+					name = "Multiplayer", 
+					control = battleListWindow,
+					--titleText = "Multiplayer and Coop", doesnt work
+				},
+				singleplayerConfig[1],
+				singleplayerConfig[2],
+				singleplayerConfig[3],
+				{
+					name = "Replays", 
+					control = WG.ReplayHandler.GetControl()
+				},
+				Configuration.gameConfig.helpSubmenuConfig[1],
 			},
-			startWithTabOpen = 1,
-		},
-		{
-			name = "help",
-			tabs = Configuration.gameConfig.helpSubmenuConfig,
-			--startWithTabOpen = 1,
-		},
+		}
 	}
 
 	local battleStatusTabControls = {
@@ -672,8 +678,8 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 
 			holder_topImage:SetPos(nil, topOffset, nil, titleHeight + imageFudge)
 
-			submenus[2].button.captionAlign = -10
-			ButtonUtilities.SetCaption(submenus[2].button, i18n("multiplayer_and_coop"))
+			--submenus[1][1].button.captionAlign = -10
+			--ButtonUtilities.SetCaption(submenus[1][1].button, i18n("multiplayer_and_coop"))
 		else
 			rightPanelHandler.Rescale(2, 35, nil, nil, buttonSpacingSmall)
 			battleStatusPanelHandler.Rescale(2, nil, statusButtonWidthSmall)
@@ -728,8 +734,8 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 
 			holder_topImage:SetPos(nil, topOffset, nil, titleHeightSmall + imageFudge + chatTabHolderHeight)
 
-			submenus[2].button.captionAlign = 0
-			ButtonUtilities.SetCaption(submenus[2].button, i18n("multiplayer"))
+			--submenus[1][1].button.captionAlign = 0
+			--ButtonUtilities.SetCaption(submenus[1][1].button, i18n("multiplayer"))
 		end
 
 		heading_image.file = Configuration:GetHeadingImage(doublePanelMode, mainWindowHandler.GetSubheadingName())
@@ -1214,15 +1220,19 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 				externalFunctions.SetPanelDisplayMode(false, false)
 			end
 		elseif key == "gameConfigName" or key == "campaignConfigName" then
+			Spring.Echo("interface_root:onConfigurationChange",listener, key, value)
 			heading_image.file = Configuration:GetHeadingImage(doublePanelMode, mainWindowHandler.GetSubheadingName())
 			heading_image:Invalidate()
 
 			local replacementTabs = Configuration.gameConfig.singleplayerConfig
-			local replacementHelpTabs = Configuration.gameConfig.helpSubmenuConfig
+			--local replacementHelpTabs = Configuration.gameConfig.helpSubmenuConfig
 
 			WG.BattleRoomWindow.LeaveBattle(false, true)
-			mainWindowHandler.ReplaceSubmenu(SINGLEPLAYER_INDEX, replacementTabs)
-			mainWindowHandler.ReplaceSubmenu(HELP_INDEX, replacementHelpTabs)
+
+			mainWindowHandler.OpenSubmenu(1)
+
+			--mainWindowHandler.ReplaceSubmenu(SINGLEPLAYER_INDEX, replacementTabs)
+			--mainWindowHandler.ReplaceSubmenu(HELP_INDEX, replacementHelpTabs)
 		end
 	end
 	Configuration:AddListener("OnConfigurationChange", onConfigurationChange)

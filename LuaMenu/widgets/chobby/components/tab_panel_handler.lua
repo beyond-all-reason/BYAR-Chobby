@@ -600,6 +600,7 @@ function GetTabPanelHandler(name, conf)
 				end
 			},
 		}
+		backButton:SetVisibility(false)
 	end
 
 	for i = 1, #initialTabs do
