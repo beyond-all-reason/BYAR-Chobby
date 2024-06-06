@@ -1918,7 +1918,12 @@ function Interface:_OnRequestBattleStatus()
 end
 Interface.commands["REQUESTBATTLESTATUS"] = Interface._OnRequestBattleStatus
 
+-- 2024-06-06 FB: Ring is bypassed during command buffering. So we make sure, that ingameNotifications is on before playing the sound
 function Interface:_OnRing(userName)
+	local Configuration = WG.Chobby.Configuration
+	if self.bufferCommandsEnabled and not Configuration.ingameNotifcations then
+		return
+	end
 	self:_CallListeners("OnRing", userName)
 end
 Interface.commands["RING"] = Interface._OnRing
