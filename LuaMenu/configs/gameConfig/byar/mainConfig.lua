@@ -8,7 +8,16 @@ local helpSubmenuConfig  = VFS.Include(LUA_DIRNAME .. "configs/gameConfig/" .. s
 local skirmishDefault    = VFS.Include(LUA_DIRNAME .. "configs/gameConfig/" .. shortname .. "/skirmishDefault.lua")
 local rankFunction       = VFS.Include(LUA_DIRNAME .. "configs/gameConfig/byar/rankFunction.lua")
 local backgroundConfig   = VFS.Include(LUA_DIRNAME .. "configs/gameConfig/" .. shortname .. "/skinning/skinConfig.lua")
-local welcomePanelItems   = VFS.Include(LUA_DIRNAME .. "configs/gameConfig/" .. shortname .. "/welcomePanelItems.lua")
+
+local welcomePanelItems = {{Header = "Failed to parse welcomePanelItems.lua", Text = "Unknown error"}}
+
+local success, err = pcall(function()
+		local wpi = VFS.Include(LUA_DIRNAME .. "configs/gameConfig/" .. shortname .. "/welcomePanelItems.lua")
+		welcomePanelItems = wpi
+	end)
+if not success then
+	welcomePanelItems[1].Text = err
+end
 
 --Map stuff:
 local mapDetails   = VFS.Include(LUA_DIRNAME .. "configs/gameConfig/" .. shortname .. "/mapDetails.lua")
