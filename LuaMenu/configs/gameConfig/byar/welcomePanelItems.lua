@@ -16,6 +16,11 @@ local welcomePanelItems = {
     },
 
     {
+        Header = "Small Team Games split!",
+        Text = "This Tuesday, the Team Games rating is getting split between Small (up to 5v5) and Large (6v6-8v8) team games! We're increasing support for small team games, as they play vastly different from 8v8 - give them a try!" .. " \n" .. " \n" .. "Both modes will use your old Team Games rating as a starting point, and your Small Team rating will be reset to a minimum of 5." .. " \n" .. " \n" .. "$minratinglevel will also use rating for your chosen mode, based on the team size set in your lobby. That includes Duel - the long-standing bug where rating limits would always use team rating was fixed!" .. " \n",
+    },
+
+    {
         Header = "Season 1 has launched!",
         Text = "On Wednesday, 7AM GMT a new season has officially commenced! Climb to the top of the leaderboards now!" .. " \n" .. " \n" .. "Your rating uncertainty has been bumped up to 5 to speed up the progress. Additionally an uncertainty floor has been added to make sure players don't get stuck with their progression after many games played." .. " \n",
     },
