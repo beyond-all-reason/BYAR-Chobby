@@ -45,14 +45,14 @@ local wantLoginStatus = {
 	["disconnected"] = true,
 }
 
-local function GetNewLoginWindow(failFunc)
+local function GetNewLoginWindow(failFunc, callerInfo)
 	if currentLoginWindow and currentLoginWindow.window then
 		currentLoginWindow.window:Dispose()
 		currentLoginWindow = nil
 	end
 	local Configuration = WG.Chobby.Configuration
 	local steamMode = Configuration.canAuthenticateWithSteam and Configuration.wantAuthenticateWithSteam
-	Spring.Echo("steamMode", Configuration.canAuthenticateWithSteam, Configuration.wantAuthenticateWithSteam)
+	Spring.Echo("GetNewLoginWindow:caller", callerInfo)
 	emailRequired = (WG.Server.protocol == "spring")
 	if steamMode then
 		currentLoginWindow = WG.Chobby.SteamLoginWindow(failFunc, nil, "main_window")
@@ -175,7 +175,7 @@ local function InitializeListeners()
 		end
 
 		if not (currentLoginWindow and currentLoginWindow.window) then
-			local loginWindow = GetNewLoginWindow()
+			local loginWindow = GetNewLoginWindow(nil, "OnLoginDenied:" .. tostring(err))
 			local popup = WG.Chobby.PriorityPopup(loginWindow.window, loginWindow.CancelFunc, loginWindow.AcceptFunc)
 		end
 	end
@@ -244,9 +244,10 @@ function LoginWindowHandler.QueueRegister(name, password, email)
 end
 
 function LoginWindowHandler.TryLoginMultiplayer(name, password)
+	Spring.Echo("LoginWindowHandler.TryLoginMultiplayer",name, password)
 	if wantLoginStatus[lobby:GetConnectionStatus()] then
 		if (not TrySimpleSteamLogin()) and (not TrySimpleLogin()) then
-			local loginWindow = GetNewLoginWindow(MultiplayerFailFunction)
+			local loginWindow = GetNewLoginWindow(MultiplayerFailFunction, "LoginWindowHandler:TryLoginMultiplayer")
 			local popup = WG.Chobby.PriorityPopup(loginWindow.window, loginWindow.CancelFunc, loginWindow.AcceptFunc)
 		end
 	end
@@ -255,7 +256,7 @@ end
 function LoginWindowHandler.TryLogin(newLoginAcceptedFunction)
 	loginAcceptedFunction = newLoginAcceptedFunction
 	if not TrySimpleSteamLogin() then
-		local loginWindow = GetNewLoginWindow()
+		local loginWindow = GetNewLoginWindow(nil, "LoginWindowHandler:TryLogin")
 		local popup = WG.Chobby.PriorityPopup(loginWindow.window, loginWindow.CancelFunc, loginWindow.AcceptFunc)
 	end
 end
