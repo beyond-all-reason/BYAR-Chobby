@@ -1268,8 +1268,9 @@ function BattleListWindow:OpenHostWindow()
 		['Host[EU2]'] = {limit = 80,  current = 0, online = false, priority = 1.0, region = 'EU'},
 		['Host[EU3]'] = {limit = 25,  current = 0, online = false, priority = 1.0, region = 'EU'},
 		['Host[EU4]'] = {limit = 150, current = 0, online = false, priority = 1.0, region = 'EU'},  -- this is pointed to integration server
-		['Host[EU5]'] = {limit = 150, current = 0, online = false, priority = 0.4, region = 'EU'},  -- Test deprioritizatoin
+		['Host[EU5]'] = {limit = 150, current = 0, online = false, priority = 0.01, region = 'EU'}, -- Further deproiritize because ssdnodes is trash
 		['Host[EU6]'] = {limit = 120, current = 0, online = false, priority = 1.0, region = 'EU'},
+		['Host[EU7]'] = {limit = 200, current = 0, online = false, priority = 1.0, region = 'EU'}, -- This runs on integration server, but has plenty of capacity
 		
 		['Host[US1]'] = {limit = 80,  current = 0, online = false, priority = 1.0, region = 'US'},
 		['Host[US2]'] = {limit = 60,  current = 0, online = false, priority = 1.0, region = 'US'},
