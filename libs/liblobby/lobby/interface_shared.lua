@@ -288,6 +288,8 @@ function Interface:_SocketUpdate()
 --	end
 	local brec, bsent, age = self.client:getstats()
 	if err ~= nil then
+		-- If any error happened, then clear the buffer for sure
+		self.buffer = "" 
 		-- some error happened in select
 		if err == "timeout" then
 			-- we've received no data after connecting for a while. assume connection cannot be established
@@ -321,6 +323,8 @@ function Interface:_SocketUpdate()
 			if self.status ~= "offline" then
 				self.status = "disconnected"
 			end
+			-- If any error happened, then clear the buffer for sure
+			self.buffer = "" 
 			self:_OnDisconnected()
 		end
 	end
