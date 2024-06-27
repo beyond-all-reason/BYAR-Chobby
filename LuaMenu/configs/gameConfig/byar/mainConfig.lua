@@ -49,7 +49,6 @@ end
 local minimapOverridePath  = LUA_DIRNAME .. "configs/gameConfig/" .. shortname .. "/minimapOverride/"
 local minimapThumbnailPath = LUA_DIRNAME .. "configs/gameConfig/" .. shortname .. "/minimapThumbnail/"
 
-local sayPrivateSelectAndActivateChatTab = true
 local showSinglePlayerIngame = true
 local logoutOpensLoginPanel = true
 
@@ -78,7 +77,6 @@ local externalFuncAndData = {
 	--editor                 = "rapid://sb-byar:test",
 	--editor                 = "SpringBoard BYAR $VERSION",
 	defaultChatChannels    = {"main"},
-	sayPrivateSelectAndActivateChatTab = sayPrivateSelectAndActivateChatTab,
 	aiBlacklist            = aiBlacklist,
 	unversionedGameAis	   = {"SimpleAI","SimpleDefenderAI", "SimpleConstructorAI", "ScavengersAI", "RaptorsAI"},
 	GetAiSimpleName        = aiSimpleNames.GetAiSimpleName,
