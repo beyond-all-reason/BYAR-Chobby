@@ -460,7 +460,7 @@ function ChatWindows:ProcessChat(chanName, userName, message, msgDate, notifyCol
 	if not lobbyUserName then 
 		lobbyUserName = userName
 	end
-	local iAmMentioned = lobby:GetMyUserName() and (string.find(message, lobby:GetMyUserName()) and userName ~= lobby:GetMyUserName())
+	local iAmMentioned = (string.find(message, lobbyUserName, 1, true) and userName ~= lobbyUserName) -- needs 1, true or brackets will screw it up
 	local chatColour = (iAmMentioned and notifyColor) or chatColor
 	if self:IsChannelSelected(chanName) and self.activeUnreadMessages and self.activeUnreadMessages ~= 0 then
 		self.activeUnreadMessages = self.activeUnreadMessages + 1
@@ -591,6 +591,10 @@ end
 function ChatWindows:_NotifyTab(tabName, userName, chanName, nameMentioned, message, sound, popupDuration)
 	if tabName ~= self.currentTab then
 		-- TODO: Fix naming of self.tabbars (these are consoles)
+		if (nameMentioned or chanName == "Private") and WG.Chobby.Configuration.gameConfig.sayPrivateSelectAndActivateChatTab then
+			WG.Chobby.interfaceRoot.OpenRightPanelTab("chat")
+			self.tabPanel.tabBar:Select(tabName)
+		end
 		local console = self.tabbars[tabName]
 		local oldMessages = console.unreadMessages
 		console.unreadMessages = console.unreadMessages + 1
