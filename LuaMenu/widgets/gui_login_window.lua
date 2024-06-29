@@ -53,6 +53,9 @@ local function GetNewLoginWindow(failFunc, callerInfo)
 	local Configuration = WG.Chobby.Configuration
 	local steamMode = Configuration.canAuthenticateWithSteam and Configuration.wantAuthenticateWithSteam
 	Spring.Echo("GetNewLoginWindow:caller", callerInfo)
+	if Configuration.activeDebugConsole then 
+		Spring.Utilities.TraceFullEcho(30,30,30)
+	end
 	emailRequired = (WG.Server.protocol == "spring")
 	if steamMode then
 		currentLoginWindow = WG.Chobby.SteamLoginWindow(failFunc, nil, "main_window")

@@ -297,6 +297,7 @@ function Interface:_SocketUpdate()
 				self.client:shutdown()
 				self.client = nil
 				self:_OnDisconnected("No response from host.")
+				Spring.Echo("No response from host.")
 			end
 			-- nothing to do, return
 			return
