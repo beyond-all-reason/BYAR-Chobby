@@ -1546,7 +1546,7 @@ function Lobby:_OnSaidBattleEx(userName, message, sayTime)
 				else
 					local battleUsers = self.battles[battleID].users
 					for _, battleUserName in pairs(battleUsers) do
-						if self.userBattleStatus[battleUserName].isBoss then
+						if self.userBattleStatus[battleUserName] and self.userBattleStatus[battleUserName].isBoss then
 							self:_OnUpdateUserBattleStatus(battleUserName, {isBoss = false})
 						end
 					end
