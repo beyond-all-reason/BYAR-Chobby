@@ -195,8 +195,9 @@ local function GetUserComboBoxOptions(userName, isInBattle, control, showTeamCol
 	local itsme = userName == myUserName
 	local iPlay = not control.lobby:GetMyIsSpectator()
 	local comboOptions = {}
-	local boss = info.battleID and control.lobby.battles[info.battleID] and control.lobby.battles[info.battleID].boss
-	local iAmBoss = boss and boss == myUserName
+	local iAmBoss = control.lobby:GetMyIsBoss()
+	local isBoss = bs.isBoss or false
+	local bossed = info.battleID and control.lobby.battles[info.battleID] and control.lobby.battles[info.battleID].bossed
 	local validEngine = info.battleID and control.lobby.battles[info.battleID] and (Configuration.displayBadEngines2 or Configuration:IsValidEngineVersion(control.lobby.battles[info.battleID].engineVersion))
 
 	if not (itsme or bs.aiLib) then																					comboOptions[#comboOptions + 1] = "Message" end
@@ -212,15 +213,15 @@ local function GetUserComboBoxOptions(userName, isInBattle, control, showTeamCol
 									  else																		    comboOptions[#comboOptions + 1] = "Ignore" end
 	end
 	if showSide and not bs.isSpectator and (itsme or (bs.aiLib and bs.owner == myUserName)) then					comboOptions[#comboOptions + 1] = "Change Faction" end
-	if isInBattle and not bs.isSpectator and (iAmBoss or iPlay or (bs.aiLib and bs.owner == myUserName)) then		comboOptions[#comboOptions + 1] = "Change Team"
+	if isInBattle and not bs.isSpectator and (iAmBoss or (iPlay and not bossed) or (bs.aiLib and bs.owner == myUserName)) then		comboOptions[#comboOptions + 1] = "Change Team"
 																													comboOptions[#comboOptions + 1] = "Add Bonus" end
-	if (iAmBoss or iPlay) and not bs.aiLib and isInBattle and not bs.isSpectator then								comboOptions[#comboOptions + 1] = "Force Spectator" end
-	if (iAmBoss or iPlay) and not itsme and not info.isBot and isInBattle and not bs.aiLib then						comboOptions[#comboOptions + 1] = "Kickban" end
+	if (iAmBoss or (iPlay and not bossed)) and not bs.aiLib and isInBattle and not bs.isSpectator then								comboOptions[#comboOptions + 1] = "Force Spectator" end
+	if (iAmBoss or (iPlay and not bossed)) and not itsme and not info.isBot and isInBattle and not bs.aiLib then						comboOptions[#comboOptions + 1] = "Kickban" end
 	if bs.aiLib and bs.owner == myUserName and isInBattle then														comboOptions[#comboOptions + 1] = "Remove" end
 	if not itsme and not info.isBot and not bs.aiLib then															comboOptions[#comboOptions + 1] = "Report User" end
 																													comboOptions[#comboOptions + 1] = "Copy Name"
 	if (iAmBoss or iPlay) and not (control.isSingleplayer or bs.aiLib or info.isBot) and isInBattle  then			comboOptions[#comboOptions + 1] = "\255\128\128\128" .. "--------------"
-																													comboOptions[#comboOptions + 1] =  userName ~= boss and "Make Boss" or "Disable Boss" end
+																													comboOptions[#comboOptions + 1] =  isBoss and "Disable Boss" or "Make Boss" end
 
 	if #comboOptions == 0 then
 		comboOptions[1] = Label:New {
@@ -292,11 +293,8 @@ local function GetUserStatusImages(userName, isInBattle, userControl)
 		images[#images + 1] = IMAGE_PARTY_INVITE
 	end
 
-	if isInBattle then
-		local boss = userInfo.battleID and userControl.lobby.battles[userInfo.battleID] and userControl.lobby.battles[userInfo.battleID].boss
-		if boss and userName == boss then
-			images[#images + 1] = IMAGE_BOSS
-		end
+	if isInBattle and userControl.isBoss then
+		images[#images + 1] = IMAGE_BOSS
 	end
 
 	if not isInBattle or userControl.isPlaying == false then
@@ -525,24 +523,9 @@ local function UpdateUserActivityList(listener, userList)
 	end
 end
 
--- only reacts to boss changes
+-- only reacts to map changes
 local function UpdateBattleInfo(listener, battleID, battleInfo)
 	local Configuration  = WG.Chobby.Configuration
-
-	if battleInfo.boss ~= nil then
-		-- boss changed, so update all userComboBoxOptions in battleUsers to allow "Make boss" for previous boss again
-		for username, _ in pairs(battleUsers) do
-			UpdateUserComboboxOptions(_, username)
-		end
-
-		if battleInfo.boss == false then
-			for userName, userControls in pairs(battleUsers) do
-				UpdateUserControlStatus(userName, userControls)
-			end
-		elseif battleUsers[battleInfo.boss] ~= nil then
-			UpdateUserControlStatus(battleInfo.boss, battleUsers[battleInfo.boss])
-		end
-	end
 
 	if battleInfo.mapName ~= nil then
 		for userName, userControls in pairs(friendUsers) do	
@@ -607,7 +590,10 @@ local function UpdateUserBattleStatus(listener, userName, battleStatusDiff)
 		if userControls then
 
 			-- if this battleStatus is about us and we are switching between spec and player > Then update ComboboxOption of all users in my battle, because the right to access options is dependent of our own spec status (e.g. changeTeam, AddBonus, MakeBoss, ForceSpectator... are only allowed if we are a player)
-			if userList == namedUserList["battleUsers"] and battleStatusDiff and battleStatusDiff['isSpectator'] ~= nil and userName == userControls.lobby:GetMyUserName() then
+			if userList == namedUserList["battleUsers"] and battleStatusDiff
+				and (
+					(battleStatusDiff['isSpectator'] ~= nil and userName == userControls.lobby:GetMyUserName())
+				or battleStatusDiff['isBoss'] ~= nil) then
 				for username, _ in pairs(battleUsers) do
 					UpdateUserComboboxOptions(_, username)
 				end
@@ -615,6 +601,7 @@ local function UpdateUserBattleStatus(listener, userName, battleStatusDiff)
 
 			local bs = userControls.lobby:GetUserBattleStatus(userName) or {}
 			userControls.isPlaying = bs.isSpectator == false
+			userControls.isBoss = bs.isBoss or false
 			
 			local offset = 0
 			if userControls.tbQueuePos then
@@ -888,6 +875,8 @@ local function GetUserControls(userName, opts)
 
 	userControls.isPlaying = bs.isSpectator == false
 	userControls.isInQueue = bs.queuePos and bs.queuePos > 0 or false
+	userControls.isBoss = bs.isBoss or false
+
 	if reinitialize then
 		userControls.mainControl:ClearChildren()
 	else
@@ -925,7 +914,7 @@ local function GetUserControls(userName, opts)
 			selected = 0,
 			maxDropDownWidth = large and 220 or 150,
 			minDropDownHeight = 0,
-			maxDropDownHeight = 370,
+			maxDropDownHeight = 400,
 			items = GetUserComboBoxOptions(userName, isInBattle, userControls, showTeamColor, showSide),
 			OnOpen = {
 				function (obj)

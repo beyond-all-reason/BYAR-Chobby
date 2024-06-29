@@ -1191,6 +1191,8 @@ function Lobby:_OnBattleOpened(battleID, battle)
 		spectatorCount = battle.spectatorCount,
 		isRunning = battle.isRunning,
 
+		bossed = false,
+
 		-- ZK specific
 		-- runningSince = battle.runningSince,
 		-- battleMode = battle.battleMode,
@@ -1303,6 +1305,10 @@ function Lobby:_OnLeftBattle(battleID, userName)
 
 	battle.spectatorCount = math.max(1, battle.spectatorCount or 1)
 
+	if self:GetMyUserName() == userName then
+		battle.bossed = false -- because we don't get further updates for it
+	end
+
 	self.users[userName].battleID = nil
 	self:_CallListeners("OnUpdateUserStatus", userName, {battleID = false})
 
@@ -1337,8 +1343,8 @@ function Lobby:_OnUpdateBattleInfo(battleID, battleInfo)
 		battle.locked = false
 	end
 
-	if battleInfo.boss ~= nil then
-		battle.boss = battleInfo.boss
+	if battleInfo.bossed ~= nil then
+		battle.bossed = battleInfo.bossed
 	end
 	battle.autoBalance = battleInfo.autoBalance or battle.autoBalance
 	battle.teamSize = battleInfo.teamSize or battle.teamSize
@@ -1499,19 +1505,26 @@ end
 -- message = {"BattleStateChanged": {"locked": "locked", "autoBalance": "advanced", "teamSize": "8", "nbTeams": "2", "balanceMode": "clan;skill", "preset": "team", "boss": "Fireball"}}
 function Lobby:ParseBarManager(battleID, message)
 	local battleInfo = {}
+	local newBoss
+
 	local barManagerSettings = spJsonDecode(message)
 	if not barManagerSettings['BattleStateChanged'] then
 		return battleInfo
 	end
 	
 	for k, v in pairs(barManagerSettings['BattleStateChanged']) do
-		if k == "boss" and v == "" then
-			battleInfo[k] = false
+		if k == "boss" then
+			if v == "" then
+				battleInfo["bossed"] = false
+			else
+				battleInfo["bossed"] = true
+				newBoss = v
+			end
 		elseif WG.Chobby.Configuration.barMngSettings[k] then
 			battleInfo[k] = v
 		end
 	end
-	return battleInfo
+	return battleInfo, newBoss
 end
 
 function Lobby:_OnSaidBattleEx(userName, message, sayTime)
@@ -1523,12 +1536,26 @@ function Lobby:_OnSaidBattleEx(userName, message, sayTime)
 			Spring.Log(LOG_SECTION, LOG_WARNING, "couldn't match barmanager message to any known battle", tostring(founder))
 			return
 		end
-		local battleInfo = self:ParseBarManager(battleID, bmMessage)
+		local battleInfo, newBoss = self:ParseBarManager(battleID, bmMessage)
 		if next(battleInfo) then
 			self:super("_OnUpdateBattleInfo", battleID, battleInfo)
-			-- 2023-07-04 FB: For now: proceed with CallListeners of SaidBattleEx, because gui_battle_room has its own parsing of barmanager message
-			-- return
+
+			if battleInfo.bossed ~= nil then
+				if battleInfo.bossed then
+					self:_OnUpdateUserBattleStatus(newBoss, {isBoss = true})
+				else
+					local battleUsers = self.battles[battleID].users
+					for _, battleUserName in pairs(battleUsers) do
+						if self.userBattleStatus[battleUserName].isBoss then
+							self:_OnUpdateUserBattleStatus(battleUserName, {isBoss = false})
+						end
+					end
+				end
+			end
+			
 		end
+		-- 2023-07-04 FB: For now: proceed with CallListeners of SaidBattleEx, because gui_battle_room has its own parsing of barmanager message
+		-- return
 	end
 	self:_CallListeners("OnSaidBattleEx", userName, message, sayTime)
 end
@@ -2324,6 +2351,12 @@ end
 function Lobby:GetMyIsSpectator()
 	if self.userBattleStatus[self.myUserName] then
 		return self.userBattleStatus[self.myUserName].isSpectator
+	end
+end
+
+function Lobby:GetMyIsBoss()
+	if self.userBattleStatus[self.myUserName] then
+		return self.userBattleStatus[self.myUserName].isBoss or false
 	end
 end
 
