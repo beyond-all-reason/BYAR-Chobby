@@ -1430,6 +1430,27 @@ function BattleListWindow:OpenHostWindow()
 		parent = hostBattleWindow,
 	}
 
+	local friendCheckbox = Checkbox:New {
+		x = 15,
+		width = 300,
+		y = 225,
+		height = 35,
+		boxalign = "left",
+		boxsize = 20,
+		caption = "Allow friends to join directly",
+		checked =  false,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		OnChange = {
+			function (obj, newState)
+				allowFriendsToJoin =  newState
+			
+			end
+		},
+		parent = hostBattleWindow,
+		tooltip = "If you have a private battle, allow friends to join without entering a password.",
+	}
+	friendCheckbox:Hide()
+
 	local userWantsPrivateBattle = false
 	--if lobby:GetMyIsAdmin() then -- TODO: remove this when feature goes live
 		local privateCheckbox = Checkbox:New {
@@ -1445,17 +1466,23 @@ function BattleListWindow:OpenHostWindow()
 			OnChange = {
 				function (obj, newState)
 					userWantsPrivateBattle =  newState
+					if newState then
+						friendCheckbox:Show()
+					else
+						friendCheckbox:Hide()
+					end
 				end
 			},
 			parent = hostBattleWindow,
 			tooltip = "If you want a passworded battleroom, please be patient while we spin up a room for you. You will be PM-ed a 4 character password you can share with your friends.",
 		}
+
 	--end
 
 	local errorLabel = Label:New {
 		x = 15,
 		width = 200,
-		y = 235,
+		y = 245,
 		align = "left",
 		height = 35,
 		caption = "",-- i18n("game_type") .. ":",
@@ -1484,6 +1511,7 @@ function BattleListWindow:OpenHostWindow()
 					Spring.Echo("Got the password:", mypassword)
 				end
 			end
+			
 
 			lobby:AddListener("OnSaidPrivate", listenForPrivateBattle)
 			lobby:SayPrivate(targetCluster, "!privatehost")
@@ -1521,8 +1549,20 @@ function BattleListWindow:OpenHostWindow()
 					lobby:JoinBattle(myprivatebattleID, mypassword, _, true) -- forcePlayer = true
 					lobby:RemoveListener("OnSaidPrivate", listenForPrivateBattle)
 
+					local function listenForBoss(listener, userName, message, msgDate)
+						if string.find(userName, targetCluster, nil, true) and string.find(message, "* Boss mode enabled for", nil, true) then
+							Spring.Echo(userName)
+							lobby:SayBattle("$gatekeeper friends")
+							lobby:RemoveListener("OnSaidBattleEx", listenForBoss)
+						end
+					end
+
 					local function bossSelf()
 						local myplayername = lobby:GetMyUserName() or ''
+						if allowFriendsToJoin then
+							-- sets the gatekeeper after being set to boss
+							lobby:AddListener("OnSaidBattleEx", listenForBoss)
+						end
 						lobby:SayBattle("Password is: " .. mypassword)
 						lobby:SayBattle("!boss " .. myplayername)
 					end
@@ -1762,7 +1802,9 @@ function BattleListWindow:JoinBattle(battle, _, _, joinAsPlayer)
 
 		lobby:AddListener("OnJoinBattleFailed", onJoinBattleFailed)
 		lobby:AddListener("OnJoinBattle", onJoinBattle)
-
+			
+		-- try to join first without a password, succeeds when lobby is open to friends
+		tryJoin()
 		local popupHolder = PriorityPopup(passwordWindow, CancelFunc, tryJoin)
 		screen0:FocusControl(ebPassword)
 	end
