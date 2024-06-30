@@ -292,7 +292,11 @@ function Downloader:DownloadFailed(listener, downloadID, errorID)
 	self:UpdateQueue()
 end
 
-function Downloader:DownloadQueued(listener, downloadID, archiveName, archiveType)
-	self.downloads[downloadID] = { archiveName = archiveName, archiveType = archiveType, startTime = os.clock() }
+function Downloader:DownloadQueued(listener, downloadID, archiveName, archiveType, resource)
+	self.downloads[downloadID] = {
+		archiveName = archiveName,
+		archiveType = archiveType,
+		resource = resource,
+		startTime = os.clock() }
 	self:UpdateQueue()
 end
