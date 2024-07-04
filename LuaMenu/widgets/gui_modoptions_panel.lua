@@ -563,7 +563,7 @@ local function InitializeModoptionsDisplay()
 			return tweakText
 		end
 		local rawValue = Spring.Utilities.Base64Decode(value):gmatch("([^\r\n]*)[\r\n]?")():sub(1,27)
-		if not rawValue:sub(1,2) == "--" then -- First line doesn't start with a comment
+		if not (rawValue:sub(1,2) == "--") then -- First line doesn't start with a comment
 			return tweakText
 		end
 		rawValue = rawValue:sub(3)
