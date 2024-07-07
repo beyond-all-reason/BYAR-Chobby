@@ -195,7 +195,7 @@ function Interface:Whois(userID)
 		SendWhois(whoisQueue[1])
 		
 		table.remove(whoisQueue, 1)
-		WG.Delay(ProcessWhoisQueue, 0.2)
+		WG.Delay(ProcessWhoisQueue, 0.4)
 		return self
 	end
 
@@ -205,7 +205,7 @@ function Interface:Whois(userID)
 	end
 	
 	whoisQueueActive = true
-	WG.Delay(ProcessWhoisQueue, 0.2)
+	WG.Delay(ProcessWhoisQueue, 0.4)
 	return self
 end
 
