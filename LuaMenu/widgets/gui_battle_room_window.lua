@@ -1697,12 +1697,23 @@ local function AddTeamButtons(parent, offX, joinFunc, aiFunc, unjoinable, disall
 	end
 end
 
-local function SortPlayersBySkill(a, b)
+local function SortPlayersBySkillAndBoss(a, b)
 	local sA = battleLobby:GetUser(a.name)
 	local sB = battleLobby:GetUser(b.name)
 	local joinA = tonumber((sA and sA.skill) or 0)
 	local joinB = tonumber((sB and sB.skill) or 0)
-	return joinA > joinB
+	local bsA = battleLobby:GetUserBattleStatus(a.name)
+	local bsB = battleLobby:GetUserBattleStatus(b.name)
+	local bossA = bsA and not(not bsA.isBoss)
+	local bossB = bsB and not(not bsB.isBoss)
+	
+	local doSort = false
+	if bossA == bossB then
+		doSort = joinA > joinB
+	else
+		doSort = bossA
+	end
+	return doSort
 end
 
 local function SortPlayersByQueued(a, b)
@@ -1944,9 +1955,17 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 				labelTeamPlayerCount.caption = string.format("%d", #teamStack.children)
 			end
 
-			local function UpdatePlayerPositions()
+			if teamIndex == -1 or teamIndex == -2 then
+				-- Empty spectator team is created. Position children to prevent flicker.
+				PositionChildren(parentStack, parentScroll.height)
+				teamHolder:SetVisibility(false)
+			end
+
+			local teamData = {}
+
+			function teamData.UpdatePlayerPositions()
 				if teamIndex ~= -1 and teamIndex ~= -2 then
-					table.sort(teamStack.children, SortPlayersBySkill)
+					table.sort(teamStack.children, SortPlayersBySkillAndBoss)
 				else
 					-- Spring.Echo("Sorting teamIndex: " .. tostring(teamIndex))
 					table.sort(teamStack.children, SortPlayersByQueued)
@@ -1964,14 +1983,6 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 				PositionChildren(parentStack, parentScroll.height)
 				teamHolder:Invalidate()
 			end
-
-			if teamIndex == -1 or teamIndex == -2 then
-				-- Empty spectator team is created. Position children to prevent flicker.
-				PositionChildren(parentStack, parentScroll.height)
-				teamHolder:SetVisibility(false)
-			end
-
-			local teamData = {}
 
 			function teamData.UpdateBattleMode()
 				local addAiButton = teamHolder:GetChildByName("addAiButton")
@@ -2033,7 +2044,7 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 				if not teamStack:GetChildByName(playerControl.name) then
 					teamStack:AddChild(playerControl)
 					teamHolder:SetVisibility(true)
-					UpdatePlayerPositions()
+					teamData.UpdatePlayerPositions()
 				end
 				UpdateTeamPlayerCount()
 			end
@@ -2085,7 +2096,7 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 				end
 
 				teamStack:RemoveChild(playerControl)
-				UpdatePlayerPositions()
+				teamData.UpdatePlayerPositions()
 				
 				if name == battleLobby:GetMyUserName() then
 					local joinTeam = teamHolder:GetChildByName("joinTeamButton")
@@ -2187,6 +2198,14 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 
 	function externalFunctions.RemoveAi(botName)
 		RemovePlayerFromTeam(botName)
+	end
+
+	function externalFunctions.UpdatePlayerPositions(userName)
+		local playerData = GetPlayerData(userName) or {}
+		if playerData.team then
+			local team = GetTeam(playerData.team)
+			team.UpdatePlayerPositions()
+		end
 	end
 
 	return externalFunctions
@@ -3277,7 +3296,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	end
 
 	-- 23/03/19 Fireball update: only react, when dependent status.properties are present = were updated for this current event
-	-- reacts to: isSpectator, isReady, queuePos
+	-- reacts to: isSpectator, isReady, queuePos, isBoss
 	local function OnUpdateUserBattleStatus(listener, username, status)
 
 		------------------------
@@ -3307,6 +3326,10 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 					infoHandler.SetBtnsPlaySpec(true, "queued", false, "Leave Queue", false)
 				end
 			end
+		end
+
+		if status.isBoss ~= nil then
+			playerHandler.UpdatePlayerPositions(username)
 		end
 
 		if username ~= battleLobby.myUserName or battleLobby.name == "singleplayer" or (status.isSpectator == nil and status.isReady == nil and status.queuePos == nil) then
