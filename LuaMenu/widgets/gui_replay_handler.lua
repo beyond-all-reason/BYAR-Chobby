@@ -293,6 +293,8 @@ local function CreateReplayEntry(
 	local xOffset = 0
 	local yOffset = 0
 
+	local tooltipString = "playerlist_tooltip_"
+
 	-- Iterate over the teams structure
 	for allyTeamID, team in pairs(teams) do
 		if allyTeamID > 1 then
@@ -352,8 +354,19 @@ local function CreateReplayEntry(
 			playerControl._relativeBounds.right = 0
 			playerControl:UpdateClientArea()
 			yOffset = yOffset + PLAYER_HEIGHT
-		 end
+
+		end
 	end
+
+	for allyTeamID, team in pairs(teams) do
+		for _, player in pairs(team) do
+			tooltipString = tooltipString .. "name:" .. player.name .. ":" .. (player.aiId~=nil and ("aiId:" .. player.aiId) or ("rank:" .. player.rank)) .. ","
+		end
+		tooltipString = tooltipString .. "|"
+	end
+
+	userList.tooltip = tooltipString
+	userList.greedyHitTest = true
 
 	local function CheckReplayFileExists()
 		if not VFS.FileExists(replayPath) then
