@@ -177,8 +177,35 @@ end
 -- byar-chobby will ask for missing userID or userName depending on which info is known
 ------------------------------------------------------------------------------------------------
 
+local whoisQueueActive = false
+local whoisQueue = {}
+
 function Interface:Whois(userID)
-	self:_SendCommand(concat("c.user.whois", userID))
+	local function SendWhois(userID)
+		self:_SendCommand(concat("c.user.whois", userID))
+		return self
+	end
+
+	local function ProcessWhoisQueue()
+		if #whoisQueue == 0 then
+			whoisQueueActive = false
+			return self
+		end
+
+		SendWhois(whoisQueue[1])
+		
+		table.remove(whoisQueue, 1)
+		WG.Delay(ProcessWhoisQueue, 0.2)
+		return self
+	end
+
+	table.insert(whoisQueue, userID)
+	if whoisQueueActive then
+		return self
+	end
+	
+	whoisQueueActive = true
+	WG.Delay(ProcessWhoisQueue, 0.2)
 	return self
 end
 
