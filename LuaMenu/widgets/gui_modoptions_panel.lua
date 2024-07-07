@@ -555,6 +555,24 @@ local function InitializeModoptionsDisplay()
 		return value
 	end
 
+	local function tweakSummary(value)
+		value = tostring(value)
+		local hash = Spring.Utilities.Base64Encode(VFS.CalculateHash(value,1))
+		local tweakText = string.format("%d:%s", value:len(), hash:sub(1,4))
+		if value:find("[^%w%+/=]") then -- non-base64 character found
+			return tweakText
+		end
+		local rawValue = Spring.Utilities.Base64Decode(value):gmatch("([^\r\n]*)[\r\n]?")():sub(1,27)
+		if not (rawValue:sub(1,2) == "--") then -- First line doesn't start with a comment
+			return tweakText
+		end
+		rawValue = rawValue:sub(3)
+		if rawValue:find("[^%w%p ]") then -- (unexpected) non-printable characters found
+			return tweakText
+		end
+		return tweakText .. "\n[" .. rawValue .. "]"
+	end
+
 	local panelModoptions
 
 	local function OnSetModOptions(listener, modopts)
@@ -570,7 +588,13 @@ local function InitializeModoptionsDisplay()
 				if text ~= "\255\255\255\255" then
 					text = text .. "\255\120\120\120" .. "------" .. "\n"
 				end
-				text = text .. tostring(name).. " = \255\255\255\255" .. shortenedValue(value) .. "\n"
+				text = text .. tostring(name).. " = \255\255\255\255"
+				if (key:sub(1,10) == "tweakunits" or key:sub(1,9) == "tweakdefs") then
+					text = text .. tweakSummary(value)
+				else
+					text = text .. shortenedValue(value)
+				end
+				text = text .. "\n"
 				empty = false
 			end
 		end
