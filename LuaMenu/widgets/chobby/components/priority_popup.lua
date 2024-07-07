@@ -32,7 +32,9 @@ function PriorityPopup:init(mainWindow, cancelFunction, acceptFunction, parentCo
 		Draw = function()
 			if not startTime then
 				startTime = os.clock()
-				WG.LimitFps.ForceRedrawPeriod(1)
+				if WG.LimitFps then 
+					WG.LimitFps.ForceRedrawPeriod(1)
+				end
 			end
 
 			if not sentTime then
