@@ -12,6 +12,7 @@ function widget:GetInfo()
 		enabled   = true,
 	}
 end
+Spring.Echo("Limit Idle FPS is enabled:", widget:GetInfo().enabled)
 
 local idleTime = 0.5
 local idleFps = 10	-- lower numbers will result in more severe flicker on some card/driver settings
