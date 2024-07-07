@@ -69,6 +69,10 @@ if isIntel or isLinux then
 	hibernateFps = 2
 end
 
+if isAMD then 
+	maxVsync = 4 -- This is an attempted fix at AMD Driver 24.6.1, as it always seems to crash at interval = 5
+end
+
 -- detect display frequency > 60 and set vsyncValueIdle to 6
 local infolog = VFS.LoadFile("infolog.txt")
 local monitorFrequency = 60
