@@ -181,8 +181,19 @@ local whoisQueueActive = false
 local whoisQueue = {}
 
 function Interface:Whois(userID)
-	local function SendWhois(userID)
-		self:_SendCommand(concat("c.user.whois", userID))
+	local function SendWhois()
+		local commandTxt = ""
+		local currentQueueLength = #whoisQueue
+		for i=1, currentQueueLength do
+			if commandTxt ~= "" then
+				commandTxt = commandTxt .. "\n"
+			end
+			commandTxt = commandTxt .. concat("c.user.whois", whoisQueue[i])
+		end
+		for i=1, currentQueueLength do
+			table.remove(whoisQueue, 1)
+		end
+		self:_SendCommand(commandTxt)
 		return self
 	end
 
@@ -192,10 +203,8 @@ function Interface:Whois(userID)
 			return self
 		end
 
-		SendWhois(whoisQueue[1])
-		
-		table.remove(whoisQueue, 1)
-		WG.Delay(ProcessWhoisQueue, 0.6)
+		SendWhois()
+		WG.Delay(ProcessWhoisQueue, 0.4)
 		return self
 	end
 
@@ -205,7 +214,7 @@ function Interface:Whois(userID)
 	end
 	
 	whoisQueueActive = true
-	WG.Delay(ProcessWhoisQueue, 0.6)
+	WG.Delay(ProcessWhoisQueue, 0.4)
 	return self
 end
 
