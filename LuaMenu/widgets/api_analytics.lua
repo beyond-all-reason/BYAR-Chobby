@@ -739,7 +739,7 @@ function widget:Initialize()
 		-- disconnect
 	end
 	
-	local function OnDisconnected(reason, intentional)
+	local function OnDisconnected(listener, reason, intentional)
 		--Spring.Echo("Analytics OnDisconnected")
 		Spring.Echo("Disconnected, reason:", reason, intentional)
 		isConnected = false

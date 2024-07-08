@@ -621,6 +621,12 @@ end
 Interface.commands["DENIED"] = Interface._OnDenied
 Interface.commandPattern["DENIED"] = "(.+)"
 
+function Interface:_OnS_System_Disconnect(reason)
+	self:_OnDisconnected(reason, false)
+end
+Interface.commands["s.system.disconnect"] = Interface._OnDenied
+Interface.commandPattern["s.system.disconnect"] = "(.+)"
+
 function Interface:_OnAgreement(line)
 	self:super("_OnAgreement", line)
 end
@@ -715,6 +721,10 @@ Interface.commands["QUEUED"] = Interface._OnQueued
 function Interface:_OnWhois(id, data)
 	id = tonumber(id)
 	local userData = Spring.Utilities.json.decode(Spring.Utilities.Base64Decode(data))
+	if userData and userData.error then
+		Spring.Log(LOG_SECTION, LOG.ERROR, "_OnWhois error: " .. tostring(userData.error))
+		return self
+	end
 	self:super("_OnWhois", id, userData)
 end
 Interface.commands["s.user.whois"] = Interface._OnWhois

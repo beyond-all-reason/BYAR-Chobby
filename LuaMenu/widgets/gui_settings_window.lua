@@ -1105,7 +1105,7 @@ local function GetLobbyTabControls()
 				local oldserveraddress = Configuration:GetServerAddress()
 				local newserveraddress = barservers[num]
 
-				Spring.Echo("Choosing a server in settings:",obj,num, oldserveraddress,newserveraddress)
+				Spring.Echo("Choosing a server in settings:", num, oldserveraddress,newserveraddress)
 
 				if oldserveraddress ~= newserveraddress then
 					Configuration.serverAddress = newserveraddress
@@ -1113,7 +1113,7 @@ local function GetLobbyTabControls()
 					if WG.LibLobby.lobby then -- force set the new one so that lobby:safeupdate doesnt fuck up
 						--Spring.Echo("FORCE SET",obj,num, barservers[num])
 						WG.LibLobby.lobby.host = newserveraddress
-						WG.LibLobby.lobby:Disconnect()
+						WG.LibLobby.lobby:Disconnect("changed lobby server")
 						if WG.LoginWindowHandler then
 							WG.LoginWindowHandler.TryLogin()
 						end
