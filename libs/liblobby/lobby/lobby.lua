@@ -1975,8 +1975,9 @@ function Lobby:_OnDisconnected(reason, intentional)
 	for userName,_ in pairs(self.users) do
 		self:_OnRemoveUser(userName)
 	end
-
-	for battleID, battle in pairs(self.battles) do
+	
+	local battles = ShallowCopy(self.battles) -- needs ShallowCopy because _OnBattleClosed is removing isntances of self.battles
+	for battleID, _ in pairs(battles) do
 		self:_OnBattleClosed(battleID)
 	end
 
