@@ -68,7 +68,7 @@ if isIntel or isLinux then
 	hibernateFps = 2
 end
 
-if isAMD then 
+if isAmd then 
 	maxVsync = 4 -- This is an attempted fix at AMD Driver 24.6.1, as it always seems to crash at interval = 5
 	local initVsync = Spring.GetConfigInt("VSync", 1)
 	if initVsync > maxVsync then
@@ -76,7 +76,7 @@ if isAMD then
 	end
 end
 
-Spring.Echo("Limit Idle FPS is enabled:", widget:GetInfo().enabled, "max set to ", maxVsync, 'for platform', Platform.gpuVendor)
+Spring.Echo("Limit Idle FPS is enabled:", widget:GetInfo().enabled, "max set to ", maxVsync, 'for platform', Platform.gpuVendor, isAmd)
 -- detect display frequency > 60 and set vsyncValueIdle to 6
 local infolog = VFS.LoadFile("infolog.txt")
 local monitorFrequency = 60
