@@ -555,23 +555,25 @@ local function InitializeModoptionsDisplay()
 		return value
 	end
 
-	local function tweakSummary(value)
-		value = tostring(value)
-		local hash = Spring.Utilities.Base64Encode(VFS.CalculateHash(value,1))
-		local tweakText = string.format("%d:%s", value:len(), hash:sub(1,4))
-		if value:find("[^%w%+/=]") then -- non-base64 character found
-			return tweakText
-		end
-		local rawValue = Spring.Utilities.Base64Decode(value):gmatch("([^\r\n]*)[\r\n]?")():sub(1,27)
-		if not (rawValue:sub(1,2) == "--") then -- First line doesn't start with a comment
-			return tweakText
-		end
-		rawValue = rawValue:sub(3)
-		if rawValue:find("[^%w%p ]") then -- (unexpected) non-printable characters found
-			return tweakText
-		end
-		return tweakText .. "\n[" .. rawValue .. "]"
+local function tweakSummary(value)
+	value = tostring(value)
+	local hash = Spring.Utilities.Base64Encode(VFS.CalculateHash(value,1))
+	local tweakText = string.format("%d:%s", value:len(), hash:sub(1, 4))
+	if value:find("[^%w%+/=]") then -- Non-base64 character found
+		return tweakText
 	end
+	for line in Spring.Utilities.Base64Decode(value):gmatch("([^\r\n]*)[\r\n]?") do
+		if line:sub(1, 2) ~= "--" then -- Line doesn't start with a comment
+			return tweakText
+		end
+		local comment = line:sub(3, 27)
+		if not comment:find("[^%w%p ]") then -- Only whitelisted characters found
+			return tweakText .. "\n[" .. comment .. "]"
+		end
+	end
+
+	return tweakText
+end
 
 	local panelModoptions
 
