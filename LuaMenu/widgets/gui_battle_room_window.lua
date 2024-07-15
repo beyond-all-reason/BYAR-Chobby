@@ -27,6 +27,7 @@ local mainWindowFunctions
 
 local showDefaultStartCheckbox = false
 local currentStartRects = {}
+local startRectValues = {} -- for exporting the raw values
 
 local singleplayerWrapper
 local multiplayerWrapper
@@ -55,6 +56,7 @@ local vote_votingsPattern = "(%d+)/(%d+).-:(%d+)"
 local vote_whoCalledPattern = "%* (.*) called a vote for command"
 local vote_mapPattern = 'set map (.*)"'
 
+local playerHandler
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 -- Download management
@@ -1117,12 +1119,35 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		parent = leftInfo,
 	}
 	leftOffset = leftOffset + 40
+	local btnOptionPresets = Button:New {
+		name = 'btnOptionpresets',
+		x = 5,
+		y = leftOffset,
+		height = 35,
+		right = 5,
+		classname = "option_button",
+		caption = "Option Presets" .. "\b",
+		objectOverrideFont = config:GetFont(2),
+		objectOverrideDisabledFont = config:GetFont(1),
+		hasDisabledFont = true,
+		tooltip = tooltip,
+		OnClick = {
+			function()
+				WG.OptionpresetsPanel.ShowPresetPanel()
+			end
+		},
+		parent = leftInfo,
+	}
+	leftOffset = leftOffset + 40
 
 	-- gray out the button if we don't have a modoptions panel to show
 	if not modoptions then
 		-- cosmetics when disabled
 		btnModoptions.suppressButtonReaction = true
 		btnModoptions:SetEnabled(false)
+		-- preset loading is useless if modification of modoptions not allow
+		btnOptionPresets.suppressButtonReaction = true
+		btnOptionPresets:SetEnabled(false)
 	end
 
 	-- the modoptions panel needing a refresh is independant on if we have a modoptions panel from a diffrent version to fall back onto
@@ -1137,6 +1162,11 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 				btnModoptions.tooltip = "Configure custom gameplay options"
 				btnModoptions:SetEnabled(true)
 				modoptionsLoaded = true
+
+				--enable also btnOptionPresets
+				btnOptionPresets.suppressButtonReaction = false
+				btnOptionPresets.tooltip = "Create and Load Presets for gameplay options"
+				btnOptionPresets:SetEnabled(true)
 
 				local modoptionspanelExternalFunctions = WG.ModoptionsPanel.GetModoptionsControl()
 				modoptionspanelExternalFunctions:Update()
@@ -1266,6 +1296,8 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		btnPickMap:SetPos(nil, offset)
 		offset = offset + 38
 		btnModoptions:SetPos(nil, offset)
+		offset = offset + 40
+		btnOptionPresets:SetPos(nil, offset)
 		offset = offset + 40
 		lblGame:SetPos(nil, offset)
 		offset = offset + 26
@@ -1472,6 +1504,9 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		-- it doesnt even know how big it is right nowhere
 		-- Spring.Utilities.TraceFullEcho()
 
+		-- adding the raw values
+		startRectValues[allyNo+1]={["left"]=left, ["top"]=top, ["right"]=right, ["bottom"]=bottom}
+
 		local minimapPanelMaxSize = math.max(minimapPanel.width,minimapPanel.height) -1
 		local ox = math.floor(left * minimapPanelMaxSize / 200)
 		local oy = math.floor(top * minimapPanelMaxSize / 200)
@@ -1528,6 +1563,9 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 						--try to manage clicking on the startbox not changing it.
 						--TODO: problematic when resizing entire UI :/
 
+						-- updating the raw values
+						startRectValues[tonumber(obj.caption)]={["left"]=l, ["top"]=t, ["right"]=r, ["bottom"]=b}
+
 						obj:Invalidate() --doesnt do much
 						if battleLobby.name == "singleplayer" then
 							WG.Chobby.Configuration.gameConfig.mapStartBoxes.addBox(l,t,r,b,obj.caption)
@@ -1573,6 +1611,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 			if currentStartRects[allyNo+1] then
 				currentStartRects[allyNo+1]:Dispose()
 				currentStartRects[allyNo+1] = nil
+				startRectValues[allyNo+1] = nil
 			end
 			for i,rect in pairs(currentStartRects) do
 				rect:BringToFront()
@@ -1841,6 +1880,7 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 						if button == 3 and WG.Chobby.Configuration.lastAddedAiName then
 							quickAddAi = WG.Chobby.Configuration.lastAddedAiName
 						end
+
 						WG.PopupPreloader.ShowAiListWindow(battleLobby, battle.gameName, teamIndex, quickAddAi)
 					end,
 					disallowCustomTeams and teamIndex ~= 0,
@@ -2117,6 +2157,13 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 
 	function externalFunctions.RemoveAi(botName)
 		RemovePlayerFromTeam(botName)
+	end
+
+	function externalFunctions.GetTeam(index)
+		if(index >= emptyTeamIndex)then
+			OpenNewTeam()
+		end
+		return GetTeam(index)
 	end
 
 	return externalFunctions
@@ -2955,7 +3002,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		parent = bottomPanel,
 	}
 
-	local playerHandler = SetupPlayerPanel(playerPanel, spectatorPanel, battle, battleID)
+	playerHandler = SetupPlayerPanel(playerPanel, spectatorPanel, battle, battleID)
 
 
 	spadsStatusPanel = Control:New{
@@ -3872,6 +3919,8 @@ function BattleRoomWindow.ShowMultiplayerBattleRoom(battleID)
 		allyNumber = 0,
 		sync = (haveMapAndGame and 1) or 2, -- 0 = unknown, 1 = synced, 2 = unsynced
 	})
+
+	WG.OptionpresetsPanel.cloneMPModoptions(true)
 end
 
 function BattleRoomWindow.GetSingleplayerControl(setupData)
@@ -4081,6 +4130,44 @@ function BattleRoomWindow.ClearChatHistory()
 	if mainWindowFunctions and mainWindowFunctions.ClearChatHistory then
 		mainWindowFunctions.ClearChatHistory()
 	end
+end
+
+
+function BattleRoomWindow.GetCurrentStartRects()
+	return startRectValues
+end
+
+function BattleRoomWindow.AddStartRect(allyNo, left, top, right, bottom)
+	if battleLobby.name == "singleplayer" then
+		local infoHandler = mainWindowFunctions.GetInfoHandler()
+		infoHandler.AddStartRect(allyNo, left, top, right, bottom)
+	else
+		battleLobby:SayBattle(string.format("!addbox %d %d %d %d %s", left, top, right, bottom, allyNo+1))
+	end
+end
+
+function BattleRoomWindow.RemoveStartRect(allyNo)
+	if battleLobby.name == "singleplayer" then
+		local infoHandler = mainWindowFunctions.GetInfoHandler()
+		infoHandler.RemoveStartRect(allyNo)
+	end
+end
+
+
+function BattleRoomWindow.SetTeams(numberOfTeams)
+	if not battleLobby.name == "singleplayer" then
+		-- command to set the teams
+		battleLobby:SayBattle(string.format("!nbteams %d", numberOfTeams))
+	end
+end
+
+function BattleRoomWindow.SetStart(allyNo)
+	local infoHandler = mainWindowFunctions.GetInfoHandler()
+	infoHandler.RemoveStartRect(allyNo)
+end
+
+function BattleRoomWindow.GetPlayerHandler()
+	return playerHandler
 end
 
 local function DelayedInitialize()
