@@ -315,6 +315,31 @@ local function ProcessStringOption(data, index)
 	}
 end
 
+local function ProcessSubHeaderFakeOption(data, index)
+	local label = Label:New {
+		x = 280,
+		y = 0,
+		width = 1200,
+		height = 30,
+		valign = "center",
+		align = "left",
+		caption = data.name,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		tooltip = data.desc,
+	}
+	return Control:New {
+		x = 0,
+		y = index*32,
+		width = 1600,
+		height = 32,
+		padding = {0, 0, 0, 0},
+    tooltip = data.desc,
+		children = {
+			label
+		}
+	}
+end
+
 local function PopulateTab(options)
 	-- list = combobox
 	-- bool = tickbox
@@ -339,6 +364,8 @@ local function PopulateTab(options)
 			contentsPanel:AddChild(ProcessNumberOption(data, #contentsPanel.children))
 		elseif data.type == "string" then
 			contentsPanel:AddChild(ProcessStringOption(data, #contentsPanel.children))
+		elseif data.type == "subheader" then
+			contentsPanel:AddChild(ProcessSubHeaderFakeOption(data, #contentsPanel.children))
 		end
 	end
 	return {contentsPanel}
