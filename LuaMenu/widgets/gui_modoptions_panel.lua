@@ -317,7 +317,7 @@ end
 
 local function ProcessSubHeaderFakeOption(data, index)
 	local label = Label:New {
-		x = 280,
+		x = 5,
 		y = 0,
 		width = 1200,
 		height = 30,
