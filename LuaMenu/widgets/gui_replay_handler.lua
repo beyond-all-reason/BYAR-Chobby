@@ -60,13 +60,39 @@ local function battleType(teams)
 	return table.concat(teams_lengths, "v")
 end
 
+-- rename properties to match chobby context
+local function translatePlayerProps(player)
+	player.country = player.countryCode
+	player.countryCode = nil
+
+	-- ToDo: Add legion
+	player.side = (player.faction == "Armada") and 1 or (player.faction == "Cortex" and 2) or nil
+
+	player.level = player.rank
+	player.rank  = nil
+
+	player.aiLib = player.aiId
+	player.aiId  = nil
+
+	local value
+	if player.skill then
+		_, _, _, value = WG.Chobby.lobby:ParseSkillFormat(player.skill)
+		player.skill = value
+	end
+	if player.skillUncertainty then
+		_, _, _, value = WG.Chobby.lobby:ParseSkillFormat(player.skillUncertainty)
+		player.skillUncertainty = value
+	end
+	return player
+end
 
 --	From the flat array of players, build an array of teams
 local function buildTeams(players)
 	local Configuration = WG.Chobby.Configuration	
 	local teams = {}
-	local myAllyID, myteamID
+	local myAllyID, myTeamID
 	for _, player in pairs(players) do
+		player = translatePlayerProps(player)
 		local team
 		if teams[player.allyTeamId + 1] == nil then
 			team = {}
@@ -200,6 +226,7 @@ local function CreateReplayEntry(
 		resizable = false,
 		draggable = false,
 		padding = {0, 0, 0, 0},
+		teams = {},
 	}
 
 
@@ -398,14 +425,9 @@ local function CreateReplayEntry(
 		}
 	end
 
-	for allyTeamID, team in pairs(teams) do
-		for _, player in pairs(team) do
-			tooltipString = tooltipString .. "name:" .. player.name .. ":" .. (player.aiId~=nil and ("aiId:" .. player.aiId) or ("rank:" .. player.rank)) .. ","
-		end
-		tooltipString = tooltipString .. "|"
-	end
+	replayPanel.teams = teams
 
-	userList.tooltip = tooltipString
+	userList.tooltip = WG.Chobby.Configuration.REPLAY_TOOLTIP_PREFIX .. replayPath
 	userList.greedyHitTest = true
 
 	local function CheckReplayFileExists()
@@ -476,7 +498,6 @@ local function CreateReplayEntry(
 		},
 		parent = replayPanel,
 	}
-
 
 	return replayPanel, {replayDateString, string.lower(mapName), gameName}
 end
@@ -775,6 +796,10 @@ function ReplayHandler.ReadReplayInfoDone(path, engine, game, map, players, time
 	end
 
 	replayListWindow.AddReplay(path, engine, game, map, players, time, winningAllyTeamIds)
+end
+
+function ReplayHandler.GetReplayById(replayPath)
+	return replayList.controlById[replayPath] or {}
 end
 
 --------------------------------------------------------------------------------

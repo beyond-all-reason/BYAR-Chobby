@@ -397,7 +397,7 @@ function Configuration:init()
 	self.USER_MP_TOOLTIP_PREFIX = "user_battle_"
 	self.BATTLE_TOOLTIP_PREFIX  = "battle_tooltip_"
 	self.MINIMAP_TOOLTIP_PREFIX = "minimap_tooltip_"
-	self.REPLAY_PLAYER_LIST		= "playerlist_tooltip_"
+	self.REPLAY_TOOLTIP_PREFIX	= "replay_tooltip_"
 
 	-- should be removed at about 1.1.2024 together with all other occurences of tempChangedShowSkill
 	-- remember if new default of showSkill was applied

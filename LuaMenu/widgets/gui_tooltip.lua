@@ -14,7 +14,7 @@ local spGetMouseState           = Spring.GetMouseState
 local spFormatTime              = Spring.Utilities.FormatTime
 local screenWidth, screenHeight = Spring.GetWindowGeometry()
 
-local MAX_WIDTH = 640
+local MAX_WIDTH = 880 -- 220 x 4 for Replay tooltips
 local MAX_WINDOW_WIDTH = MAX_WIDTH + 11
 
 local TOOLTIP_TEXT_NAME = "tooltipText"
@@ -952,154 +952,124 @@ end
 
 --------------------------------------------------------------------------
 --------------------------------------------------------------------------
--- replay playerlist tooltip :tm:
---	Return a widget containing a player's information
-local function playerWidget(playerInfo)
-	local Configuration = WG.Chobby.Configuration
-	local userName = playerInfo.name
+-- Replay tooltip
 
-	-- Create a control widget to encapsulate the player's information
-	local ret = Chili.Control:New {
-		x = 0, y = 0, right = 0,
-		height=20, bottom = 0, padding = {0, 0, 0, 0},
-	}
-
-	local image_file
-	if playerInfo.aiId then
-		image_file = Configuration.gameConfig.rankFunction(nil, 0, 0, true, false)
-	else
-		image_file = Configuration.gameConfig.rankFunction(
-			nil, tonumber(playerInfo.rank), 0, false, false
-		)
-	end
-
-	-- Get the rank image for the player
-	Image:New {
-		name = "imRank",
-		x = 0,
-		y = 0,
-		width = 13,
-		height = 13,
-		parent = ret,
-		keepAspect = false,
-		file = image_file
-	}
-
-	-- Textbox with the user's name
-	local userTextBox = TextBox:New {
-		name = "userName",
-		x = 18, y = 0, width = 115, height = 20,
-		valign = "top",
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(8),
-		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(8),
-		text = "",
-		parent = ret,
-		OnResize = {
-			function (obj, xSize, ySize)
-				obj:SetText(StringUtilities.GetTruncatedStringWithDotDot(userName, obj.font, obj.width))
-			end
-		}
-	}
-	return ret
+-- demos may have no skill values
+local function SortPlayersBySkill(a, b)
+	local skillA = tonumber(a.skill)
+	local skillB = tonumber(b.skill)
+	return (skillA and skillB and skillA > skillB) or false
 end
 
-local function getReplayPlayerListTooltip(playerList)
-	local largestTeam, isFFA = 0, false
-	if #playerList > 4 then
-		isFFA = true
-		for i = 1, #playerList do
-			if #playerList[i] > 1 then
-				isFFA = false
-				largestTeam = math.max(largestTeam, #playerList[i])
+local function SortTeamsBySkill(a, b)
+	local skillA = tonumber(a[1].skill)
+	local skillB = tonumber(b[1].skill)
+	return (skillA and skillB and skillA > skillB) or false
+end
+
+local replayTooltip = {}
+local PLAYERWIDTH, PLAYERHEIGHT = 220, 22
+
+local function getReplayPlayerListTooltip(teamList)
+	
+	local showTeams = true
+	if #teamList > 2 then
+		showTeams = false -- assume ffa 
+		for i = 1, #teamList do
+			if #teamList[i] > 1 then -- no, it's teamFFA
+				showTeams = true
 			end
 		end
-	else
-		for i = 1, #playerList do
-			largestTeam = math.max(largestTeam, #playerList[i])
-		end
 	end
-	largestTeam = largestTeam + 1
-
-	local PLAYERWIDTH, PLAYERHEIGHT = 150, 20
-
-	local width, height = PLAYERWIDTH, PLAYERWIDTH
-	local rows, collumns = 1, 1
-	if #playerList > 3 then
-		local temp = math.floor(math.sqrt(#playerList))
-		rows, collumns = math.ceil(#playerList / temp), temp
-		height = rows * largestTeam * PLAYERHEIGHT
-		width = collumns * PLAYERWIDTH
-		if isFFA then
-			height = height + PLAYERHEIGHT
+	
+	local cols = 2
+	local divisor
+	if not showTeams then		
+		if #teamList < 33 then
+			divisor = 8 -- max 4 columns
+		else
+			divisor = 16 -- big ffas are difficult to handle
 		end
-	else
-		rows, collumns = 1, #playerList
-		height = rows * largestTeam * PLAYERHEIGHT
-		width = collumns * PLAYERWIDTH
+		cols = math.floor(#teamList / divisor)
+
+		table.sort(teamList, SortTeamsBySkill)
 	end
 
-	local playerListTooltip = Chili.Control:New {
-		x = 0,
-		y = 0,
-		width = width,
-		height = height,
-		padding = {0, 0, 0, 0},
-	}
-
-	local xOffset, yOffset = 0,0
-	if isFFA then
-		TextBox:New {
-			x = xOffset, y = yOffset, right = 0, height = 10,
-			valign = 'center',
-			objectOverrideFont = WG.Chobby.Configuration:GetFont(8),
-			objectOverrideHintFont = WG.Chobby.Configuration:GetFont(8),
-			text = "Free For All Players:",
-			parent = playerListTooltip,
-			OnResize = {
-				function (obj, xSize, ySize)
-					obj:SetText(StringUtilities.GetTruncatedStringWithDotDot("Free For All Players:", obj.font, obj.width))
-				end
-			}
+	replayTooltip.mainStackPanel = Panel:New {
+			name = 'mainStackPanel',
+			x = 0,
+			y = 0,
+			width = cols * PLAYERWIDTH,
 		}
-		for team = 1, #playerList do
-			xOffset = (team - 1) % collumns * PLAYERWIDTH
-			yOffset = math.ceil(team / collumns) * PLAYERHEIGHT
-			local playerControl = playerWidget(playerList[team][1])
-			playerListTooltip:AddChild(playerControl)
-			playerControl:SetPos(xOffset, yOffset)
-			playerControl._relativeBounds.right = 0
-			playerControl:UpdateClientArea()
-		end
-	else
-		for team = 1, #playerList do
-			xOffset = (team - 1) % collumns * PLAYERWIDTH
-			yOffset = math.floor((team - 1) / collumns) * largestTeam * PLAYERHEIGHT
 
-			TextBox:New {
-				x = xOffset, y = yOffset, right = 0, height = 10,
-				valign = 'center',
-				objectOverrideFont = WG.Chobby.Configuration:GetFont(8),
-				objectOverrideHintFont = WG.Chobby.Configuration:GetFont(8),
-				text = "Team " .. team,
-				parent = playerListTooltip,
-				OnResize = {
-					function (obj, xSize, ySize)
-						obj:SetText(StringUtilities.GetTruncatedStringWithDotDot("Team " .. team, obj.font, obj.width))
-					end
-				}
+	local xOffsetTeam = 0
+	local function newTeamStack()
+		return Control:New {
+			x = xOffsetTeam,
+			y = 0,			
+			autosize = true,
+			padding = {0, 0, 0, 0},
+			parent = replayTooltip.mainStackPanel,
+		}
+	end
+
+	local xOffsetPlayer = 0
+	local yOffsetPlayer = 0
+	local yOffsetMax = 0
+	local teamStack
+
+	for teamNr = 1, #teamList do
+
+		local players = teamList[teamNr]
+		table.sort(players, SortPlayersBySkill)
+
+		if showTeams or teamNr == 1 then
+			teamStack = newTeamStack()
+			xOffsetTeam = xOffsetTeam + PLAYERWIDTH
+			
+			-- team title
+			if not teamStack.teamTitle then
+				teamStack.teamTitle = GetTooltipLine(teamStack, nil, 3)
+			end
+			local teamTitle = ""
+			if showTeams then
+				teamTitle = "Team " .. tostring(teamNr) .. " (" .. #teamList[teamNr] .. ")"
+			else
+				teamTitle = "FFA (" .. #teamList .. ")"
+			end
+			local truncatedTitle = StringUtilities.GetTruncatedStringWithDotDot(teamTitle, teamStack.teamTitle.GetFont(), PLAYERWIDTH - 10)
+			teamStack.teamTitle.Update(0, truncatedTitle)
+			
+			yOffsetPlayer = 23
+		else
+			xOffsetPlayer = (math.ceil(teamNr / divisor) -1 )  * PLAYERWIDTH
+			yOffsetPlayer = 23 + math.ceil((teamNr-1) % divisor) * PLAYERHEIGHT
+		end
+		yOffsetMax = math.max(yOffsetMax, yOffsetPlayer)
+
+		for playerNr = 1, #teamList[teamNr] do
+			local playerHolder = Control:New {
+				x = xOffsetPlayer,
+				y = yOffsetPlayer,
+				width = PLAYERWIDTH,
+				height = PLAYERHEIGHT,
+				padding = {0, 0, 0, 0},
+				parent = teamStack,
 			}
 
-			for player = 1, #playerList[team] do
-				yOffset = yOffset + PLAYERHEIGHT
-				local playerControl = playerWidget(playerList[team][player])
-				playerListTooltip:AddChild(playerControl)
-				playerControl:SetPos(xOffset, yOffset)
-				playerControl._relativeBounds.right = 0
-				playerControl:UpdateClientArea()
-			end
+			local playerControl = WG.UserHandler.GetReplayTooltipUser(teamList[teamNr][playerNr], PLAYERWIDTH)
+			playerHolder:AddChild(playerControl)
+
+			yOffsetPlayer = yOffsetPlayer + PLAYERHEIGHT
+			yOffsetMax = math.max(yOffsetMax, yOffsetPlayer)
 		end
+
 	end
-	return playerListTooltip
+
+	-- Set tooltip sizes
+	replayTooltip.mainStackPanel:SetPos(nil, nil, cols * PLAYERWIDTH, yOffsetMax + 5)
+
+	return replayTooltip.mainStackPanel
 end
 
 --------------------------------------------------------------------------
@@ -1209,24 +1179,10 @@ local function UpdateTooltip(inputText)
 			tipWindow:ClearChildren()
 			tipWindow:AddChild(tooltipcontrol)
 		end
-	elseif inputText:starts(Configuration.REPLAY_PLAYER_LIST) then
-		local tempTeamsTable = string.split( string.sub(inputText, 20), "|" )
-		local tempTeamTable
-		local tempPlayer
-		local teamTable = {}
-		for team = 1, #tempTeamsTable - 1 do
-			tempTeamTable = string.split(tempTeamsTable[team], ",")
-			teamTable[team] = {}
-			for player = 1, #tempTeamTable - 1 do
-				tempPlayer = string.split(tempTeamTable[player],":")
-				teamTable[team][player] = {
-					[tempPlayer[1]] = tempPlayer[2],
-					[tempPlayer[3]] = tempPlayer[4],
-				}
-			end
-		end
-
-		local tooltipControl = getReplayPlayerListTooltip(teamTable)
+	elseif inputText:starts(Configuration.REPLAY_TOOLTIP_PREFIX) then
+		local replayPath = string.sub(inputText, 16)
+		local replayControl = WG.ReplayHandler.GetReplayById(replayPath)
+		local tooltipControl = getReplayPlayerListTooltip(replayControl.teams)
 		tipWindow:ClearChildren()
 		tipWindow:AddChild(tooltipControl)
 	else -- For everything else display a normal tooltip
