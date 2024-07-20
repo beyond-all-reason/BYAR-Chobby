@@ -2059,17 +2059,23 @@ local function parseSkillOrigin(l, p, d)
 -- 4. [6.34]  , Plugin
 -- 5. [#6.34#], Plugin_Degraded
 -- Note: playername is delivered in lower case by protocol rules, see https://springrts.com/dl/LobbyProtocol/ProtocolDescription.html#SETSCRIPTTAGS:client
-local function GetSkillFromScriptTag(tag)
+function Interface:ParseSkillFormat(skillParam)
+	return string.match(skillParam, "(%(?)(%[?)(#?)(-?%d+%.?%d*)") -- ignore closings ")", "#", "]"
+end
+
+function Interface:GetSkillFromScriptTag(tag)
 	local userNameLC, skillKey, skillParam = string.match(tag, "(.+)/(.+)=(.+)")
 	if userNameLC == "" or skillKey == "" then
 		Spring.Log(LOG_SECTION, LOG.WARNING, "Could not parse scriptTag player/[..]", tag)
 		return
 	end
-	local l,p,d,value = string.match(skillParam, "(%(?)(%[?)(#?)(-?%d+%.?%d*)") -- ignore closings ")", "#", "]"
+
+	local l, p, d, value = self:ParseSkillFormat(skillParam)
 	if value == "" then
 		Spring.Log(LOG_SECTION, LOG.WARNING, "Could not parse player/"..skillKey.."/[..]", skillParam)
 		return
 	end
+
 	local status = {}
 	if (skillKey == "skill") then
 		status["skillOrigin"] = parseSkillOrigin(l,p,d)
@@ -2080,6 +2086,7 @@ local function GetSkillFromScriptTag(tag)
 		Spring.Log(LOG_SECTION, LOG.NOTICE, "unsupported setScriptTags playerKey:", skillKey)
 		return
 	end
+
 	return userNameLC, status
 end
 
@@ -2104,7 +2111,7 @@ function Interface:_OnSetScriptTags(tagsTxt)
 			local v = kvTable[2]
 			self.modoptions[k] = v
 		elseif string_starts(tag, scriptTagPlayers) then
-			local userNameLC, status = GetSkillFromScriptTag(tag:sub(scriptTagPlayersIndx))
+			local userNameLC, status = self:GetSkillFromScriptTag(tag:sub(scriptTagPlayersIndx))
 			local userName = self:GetLowerCaseUser(userNameLC) --lobby:FindBattleUserByLowerCase
 			if (userName == nil) or (status == nil) then
 				Spring.Log(LOG_SECTION, LOG.WARNING, "Could not parse tag " .. tag)

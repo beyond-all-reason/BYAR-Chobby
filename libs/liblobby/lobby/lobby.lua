@@ -2436,11 +2436,11 @@ function Lobby:_GetPersistentUserInfo(userName)
 
 		isOffline   = true,
 
+		skill       = oldUserInfo.skill,
+
 		-- custom ZK
 		clan        = oldUserInfo.clan,
 		faction     = oldUserInfo.faction,
-
-		skill       = oldUserInfo.skill,
 		casualSkill = oldUserInfo.casualSkill,
 		icon        = oldUserInfo.icon,
 	}
