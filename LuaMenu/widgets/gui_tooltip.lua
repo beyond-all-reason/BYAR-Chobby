@@ -981,8 +981,8 @@ local function getReplayPlayerListTooltip(teamList)
 			end
 		end
 	end
-	
-	local cols = 2
+
+	local cols = #teamList
 	local divisor
 	if not showTeams then		
 		if #teamList < 33 then
@@ -990,7 +990,7 @@ local function getReplayPlayerListTooltip(teamList)
 		else
 			divisor = 16 -- big ffas are difficult to handle
 		end
-		cols = math.floor(#teamList / divisor)
+		cols = math.ceil(#teamList / divisor)
 
 		table.sort(teamList, SortTeamsBySkill)
 	end
