@@ -68,7 +68,7 @@ local function translatePlayerProps(player)
 	-- ToDo: Add legion
 	player.side = (player.faction == "Armada") and 1 or (player.faction == "Cortex" and 2) or nil
 
-	player.level = player.rank
+	player.level = player.rank and (player.rank + 1)
 	player.rank  = nil
 
 	player.aiLib = player.aiId

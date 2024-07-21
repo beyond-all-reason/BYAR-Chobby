@@ -491,36 +491,40 @@ local function UpdateUserComboboxOptions(_, userName)
 	end
 end
 
+local function UpdateUserActivitySingleList(userList, userName, status)
+	local userControls = userList[userName]
+	if userControls then
+		userControls.mainControl.items = GetUserComboBoxOptions(userName, userControls.isInBattle, userControls,
+																userControls.imTeamColor ~= nil, userControls.imSide ~= nil)
+		if userControls.imLevel then
+			userControls.imLevel.file = GetUserRankImageName(userName, userControls)
+			userControls.imLevel:Invalidate()
+		end
+
+		userControls.tbName.font = GetUserNameColorFont(userName, userControls)
+		userControls.tbName:Invalidate()
+
+		UpdateUserStatusImage(userName, userControls)
+		UpdateUserControlStatus(userName, userControls)
+
+		if status and (status["skill"] or status["skillUncertainty"]) and userControls.showSkill then
+			local displaySkill = (userControls.isPlaying or userControls.replayUserInfo) and WG.Chobby.Configuration.showSkillOpt > 1
+			if displaySkill then
+				local skill, skillColorFont = GetUserSkillFont(userName, userControls)
+				userControls.tbSkill:SetText(skill)
+				userControls.tbSkill.font = skillColorFont
+				userControls.tbSkill:Invalidate()
+			end
+		end
+	end
+end
+
 local function UpdateUserActivity(listener, userName, status)
 	for i = 1, #userListList do
 		local userList = userListList[i]
 		if userList ~= namedUserList["replayTooltipUsers"] then
-			local userControls = userList[userName]
-			if userControls then
-				userControls.mainControl.items = GetUserComboBoxOptions(userName, userControls.isInBattle, userControls,
-																		userControls.imTeamColor ~= nil, userControls.imSide ~= nil)
-				if userControls.imLevel then
-					userControls.imLevel.file = GetUserRankImageName(userName, userControls)
-					userControls.imLevel:Invalidate()
-				end
-
-				userControls.tbName.font = GetUserNameColorFont(userName, userControls)
-				userControls.tbName:Invalidate()
-
-				UpdateUserStatusImage(userName, userControls)
-				UpdateUserControlStatus(userName, userControls)
-
-				if status and (status["skill"] or status["skillUncertainty"]) and userControls.showSkill then
-					local displaySkill = userControls.isPlaying and WG.Chobby.Configuration.showSkillOpt > 1
-					if displaySkill then
-						local skill, skillColorFont = GetUserSkillFont(userName, userControls)
-						userControls.tbSkill:SetText(skill)
-						userControls.tbSkill.font = skillColorFont
-						userControls.tbSkill:Invalidate()
-					end
-				end
-			end
-		end 
+			UpdateUserActivitySingleList(userList, userName, status)
+		end
 	end
 end
 
@@ -1615,6 +1619,13 @@ function userHandler.GetTooltipUser(userName)
 end
 
 function userHandler.GetReplayTooltipUser(replayUserInfo, maxNameLength)
+	if replayTooltipUsers[replayUserInfo.name] then
+		local replayUser = replayTooltipUsers[replayUserInfo.name]
+		replayUser.replayUserInfo = replayUserInfo
+		UpdateUserActivitySingleList(replayTooltipUsers, replayUserInfo.name, replayUserInfo)
+		return replayUser.mainControl
+	end
+
 	return _GetUser(replayTooltipUsers, replayUserInfo.name, {
 		isInBattle         = false,
 		suppressSync       = true,
