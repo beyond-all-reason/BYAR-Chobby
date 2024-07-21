@@ -984,7 +984,9 @@ local function getReplayPlayerListTooltip(teamList)
 
 	local cols = #teamList
 	local divisor
-	if not showTeams then		
+	if showTeams then
+		cols = math.ceil(#teamList / math.ceil(#teamList / 4))
+	else
 		if #teamList < 33 then
 			divisor = 8 -- max 4 columns
 		else
@@ -1003,10 +1005,11 @@ local function getReplayPlayerListTooltip(teamList)
 		}
 
 	local xOffsetTeam = 0
+	local yOffsetTeam = 0
 	local function newTeamStack()
 		return Control:New {
 			x = xOffsetTeam,
-			y = 0,			
+			y = yOffsetTeam,
 			autosize = true,
 			padding = {0, 0, 0, 0},
 			parent = replayTooltip.mainStackPanel,
@@ -1015,8 +1018,10 @@ local function getReplayPlayerListTooltip(teamList)
 
 	local xOffsetPlayer = 0
 	local yOffsetPlayer = 0
-	local yOffsetMax = 0
+	local yOffsetTeamMax = 0
 	local teamStack
+	local prevRowHeightMax = 0
+	local totalHeight = 0
 
 	for teamNr = 1, #teamList do
 
@@ -1024,8 +1029,15 @@ local function getReplayPlayerListTooltip(teamList)
 		table.sort(players, SortPlayersBySkill)
 
 		if showTeams or teamNr == 1 then
+			xOffsetTeam = (teamNr - 1) % cols * PLAYERWIDTH
+			if xOffsetTeam == 0 then
+				prevRowHeightMax = yOffsetTeamMax
+				totalHeight = totalHeight + prevRowHeightMax + math.floor((teamNr - 1) / cols) * 23
+				yOffsetTeamMax = 0
+			end
+			yOffsetTeam = math.floor((teamNr - 1) / cols) * (prevRowHeightMax + 23)
+
 			teamStack = newTeamStack()
-			xOffsetTeam = xOffsetTeam + PLAYERWIDTH
 			
 			-- team title
 			if not teamStack.teamTitle then
@@ -1042,10 +1054,9 @@ local function getReplayPlayerListTooltip(teamList)
 			
 			yOffsetPlayer = 23
 		else
-			xOffsetPlayer = (math.ceil(teamNr / divisor) -1 )  * PLAYERWIDTH
-			yOffsetPlayer = 23 + math.ceil((teamNr-1) % divisor) * PLAYERHEIGHT
+			xOffsetPlayer = math.floor((teamNr - 1) / divisor)  * PLAYERWIDTH
+			yOffsetPlayer = 23 + (teamNr-1) % divisor * PLAYERHEIGHT
 		end
-		yOffsetMax = math.max(yOffsetMax, yOffsetPlayer)
 
 		for playerNr = 1, #teamList[teamNr] do
 			local playerHolder = Control:New {
@@ -1061,13 +1072,14 @@ local function getReplayPlayerListTooltip(teamList)
 			playerHolder:AddChild(playerControl)
 
 			yOffsetPlayer = yOffsetPlayer + PLAYERHEIGHT
-			yOffsetMax = math.max(yOffsetMax, yOffsetPlayer)
+			yOffsetTeamMax = math.max(yOffsetTeamMax, yOffsetPlayer)
 		end
 
 	end
+	totalHeight = totalHeight + yOffsetTeamMax
 
 	-- Set tooltip sizes
-	replayTooltip.mainStackPanel:SetPos(nil, nil, cols * PLAYERWIDTH, yOffsetMax + 5)
+	replayTooltip.mainStackPanel:SetPos(nil, nil, cols * PLAYERWIDTH, totalHeight + 5)
 
 	return replayTooltip.mainStackPanel
 end
