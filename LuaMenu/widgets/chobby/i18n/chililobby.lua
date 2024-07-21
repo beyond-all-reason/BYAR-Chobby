@@ -202,6 +202,8 @@ return {
 		autoLaunchAsSpectator = "Auto-launch when spectating",
 		randomSkirmishSetup = "Random Skirmish AI and Map",
 		randomSkirmishSetup_tooltip = "Randomizes AIs and Map in Singleplayer Skirmish mode. Requires Restart.",
+		queueExitConfirmPromptDoNotAskAgain = "No prompt when leaving queue",
+		queueExitConfirmPromptDoNotAskAgain_tooltip = "Disabled = Shows a prompt when leaving the queue or game.",
 		ingame_notifcations = "Notifications while ingame",
 		ingame_notifcations_tooltip = "Allows chat from friends and other important notifications to be shown while you are playing",
 		non_friend_notifications = "Non-friend notifications",
