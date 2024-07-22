@@ -758,7 +758,7 @@ local function GetLobbyTabControls()
 				if freezeSettings then
 					return
 				end
-				Spring.PlaySoundFile("sounds/ring.wav", WG.Chobby.Configuration.menuNotificationVolume or 1) -- RING SOUND
+				Spring.PlaySoundFile("sounds/Alarm_light5_mixdown.wav", WG.Chobby.Configuration.menuNotificationVolume or 1) -- RING SOUND
 			end
 		}
 
