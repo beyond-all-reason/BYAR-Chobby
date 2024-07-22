@@ -1,2 +1,6 @@
-All sounds in this folder (/Sounds/) were made for Beyond All Reason by IceXuick
-all rights reserved (CC BY NC ND)
+All of the following sounds in this folder (/Sounds/) were made for Beyond All Reason by IceXuick
+All rights reserved:
+
+- ring.wav
+- BAR_Joined_queue6D_mixdown.wav
+- Alarm_light5_mixdown.wav

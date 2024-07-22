@@ -3730,7 +3730,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	end
 
 	local function OnRing(listener, userName) -- userName is who rang you
-		Spring.PlaySoundFile("sounds/ring.wav", WG.Chobby.Configuration.menuNotificationVolume or 1)
+		Spring.PlaySoundFile("sounds/Alarm_light5_mixdown.wav", WG.Chobby.Configuration.menuNotificationVolume or 1)
 
 		local userInfo = lobby:TryGetUser(userName)
 		if userInfo then
