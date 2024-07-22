@@ -1705,11 +1705,11 @@ Interface.commands["CLIENTIPPORT"] = Interface._OnClientIpPort
 Interface.commandPattern["CLIENTIPPORT"] = "(%S+)%s+(%S+)%s+(%S+)"
 
 function Interface:_OnCompFlags(compFlags)
-	compFlags = explode("\t", compflags)
+	compFlags = explode(" ", compFlags)
 	self:_CallListeners("OnCompFlags", compFlags)
 end
 Interface.commands["COMPFLAGS"] = Interface._OnCompFlags
-Interface.commandPattern["COMPFLAGS"] = "(%S+)%s+(%S+)"
+Interface.commandPattern["COMPFLAGS"] = "(.*)"
 
 function Interface:_OnConnectUser(obj)
 	self:_CallListeners("OnConnectUser", obj.ip, obj.port, obj.engine, obj.password)
