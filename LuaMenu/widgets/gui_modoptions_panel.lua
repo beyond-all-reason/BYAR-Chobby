@@ -610,7 +610,7 @@ end
 		panelModoptions = modopts or panelModoptions or {}
 		if not modoptions then return end
 		for key, value in pairs(panelModoptions) do
-			if modoptionDefaults[key] == nil or modoptionDefaults[key] ~= value or key == "ranked_game" then
+			if (modoptionDefaults[key] == nil or modoptionDefaults[key] ~= value or key == "ranked_game") and key:find("^mapmetadata_") == nil then
 				local option = getModOptionByKey(key)
 				local name = option.name and option.name or key
 				text = text .. "\255\255\255\255"
