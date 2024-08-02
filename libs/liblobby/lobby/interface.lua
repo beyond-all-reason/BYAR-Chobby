@@ -2227,7 +2227,7 @@ function Interface:_OnNo(tags)
 	local userName = getTag(tags, "userName", false) or "unknown"
 	Spring.Log(LOG_SECTION, LOG.ERROR, string.format("Server answered NO to command=%s and userName=%s", cmd, userName))
 end
-Interface.commands["NO"] = Interface._OnOK
+Interface.commands["NO"] = Interface._OnNo
 Interface.commandPattern["NO"] = "(.+)"
 
 function Interface:_On_s_user_new_incoming_friend_request(userID)
