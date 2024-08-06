@@ -1432,12 +1432,19 @@ end
 -- Example: _OnUpdateUserBattleStatus("gajop", {isReady=false, teamNumber=1})
 function Lobby:_OnUpdateUserBattleStatus(userName, status)
 	local statusNew = status
+	local userInfo = self.users[userName]
 
-	if (statusNew.owner == nil and not self.users[userName]) or
+	if (statusNew.owner == nil and not userInfo) or
 		(statusNew.owner ~= nil and not self.users[statusNew.owner]) then
-		Spring.Log(LOG_SECTION, LOG.ERROR, "Tried to update non connected user in battle: ", userName)
+		Spring.Log(LOG_SECTION, LOG.WARNING, "Tried to update battle status for a not connected user in battle: ", userName)
 		return
 	end
+
+	if userInfo and not userInfo.battleID or userInfo.battleID ~= self:GetMyBattleID() then
+		Spring.Log(LOG_SECTION, LOG.WARNING, "Can't update user's battle status, user is not in our battle:  ", userName)
+		return
+	end
+
 	if not self.userBattleStatus[userName] then
 		self.userBattleStatus[userName] = {}
 	end
