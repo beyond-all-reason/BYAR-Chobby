@@ -502,7 +502,7 @@ function Interface:SetModOptions(data)
 end
 
 function Interface:AddAi(aiName, aiLib, allyNumber, version, aiOptions, battleStatusOptions)
-	local battleStatus = {
+	local userData = {
 		isReady = true,
 		teamNumber = self:GetUnusedTeamID(),
 		allyNumber = allyNumber,
@@ -511,7 +511,7 @@ function Interface:AddAi(aiName, aiLib, allyNumber, version, aiOptions, battleSt
 		side = 0,
 	}
 
-	battleStatus, updated = UpdateAndCreateMerge(battleStatus, battleStatusOptions or {})
+	local battleStatus, updated = UpdateAndCreateMerge(userData, battleStatusOptions or {})
 
 	aiName = aiName:gsub(" ", "")
 	local battleStatusString = EncodeBattleStatus(battleStatus)
