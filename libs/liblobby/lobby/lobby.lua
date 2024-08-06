@@ -1440,7 +1440,7 @@ function Lobby:_OnUpdateUserBattleStatus(userName, status)
 		return
 	end
 
-	if userInfo and not userInfo.battleID or userInfo.battleID ~= self:GetMyBattleID() then
+	if userInfo and (not userInfo.battleID or userInfo.battleID ~= self:GetMyBattleID()) then
 		Spring.Log(LOG_SECTION, LOG.WARNING, "Can't update user's battle status, user is not in our battle:  ", userName)
 		return
 	end
