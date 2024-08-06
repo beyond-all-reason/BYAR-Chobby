@@ -18,13 +18,13 @@ function AiListWindow:init(lobby, gameName)
 	for _, unversionedGameAi in ipairs(unversionedGameAis) do
 		local found = false
 		for i=1, numAis do
-			if unversionedGameAi == ais[i].shortName then 
-				found = true 
+			if unversionedGameAi == ais[i].shortName then
+				found = true
 				break
 			end
 		end
-		if found == false then 
-			ais[#ais+1] = {shortName = unversionedGameAi, version = "<not-versioned>"} 
+		if found == false then
+			ais[#ais+1] = {shortName = unversionedGameAi, version = "<not-versioned>"}
 		end
 	end
 
@@ -199,7 +199,7 @@ function AiListWindow:AddAi(displayName, shortName, version, options)
 		counter = counter + 1
 	end
 	
-	battleStatusOptions = {side = math.random(0,1), teamColor = PickRandomColor(),}
+	local battleStatusOptions = {side = math.random(0,1), teamColor = PickRandomColor(),}
 	
 	self.lobby:AddAi(aiName, shortName, self.allyTeam, version, options, battleStatusOptions)
 	if isSingleplayer ~= true and type(options) == "table" then
