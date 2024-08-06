@@ -2189,8 +2189,12 @@ Interface.commandPattern["s.user.list_relationships"] = "(.+)"
 function Interface:_OnOK(tags)
 	local Configuration = WG.Chobby.Configuration
 	local tags = parseTags(tags)
-	local cmd = getTag(tags, "cmd", true)
-	local userName = getTag(tags, "userName", true)
+	local cmd = getTag(tags, "cmd", false)
+	local userName = getTag(tags, "userName", false)
+	if not (cmd and userName) then
+		Spring.Log(LOG_SECTION, LOG.WARNING, "Received OK command with wrong format."))
+		return
+	end
 
 	if cmd == 'c.user.ignore' then
 		self:_OnDisregard(userName, Configuration.IGNORE)
