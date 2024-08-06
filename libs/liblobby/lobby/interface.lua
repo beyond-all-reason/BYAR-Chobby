@@ -2192,7 +2192,7 @@ function Interface:_OnOK(tags)
 	local cmd = getTag(tags, "cmd", false)
 	local userName = getTag(tags, "userName", false)
 	if not (cmd and userName) then
-		Spring.Log(LOG_SECTION, LOG.WARNING, "Received OK command with wrong format."))
+		Spring.Log(LOG_SECTION, LOG.WARNING, "Received OK command with wrong format.")
 		return
 	end
 
