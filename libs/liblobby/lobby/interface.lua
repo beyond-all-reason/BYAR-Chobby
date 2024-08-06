@@ -1934,8 +1934,6 @@ end
 function Interface:_OnRequestBattleStatus()
 	-- 2023/03/06 Fireball: moved the action from the only listener to OnRequestBattleStatus in whole chobby from gui_battle_room_window.lua to here
 	--                      and don´t call listeners of OnRequestBattleStatus anymore
-	
-	local battleStatus = self.userBattleStatus[self:GetMyUserName()] -- 2023/03/23 Fireball: chobby doesn´t delete battleStatus on leaveBattle - maybe we find sth. left from prior session for this host, which we can make use of
 	self._requestedBattleStatus = true -- allow SetBattleStatus again
 
 	local defaultSpec = true
@@ -1945,24 +1943,13 @@ function Interface:_OnRequestBattleStatus()
 	else
 		defaultSpec = WG.Chobby.Configuration.lastGameSpectatorState 
 	end
-	if battleStatus then
-		if battleStatus.isSpectator ~= nil then
-			defaultSpec = battleStatus.isSpectator
-		end
-		self:SetBattleStatus({
-			isSpectator =  defaultSpec,
-			isReady = false,
-			side = battleStatus.side or WG.Chobby.Configuration.lastFactionChoice,
-			sync = getSyncStatus(self:GetBattle(self:GetMyBattleID())),
-		})
-	else
-		self:SetBattleStatus({
-			isSpectator = defaultSpec,
-			isReady = false,
-			side = (WG.Chobby.Configuration.lastFactionChoice or 0) ,
-			sync = getSyncStatus(self:GetBattle(self:GetMyBattleID())),
-		})
-	end
+
+	self:SetBattleStatus({
+		isSpectator = defaultSpec,
+		isReady = false,
+		side = (WG.Chobby.Configuration.lastFactionChoice or 0) ,
+		sync = getSyncStatus(self:GetBattle(self:GetMyBattleID())),
+	})
 end
 Interface.commands["REQUESTBATTLESTATUS"] = Interface._OnRequestBattleStatus
 
