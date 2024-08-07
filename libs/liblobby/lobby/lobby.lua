@@ -642,7 +642,7 @@ function Lobby:_OnAddUser(userName, status)
 	if self.userNamesLC[userNameLC] and self.userNamesLC[userNameLC] ~= userName then
 		Spring.Log(LOG_SECTION, LOG.WARNING, "Overwriting formerly known lower-case user name " .. self.userNamesLC[userNameLC] .. " by user name " .. userName .. "(2 users with same lower case-variant exist)")
 	end
-	self.userNamesLC[userName:lower()] = userName
+	self.userNamesLC[userNameLC] = userName
 
 	if status then
 		for k, v in pairs(status) do
@@ -682,6 +682,9 @@ function Lobby:_OnRemoveUser(userName)
 
 	userInfo.isOffline = true
 	self.userCount = self.userCount - 1 -- this shows: userCount reflects the "online users"
+
+	self.userNamesLC[userName:lower()] = nil
+
 	self:_CallListeners("OnRemoveUser", userName)
 end
 
@@ -1435,7 +1438,7 @@ function Lobby:_OnUpdateUserBattleStatus(userName, status)
 
 	if (statusNew.owner == nil and not self.users[userName]) or
 		(statusNew.owner ~= nil and not self.users[statusNew.owner]) then
-		Spring.Log(LOG_SECTION, LOG.ERROR, "Tried to update non connected user in battle: ", userName)
+		Spring.Log(LOG_SECTION, LOG.WARNING, "Tried to update battle status for a disconnected user: ", userName)
 		return
 	end
 	if not self.userBattleStatus[userName] then
@@ -1484,8 +1487,10 @@ function Lobby:_OnRemoveAi(battleID, aiName, aiLib, allyNumber, owner)
 			break
 		end
 	end
-	self:_CallListeners("OnLeftBattle", battleID, aiName)
-	self.userBattleStatus[aiName] = nil
+
+	-- Unfortunately all AIs get added to users table sooner or later once TryGetUser("AiName") is called
+	self:_OnLeftBattle(battleID, aiName)
+	self.users[aiName] = nil
 end
 
 function Lobby:_OnSaidBattle(userName, message, sayTime)
