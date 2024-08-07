@@ -1051,6 +1051,12 @@ function Interface:_OnClientBattleStatus(userName, battleStatus, teamColor)
 	local status = self:ParseBattleStatus(battleStatus)
 	status.teamColor = ParseTeamColor(teamColor)
 
+	local userInfo = self.users[userName]
+	if userInfo and (not userInfo.battleID or userInfo.battleID ~= self:GetMyBattleID()) then
+		Spring.Log(LOG_SECTION, LOG.WARNING, "Can't update user's battle status, user is not in our battle:  ", userName)
+		return
+	end
+
 	self:_OnUpdateUserBattleStatus(userName, status)
 	if userName == self.myUserName then
 		self:_EnsureMyTeamNumberIsUnique()
