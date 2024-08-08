@@ -29,8 +29,8 @@ Scoring:
 	mapfilename		= "Avalanche 3.4", -- the name of the map to be displayed here, and which to play on, no .smf ending needed
 	playerstartx	= "85%", -- X position of where player comm icon should be drawn, from top left of the map
 	playerstarty	= "85%", -- Y position of where player comm icon should be drawn, from top left of the map
-	partime 		= 600, -- par time in seconds (time a mission is expected to take on average)
-	parresources	= 10000, -- par resource amount (amount of metal one is expected to spend on mission)
+	partime 		= 3600, -- par time in seconds (time a mission is expected to take on average)
+	parresources	= 20000, -- par resource amount (amount of metal one is expected to spend on mission)
 	difficulty		= 3, -- Percieved difficulty at 'normal' level: integer 1-10
     defaultdifficulty = "Normal", -- an entry of the difficulty table
     difficulties    = { -- Array for sortedness, Keys are text that appears in selector (as well as in scoring!), values are handicap levels

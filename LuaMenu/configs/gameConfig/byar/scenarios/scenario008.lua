@@ -31,8 +31,8 @@ Scoring:
 	mapfilename		= "Fallendell_V4", -- the name of the map to be displayed here, and which to play on, no .smf ending needed
 	playerstartx	= "20%", -- X position of where player comm icon should be drawn, from top left of the map
 	playerstarty	= "20%", -- Y position of where player comm icon should be drawn, from top left of the map
-	partime 		= 3000, -- par time in seconds (time a mission is expected to take on average)
-	parresources	= 1000000, -- par resource amount (amount of metal one is expected to spend on mission)
+	partime 		= 1200, -- par time in seconds (time a mission is expected to take on average)
+	parresources	= 50000, -- par resource amount (amount of metal one is expected to spend on mission)
 	difficulty		= 2, -- Percieved difficulty at 'normal' level: integer 1-10
     defaultdifficulty = "Normal", -- an entry of the difficulty table
     difficulties    = { -- Array for sortedness, Keys are text that appears in selector (as well as in scoring!), values are handicap levels
