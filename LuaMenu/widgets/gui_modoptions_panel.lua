@@ -267,7 +267,7 @@ local function ProcessBoolOption(data, index)
 	elseif localModoptions[data.key] == "1" then
 		checked = true
 	end
-	
+
 	local checkBox
 	checkBox = Checkbox:New {
 		x = 5,
@@ -279,7 +279,7 @@ local function ProcessBoolOption(data, index)
 		caption = data.name,
 		checked = checked,
 		objectOverrideFont =
-			isDefault and WG.Chobby.Configuration:GetFont(2)
+			checked and modoptionDefaults[data.key] == "1" or not checked and modoptionDefaults[data.key] and WG.Chobby.Configuration:GetFont(2)
 			or WG.Chobby.Configuration:GetFont(2, "Changed2", {color = {1, 0.5, 0.5, 1}}),
 		tooltip = data.desc,
 		OnChange = {
