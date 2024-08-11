@@ -60,13 +60,39 @@ local function battleType(teams)
 	return table.concat(teams_lengths, "v")
 end
 
+-- rename properties to match chobby context
+local function translatePlayerProps(player)
+	player.country = player.countryCode
+	player.countryCode = nil
+
+	-- ToDo: Add legion
+	player.side = (player.faction == "Armada") and 1 or (player.faction == "Cortex" and 2) or nil
+
+	player.level = player.rank and (player.rank + 1)
+	player.rank  = nil
+
+	player.aiLib = player.aiId
+	player.aiId  = nil
+
+	local value
+	if player.skill then
+		_, _, _, value = WG.Chobby.lobby:ParseSkillFormat(player.skill)
+		player.skill = value
+	end
+	if player.skillUncertainty then
+		_, _, _, value = WG.Chobby.lobby:ParseSkillFormat(player.skillUncertainty)
+		player.skillUncertainty = value
+	end
+	return player
+end
 
 --	From the flat array of players, build an array of teams
 local function buildTeams(players)
 	local Configuration = WG.Chobby.Configuration	
 	local teams = {}
-	local myAllyID, myteamID
+	local myAllyID, myTeamID
 	for _, player in pairs(players) do
+		player = translatePlayerProps(player)
 		local team
 		if teams[player.allyTeamId + 1] == nil then
 			team = {}
@@ -200,6 +226,7 @@ local function CreateReplayEntry(
 		resizable = false,
 		draggable = false,
 		padding = {0, 0, 0, 0},
+		teams = {},
 	}
 
 
@@ -293,56 +320,81 @@ local function CreateReplayEntry(
 	local xOffset = 0
 	local yOffset = 0
 
-	-- Iterate over the teams structure
-	for allyTeamID, team in pairs(teams) do
-		if allyTeamID > 1 then
-			yOffset = yOffset + 10
-		end
+	local tooltipString = "playerlist_tooltip_"
 
-		-- If we're computing a new team, and we can see that it will overflow
-		-- the list item's height, create a new column.
-		if yOffset > 0
-			and yOffset + (#team * PLAYER_HEIGHT) + PLAYER_HEIGHT + 10 >= REPLAY_LIST_ENTRY_HEIGHT
-		then
-			yOffset = 0
-			xOffset = xOffset + REPLAY_LIST_ENTRY_HEIGHT
+	local isFFA, overflow = false, false
+	if #teams > 6 then
+		isFFA = true
+		for allyTeamId = 1, #teams do
+			if #teams[allyTeamId] > 1 then
+				isFFA = false
+				break
+			end
 		end
-
-		-- Show a "Team n" label on the first line for each team
-		TextBox:New {
-			x = xOffset, y = yOffset, right = 0, height = 10,
-			valign = 'center',
-			objectOverrideFont = WG.Chobby.Configuration:GetFont(8),
-			objectOverrideHintFont = WG.Chobby.Configuration:GetFont(8),
-			text = "Team " .. allyTeamID,
-			parent = userList,
-			OnResize = {
-				function (obj, xSize, ySize)
-					obj:SetText(StringUtilities.GetTruncatedStringWithDotDot("Team " .. allyTeamID, obj.font, obj.width))
-				end
+		if isFFA then
+			TextBox:New {
+				x = xOffset, y = yOffset, right = 0, height = 10,
+				valign = 'center',
+				objectOverrideFont = WG.Chobby.Configuration:GetFont(8),
+				objectOverrideHintFont = WG.Chobby.Configuration:GetFont(8),
+				text = "Free For All Players:",
+				parent = userList,
+				OnResize = {
+					function (obj, xSize, ySize)
+						obj:SetText(StringUtilities.GetTruncatedStringWithDotDot("Free For All Players:", obj.font, obj.width))
+					end
+				}
 			}
-		}
-		yOffset = yOffset + PLAYER_HEIGHT
+			if #teams > 15 then
+				overflow = true
+			end
+		else
+			overflow = true
+		end
+	elseif #teams <= 3 then
+		for allyTeamId = 1, #teams do
+			if #teams[allyTeamId] > 5 then
+				overflow = true
+				break
+			end
+		end
+	else
+		for allyTeamId = 1, #teams do
+			if #teams[allyTeamId] > 2 then
+				overflow = true
+				break
+			end
+		end
+	end
 
-		--	Then add each player on a subsequent line
-		for _, player in pairs(team) do
+	local noOfTeamsToDisplay = overflow and (isFFA and math.min(12, #teams) or math.min(3, #teams)) or isFFA and math.min(15, #teams) or math.min(6, #teams)
+	for allyTeamID = 1, noOfTeamsToDisplay do
+		local team = teams[allyTeamID]
+		if not isFFA then
+			yOffset = math.floor( (allyTeamID - 1) / 3 ) * 3 * PLAYER_HEIGHT
+			TextBox:New {
+				x = xOffset, y = yOffset, right = 0, height = 10,
+				valign = 'center',
+				objectOverrideFont = WG.Chobby.Configuration:GetFont(8),
+				objectOverrideHintFont = WG.Chobby.Configuration:GetFont(8),
+				text = "Team " .. allyTeamID,
+				parent = userList,
+				OnResize = {
+					function (obj, xSize, ySize)
+						obj:SetText(StringUtilities.GetTruncatedStringWithDotDot("Team " .. allyTeamID, obj.font, obj.width))
+					end
+				}
+			}
+			yOffset = yOffset + PLAYER_HEIGHT
+		else
+			yOffset = math.ceil( (allyTeamID) / 3 ) * PLAYER_HEIGHT
+		end
+
+		for playerTeamID = 1, overflow and math.min(4, #team) or math.min(5, #team) do
+			local player = team[playerTeamID]
 			if winningAllyTeamId > -2 and player.name == Configuration.userName then
 				local result = winningAllyTeamId == -1 and "Unknown Result" or allyTeamID == winningAllyTeamId and "Won" or "Lost"
 				replayPanel:GetChildByName("replayMyResult"):SetText(result)
-			end
-			--	If there are too many players to display on one line, just add
-			--	an ellipsis and skip subsequent players for the team.
-			if yOffset + PLAYER_HEIGHT * 2 >= REPLAY_LIST_ENTRY_HEIGHT then
-				local ellipsis = TextBox:New {
-					x = xOffset, y = yOffset, text = "...",
-					objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
-					objectOverrideHintFont = WG.Chobby.Configuration:GetFont(1),
-				}
-				userList:AddChild(ellipsis)
-				ellipsis:SetPos(xOffset, yOffset)
-				ellipsis._relativeBounds.right = 0
-				ellipsis:UpdateClientArea()
-				break
 			end
 
 			-- Else, display the player's info
@@ -352,8 +404,31 @@ local function CreateReplayEntry(
 			playerControl._relativeBounds.right = 0
 			playerControl:UpdateClientArea()
 			yOffset = yOffset + PLAYER_HEIGHT
-		 end
+		end
+
+		xOffset = allyTeamID % 3 * REPLAY_LIST_ENTRY_HEIGHT
 	end
+
+	if overflow then
+		TextBox:New {
+			x = 0, y = yOffset, right = 0, height = 10,
+			valign = 'center',
+			objectOverrideFont = WG.Chobby.Configuration:GetFont(8),
+			objectOverrideHintFont = WG.Chobby.Configuration:GetFont(8),
+			text = "...more",
+			parent = userList,
+			OnResize = {
+				function (obj, xSize, ySize)
+					obj:SetText(StringUtilities.GetTruncatedStringWithDotDot("...more", obj.font, obj.width))
+				end
+			}
+		}
+	end
+
+	replayPanel.teams = teams
+
+	userList.tooltip = WG.Chobby.Configuration.REPLAY_TOOLTIP_PREFIX .. replayPath
+	userList.greedyHitTest = true
 
 	local function CheckReplayFileExists()
 		if not VFS.FileExists(replayPath) then
@@ -423,7 +498,6 @@ local function CreateReplayEntry(
 		},
 		parent = replayPanel,
 	}
-
 
 	return replayPanel, {replayDateString, string.lower(mapName), gameName}
 end
@@ -722,6 +796,10 @@ function ReplayHandler.ReadReplayInfoDone(path, engine, game, map, players, time
 	end
 
 	replayListWindow.AddReplay(path, engine, game, map, players, time, winningAllyTeamIds)
+end
+
+function ReplayHandler.GetReplayById(replayPath)
+	return replayList.controlById[replayPath] or {}
 end
 
 --------------------------------------------------------------------------------

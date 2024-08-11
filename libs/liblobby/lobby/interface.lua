@@ -502,7 +502,7 @@ function Interface:SetModOptions(data)
 end
 
 function Interface:AddAi(aiName, aiLib, allyNumber, version, aiOptions, battleStatusOptions)
-	local battleStatus = {
+	local userData = {
 		isReady = true,
 		teamNumber = self:GetUnusedTeamID(),
 		allyNumber = allyNumber,
@@ -511,7 +511,7 @@ function Interface:AddAi(aiName, aiLib, allyNumber, version, aiOptions, battleSt
 		side = 0,
 	}
 
-	battleStatus, updated = UpdateAndCreateMerge(battleStatus, battleStatusOptions or {})
+	local battleStatus, updated = UpdateAndCreateMerge(userData, battleStatusOptions or {})
 
 	aiName = aiName:gsub(" ", "")
 	local battleStatusString = EncodeBattleStatus(battleStatus)
@@ -1050,6 +1050,12 @@ Interface.commandPattern["UPDATEBATTLEINFO"] = "(%d+)%s+(%S+)%s+(%S+)%s+(%S+)%s+
 function Interface:_OnClientBattleStatus(userName, battleStatus, teamColor)
 	local status = self:ParseBattleStatus(battleStatus)
 	status.teamColor = ParseTeamColor(teamColor)
+
+	local userInfo = self.users[userName]
+	if userInfo and (not userInfo.battleID or userInfo.battleID ~= self:GetMyBattleID()) then
+		Spring.Log(LOG_SECTION, LOG.WARNING, "Can't update user's battle status, user is not in our battle:  ", userName)
+		return
+	end
 
 	self:_OnUpdateUserBattleStatus(userName, status)
 	if userName == self.myUserName then
@@ -1705,11 +1711,11 @@ Interface.commands["CLIENTIPPORT"] = Interface._OnClientIpPort
 Interface.commandPattern["CLIENTIPPORT"] = "(%S+)%s+(%S+)%s+(%S+)"
 
 function Interface:_OnCompFlags(compFlags)
-	compFlags = explode("\t", compflags)
+	compFlags = explode(" ", compFlags)
 	self:_CallListeners("OnCompFlags", compFlags)
 end
 Interface.commands["COMPFLAGS"] = Interface._OnCompFlags
-Interface.commandPattern["COMPFLAGS"] = "(%S+)%s+(%S+)"
+Interface.commandPattern["COMPFLAGS"] = "(.*)"
 
 function Interface:_OnConnectUser(obj)
 	self:_CallListeners("OnConnectUser", obj.ip, obj.port, obj.engine, obj.password)
@@ -1934,8 +1940,6 @@ end
 function Interface:_OnRequestBattleStatus()
 	-- 2023/03/06 Fireball: moved the action from the only listener to OnRequestBattleStatus in whole chobby from gui_battle_room_window.lua to here
 	--                      and don´t call listeners of OnRequestBattleStatus anymore
-	
-	local battleStatus = self.userBattleStatus[self:GetMyUserName()] -- 2023/03/23 Fireball: chobby doesn´t delete battleStatus on leaveBattle - maybe we find sth. left from prior session for this host, which we can make use of
 	self._requestedBattleStatus = true -- allow SetBattleStatus again
 
 	local defaultSpec = true
@@ -1945,24 +1949,13 @@ function Interface:_OnRequestBattleStatus()
 	else
 		defaultSpec = WG.Chobby.Configuration.lastGameSpectatorState 
 	end
-	if battleStatus then
-		if battleStatus.isSpectator ~= nil then
-			defaultSpec = battleStatus.isSpectator
-		end
-		self:SetBattleStatus({
-			isSpectator =  defaultSpec,
-			isReady = false,
-			side = battleStatus.side or WG.Chobby.Configuration.lastFactionChoice,
-			sync = getSyncStatus(self:GetBattle(self:GetMyBattleID())),
-		})
-	else
-		self:SetBattleStatus({
-			isSpectator = defaultSpec,
-			isReady = false,
-			side = (WG.Chobby.Configuration.lastFactionChoice or 0) ,
-			sync = getSyncStatus(self:GetBattle(self:GetMyBattleID())),
-		})
-	end
+
+	self:SetBattleStatus({
+		isSpectator = defaultSpec,
+		isReady = false,
+		side = (WG.Chobby.Configuration.lastFactionChoice or 0) ,
+		sync = getSyncStatus(self:GetBattle(self:GetMyBattleID())),
+	})
 end
 Interface.commands["REQUESTBATTLESTATUS"] = Interface._OnRequestBattleStatus
 
@@ -2059,17 +2052,23 @@ local function parseSkillOrigin(l, p, d)
 -- 4. [6.34]  , Plugin
 -- 5. [#6.34#], Plugin_Degraded
 -- Note: playername is delivered in lower case by protocol rules, see https://springrts.com/dl/LobbyProtocol/ProtocolDescription.html#SETSCRIPTTAGS:client
-local function GetSkillFromScriptTag(tag)
+function Interface:ParseSkillFormat(skillParam)
+	return string.match(skillParam, "(%(?)(%[?)(#?)(-?%d+%.?%d*)") -- ignore closings ")", "#", "]"
+end
+
+function Interface:GetSkillFromScriptTag(tag)
 	local userNameLC, skillKey, skillParam = string.match(tag, "(.+)/(.+)=(.+)")
 	if userNameLC == "" or skillKey == "" then
 		Spring.Log(LOG_SECTION, LOG.WARNING, "Could not parse scriptTag player/[..]", tag)
 		return
 	end
-	local l,p,d,value = string.match(skillParam, "(%(?)(%[?)(#?)(-?%d+%.?%d*)") -- ignore closings ")", "#", "]"
+
+	local l, p, d, value = self:ParseSkillFormat(skillParam)
 	if value == "" then
 		Spring.Log(LOG_SECTION, LOG.WARNING, "Could not parse player/"..skillKey.."/[..]", skillParam)
 		return
 	end
+
 	local status = {}
 	if (skillKey == "skill") then
 		status["skillOrigin"] = parseSkillOrigin(l,p,d)
@@ -2080,6 +2079,7 @@ local function GetSkillFromScriptTag(tag)
 		Spring.Log(LOG_SECTION, LOG.NOTICE, "unsupported setScriptTags playerKey:", skillKey)
 		return
 	end
+
 	return userNameLC, status
 end
 
@@ -2104,7 +2104,7 @@ function Interface:_OnSetScriptTags(tagsTxt)
 			local v = kvTable[2]
 			self.modoptions[k] = v
 		elseif string_starts(tag, scriptTagPlayers) then
-			local userNameLC, status = GetSkillFromScriptTag(tag:sub(scriptTagPlayersIndx))
+			local userNameLC, status = self:GetSkillFromScriptTag(tag:sub(scriptTagPlayersIndx))
 			local userName = self:GetLowerCaseUser(userNameLC) --lobby:FindBattleUserByLowerCase
 			if (userName == nil) or (status == nil) then
 				Spring.Log(LOG_SECTION, LOG.WARNING, "Could not parse tag " .. tag)
@@ -2195,8 +2195,12 @@ Interface.commandPattern["s.user.list_relationships"] = "(.+)"
 function Interface:_OnOK(tags)
 	local Configuration = WG.Chobby.Configuration
 	local tags = parseTags(tags)
-	local cmd = getTag(tags, "cmd", true)
-	local userName = getTag(tags, "userName", true)
+	local cmd = getTag(tags, "cmd", false)
+	local userName = getTag(tags, "userName", false)
+	if not (cmd and userName) then
+		Spring.Log(LOG_SECTION, LOG.WARNING, "Received OK command with wrong format.")
+		return
+	end
 
 	if cmd == 'c.user.ignore' then
 		self:_OnDisregard(userName, Configuration.IGNORE)
@@ -2220,8 +2224,8 @@ function Interface:_OnNo(tags)
 	local userName = getTag(tags, "userName", false) or "unknown"
 	Spring.Log(LOG_SECTION, LOG.ERROR, string.format("Server answered NO to command=%s and userName=%s", cmd, userName))
 end
-Interface.commands["OK"] = Interface._OnOK
-Interface.commandPattern["OK"] = "(.+)"
+Interface.commands["NO"] = Interface._OnNo
+Interface.commandPattern["NO"] = "(.+)"
 
 function Interface:_On_s_user_new_incoming_friend_request(userID)
 	userID = tonumber(userID)

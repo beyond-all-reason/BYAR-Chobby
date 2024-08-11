@@ -14,7 +14,7 @@ local spGetMouseState           = Spring.GetMouseState
 local spFormatTime              = Spring.Utilities.FormatTime
 local screenWidth, screenHeight = Spring.GetWindowGeometry()
 
-local MAX_WIDTH = 640
+local MAX_WIDTH = 880 -- 220 x 4 for Replay tooltips
 local MAX_WINDOW_WIDTH = MAX_WIDTH + 11
 
 local TOOLTIP_TEXT_NAME = "tooltipText"
@@ -952,6 +952,140 @@ end
 
 --------------------------------------------------------------------------
 --------------------------------------------------------------------------
+-- Replay tooltip
+
+-- demos may have no skill values
+local function SortPlayersBySkill(a, b)
+	local skillA = tonumber(a.skill)
+	local skillB = tonumber(b.skill)
+	return (skillA and skillB and skillA > skillB) or false
+end
+
+local function SortTeamsBySkill(a, b)
+	local skillA = tonumber(a[1].skill)
+	local skillB = tonumber(b[1].skill)
+	return (skillA and skillB and skillA > skillB) or false
+end
+
+local replayTooltip = {}
+local PLAYERWIDTH, PLAYERHEIGHT = 220, 22
+
+local function getReplayPlayerListTooltip(teamList)
+	
+	local showTeams = true
+	if #teamList > 2 then
+		showTeams = false -- assume ffa 
+		for i = 1, #teamList do
+			if #teamList[i] > 1 then -- no, it's teamFFA
+				showTeams = true
+			end
+		end
+	end
+
+	local cols = #teamList
+	local divisor
+	if showTeams then
+		cols = math.ceil(#teamList / math.ceil(#teamList / 4))
+	else
+		if #teamList < 33 then
+			divisor = 8 -- max 4 columns
+		else
+			divisor = 16 -- big ffas are difficult to handle
+		end
+		cols = math.ceil(#teamList / divisor)
+
+		table.sort(teamList, SortTeamsBySkill)
+	end
+
+	replayTooltip.mainStackPanel = Panel:New {
+			name = 'mainStackPanel',
+			x = 0,
+			y = 0,
+			width = cols * PLAYERWIDTH,
+		}
+
+	local xOffsetTeam = 0
+	local yOffsetTeam = 0
+	local function newTeamStack()
+		return Control:New {
+			x = xOffsetTeam,
+			y = yOffsetTeam,
+			autosize = true,
+			padding = {0, 0, 0, 0},
+			parent = replayTooltip.mainStackPanel,
+		}
+	end
+
+	local xOffsetPlayer = 0
+	local yOffsetPlayer = 0
+	local yOffsetTeamMax = 0
+	local teamStack
+	local prevRowHeightMax = 0
+	local totalHeight = 0
+
+	for teamNr = 1, #teamList do
+
+		local players = teamList[teamNr]
+		table.sort(players, SortPlayersBySkill)
+
+		if showTeams or teamNr == 1 then
+			xOffsetTeam = (teamNr - 1) % cols * PLAYERWIDTH
+			if xOffsetTeam == 0 then
+				prevRowHeightMax = yOffsetTeamMax
+				totalHeight = totalHeight + prevRowHeightMax + math.floor((teamNr - 1) / cols) * 23
+				yOffsetTeamMax = 0
+			end
+			yOffsetTeam = math.floor((teamNr - 1) / cols) * (prevRowHeightMax + 23)
+
+			teamStack = newTeamStack()
+			
+			-- team title
+			if not teamStack.teamTitle then
+				teamStack.teamTitle = GetTooltipLine(teamStack, nil, 3)
+			end
+			local teamTitle = ""
+			if showTeams then
+				teamTitle = "Team " .. tostring(teamNr) .. " (" .. #teamList[teamNr] .. ")"
+			else
+				teamTitle = "FFA (" .. #teamList .. ")"
+			end
+			local truncatedTitle = StringUtilities.GetTruncatedStringWithDotDot(teamTitle, teamStack.teamTitle.GetFont(), PLAYERWIDTH - 10)
+			teamStack.teamTitle.Update(0, truncatedTitle)
+			
+			yOffsetPlayer = 23
+		else
+			xOffsetPlayer = math.floor((teamNr - 1) / divisor)  * PLAYERWIDTH
+			yOffsetPlayer = 23 + (teamNr-1) % divisor * PLAYERHEIGHT
+		end
+
+		for playerNr = 1, #teamList[teamNr] do
+			local playerHolder = Control:New {
+				x = xOffsetPlayer,
+				y = yOffsetPlayer,
+				width = PLAYERWIDTH,
+				height = PLAYERHEIGHT,
+				padding = {0, 0, 0, 0},
+				parent = teamStack,
+			}
+
+			local playerControl = WG.UserHandler.GetReplayTooltipUser(teamList[teamNr][playerNr], PLAYERWIDTH)
+			playerHolder:AddChild(playerControl)
+
+			yOffsetPlayer = yOffsetPlayer + PLAYERHEIGHT
+			yOffsetTeamMax = math.max(yOffsetTeamMax, yOffsetPlayer)
+		end
+
+	end
+	totalHeight = totalHeight + yOffsetTeamMax
+
+	-- Set tooltip sizes
+	replayTooltip.mainStackPanel:SetPos(nil, nil, cols * PLAYERWIDTH, totalHeight + 5)
+
+	return replayTooltip.mainStackPanel
+end
+
+--------------------------------------------------------------------------
+--------------------------------------------------------------------------
 -- Tooltip maintence
 
 local function GetTooltip()
@@ -1057,6 +1191,12 @@ local function UpdateTooltip(inputText)
 			tipWindow:ClearChildren()
 			tipWindow:AddChild(tooltipcontrol)
 		end
+	elseif inputText:starts(Configuration.REPLAY_TOOLTIP_PREFIX) then
+		local replayPath = string.sub(inputText, 16)
+		local replayControl = WG.ReplayHandler.GetReplayById(replayPath)
+		local tooltipControl = getReplayPlayerListTooltip(replayControl.teams)
+		tipWindow:ClearChildren()
+		tipWindow:AddChild(tooltipControl)
 	else -- For everything else display a normal tooltip
 		tipWindow:ClearChildren()
 		tipTextDisplay:SetText(inputText)

@@ -21,6 +21,7 @@ local battleLobby
 local localModoptions = {}
 local modoptionControlNames = {}
 local modoptions
+local modoptionsByGame = {}
 
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
@@ -809,7 +810,7 @@ end
 		end
 
 		for key, value in pairs(panelModoptions) do
-			if (modoptionDefaults[key] == nil or modoptionDefaults[key] ~= value or key == "ranked_game") and not hidenOptions[key] then
+			if (modoptionDefaults[key] == nil or modoptionDefaults[key] ~= value or key == "ranked_game") and key:find("^mapmetadata_") == nil and not hidenOptions[key] then
 				local option = getModOptionByKey(key)
 				local name = option.name and option.name or key
 				text = text .. "\255\255\255\255"
@@ -936,7 +937,10 @@ function ModoptionsPanel.LoadModoptions(gameName, newBattleLobby)
 		return VFS.Include("modoptions.lua", nil, VFS.ZIP)
 	end
 
-	do
+	if modoptionsByGame[gameName] then
+		modoptions = modoptionsByGame[gameName]
+	else
+
 		local alreadyLoaded = false
 		for _, archive in pairs(VFS.GetLoadedArchives()) do
 			if archive == gameName then
@@ -944,11 +948,14 @@ function ModoptionsPanel.LoadModoptions(gameName, newBattleLobby)
 				break
 			end
 		end
+
 		if alreadyLoaded then
-			modoptions = VFS.Include("modoptions.lua", nil, VFS.ZIP)
+			Spring.Log(LOG_SECTION, LOG.ERROR, "Game archive already loaded, cannot fetch modoptions")
 		else
 			modoptions = VFS.UseArchive(gameName, LoadModOptions)
+			modoptionsByGame[gameName] = modoptions
 		end
+
 	end
 
 

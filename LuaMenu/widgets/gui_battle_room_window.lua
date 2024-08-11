@@ -1522,7 +1522,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 			if playersthatarentme == 1 and mynewbestfriend ~= "" then
 				local userInfo = lobby:TryGetUser(mynewbestfriend)
 				if userInfo then
-					Spring.PlaySoundFile("sounds/ring.wav", WG.Chobby.Configuration.menuNotificationVolume or 1) -- RING SOUND
+					Spring.PlaySoundFile("sounds/Alarm_light5_mixdown.wav", WG.Chobby.Configuration.menuNotificationVolume or 1) -- RING SOUND
 
 					local userControl = WG.UserHandler.GetNotificationUser(mynewbestfriend)
 					userControl:SetPos(30, 30, 250, 20)
@@ -3730,7 +3730,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	end
 
 	local function OnRing(listener, userName) -- userName is who rang you
-		Spring.PlaySoundFile("sounds/ring.wav", WG.Chobby.Configuration.menuNotificationVolume or 1)
+		Spring.PlaySoundFile("sounds/Alarm_light5_mixdown.wav", WG.Chobby.Configuration.menuNotificationVolume or 1)
 
 		local userInfo = lobby:TryGetUser(userName)
 		if userInfo then

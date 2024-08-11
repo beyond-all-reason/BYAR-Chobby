@@ -758,7 +758,7 @@ local function GetLobbyTabControls()
 				if freezeSettings then
 					return
 				end
-				Spring.PlaySoundFile("sounds/ring.wav", WG.Chobby.Configuration.menuNotificationVolume or 1) -- RING SOUND
+				Spring.PlaySoundFile("sounds/Alarm_light5_mixdown.wav", WG.Chobby.Configuration.menuNotificationVolume or 1) -- RING SOUND
 			end
 		}
 
@@ -993,6 +993,10 @@ local function GetLobbyTabControls()
 	children[#children + 1] = autoLogin
 	offset = offset + ITEM_OFFSET
 
+	local cbQueueExitConfirmPromptDoNotAskAgain
+	cbQueueExitConfirmPromptDoNotAskAgain, offset = AddCheckboxSetting(offset, i18n("queueExitConfirmPromptDoNotAskAgain"), "queueExitConfirmPromptDoNotAskAgain", true, nil , i18n("queueExitConfirmPromptDoNotAskAgain_tooltip"))
+	children[#children + 1] = cbQueueExitConfirmPromptDoNotAskAgain
+
 	children[#children + 1] = Label:New {
 		x = 20,
 		y = offset + TEXT_OFFSET,
@@ -1196,6 +1200,12 @@ local function GetLobbyTabControls()
 				Spring.SetConfigInt("randomSkirmishSetup", 0)
 			end
 			--Configuration:SetConfigValue("randomSkirmishSetup", value)
+		end
+
+		if key == "queueExitConfirmPromptDoNotAskAgain" and cbQueueExitConfirmPromptDoNotAskAgain.checked ~= value then
+			cbQueueExitConfirmPromptDoNotAskAgain.checked = value
+			cbQueueExitConfirmPromptDoNotAskAgain.state.checked = cbQueueExitConfirmPromptDoNotAskAgain.checked
+			cbQueueExitConfirmPromptDoNotAskAgain:Invalidate()
 		end
 	end
 
