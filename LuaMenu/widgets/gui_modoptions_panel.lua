@@ -93,16 +93,24 @@ local function processChildrenLocks(unlock, lock, bitmask, locker)
 				lockedOptions[item] = nil
 				child = modoptionControlNames[item]
 				if child then
-					itemData = getModOptionByKey(item)
 					if child.parent.name ~= "tabPanel" then
-						for j = 1, #child.parent.children do
-							child.parent.children[j].font = WG.Chobby.Configuration:GetFont(2)
-							child.parent.children[j].tooltip = itemData.desc
+						local cachedY = child.parent.y
+						for j = 1, #child.parent.parent.children do
+							if child.parent.parent.children[j].y > cachedY then
+								child.parent.parent.children[j]:SetPos(nil, child.parent.parent.children[j].y + 31.99)
+							end
 						end
-						child.parent.tooltip = itemData.desc
+						--child.parent:SetVisibility(true)
+						child.parent:SetPos(child.parent.x - 4095)
 					else
-						child.font = WG.Chobby.Configuration:GetFont(2)
-						child.tooltip = itemData.desc
+						local cachedY = child.y
+						for j = 1, #child.parent.children do
+							if child.parent.children[j].y > cachedY then
+								child.parent.children[j]:SetPos(nil, child.parent.children[j].y + 31.99)
+							end
+						end
+						--child:SetVisibility(true)
+						child:SetPos(child.x - 4095)
 					end
 				end
 			end
@@ -112,36 +120,27 @@ local function processChildrenLocks(unlock, lock, bitmask, locker)
 	if lock then for i = 1, #lock do
 		item = lock[i]
 		itemLock = lockedOptions[item] or 0
-		Spring.Echo("EPIE LOCK", item, itemLock, bitmask, locker)
 		if itemLock == 0 then
 			child = modoptionControlNames[item]
 			if child then
 				if child.parent.name ~= "tabPanel" then
-					for j = 1, #child.parent.children do
-						child.parent.children[j].font = WG.Chobby.Configuration:GetFont(11)
-						child.parent.children[j].tooltip = "Locked by "..locker
+					local cachedY = child.parent.y
+					for j = 1, #child.parent.parent.children do
+						if child.parent.parent.children[j].y > cachedY then
+							child.parent.parent.children[j]:SetPos(nil, child.parent.parent.children[j].y - 31.99)
+						end
 					end
-					child.parent.tooltip = "Locked by "..locker
+					--child.parent:SetVisibility(false)
+					child.parent:SetPos(child.parent.x + 4095)
 				else
-					child.font = WG.Chobby.Configuration:GetFont(11)
-					child.tooltip = "Locked by "..locker
-				end
-			end
-		else
-			child = modoptionControlNames[item]
-			if child then
-				if child.parent.name ~= "tabPanel" then
-					tooltip = child.parent.children[1].tooltip
-					tooltip = string.find(tooltip, locker) and tooltip or tooltip..", "..locker
+					local cachedY = child.y
 					for j = 1, #child.parent.children do
-						child.parent.children[j].font = WG.Chobby.Configuration:GetFont(11)
-						child.parent.children[j].tooltip = tooltip
+						if child.parent.children[j].y > cachedY then
+							child.parent.children[j]:SetPos(nil, child.parent.children[j].y - 31.99)
+						end
 					end
-					child.parent.tooltip = tooltip
-				else
-					child.font = WG.Chobby.Configuration:GetFont(11)
-					tooltip = child.tooltip
-					child.tooltip = string.find(tooltip, locker) and tooltip or tooltip..", "..locker
+					--child:SetVisibility(false)
+					child:SetPos(child.x + 4095)
 				end
 			end
 		end
@@ -182,6 +181,9 @@ local function ProcessListOption(data, index)
 
 		if itemData.key == defaultKey then
 			defaultItem = i
+			if itemData.lock then
+				postLock[#postLock+1] = {itemData.lock, data.bitmask or 1, data.name}
+			end
 		end
 
 		if itemData.desc then
@@ -271,6 +273,15 @@ local function ProcessBoolOption(data, index)
 			end
 		},
 	}
+
+	if checked then
+		if data.lock then
+			postLock[#postLock+1] = {data.lock, data.bitmask or 1, data.name}
+		end 
+	elseif data.unlock then
+		postLock[#postLock+1] = {data.unlock, data.bitmask or 1, data.name}
+	end
+
 	modoptionControlNames[data.key] = checkBox
 
 	return checkBox
@@ -454,17 +465,9 @@ local function PopulateTab(options)
 
 			elseif data.type == "bool" then
 				rowData = ProcessBoolOption(data, row)
-				if data.unlock then
-					postLock[#postLock+1] = {data.unlock, data.bitmask or 1, data.name}
-				end
 
 			elseif data.type == "list" then
 				rowData = ProcessListOption(data, row)
-				if data.def and data.lock then
-					postLock[#postLock+1] = {data.lock, data.bitmask or 1, data.name}
-				elseif data.unlock then
-					postLock[#postLock+1] = {data.unlock, data.bitmask or 1, data.name}
-				end
 
 			elseif data.type == "seperator" then
 				rowData = ProcessLineSeperator(data, row)
@@ -577,6 +580,14 @@ local function CreateModoptionWindow()
 
 	local function AcceptFunc()
 		screen0:FocusControl(buttonAccept) -- Defocus the text entry
+		local isBoss = false
+		if not isBoss then
+			for k, v in pairs(localModoptions) do
+				if lockedOptions[k] then
+					localModoptions[k] = battleLobby.modoptions[k]
+				end
+			end
+		end
 		battleLobby:SetModOptions(localModoptions)
 		modoptionsSelectionWindow:Dispose()
 	end
@@ -711,12 +722,39 @@ end
 	local panelModoptions
 
 	local function OnSetModOptions(listener, modopts)
+		local hidenOptions = {}
 		local text = ""
 		local empty = true
 		panelModoptions = modopts or panelModoptions or {}
 		if not modoptions then return end
+
+		for _, option in pairs(modoptions) do
+			if option.type == "bool" then
+				if panelModoptions[option.key] == "1" then
+					if option.lock then
+						for i = 1, #option.lock do
+							hidenOptions[option.lock[i]] = true
+						end
+					end
+				elseif option.unlock then
+					for i = 1, #option.unlock do
+						hidenOptions[option.unlock[i]] = true
+					end
+				end
+			elseif option.type == "list" then
+				for j = 1, #option.items do
+					if option.items[j].key == panelModoptions[option.key] and option.items[j].lock then
+						for i = 1, #option.items[j].lock do
+							hidenOptions[option.items[j].lock[i]] = true
+						end
+						break
+					end
+				end
+			end
+		end
+
 		for key, value in pairs(panelModoptions) do
-			if modoptionDefaults[key] == nil or modoptionDefaults[key] ~= value or key == "ranked_game" then
+			if (modoptionDefaults[key] == nil or modoptionDefaults[key] ~= value or key == "ranked_game") and not hidenOptions[key] then
 				local option = getModOptionByKey(key)
 				local name = option.name and option.name or key
 				text = text .. "\255\255\255\255"
