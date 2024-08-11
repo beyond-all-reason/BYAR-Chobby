@@ -95,19 +95,19 @@ local function processChildrenLocks(unlock, lock, bitmask, locker)
 				child = modoptionControlNames[item]
 				if child then
 					if child.parent.name ~= "tabPanel" then
-						local cachedY = child.parent.y
+						local cachedY = child.parent.rowOrginal
 						for j = 1, #child.parent.parent.children do
-							if child.parent.parent.children[j].y > cachedY then
-								child.parent.parent.children[j]:SetPos(nil, child.parent.parent.children[j].y + 31.99)
+							if child.parent.parent.children[j].rowOrginal > cachedY then
+								child.parent.parent.children[j]:SetPos(nil, child.parent.parent.children[j].y + 32)
 							end
 						end
 						--child.parent:SetVisibility(true)
 						child.parent:SetPos(child.parent.x - 4095)
 					else
-						local cachedY = child.y
+						local cachedY = child.rowOrginal
 						for j = 1, #child.parent.children do
-							if child.parent.children[j].y > cachedY then
-								child.parent.children[j]:SetPos(nil, child.parent.children[j].y + 31.99)
+							if child.parent.children[j].rowOrginal > cachedY then
+								child.parent.children[j]:SetPos(nil, child.parent.children[j].y + 32)
 							end
 						end
 						--child:SetVisibility(true)
@@ -125,19 +125,19 @@ local function processChildrenLocks(unlock, lock, bitmask, locker)
 			child = modoptionControlNames[item]
 			if child then
 				if child.parent.name ~= "tabPanel" then
-					local cachedY = child.parent.y
+					local cachedY = child.parent.rowOrginal
 					for j = 1, #child.parent.parent.children do
-						if child.parent.parent.children[j].y > cachedY then
-							child.parent.parent.children[j]:SetPos(nil, child.parent.parent.children[j].y - 31.99)
+						if child.parent.parent.children[j].rowOrginal > cachedY then
+							child.parent.parent.children[j]:SetPos(nil, child.parent.parent.children[j].y - 32)
 						end
 					end
 					--child.parent:SetVisibility(false)
 					child.parent:SetPos(child.parent.x + 4095)
 				else
-					local cachedY = child.y
+					local cachedY = child.rowOrginal
 					for j = 1, #child.parent.children do
-						if child.parent.children[j].y > cachedY then
-							child.parent.children[j]:SetPos(nil, child.parent.children[j].y - 31.99)
+						if child.parent.children[j].rowOrginal > cachedY then
+							child.parent.children[j]:SetPos(nil, child.parent.children[j].y - 32)
 						end
 					end
 					--child:SetVisibility(false)
@@ -279,7 +279,7 @@ local function ProcessBoolOption(data, index)
 		caption = data.name,
 		checked = checked,
 		objectOverrideFont =
-			checked and modoptionDefaults[data.key] == "1" or not checked and modoptionDefaults[data.key] and WG.Chobby.Configuration:GetFont(2)
+			(checked and modoptionDefaults[data.key] == "1" or not checked and modoptionDefaults[data.key]) and WG.Chobby.Configuration:GetFont(2)
 			or WG.Chobby.Configuration:GetFont(2, "Changed2", {color = {1, 0.5, 0.5, 1}}),
 		tooltip = data.desc,
 		OnChange = {
@@ -290,14 +290,14 @@ local function ProcessBoolOption(data, index)
 					processChildrenLocks(data.lock, data.unlock, data.bitmask or 1, data.name)
 				end
 				localModoptions[data.key] = tostring((newState and 1) or 0)
-				if newState and modoptionDefaults[data.key] == "1" or not newState and modoptionDefaults[data.key] == "0" then
+				if (newState and modoptionDefaults[data.key] == "1") or (not newState and modoptionDefaults[data.key] == "0") then
 					checkBox.font = WG.Chobby.Configuration:GetFont(2)
 				else
 					checkBox.font = WG.Chobby.Configuration:GetFont(2, "Changed2", {color = {1, 0.5, 0.5, 1}})
 				end
 			end or
 			function (obj, newState)
-				if newState and modoptionDefaults[data.key] == "1" or not newState and modoptionDefaults[data.key] == "0" then
+				if (newState and modoptionDefaults[data.key] == "1") or (not newState and modoptionDefaults[data.key] == "0") then
 					checkBox.font = WG.Chobby.Configuration:GetFont(2)
 				else
 					checkBox.font = WG.Chobby.Configuration:GetFont(2, "Changed2", {color = {1, 0.5, 0.5, 1}})
@@ -331,7 +331,7 @@ local function ProcessNumberOption(data, index)
 		valign = "center",
 		align = "left",
 		caption = data.name,
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(tonumber(data.font) or 2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		tooltip = data.desc,
 	}
 
@@ -411,7 +411,7 @@ local function ProcessStringOption(data, index)
 		valign = "center",
 		align = "left",
 		caption = data.name,
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(tonumber(data.font) or 2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		tooltip = data.desc,
 	}
 
@@ -465,9 +465,9 @@ local function ProcessStringOption(data, index)
 end
 
 local function ProcessSubHeader(data, index)
-	return Label:New {
+	local label = Label:New {
 		x = 5,
-		y = index*32,
+		y = index * 32 + 3,
 		width = 1600,
 		height = 30,
 		valign = "center",
@@ -476,6 +476,8 @@ local function ProcessSubHeader(data, index)
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(tonumber(data.font) or 2),
 		tooltip = data.desc,
 	}
+	modoptionControlNames[data.key] = label
+	return label
 end
 
 local function ProcessLineSeperator(data, index)
@@ -502,14 +504,15 @@ local function PopulateTab(options)
 	}
 
 	local column, row = 1, 0
+	local data, rowData
 	for i = 1, #options do
-		local data = options[i]
+		data = options[i]
 		if data then
 			if (data.column or -1) > column then
 				row = row - 1
 			end
 
-			local rowData = nil
+			rowData = nil
 			if data.type == "number" then
 				rowData = ProcessNumberOption(data, row)
 
@@ -534,6 +537,7 @@ local function PopulateTab(options)
 				column = math.abs(data.column or 1)
 				rowData.x = rowData.x + (column - 1) * 625
 				row = row + 1
+				rowData.rowOrginal = rowData.y
 				contentsPanel:AddChild(rowData)
 			end
 		end
