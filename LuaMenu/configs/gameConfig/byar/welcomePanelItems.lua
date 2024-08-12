@@ -14,7 +14,10 @@ local welcomePanelItems = {
         Header = "Welcome to Beyond All Reason",
         Text = "Welcome back Commander. We hope you are ready for epic Singleplayer and Multiplayer battles. Check out our Discord and join the community!\n",
     },
-
+    {
+        Header = "New Shaders!",
+        Text = "Starting Monday, we have a new set of shaders for Construction, Cloak, SSAO and Bloom. Please report any glitches you find to Discord!\n",
+    },
     {
         Header = "Small Team Games split!",
         Text = "This Tuesday, the Team Games rating is getting split between Small (up to 5v5) and Large (6v6-8v8) team games! We're increasing support for small team games, as they play vastly different from 8v8 - give them a try!" .. " \n" .. " \n" .. "Both modes will use your old Team Games rating as a starting point, and your Small Team rating will be reset to a minimum of 5." .. " \n" .. " \n" .. "$minratinglevel will also use rating for your chosen mode, based on the team size set in your lobby. That includes Duel - the long-standing bug where rating limits would always use team rating was fixed!" .. " \n",
