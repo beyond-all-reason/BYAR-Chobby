@@ -81,8 +81,9 @@ end
 -- Lock Handling
 local lockedOptions = {}
 local postLock = {}
-local function processChildrenLocks(unlock, lock, bitmask, locker)
-	local item, itemLock, child, itemData, tooltip
+local function processChildrenLocks(unlock, lock, bitmask)
+	local item, itemLock, child
+
 	if unlock then for i = 1, #unlock do
 		item = unlock[i]
 		itemLock = lockedOptions[item]
@@ -95,23 +96,15 @@ local function processChildrenLocks(unlock, lock, bitmask, locker)
 				child = modoptionControlNames[item]
 				if child then
 					if child.parent.name ~= "tabPanel" then
-						local cachedY = child.parent.rowOrginal
-						for j = 1, #child.parent.parent.children do
-							if child.parent.parent.children[j].rowOrginal > cachedY then
-								child.parent.parent.children[j]:SetPos(nil, child.parent.parent.children[j].y + 32)
-							end
+						child = child.parent
+					end
+					local tabPanel, cachedY = child.parent, child.rowOrginal
+					child:SetPos(child.x - 4095)
+
+					for j = 1, #tabPanel.children do
+						if tabPanel.children[j].rowOrginal > cachedY then
+							tabPanel.children[j]:SetPos(nil, tabPanel.children[j].y + 32)
 						end
-						--child.parent:SetVisibility(true)
-						child.parent:SetPos(child.parent.x - 4095)
-					else
-						local cachedY = child.rowOrginal
-						for j = 1, #child.parent.children do
-							if child.parent.children[j].rowOrginal > cachedY then
-								child.parent.children[j]:SetPos(nil, child.parent.children[j].y + 32)
-							end
-						end
-						--child:SetVisibility(true)
-						child:SetPos(child.x - 4095)
 					end
 				end
 			end
@@ -125,23 +118,15 @@ local function processChildrenLocks(unlock, lock, bitmask, locker)
 			child = modoptionControlNames[item]
 			if child then
 				if child.parent.name ~= "tabPanel" then
-					local cachedY = child.parent.rowOrginal
-					for j = 1, #child.parent.parent.children do
-						if child.parent.parent.children[j].rowOrginal > cachedY then
-							child.parent.parent.children[j]:SetPos(nil, child.parent.parent.children[j].y - 32)
-						end
+					child = child.parent
+				end
+				local tabPanel, cachedY = child.parent, child.rowOrginal
+				child:SetPos(child.x + 4095)
+
+				for j = 1, #tabPanel.children do
+					if tabPanel.children[j].rowOrginal > cachedY then
+						tabPanel.children[j]:SetPos(nil, tabPanel.children[j].y - 32)
 					end
-					--child.parent:SetVisibility(false)
-					child.parent:SetPos(child.parent.x + 4095)
-				else
-					local cachedY = child.rowOrginal
-					for j = 1, #child.parent.children do
-						if child.parent.children[j].rowOrginal > cachedY then
-							child.parent.children[j]:SetPos(nil, child.parent.children[j].y - 32)
-						end
-					end
-					--child:SetVisibility(false)
-					child:SetPos(child.x + 4095)
 				end
 			end
 		end
@@ -211,9 +196,9 @@ local function ProcessListOption(data, index)
 		objectOverrideFont = data.def == defaultKey and WG.Chobby.Configuration:GetFont(2) or WG.Chobby.Configuration:GetFont(2, "Changed2", {color = {1, 0.5, 0.5, 1}}),
 		selectByName = true,
 		selected = defaultItem,
-		OnSelectName = {
-			locking and function (obj, selectedName)
-				processChildrenLocks(unlock and unlock[itemNameToKey[selectedName]] or nil, lock and lock[itemNameToKey[selectedName]] or nil, data.bitmask or 1, data.name)
+		OnSelectName =
+			locking and { function (obj, selectedName)
+				processChildrenLocks(unlock and unlock[itemNameToKey[selectedName]] or nil, lock and lock[itemNameToKey[selectedName]] or nil, data.bitmask or 1)
 				if itemNameToKey[selectedName] == data.def then
 					for i = 1, #control.children do
 						control.children[i].font = WG.Chobby.Configuration:GetFont(2)
@@ -224,8 +209,9 @@ local function ProcessListOption(data, index)
 					end
 				end
 				localModoptions[data.key] = itemNameToKey[selectedName]
-			end or
-			function (obj, selectedName)	
+			end
+		} or
+			{function (obj, selectedName)	
 				if itemNameToKey[selectedName] == data.def then
 					for i = 1, #control.children do
 						control.children[i].font = WG.Chobby.Configuration:GetFont(2)
@@ -252,7 +238,7 @@ local function ProcessListOption(data, index)
 		greedyHitTest = data.desc ~= nil,
 		children = {
 			label,
-			list
+			list,
 		}
 	}
 	return control
@@ -282,12 +268,12 @@ local function ProcessBoolOption(data, index)
 			(checked and modoptionDefaults[data.key] == "1" or not checked and modoptionDefaults[data.key]) and WG.Chobby.Configuration:GetFont(2)
 			or WG.Chobby.Configuration:GetFont(2, "Changed2", {color = {1, 0.5, 0.5, 1}}),
 		tooltip = data.desc,
-		OnChange = {
-			(data.unlock or data.lock) and function (obj, newState)
+		OnChange =
+			(data.unlock or data.lock) and { function (obj, newState)
 				if newState then -- on enable
-					processChildrenLocks(data.unlock, data.lock, data.bitmask or 1, data.name)
+					processChildrenLocks(data.unlock, data.lock, data.bitmask or 1)
 				else -- on disable
-					processChildrenLocks(data.lock, data.unlock, data.bitmask or 1, data.name)
+					processChildrenLocks(data.lock, data.unlock, data.bitmask or 1)
 				end
 				localModoptions[data.key] = tostring((newState and 1) or 0)
 				if (newState and modoptionDefaults[data.key] == "1") or (not newState and modoptionDefaults[data.key] == "0") then
@@ -295,8 +281,9 @@ local function ProcessBoolOption(data, index)
 				else
 					checkBox.font = WG.Chobby.Configuration:GetFont(2, "Changed2", {color = {1, 0.5, 0.5, 1}})
 				end
-			end or
-			function (obj, newState)
+			end
+		} or
+			{ function (obj, newState)
 				if (newState and modoptionDefaults[data.key] == "1") or (not newState and modoptionDefaults[data.key] == "0") then
 					checkBox.font = WG.Chobby.Configuration:GetFont(2)
 				else
@@ -321,7 +308,6 @@ local function ProcessBoolOption(data, index)
 end
 
 local function ProcessNumberOption(data, index)
-
 	local control
 	local label = Label:New {
 		x = 5,
