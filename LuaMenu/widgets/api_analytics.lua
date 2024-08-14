@@ -111,6 +111,7 @@ function SendBARAnalytics(cmdName,args,isEvent)
 	if client == nil then
 		return
 	end
+	cmdName = string.gsub(cmdName, " ", "_") -- remove spaces from event names
 	-- events are always tables, properties always just string
 	local message
 	local istest = ""
