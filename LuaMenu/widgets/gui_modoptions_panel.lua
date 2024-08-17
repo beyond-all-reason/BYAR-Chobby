@@ -141,17 +141,6 @@ end
 
 local function ProcessListOption(data, index)
 	local control
-	local label = Label:New {
-		x = 5,
-		y = 0,
-		width = 320,
-		height = 30,
-		valign = "center",
-		align = "left",
-		caption = data.name,
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
-		tooltip = data.desc,
-	}
 
 	local defaultItem = 1
 	local defaultKey = localModoptions[data.key] or data.def
@@ -183,6 +172,18 @@ local function ProcessListOption(data, index)
 			locking = true
 		end
 	end
+
+	local label = Label:New {
+		x = 5,
+		y = 0,
+		width = 320,
+		height = 30,
+		valign = "center",
+		align = "left",
+		caption = data.name,
+		objectOverrideFont = data.def == defaultKey and WG.Chobby.Configuration:GetFont(2) or WG.Chobby.Configuration:GetFont(2, "Changed2", {color = {1, 0.5, 0.5, 1}}),
+		tooltip = data.desc,
+	}
 
 	local list = ComboBox:New {
 		x = 325,
@@ -309,6 +310,8 @@ end
 
 local function ProcessNumberOption(data, index)
 	local control
+	local oldText = localModoptions[data.key] or modoptionDefaults[data.key]
+
 	local label = Label:New {
 		x = 5,
 		y = 0,
@@ -317,11 +320,9 @@ local function ProcessNumberOption(data, index)
 		valign = "center",
 		align = "left",
 		caption = data.name,
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideFont = oldText == modoptionDefaults[data.key] and WG.Chobby.Configuration:GetFont(2) or WG.Chobby.Configuration:GetFont(2, "Changed2", {color = {1, 0.5, 0.5, 1}}),
 		tooltip = data.desc,
 	}
-
-	local oldText = localModoptions[data.key] or modoptionDefaults[data.key]
 
 	local numberBox = EditBox:New {
 		x = 325,
@@ -389,6 +390,7 @@ end
 local function ProcessStringOption(data, index)
 
 	local control
+	local oldText = localModoptions[data.key] or modoptionDefaults[data.key]
 	local label = Label:New {
 		x = 5,
 		y = 0,
@@ -397,11 +399,9 @@ local function ProcessStringOption(data, index)
 		valign = "center",
 		align = "left",
 		caption = data.name,
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideFont = oldText == modoptionDefaults[data.key] and WG.Chobby.Configuration:GetFont(2) or WG.Chobby.Configuration:GetFont(2, "Changed2", {color = {1, 0.5, 0.5, 1}}),
 		tooltip = data.desc,
 	}
-
-	local oldText = localModoptions[data.key] or modoptionDefaults[data.key]
 
 	local textBox = EditBox:New {
 		x = 325,
@@ -411,7 +411,7 @@ local function ProcessStringOption(data, index)
 		text   = oldText,
 		useIME = false,
 		hint = data.hint,
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideFont = oldText == modoptionDefaults[data.key] and WG.Chobby.Configuration:GetFont(2) or WG.Chobby.Configuration:GetFont(2, "Changed2", {color = {1, 0.5, 0.5, 1}}),
 		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(11),
 		tooltip = data.desc,
 		OnFocusUpdate = {
