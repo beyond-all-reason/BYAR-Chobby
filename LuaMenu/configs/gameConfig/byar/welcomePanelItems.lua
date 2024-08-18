@@ -15,8 +15,11 @@ local welcomePanelItems = {
         Text = "Welcome back Commander. We hope you are ready for epic Singleplayer and Multiplayer battles. Check out our Discord and join the community!\n",
     },
     {
-        Header = "New Shaders!",
-        Text = "Starting Monday, we have a new set of shaders for Construction, Cloak, SSAO and Bloom. Please report any glitches you find to Discord!\n",
+        Header = "5v5 OMEGA SERIES FINALS - Watch LIVE on Twitch!",
+        Text = "Get ready for the summer's hottest event! After intense qualifiers and group stage, the top 4 BAR 5v5 teams are set to clash in the Final Event with a $1,500 prize pool." .. " \n" .. " \n" .. "Featuring top players and expert strategies, the Omega Series finals will be unforgettable. Tune in today at 13:00 UTC on the BAR Official Twitch Channel, with live casting by Volshok and friends. Don’t miss it! \n",
+		Image = "LuaMenu/images/omegaseries.png",
+        Url = "https://www.twitch.tv/beyondallreasonofficial",
+        UrlText = "Watch the stream",
     },
     {
         Header = "Small Team Games split!",
