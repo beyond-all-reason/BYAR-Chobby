@@ -14,13 +14,7 @@ local welcomePanelItems = {
         Header = "Welcome to Beyond All Reason",
         Text = "Welcome back Commander. We hope you are ready for epic Singleplayer and Multiplayer battles. Check out our Discord and join the community!\n",
     },
-    {
-        Header = "5v5 OMEGA SERIES FINALS are LIVE - WATCH NOW on Twitch!",
-        Text = "Get ready for the summer's hottest event! After intense qualifiers and group stage, the top 4 BAR 5v5 teams are set to clash in the Final Event with a $1,500 prize pool." .. " \n" .. " \n" .. "Featuring top players and expert strategies, the Omega Series finals will be unforgettable. Tune in today at 13:00 UTC on the BAR Official Twitch Channel, with live casting by Volshok and friends. Don’t miss it! \n",
-		Image = "LuaMenu/images/omegaseries.png",
-        Url = "https://www.twitch.tv/beyondallreasonofficial",
-        UrlText = "Watch the stream",
-    },
+
     {
         Header = "Small Team Games split!",
         Text = "This Tuesday, the Team Games rating is getting split between Small (up to 5v5) and Large (6v6-8v8) team games! We're increasing support for small team games, as they play vastly different from 8v8 - give them a try!" .. " \n" .. " \n" .. "Both modes will use your old Team Games rating as a starting point, and your Small Team rating will be reset to a minimum of 5." .. " \n" .. " \n" .. "$minratinglevel will also use rating for your chosen mode, based on the team size set in your lobby. That includes Duel - the long-standing bug where rating limits would always use team rating was fixed!" .. " \n",
