@@ -255,15 +255,30 @@ local function ProcessBoolOption(data, index)
 		checked = true
 	end
 
-	local checkBox
-	checkBox = Checkbox:New {
+	local control
+
+	local label = Label:New {
 		x = 5,
-		y = index*32,
+		y = 0,
+		width = 320,
+		height = 30,
+		valign = "center",
+		align = "left",
+		caption = data.name,
+		objectOverrideFont =
+			(checked and modoptionDefaults[data.key] == "1" or not checked and modoptionDefaults[data.key]) and WG.Chobby.Configuration:GetFont(2)
+			or WG.Chobby.Configuration:GetFont(2, "Changed2", {color = {1, 0.5, 0.5, 1}}),
+		tooltip = data.desc,
+	}
+
+	local checkBox = Checkbox:New {
+		x = 5,
+		y = 0,
 		width = 345,
 		height = 30,
 		boxalign = "right",
 		boxsize = 25,
-		caption = data.name,
+		caption = "",
 		checked = checked,
 		objectOverrideFont =
 			(checked and modoptionDefaults[data.key] == "1" or not checked and modoptionDefaults[data.key]) and WG.Chobby.Configuration:GetFont(2)
@@ -278,17 +293,25 @@ local function ProcessBoolOption(data, index)
 				end
 				localModoptions[data.key] = tostring((newState and 1) or 0)
 				if (newState and modoptionDefaults[data.key] == "1") or (not newState and modoptionDefaults[data.key] == "0") then
-					checkBox.font = WG.Chobby.Configuration:GetFont(2)
+					for i = 1, #control.children do
+						control.children[i].font = WG.Chobby.Configuration:GetFont(2)
+					end
 				else
-					checkBox.font = WG.Chobby.Configuration:GetFont(2, "Changed2", {color = {1, 0.5, 0.5, 1}})
+					for i = 1, #control.children do
+						control.children[i].font = WG.Chobby.Configuration:GetFont(2, "Changed2", {color = {1, 0.5, 0.5, 1}})
+					end
 				end
 			end
 		} or
 			{ function (obj, newState)
 				if (newState and modoptionDefaults[data.key] == "1") or (not newState and modoptionDefaults[data.key] == "0") then
-					checkBox.font = WG.Chobby.Configuration:GetFont(2)
+					for i = 1, #control.children do
+						control.children[i].font = WG.Chobby.Configuration:GetFont(2)
+					end
 				else
-					checkBox.font = WG.Chobby.Configuration:GetFont(2, "Changed2", {color = {1, 0.5, 0.5, 1}})
+					for i = 1, #control.children do
+						control.children[i].font = WG.Chobby.Configuration:GetFont(2, "Changed2", {color = {1, 0.5, 0.5, 1}})
+					end
 				end
 				localModoptions[data.key] = tostring((newState and 1) or 0)
 			end
@@ -305,7 +328,21 @@ local function ProcessBoolOption(data, index)
 
 	modoptionControlNames[data.key] = checkBox
 
-	return checkBox
+	control = Control:New {
+		x = 0,
+		y = index*32,
+		width = 625,
+		height = 32,
+		padding = {0, 0, 0, 0},
+		tooltip = data.desc,
+		greedyHitTest = data.desc ~= nil,
+		children = {
+			label,
+			checkBox,
+		}
+	}
+
+	return control
 end
 
 local function ProcessNumberOption(data, index)
