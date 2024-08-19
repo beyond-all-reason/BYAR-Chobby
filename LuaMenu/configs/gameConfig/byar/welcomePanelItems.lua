@@ -14,6 +14,14 @@ local welcomePanelItems = {
         Header = "Welcome to Beyond All Reason",
         Text = "Welcome back Commander. We hope you are ready for epic Singleplayer and Multiplayer battles. Check out our Discord and join the community!\n",
     },
+	
+    {
+        Header = "New Offcial Trailer released, help us making it big!",
+        Text = "We've just deployed a brand-new cinematic trailer, and we need your help to spread the word! We believe the strongest community is built through word-of-mouth, so we're counting on you to take Beyond All Reason to new heights. " .. " \n" .. " \n" .. "Watch the trailer, share it with your friends, and let’s make this a massive success together! \n",
+        Image = "LuaMenu/images/trailer.png",
+        Url = "https://www.beyondallreason.info/news/bar-trailer-2024",
+        UrlText = "Watch the trailer",
+    },	
 
     {
         Header = "Small Team Games split!",
