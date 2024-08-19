@@ -453,7 +453,7 @@ end
 local function ProcessSubHeader(data, index)
 	local label = Label:New {
 		x = 5,
-		y = index * 32 + 3,
+		y = index * 32,
 		width = 1600,
 		height = 30,
 		valign = "center",
