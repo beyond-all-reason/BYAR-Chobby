@@ -432,7 +432,7 @@ Scoring:
 
 }
 
-return scenariodata
+return nil -- scenariodata
 
 --[[
  [Game]
