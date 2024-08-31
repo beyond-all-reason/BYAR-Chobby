@@ -3100,9 +3100,9 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 			width = 80,
 			height = 45,
 			objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
-			caption = i18n("leave"),
+			caption = i18n("close"),
 			classname = "negative_button",
-			tooltip = "Leave the multiplayer battleroom",
+			tooltip = "Close the multiplayer battleroom",
 			OnClick = {
 				function()
 					battleLobby:LeaveBattle()

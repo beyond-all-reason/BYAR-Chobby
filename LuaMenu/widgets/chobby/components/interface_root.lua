@@ -953,10 +953,10 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 	local switchToGameButton = Button:New {
 		y = 2,
 		right = 3,
-		width = 150,
+		width = 165,
 		height = 38,
 		name = "switchToGameButton",
-		caption = "Back to Game",
+		caption = "Return to Battle",
 		captionHorAlign = 5,
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		parent = holder_topBar,
@@ -977,11 +977,11 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 
 	local leaveGameButton = Button:New {
 		y = 2,
-		right = 156,
-		width = 108,
+		right = 171,
+		width = 162,
 		height = 38,
 		name = "leaveGameButton",
-		caption = "Leave",
+		caption = "Leave Battle",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		parent = holder_topBar,
 		resizable = false,
