@@ -953,11 +953,10 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 	local switchToGameButton = Button:New {
 		y = 2,
 		right = 3,
-		width = 150,
+		width = 165,
 		height = 38,
 		name = "switchToGameButton",
-		caption = "Back to Game",
-		captionHorAlign = 5,
+		caption = "Return to Battle",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		parent = holder_topBar,
 		resizable = false,
@@ -977,11 +976,11 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 
 	local leaveGameButton = Button:New {
 		y = 2,
-		right = 156,
-		width = 108,
+		right = 171,
+		width = 162,
 		height = 38,
 		name = "leaveGameButton",
-		caption = "Leave",
+		caption = "Leave Battle",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		parent = holder_topBar,
 		resizable = false,
@@ -990,7 +989,7 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 
 		OnClick = {
 			function ()
-				ConfirmationPopup(LeaveGameFunction, "Are you sure you want to leave the game?", nil, 315, 200)
+				ConfirmationPopup(LeaveGameFunction, "Are you sure you want to leave the battle?", nil, 315, 200)
 			end
 		}
 	}
