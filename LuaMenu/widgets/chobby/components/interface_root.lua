@@ -989,7 +989,7 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 
 		OnClick = {
 			function ()
-				ConfirmationPopup(LeaveGameFunction, "Are you sure you want to leave the game?", nil, 315, 200)
+				ConfirmationPopup(LeaveGameFunction, "Are you sure you want to leave the battle?", nil, 315, 200)
 			end
 		}
 	}
