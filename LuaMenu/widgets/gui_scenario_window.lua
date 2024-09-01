@@ -326,7 +326,7 @@ local function CreateScenarioPanel(shortname, sPanel)
 		height = "5%",
 		parent = sPanel,
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
-		caption = tostring(scen.difficulty) .. "/15",
+		caption = tostring(math.floor(scen.difficulty)) .. "/15",
 	}
 
 	local lblpartimeText = Label:New{
