@@ -957,7 +957,6 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 		height = 38,
 		name = "switchToGameButton",
 		caption = "Return to Battle",
-		captionHorAlign = 5,
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		parent = holder_topBar,
 		resizable = false,
