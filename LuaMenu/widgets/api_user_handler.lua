@@ -89,7 +89,7 @@ local IMAGE_ONLINE         = IMAGE_DIR .. "online.png"
 local IMAGE_OFFLINE        = IMAGE_DIR .. "offline.png"
 local IMAGE_BOSS           = IMAGE_DIR .. "boss-icon.png"
 local IMAGE_RUNNING_BATTLE = IMAGE_DIR .. "runningBattle.png"
-local IMAGE_MUTED          = IMAGE_DIR .. "ignored.png"
+local IMAGE_MUTED          = IMAGE_DIR .. "mute.png"
 
 
 local IMAGE_CLAN_PATH    = "LuaUI/Configs/Clans/"
