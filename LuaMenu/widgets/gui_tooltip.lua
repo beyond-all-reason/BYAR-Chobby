@@ -971,7 +971,7 @@ local replayTooltip = {}
 local PLAYERWIDTH, PLAYERHEIGHT = 220, 22
 
 local function getReplayPlayerListTooltip(teamList)
-	
+
 	local showTeams = true
 	if #teamList > 2 then
 		showTeams = false -- assume ffa 
@@ -1038,7 +1038,7 @@ local function getReplayPlayerListTooltip(teamList)
 			yOffsetTeam = math.floor((teamNr - 1) / cols) * (prevRowHeightMax + 23)
 
 			teamStack = newTeamStack()
-			
+
 			-- team title
 			if not teamStack.teamTitle then
 				teamStack.teamTitle = GetTooltipLine(teamStack, nil, 3)
@@ -1051,7 +1051,7 @@ local function getReplayPlayerListTooltip(teamList)
 			end
 			local truncatedTitle = StringUtilities.GetTruncatedStringWithDotDot(teamTitle, teamStack.teamTitle.GetFont(), PLAYERWIDTH - 10)
 			teamStack.teamTitle.Update(0, truncatedTitle)
-			
+
 			yOffsetPlayer = 23
 		else
 			xOffsetPlayer = math.floor((teamNr - 1) / divisor)  * PLAYERWIDTH
@@ -1079,6 +1079,7 @@ local function getReplayPlayerListTooltip(teamList)
 	totalHeight = totalHeight + yOffsetTeamMax
 
 	-- Set tooltip sizes
+
 	replayTooltip.mainStackPanel:SetPos(nil, nil, cols * PLAYERWIDTH, totalHeight + 5)
 
 	return replayTooltip.mainStackPanel
