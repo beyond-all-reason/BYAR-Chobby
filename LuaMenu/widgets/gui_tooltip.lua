@@ -997,6 +997,10 @@ local function getReplayPlayerListTooltip(teamList)
 		table.sort(teamList, SortTeamsBySkill)
 	end
 
+	if (cols ~= cols) then
+		cols = 0
+	end
+
 	replayTooltip.mainStackPanel = Panel:New {
 			name = 'mainStackPanel',
 			x = 0,
