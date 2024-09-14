@@ -1510,7 +1510,7 @@ end
 -- message = {"BattleStateChanged": {"locked": "locked", "autoBalance": "advanced", "teamSize": "8", "nbTeams": "2", "balanceMode": "clan;skill", "preset": "team", "boss": "Fireball"}}
 function Lobby:ParseBarManager(battleID, message)
 	local battleInfo = {}
-	local newBoss
+	local newBosses
 
 	local barManagerSettings = spJsonDecode(message)
 	if not barManagerSettings['BattleStateChanged'] then
@@ -1523,13 +1523,13 @@ function Lobby:ParseBarManager(battleID, message)
 				battleInfo["bossed"] = false
 			else
 				battleInfo["bossed"] = true
-				newBoss = v
+				newBosses = v
 			end
 		elseif WG.Chobby.Configuration.barMngSettings[k] then
 			battleInfo[k] = v
 		end
 	end
-	return battleInfo, newBoss
+	return battleInfo, newBosses
 end
 
 function Lobby:_OnSaidBattleEx(userName, message, sayTime)
@@ -1541,20 +1541,25 @@ function Lobby:_OnSaidBattleEx(userName, message, sayTime)
 			Spring.Log(LOG_SECTION, LOG_WARNING, "couldn't match barmanager message to any known battle", tostring(founder))
 			return
 		end
-		local battleInfo, newBoss = self:ParseBarManager(battleID, bmMessage)
+		local battleInfo, newBosses = self:ParseBarManager(battleID, bmMessage)
 		if next(battleInfo) then
 			self:super("_OnUpdateBattleInfo", battleID, battleInfo)
 
 			if battleInfo.bossed ~= nil then
-				if battleInfo.bossed then
-					self:_OnUpdateUserBattleStatus(newBoss, {isBoss = true})
-				else
-					local battleUsers = self.battles[battleID].users
-					for _, battleUserName in pairs(battleUsers) do
-						if self.userBattleStatus[battleUserName] and self.userBattleStatus[battleUserName].isBoss then
-							self:_OnUpdateUserBattleStatus(battleUserName, {isBoss = false})
-						end
+				local battleUsers = self.battles[battleID].users
+				local bossStates = {}
+				for _, battleUserName in pairs(battleUsers) do
+					if self.userBattleStatus[battleUserName].isBoss then
+						bossStates[battleUserName] = false
 					end
+				end
+				if battleInfo.bossed then
+					for bossUsername in string.gmatch(newBosses, "([^,]+)") do
+						bossStates[bossUsername] = true
+					end
+				end
+				for battleUserName,bossState in pairs(bossStates) do
+					self:_OnUpdateUserBattleStatus(battleUserName, {isBoss = bossState})
 				end
 			end
 			
