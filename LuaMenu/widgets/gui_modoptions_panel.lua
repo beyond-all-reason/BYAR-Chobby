@@ -65,26 +65,87 @@ local function TextFromNum(num, step)
 	return text
 end
 
+local function getModOptionByKey(key)
+	local retOption = {}
+	for _, option in ipairs(modoptions) do
+		if option.key and option.key == key then
+			retOption = option
+			break
+		end
+	end
+	return retOption
+end
+
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+-- Lock Handling
+local lockedOptions = {}
+local postLock = {}
+local function processChildrenLocks(unlock, lock, bitmask)
+	local item, itemLock, child
+
+	if unlock then for i = 1, #unlock do
+		item = unlock[i]
+		itemLock = lockedOptions[item]
+		if itemLock then
+			itemLock = math.bit_and(math.bit_inv(bitmask), itemLock)
+			if itemLock > 0 then
+				lockedOptions[item] = itemLock
+			else
+				lockedOptions[item] = nil
+				child = modoptionControlNames[item]
+				if child then
+					if child.parent.name ~= "tabPanel" then
+						child = child.parent
+					end
+					local tabPanel, cachedY = child.parent, child.rowOrginal
+					child:SetPos(child.x - 4095)
+
+					for j = 1, #tabPanel.children do
+						if tabPanel.children[j].rowOrginal > cachedY then
+							tabPanel.children[j]:SetPos(nil, tabPanel.children[j].y + 32)
+						end
+					end
+				end
+			end
+		end
+	end end
+
+	if lock then for i = 1, #lock do
+		item = lock[i]
+		itemLock = lockedOptions[item] or 0
+		if itemLock == 0 then
+			child = modoptionControlNames[item]
+			if child then
+				if child.parent.name ~= "tabPanel" then
+					child = child.parent
+				end
+				local tabPanel, cachedY = child.parent, child.rowOrginal
+				child:SetPos(child.x + 4095)
+
+				for j = 1, #tabPanel.children do
+					if tabPanel.children[j].rowOrginal > cachedY then
+						tabPanel.children[j]:SetPos(nil, tabPanel.children[j].y - 32)
+					end
+				end
+			end
+		end
+		itemLock = math.bit_or(itemLock, bitmask)
+		lockedOptions[item] = itemLock
+	end end
+end
+
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 -- Option Control Handling
 
 local function ProcessListOption(data, index)
-	local label = Label:New {
-		x = 320,
-		y = 0,
-		width = 1200,
-		height = 30,
-		valign = "center",
-		align = "left",
-		caption = data.name,
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
-		tooltip = data.desc,
-	}
+	local control
 
 	local defaultItem = 1
 	local defaultKey = localModoptions[data.key] or data.def
 
+	local lock, unlock, locking = {}, {}, false
 	local items = {}
 	local itemNameToKey = {}
 	local itemKeyToName = {}
@@ -96,15 +157,36 @@ local function ProcessListOption(data, index)
 
 		if itemData.key == defaultKey then
 			defaultItem = i
+			if itemData.lock then
+				postLock[#postLock+1] = {itemData.lock, data.bitmask or 1, data.name}
+			end
 		end
 
 		if itemData.desc then
 			itemsTooltips[i] = itemData.desc
 		end
+
+		if itemData.lock or itemData.unlock then
+			lock[itemData.key] = itemData.lock
+			unlock[itemData.key] = itemData.unlock
+			locking = true
+		end
 	end
 
-	local list = ComboBox:New {
+	local label = Label:New {
 		x = 5,
+		y = 0,
+		width = 320,
+		height = 30,
+		valign = "center",
+		align = "left",
+		caption = data.name,
+		objectOverrideFont = data.def == defaultKey and WG.Chobby.Configuration:GetFont(2) or WG.Chobby.Configuration:GetFont(2, "Changed2", {color = {1, 0.5, 0.5, 1}}),
+		tooltip = data.desc,
+	}
+
+	local list = ComboBox:New {
+		x = 325,
 		y = 1,
 		width = 300,
 		height = 30,
@@ -115,44 +197,57 @@ local function ProcessListOption(data, index)
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		selectByName = true,
 		selected = defaultItem,
-		OnSelectName = {
-			function (obj, selectedName)
+		OnSelectName =
+			locking and { function (obj, selectedName)
+				processChildrenLocks(unlock and unlock[itemNameToKey[selectedName]] or nil, lock and lock[itemNameToKey[selectedName]] or nil, data.bitmask or 1)
+				if itemNameToKey[selectedName] == data.def then
+					for i = 1, #control.children do
+						control.children[i].font = WG.Chobby.Configuration:GetFont(2)
+					end
+				else
+					for i = 1, #control.children do
+						control.children[i].font = WG.Chobby.Configuration:GetFont(2, "Changed2", {color = {1, 0.5, 0.5, 1}})
+					end
+				end
+				localModoptions[data.key] = itemNameToKey[selectedName]
+			end
+		} or
+			{function (obj, selectedName)	
+				if itemNameToKey[selectedName] == data.def then
+					for i = 1, #control.children do
+						control.children[i].font = WG.Chobby.Configuration:GetFont(2)
+					end
+				else
+					for i = 1, #control.children do
+						control.children[i].font = WG.Chobby.Configuration:GetFont(2, "Changed2", {color = {1, 0.5, 0.5, 1}})
+					end
+				end
 				localModoptions[data.key] = itemNameToKey[selectedName]
 			end
 		},
 		itemKeyToName = itemKeyToName, -- Not a chili key
 		tooltip = data.desc,
 	}
-	modoptionControlNames[data.key] = list
+	list.font = data.def == defaultKey and WG.Chobby.Configuration:GetFont(2) or WG.Chobby.Configuration:GetFont(2, "Changed2", {color = {1, 0.5, 0.5, 1}})
 
-	return Control:New {
+	modoptionControlNames[data.key] = list
+	control = Control:New {
 		x = 0,
 		y = index*32,
-		width = 1600,
+		width = 625,
 		height = 32,
 		padding = {0, 0, 0, 0},
+		tooltip = data.desc,
+		greedyHitTest = data.desc ~= nil,
 		children = {
 			label,
-			list
+			list,
 		}
 	}
+	return control
 end
 
 local function ProcessBoolOption(data, index)
-	local label = Label:New {
-		x = 320,
-		y = 0,
-		width = 1200,
-		height = 30,
-		valign = "center",
-		align = "left",
-		caption = data.name,
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
-		tooltip = data.desc,
-	}
-
-	local oldText = localModoptions[data.key] or modoptionDefaults[data.key]
-
 	local checked = false
 	if localModoptions[data.key] == nil then
 		if modoptionDefaults[data.key] == "1" then
@@ -162,67 +257,121 @@ local function ProcessBoolOption(data, index)
 		checked = true
 	end
 
-	local checkBox = Checkbox:New {
-		x = 5,
-		y = 0,
-		width = 300,
-		height = 30,
-		boxalign = "right",
-		boxsize = 25,
-		caption = "",--data.name,
-		checked = checked,
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
-		tooltip = data.desc,
-
-		OnChange = {
-			function (obj, newState)
-				localModoptions[data.key] = tostring((newState and 1) or 0)
-			end
-		},
-	}
-	modoptionControlNames[data.key] = checkBox
-
-	return Control:New {
-		x = 0,
-		y = index*32,
-		width = 1600,
-		height = 32,
-		padding = {0, 0, 0, 0},
-    tooltip = data.desc,
-		children = {
-			label,
-			checkBox
-		}
-	}
-
-	--return checkBox
-end
-
-local function ProcessNumberOption(data, index)
+	local control
 
 	local label = Label:New {
-		x = 320,
+		x = 5,
 		y = 0,
-		width = 1200,
+		width = 320,
 		height = 30,
 		valign = "center",
 		align = "left",
 		caption = data.name,
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideFont =
+			(checked and modoptionDefaults[data.key] == "1" or not checked and modoptionDefaults[data.key]) and WG.Chobby.Configuration:GetFont(2)
+			or WG.Chobby.Configuration:GetFont(2, "Changed2", {color = {1, 0.5, 0.5, 1}}),
 		tooltip = data.desc,
 	}
 
+	local checkBox = Checkbox:New {
+		x = 320,
+		y = 0,
+		width = 30,
+		height = 30,
+		boxalign = "right",
+		boxsize = 25,
+		caption = "",
+		checked = checked,
+		objectOverrideFont =
+			(checked and modoptionDefaults[data.key] == "1" or not checked and modoptionDefaults[data.key]) and WG.Chobby.Configuration:GetFont(2)
+			or WG.Chobby.Configuration:GetFont(2, "Changed2", {color = {1, 0.5, 0.5, 1}}),
+		tooltip = data.desc,
+		OnChange =
+			(data.unlock or data.lock) and { function (obj, newState)
+				if newState then -- on enable
+					processChildrenLocks(data.unlock, data.lock, data.bitmask or 1)
+				else -- on disable
+					processChildrenLocks(data.lock, data.unlock, data.bitmask or 1)
+				end
+				localModoptions[data.key] = tostring((newState and 1) or 0)
+				if (newState and modoptionDefaults[data.key] == "1") or (not newState and modoptionDefaults[data.key] == "0") then
+					for i = 1, #control.children do
+						control.children[i].font = WG.Chobby.Configuration:GetFont(2)
+					end
+				else
+					for i = 1, #control.children do
+						control.children[i].font = WG.Chobby.Configuration:GetFont(2, "Changed2", {color = {1, 0.5, 0.5, 1}})
+					end
+				end
+			end
+		} or
+			{ function (obj, newState)
+				if (newState and modoptionDefaults[data.key] == "1") or (not newState and modoptionDefaults[data.key] == "0") then
+					for i = 1, #control.children do
+						control.children[i].font = WG.Chobby.Configuration:GetFont(2)
+					end
+				else
+					for i = 1, #control.children do
+						control.children[i].font = WG.Chobby.Configuration:GetFont(2, "Changed2", {color = {1, 0.5, 0.5, 1}})
+					end
+				end
+				localModoptions[data.key] = tostring((newState and 1) or 0)
+			end
+		},
+	}
+
+	if checked then
+		if data.lock then
+			postLock[#postLock+1] = {data.lock, data.bitmask or 1, data.name}
+		end 
+	elseif data.unlock then
+		postLock[#postLock+1] = {data.unlock, data.bitmask or 1, data.name}
+	end
+
+	modoptionControlNames[data.key] = checkBox
+
+	control = Control:New {
+		x = 0,
+		y = index*32,
+		width = 350,
+		height = 32,
+		padding = {0, 0, 0, 0},
+		tooltip = data.desc,
+		greedyHitTest = data.desc ~= nil,
+		children = {
+			label,
+			checkBox,
+		}
+	}
+
+	return control
+end
+
+local function ProcessNumberOption(data, index)
+	local control
 	local oldText = localModoptions[data.key] or modoptionDefaults[data.key]
 
-	local numberBox = EditBox:New {
+	local label = Label:New {
 		x = 5,
+		y = 0,
+		width = 320,
+		height = 30,
+		valign = "center",
+		align = "left",
+		caption = data.name,
+		objectOverrideFont = oldText == modoptionDefaults[data.key] and WG.Chobby.Configuration:GetFont(2) or WG.Chobby.Configuration:GetFont(2, "Changed2", {color = {1, 0.5, 0.5, 1}}),
+		tooltip = data.desc,
+	}
+
+	local numberBox = EditBox:New {
+		x = 325,
 		y = 1,
 		width = 300,
 		height = 30,
 		text   = oldText,
 		useIME = false,
 		hint = data.hint,
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideFont = oldText == modoptionDefaults[data.key] and WG.Chobby.Configuration:GetFont(2) or WG.Chobby.Configuration:GetFont(2, "Changed2", {color = {1, 0.5, 0.5, 1}}),
 		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(11),
 		tooltip = data.desc,
 		OnFocusUpdate = {
@@ -246,50 +395,62 @@ local function ProcessNumberOption(data, index)
 				oldText = TextFromNum(newValue, data.step)
 				localModoptions[data.key] = oldText
 				obj:SetText(oldText)
+
+				if oldText == modoptionDefaults[data.key] then
+					for i = 1, #control.children do
+						control.children[i].font = WG.Chobby.Configuration:GetFont(2)
+					end
+				else
+					for i = 1, #control.children do
+						control.children[i].font = WG.Chobby.Configuration:GetFont(2, "Changed2", {color = {1, 0.5, 0.5, 1}})
+					end
+				end
 			end
 		}
 	}
 	modoptionControlNames[data.key] = numberBox
 
-	return Control:New {
+	control = Control:New {
 		x = 0,
 		y = index*32,
-		width = 1600,
+		width = 625,
 		height = 32,
 		padding = {0, 0, 0, 0},
 		tooltip = data.desc,
+		greedyHitTest = data.desc ~= nil,
 		children = {
 			label,
 			numberBox
 		}
 	}
+	return control
 end
 
 local function ProcessStringOption(data, index)
 
+	local control
+	local oldText = localModoptions[data.key] or modoptionDefaults[data.key]
 	local label = Label:New {
-		x = 320,
+		x = 5,
 		y = 0,
-		width = 1200,
+		width = 320,
 		height = 30,
 		valign = "center",
 		align = "left",
 		caption = data.name,
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideFont = oldText == modoptionDefaults[data.key] and WG.Chobby.Configuration:GetFont(2) or WG.Chobby.Configuration:GetFont(2, "Changed2", {color = {1, 0.5, 0.5, 1}}),
 		tooltip = data.desc,
 	}
 
-	local oldText = localModoptions[data.key] or modoptionDefaults[data.key]
-
 	local textBox = EditBox:New {
-		x = 5,
+		x = 325,
 		y = 1,
 		width = 300,
 		height = 30,
 		text   = oldText,
 		useIME = false,
 		hint = data.hint,
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideFont = oldText == modoptionDefaults[data.key] and WG.Chobby.Configuration:GetFont(2) or WG.Chobby.Configuration:GetFont(2, "Changed2", {color = {1, 0.5, 0.5, 1}}),
 		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(11),
 		tooltip = data.desc,
 		OnFocusUpdate = {
@@ -298,46 +459,57 @@ local function ProcessStringOption(data, index)
 					return
 				end
 				localModoptions[data.key] = obj.text
+				if obj.text == modoptionDefaults[data.key] then
+					for i = 1, #control.children do
+						control.children[i].font = WG.Chobby.Configuration:GetFont(2)
+					end
+				else
+					for i = 1, #control.children do
+						control.children[i].font = WG.Chobby.Configuration:GetFont(2, "Changed2", {color = {1, 0.5, 0.5, 1}})
+					end
+				end
 			end
 		}
 	}
 	modoptionControlNames[data.key] = textBox
 
-	return Control:New {
+	control = Control:New {
 		x = 0,
 		y = index*32,
-		width = 1600,
+		width = 625,
 		height = 32,
 		padding = {0, 0, 0, 0},
+		tooltip = data.desc,
+		greedyHitTest = data.desc ~= nil,
 		children = {
 			label,
 			textBox
 		}
 	}
+	return control
 end
 
-local function ProcessSubHeaderFakeOption(data, index)
+local function ProcessSubHeader(data, index)
 	local label = Label:New {
 		x = 5,
-		y = 0,
-		width = 1200,
+		y = index * 32,
+		width = 1600,
 		height = 30,
 		valign = "center",
 		align = "left",
 		caption = data.name,
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(tonumber(data.font) or 2),
 		tooltip = data.desc,
 	}
-	return Control:New {
+	modoptionControlNames[data.key] = label
+	return label
+end
+
+local function ProcessLineSeparator(data, index)
+	return Line:New {
 		x = 0,
-		y = index*32,
+		y = index*32 + 3,
 		width = 1600,
-		height = 32,
-		padding = {0, 0, 0, 0},
-    tooltip = data.desc,
-		children = {
-			label
-		}
 	}
 end
 
@@ -348,6 +520,7 @@ local function PopulateTab(options)
 	-- string = editBox
 
 	local contentsPanel = ScrollPanel:New {
+		name = "tabPanel",
 		x = 6,
 		right = 5,
 		y = 10,
@@ -355,18 +528,43 @@ local function PopulateTab(options)
 		horizontalScrollbar = false,
 	}
 
+	local column, row = 1, 0
+	local data, rowData
 	for i = 1, #options do
-		local data = options[i]
-		if data.type == "list" then
-			contentsPanel:AddChild(ProcessListOption(data, #contentsPanel.children))
-		elseif data.type == "bool" then
-			contentsPanel:AddChild(ProcessBoolOption(data, #contentsPanel.children))
-		elseif data.type == "number" then
-			contentsPanel:AddChild(ProcessNumberOption(data, #contentsPanel.children))
-		elseif data.type == "string" then
-			contentsPanel:AddChild(ProcessStringOption(data, #contentsPanel.children))
-		elseif data.type == "subheader" then
-			contentsPanel:AddChild(ProcessSubHeaderFakeOption(data, #contentsPanel.children))
+		data = options[i]
+		if data then
+			if (data.column or -1) > column then
+				row = row - 1
+			end
+
+			rowData = nil
+			if data.type == "number" then
+				rowData = ProcessNumberOption(data, row)
+
+			elseif data.type == "string" then
+				rowData = ProcessStringOption(data, row)
+
+			elseif data.type == "subheader" then
+				rowData = ProcessSubHeader(data, row)
+
+			elseif data.type == "bool" then
+				rowData = ProcessBoolOption(data, row)
+
+			elseif data.type == "list" then
+				rowData = ProcessListOption(data, row)
+
+			elseif data.type == "separator" then
+				rowData = ProcessLineSeparator(data, row)
+				row = row - 0.5
+
+			end
+			if rowData then
+				column = math.abs(data.column or 1)
+				rowData.x = rowData.x + (column - 1) * 625
+				row = row + 1
+				rowData.rowOrginal = rowData.y
+				contentsPanel:AddChild(rowData)
+			end
 		end
 	end
 	return {contentsPanel}
@@ -394,6 +592,7 @@ local function CreateModoptionWindow()
 	modoptionControlNames = {}
 
 	local tabs = {}
+	lockedOptions = {}
 
 	local tabWidth = 120
 
@@ -413,8 +612,13 @@ local function CreateModoptionWindow()
 			tooltip = tooltip,
 			objectOverrideFont = WG.Chobby.Configuration:GetFont(fontSize),
 			children = PopulateTab(data.options),
-			weight = data.weight or weight
+			weight = data.weight or weight,
 		}
+	end
+
+	for i = 1, #postLock do
+		processChildrenLocks(nil, postLock[i][1], postLock[i][2], postLock[i][3])
+		postLock[i] = nil
 	end
 
 	table.sort(tabs, function(a,b) return a.weight > b.weight end)
@@ -461,6 +665,14 @@ local function CreateModoptionWindow()
 
 	local function AcceptFunc()
 		screen0:FocusControl(buttonAccept) -- Defocus the text entry
+		local isBoss = false
+		if not isBoss then
+			for k, v in pairs(localModoptions) do
+				if lockedOptions[k] then
+					localModoptions[k] = battleLobby.modoptions[k]
+				end
+			end
+		end
 		battleLobby:SetModOptions(localModoptions)
 		modoptionsSelectionWindow:Dispose()
 	end
@@ -541,17 +753,6 @@ local function CreateModoptionWindow()
 	end
 end
 
-local function getModOptionByKey(key)
-	local retOption = {}
-	for _, option in ipairs(modoptions) do
-		if option.key and option.key == key then
-			retOption = option
-			break
-		end
-	end
-	return retOption
-end
-
 local function InitializeModoptionsDisplay()
 	local currentLobby = battleLobby
 
@@ -606,12 +807,39 @@ end
 	local panelModoptions
 
 	local function OnSetModOptions(listener, modopts)
+		local hidenOptions = {}
 		local text = ""
 		local empty = true
 		panelModoptions = modopts or panelModoptions or {}
 		if not modoptions then return end
+
+		for _, option in pairs(modoptions) do
+			if option.type == "bool" then
+				if panelModoptions[option.key] == "1" then
+					if option.lock then
+						for i = 1, #option.lock do
+							hidenOptions[option.lock[i]] = true
+						end
+					end
+				elseif option.unlock then
+					for i = 1, #option.unlock do
+						hidenOptions[option.unlock[i]] = true
+					end
+				end
+			elseif option.type == "list" then
+				for j = 1, #option.items do
+					if option.items[j].key == panelModoptions[option.key] and option.items[j].lock then
+						for i = 1, #option.items[j].lock do
+							hidenOptions[option.items[j].lock[i]] = true
+						end
+						break
+					end
+				end
+			end
+		end
+
 		for key, value in pairs(panelModoptions) do
-			if (modoptionDefaults[key] == nil or modoptionDefaults[key] ~= value or key == "ranked_game") and key:find("^mapmetadata_") == nil then
+			if (modoptionDefaults[key] == nil or modoptionDefaults[key] ~= value or key == "ranked_game") and key:find("^mapmetadata_") == nil and not hidenOptions[key] then
 				local option = getModOptionByKey(key)
 				local name = option.name and option.name or key
 				text = text .. "\255\255\255\255"
