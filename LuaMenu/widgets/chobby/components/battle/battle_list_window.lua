@@ -1260,7 +1260,7 @@ function BattleListWindow:OpenHostWindow()
 		['Host[EU6]'] = {limit = 120, current = 0, online = false, priority = 1.0, region = 'EU', location = "Amsterdam"},
 		['Host[EU7]'] = {limit = 200, current = 0, online = false, priority = 1.0, region = 'EU', location = "Amsterdam"}, -- This runs on integration server, but has plenty of capacity
 		
-		['Host[US1]'] = {limit = 80,  current = 0, online = false, priority = 1.0, region = 'US', location = "Virginia"},
+		['Host[US1]'] = {limit = 120,  current = 0, online = false, priority = 1.0, region = 'US', location = "Virginia"},
 		['Host[US2]'] = {limit = 60,  current = 0, online = false, priority = 1.0, region = 'US', location = "Chicago"},
 		['Host[US3]'] = {limit = 80,  current = 0, online = false, priority = 1.0, region = 'US', location = "St. Louis"},
 		['Host[US4]'] = {limit = 150, current = 0, online = false, priority = 0.3, region = 'US', location = "Seattle"}, -- Seems to see more cpu steal than the rest
