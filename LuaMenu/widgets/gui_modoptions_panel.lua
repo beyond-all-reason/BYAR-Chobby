@@ -274,9 +274,9 @@ local function ProcessBoolOption(data, index)
 	}
 
 	local checkBox = Checkbox:New {
-		x = 5,
+		x = 320,
 		y = 0,
-		width = 345,
+		width = 30,
 		height = 30,
 		boxalign = "right",
 		boxsize = 25,
@@ -333,7 +333,7 @@ local function ProcessBoolOption(data, index)
 	control = Control:New {
 		x = 0,
 		y = index*32,
-		width = 625,
+		width = 350,
 		height = 32,
 		padding = {0, 0, 0, 0},
 		tooltip = data.desc,
