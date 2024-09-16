@@ -1249,54 +1249,26 @@ function BattleListWindow:OpenHostWindow()
 	-- Enumerate all known clusters and their number of children
 	local regions = {'EU','US','AU'}
 	local clusters = {
-		['[teh]cluster1'] = {limit = 80, current = 0, online = false, priority = 1.0, region = 'EU'},
-		['[teh]clusterEU2'] = {limit = 50, current = 0, online = false, priority = 1.0, region = 'EU'},
-		['[teh]clusterEU3'] = {limit = 30, current = 0, online = false, priority = 1.0, region = 'EU'},
-		['[teh]clusterEU4'] = {limit = 100, current = 0, online = false, priority = 1.0, region = 'EU'},  -- de-prioritizes because contabo are cpu thieves
-		['[teh]clusterEU5'] = {limit = 100, current = 0, online = false, priority = 1.0, region = 'EU'},
-		['[teh]clusterEU6'] = {limit = 100, current = 0, online = false, priority = 1.0, region = 'EU'},
-		['[teh]clusterUS'] = {limit = 70, current = 0, online = false, priority = 1.0, region = 'US'},
-		['[teh]clusterUS2'] = {limit = 30, current = 0, online = false, priority = 1.0, region = 'US'},
-		['[teh]clusterUS3'] = {limit = 70, current = 0, online = false, priority = 1.0, region = 'US'},
-		['[teh]clusterUS4'] = {limit = 150, current = 0, online = false, priority = 1.0, region = 'US'},
-		['[teh]clusterAU'] = {limit = 90, current = 0, online = false, priority = 1.0, region = 'AU'},
+		['Host[AU1]'] = {limit = 80,  current = 0, online = false, priority = 0.2, region = 'AU', location = "Sydney"}, -- lower priority because its at contabo
+		['Host[AU2]'] = {limit = 40,  current = 0, online = false, priority = 1.0, region = 'AU', location = "Sydney"}, -- higher priority OVH host
 
-		['Host[AU1]'] = {limit = 80,  current = 0, online = false, priority = 0.2, region = 'AU'}, -- lower priority because its at contabo
-		['Host[AU2]'] = {limit = 40,  current = 0, online = false, priority = 1.0, region = 'AU'}, -- higher priority OVH host
-
-		['Host[EU1]'] = {limit = 120, current = 0, online = false, priority = 0.3, region = 'EU'}, -- Lower priority because it is on a SSDNodes host, which isnt the best regarding latency 
-		['Host[EU2]'] = {limit = 80,  current = 0, online = false, priority = 1.0, region = 'EU'},
-		['Host[EU3]'] = {limit = 25,  current = 0, online = false, priority = 1.0, region = 'EU'},
-		['Host[EU4]'] = {limit = 150, current = 0, online = false, priority = 1.0, region = 'EU'},  -- this is pointed to integration server
-		['Host[EU5]'] = {limit = 150, current = 0, online = false, priority = 0.01, region = 'EU'}, -- Further deproiritize because ssdnodes is trash
-		['Host[EU6]'] = {limit = 120, current = 0, online = false, priority = 1.0, region = 'EU'},
-		['Host[EU7]'] = {limit = 200, current = 0, online = false, priority = 1.0, region = 'EU'}, -- This runs on integration server, but has plenty of capacity
+		['Host[EU1]'] = {limit = 120, current = 0, online = false, priority = 0.3, region = 'EU', location = "Frankfurt"}, -- Lower priority because it is on a SSDNodes host, which isnt the best regarding latency 
+		['Host[EU2]'] = {limit = 120, current = 0, online = false, priority = 1.0, region = 'EU', location = "Vienna"},
+		['Host[EU3]'] = {limit = 25,  current = 0, online = false, priority = 1.0, region = 'EU', location = "Frankfurt"},
+		['Host[EU4]'] = {limit = 150, current = 0, online = false, priority = 1.0, region = 'EU', location = "Dusseldorf"},  -- this is pointed to integration server
+		['Host[EU5]'] = {limit = 150, current = 0, online = false, priority = 0.01,region = 'EU',location = "Frankfurt"}, -- Further deproiritize because ssdnodes is trash
+		['Host[EU6]'] = {limit = 120, current = 0, online = false, priority = 1.0, region = 'EU', location = "Amsterdam"},
+		['Host[EU7]'] = {limit = 200, current = 0, online = false, priority = 1.0, region = 'EU', location = "Amsterdam"}, -- This runs on integration server, but has plenty of capacity
 		
-		['Host[US1]'] = {limit = 80,  current = 0, online = false, priority = 1.0, region = 'US'},
-		['Host[US2]'] = {limit = 60,  current = 0, online = false, priority = 1.0, region = 'US'},
-		['Host[US3]'] = {limit = 80,  current = 0, online = false, priority = 1.0, region = 'US'},
-		['Host[US4]'] = {limit = 150, current = 0, online = false, priority = 1.0, region = 'US'},
+		['Host[US1]'] = {limit = 80,  current = 0, online = false, priority = 1.0, region = 'US', location = "Virginia"},
+		['Host[US2]'] = {limit = 60,  current = 0, online = false, priority = 1.0, region = 'US', location = "Chicago"},
+		['Host[US3]'] = {limit = 80,  current = 0, online = false, priority = 1.0, region = 'US', location = "St. Louis"},
+		['Host[US4]'] = {limit = 150, current = 0, online = false, priority = 0.3, region = 'US', location = "Seattle"}, -- Seems to see more cpu steal than the rest
 	}
 
 	-- Try to check for their engine version too. It is unlikely that a cluster has multiple engines (except during a switch, so scratch that)
 	local numusers = 0
 	local users = lobby:GetUsers()
-
-	-- Delete this section in the future:
-	for userName, _ in pairs(users) do
-		if string.find(userName,"[teh]cluster", nil, true) then
-			-- shorten it
-			--Spring.Echo(name)
-			if clusters[userName] then -- cluster manager
-				clusters[userName].online = true
-			else-- instance
-				local manager = userName:sub(1,-5)
-				if clusters[manager] then
-					clusters[manager].current = clusters[manager].current + 1
-				end
-			end
-		end
-	end
 
 	local hostPrefix = "Host["
 	local sortedusers = {}
@@ -1356,7 +1328,7 @@ function BattleListWindow:OpenHostWindow()
 		end
 		if next(emptiness) == nil then
 			Spring.Echo( "No cluster managers for", targetregion)
-			return '[teh]clusterEU2' , "No cluster managers"
+			return 'Host[EU1]' , "No cluster managers"
 		else
 			Spring.Echo("Couldnt find host in ", targetregion)
 			for manager, probability in pairs(emptiness) do
