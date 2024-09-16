@@ -194,7 +194,7 @@ local function ProcessListOption(data, index)
 		align = "left",
 		items = items,
 		itemsTooltips = itemsTooltips,
-		objectOverrideFont = data.def == defaultKey and WG.Chobby.Configuration:GetFont(2) or WG.Chobby.Configuration:GetFont(2, "Changed2", {color = {1, 0.5, 0.5, 1}}),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		selectByName = true,
 		selected = defaultItem,
 		OnSelectName =
@@ -228,6 +228,8 @@ local function ProcessListOption(data, index)
 		itemKeyToName = itemKeyToName, -- Not a chili key
 		tooltip = data.desc,
 	}
+	list.font = data.def == defaultKey and WG.Chobby.Configuration:GetFont(2) or WG.Chobby.Configuration:GetFont(2, "Changed2", {color = {1, 0.5, 0.5, 1}})
+
 	modoptionControlNames[data.key] = list
 	control = Control:New {
 		x = 0,
