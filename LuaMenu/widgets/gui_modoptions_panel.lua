@@ -503,7 +503,7 @@ local function ProcessSubHeader(data, index)
 	return label
 end
 
-local function ProcessLineSeperator(data, index)
+local function ProcessLineSeparator(data, index)
 	return Line:New {
 		x = 0,
 		y = index*32 + 3,
@@ -551,8 +551,8 @@ local function PopulateTab(options)
 			elseif data.type == "list" then
 				rowData = ProcessListOption(data, row)
 
-			elseif data.type == "seperator" then
-				rowData = ProcessLineSeperator(data, row)
+			elseif data.type == "separator" then
+				rowData = ProcessLineSeparator(data, row)
 				row = row - 0.5
 
 			end
