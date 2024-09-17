@@ -23,6 +23,9 @@ local modoptionControlNames = {}
 local modoptions
 local modoptionsByGame = {}
 
+-- constants
+local MARKED_AS_CHANGED_COLOR = {0.99, 0.75, .3, 1} -- {0.07, 0.66, 0.92, 1.0}
+
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 -- Utility Function
@@ -181,7 +184,7 @@ local function ProcessListOption(data, index)
 		valign = "center",
 		align = "left",
 		caption = data.name,
-		objectOverrideFont = data.def == defaultKey and WG.Chobby.Configuration:GetFont(2) or WG.Chobby.Configuration:GetFont(2, "Changed2", {color = {1, 0.5, 0.5, 1}}),
+		objectOverrideFont = data.def == defaultKey and WG.Chobby.Configuration:GetFont(2) or WG.Chobby.Configuration:GetFont(2, "Changed2", {color = MARKED_AS_CHANGED_COLOR}),
 		tooltip = data.desc,
 	}
 
@@ -206,7 +209,7 @@ local function ProcessListOption(data, index)
 					end
 				else
 					for i = 1, #control.children do
-						control.children[i].font = WG.Chobby.Configuration:GetFont(2, "Changed2", {color = {1, 0.5, 0.5, 1}})
+						control.children[i].font = WG.Chobby.Configuration:GetFont(2, "Changed2", {color = MARKED_AS_CHANGED_COLOR})
 					end
 				end
 				localModoptions[data.key] = itemNameToKey[selectedName]
@@ -219,7 +222,7 @@ local function ProcessListOption(data, index)
 					end
 				else
 					for i = 1, #control.children do
-						control.children[i].font = WG.Chobby.Configuration:GetFont(2, "Changed2", {color = {1, 0.5, 0.5, 1}})
+						control.children[i].font = WG.Chobby.Configuration:GetFont(2, "Changed2", {color = MARKED_AS_CHANGED_COLOR})
 					end
 				end
 				localModoptions[data.key] = itemNameToKey[selectedName]
@@ -228,7 +231,7 @@ local function ProcessListOption(data, index)
 		itemKeyToName = itemKeyToName, -- Not a chili key
 		tooltip = data.desc,
 	}
-	list.font = data.def == defaultKey and WG.Chobby.Configuration:GetFont(2) or WG.Chobby.Configuration:GetFont(2, "Changed2", {color = {1, 0.5, 0.5, 1}})
+	list.font = data.def == defaultKey and WG.Chobby.Configuration:GetFont(2) or WG.Chobby.Configuration:GetFont(2, "Changed2", {color = MARKED_AS_CHANGED_COLOR})
 
 	modoptionControlNames[data.key] = list
 	control = Control:New {
@@ -269,7 +272,7 @@ local function ProcessBoolOption(data, index)
 		caption = data.name,
 		objectOverrideFont =
 			(checked and modoptionDefaults[data.key] == "1" or not checked and modoptionDefaults[data.key]) and WG.Chobby.Configuration:GetFont(2)
-			or WG.Chobby.Configuration:GetFont(2, "Changed2", {color = {1, 0.5, 0.5, 1}}),
+			or WG.Chobby.Configuration:GetFont(2, "Changed2", {color = MARKED_AS_CHANGED_COLOR}),
 		tooltip = data.desc,
 	}
 
@@ -284,7 +287,7 @@ local function ProcessBoolOption(data, index)
 		checked = checked,
 		objectOverrideFont =
 			(checked and modoptionDefaults[data.key] == "1" or not checked and modoptionDefaults[data.key]) and WG.Chobby.Configuration:GetFont(2)
-			or WG.Chobby.Configuration:GetFont(2, "Changed2", {color = {1, 0.5, 0.5, 1}}),
+			or WG.Chobby.Configuration:GetFont(2, "Changed2", {color = MARKED_AS_CHANGED_COLOR}),
 		tooltip = data.desc,
 		OnChange =
 			(data.unlock or data.lock) and { function (obj, newState)
@@ -300,7 +303,7 @@ local function ProcessBoolOption(data, index)
 					end
 				else
 					for i = 1, #control.children do
-						control.children[i].font = WG.Chobby.Configuration:GetFont(2, "Changed2", {color = {1, 0.5, 0.5, 1}})
+						control.children[i].font = WG.Chobby.Configuration:GetFont(2, "Changed2", {color = MARKED_AS_CHANGED_COLOR})
 					end
 				end
 			end
@@ -312,7 +315,7 @@ local function ProcessBoolOption(data, index)
 					end
 				else
 					for i = 1, #control.children do
-						control.children[i].font = WG.Chobby.Configuration:GetFont(2, "Changed2", {color = {1, 0.5, 0.5, 1}})
+						control.children[i].font = WG.Chobby.Configuration:GetFont(2, "Changed2", {color = MARKED_AS_CHANGED_COLOR})
 					end
 				end
 				localModoptions[data.key] = tostring((newState and 1) or 0)
@@ -359,7 +362,7 @@ local function ProcessNumberOption(data, index)
 		valign = "center",
 		align = "left",
 		caption = data.name,
-		objectOverrideFont = oldText == modoptionDefaults[data.key] and WG.Chobby.Configuration:GetFont(2) or WG.Chobby.Configuration:GetFont(2, "Changed2", {color = {1, 0.5, 0.5, 1}}),
+		objectOverrideFont = oldText == modoptionDefaults[data.key] and WG.Chobby.Configuration:GetFont(2) or WG.Chobby.Configuration:GetFont(2, "Changed2", {color = MARKED_AS_CHANGED_COLOR}),
 		tooltip = data.desc,
 	}
 
@@ -371,7 +374,7 @@ local function ProcessNumberOption(data, index)
 		text   = oldText,
 		useIME = false,
 		hint = data.hint,
-		objectOverrideFont = oldText == modoptionDefaults[data.key] and WG.Chobby.Configuration:GetFont(2) or WG.Chobby.Configuration:GetFont(2, "Changed2", {color = {1, 0.5, 0.5, 1}}),
+		objectOverrideFont = oldText == modoptionDefaults[data.key] and WG.Chobby.Configuration:GetFont(2) or WG.Chobby.Configuration:GetFont(2, "Changed2", {color = MARKED_AS_CHANGED_COLOR}),
 		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(11),
 		tooltip = data.desc,
 		OnFocusUpdate = {
@@ -402,7 +405,7 @@ local function ProcessNumberOption(data, index)
 					end
 				else
 					for i = 1, #control.children do
-						control.children[i].font = WG.Chobby.Configuration:GetFont(2, "Changed2", {color = {1, 0.5, 0.5, 1}})
+						control.children[i].font = WG.Chobby.Configuration:GetFont(2, "Changed2", {color = MARKED_AS_CHANGED_COLOR})
 					end
 				end
 			end
@@ -438,7 +441,7 @@ local function ProcessStringOption(data, index)
 		valign = "center",
 		align = "left",
 		caption = data.name,
-		objectOverrideFont = oldText == modoptionDefaults[data.key] and WG.Chobby.Configuration:GetFont(2) or WG.Chobby.Configuration:GetFont(2, "Changed2", {color = {1, 0.5, 0.5, 1}}),
+		objectOverrideFont = oldText == modoptionDefaults[data.key] and WG.Chobby.Configuration:GetFont(2) or WG.Chobby.Configuration:GetFont(2, "Changed2", {color = MARKED_AS_CHANGED_COLOR}),
 		tooltip = data.desc,
 	}
 
@@ -450,7 +453,7 @@ local function ProcessStringOption(data, index)
 		text   = oldText,
 		useIME = false,
 		hint = data.hint,
-		objectOverrideFont = oldText == modoptionDefaults[data.key] and WG.Chobby.Configuration:GetFont(2) or WG.Chobby.Configuration:GetFont(2, "Changed2", {color = {1, 0.5, 0.5, 1}}),
+		objectOverrideFont = oldText == modoptionDefaults[data.key] and WG.Chobby.Configuration:GetFont(2) or WG.Chobby.Configuration:GetFont(2, "Changed2", {color = MARKED_AS_CHANGED_COLOR}),
 		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(11),
 		tooltip = data.desc,
 		OnFocusUpdate = {
@@ -465,7 +468,7 @@ local function ProcessStringOption(data, index)
 					end
 				else
 					for i = 1, #control.children do
-						control.children[i].font = WG.Chobby.Configuration:GetFont(2, "Changed2", {color = {1, 0.5, 0.5, 1}})
+						control.children[i].font = WG.Chobby.Configuration:GetFont(2, "Changed2", {color = MARKED_AS_CHANGED_COLOR})
 					end
 				end
 			end
