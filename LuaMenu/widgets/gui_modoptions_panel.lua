@@ -271,7 +271,7 @@ local function ProcessBoolOption(data, index)
 		align = "left",
 		caption = data.name,
 		objectOverrideFont =
-			(checked and modoptionDefaults[data.key] == "1" or not checked and modoptionDefaults[data.key]) and WG.Chobby.Configuration:GetFont(2)
+			(checked and "1" or "0") == modoptionDefaults[data.key] and WG.Chobby.Configuration:GetFont(2)
 			or WG.Chobby.Configuration:GetFont(2, "Changed2", {color = MARKED_AS_CHANGED_COLOR}),
 		tooltip = data.desc,
 	}
@@ -285,9 +285,6 @@ local function ProcessBoolOption(data, index)
 		boxsize = 25,
 		caption = "",
 		checked = checked,
-		objectOverrideFont =
-			(checked and modoptionDefaults[data.key] == "1" or not checked and modoptionDefaults[data.key]) and WG.Chobby.Configuration:GetFont(2)
-			or WG.Chobby.Configuration:GetFont(2, "Changed2", {color = MARKED_AS_CHANGED_COLOR}),
 		tooltip = data.desc,
 		OnChange =
 			(data.unlock or data.lock) and { function (obj, newState)
