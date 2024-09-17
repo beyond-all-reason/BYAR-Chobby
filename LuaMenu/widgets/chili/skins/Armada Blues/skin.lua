@@ -586,7 +586,7 @@ skin.line = {
   tiles = {0, 0, 0, 0},
   TileImageV = ":cl:tech_line_vert.png",
   tilesV = {0, 0, 0, 0},
-  borderColor = {125/255, 125/255, 125/255, 1},
+  borderColor = {0.4, 0.4, 0.4, 1},
   DrawControl = DrawLine,
 }
 
