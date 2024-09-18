@@ -890,7 +890,7 @@ function Configuration:GetFont(sizeScale, specialName, specialData, rawSize)
 		specialData.color        = specialData.color or {1,1,1,1}
 		specialData.outlineColor = specialData.outlineColor or {0.05,0.05,0.05,0.9}
 		specialData.outline      = specialData.outline or false
-		specialData.shadow       = specialData.shadow or false
+		specialData.shadow       = specialData.shadow or true
 		self.fontSpecial[size][specialName] = Font:New(specialData)
 	end
 	return self.fontSpecial[size][specialName]
