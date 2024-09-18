@@ -177,6 +177,7 @@ function ChatWindows:init()
 		y = 0,
 		bottom = 9,
 		padding = {0, 0, 0, 0},
+		minTabWidth = 90,
 		tabs = {
 			[1] = (Configuration.debugMode and { name = "debug", caption = i18n("debug"), children = {
 					self.debugConsole.panel}, objectOverrideFont = WG.Chobby.Configuration:GetFont(1)}) or nil,
@@ -212,7 +213,6 @@ function ChatWindows:init()
 		name = "fudgeControl",
 		x = 0,
 		y = 0,
-		width = 100,
 		bottom = 0,
 		resizable = false,
 		draggable = false,
@@ -571,9 +571,10 @@ function ChatWindows:SetTabBadge(tabName, text)
 	local badge = ctrl._badge
 	if not ctrl._badge then
 		ctrl._badge = Label:New {
-			x = 30,
-			y = -20,
-			width = 14,			
+			--x = 75,
+			y = -36,
+			right = 5,
+			width = 14,
 			height = 12,
 			caption = text,
 			objectOverrideFont = WG.Chobby.Configuration:GetFont(8, "chat_badge_black", {
@@ -769,8 +770,8 @@ function ChatWindows:UpdateChannels(channelsArray)
 end
 
 function ChatWindows:UpdateJoinPosition()
-	self.joinButton:SetPos(#self.tabPanel.tabBar.children * 70 + 10)
-	self.tabBarFudgeHolder:SetPos(nil, nil, #self.tabPanel.tabBar.children * 70 + 5)
+	self.joinButton:SetPos(#self.tabPanel.tabBar.children * 90 + 10)
+	self.tabBarFudgeHolder:SetPos(nil, nil, #self.tabPanel.tabBar.children * 90 + 5)
 end
 
 function ChatWindows:GetChannelConsole(chanName)
@@ -807,7 +808,7 @@ function ChatWindows:GetChannelConsole(chanName)
 		local tooltip = nil
 		local origCaption = caption
 		local fontSize = 1
-		caption = StringUtilities.GetTruncatedStringWithDotDot(caption, Configuration:GetFont(fontSize), 70)
+		caption = StringUtilities.GetTruncatedStringWithDotDot(caption, Configuration:GetFont(fontSize), 86)
 		if origCaption ~= caption then
 			tooltip = origCaption
 		end
@@ -915,7 +916,7 @@ function ChatWindows:GetPrivateChatConsole(userName, switchTo)
 		local tooltip = nil
 		local origCaption = caption
 		local fontSize = 1
-		caption = StringUtilities.GetTruncatedStringWithDotDot(caption, Configuration:GetFont(fontSize), 70)
+		caption = StringUtilities.GetTruncatedStringWithDotDot(caption, Configuration:GetFont(fontSize), 86)
 		if origCaption ~= caption then
 			tooltip = origCaption
 		end
