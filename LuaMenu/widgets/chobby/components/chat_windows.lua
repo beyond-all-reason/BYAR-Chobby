@@ -213,6 +213,7 @@ function ChatWindows:init()
 		name = "fudgeControl",
 		x = 0,
 		y = 0,
+		width = 100,
 		bottom = 0,
 		resizable = false,
 		draggable = false,
@@ -571,7 +572,6 @@ function ChatWindows:SetTabBadge(tabName, text)
 	local badge = ctrl._badge
 	if not ctrl._badge then
 		ctrl._badge = Label:New {
-			--x = 75,
 			y = -36,
 			right = 5,
 			width = 14,
