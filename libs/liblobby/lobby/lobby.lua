@@ -1558,6 +1558,21 @@ function Lobby:_OnSaidBattleEx(userName, message, sayTime)
 				end
 			end
 			
+			if battleInfo.mutes ~= nil then
+				local battleMutes = {}
+				for mutedUserName in string.gmatch(battleInfo.mutes, "([^,]+)") do
+					battleMutes[mutedUserName] = true
+				end
+
+				local battleUsers = self.battles[battleID].users
+				for _, battleUserName in pairs(battleUsers) do
+					local battleUserIsMuted = battleMutes[battleUserName] or false
+					if self.userBattleStatus[battleUserName] and self.userBattleStatus[battleUserName].isMuted ~= battleUserIsMuted then
+						self:_OnUpdateUserBattleStatus(battleUserName, {isMuted = battleUserIsMuted})
+					end
+				end
+			end
+
 		end
 		-- 2023-07-04 FB: For now: proceed with CallListeners of SaidBattleEx, because gui_battle_room has its own parsing of barmanager message
 		-- return

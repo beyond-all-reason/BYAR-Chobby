@@ -385,6 +385,7 @@ function Configuration:init()
 		balanceMode = true,
 		preset = true,
 		boss = true,
+		mutes = true,
 	}
 	-- SAIDBATTLEEX Prefixes
 	self.BTLEX_JOINQUEUE = "You are now in the join-queue at position"

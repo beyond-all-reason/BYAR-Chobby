@@ -89,6 +89,8 @@ local IMAGE_ONLINE         = IMAGE_DIR .. "online.png"
 local IMAGE_OFFLINE        = IMAGE_DIR .. "offline.png"
 local IMAGE_BOSS           = IMAGE_DIR .. "boss-icon.png"
 local IMAGE_RUNNING_BATTLE = IMAGE_DIR .. "runningBattle.png"
+local IMAGE_MUTED          = IMAGE_DIR .. "mute.png"
+
 
 local IMAGE_CLAN_PATH    = "LuaUI/Configs/Clans/"
 local RANK_DIR           = LUA_DIRNAME .. "configs/gameConfig/zk/rankImages/"
@@ -290,10 +292,15 @@ end
 
 local function GetUserStatusImages(userName, isInBattle, userControl)
 	local userInfo = userControl.replayUserInfo or userControl.lobby:GetUser(userName) or {}
+	local battleStatus = userControl.lobby:GetUserBattleStatus(userName) or {}
 	local images = {}
 
 	if userInfo.pendingPartyInvite and not userControl.hideStatusInvite then
 		images[#images + 1] = IMAGE_PARTY_INVITE
+	end
+
+	if isInBattle and battleStatus.isMuted then
+		images[#images + 1] = IMAGE_MUTED
 	end
 
 	if isInBattle and userControl.isBoss then
@@ -614,7 +621,10 @@ local function UpdateUserBattleStatus(listener, userName, battleStatusDiff)
 				local bs = userControls.lobby:GetUserBattleStatus(userName) or {}
 				userControls.isPlaying = bs.isSpectator == false
 				userControls.isBoss = bs.isBoss or false
-				
+				userControls.isMuted = bs.isMuted or false
+
+				UpdateUserActivity(_, userName, {})
+
 				local offset = 0
 				if userControls.tbQueuePos then
 					userControls.isInQueue = bs.queuePos and bs.queuePos > 0 or false
@@ -889,6 +899,7 @@ local function GetUserControls(userName, opts)
 	userControls.isPlaying = bs.isSpectator == false
 	userControls.isInQueue = bs.queuePos and bs.queuePos > 0 or false
 	userControls.isBoss = bs.isBoss or false
+	userControls.isMuted = bs.isMuted or false
 
 	if reinitialize then
 		userControls.mainControl:ClearChildren()
