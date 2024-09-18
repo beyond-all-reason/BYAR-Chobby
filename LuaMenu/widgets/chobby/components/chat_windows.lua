@@ -572,8 +572,8 @@ function ChatWindows:SetTabBadge(tabName, text)
 	local badge = ctrl._badge
 	if not ctrl._badge then
 		ctrl._badge = Label:New {
-			y = -36,
-			right = 5,
+			y = -37,
+			right = 0,
 			width = 14,
 			height = 12,
 			caption = text,
