@@ -1113,7 +1113,7 @@ local function GetUserControls(userName, opts)
 					elseif selectedName == "Make Boss" then
 						lobby:SayBattle("!boss "..userName)
 					elseif selectedName == "Disable Boss" then
-						lobby:SayBattle("!boss")
+						lobby:SayBattle("!unboss "..userName)
 					elseif selectedName == "Force Spectator" then
 						lobby:SayBattle("!spec "..userName)
 					elseif selectedName == "Report" and Configuration.gameConfig.link_reportPlayer ~= nil then
