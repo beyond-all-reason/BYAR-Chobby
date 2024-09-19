@@ -16,6 +16,14 @@ local welcomePanelItems = {
     },
 
     {
+        Header = "Nation Wars #3 - 4v4 tournament",
+        Text = "Commanders, assemble your teams: the Nation Wars are back!\n\n22 teams from 13 countries competed in the previous edition, with Canada emerging as victor. What if this time, YOU were the ones adorning a Gold Medal?\n\nForm a team of 4 to 6 players to represent your nation, and register until September 26!\n\nIf more than 2 teams register for the same nation, they will play qualifiers between September 28 and October 6, with the tournament itself happening on the weekends of October 12/13 and October 19/20.\n",
+		Image = "LuaMenu/images/nation_wars.png",
+        Url = "https://discord.gg/qurXWcjmNN",
+        UrlText = "Join the Discord",
+    },
+
+    {
         Header = "New Feature: Start Position Suggestions",
         Text = "The Start Position Suggestions widget is now available. It shows recommended spawn positions when placing commanders, to help newer players, or players that are just new to a map. This feature is optional and can be disabled in Settings." .. " \n",
     },
