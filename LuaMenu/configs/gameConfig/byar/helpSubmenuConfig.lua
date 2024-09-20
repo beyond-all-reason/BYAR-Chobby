@@ -88,12 +88,26 @@ local communityLines = {
 		end
 	},
 	{
+		"Channels streaming BAR on Twitch now.",
+		"Live on Twitch",
+		function ()
+			WG.BrowserHandler.OpenUrl("https://www.twitch.tv/directory/category/beyond-all-reason")
+		end
+	},
+	{
 		"Youtube channel.",
 		"Youtube",
 		function ()
 			WG.BrowserHandler.OpenUrl("https://www.youtube.com/BeyondAllReason")
 		end
 	},
+--[[ 	{
+		"Videos and streams about BAR on Youtube.",
+		"Live on Youtube",
+		function ()
+			WG.BrowserHandler.OpenUrl("https://www.youtube.com/channel/UC-QkFO7qGgPv5J3c8pGOpIQ")
+		end
+	}, ]]
 	{
 		"Discord chat server.",
 		"Discord",
