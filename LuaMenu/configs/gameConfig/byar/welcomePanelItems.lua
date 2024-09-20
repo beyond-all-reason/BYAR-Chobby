@@ -16,6 +16,14 @@ local welcomePanelItems = {
     },
 
     {
+        Header = "Nation Wars #3 - 4v4 tournament",
+        Text = "Commanders, assemble your teams: the Nation Wars are back!\n\n22 teams from 13 countries competed in the previous edition, with Canada emerging as victor. What if this time, YOU were the ones adorning a Gold Medal?\n\nForm a team of 4 to 6 players to represent your nation, and register until September 26!\n\nIf more than 2 teams register for the same nation, they will play qualifiers between September 28 and October 6, with the tournament itself happening on the weekends of October 12/13 and October 19/20.\n",
+		Image = "LuaMenu/images/nation_wars.png",
+        Url = "https://discord.gg/qurXWcjmNN",
+        UrlText = "Join the Discord",
+    },
+
+    {
         Header = "New Feature: Start Position Suggestions",
         Text = "The Start Position Suggestions widget is now available. It shows recommended spawn positions when placing commanders, to help newer players, or players that are just new to a map. This feature is optional and can be disabled in Settings." .. " \n",
     },
@@ -26,16 +34,6 @@ local welcomePanelItems = {
         Image = "LuaMenu/images/trailer.png",
         Url = "https://www.beyondallreason.info/news/bar-trailer-2024",
         UrlText = "Watch the trailer",
-    },
-
-    {
-        Header = "Small Team Games split!",
-        Text = "This Tuesday, the Team Games rating is getting split between Small (up to 5v5) and Large (6v6-8v8) team games! We're increasing support for small team games, as they play vastly different from 8v8 - give them a try!" .. " \n" .. " \n" .. "Both modes will use your old Team Games rating as a starting point, and your Small Team rating will be reset to a minimum of 5." .. " \n" .. " \n" .. "$minratinglevel will also use rating for your chosen mode, based on the team size set in your lobby. That includes Duel - the long-standing bug where rating limits would always use team rating was fixed!" .. " \n",
-    },
-
-    {
-        Header = "Season 1 has launched!",
-        Text = "On Wednesday, 7AM GMT a new season has officially commenced! Climb to the top of the leaderboards now!" .. " \n" .. " \n" .. "Your rating uncertainty has been bumped up to 5 to speed up the progress. Additionally an uncertainty floor has been added to make sure players don't get stuck with their progression after many games played." .. " \n",
     },
 
     {
