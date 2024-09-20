@@ -26,6 +26,7 @@ function AiOptionsWindow:init(displayName, optionsPath, successFunc)
 
 	-- AIOptions
 	local options = VFS.Include(optionsPath)
+	self:CustomizeProfiles(displayName, options)
 	for i = #options, 1, -1 do
 		self:AddEntry(options[i], i)
 	end
@@ -222,4 +223,12 @@ function AiOptionsWindow:MakeString(data)
 			textBox
 		}
 	}
+end
+
+function AiOptionsWindow:CustomizeProfiles(displayName, options)
+	for _, data in ipairs(options) do
+		if data.type == "list" and data.key == "profile" then
+			WG.Chobby.Configuration.gameConfig.CustomAiProfiles(displayName, data.items)  -- in place
+		end
+	end
 end
