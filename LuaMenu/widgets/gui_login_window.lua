@@ -123,6 +123,9 @@ local function InitializeListeners()
 			registerRecieved = true
 			WG.Delay(ResetRegisterRecieved, 0.8)
 			currentLoginWindow.txtError:SetText(Configuration:GetSuccessColor() .. "Registered!")
+			if currentLoginWindow.tabPanel then
+				currentLoginWindow.tabPanel:ChangeTab("login")
+			end
 		end
 	end
 
