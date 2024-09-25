@@ -26,7 +26,7 @@ Scoring:
 	1. Speed: destroy the enemy Commanders as fast as possible.
 	2. Efficiency: minimize the amount of metal and energy used.
 ]],
-	mapfilename		= "AcidicQuarry 5.16", -- the name of the map to be displayed here, and which to play on, no .smf ending needed
+	mapfilename		= "AcidicQuarry 5.17", -- the name of the map to be displayed here, and which to play on, no .smf ending needed
 	playerstartx	= "15%", -- X position of where player comm icon should be drawn, from top left of the map
 	playerstarty	= "75%", -- Y position of where player comm icon should be drawn, from top left of the map
 	partime 		= 1800, -- par time in seconds

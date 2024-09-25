@@ -22,7 +22,7 @@ Scoring:
  - Resources spent to get a confirmed kill on the captured commander.
  ]],
 
-	mapfilename		= "Stronghold V4", -- the name of the map to be displayed here, and which to play on, no .smf ending needed
+	mapfilename		= "Stronghold v5.0.1", -- the name of the map to be displayed here, and which to play on, no .smf ending needed
 	playerstartx	= "85%", -- X position of where player comm icon should be drawn, from top left of the map
 	playerstarty	= "85%", -- Y position of where player comm icon should be drawn, from top left of the map
 	partime 		= 3000, -- par time in seconds (time a mission is expected to take on average)
@@ -379,7 +379,7 @@ Scoring:
 	hostport = 0;
 	numplayers = 1;
 	startpostype = 3; // 0 fixed, 1 random, 2 choose in game, 3 choose before game (see StartPosX)
-	mapname = Stronghold V4;
+	mapname = __MAPNAME__;
 	ishost = 1; //
 	//numusers = 2;
     gametype = __BARVERSION__;
