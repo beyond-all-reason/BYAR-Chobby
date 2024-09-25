@@ -10,7 +10,7 @@ local scenariodata = {
 	briefing 		= [[The enemy is purely defending, so you won't have to worry about any incoming attacks.
 There are multiple approaches to the base, with some more defended than others.]],
 
-	mapfilename		= "Death Valley v1", -- the name of the map to be displayed here, and which to play on, no .smf ending needed
+	mapfilename		= "Death Valley v1.0.1", -- the name of the map to be displayed here, and which to play on, no .smf ending needed
 	playerstartx	= "19%", -- X position of where player comm icon should be drawn, from top left of the map
 	playerstarty	= "87%", -- Y position of where player comm icon should be drawn, from top left of the map
 	partime 		= 2100, -- par time in seconds (time a mission is expected to take on average)

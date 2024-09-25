@@ -31,7 +31,7 @@ The difficulty modifier will change the amount of resources you and the enemy re
  - Brutal: Regular resources for you, +100% for the enemy
     ]],
 
-	mapfilename		= "Neurope_Remake 4.2", -- the name of the map to be displayed here
+	mapfilename		= "Neurope_Remake 4.2.1", -- the name of the map to be displayed here
 	playerstartx	= "5%", -- X position of where player comm icon should be drawn, from top left of the map
 	playerstarty	= "10%", -- Y position of where player comm icon should be drawn, from top left of the map
 	partime 		= 3000, -- par time in seconds
