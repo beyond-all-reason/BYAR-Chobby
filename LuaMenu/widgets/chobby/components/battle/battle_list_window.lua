@@ -1247,7 +1247,7 @@ end
 
 function BattleListWindow:OpenHostWindow()
 	-- Enumerate all known clusters and their number of children
-	local regions = {'EU','US','AU'}
+	local regions = {'EU','US','AU','EA'}
 	local clusters = {
 		['Host[AU1]'] = {limit = 80,  current = 0, online = false, priority = 0.2, region = 'AU', location = "Sydney"}, -- lower priority because its at contabo
 		['Host[AU2]'] = {limit = 40,  current = 0, online = false, priority = 1.0, region = 'AU', location = "Sydney"}, -- higher priority OVH host
@@ -1260,10 +1260,13 @@ function BattleListWindow:OpenHostWindow()
 		['Host[EU6]'] = {limit = 120, current = 0, online = false, priority = 1.0, region = 'EU', location = "Amsterdam"},
 		['Host[EU7]'] = {limit = 200, current = 0, online = false, priority = 1.0, region = 'EU', location = "Amsterdam"}, -- This runs on integration server, but has plenty of capacity
 		
-		['Host[US1]'] = {limit = 120,  current = 0, online = false, priority = 1.0, region = 'US', location = "Virginia"},
+		['Host[US1]'] = {limit = 120, current = 0, online = false, priority = 1.0, region = 'US', location = "Virginia"},
 		['Host[US2]'] = {limit = 60,  current = 0, online = false, priority = 1.0, region = 'US', location = "Chicago"},
 		['Host[US3]'] = {limit = 80,  current = 0, online = false, priority = 1.0, region = 'US', location = "St. Louis"},
 		['Host[US4]'] = {limit = 150, current = 0, online = false, priority = 0.3, region = 'US', location = "Seattle"}, -- Seems to see more cpu steal than the rest
+
+
+		['Host[EA1]'] = {limit = 100, current = 0, online = false, priority = 1.0, region = 'EA', location = "HK"}, -- Seems to see more cpu steal than the rest
 	}
 
 	-- Try to check for their engine version too. It is unlikely that a cluster has multiple engines (except during a switch, so scratch that)
@@ -1395,7 +1398,7 @@ function BattleListWindow:OpenHostWindow()
 		text = "",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 				text = "",
-		items = regions, -- Configuration.hostRegions, --self.hostRegions = {"DE","EU","EU2","US","AU"}
+		items = {'Europe', 'North America', 'Australia', 'East Asia'}, -- {'EU','US','AU','EA'}
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		selected = 1,
 		tooltip = "You may choose any region you wish, BAR is not sensitive to latency.",
@@ -1442,8 +1445,11 @@ function BattleListWindow:OpenHostWindow()
 	local function HostBattle()
 		
 		--Attempting to host game at
-		local requestedregion = typeCombo.items[typeCombo.selected] ---self.hostRegions = {"DE","EU","EU2","US","AU"}
-		--Spring.Echo("Looking for empty host in region", requestedregion)
+		--local requestedregion = typeCombo.items[typeCombo.selected] ---self.hostRegions = {"DE","EU","EU2","US","AU"}
+		local regionStrings = {'Europe', 'North America', 'Australia', 'East Asia'} -- {'EU','US','AU','EA'}
+		local regions = {'EU','US','AU','EA'}
+		local requestedregion = regions[typeCombo.selected]
+		Spring.Echo("Looking for empty host in region", requestedregion)
 		local targetCluster, errmsg = TryGetRegion(requestedregion)
 
 		if userWantsPrivateBattle then
