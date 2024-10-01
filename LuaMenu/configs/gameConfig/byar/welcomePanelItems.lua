@@ -16,6 +16,12 @@ local welcomePanelItems = {
     },
 
     {
+        Header = "New Map: Eclipsed",
+        Text = " \n" .. " \n" .. "A macro style map. 1v1 recommended. 2v2s to 5v5s are playable. By AidanNaut.",
+        Image = "LuaMenu/configs/gameConfig/byar/minimapOverride/Eclipsed_0.8.1.jpg",
+    },
+
+    {
         Header = "Nation Wars #3 - 4v4 tournament",
         Text = "Commanders, assemble your teams: the Nation Wars are back!\n\n22 teams from 13 countries competed in the previous edition, with Canada emerging as victor. What if this time, YOU were the ones adorning a Gold Medal?\n\nForm a team of 4 to 6 players to represent your nation, and register until September 26!\n\nIf more than 2 teams register for the same nation, they will play qualifiers between September 28 and October 6, with the tournament itself happening on the weekends of October 12/13 and October 19/20.\n",
 		Image = "LuaMenu/images/nation_wars.png",
@@ -42,18 +48,6 @@ local welcomePanelItems = {
         Image = "LuaMenu/images/donate.png",
         Url = "https://www.beyondallreason.info/news/support-bar-with-our-newly-reopened-donation-platform",
         UrlText = "Read Announcement",
-    },
-
-    {
-        Header = "New Map: Hera Planum",
-        Text = " \n" .. "Ancient eroded craters leave narrow paths on a vast plateau. Some geothermal activity remains in this barren environment. By Phalange.",
-        Image = "LuaMenu/configs/gameConfig/byar/minimapOverride/Hera_Planum_0.91.jpg",
-    },
-
-    {
-        Header = "New Map: Feast of Hades",
-        Text = " \n" .. "3v3-6v6 map, up to 8v8 with left vs right starting boxes. By Phalange.",
-        Image = "LuaMenu/configs/gameConfig/byar/minimapOverride/Feast_of_Hades_0.9.jpg",
     },
 
     {
