@@ -627,7 +627,15 @@ local function CreateScenarioPanel(shortname, sPanel)
 		for i, diff in pairs(scen.difficulties) do
 			if diff.name == newdifficultyname then mydifficulty = diff end
 		end
-		lbldifflevelpersonal:SetCaption("Difficulty level: "..tostring(mydifficulty.name))
+		lbldifflevelpersonal:SetCaption("Difficulty: "..tostring(mydifficulty.name))
+    
+    myscores = GetBestScores(scen.scenarioid, scen.version, mydifficulty.name)
+    if myscores == nil then
+      myscores = {time = "0", resources = "0"}
+    end
+    
+    mytime:SetCaption(SecondsToTimeString(myscores.time))
+    myresources:SetCaption(string.format( "%.2fK metal",myscores.resources/1000.0))
 	end
 
 	local difficultCombo = ComboBox:New{
