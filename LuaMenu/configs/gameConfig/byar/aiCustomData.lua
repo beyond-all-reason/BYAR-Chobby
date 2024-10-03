@@ -1,12 +1,11 @@
 local customProfiles = {
--- 	['BARb stable'] = {
--- 		{
--- 			key  = 'example',  -- must conform to directory name
--- 			name = 'Not so Hard',  -- human readable name displayed in a list
--- 			-- desc kept for consistency with AIOptions.lua
--- 			desc = 'Alas desc doesn\'t work - no way to display tooltip on a list item',
--- 		},
--- 	},
+	['BARb stable'] = {
+		{
+			key  = 'hard_aggressive',  -- must conform to directory name
+			name = 'Hard | Aggressive',  -- human readable name displayed in a list
+			desc = 'Difficulty: Hard | Playstyle: Aggressive | Made by Flaka, tweaked by Corosus',
+		},
+	},
 }
 
 local blacklistProfiles = {
@@ -36,15 +35,15 @@ local function ArrayRemove(t, fnKeep)
 end
 
 function CustomAiProfiles(name, items)
+	local filter = blacklistProfiles[name]
+	if filter then
+		ArrayRemove(items, function(t, i, j) return not filter[t[i].key] end)
+	end
 	local customs = customProfiles[name]
 	if customs then
 		for _, v in ipairs(customs) do
 			table.insert(items, v)
 		end
-	end
-	local filter = blacklistProfiles[name]
-	if filter then
-		ArrayRemove(items, function(t, i, j) return not filter[t[i].key] end)
 	end
 end
 

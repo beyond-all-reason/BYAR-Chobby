@@ -229,6 +229,7 @@ function AiOptionsWindow:CustomizeProfiles(displayName, options)
 	for _, data in ipairs(options) do
 		if data.type == "list" and data.key == "profile" then
 			WG.Chobby.Configuration.gameConfig.CustomAiProfiles(displayName, data.items)  -- in place
+			return
 		end
 	end
 end
