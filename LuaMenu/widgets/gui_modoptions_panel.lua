@@ -864,7 +864,7 @@ end
 					end
 				end
 			elseif option.type == "number" then
-				if option.lock and panelModoptions[option.key] ~= modoptionDefaults[option.key] then
+				if option.lock and panelModoptions[option.key] and panelModoptions[option.key] ~= modoptionDefaults[option.key] then
 					for i = 1, #option.lock do
 						hidenOptions[option.lock[i]] = true
 					end
