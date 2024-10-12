@@ -188,7 +188,8 @@ local function ProcessListOption(data, index)
 		tooltip = data.desc,
 	}
 
-	local list = ComboBox:New {
+	local list
+	list = ComboBox:New {
 		x = 325,
 		y = 1,
 		width = 300,
@@ -204,26 +205,22 @@ local function ProcessListOption(data, index)
 			locking and { function (obj, selectedName)
 				processChildrenLocks(unlock and unlock[itemNameToKey[selectedName]] or nil, lock and lock[itemNameToKey[selectedName]] or nil, data.bitmask or 1)
 				if itemNameToKey[selectedName] == data.def then
-					for i = 1, #control.children do
-						control.children[i].font = WG.Chobby.Configuration:GetFont(2)
-					end
+						label.font = WG.Chobby.Configuration:GetFont(2)
+						list.font = WG.Chobby.Configuration:GetFont(2)
 				else
-					for i = 1, #control.children do
-						control.children[i].font = WG.Chobby.Configuration:GetFont(2, "Changed2", {color = MARKED_AS_CHANGED_COLOR})
-					end
+						label.font = WG.Chobby.Configuration:GetFont(2, "Changed2", {color = MARKED_AS_CHANGED_COLOR})
+						list.font = WG.Chobby.Configuration:GetFont(2, "Changed2", {color = MARKED_AS_CHANGED_COLOR})
 				end
 				localModoptions[data.key] = itemNameToKey[selectedName]
 			end
 		} or
 			{function (obj, selectedName)	
 				if itemNameToKey[selectedName] == data.def then
-					for i = 1, #control.children do
-						control.children[i].font = WG.Chobby.Configuration:GetFont(2)
-					end
+						label.font = WG.Chobby.Configuration:GetFont(2)
+						list.font = WG.Chobby.Configuration:GetFont(2)
 				else
-					for i = 1, #control.children do
-						control.children[i].font = WG.Chobby.Configuration:GetFont(2, "Changed2", {color = MARKED_AS_CHANGED_COLOR})
-					end
+						label.font = WG.Chobby.Configuration:GetFont(2, "Changed2", {color = MARKED_AS_CHANGED_COLOR})
+						list.font = WG.Chobby.Configuration:GetFont(2, "Changed2", {color = MARKED_AS_CHANGED_COLOR})
 				end
 				localModoptions[data.key] = itemNameToKey[selectedName]
 			end
@@ -295,25 +292,17 @@ local function ProcessBoolOption(data, index)
 				end
 				localModoptions[data.key] = tostring((newState and 1) or 0)
 				if (newState and modoptionDefaults[data.key] == "1") or (not newState and modoptionDefaults[data.key] == "0") then
-					for i = 1, #control.children do
-						control.children[i].font = WG.Chobby.Configuration:GetFont(2)
-					end
+					label.font = WG.Chobby.Configuration:GetFont(2)
 				else
-					for i = 1, #control.children do
-						control.children[i].font = WG.Chobby.Configuration:GetFont(2, "Changed2", {color = MARKED_AS_CHANGED_COLOR})
-					end
+					label.font = WG.Chobby.Configuration:GetFont(2, "Changed2", {color = MARKED_AS_CHANGED_COLOR})
 				end
 			end
 		} or
 			{ function (obj, newState)
 				if (newState and modoptionDefaults[data.key] == "1") or (not newState and modoptionDefaults[data.key] == "0") then
-					for i = 1, #control.children do
-						control.children[i].font = WG.Chobby.Configuration:GetFont(2)
-					end
+					label.font = WG.Chobby.Configuration:GetFont(2)
 				else
-					for i = 1, #control.children do
-						control.children[i].font = WG.Chobby.Configuration:GetFont(2, "Changed2", {color = MARKED_AS_CHANGED_COLOR})
-					end
+					label.font = WG.Chobby.Configuration:GetFont(2, "Changed2", {color = MARKED_AS_CHANGED_COLOR})
 				end
 				localModoptions[data.key] = tostring((newState and 1) or 0)
 			end
@@ -363,7 +352,8 @@ local function ProcessNumberOption(data, index)
 		tooltip = data.desc,
 	}
 
-	local numberBox = EditBox:New {
+	local numberBox
+	numberBox = EditBox:New {
 		x = 325,
 		y = 1,
 		width = 300,
@@ -374,7 +364,7 @@ local function ProcessNumberOption(data, index)
 		objectOverrideFont = oldText == modoptionDefaults[data.key] and WG.Chobby.Configuration:GetFont(2) or WG.Chobby.Configuration:GetFont(2, "Changed2", {color = MARKED_AS_CHANGED_COLOR}),
 		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(11),
 		tooltip = data.desc,
-		OnFocusUpdate = {
+		OnFocusUpdate = (data.lock or data.unlock) and {
 			function (obj)
 				if obj.focused then
 					return
@@ -397,17 +387,56 @@ local function ProcessNumberOption(data, index)
 				obj:SetText(oldText)
 
 				if oldText == modoptionDefaults[data.key] then
-					for i = 1, #control.children do
-						control.children[i].font = WG.Chobby.Configuration:GetFont(2)
-					end
+					numberBox.font = WG.Chobby.Configuration:GetFont(2)
+					label.font = WG.Chobby.Configuration:GetFont(2)
+					processChildrenLocks(data.lock, data.unlock, data.bitmask or 1)
 				else
-					for i = 1, #control.children do
-						control.children[i].font = WG.Chobby.Configuration:GetFont(2, "Changed2", {color = MARKED_AS_CHANGED_COLOR})
-					end
+					numberBox.font = WG.Chobby.Configuration:GetFont(2, "Changed2", {color = MARKED_AS_CHANGED_COLOR})
+					label.font = WG.Chobby.Configuration:GetFont(2, "Changed2", {color = MARKED_AS_CHANGED_COLOR})
+					processChildrenLocks(data.unlock, data.lock, data.bitmask or 1)
+				end
+			end
+			} or {
+			function (obj)
+				if obj.focused then
+					return
+				end
+
+				local newValue = tonumber(obj.text)
+
+				if not newValue then
+					obj:SetText(oldText)
+					return
+				end
+
+				-- Bound the number
+				newValue = math.min(data.max, math.max(data.min, newValue))
+				-- Round to step size
+				newValue = math.floor(newValue/data.step + 0.5)*data.step + 0.01*data.step
+
+				oldText = TextFromNum(newValue, data.step)
+				localModoptions[data.key] = oldText
+				obj:SetText(oldText)
+
+				if oldText == modoptionDefaults[data.key] then
+					numberBox.font = WG.Chobby.Configuration:GetFont(2)
+					label.font = WG.Chobby.Configuration:GetFont(2)
+				else
+					numberBox.font = WG.Chobby.Configuration:GetFont(2, "Changed2", {color = MARKED_AS_CHANGED_COLOR})
+					label.font = WG.Chobby.Configuration:GetFont(2, "Changed2", {color = MARKED_AS_CHANGED_COLOR})
 				end
 			end
 		}
 	}
+
+	if oldText == modoptionDefaults[data.key] then
+		if data.unlock then
+			postLock[#postLock+1] = {data.unlock, data.bitmask or 1, data.name}
+		end
+	elseif data.lock then
+		postLock[#postLock+1] = {data.lock, data.bitmask or 1, data.name}
+	end
+
 	modoptionControlNames[data.key] = numberBox
 
 	control = Control:New {
@@ -442,7 +471,8 @@ local function ProcessStringOption(data, index)
 		tooltip = data.desc,
 	}
 
-	local textBox = EditBox:New {
+	local textBox
+	textBox = EditBox:New {
 		x = 325,
 		y = 1,
 		width = 300,
@@ -460,13 +490,11 @@ local function ProcessStringOption(data, index)
 				end
 				localModoptions[data.key] = obj.text
 				if obj.text == modoptionDefaults[data.key] then
-					for i = 1, #control.children do
-						control.children[i].font = WG.Chobby.Configuration:GetFont(2)
-					end
+						textBox.font = WG.Chobby.Configuration:GetFont(2)
+						label.font = WG.Chobby.Configuration:GetFont(2)
 				else
-					for i = 1, #control.children do
-						control.children[i].font = WG.Chobby.Configuration:GetFont(2, "Changed2", {color = MARKED_AS_CHANGED_COLOR})
-					end
+						textBox.font = WG.Chobby.Configuration:GetFont(2, "Changed2", {color = MARKED_AS_CHANGED_COLOR})
+						label.font = WG.Chobby.Configuration:GetFont(2, "Changed2", {color = MARKED_AS_CHANGED_COLOR})
 				end
 			end
 		}
@@ -833,6 +861,16 @@ end
 							hidenOptions[option.items[j].lock[i]] = true
 						end
 						break
+					end
+				end
+			elseif option.type == "number" then
+				if option.lock and panelModoptions[option.key] and panelModoptions[option.key] ~= modoptionDefaults[option.key] then
+					for i = 1, #option.lock do
+						hidenOptions[option.lock[i]] = true
+					end
+				elseif option.unlock and panelModoptions[option.key] == modoptionDefaults[option.key] then
+					for i = 1, #option.unlock do
+						hidenOptions[option.unlock[i]] = true
 					end
 				end
 			end
