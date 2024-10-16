@@ -1,5 +1,5 @@
 local customProfiles = {
-	['BARb stable'] = {
+	['BARb'] = {
 		{
 			key  = 'hard_aggressive',  -- must conform to directory name
 			name = 'Hard | Aggressive',  -- human readable name displayed in a list
@@ -9,7 +9,7 @@ local customProfiles = {
 }
 
 local blacklistProfiles = {
--- 	['BARb stable'] = {
+-- 	['BARb'] = {
 -- 		dev = true,
 -- 		hard = true,
 -- 	},

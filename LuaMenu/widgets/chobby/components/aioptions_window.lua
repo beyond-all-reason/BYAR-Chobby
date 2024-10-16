@@ -1,6 +1,6 @@
 AiOptionsWindow = ListWindow:extends{}
 
-function AiOptionsWindow:init(displayName, optionsPath, successFunc)
+function AiOptionsWindow:init(displayName, shortName, optionsPath, successFunc)
 	self:super('init', lobbyInterfaceHolder, displayName.." Options", false, "main_window", nil, {6, 7, 7, 4})
 	self.window:SetPos(nil, nil, 650, 700)
 	WG.Chobby.PriorityPopup(self.window, nil, nil, nil, true)
@@ -26,7 +26,7 @@ function AiOptionsWindow:init(displayName, optionsPath, successFunc)
 
 	-- AIOptions
 	local options = VFS.Include(optionsPath)
-	self:CustomizeProfiles(displayName, options)
+	self:CustomizeProfiles(shortName, options)
 	for i = #options, 1, -1 do
 		self:AddEntry(options[i], i)
 	end
@@ -225,10 +225,10 @@ function AiOptionsWindow:MakeString(data)
 	}
 end
 
-function AiOptionsWindow:CustomizeProfiles(displayName, options)
+function AiOptionsWindow:CustomizeProfiles(shortName, options)
 	for _, data in ipairs(options) do
 		if data.type == "list" and data.key == "profile" then
-			WG.Chobby.Configuration.gameConfig.CustomAiProfiles(displayName, data.items)  -- in place
+			WG.Chobby.Configuration.gameConfig.CustomAiProfiles(shortName, data.items)  -- in place
 			return
 		end
 	end
