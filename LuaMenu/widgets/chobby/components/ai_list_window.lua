@@ -121,7 +121,7 @@ function AiListWindow:MakeAiOptionsButton(displayName, tooltip, shortName, versi
 					self:AddAi(displayName, shortName, version, aioptions)
 					self:HideWindow()
 				end
-				WG.Chobby.AiOptionsWindow(displayName, path, successFunc)
+				WG.Chobby.AiOptionsWindow(displayName, shortName, path, successFunc)
 			end
 		},
 	}
