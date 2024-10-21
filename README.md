@@ -44,8 +44,7 @@ git clone https://github.com/beyond-all-reason/Beyond-All-Reason.git BAR.sdd
 
 1. Use Zerobrane Studio dev env, open up any chobby Beyond-All-Reason\data\*.lua file with Zerobrane studio, then set Project->Project Directory->From current file
 2. This allows you to ctrl+shift+f to find any text in all of chobby, useful
-3. Do NOT try to edit anything in Chobby.sdd! If you want to edit something in Chobby.sdd that is not overwritten by the mutator BYAR-Chobby (e.g. does not exist in BYAR-Chobby.sdd), then copy it over to BYAR-Chobby.sdd first and commit it (so we have a baseline).
-4. Open infolog.txt in notepad++ or anything to grep for errors.
+3. Open infolog.txt in notepad++ or anything to grep for errors.
 
 ## How to make new launcher releases:
 
