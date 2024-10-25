@@ -76,7 +76,7 @@ function Configuration:init()
 	self.suggestedNameFromSteam = false
 	self.password = false
 	self.autoLogin = true
-	self.rememberPassword = false
+	self.rememberPassword = true
 	self.uploadLogPrompt = 'Prompt'
 	self.firstLoginEver = true
 	self.canAuthenticateWithSteam = false
