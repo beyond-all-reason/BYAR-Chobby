@@ -399,7 +399,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 	self.cbRememberPassword = Checkbox:New {
 		x = 15,
 		width = 215,
-		y = self.windowHeight - 145,
+		y = self.windowHeight - 215,
 		height = 35,
 		boxalign = "right",
 		boxsize = 15,
@@ -415,7 +415,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 	self.cbRememberPasswordRegister = Checkbox:New {
 		x = 15,
 		width = 215,
-		y = self.windowHeight - 145,
+		y = self.windowHeight - 215,
 		height = 35,
 		boxalign = "right",
 		boxsize = 15,
