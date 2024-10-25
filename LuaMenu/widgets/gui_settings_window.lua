@@ -993,6 +993,25 @@ local function GetLobbyTabControls()
 	children[#children + 1] = autoLogin
 	offset = offset + ITEM_OFFSET
 
+	local rememberPassword = Checkbox:New {
+		x = 20,
+		width = CHECK_WIDTH,
+		y = offset,
+		height = 30,
+		boxalign = "right",
+		boxsize = 20,
+		caption = i18n("rememberPassword"),
+		checked = Configuration.rememberPassword or false,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		OnChange = {function (obj, newState)
+			freezeSettings = true
+			Configuration:SetConfigValue("rememberPassword", newState)
+			freezeSettings = false
+		end},
+	}
+	children[#children + 1] = rememberPassword
+	offset = offset + ITEM_OFFSET
+
 	local cbQueueExitConfirmPromptDoNotAskAgain
 	cbQueueExitConfirmPromptDoNotAskAgain, offset = AddCheckboxSetting(offset, i18n("queueExitConfirmPromptDoNotAskAgain"), "queueExitConfirmPromptDoNotAskAgain", true, nil , i18n("queueExitConfirmPromptDoNotAskAgain_tooltip"))
 	children[#children + 1] = cbQueueExitConfirmPromptDoNotAskAgain
@@ -1192,6 +1211,9 @@ local function GetLobbyTabControls()
 		end
 		if key == "autoLogin" then
 			autoLogin:SetToggle(value)
+		end
+		if key == "rememberPassword" then
+			rememberPassword:SetToggle(value)
 		end
 		if key == "randomSkirmishSetup" then
 			if value == true then
