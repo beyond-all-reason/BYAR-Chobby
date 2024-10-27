@@ -646,6 +646,7 @@ function Configuration:GetConfigData()
 		uiScalesForScreenSizes = self.uiScalesForScreenSizes,
 		password = self.password,
 		autoLogin = self.autoLogin,
+		rememberPassword = self.rememberPassword,
 		uploadLogPrompt = self.uploadLogPrompt,
 		firstLoginEver = self.firstLoginEver,
 		wantAuthenticateWithSteam = self.wantAuthenticateWithSteam,
