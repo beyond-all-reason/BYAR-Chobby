@@ -36,7 +36,7 @@ local function ResetRegisterRecieved()
 end
 
 local function MultiplayerFailFunction()
-	WG.Chobby.interfaceRoot.GetMainWindowHandler().SetBackAtMainMenu()
+	WG.Chobby.interfaceRoot.GetMainWindowHandler().OpenSubmenu(1)
 end
 
 local wantLoginStatus = {
