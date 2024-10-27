@@ -428,7 +428,9 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		classname = "action_button",
 		OnClick = {
 			function()
-				self:MayBeDisconnectBeforeTryLogin()
+				if not self.onConnect() then
+					self:MayBeDisconnectBeforeTryLogin()
+				end
 			end
 		},
 	}
