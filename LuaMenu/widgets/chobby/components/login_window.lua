@@ -430,10 +430,8 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 			function()
 				--if self.onConnect == nil then
 				if lobby:GetConnectionStatus() ~= "connecting" then
-					Spring.Echo("Not currently connecting, attempting connection")
 					self:MayBeDisconnectBeforeTryLogin()
 				else
-					Spring.Echo("Already attempting connection, ignoring button press")
 					return
 				end
 			end
