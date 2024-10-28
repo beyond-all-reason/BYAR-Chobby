@@ -387,9 +387,6 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 
 	-- Exit button
 	local function ExitSpring()
-		if not Configuration.rememberPassword then
-			Configuration.password = ""
-		end
 		Spring.Echo("Quitting...")
 		Spring.Quit()
 	end
