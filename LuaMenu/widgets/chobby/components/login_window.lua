@@ -428,7 +428,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		classname = "action_button",
 		OnClick = {
 			function()
-				if not self.onConnect() then
+				if self.onConnect == nil then
 					Spring.Echo("Not currently connected, attempting connection")
 					self:MayBeDisconnectBeforeTryLogin()
 				else
