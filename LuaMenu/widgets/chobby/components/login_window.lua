@@ -428,7 +428,6 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		classname = "action_button",
 		OnClick = {
 			function()
-				--if self.onConnect == nil then
 				if lobby:GetConnectionStatus() ~= "connecting" then
 					self:MayBeDisconnectBeforeTryLogin()
 				else
