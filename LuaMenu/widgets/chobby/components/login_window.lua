@@ -430,8 +430,6 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 			function()
 				if lobby:GetConnectionStatus() ~= "connecting" then
 					self:MayBeDisconnectBeforeTryLogin()
-				else
-					return
 				end
 			end
 		},
