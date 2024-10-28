@@ -36,7 +36,7 @@ local function ResetRegisterRecieved()
 end
 
 local function MultiplayerFailFunction()
-	WG.Chobby.interfaceRoot.GetMainWindowHandler().OpenSubmenu(1)
+	--WG.Chobby.interfaceRoot.GetMainWindowHandler().OpenSubmenu(1)
 end
 
 local wantLoginStatus = {
@@ -70,7 +70,7 @@ local function TrySimpleSteamLogin()
 	if not (Configuration.steamLinkComplete and Configuration.canAuthenticateWithSteam and Configuration.wantAuthenticateWithSteam) then
 		return false
 	end
-	if lobby.connected then
+	if (lobby:GetConnectionStatus() == "connected") then
 		lobby:Login(Configuration.userName, Configuration.password, 3, nil, "Chobby", true)
 	else
 		lobby:Connect(Configuration:GetServerAddress(), Configuration:GetServerPort(), Configuration.userName, Configuration.password, 3, nil, "Chobby")
@@ -80,7 +80,7 @@ end
 
 local function TrySimpleLogin()
 	local Configuration = WG.Chobby.Configuration
-	if lobby.connected then
+	if (lobby:GetConnectionStatus() == "connected") then
 		lobby:Login(Configuration.userName, Configuration.password, 3, nil, "Chobby")
 	else
 		lobby:Connect(Configuration:GetServerAddress(), Configuration:GetServerPort(), Configuration.userName, Configuration.password, 3, nil, "Chobby")

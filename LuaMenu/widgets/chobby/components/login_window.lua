@@ -428,8 +428,9 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		classname = "action_button",
 		OnClick = {
 			function()
-				if self.onConnect == nil then
-					Spring.Echo("Not currently connected, attempting connection")
+				--if self.onConnect == nil then
+				if lobby:GetConnectionStatus() ~= "connecting" then
+					Spring.Echo("Not currently connecting, attempting connection")
 					self:MayBeDisconnectBeforeTryLogin()
 				else
 					Spring.Echo("Already attempting connection, ignoring button press")
@@ -1226,7 +1227,7 @@ function LoginWindow:tryRegister()
 	
 	lobby:AddListener("OnRegistrationDenied", self.onRegistrationDenied)
 
-	if not lobby.connected or self.loginAttempts >= 3 then
+	if (lobby:GetConnectionStatus() ~= "connected") or self.loginAttempts >= 3 then
 		self.loginAttempts = 0
 		self:RemoveListeners()
 
