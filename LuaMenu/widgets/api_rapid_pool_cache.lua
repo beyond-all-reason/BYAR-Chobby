@@ -85,7 +85,7 @@ function widget:Update()
 		cachingLabel = interfaceRoot.GetCachingLabel()
 	end
 	if cachingLabel then 
-		cachingLabel:SetCaption(string.format("Caching % 2d%% % 3dMB/s", (100* current_index)/maxpools, cachingSpeed))
+		cachingLabel:SetCaption(string.format("\255\185\185\185" .. "Caching % 2d%% % 3dMB/s", (100* current_index)/maxpools, cachingSpeed))
 		cachingLabel:Invalidate()
 	end
 	local startTime = Spring.GetTimer()
