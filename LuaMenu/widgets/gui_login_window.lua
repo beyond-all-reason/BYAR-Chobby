@@ -35,8 +35,8 @@ local function ResetRegisterRecieved()
 	registerRecieved = false
 end
 
-local function MultiplayerFailFunction()
-	--WG.Chobby.interfaceRoot.GetMainWindowHandler().OpenSubmenu(1)
+local function LoadMainMenu()
+	WG.Chobby.interfaceRoot.GetMainWindowHandler().OpenSubmenu(1)
 end
 
 local wantLoginStatus = {
@@ -109,6 +109,7 @@ local function CheckFirstTimeRegister()
 	end
 	local Configuration = WG.Chobby.Configuration
 	if Configuration.firstLoginEver then
+		LoadMainMenu()
 		LoginWindowHandler.TryLogin()
 	end
 end
@@ -253,7 +254,7 @@ function LoginWindowHandler.TryLoginMultiplayer(name, password)
 	Spring.Echo("LoginWindowHandler.TryLoginMultiplayer",name, password)
 	if wantLoginStatus[lobby:GetConnectionStatus()] then
 		if (not TrySimpleSteamLogin()) and (not TrySimpleLogin()) then
-			local loginWindow = GetNewLoginWindow(MultiplayerFailFunction, "LoginWindowHandler:TryLoginMultiplayer")
+			local loginWindow = GetNewLoginWindow(LoadMainMenu, "LoginWindowHandler:TryLoginMultiplayer")
 			local popup = WG.Chobby.PriorityPopup(loginWindow.window, loginWindow.CancelFunc, loginWindow.AcceptFunc)
 		end
 	end
