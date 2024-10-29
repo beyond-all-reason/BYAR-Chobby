@@ -42,6 +42,7 @@ return {
 		alt_acknowledgement = 'By pressing Register, you acknowledge the\nrules concerning alt accounts.',
 		register_steam_long = "Enter a username for multiplayer",
 		autoLogin = "Login automatically",
+		rememberPassword = "Remember password",
 		authenticateSteam = "Authenticate with Steam",
 		play_offline = "Play offline",
 		keys = "Keys",
@@ -367,6 +368,7 @@ return {
 		register_long = "Account erstellen",
 		register_steam_long = "Benutzername für den Mehrspieler-Modus wählen",
 		autoLogin = "Automatisch einloggen",
+		rememberPassword = "Passwort merken",
 		authenticateSteam = "Mit Steam authentifizieren",
 		play_offline = "Offline spielen",
 		-- gui_battle_status_panel

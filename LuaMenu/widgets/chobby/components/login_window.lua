@@ -396,6 +396,38 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 	}
 	registerChildren[#registerChildren + 1] = self.cbAutoLoginRegister
 
+	self.cbRememberPassword = Checkbox:New {
+		x = 15,
+		width = 215,
+		y = self.windowHeight - 215,
+		height = 35,
+		boxalign = "right",
+		boxsize = 15,
+		caption = i18n("rememberPassword"),
+		checked = Configuration.rememberPassword,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		OnClick = {function (obj)
+			Configuration:SetConfigValue("rememberPassword", obj.checked)
+		end},
+	}
+	loginChildren[#loginChildren+1] = self.cbRememberPassword
+
+	self.cbRememberPasswordRegister = Checkbox:New {
+		x = 15,
+		width = 215,
+		y = self.windowHeight - 215,
+		height = 35,
+		boxalign = "right",
+		boxsize = 15,
+		caption = i18n("rememberPassword"),
+		checked = Configuration.rememberPassword,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		OnClick = {function (obj)
+			Configuration:SetConfigValue("rememberPassword", obj.checked)
+		end},
+	}
+	registerChildren[#registerChildren + 1] = self.cbRememberPasswordRegister
+
 	self.txtError = TextBox:New {
 		x = 15,
 		right = 15,

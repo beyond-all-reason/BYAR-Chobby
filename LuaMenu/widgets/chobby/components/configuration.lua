@@ -76,6 +76,7 @@ function Configuration:init()
 	self.suggestedNameFromSteam = false
 	self.password = false
 	self.autoLogin = true
+	self.rememberPassword = true
 	self.uploadLogPrompt = 'Prompt'
 	self.firstLoginEver = true
 	self.canAuthenticateWithSteam = false
@@ -635,6 +636,10 @@ function Configuration:SetConfigData(data)
 end
 
 function Configuration:GetConfigData()
+	local rememberedPassword = false
+	if self.rememberPassword then
+		rememberedPassword = self.password
+	end
 	return {
 		tempChangedShowSkill = self.tempChangedShowSkill, -- should be removed at 1.1.2024
 		autoLaunchAsSpectator = self.autoLaunchAsSpectator,
@@ -643,7 +648,8 @@ function Configuration:GetConfigData()
 		userName = self.userName,
 		suggestedNameFromSteam = self.suggestedNameFromSteam,
 		uiScalesForScreenSizes = self.uiScalesForScreenSizes,
-		password = self.password,
+		rememberPassword = self.rememberPassword,
+		password = rememberedPassword,
 		autoLogin = self.autoLogin,
 		uploadLogPrompt = self.uploadLogPrompt,
 		firstLoginEver = self.firstLoginEver,
