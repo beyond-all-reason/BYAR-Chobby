@@ -98,8 +98,7 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 		preserveChildrenOrder = true
 	}
 	lobbyInterfaceHolder.drawTimer = Spring.GetTimer()
-	version_font = WG.Chobby.Configuration:GetFont(1, "version_font", {color = {0.7, 0.7, 0.7, 1}}) -- Grey color
-
+	version_font = WG.Chobby.Configuration:GetFont(1)
 	
 	local byarchobbyrapidTag = "unknown"
 	for i,v in ipairs(VFS.GetLoadedArchives()) do 
@@ -111,14 +110,13 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 	end
 
 	local label_version = Label:New {
-		--x = "68.5%",
 		y = "95%",
 		width = "20%",
 		height = "5%",
 		right = "2.25%",
 		parent = lobbyInterfaceHolder,
 		objectOverrideFont = version_font,
-		caption = "Game: " .. Configuration.gameConfig.ShortenNameString(Configuration:GetDefaultGameName()) .. "  Engine: " .. Configuration:GetTruncatedEngineVersion() .. "  "
+		caption =  "\255\185\185\185" .. "Game: " .. Configuration.gameConfig.ShortenNameString(Configuration:GetDefaultGameName()) .. "  Engine: " .. Configuration:GetTruncatedEngineVersion() .. "  "
 			.. 'Chobby:' .. byarchobbyrapidTag,
 		align = "right",
 		valign = 'bottom',
@@ -177,16 +175,15 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 
 	local cachingLabel 	= Label:New {
 		name = "cachingLabel",
-		x = 4,
-		y = "98%",
-		width = 200,
-		height = 18,
-		--right = "2.25%",
+		x = "1.75%",
+		y = "95%",
+		width = "20%",
+		height = "5%",
 		parent = lobbyInterfaceHolder,
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
+		objectOverrideFont = version_font,
 		caption = "Caching...",
 		align = "left",
-		valign = 'top',
+		valign = 'bottom',
 	}
 	-----------------------------------
 	-- Top middle and top right status

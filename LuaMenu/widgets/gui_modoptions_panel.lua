@@ -882,7 +882,7 @@ end
 				local name = option.name and option.name or key
 				text = text .. "\255\255\255\255"
 				if text ~= "\255\255\255\255" then
-					text = text .. "\255\120\120\120" .. "------" .. "\n"
+					text = text .. "\255\128\128\128" .. "------" .. "\n"
 				end
 				text = text .. tostring(name).. " = \255\255\255\255"
 				if (key:sub(1,10) == "tweakunits" or key:sub(1,9) == "tweakdefs") then
