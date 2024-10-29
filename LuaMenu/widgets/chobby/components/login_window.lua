@@ -460,7 +460,9 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		classname = "action_button",
 		OnClick = {
 			function()
-				self:MayBeDisconnectBeforeTryLogin()
+				if lobby:GetConnectionStatus() ~= "connecting" then
+					self:MayBeDisconnectBeforeTryLogin()
+				end
 			end
 		},
 	}
@@ -1252,7 +1254,7 @@ function LoginWindow:tryRegister()
 	
 	lobby:AddListener("OnRegistrationDenied", self.onRegistrationDenied)
 
-	if not lobby.connected or self.loginAttempts >= 3 then
+	if (lobby:GetConnectionStatus() ~= "connected") or self.loginAttempts >= 3 then
 		self.loginAttempts = 0
 		self:RemoveListeners()
 

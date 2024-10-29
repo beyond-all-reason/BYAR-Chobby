@@ -35,8 +35,8 @@ local function ResetRegisterRecieved()
 	registerRecieved = false
 end
 
-local function MultiplayerFailFunction()
-	WG.Chobby.interfaceRoot.GetMainWindowHandler().SetBackAtMainMenu()
+local function LoadMainMenu()
+	WG.Chobby.interfaceRoot.GetMainWindowHandler().OpenSubmenu(1)
 end
 
 local wantLoginStatus = {
@@ -70,7 +70,7 @@ local function TrySimpleSteamLogin()
 	if not (Configuration.steamLinkComplete and Configuration.canAuthenticateWithSteam and Configuration.wantAuthenticateWithSteam) then
 		return false
 	end
-	if lobby.connected then
+	if (lobby:GetConnectionStatus() == "connected") then
 		lobby:Login(Configuration.userName, Configuration.password, 3, nil, "Chobby", true)
 	else
 		lobby:Connect(Configuration:GetServerAddress(), Configuration:GetServerPort(), Configuration.userName, Configuration.password, 3, nil, "Chobby")
@@ -80,7 +80,7 @@ end
 
 local function TrySimpleLogin()
 	local Configuration = WG.Chobby.Configuration
-	if lobby.connected then
+	if (lobby:GetConnectionStatus() == "connected") then
 		lobby:Login(Configuration.userName, Configuration.password, 3, nil, "Chobby")
 	else
 		lobby:Connect(Configuration:GetServerAddress(), Configuration:GetServerPort(), Configuration.userName, Configuration.password, 3, nil, "Chobby")
@@ -109,6 +109,7 @@ local function CheckFirstTimeRegister()
 	end
 	local Configuration = WG.Chobby.Configuration
 	if Configuration.firstLoginEver then
+		LoadMainMenu()
 		LoginWindowHandler.TryLogin()
 	end
 end
@@ -253,7 +254,7 @@ function LoginWindowHandler.TryLoginMultiplayer(name, password)
 	Spring.Echo("LoginWindowHandler.TryLoginMultiplayer",name, password)
 	if wantLoginStatus[lobby:GetConnectionStatus()] then
 		if (not TrySimpleSteamLogin()) and (not TrySimpleLogin()) then
-			local loginWindow = GetNewLoginWindow(MultiplayerFailFunction, "LoginWindowHandler:TryLoginMultiplayer")
+			local loginWindow = GetNewLoginWindow(LoadMainMenu, "LoginWindowHandler:TryLoginMultiplayer")
 			local popup = WG.Chobby.PriorityPopup(loginWindow.window, loginWindow.CancelFunc, loginWindow.AcceptFunc)
 		end
 	end
