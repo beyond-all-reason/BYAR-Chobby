@@ -886,7 +886,12 @@ end
 				end
 				text = text .. tostring(name).. " = \255\255\255\255"
 				if (key:sub(1,10) == "tweakunits" or key:sub(1,9) == "tweakdefs") then
-					text = text .. tweakSummary(value)
+					local success, result = pcall(tweakSummary, value)
+					if success then
+						text = text .. result
+					else
+						text = text .. "\255\255\75\75".."Couldn't Parse\n".."\255\128\128\128"..shortenedValue(value)
+					end
 				else
 					text = text .. shortenedValue(value)
 				end
