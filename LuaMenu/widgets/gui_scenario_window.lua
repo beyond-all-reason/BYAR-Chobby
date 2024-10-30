@@ -949,7 +949,7 @@ local function InitializeControls(parentControl)
 		height = 45,
 		caption = "Back",
 		classname = "negative_button",
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		tooltip = "Back to the list of scenarios",
 		OnClick = {
 			function()
