@@ -1424,10 +1424,10 @@ local function GetUserControls(userName, opts)
 		userControls.lblHandicap = Label:New{
 			name = "lblHandicap",
 			x = offset,
-			y = offsetY + 2,
+			y = offsetY,
 			parent = userControls.mainControl,
 			caption = handicaptxt,
-			objectOverrideFont = Configuration:GetFont(1),
+			objectOverrideFont = Configuration:GetFont(8),
 			tooltip = "Handicap",
 		}
 	end
