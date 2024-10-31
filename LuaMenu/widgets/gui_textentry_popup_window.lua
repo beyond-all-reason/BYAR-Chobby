@@ -21,15 +21,35 @@ local function CreateTextEntryWindow(opts)
 	local Configuration = WG.Chobby.Configuration
 
 	local TextEntryWindow = Window:New {
-		caption = opts.caption or "",
 		name = "TextEntryWindow",
 		parent = screen0,
 		width = opts.width or 280,
 		height = opts.height or 330,
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(5),
 		resizable = false,
 		draggable = opts.draggable or false,
-		classname = "main_window",
+		classname = "main_window_small",
+	}
+
+	local captionHolder = Control:New {
+		x = 0,
+		y = 0,
+		right = 0,
+		bottom = 0,
+		name = "captionHolder",
+		parent = TextEntryWindow,
+		--padding = {0, 0, 0, 0},
+		children = {}
+    }
+
+	Label:New {
+		x = 0,
+		y = 0,
+		width = TextEntryWindow.width - 36,
+		bottom = 0,
+		align = "center",
+		parent = captionHolder,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(5),
+		caption = opts.caption or "",
 	}
 
 	local function ChangeAccepted()
@@ -44,9 +64,9 @@ local function CreateTextEntryWindow(opts)
 	end
 
 	local lblTitle = TextBox:New {
-		x = "0%",
-		y = "10%",
-		width = "90%",
+		x = "2%",
+		y = "20%",
+		right = "2%",
 		height = (opts.height or 330) /2,
 		align = "center",
 		multiline = true,
@@ -94,8 +114,8 @@ local function CreateTextEntryWindow(opts)
 
 
 	local eb = EditBox:New{
-		x = 0,
-		width = TextEntryWindow.width * 0.90,
+		x = "2%",
+		right = "2%",
 		height = opts.ebheight or 40,
 		bottom = 45,
 		text = opts.defaultValue or "",
@@ -112,11 +132,21 @@ local function CreateTextEntryWindow(opts)
 					return
 				end
 			end
-		}
+		},
+		OnKeyPress = {
+			function(obj, key)
+				editBoxValue = obj.text
+				if key == Spring.GetKeyCode("enter") or key == Spring.GetKeyCode("numpad_enter") then
+					ChangeAccepted()
+				end
+			end
+		},
 	}
 
 
 	WG.Chobby.PriorityPopup(TextEntryWindow, CloseFunction, CloseFunction, screen0, nil, opts.disableAcceptHotkey)
+
+	screen0:FocusControl(eb)
 end
 
 function widget:Initialize()
