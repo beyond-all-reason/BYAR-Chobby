@@ -459,6 +459,9 @@ local function ProcessStringOption(data, index)
 
 	local control
 	local oldText = localModoptions[data.key] or modoptionDefaults[data.key]
+
+	local textHidden = string.len(oldText) <= 1
+
 	local label = Label:New {
 		x = 5,
 		y = 0,
@@ -467,7 +470,7 @@ local function ProcessStringOption(data, index)
 		valign = "center",
 		align = "left",
 		caption = data.name,
-		objectOverrideFont = oldText == modoptionDefaults[data.key] and WG.Chobby.Configuration:GetFont(2) or WG.Chobby.Configuration:GetFont(2, "Changed2", {color = MARKED_AS_CHANGED_COLOR}),
+		objectOverrideFont = textHidden and WG.Chobby.Configuration:GetFont(2) or WG.Chobby.Configuration:GetFont(2, "Changed2", {color = MARKED_AS_CHANGED_COLOR}),
 		tooltip = data.desc,
 	}
 
@@ -477,10 +480,10 @@ local function ProcessStringOption(data, index)
 		y = 1,
 		width = 300,
 		height = 30,
-		text   = oldText,
+		text   = textHidden and "" or oldText,
 		useIME = false,
 		hint = data.hint,
-		objectOverrideFont = oldText == modoptionDefaults[data.key] and WG.Chobby.Configuration:GetFont(2) or WG.Chobby.Configuration:GetFont(2, "Changed2", {color = MARKED_AS_CHANGED_COLOR}),
+		objectOverrideFont = textHidden and WG.Chobby.Configuration:GetFont(2) or WG.Chobby.Configuration:GetFont(2, "Changed2", {color = MARKED_AS_CHANGED_COLOR}),
 		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(11),
 		tooltip = data.desc,
 		OnFocusUpdate = {
@@ -488,13 +491,24 @@ local function ProcessStringOption(data, index)
 				if obj.focused then
 					return
 				end
-				localModoptions[data.key] = obj.text
-				if obj.text == modoptionDefaults[data.key] then
+
+				if string.len(obj.text) <= 1 then
+					if not textHidden then
+						localModoptions[data.key] = 0
+					end
+					obj.text = ""
+					textBox.font = WG.Chobby.Configuration:GetFont(2)
+					label.font = WG.Chobby.Configuration:GetFont(2)
+
+				else
+					localModoptions[data.key] = obj.text
+					if obj.text == modoptionDefaults[data.key] then
 						textBox.font = WG.Chobby.Configuration:GetFont(2)
 						label.font = WG.Chobby.Configuration:GetFont(2)
-				else
+					else
 						textBox.font = WG.Chobby.Configuration:GetFont(2, "Changed2", {color = MARKED_AS_CHANGED_COLOR})
 						label.font = WG.Chobby.Configuration:GetFont(2, "Changed2", {color = MARKED_AS_CHANGED_COLOR})
+					end
 				end
 			end
 		}
@@ -872,6 +886,10 @@ end
 					for i = 1, #option.unlock do
 						hidenOptions[option.unlock[i]] = true
 					end
+				end
+			elseif option.type == "string" then
+				if panelModoptions[option.key] and string.len(panelModoptions[option.key]) == 1 then
+					hidenOptions[option.key] = true
 				end
 			end
 		end
