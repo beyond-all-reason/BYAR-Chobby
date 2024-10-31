@@ -2747,19 +2747,6 @@ local function InitializeSetupPage(subPanel, screenHeight, pageConfig, nextPage,
 
 	subPanel:SetVisibility(not prevPage)
 
-	local lblBattleTitle = Label:New {
-		name = 'lblBattleTitle',
-		x = "40%",
-		right = "40%",
-		y = buttonScale,
-		height = 30,
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(4),
-		align = "center",
-		valign = "center",
-		caption = pageConfig.humanName,
-		parent = subPanel,
-	}
-
 	local buttons = {}
 
 	local nextButton = Button:New {
@@ -3137,18 +3124,52 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	btnInviteFriends:SetVisibility(Configuration.canAuthenticateWithSteam)
 
 	local battleTitle = ""
-	local lblBattleTitle = Label:New {
-		name = "lblBattleTitle",
-		x = 20,
-		y = 19,
-		right = 100,
-		height = 30,
+	local btnBattleTitle = Button:New {
+		name = "btnBattleTitle",
+		x = (battleLobby.name == "singleplayer") and 20 or 13,
+		y = 7,
+		right = (battleLobby.name ~= "singleplayer") and 180 or nil,
+		width = (battleLobby.name == "singleplayer") and 146 or nil,
+		height = 45,
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		caption = "",
+		tooltip = "",
+		classname = "option_button",
 		parent = mainWindow,
 		OnResize = {
-			function (obj, xSize, ySize)
+			function (obj)
+				if battleLobby.name == "singleplayer" then
+					obj.backgroundColor = {0, 0, 0, 0}
+					obj.focusColor = {0, 0, 0, 0}
+					obj.suppressButtonReaction = true
+					obj.tooltip = nil
+				else
+					obj.backgroundColor = {0.65, 0.65, 0.65, 0.75}
+					obj.focusColor  = {0.05, 0.58, 1.0, 1.0}
+					obj.suppressButtonReaction = false
+					obj.tooltip = i18n("rename_tooltip")
+				end
 				obj:SetCaption(StringUtilities.GetTruncatedStringWithDotDot(battleTitle, obj.font, obj.width))
+			end
+		},
+		OnClick = {
+			function ()
+				if battleLobby.name ~= "singleplayer" then
+					if WG.TextEntryWindow then
+						WG.TextEntryWindow.CreateTextEntryWindow({
+							defaultValue = "",
+							caption = i18n("rename_battle"),
+							labelCaption = i18n("rename_caption"),
+							hint = i18n("rename_hint"),
+							height = 280,
+							width = 480,
+							oklabel = i18n("rename"),
+							OnAccepted = function(newname)
+								lobby:SayBattle("!rename " .. newname)
+							end
+						})
+					end
+				end
 			end
 		}
 	}
@@ -3177,21 +3198,21 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 			},
 			parent = mainWindow,
 		}
-		lblBattleTitle:BringToFront()
+		btnBattleTitle:BringToFront()
 	end
 
 	local function UpdateBattleTitle()
 		if isSingleplayer then
 			battleTitle = tostring(battle.title)
-			local truncatedTitle = StringUtilities.GetTruncatedStringWithDotDot(battleTitle, lblBattleTitle.font, lblBattleTitle.width)
-			lblBattleTitle:SetCaption(truncatedTitle)
+			local truncatedTitle = StringUtilities.GetTruncatedStringWithDotDot(battleTitle, btnBattleTitle.font, btnBattleTitle.width)
+			btnBattleTitle:SetCaption(truncatedTitle)
 			return
 		end
 		if Configuration.allEnginesRunnable or Configuration:IsValidEngineVersion(battle.engineVersion) then
 			if battleTypeCombo then
-				lblBattleTitle:SetPos(143)
-				lblBattleTitle._relativeBounds.right = 100
-				lblBattleTitle:UpdateClientArea()
+				btnBattleTitle:SetPos(143)
+				btnBattleTitle._relativeBounds.right = 100
+				btnBattleTitle:UpdateClientArea()
 
 				battleTypeCombo:SetVisibility(true)
 				battleTypeCombo.selected = Configuration.battleTypeToHumanName[battle.battleMode or 0]
@@ -3208,18 +3229,18 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 				battleTitle = tostring(battle.title)
 			end
 
-			local truncatedTitle = StringUtilities.GetTruncatedStringWithDotDot(battleTitle, lblBattleTitle.font, math.max(lblBattleTitle.width, 250))
-			lblBattleTitle:SetCaption(truncatedTitle)
+			local truncatedTitle = StringUtilities.GetTruncatedStringWithDotDot(battleTitle, btnBattleTitle.font, math.max(btnBattleTitle.width, 250))
+			btnBattleTitle:SetCaption(truncatedTitle)
 		else
 			battleTitle = "\255\255\0\0Warning: Restart to get correct engine version"
 			if battleTypeCombo then
-				lblBattleTitle:SetPos(20)
-				lblBattleTitle._relativeBounds.right = 100
-				lblBattleTitle:UpdateClientArea()
+				btnBattleTitle:SetPos(20)
+				btnBattleTitle._relativeBounds.right = 100
+				btnBattleTitle:UpdateClientArea()
 				battleTypeCombo:SetVisibility(false)
 			end
-			local truncatedTitle = StringUtilities.GetTruncatedStringWithDotDot(battleTitle, lblBattleTitle.font, lblBattleTitle.width)
-			lblBattleTitle:SetCaption(truncatedTitle)
+			local truncatedTitle = StringUtilities.GetTruncatedStringWithDotDot(battleTitle, btnBattleTitle.font, btnBattleTitle.width)
+			btnBattleTitle:SetCaption(truncatedTitle)
 		end
 	end
 	UpdateBattleTitle()
