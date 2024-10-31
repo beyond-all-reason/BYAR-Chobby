@@ -143,27 +143,6 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 
 	local externalFunctions = {}
 
-	local btnMapLink = Button:New {
-		name = 'btnMapLink',
-		x = 3,
-		y = 0,
-		right = 3,
-		height = 20,
-		classname = "button_small",
-		caption = "",
-		noFont = true,
-		padding = {0, 0, 0, 0},
-		parent = rightInfo,
-		--tooltip = "Choose a different map",
-		OnClick = {
-			function ()
-				if currentMapName and config.gameConfig.link_particularMapPage ~= nil then
-					WG.BrowserHandler.OpenUrl(config.gameConfig.link_particularMapPage(currentMapName))
-				end
-			end
-		}
-	}
-
 	local startBoxPanel = Control:New{
 		name = 'startBoxPanel',
 		x = 0,
@@ -619,27 +598,20 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 
 	externalFunctions.UpdateStartRectPositionsInMinimap = UpdateStartRectPositionsInMinimap
 
-	local tbMapName = TextBox:New {
-		name = "tbMapName",
-		x = 2,
-		y = 3,
-		right = 20,
+	local lblMapName = Label:New {
+		name = "lblMapName",
+		autosize = false,
+		x = 4,
+		y = 1,
+		right = 4,
 		align = "center",
-		parent = btnMapLink,
+		valign = "center",
+		padding = {0, 0, 0, 0},
+		parent = rightInfo,
 		objectOverrideFont = config:GetFont(2),
 		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
 	}
-	--[[
-	local imMapLink = Image:New {
-		x = 0,
-		y = 1,
-		width = 18,
-		height = 18,
-		keepAspect = true,
-		file = IMG_LINK,
-		parent = btnMapLink,
-	}
-	--]]
+
 	local function SetMapName(mapName, width)
 		currentMapName = mapName
 		mapLinkWidth = width
@@ -649,14 +621,12 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 			return
 		end
 		mapName = battle.mapName:gsub("_", " ")
-		mapName = StringUtilities.GetTruncatedStringWithDotDot(mapName, tbMapName.font, width - 22)
-		tbMapName:SetText(mapName)
-		local length = tbMapName.font:GetTextWidth(mapName)
-		--imMapLink:SetPos(length + 5)
+		mapName = StringUtilities.GetTruncatedStringWithDotDot(mapName, lblMapName.font, width - 22)
+		lblMapName:SetCaption(mapName)
 	end
 	SetMapName(battle.mapName, mapLinkWidth)
 
-	btnMapLink.OnResize[#btnMapLink.OnResize + 1] = function (self, xSize, ySize)
+	lblMapName.OnResize[#lblMapName.OnResize + 1] = function (self, xSize, ySize)
 		SetMapName(currentMapName, xSize)
 	end
 
@@ -666,25 +636,9 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		y = 0,
 		right = 0,
 		height = 200,
-		padding = {1,1,1,1},
+		padding = {0,0,0,0},
 		parent = rightInfo,
 	}
-	--[[local btnMinimap = Button:New {
-		x = 0,
-		y = 0,
-		right = 0,
-		bottom = 0,
-		classname = "button_square",
-		caption = "",
-		parent = minimapPanel,
-		padding = {2,2,2,2},
-		OnClick = {
-			function()
-				WG.MapListPanel.Show(battleLobby, battle.mapName)
-			end
-		},
-	}
-	--]]
 
 	local mapImageFile, needDownload = config:GetMinimapImage(battle.mapName)
 	local imMinimap = Image:New {
@@ -700,27 +654,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		parent = minimapPanel,
 		tooltip = "Currently selected map. Green boxes show where each team will start"
 	}
-	--[[
 
-	--Obsolete:
-	if showDefaultStartCheckbox then
-		local cbUseDefaultStartBoxes = Checkbox:New {
-			x = 0,
-			bottom = 130,
-			boxalign = "left",
-			boxsize = 15,
-			caption = "Use Start Boxes",
-			checked = true,
-			tooltip = "All teams start together in pre-specified areas",
-			objectOverrideFont = config:GetFont(2),
-			parent = rightInfo,
-			OnClick = {function (obj)
-				config.gameConfig.useDefaultStartBoxes = obj.checked
-			end},
-
-		}
-	end
-	--]]
 	if battleLobby.name == "singleplayer" and config.devMode then 
 		local comboboxstartpostype = ComboBox:New{
 			name = 'comboboxstartpostype',
@@ -750,10 +684,6 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 			parent = rightInfo,
 		}
 	end
-
-
-
-
 
 	local function RejoinBattleFunc()
 		--Spring.Echo("\LuaMenu\widgets\chobby\components\battle\battle_watch_list_window.lua","RejoinBattleFunc()","") -- Beherith Debug
@@ -1072,7 +1002,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 				UpdateStartRectPositionsInMinimap()
 				minimapPanel:UpdateClientArea()
 
-				btnMapLink:SetPos(nil, xSize + 2)
+				lblMapName:SetPos(nil, xSize + 2)
 				startBoxPanel:SetPos(nil,xSize + 24,nil, xSize / 8)
 
 			else
@@ -1084,7 +1014,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 				UpdateStartRectPositionsInMinimap()
 				minimapPanel:UpdateClientArea()
 
-				btnMapLink:SetPos(nil, ySize - minimapBottomClearance + 2)
+				lblMapName:SetPos(nil, ySize - minimapBottomClearance + 2)
 				startBoxPanel:SetPos(nil,ySize - minimapBottomClearance + 24,nil, xSize / 8)
 
 			end
