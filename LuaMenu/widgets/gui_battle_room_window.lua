@@ -3155,12 +3155,12 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 					if WG.TextEntryWindow then
 						WG.TextEntryWindow.CreateTextEntryWindow({
 							defaultValue = "",
-							caption = "Rename Battle",
-							labelCaption = "Choose a new name for the battle room. This will call a vote if not !boss.",
-							hint = "Type a new name for the battle room",
+							caption = i18n("rename_battle"),
+							labelCaption = i18n("rename_caption"),
+							hint = i18n("rename_hint"),
 							height = 280,
 							width = 480,
-							oklabel = "Rename",
+							oklabel = i18n("rename"),
 							OnAccepted = function(newname)
 								lobby:SayBattle("!rename " .. newname)
 							end

@@ -257,6 +257,11 @@ return {
 		startbtn_inprogress_tooltip = "Watch this in progress game.",
 		startbtn_gettingcontent_tooltip = "Please wait for downloads to finish before starting.",
 		queue_exit_confirm = "This will release your current place in the queue or game. Are you sure?",
+		rename = "Rename",
+		rename_battle = "Rename Battle",
+		rename_caption = "Choose a new name for the battle room. This will call a vote if not !boss.",
+		rename_hint = "Type a new name for the battle room",
+
 
 		-- gui_maplist_panel.lua
 
