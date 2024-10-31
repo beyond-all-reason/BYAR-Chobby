@@ -3156,7 +3156,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 						WG.TextEntryWindow.CreateTextEntryWindow({
 							defaultValue = "",
 							caption = "Rename Battle",
-							labelCaption = "Choose a new name for the battle room. This will call a vote if not !boss",
+							labelCaption = "Choose a new name for the battle room. This will call a vote if not !boss.",
 							hint = "Type a new name for the battle room",
 							height = 280,
 							width = 480,
