@@ -612,16 +612,6 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
 	}
 
-	local imMapLink = Image:New {
-		x = 0,
-		y = 1,
-		width = 18,
-		height = 18,
-		keepAspect = true,
-		file = IMG_LINK,
-		parent = lblMapName,
-	}
-	
 	local function SetMapName(mapName, width)
 		currentMapName = mapName
 		mapLinkWidth = width
@@ -633,8 +623,6 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		mapName = battle.mapName:gsub("_", " ")
 		mapName = StringUtilities.GetTruncatedStringWithDotDot(mapName, lblMapName.font, width - 22)
 		lblMapName:SetCaption(mapName)
-		local length = lblMapName.font:GetTextWidth(mapName)
-		--imMapLink:SetPos(length + 5)
 	end
 	SetMapName(battle.mapName, mapLinkWidth)
 
@@ -651,22 +639,6 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		padding = {1,1,1,1},
 		parent = rightInfo,
 	}
-	--[[local btnMinimap = Button:New {
-		x = 0,
-		y = 0,
-		right = 0,
-		bottom = 0,
-		classname = "button_square",
-		caption = "",
-		parent = minimapPanel,
-		padding = {2,2,2,2},
-		OnClick = {
-			function()
-				WG.MapListPanel.Show(battleLobby, battle.mapName)
-			end
-		},
-	}
-	--]]
 
 	local mapImageFile, needDownload = config:GetMinimapImage(battle.mapName)
 	local imMinimap = Image:New {
@@ -682,27 +654,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		parent = minimapPanel,
 		tooltip = "Currently selected map. Green boxes show where each team will start"
 	}
-	--[[
 
-	--Obsolete:
-	if showDefaultStartCheckbox then
-		local cbUseDefaultStartBoxes = Checkbox:New {
-			x = 0,
-			bottom = 130,
-			boxalign = "left",
-			boxsize = 15,
-			caption = "Use Start Boxes",
-			checked = true,
-			tooltip = "All teams start together in pre-specified areas",
-			objectOverrideFont = config:GetFont(2),
-			parent = rightInfo,
-			OnClick = {function (obj)
-				config.gameConfig.useDefaultStartBoxes = obj.checked
-			end},
-
-		}
-	end
-	--]]
 	if battleLobby.name == "singleplayer" and config.devMode then 
 		local comboboxstartpostype = ComboBox:New{
 			name = 'comboboxstartpostype',
@@ -732,10 +684,6 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 			parent = rightInfo,
 		}
 	end
-
-
-
-
 
 	local function RejoinBattleFunc()
 		--Spring.Echo("\LuaMenu\widgets\chobby\components\battle\battle_watch_list_window.lua","RejoinBattleFunc()","") -- Beherith Debug
