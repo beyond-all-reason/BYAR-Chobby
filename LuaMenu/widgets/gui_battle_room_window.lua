@@ -636,7 +636,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		y = 0,
 		right = 0,
 		height = 200,
-		padding = {1,1,1,1},
+		padding = {0,0,0,0},
 		parent = rightInfo,
 	}
 
