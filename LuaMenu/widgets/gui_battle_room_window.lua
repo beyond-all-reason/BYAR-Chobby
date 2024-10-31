@@ -3133,6 +3133,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		height = 45,
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		caption = "",
+		tooltip = "",
 		classname = "option_button",
 		parent = mainWindow,
 		OnResize = {
@@ -3141,10 +3142,12 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 					obj.backgroundColor = {0, 0, 0, 0}
 					obj.focusColor = {0, 0, 0, 0}
 					obj.suppressButtonReaction = true
+					obj.tooltip = nil
 				else
 					obj.backgroundColor = {0.65, 0.65, 0.65, 0.75}
 					obj.focusColor  = {0.05, 0.58, 1.0, 1.0}
 					obj.suppressButtonReaction = false
+					obj.tooltip = i18n("rename_tooltip")
 				end
 				obj:SetCaption(StringUtilities.GetTruncatedStringWithDotDot(battleTitle, obj.font, obj.width))
 			end

@@ -261,7 +261,7 @@ return {
 		rename_battle = "Rename Battle",
 		rename_caption = "Choose a new name for the battle room. This will call a vote if not !boss.",
 		rename_hint = "Type a new name for the battle room",
-
+		rename_tooltip = "Enter a new name for the battle room",
 
 		-- gui_maplist_panel.lua
 
