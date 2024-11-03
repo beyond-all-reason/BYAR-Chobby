@@ -509,22 +509,21 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 		ToggleShowFunc(obj, newTab)
 	end
 
-
 	local submenus = {
 		{
 			name = "Main Menu",
 			titleText = "Main Menu",
 			tabs = {
 				{
-					name = "Multiplayer", 
-					control = battleListWindow,			
+					name = "multiplayer",
+					control = battleListWindow,
 					entryCheck = multiplayerentrycheck,
 				},
 				singleplayerConfig[1],
 				singleplayerConfig[2],
 				singleplayerConfig[3],
 				{
-					name = "Replays", 
+					name = "replays",
 					control = WG.ReplayHandler.GetControl()
 				},
 				Configuration.gameConfig.helpSubmenuConfig[1],
