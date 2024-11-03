@@ -6,15 +6,15 @@
 
 -- bitshift functions (<<, >> equivalent)
 -- shift left
-function addon:GetInfo()
+function widget:GetInfo()
 	return {
 		name      = "base64",
 		desc      = "base64 API",
 		author    = "Alex Kloss", -- Contact: http://www.it-rfc.de
 		date      = "2006-2008",
 		license   = "LGPL2",
-		layer     = 1,
-		enabled   = true,
+		layer     = -999,
+		enabled   = true,  --  loaded by default?
 		api       = true,
 		hidden    = true,
 	}

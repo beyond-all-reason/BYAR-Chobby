@@ -1,14 +1,14 @@
 -----------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------
-function addon:GetInfo()
+function widget:GetInfo()
 	return {
 		name      = "Table Functions",
 		desc      = "Table Functions for LuaMenu",
 		author    = "GoogleFrog",
 		date      = "2016",
 		license   = "GPL2",
-		layer     = 1,
-		enabled   = true,
+		layer     = -999,
+		enabled   = true,  --  loaded by default?
 		api       = true,
 		hidden    = true,
 	}
