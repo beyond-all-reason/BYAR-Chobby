@@ -1,17 +1,17 @@
 
 local items = 	{
 	{
-		name = "Skirmish",
+		name = "skirmish",
 		control = WG.BattleRoomWindow.GetSingleplayerControl(),
 		entryCheck = WG.BattleRoomWindow.SetSingleplayerGame,
 	},
 	{
-		name = "Scenarios",
+		name = "scenarios",
 		control = WG.ScenarioHandler.GetControl(),
 		--startWithTabOpen = 1,
 	},
 	{
-		name = "Load Game",
+		name = "load_game",
 		control = WG.LoadGameWindow.GetControl(),
 		entryCheck = WG.BattleRoomWindow.SetSingleplayerGame,
 	},
