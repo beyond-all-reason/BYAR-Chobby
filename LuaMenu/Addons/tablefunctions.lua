@@ -1,8 +1,23 @@
+-----------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------
+function addon:GetInfo()
+	return {
+		name      = "Table Functions",
+		desc      = "Table Functions for LuaMenu",
+		author    = "GoogleFrog",
+		date      = "2016",
+		license   = "GPL2",
+		layer     = 1,
+		enabled   = true,
+		api       = true,
+		hidden    = true,
+	}
+	end
+-------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------
 
 Spring.Utilities = Spring.Utilities or {}
 
--------------------------------------------------------------------------------------
--------------------------------------------------------------------------------------
 --deep not safe with circular tables! defaults To false
 function Spring.Utilities.CopyTable(tableToCopy, deep)
 	local copy = {}
