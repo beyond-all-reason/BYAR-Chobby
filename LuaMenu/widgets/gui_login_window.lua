@@ -207,7 +207,7 @@ local function InitializeListeners()
 		-- Activate the multiplayer battle tab when login data is done
 		if WG and WG.Chobby and WG.Chobby.interfaceRoot and WG.Chobby.interfaceRoot.OpenMultiplayerTabByName then 
 			-- Pass the name of the tab
-			WG.Chobby.interfaceRoot.OpenMultiplayerTabByName("Multiplayer")
+			WG.Chobby.interfaceRoot.OpenMultiplayerTabByName("multiplayer")
 			lobby:RemoveListener("OnLoginInfoEnd", OnLoginInfoEnd)
 		end
 
