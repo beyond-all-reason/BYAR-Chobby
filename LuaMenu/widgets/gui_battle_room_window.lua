@@ -3025,9 +3025,9 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 					battleLobby:LeaveBattle()
 					if WG and WG.Chobby and 
 						WG.Chobby.interfaceRoot and 
-						WG.Chobby.interfaceRoot.OpenMultiplayerTabByName then 
+						WG.Chobby.interfaceRoot.OpenMultiplayerTabByName then
 
-						WG.Chobby.interfaceRoot.OpenMultiplayerTabByName("Multiplayer")
+						WG.Chobby.interfaceRoot.OpenMultiplayerTabByName("multiplayer")
 					end
 				end
 			},
