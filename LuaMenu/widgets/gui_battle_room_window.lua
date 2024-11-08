@@ -1133,7 +1133,9 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		tooltip = tooltip,
 		OnClick = {
 			function()
-				WG.OptionpresetsPanel.ShowPresetPanel()
+				if modoptionsLoaded then
+					WG.OptionpresetsPanel.ShowPresetPanel()
+				end
 			end
 		},
 		parent = leftInfo,
