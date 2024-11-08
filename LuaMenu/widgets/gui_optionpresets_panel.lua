@@ -25,11 +25,11 @@ local multiplayer        = false
 -- enabled options
 local enabledOptions     = {}
 local optionCaptions     = {
-	["Modoptions"] = "settings part of the adv. options menu",
-	["Map"] = "current selected map",
-	["Bots"] = "all bots (settings, team)",
-	["Starting Areas"] = "all start areas with position",
-	["Multiplayer Battle Settings"] = "multiplayer specific settings (battle preset, #teams, ...)"
+	["Modoptions"] = "Settings part of the adv. options menu",
+	["Map"] = "Current selected map",
+	["Bots"] = "All bots (settings, team)",
+	["Start Boxes"] = "All start areas with position",
+	["Multiplayer Battle Settings"] = "Multiplayer specific settings (battle preset, #teams, ...)"
 }
 
 -- edited by the preset
@@ -345,11 +345,11 @@ local function PopulatePresetPanel(parentPanel)
 			height                 = 30,
 			text                   = "",
 			useIME                 = false,
-			hint                   = "enter a name for your preset",
+			hint                   = "Enter a name for your preset",
 			parent                 = openPresetPopup,
 			objectOverrideFont     = WG.Chobby.Configuration:GetFont(2),
 			objectOverrideHintFont = WG.Chobby.Configuration:GetFont(11),
-			tooltip                = "enter a name for your new preset",
+			tooltip                = "Enter a name for your new preset",
 		}
 
 		Button:New {
@@ -570,7 +570,7 @@ local function CreateOptionpresetWindow()
 	tabs[1] = {
 		name = "presets",
 		caption = "Presets",
-		tooltip = "manage presets",
+		tooltip = "Manage presets",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		children = { contentsPanel },
 		weight = 1,
@@ -591,7 +591,7 @@ local function CreateOptionpresetWindow()
 	tabs[2] = {
 		name = "options",
 		caption = "Load Options",
-		tooltip = "specify which options will be loaded from/ saved to preset",
+		tooltip = "Specify which options are saved and loaded.",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		children = { optionpanel },
 		weight = 2,
@@ -684,7 +684,7 @@ local function CreateOptionpresetWindow()
 		enabledOptions["Bots"] = true
 		enabledOptions["Map"] = true
 		enabledOptions["Modoptions"] = true
-		enabledOptions["Starting Areas"] = true
+		enabledOptions["Start Boxes"] = true
 	end
 	if multiplayer and enabledOptions["Multiplayer Battle Settings"] == nil then
 		enabledOptions["Multiplayer Battle Settings"] = multiplayer
