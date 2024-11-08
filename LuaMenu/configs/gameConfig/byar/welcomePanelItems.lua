@@ -16,15 +16,14 @@ local welcomePanelItems = {
     },
 
     {
-        Header = "New Map: Claymore",
-        Text = " \n" .. " \n" .. "A volcanic island of black sand and sparse vegetation. 5-10-15 player FFA. By Moose and Beherith.",
-        Image = "LuaMenu/configs/gameConfig/byar/minimapOverride/Claymore_3.jpg",
-    },
-
-    {
         Header = "New Map: Eclipsed",
         Text = " \n" .. " \n" .. "A macro style map. 1v1 recommended. 2v2s to 5v5s are playable. By AidanNaut.",
         Image = "LuaMenu/configs/gameConfig/byar/minimapOverride/Eclipsed_0.8.1.jpg",
+    },
+
+    {
+        Header = "New Feature: Start Position Suggestions",
+        Text = "The Start Position Suggestions widget is now available. It shows recommended spawn positions when placing commanders, to help newer players, or players that are just new to a map. This feature is optional and can be disabled in Settings." .. " \n",
     },
 
     {
