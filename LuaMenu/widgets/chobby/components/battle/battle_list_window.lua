@@ -1412,7 +1412,7 @@ function BattleListWindow:OpenHostWindow()
 		height = 35,
 		boxalign = "left",
 		boxsize = 20,
-		caption = "Allow friends to join directly",
+		caption = "Friends only",
 		checked =  false,
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		OnChange = {
@@ -1422,7 +1422,7 @@ function BattleListWindow:OpenHostWindow()
 			end
 		},
 		parent = hostBattleWindow,
-		tooltip = "If you have a private battle, allow friends to join without entering a password.",
+		tooltip = "Only friends can join your battle, but they can do so without the password.",
 	}
 	friendCheckbox:Hide()
 
