@@ -1,11 +1,21 @@
------------------------------------------------------------------------------
--- JSON4Lua: JSON encoding / decoding support for the Lua language.
--- json Module.
--- Author: Craig Mason-Jones
--- Homepage: http://json.luaforge.net/
--- Version: 0.9.20
--- This module is released under the The GNU General Public License (GPL).
--- Please see LICENCE.txt for details.
+-----------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------
+function addon:GetInfo()
+	return {
+		name      = "json4lua",
+		desc      = "JSON encoding / decoding support for the Lua language",
+		author    = "Craig Mason-Jones", -- Homepage: http://json.luaforge.net/
+		date      = "2006-2008",
+		license   = "GPL",
+		version   = "0.9.20",
+		layer     = -9999,
+		enabled   = true,
+		api       = true,
+		hidden    = true,
+	}
+	end
+-----------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------
 --
 -- USAGE:
 -- This module exposes two functions:
@@ -400,4 +410,3 @@ function isEncodable(o)
 	local t = type(o)
 	return (t=='string' or t=='boolean' or t=='number' or t=='nil' or t=='table') or (t=='function' and o==null)
 end
-
