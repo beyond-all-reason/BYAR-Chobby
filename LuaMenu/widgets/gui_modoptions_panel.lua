@@ -706,10 +706,10 @@ local function CreateModoptionWindow()
 	end
 
 	local function ResetFunc()
+		localModoptions = {}
 		for key, value in pairs(modoptionDefaults) do
 			UpdateControlValue(key, value)
 		end
-		localModoptions = {}
 	end
 
 	buttonReset = Button:New {
