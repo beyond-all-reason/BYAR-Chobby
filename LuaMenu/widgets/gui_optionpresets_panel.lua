@@ -325,6 +325,7 @@ local function PopulatePresetPanel(parentPanel)
 
 	-- popup for entering a new preset Name
 	local function OpenPresetPopup()
+		
 		local openPresetPopup = Window:New {
 			caption = "Create new preset",
 			name = "createNewPreset",
@@ -350,9 +351,17 @@ local function PopulatePresetPanel(parentPanel)
 			objectOverrideFont     = WG.Chobby.Configuration:GetFont(2),
 			objectOverrideHintFont = WG.Chobby.Configuration:GetFont(11),
 			tooltip                = "Enter a name for your new preset",
+			OnKeyPress = {
+				function(obj, key)
+					presetName = obj.text
+					if key == Spring.GetKeyCode("enter") or key == Spring.GetKeyCode("numpad_enter") then
+						SavePresetName()
+					end
+				end
+			},
 		}
 
-		Button:New {
+		local saveButton = Button:New {
 			x = 10,
 			width = 135,
 			y = 50,
@@ -363,25 +372,12 @@ local function PopulatePresetPanel(parentPanel)
 			classname = "action_button",
 			OnClick = {
 				function()
-					local presetName = "defaultPreset"
-					if (presetEditBox.text ~= nil) then
-						presetName = presetEditBox.text
-					end
-
-					if presetName == "<new>" or presetName == "" then
-						refreshPresetMenu()
-						openPresetPopup:Dispose()
-						return
-					end
-					-- validate presetName
-
-					writePreset(presetName)
-					openPresetPopup:Dispose()
+					SavePresetName()
 				end
 			},
 		}
 
-		Button:New {
+		local cancelButton = Button:New {
 			x = 155,
 			width = 135,
 			y = 50,
@@ -397,6 +393,25 @@ local function PopulatePresetPanel(parentPanel)
 				end
 			},
 		}
+
+		function SavePresetName()
+			local presetName = "defaultPreset"
+			if (presetEditBox.text ~= nil) then
+				presetName = presetEditBox.text
+			end
+
+			if presetName == "<new>" or presetName == "" then
+				refreshPresetMenu()
+				openPresetPopup:Dispose()
+				return
+			end
+			-- validate presetName
+
+			writePreset(presetName)
+			openPresetPopup:Dispose()
+		end
+
+		screen0:FocusControl(presetEditBox)
 	end
 
 	local presetNames = {}
