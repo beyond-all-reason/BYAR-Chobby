@@ -737,7 +737,7 @@ function OptionpresetsPanel.ShowPresetPanel()
 	end
 
 
-	local currentAINames = lobby.battleAis
+	local currentAINames = battleLobby.battleAis
 	currentAITable = {}
 	for _, value in pairs(currentAINames) do
 		local aiStatus = battleLobby:GetUserBattleStatus(value)
