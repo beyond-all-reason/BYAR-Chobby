@@ -160,13 +160,13 @@ local function applyPreset(presetName)
 		end
 
 		-- starting Areas
-		local presetRectangles = presetObj["Starting Areas"]
+		local presetRectangles = presetObj["Start Boxes"]
 		-- calculated the required team size, when it is undefined for the preset
 		if multiplayer and presetMPBattleSettings == nil then
 			battleLobby:SayBattle("!nbTeams " .. #presetRectangles)
 		end
 
-		if (presetRectangles ~= nil and enabledOptions["Starting Areas"]) then
+		if (presetRectangles ~= nil and enabledOptions["Start Boxes"]) then
 			WG.BattleRoomWindow.RemoveStartRect()
 			for index, value in ipairs(presetRectangles) do
 				local l = value["left"]
@@ -243,10 +243,10 @@ local function writePreset(presetName)
 	end
 
 	if currentStartRects ~= nil then
-		if jsondata[preset]["Starting Areas"] and enabledOptions["startingRects"] == nil then
-			jsondata[preset]["Starting Areas"] = {}
+		if jsondata[preset]["Start Boxes"] and enabledOptions["Start Boxes"] == nil then
+			jsondata[preset]["Start Boxes"] = {}
 		end
-		jsondata[preset]["Starting Areas"] = currentStartRects
+		jsondata[preset]["Start Boxes"] = currentStartRects
 	end
 
 	if currentMPBattleSettings ~= nil then
