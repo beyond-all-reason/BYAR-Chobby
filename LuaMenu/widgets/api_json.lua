@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------
-function addon:GetInfo()
+function widget:GetInfo()
 	return {
 		name      = "json4lua",
 		desc      = "JSON encoding / decoding support for the Lua language",
