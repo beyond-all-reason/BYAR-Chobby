@@ -1312,7 +1312,10 @@ function Lobby:_OnLeftBattle(battleID, userName)
 		battle.bossed = false -- because we don't get further updates for it
 	end
 
-	self.users[userName].battleID = nil
+	if self.users[userName] then
+		self.users[userName].battleID = nil
+	end
+
 	self:_CallListeners("OnUpdateUserStatus", userName, {battleID = false})
 
 	self:_CallListeners("OnLeftBattle", battleID, userName)
