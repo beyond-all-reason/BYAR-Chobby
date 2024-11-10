@@ -1119,8 +1119,13 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		parent = leftInfo,
 	}
 	leftOffset = leftOffset + 40
+
+
+	local tooltip = modoptions
+			and "Create and Load Presets for gameplay options"
+			or "Game Update may still be downloading"
 	local btnOptionPresets = Button:New {
-		name = 'btnOptionpresets',
+		name = 'btnOptionPresets',
 		x = 5,
 		y = leftOffset,
 		height = 35,
