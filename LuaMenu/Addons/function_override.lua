@@ -7,16 +7,11 @@
 -- Scaling
 -- hack window geometry
 
--- gl.GetViewSizes intentionally not overridden
 Spring.Orig = Spring.Orig or {}
-
-Spring.Echo("Spring.GetWindowGeometry", Spring.GetWindowGeometry())
-Spring.Echo("Spring.GetViewGeometry", Spring.GetViewGeometry())
-Spring.Echo("gl.GetViewSizes", gl.GetViewSizes())
 
 Spring.Orig.GetWindowGeometry = Spring.GetWindowGeometry
 Spring.Orig.GetViewGeometry = Spring.GetViewGeometry
-Spring.Orig.GetViewSizes = gl.GetViewSizes
+Spring.Orig.GetViewSizes = gl.GetViewSizes	-- gl.GetViewSizes intentionally not overridden
 Spring.Orig.GetMouseState = Spring.GetMouseState
 
 Spring.GetWindowGeometry = function()
