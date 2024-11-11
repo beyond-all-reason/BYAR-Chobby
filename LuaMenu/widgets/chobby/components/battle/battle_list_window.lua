@@ -1611,18 +1611,37 @@ function BattleListWindow:OpenHostWindow()
 		end
 	end
 
-	local buttonHost = Button:New {
+	local function reenableHost()
+		buttonHost.suppressButtonReaction = false
+		buttonHost:SetEnabled(true)
+		buttonHost.OnClick = {
+			function()
+				buttonHostOnClick()
+			end
+		}
+	end
+
+	function buttonHostOnClick()
+		buttonHost.suppressButtonReaction = true
+		buttonHost:SetEnabled(false)
+		buttonHost.OnClick = {}
+		HostBattle()
+		WG.Delay(reenableHost, 15)
+	end
+
+	buttonHost = Button:New {
 		right = 150,
 		width = 135,
 		bottom = 1,
 		height = 70,
 		caption = i18n("host"),
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		parent = hostBattleWindow,
 		classname = "action_button",
+		tooltip = "Request a hosted battle. Please be patient while the lobby spins up.",
 		OnClick = {
 			function()
-				HostBattle()
+				buttonHostOnClick()
 			end
 		},
 	}
@@ -1633,7 +1652,7 @@ function BattleListWindow:OpenHostWindow()
 		bottom = 1,
 		height = 70,
 		caption = i18n("cancel"),
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		parent = hostBattleWindow,
 		classname = "negative_button",
 		OnClick = {
