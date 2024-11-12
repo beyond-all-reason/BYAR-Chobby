@@ -16,15 +16,21 @@ local welcomePanelItems = {
     },
 
     {
-        Header = "New Map: Claymore",
-        Text = " \n" .. " \n" .. "A volcanic island of black sand and sparse vegetation. 5-10-15 player FFA. By Moose and Beherith.",
-        Image = "LuaMenu/configs/gameConfig/byar/minimapOverride/Claymore_3.jpg",
+        Header = "Now Available: BAR Guides",
+        Text = "New to Beyond All Reason? Check out these new Guides on Discord by Zeteo!" .. " \n" .. " \n",
+        Url = "https://discord.com/channels/549281623154229250/1303141562120929320/1303141562120929320",
+        UrlText = "Read the new Guides",
     },
 
     {
-        Header = "New Map: Eclipsed",
-        Text = " \n" .. " \n" .. "A macro style map. 1v1 recommended. 2v2s to 5v5s are playable. By AidanNaut.",
-        Image = "LuaMenu/configs/gameConfig/byar/minimapOverride/Eclipsed_0.8.1.jpg",
+        Header = "New Feature: Option Presets",
+        Text = "A comprehensive new system for saving and loading game configurations and modoptions. It supports current map, startboxes, modoptions, and AI team placement and configurations. You can access this dialog by clicking on the Option Presets button in the battle room. Thanks to jere500 for the contribution.",
+    },
+
+    {
+        Header = "New Map: Claymore",
+        Text = " \n" .. " \n" .. "A volcanic island of black sand and sparse vegetation. 5-10-15 player FFA. By Moose and Beherith.",
+        Image = "LuaMenu/configs/gameConfig/byar/minimapOverride/Claymore_3.jpg",
     },
 
     {
@@ -44,7 +50,7 @@ local welcomePanelItems = {
     },
 
     {
-        Header = "Guides for new players",
+        Header = "Video guides for new players",
         Url = "https://www.youtube.com/channel/UCAByJ5NKeMmQ95EIWgBtbEw",
         Text = "Requiem has created some guides for new players. If you're new to the game and want to learn the basics via video we highly recommend you check them out.\n",
         UrlText = "Link to video guides"
