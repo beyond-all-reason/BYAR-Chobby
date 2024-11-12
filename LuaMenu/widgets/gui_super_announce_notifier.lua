@@ -21,7 +21,7 @@ end
 local IMG_SUPERANNOUNCE = LUA_DIRNAME .. "images/trailer.png"
 local doNotAskAgainKey = "superAnnouncePopupSeen" -- change this for new announcement
 
-local enableAnnouncement = true -- this is the actual enable/disable switch
+local enableAnnouncement = false -- this is the actual enable/disable switch
 local announceDate = {0, 15, 8, 27, 4, 2018} -- second, minute, hour, day, month, year
 
 local function SuperAnnouncePopup()
