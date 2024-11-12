@@ -17,7 +17,7 @@ local welcomePanelItems = {
 
     {
         Header = "Now Available: BAR Guides",
-        Text = "New to Beyond All Reason? Check out these new Guides on Discord by Zeteo!" .. " \n" .. " \n",
+        Text = "New to Beyond All Reason? Check out these new Guides on Discord written by Zeteo!" .. " \n" .. " \n",
         Url = "https://discord.com/channels/549281623154229250/1303141562120929320/1303141562120929320",
         UrlText = "Read the new Guides",
     },
