@@ -171,7 +171,8 @@ end
 
 -- outcome example: https://github.com/beyond-all-reason/spring/releases/download/spring_bar_%7BBAR105%7D105.1.1-1354-g72b2d55/spring_bar_.BAR105.105.1.1-1354-g72b2d55_windows-64-minimal-portable.7z
 local function GetEngineDownloadUrl(engineVersion)
-	local pureVersion = engineVersion:gsub(" BAR105", "")
+	local sanitizedEngineVersion = WG.Chobby.Configuration:SanitizeEngineVersion(engineVersion)
+	local pureVersion = sanitizedEngineVersion:gsub(" BAR105", "")
 	local baseUrl = "https://github.com/beyond-all-reason/spring/releases/download/"
 	local versionDir = "spring_bar_%7BBAR105%7D" .. pureVersion .. "/"
 	local platform64 = Platform.osFamily:lower() .. "-64"
@@ -268,7 +269,7 @@ local function CheckDownloads(gameName, mapName, DoneFunc, gameList, engineVersi
 	end
 
 	downloading.dlString = dlString
-	MakeExclusivePopup(string.format(dlString, unpack(downloading.progress)), "Cancel", CancelFunc, "negative_button", (gameList and (180 + (#gameList)*40)))
+	MakeExclusivePopup(string.format(dlString, unpack(downloading.progress)), "Cancel", CancelFunc, "negative_button", (gameList and (220 + (#gameList)*40)))
 end
 
 
