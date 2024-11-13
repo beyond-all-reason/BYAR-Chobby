@@ -103,7 +103,7 @@ local function GetDownloadByNameSent(nameSent)
 	return false, nil
 end
 
--- Replace all minutes (-) by (%-) so that it´s not used by string.find as special char
+-- Replace all minutes (-) by (%-) so that it's not used by string.find as special char
 -- example: "engine/105.1.1-1354-g72b2d55 bar" -> "engine/105.1.1%-1354%-g72b2d55 bar"
 local function EscapeMinusPattern(text)
 	local txt = text:gsub("([%-])", "%%%1")
@@ -112,7 +112,7 @@ end
 
 local function FindNameReceivedInDownloads(nameReceived)
 	for i, download in ipairs(downloads) do
-		if nameReceived:gsub("\\", "/"):find(EscapeMinusPattern(download.nameSent)) then -- replace backslashes(windows) with slashes, because that´s how we generated it in CoopHandler:local GetEnginePath()
+		if nameReceived:gsub("\\", "/"):find(EscapeMinusPattern(download.nameSent)) then -- replace backslashes(windows) with slashes, because that's how we generated it in CoopHandler:local GetEnginePath()
 			return download, i
 		end
 	end
