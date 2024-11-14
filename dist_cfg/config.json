@@ -104,7 +104,7 @@
                         "optional": true
                     },
                     {
-                        "url": "https://github.com/beyond-all-reason/spring/releases/download/spring_bar_%7Bmaster%7D105.1.1-2589-gc090df7/spring_bar_.master.105.1.1-2679-g6f3a208_linux-64-minimal-portable.7z",
+                        "url": "https://github.com/beyond-all-reason/spring/releases/download/spring_bar_%7Bmaster%7D105.1.1-2679-g6f3a208/spring_bar_.master.105.1.1-2679-g6f3a208_linux-64-minimal-portable.7z",
                         "destination": "engine/105.1.1-2679-g6f3a208 bar",
                         "extract": true
                     }
@@ -143,7 +143,7 @@
                         "optional": true
                     },
                     {
-                        "url": "https://github.com/beyond-all-reason/spring/releases/download/spring_bar_%7Bmaster%7D105.1.1-2589-gc090df7/spring_bar_.master.105.1.1-2679-g6f3a208_windows-64-minimal-portable.7z",
+                        "url": "https://github.com/beyond-all-reason/spring/releases/download/spring_bar_%7Bmaster%7D105.1.1-2679-g6f3a208/spring_bar_.master.105.1.1-2679-g6f3a208_windows-64-minimal-portable.7z",
                         "destination": "engine/105.1.1-2679-g6f3a208 bar",
                         "extract": true
                     }
