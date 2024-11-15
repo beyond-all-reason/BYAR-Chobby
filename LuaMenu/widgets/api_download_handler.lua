@@ -289,11 +289,8 @@ function externalFunctions.SetDownloadTopPriority(name, fileType)
 end
 
 function externalFunctions.CancelDownload(name, fileType, success)
-	Spring.Echo(name)
-	Spring.Echo(fileType)
 	local index = GetDownloadIndex(downloadQueue, name, fileType)
 	if not index then
-		Spring.Echo("not index")
 		return false
 	end
 
