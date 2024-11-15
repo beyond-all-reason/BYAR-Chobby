@@ -1123,7 +1123,7 @@ function LoginWindow:MayBeDisconnectBeforeTryLogin()
 	local function callTryLogin() self:tryLogin() end
 	self.onDisconnected = function(listener)
 		lobby:RemoveListener("OnDisconnected", self.onDisconnected)
-		WG.Delay(callTryLogin, 3) -- server returns error when connecting directly after disconnect
+		WG.Delay(callTryLogin, 30) -- server returns error when connecting directly after disconnect
 	end
 	lobby:AddListener("OnDisconnected", self.onDisconnected)
 
