@@ -59,9 +59,14 @@ local downloads = {} -- index table
 -- FB 2023-05-14 downloads a file, type can be any of game, map, resource
 -- engine not supported yet by launcher, though using resource here for engine downloads with workarounds!
 function WrapperLoopback.DownloadFile(name, type, resource)
+	LOG_SECTION = "downloader"
+
 	if type:lower() == "resource" and not resource then
-		Spring.Log(LOG_SECTION, LOG.ERROR, "DownloadFile called with type resource, but no resouce infos given")
-		-- ToDo: Call Finished
+
+		Spring.Log(LOG_SECTION, LOG.ERROR, "DownloadFile called with type resource, but no resource infos given")
+
+		WG.DownloadHandler.CancelDownload(name, type:lower(), "fail")
+
 		return false
 	end
 
@@ -117,18 +122,6 @@ local function FindNameReceivedInDownloads(nameReceived)
 		end
 	end
 	return false, nil
-end
-
-function WrapperLoopback.AbortDownload(name, type)
-	local download = GetDownloadByName(name)
-	if not download then
-		-- ToDo: Handle this, e.g. set download = finished or aborted or failed or whatever
-		return false
-	end
-	WG.Connector.Send("AbortDownload", {
-		name = download.sentName,
-		type = download.sentType
-	})
 end
 
 local function startsWith(targetstring, pattern) 

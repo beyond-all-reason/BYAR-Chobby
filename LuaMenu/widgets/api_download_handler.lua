@@ -288,20 +288,16 @@ function externalFunctions.SetDownloadTopPriority(name, fileType)
 	return true
 end
 
-function externalFunctions.CancelDownload(name, fileType)
+function externalFunctions.CancelDownload(name, fileType, success)
+	Spring.Echo(name)
+	Spring.Echo(fileType)
 	local index = GetDownloadIndex(downloadQueue, name, fileType)
 	if not index then
+		Spring.Echo("not index")
 		return false
 	end
 
-	if downloadQueue[index].active then
-		if USE_WRAPPER_DOWNLOAD and WG.WrapperLoopback and WG.WrapperLoopback.AbortDownload then
-			WG.WrapperLoopback.AbortDownload(name, typeMap[fileType])
-		end
-		return
-	end
-
-	downloadQueue[index].removalType = "cancel"
+	downloadQueue[index].removalType = (success == "fail") and "fail" or "cancel"
 	removedDownloads[#removedDownloads + 1] = downloadQueue[index]
 
 	downloadQueue[index] = downloadQueue[#downloadQueue]
@@ -374,10 +370,12 @@ function wrapperFunctions.DownloadFinished(name, fileType, success, aborted)
 		RemoveDownload(name, fileType, true, (aborted and "cancel") or (success and "success") or "fail")
 	end
 
-	--Chotify:Post({
-	--	title = "Download " .. ((success and "Finished") or "Failed"),
-	--	body = (name or "???") .. " of type " .. (fileType or "???"),
-	--})
+	if not success then
+		Chotify:Post({
+			title = i18n("download_failed"),
+			body = (name or "???") .. " of type " .. (fileType or "???"),
+		})
+	end
 end
 
 function wrapperFunctions.DownloadFileProgress(name, progress, totalLength)

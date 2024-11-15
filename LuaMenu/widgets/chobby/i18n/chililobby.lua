@@ -204,6 +204,7 @@ return {
 			other = "%{count} items left to download.",
 		},
 		downloads_completed = "All downloads completed.",
+		download_failed = "Download Failed",
 		wip_challenges = "WiP Challenges",
 		["scenarios"] = "Scenarios",
 		-- Settings
