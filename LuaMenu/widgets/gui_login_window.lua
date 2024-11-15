@@ -73,7 +73,6 @@ local function TrySimpleSteamLogin()
 	if (lobby:GetConnectionStatus() == "connected") then
 		lobby:Login(Configuration.userName, Configuration.password, 3, nil, "Chobby", true)
 	else
-		Spring.Echo("Trying Simple Steam Login")
 		lobby:Connect(Configuration:GetServerAddress(), Configuration:GetServerPort(), Configuration.userName, Configuration.password, 3, nil, "Chobby")
 	end
 	return true
@@ -84,7 +83,6 @@ local function TrySimpleLogin()
 	if (lobby:GetConnectionStatus() == "connected") then
 		lobby:Login(Configuration.userName, Configuration.password, 3, nil, "Chobby")
 	else
-		Spring.Echo("Trying Simple Login")
 		lobby:Connect(Configuration:GetServerAddress(), Configuration:GetServerPort(), Configuration.userName, Configuration.password, 3, nil, "Chobby")
 	end
 end
@@ -263,7 +261,6 @@ function LoginWindowHandler.TryLoginMultiplayer(name, password)
 end
 
 function LoginWindowHandler.TryLogin(newLoginAcceptedFunction)
-	Spring.Echo("LoginWindowHandler.TryLogin")
 	loginAcceptedFunction = newLoginAcceptedFunction
 	if not TrySimpleSteamLogin() then
 		local loginWindow = GetNewLoginWindow(nil, "LoginWindowHandler:TryLogin")
