@@ -453,6 +453,26 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 	}
 	registerChildren[#registerChildren + 1] = self.txtErrorRegister
 
+	local function reenablebtnLogin()
+		self.btnLogin.tooltip = nil
+		self.btnLogin.suppressButtonReaction = false
+		self.btnLogin:SetEnabled(true)
+		self.btnLogin.OnClick = {
+			function()
+				btnLoginOnClick()
+			end
+		}
+	end
+
+	function btnLoginOnClick()
+		self.btnLogin.tooltip = "Please wait a moment before retrying login"
+		self.btnLogin.suppressButtonReaction = true
+		self.btnLogin:SetEnabled(false)
+		self.btnLogin.OnClick = {}
+		self:MayBeDisconnectBeforeTryLogin()
+		WG.Delay(reenablebtnLogin, 5)
+	end
+
 	self.btnLogin = Button:New {
 		right = 140,
 		width = 130,
@@ -461,10 +481,13 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		caption = i18n("login_verb"),
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		classname = "action_button",
+		tooltip = nil,
 		OnClick = {
 			function()
-				if lobby:GetConnectionStatus() ~= "connecting" then
-					self:MayBeDisconnectBeforeTryLogin()
+				if lobby:GetConnectionStatus() ~= "connected" then
+					btnLoginOnClick()
+				else
+					self.txtError:SetText(Configuration:GetErrorColor() .. "Already logged in")
 				end
 			end
 		},
@@ -554,7 +577,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 
 	self.lblChangeUserName =  Label:New {
 		x = pad + formw * 0 ,
-		y = pad + formh * 2 ,
+		y = pad + formh * 1 ,
 		width =   formw * 1 ,
 		height =  formh * 1 ,
 		-- caption = i18n("register_long"),
@@ -879,7 +902,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 
 	self.lblChangeEmailVerification =  Label:New {
 		x = pad + formw * 0 ,
-		y = pad + formh * 21 ,
+		y = pad + formh * 19 ,
 		width =   formw * 1 ,
 		height =  formh * 1 ,
 		-- caption = i18n("register_long"),
