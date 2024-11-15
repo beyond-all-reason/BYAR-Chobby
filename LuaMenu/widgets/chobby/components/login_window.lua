@@ -1120,8 +1120,13 @@ function LoginWindow:MayBeDisconnectBeforeTryLogin()
 	end
 
 	-- disconnect and cleanup before login to next account
-	local function callTryLogin() self:tryLogin() end
+	local function callTryLogin()
+		Spring.Echo("Attempting reconnect")
+		self:tryLogin()
+	end
+
 	self.onDisconnected = function(listener)
+		Spring.Echo("onDisconnected")
 		lobby:RemoveListener("OnDisconnected", self.onDisconnected)
 		WG.Delay(callTryLogin, 3) -- server returns error when connecting directly after disconnect
 	end
@@ -1132,6 +1137,7 @@ function LoginWindow:MayBeDisconnectBeforeTryLogin()
 end
 
 function LoginWindow:tryLogin()
+	Spring.Echo("LoginWindow:tryLogin")
 	self.txtError:SetText("")
 
 	local username = self.ebUsername.text
