@@ -1151,7 +1151,7 @@ function LoginWindow:MayBeDisconnectBeforeTryLogin()
 	self.onDisconnected = function(listener)
 		Spring.Echo("onDisconnected")
 		lobby:RemoveListener("OnDisconnected", self.onDisconnected)
-		WG.Delay(callTryLogin, 30) -- server returns error when connecting directly after disconnect
+		WG.Delay(callTryLogin, 3) -- server returns error when connecting directly after disconnect
 	end
 	lobby:AddListener("OnDisconnected", self.onDisconnected)
 
@@ -1191,7 +1191,7 @@ function LoginWindow:tryLogin()
 		local function FollowRedirect()
 			lobby:Connect(Configuration:GetServerAddress(), Configuration:GetServerPort(), username, password, 3, nil, GetLobbyName())
 		end
-
+			
 		self.onRedirect = function(listener, newaddress)
 			lobby:Disconnect()
 			Configuration:SetConfigValue("serverAddress", newaddress)
