@@ -1612,6 +1612,7 @@ function BattleListWindow:OpenHostWindow()
 	end
 
 	local function reenableHost()
+		buttonHost.tooltip = "Request a hosted battle. Please be patient while the lobby spins up."
 		buttonHost.suppressButtonReaction = false
 		buttonHost:SetEnabled(true)
 		buttonHost.OnClick = {
@@ -1622,6 +1623,7 @@ function BattleListWindow:OpenHostWindow()
 	end
 
 	function buttonHostOnClick()
+		buttonHost.tooltip = "Please wait for more time before requesting another hosted battle"
 		buttonHost.suppressButtonReaction = true
 		buttonHost:SetEnabled(false)
 		buttonHost.OnClick = {}
