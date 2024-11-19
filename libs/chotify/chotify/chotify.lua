@@ -4,7 +4,7 @@ local vsx, vsy
 
 function Chotify:init()
     self.enabled = true
-    self.NOTIFICATION_LIMIT = 1
+    self.NOTIFICATION_LIMIT = 5
     Spring.Log("Chotify", LOG.NOTICE, "Enabled: " .. tostring(self.enabled))
 
     self.notifications = {}
