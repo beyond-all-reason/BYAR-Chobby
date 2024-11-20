@@ -183,12 +183,12 @@ function FriendListWindow:OnFriendRequest(userName)
 end
 
 function FriendListWindow:OnOutgoingFriendRequest(userName)
-	if WG.Chobby.Configuration.friendsFilterOnline then
-		local userInfo = lobby:GetUser(userName)
-		if not userInfo or userInfo.isOffline then
-			return
-		end
+
+	local userInfo = lobby:GetUser(userName)
+	if not userInfo or userInfo.isOffline then
+		return
 	end
+
 	self:AddOutgoingFriendRequest(userName)
 end
 
