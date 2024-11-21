@@ -173,22 +173,22 @@ function FriendListWindow:OnFriendRequest(userName)
 	if WG.Chobby.Configuration.friendActivityNotification then
 		interfaceRoot.GetRightPanelHandler().SetActivity("friends", lobby:GetFriendRequestCount())
 	end
-
-	local userInfo = lobby:GetUser(userName)
-	if not userInfo or userInfo.isOffline then
-		return
+	if WG.Chobby.Configuration.friendsFilterOnline then
+		local userInfo = lobby:GetUser(userName)
+		if not userInfo or userInfo.isOffline then
+			return
+		end
 	end
-
 	self:AddFriendRequest(userName)
 end
 
 function FriendListWindow:OnOutgoingFriendRequest(userName)
-
-	local userInfo = lobby:GetUser(userName)
-	if not userInfo or userInfo.isOffline then
-		return
+	if WG.Chobby.Configuration.friendsFilterOnline then
+		local userInfo = lobby:GetUser(userName)
+		if not userInfo or userInfo.isOffline then
+			return
+		end
 	end
-
 	self:AddOutgoingFriendRequest(userName)
 end
 
