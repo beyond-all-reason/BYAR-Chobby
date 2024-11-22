@@ -110,12 +110,10 @@ function FriendListWindow:OnAddUser(userName)
 				body  = userControl,
 			})
 		end
-	elseif WG.Chobby.Configuration.friendsFilterOnline then
-		if userInfo.hasOutgoingFriendRequest then
-			self:AddOutgoingFriendRequest(userInfo.userName)
-		elseif userInfo.hasFriendRequest then
-			self:AddFriendRequest(userInfo.userName)
-		end
+	elseif userInfo.hasOutgoingFriendRequest then
+		self:AddOutgoingFriendRequest(userInfo.userName)
+	elseif userInfo.hasFriendRequest then
+		self:AddFriendRequest(userInfo.userName)
 	end
 end
 
@@ -127,9 +125,8 @@ function FriendListWindow:OnRemoveUser(userName)
 	if not userInfo then
 		return
 	end
-	if WG.Chobby.Configuration.friendsFilterOnline and
-		(userInfo.isFriend or userInfo.hasOutgoingFriendRequest or userInfo.hasFriendRequest) then
-			self:RemoveRow(userInfo.userName)
+	if (WG.Chobby.Configuration.friendsFilterOnline and userInfo.isFriend) or userInfo.hasOutgoingFriendRequest or userInfo.hasFriendRequest then
+		self:RemoveRow(userInfo.userName)
 	end
 	if userInfo.isFriend and WG.Chobby.Configuration:AllowNotification(userName) then
 		local userControl = WG.UserHandler.GetNotificationUser(userName)
@@ -173,22 +170,22 @@ function FriendListWindow:OnFriendRequest(userName)
 	if WG.Chobby.Configuration.friendActivityNotification then
 		interfaceRoot.GetRightPanelHandler().SetActivity("friends", lobby:GetFriendRequestCount())
 	end
-	if WG.Chobby.Configuration.friendsFilterOnline then
-		local userInfo = lobby:GetUser(userName)
-		if not userInfo or userInfo.isOffline then
-			return
-		end
+
+	local userInfo = lobby:GetUser(userName)
+	if not userInfo then
+		return
 	end
+
 	self:AddFriendRequest(userName)
 end
 
 function FriendListWindow:OnOutgoingFriendRequest(userName)
-	if WG.Chobby.Configuration.friendsFilterOnline then
-		local userInfo = lobby:GetUser(userName)
-		if not userInfo or userInfo.isOffline then
-			return
-		end
+
+	local userInfo = lobby:GetUser(userName)
+	if not userInfo then
+		return
 	end
+
 	self:AddOutgoingFriendRequest(userName)
 end
 
@@ -241,22 +238,6 @@ function FriendListWindow:OnFriendRequestAcceptedByID(userID, userName)
 end
 
 function FriendListWindow:HideOfflineFriends()
-	local outFriendRequests = lobby:GetOutgoingFriendRequestsByID()
-	for _, userID in pairs(outFriendRequests) do
-		local userInfo = lobby:GetUserByID(userID)
-		if not userInfo or userInfo.isOffline then
-			self:RemoveRow(userInfo.userName)
-		end
-	end
-
-	local friendRequests = lobby:GetFriendRequests()
-	for _, userName in pairs(friendRequests) do
-		local userInfo = lobby:GetUser(userName)
-		if not userInfo or userInfo.isOffline then
-			self:RemoveRow(userName)
-		end
-	end
-	
 	local friends = lobby:GetFriends()
 	for _, userName in pairs(friends) do
 		local userInfo = lobby:GetUser(userName)
