@@ -172,11 +172,12 @@ end
 -- outcome example: https://github.com/beyond-all-reason/spring/releases/download/spring_bar_%7BBAR105%7D105.1.1-1354-g72b2d55/spring_bar_.BAR105.105.1.1-1354-g72b2d55_windows-64-minimal-portable.7z
 local function GetEngineDownloadUrl(engineVersion)
 	local sanitizedEngineVersion = WG.Chobby.Configuration:SanitizeEngineVersion(engineVersion)
-	local pureVersion = sanitizedEngineVersion:gsub(" BAR105", "")
+	local branch = sanitizedEngineVersion:match("%s([%w-]*)") or ""
+	local pureVersion = sanitizedEngineVersion:gsub(" " .. branch, "")
 	local baseUrl = "https://github.com/beyond-all-reason/spring/releases/download/"
-	local versionDir = "spring_bar_%7BBAR105%7D" .. pureVersion .. "/"
+	local versionDir = "spring_bar_%7B" .. branch .. "%7D" .. pureVersion .. "/"
 	local platform64 = Platform.osFamily:lower() .. "-64"
-	local fileName = "spring_bar_.BAR105." .. pureVersion .. "_" .. platform64 .. "-minimal-portable.7z"
+	local fileName = "spring_bar_." .. branch .. "." .. pureVersion .. "_" .. platform64 .. "-minimal-portable.7z"
 	return baseUrl .. versionDir .. fileName
 end
 
