@@ -61,7 +61,7 @@ local function MakeExclusivePopup(text, buttonText, ClickFunc, buttonClass, heig
 	if replacablePopup then
 		replacablePopup:Close()
 	end
-	replacablePopup = WG.Chobby.InformationPopup(text, {caption = buttonText, closeFunc = ClickFunc, buttonClass = buttonClass, height = height, width = 500})
+	replacablePopup = WG.Chobby.InformationPopup(text, {caption = buttonText, closeFunc = ClickFunc, buttonClass = buttonClass, height = height, width = 540})
 end
 
 local function CloseExclusivePopup()
