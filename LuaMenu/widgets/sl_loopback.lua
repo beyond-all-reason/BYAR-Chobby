@@ -141,14 +141,14 @@ local function DownloadFinished(command)
 		return false
 	end
 
-	download, dlIndex = FindNameReceivedInDownloads(command.name)		
+	download, dlIndex = FindNameReceivedInDownloads(command.name)
 	if not download then
 		Spring.Log(LOG_SECTION, LOG.ERROR, "Received command.name couldn't be matched to any known download:", command.name)
 		return false
 	end
-	
+
 	WG.DownloadWrapperInterface.DownloadFinished(download.name, download.type, command.isSuccess, command.isAborted)
-	table.remove(downloads, i)
+	table.remove(downloads, dlIndex)
 end
 
 -- reports download progress. 100 might not indicate completion, wait for DownloadFinished
