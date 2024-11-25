@@ -125,16 +125,16 @@ local function applyPreset(presetName)
 		-- only apply in multiplayer
 		local presetMPBattleSettings = presetObj["Multiplayer Battle Settings"]
 		if presetMPBattleSettings ~= nil and multiplayer and enabledOptions["Multiplayer Battle Settings"] then
-			battleLobby:SayBattle("!preset " .. presetMPBattleSettings["preset"])
+			WG.Delay(battleLobby:SayBattle("!preset " .. presetMPBattleSettings["preset"]), 0.25)
 			if presetMPBattleSettings["locked"] then
-				battleLobby:SayBattle("!lock")
+				WG.Delay(battleLobby:SayBattle("!lock"), 0.5)
 			else
-				battleLobby:SayBattle("!unlock")
+				WG.Delay(battleLobby:SayBattle("!unlock"), 0.5)
 			end
-			battleLobby:SayBattle("!autobalance " .. presetMPBattleSettings["autoBalance"])
-			battleLobby:SayBattle("!balanceMode " .. presetMPBattleSettings["balanceMode"])
-			battleLobby:SayBattle("!set teamSize " .. presetMPBattleSettings["teamSize"])
-			battleLobby:SayBattle("!nbTeams " .. presetMPBattleSettings["nbTeams"])
+			WG.Delay(battleLobby:SayBattle("!autobalance " .. presetMPBattleSettings["autoBalance"]), 0.75)
+			WG.Delay(battleLobby:SayBattle("!balanceMode " .. presetMPBattleSettings["balanceMode"]), 1.0)
+			WG.Delay(battleLobby:SayBattle("!set teamSize " .. presetMPBattleSettings["teamSize"]), 1.25)
+			WG.Delay(battleLobby:SayBattle("!nbTeams " .. presetMPBattleSettings["nbTeams"]), 1.5)
 		end
 
 		-- modoptions
