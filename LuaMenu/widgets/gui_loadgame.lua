@@ -421,7 +421,7 @@ local function InitializeControls(parent)
 	Label:New {
 		x = 15,
 		right = 5,
-		y = 14,
+		y = 17,
 		height = 20,
 		parent = parent,
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
@@ -435,8 +435,8 @@ local function InitializeControls(parent)
 	local listHolder = Control:New {
 		x = 4,
 		right = 7,
-		y = 52,
-		bottom = 15,
+		y = 62,
+		bottom = 5,
 		parent = parent,
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		resizable = false,
@@ -452,6 +452,24 @@ local function InitializeControls(parent)
 
 	local saveList = WG.Chobby.SortableList(listHolder, headings, 80, 3, false)
 	PopulateSaveList(saveList)
+
+	Button:New {
+		right = 15,
+		y = 7,
+		width = 120,
+		height = 45,
+		caption = i18n("refresh"),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		classname = "option_button",
+		tooltip = "Refresh the list of saved games",
+		parent = parent,
+		OnClick = {
+			function()
+				parent:ClearChildren()
+				InitializeControls(parent)
+			end
+		}
+	}
 
 	local externalFunctions = {}
 
