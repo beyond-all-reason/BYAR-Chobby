@@ -477,6 +477,11 @@ local function InitializeControls(parent)
 		PopulateSaveList(saveList)
 	end
 
+	function externalFunctions.RefreshSaveList()
+		parent:ClearChildren()
+		InitializeControls(parent)
+	end
+
 	return externalFunctions
 end
 
@@ -485,9 +490,9 @@ end
 -- External Interface
 
 local LoadGameWindow = {}
+local controlFuncs
 
 function LoadGameWindow.GetControl()
-	local controlFuncs
 
 	local window = Control:New {
 		name = "loadGameHandler",
@@ -507,6 +512,10 @@ function LoadGameWindow.GetControl()
 		},
 	}
 	return window
+end
+
+function LoadGameWindow.RefreshSaveList()
+	WG.Delay(function () controlFuncs.RefreshSaveList() end, 0.5)
 end
 
 --------------------------------------------------------------------------------
