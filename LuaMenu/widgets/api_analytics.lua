@@ -141,7 +141,6 @@ end
 local function SocketConnect(host, port)
 	if client then
 		client:close()
-		client = nil
 	end
 	client=socket.tcp()
 	client:settimeout(0)
