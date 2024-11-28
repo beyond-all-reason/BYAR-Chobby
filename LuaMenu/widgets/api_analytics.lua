@@ -139,11 +139,17 @@ end
 
 
 local function SocketConnect(host, port)
+	if client then
+		client:close()
+		client = nil
+	end
 	client=socket.tcp()
 	client:settimeout(0)
 	res, err = client:connect(host, port)
-	if not res and not res=="timeout" then
+	if not res and err ~= "timeout" then
 		if PRINT_DEBUG then Spring.Echo("Error in connection to Analytics server: "..err) end
+		client:close()
+		client = nil
 		return false
 	end
 	if PRINT_DEBUG then Spring.Echo("Analytics connected") end
@@ -652,8 +658,10 @@ local function LobbyInfo()
 		local message = "c.telemetry.log_client_event lobby:info " .. Spring.Utilities.Base64Encode(Spring.Utilities.json.encode(t)).." ".. machineHash .. "\n"
 		local client=socket.tcp()
 		local res, err = client:connect(host, port)
-		if not res and not res=="timeout" then  Spring.Echo("Lobby:Info Error", res, err) else client:send(message) end
-		if client ~= nil then client:close() end
+		if not res and err ~= "timeout" then  Spring.Echo("Lobby:Info Error", res, err) else client:send(message) end
+		if client then
+			client:close()
+		end
 	end
 end
 
@@ -735,6 +743,7 @@ function widget:Initialize()
 		isConnected = true
 		if client ~= nil then
 			client:close()
+			client = nil
 		end
 		ACTIVE = false
 		-- disconnect
