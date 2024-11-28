@@ -658,9 +658,7 @@ local function LobbyInfo()
 		local client=socket.tcp()
 		local res, err = client:connect(host, port)
 		if not res and err ~= "timeout" then  Spring.Echo("Lobby:Info Error", res, err) else client:send(message) end
-		if client then
-			client:close()
-		end
+		client:close()
 	end
 end
 
