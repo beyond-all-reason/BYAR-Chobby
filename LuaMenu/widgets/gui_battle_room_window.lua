@@ -4162,7 +4162,7 @@ end
 
 
 function BattleRoomWindow.SetTeams(numberOfTeams)
-	if not battleLobby.name == "singleplayer" then
+	if battleLobby.name ~= "singleplayer" then
 		-- command to set the teams
 		battleLobby:SayBattle(string.format("!nbteams %d", numberOfTeams))
 	end
