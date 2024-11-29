@@ -1343,10 +1343,8 @@ function Lobby:_OnUpdateBattleInfo(battleID, battleInfo)
 	battle.playerCount = battleInfo.playerCount or battle.playerCount
 	battle.spectatorCount = battleInfo.spectatorCount or battle.spectatorCount
 
-	if battleInfo.locked == true then -- Because (false or nil) == nil
-		battle.locked = true
-	else
-		battle.locked = false
+	if battleInfo.locked ~= nil then -- Because (false or nil) == nil
+		battle.locked = battleInfo.locked
 	end
 
 	if battleInfo.bossed ~= nil then
