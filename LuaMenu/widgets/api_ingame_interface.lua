@@ -42,7 +42,7 @@ local LOAD_FILENAME = "loadFilename "
 local RESTART_GAME = "restartGame"
 local GAME_INIT = "ingameInfoInit"
 local GAME_START = "ingameInfoStart"
-local GAME_SAVED = "addNewSaveGame"
+local GAME_SAVED = "gameSaved"
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 -- Utilities
