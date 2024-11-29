@@ -964,7 +964,10 @@ local function GetUserControls(userName, opts)
 					elseif selectedName == "Remove" then
 						userControls.lobby:RemoveAi(userName)
 					elseif selectedName == "Unfriend" then
-						userControls.lobby:RemoveFriends({userInfo.accountID})
+						local function YesFunc()
+							userControls.lobby:RemoveFriends({userInfo.accountID})
+						end
+						WG.Chobby.ConfirmationPopup(YesFunc, "Are you sure you want to remove " .. userName .. " from your friends list?", nil, nil, nil, "Unfriend", "Cancel", nil)
 					elseif selectedName == "Friend" then
 						local userInfo = userControls.lobby:GetUser(userName)
 						if userInfo and userInfo.hasFriendRequest then
