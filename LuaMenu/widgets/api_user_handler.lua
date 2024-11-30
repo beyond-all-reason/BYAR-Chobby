@@ -959,7 +959,10 @@ local function GetUserControls(userName, opts)
 					elseif selectedName == "Copy Name" then
 						Spring.SetClipboard(userName)
 					elseif selectedName == "Kickban" then
-						lobby:SayBattle("!kickban "..userName)
+						local function YesFunc()
+							lobby:SayBattle("!kickban "..userName)
+						end
+						WG.Chobby.ConfirmationPopup(YesFunc, "Are you sure you want to kickban " .. userName .. "? This will call a vote if not boss.", nil, nil, nil, "Kickban", "Cancel", nil)
 					elseif selectedName == "Remove" then
 						userControls.lobby:RemoveAi(userName)
 					elseif selectedName == "Unfriend" then
