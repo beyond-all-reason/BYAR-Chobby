@@ -1127,7 +1127,10 @@ local function GetUserControls(userName, opts)
 					elseif selectedName == "Unignore" then
 						userControls.lobby:c_user_reset_relationship(userName) -- provisionally: removes disregards and follows
 					elseif selectedName == "Ignore" or selectedName == "Unavoid" then
-						userControls.lobby:c_user_relationship(userName, Configuration.IGNORE)
+						local function YesFunc()
+							userControls.lobby:c_user_relationship(userName, Configuration.IGNORE)
+						end
+						WG.Chobby.ConfirmationPopup(YesFunc, "Are you sure you want to ignore " .. userName .. "?", nil, nil, nil, "Ignore", "Cancel", nil)
 					elseif selectedName == "Avoid" or selectedName == "Unblock" then
 						userControls.lobby:c_user_relationship(userName, Configuration.AVOID)
 					elseif selectedName == "Block" then
