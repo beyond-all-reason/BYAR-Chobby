@@ -54,19 +54,34 @@ function WrapperLoopback.ParseMiniMap(mapPath, destination, miniMapSize)
 	})
 end
 
-local downloads = {}
+local downloads = {} -- index table
 
--- downloads a file, type can be any of RAPID, MAP, MISSION, DEMO, ENGINE, NOTKNOWN
-function WrapperLoopback.DownloadFile(name, type)
-	downloads[name] = type
+-- FB 2023-05-14 downloads a file, type can be any of game, map, resource
+-- engine not supported yet by launcher, though using resource here for engine downloads with workarounds!
+function WrapperLoopback.DownloadFile(name, type, resource)
+	LOG_SECTION = "downloader"
 
-	type = type:lower()
-	if type == "rapid" then
-		type = "game"
+	if type:lower() == "resource" and not resource then
+
+		Spring.Log(LOG_SECTION, LOG.ERROR, "DownloadFile called with type resource, but no resource infos given")
+
+		WG.DownloadHandler.CancelDownload(name, type:lower(), "fail")
+
+		return false
 	end
+
+	table.insert(downloads, {
+		nameSent = type:lower() == "resource" and resource.destination or name, -- FB 2023-05-14: Workaround for now: With "resource" DownloadProgress & DownloadFinished return destination as name, so we just use destination as nameSent here to be forward compatible
+		name     = name,
+		type     = type,
+		typeSent = type:lower() == "rapid" and "game" or type:lower(),
+		resource = resource -- {url, destination, extract}
+	})
+
 	WG.Connector.Send("Download", {
-		name = name,
-		type = type
+		name     = downloads[#downloads].nameSent,
+		type     = downloads[#downloads].typeSent,
+		resource = downloads[#downloads].resource,
 	})
 end
 
@@ -75,24 +90,78 @@ function WrapperLoopback.StartNewSpring(args)
 	WG.Connector.Send("StartNewSpring", args)
 end
 
-function WrapperLoopback.AbortDownload(name, type)
-	WG.Connector.Send("AbortDownload", {
-		name = name,
-		type = type
-	})
+local function GetDownloadByName(name)
+	for i, download in ipairs(downloads) do
+		if download.name == name then
+			return download, i
+		end
+	end
+	return false, nil
 end
 
+local function GetDownloadByNameSent(nameSent)
+	for i, download in ipairs(downloads) do
+		if download.nameSent == nameSent then
+			return download, i
+		end
+	end
+	return false, nil
+end
 
+-- Replace all minutes (-) by (%-) so that it's not used by string.find as special char
+-- example: "engine/105.1.1-1354-g72b2d55 bar" -> "engine/105.1.1%-1354%-g72b2d55 bar"
+local function EscapeMinusPattern(text)
+	local txt = text:gsub("([%-])", "%%%1")
+	return txt
+end
+
+local function FindNameReceivedInDownloads(nameReceived)
+	for i, download in ipairs(downloads) do
+		if nameReceived:gsub("\\", "/"):find(EscapeMinusPattern(download.nameSent)) then -- replace backslashes(windows) with slashes, because that's how we generated it in CoopHandler:local GetEnginePath()
+			return download, i
+		end
+	end
+	return false, nil
+end
+
+local function startsWith(targetstring, pattern) 
+	if string.len(pattern) <= string.len(targetstring) and pattern == string.sub(targetstring,1, string.len(pattern)) then
+		return true, string.sub(targetstring, string.len(pattern) + 1)
+	else
+		return false
+	end
+end
+
+local SkippingFile_PREFIX = "Skipping "
+local SkippingFile_SUFFIX = ": already exists."
+local download, dlIndex
 -- reports that download has ended/was aborted
 local function DownloadFinished(command)
-	local type = downloads[command.name]
-	WG.DownloadWrapperInterface.DownloadFinished(command.name, type, command.isSuccess, command.isAborted)
-	downloads[command.name] = nil
+	if not command.name then
+		return false
+	end
+
+	download, dlIndex = FindNameReceivedInDownloads(command.name)
+	if not download then
+		Spring.Log(LOG_SECTION, LOG.ERROR, "Received command.name couldn't be matched to any known download:", command.name)
+		return false
+	end
+
+	WG.DownloadWrapperInterface.DownloadFinished(download.name, download.type, command.isSuccess, command.isAborted)
+	table.remove(downloads, dlIndex)
 end
 
--- reports download progress. 100 might not indicate complation, wait for downloadfiledone
+-- reports download progress. 100 might not indicate completion, wait for DownloadFinished
 local function DownloadProgress(command)
-	WG.DownloadWrapperInterface.DownloadFileProgress(command.name, command.progress * 100, command.total)
+	if not command.name then
+		return false
+	end
+
+	local download, i = GetDownloadByNameSent(command.name)
+	if not download then
+		return false
+	end
+	WG.DownloadWrapperInterface.DownloadFileProgress(download.name, command.progress * 100, command.total)
 end
 
 local function ParseMiniMapFinished(command)

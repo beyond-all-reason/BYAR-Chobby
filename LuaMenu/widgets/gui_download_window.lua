@@ -361,6 +361,8 @@ local function InitializeControls(window)
 	local function DownloadProgress(_, _, sizeCurrent, sizeTotal, name)
 		if downloads[name] then
 			downloads[name].SetProgress(sizeCurrent, sizeTotal)
+		else
+			Spring.Log(LOG_SECTION, LOG.ERROR, "DownloadWindow:DownloadProgressListener not found")
 		end
 	end
 

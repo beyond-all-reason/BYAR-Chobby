@@ -76,7 +76,7 @@ return {
 		delete_confirm = "Are you sure you want to delete this saved game?",
 		load_confirm = "Loading will lose any unsaved progress. Are you sure?",
 		replay_not_found = "Replay file not found, refresh the list!",
-		replay_different_version = "This replay requires a different engine version (FIXME download automatically if necessary)",
+		replay_different_version = "This replay requires a different engine version (will be downloaded automatically if necessary)",
 		--
 		start_download = 'Start download',
 		download_noun = 'Download',
@@ -204,6 +204,7 @@ return {
 			other = "%{count} items left to download.",
 		},
 		downloads_completed = "All downloads completed.",
+		download_failed = "Download Failed",
 		wip_challenges = "WiP Challenges",
 		["scenarios"] = "Scenarios",
 		-- Settings
