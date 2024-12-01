@@ -5,6 +5,7 @@ function InterfaceSkirmish:init()
 	self.name = "singleplayer"
 	self.myUserName = "Player"
 	self.useTeamColor = true
+	self.startAllowed = true
 end
 
 function InterfaceSkirmish:WriteTable(key, value, tabs)
@@ -48,6 +49,10 @@ function InterfaceSkirmish:MakeScriptTXT(script)
 end
 
 function InterfaceSkirmish:_StartScript(gameName, mapName, playerName, friendList, friendsReplaceAI, hostPort, startPosType)
+	if not self.startAllowed then
+		Spring.Echo("Start blocked due to recent start")
+		return false
+	end
 	local allyTeams = {}
 	local allyTeamCount = 0
 	local teams = {} -- OHO this is teams, not allyteams!
@@ -344,10 +349,24 @@ function InterfaceSkirmish:_StartScript(gameName, mapName, playerName, friendLis
 		end
 	end
 
-	Spring.Reload(scriptTxt)
+	local function ResetAllowStart()
+		self.startAllowed = true
+	end
+	WG.Delay(ResetAllowStart, 10)
+
+	local function DelayedStart()
+		Spring.Reload(scriptTxt)
+	end
+	WG.Delay(DelayedStart, 0.4)
+
+	self.startAllowed = false
 end
 
 function InterfaceSkirmish:StartReplay(replayFilename, myName, hostPort)
+	if not self.startAllowed then
+		Spring.Echo("Start blocked due to recent start")
+		return false
+	end
 	local scriptTxt =
 [[
 [GAME]
@@ -372,11 +391,25 @@ function InterfaceSkirmish:StartReplay(replayFilename, myName, hostPort)
 	--scriptFile:write(scriptTxt)
 	--scriptFile:close()
 
-	Spring.Reload(scriptTxt)
+	local function ResetAllowStart()
+		self.startAllowed = true
+	end
+	WG.Delay(ResetAllowStart, 10)
+
+	local function DelayedStart()
+		Spring.Reload(scriptTxt)
+	end
+	WG.Delay(DelayedStart, 0.4)
+
+	self.startAllowed = false
 	return false
 end
 
 function InterfaceSkirmish:StartGameFromLuaScript(gameType, scriptTable, friendList, hostPort)
+	if not self.startAllowed then
+		Spring.Echo("Start blocked due to recent start")
+		return false
+	end
 	self:_CallListeners("OnBattleAboutToStart", gameType)
 
 	friendList = friendList or {}
@@ -409,22 +442,47 @@ function InterfaceSkirmish:StartGameFromLuaScript(gameType, scriptTable, friendL
 	--scriptFile:write(scriptTxt)
 	--scriptFile:close()
 
-	Spring.Reload(scriptTxt)
+	local function ResetAllowStart()
+		self.startAllowed = true
+	end
+	WG.Delay(ResetAllowStart, 10)
+
+	local function DelayedStart()
+		Spring.Reload(scriptTxt)
+	end
+	WG.Delay(DelayedStart, 0.4)
+	self.startAllowed = false
 end
 
 function InterfaceSkirmish:StartGameFromString(scriptString, gameType)
+	if not self.startAllowed then
+		Spring.Echo("Start blocked due to recent start")
+		return false
+	end
 	self:_CallListeners("OnBattleAboutToStart", gameType)
-	Spring.Reload(scriptString)
+	local function ResetAllowStart()
+		self.startAllowed = true
+	end
+	WG.Delay(ResetAllowStart, 10)
+
+	local function DelayedStart()
+		Spring.Reload(scriptString)
+	end
+	WG.Delay(DelayedStart, 0.4)
+	self.startAllowed = false
 	return false
 end
 
 function InterfaceSkirmish:StartGameFromFile(scriptFileName, gameType)
 	self:_CallListeners("OnBattleAboutToStart", gameType)
-	if self.useSpringRestart then
-		Spring.Restart(scriptFileName, "")
-	else
-		Spring.Start(scriptFileName, "")
+	local function DelayedStart()
+		if self.useSpringRestart then
+			Spring.Restart(scriptFileName, "")
+		else
+			Spring.Start(scriptFileName, "")
+		end
 	end
+	WG.Delay(DelayedStart, 0.5)
 	return false
 end
 
@@ -442,7 +500,10 @@ function InterfaceSkirmish:StartBattle(gameType, myName, friendList, friendsRepl
 
 	self:_CallListeners("OnBattleAboutToStart", gameType, battle.gameName, battle.mapName)
 	self:_OnSaidBattleEx("Battle", "about to start", battle.gameName, battle.mapName, myName)
-	self:_StartScript(battle.gameName, battle.mapName, myName, friendList, friendsReplaceAI, hostPort, battle.startPosType)
+	local function DelayedStart()
+		self:_StartScript(battle.gameName, battle.mapName, myName, friendList, friendsReplaceAI, hostPort, battle.startPosType)
+	end
+	WG.Delay(DelayedStart, 0.5)
 	return self
 end
 
