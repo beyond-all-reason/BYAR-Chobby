@@ -108,7 +108,7 @@ local infologDirectory = "log/"
 function SendBARAnalytics(cmdName,args,isEvent)
 	if PRINT_DEBUG then Spring.Log("Chobby", LOG.WARNING, "Analytics Event", cmdName, args, isEvent, client, "C/A",isConnected, ACTIVE) end
 
-	if client == nil then
+	if not isConnected and client == nil then
 		return
 	end
 	cmdName = string.gsub(cmdName, " ", "_") -- remove spaces from event names
