@@ -54,7 +54,7 @@ local function CallListeners(event, ...)
 		local listener = eventListeners[i]
 		args = {...}
 		xpcall(function() listener(listener, unpack(args)) end,
-			function(err) Spring.Echo("Download Handler Listener Error", err) end )
+			function(err) Spring.Echo("Download Handler Listener Error", err, event) end )
 	end
 	return true
 end
