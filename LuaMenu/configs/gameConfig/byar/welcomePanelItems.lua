@@ -16,6 +16,12 @@ local welcomePanelItems = {
     },
 
     {
+        Header = "Map Update: Supreme Isthmus Winter",
+        Text = " \n" .. " \n" .. "Supreme Isthmus has recieved a winter-themed update for Christmas by Nikuksis.",
+        Image = "LuaMenu/configs/gameConfig/byar/minimapOverride/Supreme_Isthmus_Winter_v1.8.1.jpg",
+    },
+
+    {
         Header = "New Map: Cells",
         Text = " \n" .. " \n" .. "An open desert with rocky ridges for 8v8 Teams. By RebelNode.",
         Image = "LuaMenu/configs/gameConfig/byar/minimapOverride/Cells_1.2.jpg",
