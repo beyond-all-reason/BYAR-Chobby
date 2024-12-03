@@ -17,7 +17,7 @@ local welcomePanelItems = {
 
     {
         Header = "Map Update: Supreme Isthmus Winter",
-        Text = " \n" .. " \n" .. "Supreme Isthmus has recieved a winter-themed update for Christmas by Nikuksis.",
+        Text = " \n" .. " \n" .. "Supreme Isthmus has recieved a winter-themed update for Christmas from Nikuksis.",
         Image = "LuaMenu/configs/gameConfig/byar/minimapOverride/Supreme_Isthmus_Winter_v1.8.1.jpg",
     },
 
