@@ -16,6 +16,12 @@ local welcomePanelItems = {
     },
 
     {
+        Header = "New Map: Cells",
+        Text = " \n" .. " \n" .. "An open desert with rocky ridges for 8v8 Teams. By RebelNode.",
+        Image = "LuaMenu/configs/gameConfig/byar/minimapOverride/Cells_1.2.jpg",
+    },
+
+    {
         Header = "Now Available: BAR Guides",
         Text = "New to Beyond All Reason? Check out these new Guides on Discord written by Zeteo!" .. " \n" .. " \n",
         Url = "https://discord.com/channels/549281623154229250/1303141562120929320/1303141562120929320",
@@ -25,12 +31,6 @@ local welcomePanelItems = {
     {
         Header = "New Feature: Option Presets",
         Text = "A comprehensive new system for saving and loading game configurations and modoptions. It supports current map, startboxes, modoptions, and AI team placement and configurations. You can access this dialog by clicking on the Option Presets button in the battle room. Thanks to jere500 for the contribution.",
-    },
-
-    {
-        Header = "New Map: Claymore",
-        Text = " \n" .. " \n" .. "A volcanic island of black sand and sparse vegetation. 5-10-15 player FFA. By Moose and Beherith.",
-        Image = "LuaMenu/configs/gameConfig/byar/minimapOverride/Claymore_3.jpg",
     },
 
     {
