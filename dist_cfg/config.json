@@ -104,8 +104,8 @@
                         "optional": true
                     },
                     {
-                        "url": "https://github.com/beyond-all-reason/spring/releases/download/spring_bar_%7Bmaster%7D105.1.1-2701-g8e52d29/spring_bar_.master.105.1.1-2701-g8e52d29_linux-64-minimal-portable.7z",
-                        "destination": "engine/105.1.1-2701-g8e52d29 bar",
+                        "url": "https://github.com/beyond-all-reason/spring/releases/download/spring_bar_%7Bmaster%7D105.1.1-2708-g3d35645/spring_bar_.master.105.1.1-2708-g3d35645_linux-64-minimal-portable.7z",
+                        "destination": "engine/105.1.1-2708-g3d35645 bar",
                         "extract": true
                     }
                 ]
@@ -114,7 +114,7 @@
             "logs_s3_bucket": "bar-infologs",
             "launch": {
                 "start_args": ["--menu", "rapid://byar-chobby:test"],
-                "engine": "105.1.1-2701-g8e52d29 bar",
+                "engine": "105.1.1-2708-g3d35645 bar",
                 "springsettings": {
                     "RapidTagResolutionOrder": "repos-cdn.beyondallreason.dev;repos.beyondallreason.dev"
                 }
@@ -143,8 +143,8 @@
                         "optional": true
                     },
                     {
-                        "url": "https://github.com/beyond-all-reason/spring/releases/download/spring_bar_%7Bmaster%7D105.1.1-2701-g8e52d29/spring_bar_.master.105.1.1-2701-g8e52d29_windows-64-minimal-portable.7z",
-                        "destination": "engine/105.1.1-2701-g8e52d29 bar",
+                        "url": "https://github.com/beyond-all-reason/spring/releases/download/spring_bar_%7Bmaster%7D105.1.1-2708-g3d35645/spring_bar_.master.105.1.1-2708-g3d35645_windows-64-minimal-portable.7z",
+                        "destination": "engine/105.1.1-2708-g3d35645 bar",
                         "extract": true
                     }
                 ]
@@ -153,7 +153,7 @@
             "logs_s3_bucket": "bar-infologs",
             "launch": {
                 "start_args": ["--menu", "rapid://byar-chobby:test"],
-                "engine": "105.1.1-2701-g8e52d29 bar",
+                "engine": "105.1.1-2708-g3d35645 bar",
                 "springsettings": {
                     "RapidTagResolutionOrder": "repos-cdn.beyondallreason.dev;repos.beyondallreason.dev"
                 }
