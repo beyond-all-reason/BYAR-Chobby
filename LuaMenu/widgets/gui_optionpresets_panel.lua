@@ -137,22 +137,6 @@ local function applyPreset(presetName)
 			battleLobby:SayBattle("!nbTeams " .. presetMPBattleSettings["nbTeams"])
 		end
 
-		-- modoptions
-		currentModoptions = presetObj["Modoptions"]
-		if (currentModoptions ~= nil and enabledOptions["Modoptions"]) then
-			-- if multiplayer have to disable other modoptions first:
-			if (multiplayer) then
-				-- now apply the modoptions as the baseline
-				local combinedModoptions = multiplayerModoptions
-				for key, value in pairs(currentModoptions) do
-					multiplayerModoptions[key] = value
-				end
-				currentModoptions = combinedModoptions
-			end
-
-			battleLobby:SetModOptions(currentModoptions)
-		end
-
 		-- map
 		local presetMapName = presetObj["Map"]
 		if (presetMapName ~= nil and enabledOptions["Map"]) then
@@ -195,6 +179,27 @@ local function applyPreset(presetName)
 				battleLobby:AddAi(key, value.aiLib, value.allyNumber, value.aiVersion, value.aiOptions,
 					battlestatusoptions)
 			end
+		end
+
+		-- modoptions
+		currentModoptions = presetObj["Modoptions"]
+		if (currentModoptions ~= nil and enabledOptions["Modoptions"]) then
+			-- if multiplayer have to disable other modoptions first:
+			if (multiplayer) then
+				local isBoss = battle.bossed
+				if isBoss and isBoss == true then
+					-- now apply the modoptions as the baseline
+					local combinedModoptions = multiplayerModoptions
+					for key, value in pairs(currentModoptions) do
+						multiplayerModoptions[key] = value
+					end
+					currentModoptions = combinedModoptions
+				else
+					WG.Delay(function() battleLobby:SayBattleEx("tried to apply a preset containing modoptions, but was prevented due to not being boss") end, 1.5)
+					return
+				end
+			end
+			battleLobby:SetModOptions(currentModoptions)
 		end
 	end
 end
