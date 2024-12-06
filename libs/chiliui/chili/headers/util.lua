@@ -397,6 +397,15 @@ function table:ifind(element)
 	return false
 end
 
+function table:ifindByKey(element, key)
+	for i = 1, #self do
+		if self[i][key] and  self[i][key] == element then
+			return i
+		end
+	end
+	return false
+end
+
 function table:sum()
 	local r = 0
 	for i = 1, #self do
