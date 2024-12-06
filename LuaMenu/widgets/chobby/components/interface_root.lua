@@ -1226,15 +1226,8 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 			heading_image.file = Configuration:GetHeadingImage(doublePanelMode, mainWindowHandler.GetSubheadingName())
 			heading_image:Invalidate()
 
-			local replacementTabs = Configuration.gameConfig.singleplayerConfig
-			--local replacementHelpTabs = Configuration.gameConfig.helpSubmenuConfig
-
 			WG.BattleRoomWindow.LeaveBattle(false, true)
 
-			mainWindowHandler.OpenSubmenu(1)
-
-			--mainWindowHandler.ReplaceSubmenu(SINGLEPLAYER_INDEX, replacementTabs)
-			--mainWindowHandler.ReplaceSubmenu(HELP_INDEX, replacementHelpTabs)
 		end
 	end
 	Configuration:AddListener("OnConfigurationChange", onConfigurationChange)
@@ -1265,6 +1258,8 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 	-- Initialization
 	-------------------------------------------------------------------
 	local screenWidth, screenHeight = Spring.GetViewSizes()
+
+	mainWindowHandler.OpenSubmenu(1)
 
 	battleStatusPanelHandler.Rescale(2, 70)
 	rightPanelHandler.Rescale(2, 70)
