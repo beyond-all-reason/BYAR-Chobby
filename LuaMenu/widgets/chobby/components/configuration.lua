@@ -303,7 +303,7 @@ function Configuration:init()
 	self.useSpringRestart = false
 	self.menuMusicVolume = 0.5
 	self.menuNotificationVolume = 0.8
-	self.menuBackgroundBrightness = 1
+	self.menuBackgroundBrightness = 0.8
 	self.gameOverlayOpacity = 0.5
 	self.coopConnectDelay = 5
 	self.showMatchMakerBattles = false
