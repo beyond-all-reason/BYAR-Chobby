@@ -35,10 +35,6 @@ local function ResetRegisterRecieved()
 	registerRecieved = false
 end
 
-local function LoadMainMenu()
-	WG.Chobby.interfaceRoot.GetMainWindowHandler().OpenSubmenu(1)
-end
-
 local wantLoginStatus = {
 	["offline"] = true,
 	["closed"] = true,
@@ -109,7 +105,6 @@ local function CheckFirstTimeRegister()
 	end
 	local Configuration = WG.Chobby.Configuration
 	if Configuration.firstLoginEver then
-		LoadMainMenu()
 		LoginWindowHandler.TryLogin()
 	end
 end
