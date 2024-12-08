@@ -89,10 +89,15 @@ local function explode(div,str)
 end
 
 function widget:SocketConnect()
+	if client then
+		client:close()
+	end
 	client = socket.tcp()
 	client:settimeout(0)
 	local res, err = client:connect(host, port)
-	if not res and not res == "timeout" then
+	if not res and err ~= "timeout" then
+		client:close()
+		client = nil
 		widgetHandler:RemoveWidget(self)
 		Spring.Log(LOG_SECTION, LOG.ERROR, "Error in connect launcher: " .. err)
 		return false
