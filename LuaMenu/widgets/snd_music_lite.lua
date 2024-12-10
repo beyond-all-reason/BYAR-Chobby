@@ -49,8 +49,10 @@ local function GetRandomTrack(previousTrack)
 		elseif (previousTrackType == "peace" or (not peaceTrackList[1])) and introTrackList[1] then -- we're checking if there are any intro tracks
 			if math.random() <= 0.1 and (tonumber(os.date("%m")) == 4 and tonumber(os.date("%d")) == 1 and math.random() <= 0.25) then
 				nextTrack = aprilfoolsTrackList[math.random(#aprilfoolsTrackList)]
+				trackType = "intro"
 			elseif math.random() <= 0.1 and (tonumber(os.date("%m")) == 12 and tonumber(os.date("%d")) >= 12) then
 				nextTrack = xmasTrackList[math.random(#xmasTrackList)]
+				trackType = "intro"
 			else
 				trackType = "intro"
 				introTracksIndex = introTracksIndex + 1
