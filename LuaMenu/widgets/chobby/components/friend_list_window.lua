@@ -104,7 +104,7 @@ function FriendListWindow:OnAddUser(userName)
 		end
 		if WG.Chobby.Configuration:AllowNotification(userName) then
 			local userControl = WG.UserHandler.GetNotificationUser(userName)
-			userControl:SetPos(30, 30, 250, 20)
+			userControl:SetPos(30, 30, 250, 80)
 			Chotify:Post({
 				title = i18n("user_online"),
 				body  = userControl,
@@ -130,7 +130,7 @@ function FriendListWindow:OnRemoveUser(userName)
 	end
 	if userInfo.isFriend and WG.Chobby.Configuration:AllowNotification(userName) then
 		local userControl = WG.UserHandler.GetNotificationUser(userName)
-		userControl:SetPos(30, 30, 250, 20)
+		userControl:SetPos(30, 30, 250, 80)
 		Chotify:Post({
 			title = i18n("user_offline"),
 			body  = userControl,
@@ -218,7 +218,7 @@ end
 function FriendListWindow:OnNewFriendRequestByID(userID, userName)
 	if WG.Chobby.Configuration:AllowNotification() then
 		local userControl = WG.UserHandler.GetNotificationUser(userName)
-		userControl:SetPos(20, 40, 250, 20)
+		userControl:SetPos(20, 40, 250, 80)
 		Chotify:Post({
 			title = i18n("friend_request_new"),
 			body  = userControl,
@@ -229,7 +229,7 @@ end
 function FriendListWindow:OnFriendRequestAcceptedByID(userID, userName)
 	if WG.Chobby.Configuration:AllowNotification() then
 		local userControl = WG.UserHandler.GetNotificationUser(userName)
-		userControl:SetPos(20, 40, 250, 20)
+		userControl:SetPos(20, 40, 250, 80)
 		Chotify:Post({
 			title = i18n("friend_request_accepted"),
 			body  = userControl,

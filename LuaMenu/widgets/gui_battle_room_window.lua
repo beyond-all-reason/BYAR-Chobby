@@ -1494,7 +1494,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 					Spring.PlaySoundFile("sounds/Alarm_light5_mixdown.wav", WG.Chobby.Configuration.menuNotificationVolume or 1) -- RING SOUND
 
 					local userControl = WG.UserHandler.GetNotificationUser(mynewbestfriend)
-					userControl:SetPos(30, 30, 250, 20)
+					userControl:SetPos(30, 30, 250, 80)
 					Chotify:Post({
 						title = i18n("A Player Joined You"),
 						body = userControl,
@@ -3740,7 +3740,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		local userInfo = lobby:TryGetUser(userName)
 		if userInfo then
 			local userControl = WG.UserHandler.GetNotificationUser(userName)
-			userControl:SetPos(30, 30, 250, 20)
+			userControl:SetPos(30, 30, 250, 80)
 			Chotify:Post({
 				title = "User Rang You", --i18n("User Rang You"),
 				body = userControl,
