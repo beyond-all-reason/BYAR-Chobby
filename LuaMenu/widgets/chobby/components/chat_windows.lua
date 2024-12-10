@@ -537,21 +537,21 @@ function ChatWindows:SetTabActivation(tabName, activationLevel, outlineColor)
 		if (ctrl.activationLevel or 0) > activationLevel then
 			return
 		end
-		ctrl.font = Configuration:GetFont(8, "chat_badge_" .. activationLevel, {
+		ctrl.font = Configuration:GetFont(1, "chat_badge_" .. activationLevel, {
 			outline = true,
 			outlineColor = outlineColor,
 			color = outlineColor,
 		})
 		if ctrl._badge then
-			ctrl._badge.font = Configuration:GetFont(8, "chat_badge_" .. activationLevel, {
+			ctrl._badge.font = Configuration:GetFont(1, "chat_badge_" .. activationLevel, {
 				outline = true,
 				outlineColor = outlineColor,
 				color = outlineColor,
 			})
 		end
 	else
-		ctrl.font = Configuration:GetFont(8, "chat_badge_white", {
-			outline = false,
+		ctrl.font = Configuration:GetFont(1, "chat_badge_white", {
+			outline = true,
 			outlineColor = {0,0,0,1},
 			color = {1,1,1,1},
 		})
@@ -575,7 +575,7 @@ function ChatWindows:SetTabBadge(tabName, text)
 			width = 14,
 			height = 12,
 			caption = text,
-			objectOverrideFont = WG.Chobby.Configuration:GetFont(8, "chat_badge_black", {
+			objectOverrideFont = WG.Chobby.Configuration:GetFont(1, "chat_badge_black", {
 				outline = true,
 				autoOutlineColor = false,
 				outlineColor = { 0, 0, 0, 0.6 },
