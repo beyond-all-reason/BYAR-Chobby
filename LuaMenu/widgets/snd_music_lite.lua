@@ -47,12 +47,18 @@ local function GetRandomTrack(previousTrack)
 			end
 			nextTrack = peaceTrackList[peaceTracksIndex]
 		elseif (previousTrackType == "peace" or (not peaceTrackList[1])) and introTrackList[1] then -- we're checking if there are any intro tracks
-			trackType = "intro"
-			introTracksIndex = introTracksIndex + 1
-			if not introTrackList[introTracksIndex] then
-				introTracksIndex = 1
+			if math.random() <= 0.1 and (tonumber(os.date("%m")) == 4 and tonumber(os.date("%d")) == 1 and math.random() <= 0.25) then
+				nextTrack = aprilfoolsTrackList[math.random(#aprilfoolsTrackList)]
+			elseif math.random() <= 0.1 and (tonumber(os.date("%m")) == 12 and tonumber(os.date("%d")) >= 12) then
+				nextTrack = xmasTrackList[math.random(#xmasTrackList)]
+			else
+				trackType = "intro"
+				introTracksIndex = introTracksIndex + 1
+				if not introTrackList[introTracksIndex] then
+					introTracksIndex = 1
+				end
+				nextTrack = introTrackList[introTracksIndex]
 			end
-			nextTrack = introTrackList[introTracksIndex]
 		end
 
 		if nextTrack and trackType then
@@ -188,7 +194,7 @@ function widget:Initialize()
 	Spring.Echo("RANDOMSEED", math.ceil(os.clock()*1000000))
 
 	randomTrackList = {}
-	booxmboxTrackList = {}
+	aprilfoolsTrackList = {}
 	local originalSoundtrackEnabled = Spring.GetConfigInt('UseSoundtrackNew', 1)
 	local customSoundtrackEnabled	= Spring.GetConfigInt('UseSoundtrackCustom', 1)
 	local allowedExtensions = "{*.ogg,*.mp3}"
@@ -199,8 +205,11 @@ function widget:Initialize()
 		randomTrackList = playlistMerge(randomTrackList, VFS.DirList(musicDirOriginal, allowedExtensions))
 	end
 	if true then
-		local musicDirEventBoombox = 'luamenu/configs/gameconfig/byar/lobbyMusic/event/boombox'
-		booxmboxTrackList = VFS.DirList(musicDirEventBoombox, allowedExtensions)
+		local musicDirEventAprilFools = 'luamenu/configs/gameconfig/byar/lobbyMusic/event/aprilfools'
+		aprilfoolsTrackList = VFS.DirList(musicDirEventAprilFools, allowedExtensions)
+
+		local musicDirEventXmas = 'luamenu/configs/gameconfig/byar/lobbyMusic/event/xmas'
+		xmasTrackList = VFS.DirList(musicDirEventXmas, allowedExtensions)
 	end
 
 	-- Custom Soundtrack List
@@ -243,9 +252,11 @@ function widget:Initialize()
 	end
 
 	for i = 1,1000 do
-		if Spring.GetConfigInt("boomboxcaptured", 0) == 1 then -- Play Beyond All Rhythm once on next launch after capturing a boombox
-			openTrack = booxmboxTrackList[math.random(1,#booxmboxTrackList)]
+		if Spring.GetConfigInt("boomboxcaptured", 0) == 1 or (tonumber(os.date("%m")) == 4 and tonumber(os.date("%d")) == 1 and math.random() <= 0.25) then -- Play Beyond All Rhythm once on next launch after capturing a boombox
+			openTrack = aprilfoolsTrackList[math.random(1,#aprilfoolsTrackList)]
 			Spring.SetConfigInt("boomboxcaptured", 0)
+		elseif tonumber(os.date("%m")) == 12 and tonumber(os.date("%d")) >= 12 then -- Xmas event
+			openTrack = xmasTrackList[math.random(1,#xmasTrackList)]
 		end
 		if openTrack then
 			break
