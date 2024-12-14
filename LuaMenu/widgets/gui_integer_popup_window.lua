@@ -42,6 +42,14 @@ local function CreateIntegerSelectorWindow(opts)
 		IntegerSelectorWindow = nil
 	end
 
+
+	local function CancelFunction()
+		if opts.OnCancelled then
+			opts.OnCancelled()
+		end
+		CloseFunction()
+	end
+
 	local lblTitle = TextBox:New {
 		x = "0%",
 		y = "5%",
@@ -87,7 +95,7 @@ local function CreateIntegerSelectorWindow(opts)
 		caption = i18n("cancel"),
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		classname = "negative_button",
-		OnClick = { CloseFunction },
+		OnClick = { CancelFunction },
 		parent = IntegerSelectorWindow,
 	}
 
@@ -125,7 +133,7 @@ local function CreateIntegerSelectorWindow(opts)
 		}
 	}
 
-	WG.Chobby.PriorityPopup(IntegerSelectorWindow, CloseFunction, CloseFunction, screen0)
+	WG.Chobby.PriorityPopup(IntegerSelectorWindow, CancelFunction, CloseFunction, screen0)
 end
 
 function widget:Initialize()
