@@ -1433,7 +1433,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	-- Lobby interface
 	function externalFunctions.UpdateUserTeamStatus(userName, allyNumber, isSpectator)
 		if userName == myUserName then
-			if isSpectator and battleLobby.name ~= "singleplayer" then
+			if isSpectator and battleLobby.name ~= "singleplayer" and battle.bossed ~= true then
 				-- SetButtonStateSpectating()
 				startBoxPanel:Hide()
 				minimapPanel.disableChildrenHitTest = true --omg this is amazing
