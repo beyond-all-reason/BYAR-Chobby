@@ -110,7 +110,6 @@ function BrowserHandler.AddClickableUrls(chatString, onTextClick, textTooltip)
 			OnTextClick = {
 				function()
 					local function OpenURL()
-						Spring.Echo ("Opening URL: " .. urlString)
 						BrowserHandler.OpenUrl(urlString)
 					end
 					WG.Chobby.ConfirmationPopup(OpenURL, "Open URL: " .. " \n" .. " \n" .. urlString, nil, 615, 250, "Open", "Cancel")
