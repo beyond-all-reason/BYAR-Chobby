@@ -66,12 +66,12 @@ local function CreateIntegerSelectorWindow(opts)
 		local wideimg = Image:New{
 			name = "IntegerSelectorWindowImage",
 			x = "5%",
-			y = "40%",
+			y = "33%",
 			width = opts.imageWidth or "90%",
 			height = opts.imageHeight or "33%",
 			parent = IntegerSelectorWindow,
 			keepAspect = opts.keepAspect and true,
-			image = opts.imageFile,
+			file = opts.imageFile,
 		}
 	end
 
