@@ -115,7 +115,7 @@ local function CreateIntegerSelectorWindow(opts)
 
 	local integerTrackBar = Trackbar:New {
 		x = 0,
-		width  = IntegerSelectorWindow.width * 0.90,
+		width  = IntegerSelectorWindow.width * 0.88,
 		height = 40,
 		bottom = 45,
 		value  = opts.defaultValue or 0,
