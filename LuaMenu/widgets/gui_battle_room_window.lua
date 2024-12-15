@@ -257,7 +257,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 					WG.Chobby.ConfirmationPopup(defaultBoxes, "Restore default start boxes for the current number of teams.", nil, 330, 230, i18n("ok"),nil, cancelFunc)
 					return
 				else
-					if selected == "East vs West" then
+					if selected == "E vs W" then
 						startBoxSelect.Min = 3
 						startBoxSelect.Max = 50
 						startBoxSelect.Caption = "Split the map start boxes vertically, with X percent of the map going to left and right start boxes."
@@ -268,7 +268,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 							externalFunctions.AddStartRect(0, 0, 0, integervalue *2, 200)
 							externalFunctions.AddStartRect(1, 200 - integervalue *2, 0, 200, 200)
 						end
-					elseif selected == "North vs South" then
+					elseif selected == "N vs S" then
 						startBoxSelect.Min = 3
 						startBoxSelect.Max = 50
 						startBoxSelect.Caption = "Split the map start boxes horizontally, with X percent of the map going to top and bottom start boxes."
