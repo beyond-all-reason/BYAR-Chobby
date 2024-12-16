@@ -254,7 +254,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 						end
 						UpdateBoxes()
 					end
-					WG.Chobby.ConfirmationPopup(defaultBoxes, "Restore default start boxes for the current number of teams.", nil, 330, 230, i18n("ok"),nil, cancelFunc)
+					WG.Chobby.ConfirmationPopup(defaultBoxes, "Restore default start boxes for the current number of teams (" .. (battle.nbTeams or emptyTeamIndex or 1) .. ").", nil, 330, 230, i18n("ok"),nil, cancelFunc)
 					return
 				else
 					if selected == "E vs W" then
@@ -349,10 +349,6 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		tooltip = "Add a new start box in the center",
 		OnClick = {
 			function ()
-				local battleStatus = battleLobby:GetUserBattleStatus(myUserName) or {}
-				if battleStatus.isSpectator then
-					return
-				end
 				if battleLobby.name == "singleplayer" then
 					externalFunctions.AddStartRect(#currentStartRects,66, 66, 133, 133)
 				else
@@ -390,10 +386,6 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		tooltip = "Remove last start box",
 		OnClick = {
 			function ()
-				local battleStatus = battleLobby:GetUserBattleStatus(myUserName) or {}
-				if battleStatus.isSpectator then
-					return
-				end
 				if battleLobby.name == "singleplayer" then
 					if #currentStartRects > 0 then
 						externalFunctions.RemoveStartRect(#currentStartRects -1)
@@ -666,6 +658,11 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		mapName = battle.mapName:gsub("_", " ")
 		mapName = StringUtilities.GetTruncatedStringWithDotDot(mapName, lblMapName.font, width - 22)
 		lblMapName:SetCaption(mapName)
+
+		startBoxComboBox:Select(1)
+		oldSelectedBoxes = 1
+		startBoxImage.file = LUA_DIRNAME .. "images/load_img_128.png"
+		startBoxImage:Invalidate()
 	end
 	SetMapName(battle.mapName, mapLinkWidth)
 
@@ -4207,7 +4204,7 @@ end
 function BattleRoomWindow.SetTeams(numberOfTeams)
 	if battleLobby.name ~= "singleplayer" then
 		-- command to set the teams
-		battleLobby:SayBattle(string.format("!nbteams %d", numberOfTeams))
+		battleLobby:SayBattle(string.format("!nbTeams %d", numberOfTeams))
 	end
 end
 
