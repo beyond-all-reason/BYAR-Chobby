@@ -3378,10 +3378,10 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		local iAmMentioned = (string.find(message,myUserName,nil,true) ~= nil)
 
 		-- Restore default position on startbox selector when map, preset or teamcount changes
-		if string.match(message, "Global setting changed by .- %((nbTeams=%d+)%)")
-		or string.match(message, "Loaded boxes of map ")
-		or string.match(message, "Map changed by .-%: ")
-		or string.match(message, "Preset .%w+. %(.-%) applied by .+")
+		if string.match(message, "Global setting changed by .- %((nbTeams=%d+)%)$")
+		or string.match(message, "Loaded boxes of map .%w+. ")
+		or string.match(message, "Map changed by .-%: .+$")
+		or string.match(message, "Preset .%w+. %(.-%) applied by .+$")
 		then
 			StartBoxComboBoxSelectDefault()
 			return false
