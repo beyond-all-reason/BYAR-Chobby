@@ -3566,8 +3566,6 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		-- should only be called on messages from founder (host)
 		local myUserName = battleLobby:GetMyUserName()
 		local iAmMentioned = (string.find(message,myUserName,nil,true) ~= nil)
-		--Spring.Echo("Parsing", userName, message, myUserName,iAmMentioned)
-		--Preset "tourney" (Tournament 1v1 Game Global Settings) applied by TheMooseIsLoose
 
 		-- Restore default position on startbox selector when map, preset or teamcount changes
 		if string.match(message, "Global setting changed by .- %((nbTeams=%d+)%)")
