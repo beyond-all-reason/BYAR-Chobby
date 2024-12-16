@@ -141,7 +141,9 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	local currentMapName
 	local oldSelectedBoxes = 1
 	local startBoxSelect = {}
+	local startBoxDefaultImage = LUA_DIRNAME .. "images/load_img_128.png"
 	local freezeSettings = true
+
 	local mapLinkWidth = 150
 	currentStartRects = {}
 
@@ -173,11 +175,11 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		width = "100%",
 		height = "100%",
 		keepAspect = true,
-		file = LUA_DIRNAME .. "images/load_img_128.png",
+		file = startBoxDefaultImage,
 		parent = startBoxImageHolder,
 	}
 
-	local startBoxSelectorNames = {"Default Boxes", "E vs W", "N vs S", "NE vs SW", "NW vs SE", "4 Corners", "4 Sides"}
+	local startBoxSelectorNames = {"Default Boxes", "East vs West", "North vs South", "NE vs SW", "NW vs SE", "4 Corners", "4 Sides"}
 	local startBoxSelectorTooltips = {"Reset to default", "East vs West", "North vs South", "Northeast vs Southwest", "Northwest vs Southeast", "Southwest vs Northeast vs Northwest vs Southeast", "West vs East vs North vs South"}
 
 	local startBoxComboBox = ComboBox:New{
@@ -206,9 +208,9 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 				end
 
 				local imageFileMap = {
-					["Default Boxes"] = LUA_DIRNAME .. "images/load_img_128.png",
-					["E vs W"] = LUA_DIRNAME .. "images/startboxsplit_v.png",
-					["N vs S"] = LUA_DIRNAME .. "images/startboxsplit_h.png",
+					["Default Boxes"] = startBoxDefaultImage,
+					["East vs West"] = LUA_DIRNAME .. "images/startboxsplit_v.png",
+					["North vs South"] = LUA_DIRNAME .. "images/startboxsplit_h.png",
 					["NE vs SW"] = LUA_DIRNAME .. "images/startboxsplit_c1.png",
 					["NW vs SE"] = LUA_DIRNAME .. "images/startboxsplit_c2.png",
 					["4 Corners"] = LUA_DIRNAME .. "images/startboxsplit_c.png",
@@ -254,10 +256,10 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 						end
 						UpdateBoxes()
 					end
-					WG.Chobby.ConfirmationPopup(defaultBoxes, "Restore default start boxes for the current number of teams (" .. (battle.nbTeams or emptyTeamIndex or 1) .. ").", nil, 330, 230, i18n("ok"),nil, cancelFunc)
+					WG.Chobby.ConfirmationPopup(defaultBoxes, "Restore default start boxes for the current number of teams: (" .. (battle.nbTeams or emptyTeamIndex or 1) .. ")", nil, 330, 230, i18n("ok"),nil, cancelFunc)
 					return
 				else
-					if selected == "E vs W" then
+					if selected == "East vs West" then
 						startBoxSelect.Min = 3
 						startBoxSelect.Max = 50
 						startBoxSelect.Caption = "Split the map start boxes vertically, with X percent of the map going to left and right start boxes."
@@ -268,7 +270,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 							externalFunctions.AddStartRect(0, 0, 0, integervalue *2, 200)
 							externalFunctions.AddStartRect(1, 200 - integervalue *2, 0, 200, 200)
 						end
-					elseif selected == "N vs S" then
+					elseif selected == "North vs South" then
 						startBoxSelect.Min = 3
 						startBoxSelect.Max = 50
 						startBoxSelect.Caption = "Split the map start boxes horizontally, with X percent of the map going to top and bottom start boxes."
@@ -333,6 +335,13 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 			end
 		}
 	}
+
+	StartBoxComboBoxSelectDefault = function()
+		startBoxComboBox:Select(1)
+		oldSelectedBoxes = 1
+		startBoxImage.file = startBoxDefaultImage
+		startBoxImage:Invalidate()
+	end
 
 	local btnAddBox = Button:New{
 		name = 'btnAddBox',
@@ -658,11 +667,6 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		mapName = battle.mapName:gsub("_", " ")
 		mapName = StringUtilities.GetTruncatedStringWithDotDot(mapName, lblMapName.font, width - 22)
 		lblMapName:SetCaption(mapName)
-
-		startBoxComboBox:Select(1)
-		oldSelectedBoxes = 1
-		startBoxImage.file = LUA_DIRNAME .. "images/load_img_128.png"
-		startBoxImage:Invalidate()
 	end
 	SetMapName(battle.mapName, mapLinkWidth)
 
@@ -1409,9 +1413,6 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		if battleID ~= updatedBattleID then
 			return
 		end
-
-		-- only on init of single player lobby:
-
 		if battleInfo.mapName then
 			SetMapName(battleInfo.mapName, mapLinkWidth)
 			imMinimap.file, imMinimap.checkFileExists = config:GetMinimapImage(battleInfo.mapName)
@@ -1455,6 +1456,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 						externalFunctions.AddStartRect(1,160,0,200,200)
 					end
 
+					StartBoxComboBoxSelectDefault()
 				else
 					Spring.Echo("No map startBoxes found or disabled for map",mapName,"teamcount:",allyTeamCount)
 				end
@@ -3565,6 +3567,17 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		local myUserName = battleLobby:GetMyUserName()
 		local iAmMentioned = (string.find(message,myUserName,nil,true) ~= nil)
 		--Spring.Echo("Parsing", userName, message, myUserName,iAmMentioned)
+		--Preset "tourney" (Tournament 1v1 Game Global Settings) applied by TheMooseIsLoose
+
+		-- Restore default position on startbox selector when map, preset or teamcount changes
+		if string.match(message, "Global setting changed by .- %((nbTeams=%d+)%)")
+		or string.match(message, "Loaded boxes of map ")
+		or string.match(message, "Map changed by .-%: ")
+		or string.match(message, "Preset .%w+. %(.-%) applied by .+")
+		then
+			StartBoxComboBoxSelectDefault()
+			return false
+		end
 
 		if iAmMentioned then return false end
 
