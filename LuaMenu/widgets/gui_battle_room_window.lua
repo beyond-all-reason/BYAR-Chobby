@@ -1193,9 +1193,8 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 
 	-- Lobby interface
 	function externalFunctions.UpdateUserTeamStatus(userName, allyNumber, isSpectator, queuePos)
-		local iAmQueued = queuePos and queuePos > 0
 		if userName == myUserName then
-			if battleLobby.name ~= "singleplayer" and battle.bossed ~= true and (isSpectator or iAmQueued) then
+			if battleLobby.name ~= "singleplayer" and battle.bossed ~= true and (isSpectator or (queuePos and queuePos > 0)) then
 				-- SetButtonStateSpectating()
 				startBoxPanel:Hide()
 				minimapPanel.disableChildrenHitTest = true --omg this is amazing
