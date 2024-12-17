@@ -42,6 +42,14 @@ local function CreateIntegerSelectorWindow(opts)
 		IntegerSelectorWindow = nil
 	end
 
+
+	local function CancelFunction()
+		if opts.OnCancelled then
+			opts.OnCancelled()
+		end
+		CloseFunction()
+	end
+
 	local lblTitle = TextBox:New {
 		x = "0%",
 		y = "5%",
@@ -58,12 +66,12 @@ local function CreateIntegerSelectorWindow(opts)
 		local wideimg = Image:New{
 			name = "IntegerSelectorWindowImage",
 			x = "5%",
-			y = "40%",
+			y = "33%",
 			width = opts.imageWidth or "90%",
 			height = opts.imageHeight or "33%",
 			parent = IntegerSelectorWindow,
 			keepAspect = opts.keepAspect and true,
-			image = opts.imageFile,
+			file = opts.imageFile,
 		}
 	end
 
@@ -87,7 +95,7 @@ local function CreateIntegerSelectorWindow(opts)
 		caption = i18n("cancel"),
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		classname = "negative_button",
-		OnClick = { CloseFunction },
+		OnClick = { CancelFunction },
 		parent = IntegerSelectorWindow,
 	}
 
@@ -107,7 +115,7 @@ local function CreateIntegerSelectorWindow(opts)
 
 	local integerTrackBar = Trackbar:New {
 		x = 0,
-		width  = IntegerSelectorWindow.width * 0.90,
+		width  = IntegerSelectorWindow.width * 0.88,
 		height = 40,
 		bottom = 45,
 		value  = opts.defaultValue or 0,
@@ -125,7 +133,7 @@ local function CreateIntegerSelectorWindow(opts)
 		}
 	}
 
-	WG.Chobby.PriorityPopup(IntegerSelectorWindow, CloseFunction, CloseFunction, screen0)
+	WG.Chobby.PriorityPopup(IntegerSelectorWindow, CancelFunction, CloseFunction, screen0)
 end
 
 function widget:Initialize()
