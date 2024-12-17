@@ -9,6 +9,7 @@
 -- @tparam {"item1", "item2", ...} items table of items in the ComboBox, (default {"items"})
 -- @int[opt = 1] selected id of the selected item
 -- @tparam {func1, func2, ...} OnSelect listener functions for selected item changes, (default {})
+-- @tparam {string1, string2, ...} itemImages table of image paths/files for items
 ComboBox = Button:Inherit{
 	classname = "combobox",
 	caption = 'combobox',
@@ -16,6 +17,7 @@ ComboBox = Button:Inherit{
 	defaultHeight = 20,
 	items = { "items" },
 	itemsTooltips = {},
+	itemImages = {},
 	itemHeight = 20,
 	selected = 1,
 	showSelection = true,
@@ -113,16 +115,45 @@ function ComboBox:MouseDown(x, y)
 
 		local width = math.max(self.width, self.minDropDownWidth)
 		local height = self.topHeight
+
+		local imageWidth = self.itemHeight * 0.85
+		local imageHeight = self.itemHeight * 0.85
+		local imagePadding = (self.itemHeight - imageHeight) / 3
+
 		for i = 1, #self.items do
 			local item = self.items[i]
 			if type(item) == "string" then
+				local itemContainer = StackPanel:New {
+					width = '100%',
+					height = self.itemHeight,
+					orientation = 'vertical',
+					padding = {imagePadding, imagePadding, imagePadding, imagePadding},
+					itemMargin = {0, 0, 0, 0},
+					autosize = false,
+					resizeItems = false,
+					centerItems = false,
+				}
+
+				if self.itemImages[i] then
+					local imageControl = Image:New {
+						width = imageWidth,
+						height = imageHeight,
+						file = self.itemImages[i],
+						keepAspect = true,
+						y = (self.itemHeight - imageHeight) * 0.5,
+					}
+					itemContainer:AddChild(imageControl)
+				end
+
 				local newBtn = ComboBoxItem:New {
 					caption = item,
 					width = '100%',
 					height = self.itemHeight,
+					padding = {3, 0, 3, 0},
 					fontsize = self.itemFontSize,
 					objectOverrideFont = self.objectOverrideFont,
 					state = {focused = (self.showSelection and i == self.selected), selected = (self.showSelection and i == self.selected)},
+					children = { itemContainer },
 					OnMouseUp = {
 						function()
 							if selectByName then
@@ -134,12 +165,15 @@ function ComboBox:MouseDown(x, y)
 						end
 					}
 				}
+
 				if self.itemsTooltips[i] then
 					newBtn.tooltip = self.itemsTooltips[i]
 				end
+
 				labels[#labels + 1] = newBtn
 				height = height + self.itemHeight
-				width = math.max(width, self.font:GetTextWidth(item))
+				width = math.max(width, self.font:GetTextWidth(item) + 
+					(self.itemImages[i] and (imageWidth + imagePadding + 6) or 0))
 			else
 				labels[#labels + 1] = item
 				item.OnMouseUp = { function()
