@@ -181,7 +181,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 
 	local startBoxSelectorNames = {"Default Boxes", "East vs West", "North vs South", "NE vs SW", "NW vs SE", "4 Corners", "4 Sides"}
 	local startBoxSelectorTooltips = {"Reset to default", "East vs West", "North vs South", "Northeast vs Southwest", "Northwest vs Southeast", "Southwest vs Northeast vs Northwest vs Southeast", "West vs East vs North vs South"}
-
+	local startBoxSelectorImages = {startBoxDefaultImage, LUA_DIRNAME .. "images/startboxsplit_v.png", LUA_DIRNAME .. "images/startboxsplit_h.png", LUA_DIRNAME .. "images/startboxsplit_c1.png", LUA_DIRNAME .. "images/startboxsplit_c2.png", LUA_DIRNAME .. "images/startboxsplit_c.png", LUA_DIRNAME .. "images/startboxsplit_s.png"}
 	local startBoxComboBox = ComboBox:New{
 		name = 'startBoxComboBox',
 		x = "12.25%",
@@ -190,6 +190,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		bottom = 1,
 		items = startBoxSelectorNames,
 		itemsTooltips = startBoxSelectorTooltips,
+		itemImages = startBoxSelectorImages,
 		itemKeyToName = startBoxSelectorNames,
 		objectOverrideFont = config:GetFont(2),
 		parent = startBoxPanel,
@@ -208,13 +209,13 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 				end
 
 				local imageFileMap = {
-					["Default Boxes"] = startBoxDefaultImage,
-					["East vs West"] = LUA_DIRNAME .. "images/startboxsplit_v.png",
-					["North vs South"] = LUA_DIRNAME .. "images/startboxsplit_h.png",
-					["NE vs SW"] = LUA_DIRNAME .. "images/startboxsplit_c1.png",
-					["NW vs SE"] = LUA_DIRNAME .. "images/startboxsplit_c2.png",
-					["4 Corners"] = LUA_DIRNAME .. "images/startboxsplit_c.png",
-					["4 Sides"] = LUA_DIRNAME .. "images/startboxsplit_s.png",
+					["Default Boxes"] = startBoxSelectorImages[1],
+					["East vs West"] = startBoxSelectorImages[2],
+					["North vs South"] = startBoxSelectorImages[3],
+					["NE vs SW"] = startBoxSelectorImages[4],
+					["NW vs SE"] = startBoxSelectorImages[5],
+					["4 Corners"] = startBoxSelectorImages[6],
+					["4 Sides"] = startBoxSelectorImages[7],
 				}
 
 				local function UpdateBoxes()
