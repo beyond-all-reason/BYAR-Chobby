@@ -382,7 +382,6 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 
 	local btnClearBox = Button:New{
 		name = 'btnClearBox',
-		--x = "87.5%",
 		y = 1,
 		width = "12%",
 		bottom = 1,
