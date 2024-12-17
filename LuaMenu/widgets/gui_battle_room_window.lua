@@ -1192,9 +1192,10 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	end
 
 	-- Lobby interface
-	function externalFunctions.UpdateUserTeamStatus(userName, allyNumber, isSpectator)
+	function externalFunctions.UpdateUserTeamStatus(userName, allyNumber, isSpectator, queuePos)
+		local iAmQueued = queuePos and queuePos > 0
 		if userName == myUserName then
-			if isSpectator and battleLobby.name ~= "singleplayer" and battle.bossed ~= true then
+			if battleLobby.name ~= "singleplayer" and battle.bossed ~= true and (isSpectator or iAmQueued) then
 				-- SetButtonStateSpectating()
 				startBoxPanel:Hide()
 				minimapPanel.disableChildrenHitTest = true --omg this is amazing
@@ -3258,7 +3259,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	local function OnUpdateUserTeamStatus(listener, userName, allyNumber, isSpectator, queuePos)
 		-- Spring.Echo("room:OnUpdateUserTeamStatus userName:" .. tostring(userName) .. " allyNumber:" .. tostring(allyNumber) .. " isSpectator:" .. tostring(isSpectator))
 		--votePanel.VoteButtonVisible(isSpectator == false)
-		infoHandler.UpdateUserTeamStatus(userName, allyNumber, isSpectator)
+		infoHandler.UpdateUserTeamStatus(userName, allyNumber, isSpectator, queuePos)
 		playerHandler.UpdateUserTeamStatus(userName, allyNumber, isSpectator, queuePos)
 	end
 
