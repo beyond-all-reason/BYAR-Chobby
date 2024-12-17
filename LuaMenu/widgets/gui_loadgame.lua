@@ -515,7 +515,11 @@ function LoadGameWindow.GetControl()
 end
 
 function LoadGameWindow.RefreshSaveList()
-	WG.Delay(function () controlFuncs.RefreshSaveList() end, 0.5)
+	WG.Delay(function ()
+		if controlFuncs then
+			controlFuncs.RefreshSaveList()
+		end
+	end, 0.5)
 end
 
 --------------------------------------------------------------------------------
