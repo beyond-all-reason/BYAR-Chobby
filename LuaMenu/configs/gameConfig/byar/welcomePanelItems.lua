@@ -16,7 +16,7 @@ local welcomePanelItems = {
     },
 
     {
-        Header = "Map Update: Eclipsed 0.9.5",
+        Header = "Map Update: Eclipsed 0.9.6",
         Text = " \n" .. " \n" .. "Thanks to player feedback this 1v1 map has received a few changes, the largest change being a map size change from 16x16 to 14x14." .. " \n" .. " \n" .. "25% less map. Same great taste.",
         Image = "LuaMenu/configs/gameConfig/byar/minimapOverride/Eclipsed_0.9.5.jpg",
     },
