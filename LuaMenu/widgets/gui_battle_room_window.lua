@@ -179,8 +179,8 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		parent = startBoxImageHolder,
 	}
 
-	local startBoxSelectorNames = {"Default Boxes", "East vs West", "North vs South", "NE vs SW", "NW vs SE", "4 Corners", "4 Sides"}
-	local startBoxSelectorTooltips = {"Reset to default", "East vs West", "North vs South", "Northeast vs Southwest", "Northwest vs Southeast", "Southwest vs Northeast vs Northwest vs Southeast", "West vs East vs North vs South"}
+	local startBoxSelectorNames = {"Default Boxes", "East vs West", "North vs South", "NW vs SE", "NE vs SW", "4 Corners", "4 Sides"}
+	local startBoxSelectorTooltips = {"Reset to default", "East vs West", "North vs South", "Northwest vs Southeast", "Northeast vs Southwest", "Southwest vs Northeast vs Northwest vs Southeast", "West vs East vs North vs South"}
 	local startBoxSelectorImages = {startBoxDefaultImage, LUA_DIRNAME .. "images/startboxsplit_v.png", LUA_DIRNAME .. "images/startboxsplit_h.png", LUA_DIRNAME .. "images/startboxsplit_c1.png", LUA_DIRNAME .. "images/startboxsplit_c2.png", LUA_DIRNAME .. "images/startboxsplit_c.png", LUA_DIRNAME .. "images/startboxsplit_s.png"}
 	local startBoxComboBox = ComboBox:New{
 		name = 'startBoxComboBox',
@@ -212,8 +212,8 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 					["Default Boxes"] = startBoxSelectorImages[1],
 					["East vs West"] = startBoxSelectorImages[2],
 					["North vs South"] = startBoxSelectorImages[3],
-					["NE vs SW"] = startBoxSelectorImages[4],
-					["NW vs SE"] = startBoxSelectorImages[5],
+					["NW vs SE"] = startBoxSelectorImages[4],
+					["NE vs SW"] = startBoxSelectorImages[5],
 					["4 Corners"] = startBoxSelectorImages[6],
 					["4 Sides"] = startBoxSelectorImages[7],
 				}
@@ -282,7 +282,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 							externalFunctions.AddStartRect(0, 0, 0, 200, integervalue * 2)
 							externalFunctions.AddStartRect(1, 0, 200 - integervalue *2, 200, 200)
 						end
-					elseif selected == "NE vs SW" then
+					elseif selected == "NW vs SE" then
 						startBoxSelect.Min = 3
 						startBoxSelect.Max = 50
 						startBoxSelect.Caption = "Split the map start boxes along the corners, with X percent of the map going to top left and bottom right start boxes."
@@ -293,7 +293,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 							externalFunctions.AddStartRect(0, 0, 0, integervalue *2, integervalue * 2)
 							externalFunctions.AddStartRect(1, 200 - integervalue *2, 200 - integervalue *2, 200, 200)
 						end
-					elseif selected == "NW vs SE" then
+					elseif selected == "NE vs SW" then
 						startBoxSelect.Min = 3
 						startBoxSelect.Max = 50
 						startBoxSelect.Caption = "Split the map start boxes along the corners, with X percent of the map going to bottom left and top right start boxes."
