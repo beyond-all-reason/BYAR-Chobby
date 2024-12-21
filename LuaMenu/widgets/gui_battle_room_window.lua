@@ -250,10 +250,13 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 
 				if selected == "Default Boxes" then
 					local function defaultBoxes()
+						Spring.Echo(battle.nbTeams.." here")
 						if battleLobby.name == "singleplayer" then
 							battleLobby:SelectMap(battle.mapName)
-						else
+						elseif battle.nbTeams and tonumber(battle.nbTeams) > 1 then
 							battleLobby:SayBattle("!loadboxes")
+						else
+							battleLobby:SayBattle("!loadboxes \""..battle.mapName.."\" 2 0")
 						end
 						UpdateBoxes()
 					end
