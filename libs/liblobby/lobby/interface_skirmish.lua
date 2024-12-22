@@ -558,6 +558,7 @@ function InterfaceSkirmish:AddAi(aiName, aiLib, allyNumber, version, aiOptions, 
 		aiOptions = aiOptions,
 		teamColor = battleStatusOptions and battleStatusOptions.teamColor,
 		side = battleStatusOptions and battleStatusOptions.side,
+		handicap = battleStatusOptions and battleStatusOptions.handicap,
 	})
 end
 

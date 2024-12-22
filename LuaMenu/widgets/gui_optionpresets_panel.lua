@@ -176,6 +176,7 @@ local function applyPreset(presetName)
 				local battlestatusoptions = {}
 				battlestatusoptions.teamColor = value.teamColor
 				battlestatusoptions.side = value.side
+				battlestatusoptions.handicap = value.handicap
 				battleLobby:AddAi(key, value.aiLib, value.allyNumber, value.aiVersion, value.aiOptions,
 					battlestatusoptions)
 			end
