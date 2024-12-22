@@ -1049,6 +1049,7 @@ local function GetUserControls(userName, opts)
 						})
 					elseif selectedName == "Change Team" then
 						local battleStatus = userControls.lobby:GetUserBattleStatus(userName) or {}
+						local bonusAmount = battleStatus.handicap
 						if battleStatus.isSpectator then
 							return
 						end
@@ -1070,6 +1071,9 @@ local function GetUserControls(userName, opts)
 										userControls.lobby:UpdateAi(userName, {
 											allyNumber = allyTeamID - 1
 										})
+										if not isSingleplayer and bonusAmount ~= (nil or 0) then
+											lobby:SayBattle("!force "..userName.." bonus ".. tostring(bonusAmount))
+										end
 									else
 										lobby:SayBattle("!force "..userName.." team ".. tostring(allyTeamID)) -- +1 for spads team
 									end
