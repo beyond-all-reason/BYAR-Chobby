@@ -252,8 +252,10 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 					local function defaultBoxes()
 						if battleLobby.name == "singleplayer" then
 							battleLobby:SelectMap(battle.mapName)
-						else
+						elseif battle.nbTeams and tonumber(battle.nbTeams) > 1 then --Minimum 2 teams in multiplayer until PvE boxes are supported
 							battleLobby:SayBattle("!loadboxes")
+						else
+							battleLobby:SayBattle("!loadboxes \""..battle.mapName.."\" 2 0")
 						end
 						UpdateBoxes()
 					end
