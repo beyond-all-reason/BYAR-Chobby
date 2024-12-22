@@ -165,7 +165,7 @@ local function applyPreset(presetName)
 		-- AIs with their settings
 		local presetAi = presetObj["Bots"]
 		if presetAi ~= nil and enabledOptions["Bots"] then
-			local newAiNames = {}
+			local saidBattleExOnce = false
 
 			for key, _ in pairs(currentAITable) do
 				battleLobby:RemoveAi(key)
@@ -176,8 +176,18 @@ local function applyPreset(presetName)
 				local battlestatusoptions = {}
 				battlestatusoptions.teamColor = value.teamColor
 				battlestatusoptions.side = value.side
+				battlestatusoptions.handicap = value.handicap
 				battleLobby:AddAi(key, value.aiLib, value.allyNumber, value.aiVersion, value.aiOptions,
 					battlestatusoptions)
+				if (multiplayer) and battlestatusoptions.handicap then
+					local isBoss = battle.bossed
+					if isBoss and isBoss == true then
+						battleLobby:SayBattle("!force "..key.." bonus ".. tostring(battlestatusoptions.handicap))
+					elseif saidBattleExOnce == false then
+							WG.Delay(function() battleLobby:SayBattleEx("tried to apply bonuses to AI, but was prevented due to not being boss") end, 1.5)
+							saidBattleExOnce = true
+					end
+				end
 			end
 		end
 
