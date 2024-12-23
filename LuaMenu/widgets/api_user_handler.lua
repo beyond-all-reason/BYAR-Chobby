@@ -221,7 +221,7 @@ local function GetUserComboBoxOptions(userName, isInBattle, control, showTeamCol
 																													comboOptions[#comboOptions + 1] = "Add Bonus" end
 	if (iAmBoss or (iPlay and not bossed)) and not bs.aiLib and isInBattle and not bs.isSpectator then								comboOptions[#comboOptions + 1] = "Force Spectator" end
 	if (iAmBoss or (iPlay and not bossed)) and not itsme and not info.isBot and isInBattle and not bs.aiLib then						comboOptions[#comboOptions + 1] = "Kickban" end
-	if (info.isBot or bs.aiLib) and control.isSingleplayer then														comboOptions[#comboOptions + 1] = "Clone AI" end
+	if info.isBot or bs.aiLib then																					comboOptions[#comboOptions + 1] = "Clone AI" end
 	if bs.aiLib and bs.owner == myUserName and isInBattle then														comboOptions[#comboOptions + 1] = "Remove" end
 	if not itsme and not info.isBot and not bs.aiLib then															comboOptions[#comboOptions + 1] = "Report User" end
 																													comboOptions[#comboOptions + 1] = "Copy Name"
@@ -1114,14 +1114,8 @@ local function GetUserControls(userName, opts)
 							end
 						})
 					elseif selectedName == "Clone AI" then
-						WG.IntegerSelectorWindow.CreateIntegerSelectorWindow({
-							defaultValue = 1,
-							minValue = 1,
-							maxValue = 16,
-							caption = "Clone AI",
-							labelCaption = "Create this many new AI players with the same profile, settings, and bonus as "..userName..":",
-							OnAccepted = function(numberOfClones)
-								local status = userControls.lobby:GetUserBattleStatus(userName)
+						local function CloneFunc(numberOfClones)
+							local status = userControls.lobby:GetUserBattleStatus(userName)
 								if not status then return end
 
 								local aiSettings = {
@@ -1159,9 +1153,26 @@ local function GetUserControls(userName, opts)
 										aiSettings.aiOptions,
 										aiSettings.battleStatusOptions
 									)
+									if isSingleplayer ~= true and aiSettings.battleStatusOptions.handicap ~= (nil or 0) then
+										lobby:SayBattle("!force " .. aiName .. " bonus ".. tostring(aiSettings.battleStatusOptions.handicap))
+									end
 								end
-							end
-						})
+
+						end
+						if isSingleplayer == true then
+							WG.IntegerSelectorWindow.CreateIntegerSelectorWindow({
+								defaultValue = 1,
+								minValue = 1,
+								maxValue = 16,
+								caption = "Clone AI",
+								labelCaption = "Create this many new AI players with the same profile, settings, and bonus as "..userName..":",
+								OnAccepted = function(numberOfClones)
+									CloneFunc(numberOfClones)
+								end
+							})
+						else
+							CloneFunc(1) -- Limit to 1 clone in multiplayer to prevent flood protection kick
+						end
 					elseif selectedName == "Ring" then
 						--lobby:Ring(userName)
 						lobby:SayBattle("!ring "..userName)
