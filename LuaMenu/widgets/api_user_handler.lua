@@ -1086,9 +1086,13 @@ local function GetUserControls(userName, opts)
 						if battleStatus.isSpectator then
 							return
 						end
+						local minbonus = 0
+						if isSingleplayer then
+							minbonus = -99
+						end
 						WG.IntegerSelectorWindow.CreateIntegerSelectorWindow({
 							defaultValue = 0,
-							minValue = 0,
+							minValue = minbonus,
 							maxValue = 100,
 							caption = "Add Bonus",
 							labelCaption = "Give "..userName.." an additional % resource bonus. 100% means that player produces double the normal resource amount. 0% is regular resource production. In single player games, a negative bonus will result in that player getting X% less resources",
