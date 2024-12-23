@@ -1072,7 +1072,7 @@ local function GetUserControls(userName, opts)
 										userControls.lobby:UpdateAi(userName, {
 											allyNumber = allyTeamID - 1
 										})
-										if not isSingleplayer and bonusAmount ~= (nil or 0) then
+										if not isSingleplayer and bonusAmount and bonusAmount ~= 0 then
 											lobby:SayBattle("!force "..userName.." bonus ".. tostring(bonusAmount))
 										end
 									else
@@ -1157,7 +1157,8 @@ local function GetUserControls(userName, opts)
 										aiSettings.aiOptions,
 										aiSettings.battleStatusOptions
 									)
-									if isSingleplayer ~= true and aiSettings.battleStatusOptions.handicap ~= (nil or 0) then
+
+									if not isSingleplayer and aiSettings.battleStatusOptions.handicap and aiSettings.battleStatusOptions.handicap ~= 0 then
 										lobby:SayBattle("!force " .. aiName .. " bonus ".. tostring(aiSettings.battleStatusOptions.handicap))
 									end
 								end
@@ -1493,6 +1494,8 @@ local function GetUserControls(userName, opts)
 		local handicaptxt = ''
 		if bs.handicap and bs.handicap > 0 then
 			handicaptxt = '+'..tostring(bs.handicap)
+		elseif bs.handicap and bs.handicap < 0 then
+			handicaptxt = tostring(bs.handicap)
 		end
 		userControls.lblHandicap = Label:New{
 			name = "lblHandicap",
