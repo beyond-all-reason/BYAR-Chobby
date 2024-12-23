@@ -221,6 +221,7 @@ local function GetUserComboBoxOptions(userName, isInBattle, control, showTeamCol
 																													comboOptions[#comboOptions + 1] = "Add Bonus" end
 	if (iAmBoss or (iPlay and not bossed)) and not bs.aiLib and isInBattle and not bs.isSpectator then								comboOptions[#comboOptions + 1] = "Force Spectator" end
 	if (iAmBoss or (iPlay and not bossed)) and not itsme and not info.isBot and isInBattle and not bs.aiLib then						comboOptions[#comboOptions + 1] = "Kickban" end
+	if (info.isBot or bs.aiLib) and control.isSingleplayer then														comboOptions[#comboOptions + 1] = "Clone AI" end
 	if bs.aiLib and bs.owner == myUserName and isInBattle then														comboOptions[#comboOptions + 1] = "Remove" end
 	if not itsme and not info.isBot and not bs.aiLib then															comboOptions[#comboOptions + 1] = "Report User" end
 																													comboOptions[#comboOptions + 1] = "Copy Name"
@@ -1109,6 +1110,55 @@ local function GetUserControls(userName, opts)
 									end
 								else
 									lobby:SayBattle("!force "..userName.." bonus ".. tostring(bonusAmount))
+								end
+							end
+						})
+					elseif selectedName == "Clone AI" then
+						WG.IntegerSelectorWindow.CreateIntegerSelectorWindow({
+							defaultValue = 1,
+							minValue = 1,
+							maxValue = 16,
+							caption = "Clone AI",
+							labelCaption = "Create this many new AI players with the same profile, settings, and bonus as "..userName..":",
+							OnAccepted = function(numberOfClones)
+								local status = userControls.lobby:GetUserBattleStatus(userName)
+								if not status then return end
+
+								local aiSettings = {
+									aiLib = status.aiLib,
+									allyNumber = status.allyNumber,
+									aiVersion = status.aiVersion,
+									aiOptions = status.aiOptions,
+									battleStatusOptions = {
+										teamColor = status.teamColor,
+										side = status.side,
+										handicap = status.handicap,
+									}
+								}
+								for i = 1, numberOfClones do
+									local counter = 1
+									local aiName
+
+									local found = true
+									while found do
+										found = false
+										aiName = userName:gsub("%(%d+%)", "(" .. tostring(counter) .. ")")
+										for _, existingName in pairs(userControls.lobby.battleAis) do
+											if aiName == existingName then
+												found = true
+												break
+											end
+										end
+										counter = counter + 1
+									end
+									userControls.lobby:AddAi(
+										aiName,
+										aiSettings.aiLib,
+										aiSettings.allyNumber,
+										aiSettings.aiVersion,
+										aiSettings.aiOptions,
+										aiSettings.battleStatusOptions
+									)
 								end
 							end
 						})
