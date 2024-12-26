@@ -477,7 +477,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 			return
 		end
 		mapName = battle.mapName:gsub("_", " ")
-		mapName = StringUtilities.GetTruncatedStringWithDotDot(mapName, lblMapName.font, width - 22)
+		mapName = StringUtilities.GetTruncatedStringWithDotDot(mapName, lblMapName.font, width)
 		lblMapName:SetCaption(mapName)
 	end
 	SetMapName(battle.mapName, mapLinkWidth)
