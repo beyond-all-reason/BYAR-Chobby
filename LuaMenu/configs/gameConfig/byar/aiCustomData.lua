@@ -5,6 +5,11 @@ local customProfiles = {
 			name = 'Hard | Aggressive',  -- human readable name displayed in a list
 			desc = 'Difficulty: Hard | Playstyle: Aggressive | Made by Flaka, tweaked by Corosus',
 		},
+		{
+			key  = 'hard_cautious',  -- must conform to directory name
+			name = 'Hard | Cautious',  -- human readable name displayed in a list
+			desc = 'Difficulty: Hard | Playstyle: Cautious | Made by Flaka',
+		},
 	},
 }
 
