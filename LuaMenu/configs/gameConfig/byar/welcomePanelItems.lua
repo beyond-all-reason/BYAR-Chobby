@@ -16,6 +16,11 @@ local welcomePanelItems = {
     },
 
     {
+        Header = "Balance Update: New Behavior for High/Low Trajectory Weapons",
+        Text = " \n" .. " \n" .. "Attention, Commanders! The High/Low Trajectory toggle has been removed and is now automated. Both high and low trajectory modes now share the same damage and area of effect (AOE). Previously, high trajectory had higher damage and AOE but a slower fire rate which introduced additional confusion. The system now prioritizes low trajectory, but if there are no suitable low-trajectory targets or if the selected target can't be reached with low trajectory, the system will automatically switch to high trajectory." .. " \n" .. " \n" .. "Affected units: Gauntlet, Agitator, Amputator, Rattlesnake, Persecutor, Eviscerator, Vanguard",
+    },
+
+    {
         Header = "Map Update: Eclipsed 0.9.6",
         Text = " \n" .. " \n" .. "Thanks to player feedback this 1v1 map has received a few changes, the largest change being a map size change from 16x16 to 14x14." .. " \n" .. " \n" .. "25% less map. Same great taste.",
         Image = "LuaMenu/configs/gameConfig/byar/minimapOverride/Eclipsed_0.9.5.jpg",
