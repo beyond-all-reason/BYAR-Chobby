@@ -16,6 +16,14 @@ local welcomePanelItems = {
     },
 
     {
+        Header = "New Recoil Engine release is LIVE!",
+        Text = " \n" .. "Discover the latest Recoil Engine release featuring the new RmlUI framework, enhancing UI design with web technologies. Explore major graphical upgrades, improved gameplay mechanics, and key bug fixes. Special thanks to the dedicated contributors! Please report any bugs you face. Check out the full patch notes for detailed insights.",
+        Image = "LuaMenu/images/Recoil engine.png",
+        Url = "https://www.beyondallreason.info/microblogs/140",
+        UrlText = "Read the patchnotes",
+    },
+
+    {
         Header = "Balance Update: New Behavior for High/Low Trajectory Weapons",
         Text = " \n" .. "Attention, Commanders! The High/Low Trajectory toggle has been removed and is now automated. Both high and low trajectory modes now share the same damage and area of effect (AOE). Previously, high trajectory had higher damage and AOE but a slower fire rate which introduced additional confusion. The system now prioritizes low trajectory, but if there are no suitable low-trajectory targets or if the selected target can't be reached with low trajectory, the system will automatically switch to high trajectory." .. " \n" .. " \n" .. "Affected units: Gauntlet, Agitator, Amputator, Rattlesnake, Persecutor, Eviscerator, Vanguard",
     },
@@ -26,18 +34,6 @@ local welcomePanelItems = {
         Image = "LuaMenu/configs/gameConfig/byar/minimapOverride/Eclipsed_0.9.5.jpg",
     },
     
-    {
-        Header = "Map Update: Supreme Isthmus Winter",
-        Text = " \n" .. " \n" .. "Supreme Isthmus has recieved a winter-themed update for Christmas from Nikuksis.",
-        Image = "LuaMenu/configs/gameConfig/byar/minimapOverride/Supreme_Isthmus_Winter_v1.8.1.jpg",
-    },
-
-    {
-        Header = "New Map: Cells",
-        Text = " \n" .. " \n" .. "An open desert with rocky ridges for 8v8 Teams. By RebelNode.",
-        Image = "LuaMenu/configs/gameConfig/byar/minimapOverride/Cells_1.2.jpg",
-    },
-
     {
         Header = "Now Available: BAR Guides",
         Text = "New to Beyond All Reason? Check out these new Guides on Discord written by Zeteo!" .. " \n" .. " \n",
@@ -51,26 +47,11 @@ local welcomePanelItems = {
     },
 
     {
-        Header = "New Official Trailer released, help us making it big!",
-        Text = "We've just deployed a brand-new cinematic trailer, and we need your help to spread the word! We believe the strongest community is built through word-of-mouth, so we're counting on you to take Beyond All Reason to new heights. " .. " \n" .. " \n" .. "Watch the trailer, share it with your friends, and let’s make this a massive success together! \n",
-        Image = "LuaMenu/images/trailer.png",
-        Url = "https://www.beyondallreason.info/news/bar-trailer-2024",
-        UrlText = "Watch the trailer",
-    },
-
-    {
         Header = "BAR is accepting donations again! ",
         Text = "Dear Commanders, we are delighted to announce the reopening of our donation platform after a longer-than-expected hiatus." .. " \n" .. " \n" .. "As we've been hard at work refining BAR to ensure maximum enjoyment for our ever-expanding community, we repeatedly placed donation efforts on hold to focus on other priorities." .. " \n" .. " \n" .. "Support BAR with our newly reopened donation platform!" .. " \n",
         Image = "LuaMenu/images/donate.png",
         Url = "https://www.beyondallreason.info/news/support-bar-with-our-newly-reopened-donation-platform",
         UrlText = "Read Announcement",
-    },
-
-    {
-        Header = "Video guides for new players",
-        Url = "https://www.youtube.com/channel/UCAByJ5NKeMmQ95EIWgBtbEw",
-        Text = "Requiem has created some guides for new players. If you're new to the game and want to learn the basics via video we highly recommend you check them out.\n",
-        UrlText = "Link to video guides"
     },
 
     --{
