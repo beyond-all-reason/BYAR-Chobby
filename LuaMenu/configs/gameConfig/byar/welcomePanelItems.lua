@@ -17,7 +17,7 @@ local welcomePanelItems = {
 
     {
         Header = "New Recoil Engine release is LIVE!",
-        Text = " \n" .. "Discover the latest Recoil Engine release featuring the new RmlUI framework, enhancing UI design with web technologies. Explore major graphical upgrades, improved gameplay mechanics, and key bug fixes. Special thanks to the dedicated contributors! Please report any bugs you face. Check out the full patch notes for detailed insights.",
+        Text = " \n" .. "Discover the latest Recoil Engine release featuring the new RmlUI framework, enhancing UI design with web technologies. Explore major graphical upgrades, improved gameplay mechanics, and key bug fixes. Special thanks to the dedicated contributors!" .. " \n" .. " \n" .. " Please report any bugs you face. Check out the full patch notes for detailed insights.",
         Image = "LuaMenu/images/Recoil engine.png",
         Url = "https://www.beyondallreason.info/microblogs/140",
         UrlText = "Read the patchnotes",
