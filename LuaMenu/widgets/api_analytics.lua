@@ -740,7 +740,6 @@ function widget:Initialize()
 		isConnected = true
 		if client ~= nil then
 			client:close()
-			client = nil
 		end
 		ACTIVE = false
 		-- disconnect
