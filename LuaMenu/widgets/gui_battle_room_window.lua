@@ -511,7 +511,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		tooltip = "Currently selected map. Green boxes show where each team will start"
 	}
 
-	if battleLobby.name == "singleplayer" and config.devMode then 
+	if battleLobby.name == "singleplayer" and WG.Chobby.Configuration.simplifiedSkirmishSetup ~= true and config.devMode then
 		local comboboxstartpostype = ComboBox:New{
 			name = 'comboboxstartpostype',
 			x = "67.15%",
