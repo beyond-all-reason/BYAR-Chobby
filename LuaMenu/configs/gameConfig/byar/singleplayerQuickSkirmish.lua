@@ -20,7 +20,7 @@ local skirmishSetupData = {
 		},
 		{
 			humanName = "Select Difficulty",
-			name = "difficulty", --Fixme there are no difficulty settings for scavs/raptors
+			name = "difficulty",
 			options = {
 				"Easy",
 				"Medium",
@@ -64,9 +64,11 @@ function skirmishSetupData.ApplyFunction(battleLobby, pageChoices)
 	-- Handle PvE modes
 	if gameType == 4 then -- Scavengers
 		battleLobby:AddAi("ScavengersDefenseAI(1)", "ScavengersAI", 1)
+		battleLobby:SetModOptions({scav_difficulty = string.lower(pageConfig[2].options[difficulty])})
 		return
 	elseif gameType == 5 then -- Raptors
 		battleLobby:AddAi("RaptorsDefenseAI(1)", "RaptorsAI", 1)
+		battleLobby:SetModOptions({raptor_difficulty = string.lower(pageConfig[2].options[difficulty])})
 		return
 	end
 
