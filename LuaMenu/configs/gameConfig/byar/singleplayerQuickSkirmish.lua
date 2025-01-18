@@ -54,7 +54,6 @@ function skirmishSetupData.ApplyFunction(battleLobby, pageChoices)
 	local gameType = pageChoices.gameType or 1
 	local map = pageChoices.map or 1
 
-	local Configuration = WG.Chobby.Configuration
 	local pageConfig = skirmishSetupData.pages
 	battleLobby:SelectMap(pageConfig[3].options[map])
 

@@ -2675,6 +2675,8 @@ local function InitializeSetupPage(subPanel, screenHeight, pageConfig, nextPage,
 	for i = 1, #pageConfig.options do
 		local x, y, right, height, caption, tooltip
 		local mapImageFile, needDownload = Configuration:GetMinimapImage(pageConfig.options[i])
+		local haveMap = VFS.HasArchive(pageConfig.options[i])
+		local mapButtonCaption = nil
 		if pageConfig.minimap then
 			if i%2 == 1 then
 				x, y, right, height = "25%", (i + 1)*buttonScale - 10, "51%", 2*buttonHeight
@@ -2687,8 +2689,6 @@ local function InitializeSetupPage(subPanel, screenHeight, pageConfig, nextPage,
 			x, y, right, height = "36%", buttonHeight - 4 + i*buttonScale, "36%", buttonHeight
 			caption = pageConfig.options[i]
 		end
-		local haveMap = VFS.HasArchive(pageConfig.options[i])
-		local mapButtonCaption = nil
 		if not haveMap then
 			mapButtonCaption = i18n("click_to_download_map")
 		else
