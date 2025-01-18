@@ -62,19 +62,19 @@ function skirmishSetupData.ApplyFunction(battleLobby, pageChoices)
 	})
 
 	-- Handle PvE modes
-	local difficultyMap = {
+	local pveDifficultyMap = {
 		["Easy"] = "easy",
-		["Medium"] = "normal",  -- Map "Medium" to "normal" for PvE
+		["Medium"] = "normal",
 		["Hard"] = "hard"
 	}
 
 	if gameType == 4 then -- Scavengers
 		battleLobby:AddAi("ScavengersDefenseAI(1)", "ScavengersAI", 1)
-		battleLobby:SetModOptions({scav_difficulty = difficultyMap[pageConfig[2].options[difficulty]]})
+		battleLobby:SetModOptions({scav_difficulty = pveDifficultyMap[pageConfig[2].options[difficulty]]})
 		return
 	elseif gameType == 5 then -- Raptors
 		battleLobby:AddAi("RaptorsDefenseAI(1)", "RaptorsAI", 1)
-		battleLobby:SetModOptions({raptor_difficulty = difficultyMap[pageConfig[2].options[difficulty]]})
+		battleLobby:SetModOptions({raptor_difficulty = pveDifficultyMap[pageConfig[2].options[difficulty]]})
 		return
 	end
 
