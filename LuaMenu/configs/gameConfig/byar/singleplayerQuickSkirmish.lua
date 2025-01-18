@@ -81,8 +81,6 @@ function skirmishSetupData.ApplyFunction(battleLobby, pageChoices)
 	-- Regular AI games
 	local aiName = "BARbarianAI"
 	local displayName = aiName
-
-	-- AI game setup
 	local aiNumber = 1
 	local allies = gameType - 1
 
