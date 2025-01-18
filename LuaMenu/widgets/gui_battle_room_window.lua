@@ -45,6 +45,8 @@ local IMG_LINK     = LUA_DIRNAME .. "images/link.png"
 local IMG_CHECKBOX		= LUA_DIRNAME .. "images/checkbox.png"
 local IMG_CHECKARROW		= LUA_DIRNAME .. "images/checkbox_arrow.png"
 
+local MINIMAP_TOOLTIP_PREFIX = "minimap_tooltip_"
+
 local MINIMUM_QUICKPLAY_PLAYERS = 4 -- Hax until the server tells me a number.
 
 local lastUserToChangeStartBoxes = ''
@@ -2672,6 +2674,7 @@ local function InitializeSetupPage(subPanel, screenHeight, pageConfig, nextPage,
 
 	for i = 1, #pageConfig.options do
 		local x, y, right, height, caption, tooltip
+		local mapImageFile, needDownload = Configuration:GetMinimapImage(pageConfig.options[i])
 		if pageConfig.minimap then
 			if i%2 == 1 then
 				x, y, right, height = "25%", (i + 1)*buttonScale - 10, "51%", 2*buttonHeight
@@ -2684,6 +2687,13 @@ local function InitializeSetupPage(subPanel, screenHeight, pageConfig, nextPage,
 			x, y, right, height = "36%", buttonHeight - 4 + i*buttonScale, "36%", buttonHeight
 			caption = pageConfig.options[i]
 		end
+		local haveMap = VFS.HasArchive(pageConfig.options[i])
+		local mapButtonCaption = nil
+		if not haveMap then
+			mapButtonCaption = i18n("click_to_download_map")
+		else
+			mapButtonCaption = i18n("click_to_pick_map")
+		end
 		buttons[i] = Button:New {
 			name = 'pageConfig.options'..tostring(i),
 			x = x,
@@ -2692,9 +2702,8 @@ local function InitializeSetupPage(subPanel, screenHeight, pageConfig, nextPage,
 			height = height,
 			classname = "option_button",
 			caption = caption,
-			tooltip = tooltip,
 			objectOverrideFont = WG.Chobby.Configuration:GetFont(buttonFont),
-			tooltip = pageConfig.optionTooltip and pageConfig.optionTooltip[i],
+			tooltip = (pageConfig.optionTooltip and pageConfig.optionTooltip[i]) or (pageConfig.minimap and MINIMAP_TOOLTIP_PREFIX .. pageConfig.options[i] .. "|" .. mapButtonCaption),
 			OnClick = {
 				function(obj)
 					for j = 1, #buttons do
@@ -2716,7 +2725,6 @@ local function InitializeSetupPage(subPanel, screenHeight, pageConfig, nextPage,
 			parent = subPanel,
 		}
 		if pageConfig.minimap then
-			local mapImageFile, needDownload = Configuration:GetMinimapImage(pageConfig.options[i])
 			local imMinimap = Image:New {
 				name = 'pageConfig.minimap'..tostring(i),
 				x = 0,
