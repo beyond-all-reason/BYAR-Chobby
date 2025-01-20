@@ -1069,8 +1069,9 @@ function Configuration:SanitizeEngineVersion(engineVersion)
 		end
 	end
 
-	local format = "(%d+)%.(%d+)%.(%d+)%-(%d+)%-g([%x][%x][%x][%x][%x][%x][%x])%s"
-    if not ret:match(format) then
+	local oldFormat = "(%d+)%.(%d+)%.(%d+)%-(%d+)%-g([%x][%x][%x][%x][%x][%x][%x])%s"
+	local newFormat = "(%d+)%.(%d+)%.(%d+)"
+	if not ret:match(oldFormat) and not ret:match(newFormat) then
         Spring.Echo("Invalid engine version format: " .. engineVersion)
 		ret = ""
     end
