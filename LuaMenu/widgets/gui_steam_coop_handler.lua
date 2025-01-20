@@ -170,12 +170,20 @@ local function haveEngineVersion(engineVersion)
 end
 
 -- outcome example: https://github.com/beyond-all-reason/spring/releases/download/spring_bar_%7BBAR105%7D105.1.1-1354-g72b2d55/spring_bar_.BAR105.105.1.1-1354-g72b2d55_windows-64-minimal-portable.7z
+-- new naming example :https://github.com/beyond-all-reason/spring/releases/download/2025.01.5/spring_bar_.rel2501.2025.01.5_linux-64-minimal-portable.7z
 local function GetEngineDownloadUrl(engineVersion)
 	local sanitizedEngineVersion = WG.Chobby.Configuration:SanitizeEngineVersion(engineVersion)
 	local branch = sanitizedEngineVersion:match("%s([%w-.]*)") or ""
 	local pureVersion = sanitizedEngineVersion:gsub(" " .. branch, "")
+	local year, month = pureVersion:match("^%d%d(%d%d)%.(%d%d)")
+	local versionDir
+	if pureVersion:match("^2") then	--Handle new naming scheme
+		branch = "rel" .. year .. month
+		versionDir = pureVersion .. "/"
+	else	--Assume old naming scheme
+		versionDir = "spring_bar_%7B" .. branch .. "%7D" .. pureVersion .. "/"
+	end
 	local baseUrl = "https://github.com/beyond-all-reason/spring/releases/download/"
-	local versionDir = "spring_bar_%7B" .. branch .. "%7D" .. pureVersion .. "/"
 	local platform64 = Platform.osFamily:lower() .. "-64"
 	local fileName = "spring_bar_." .. branch .. "." .. pureVersion .. "_" .. platform64 .. "-minimal-portable.7z"
 	return baseUrl .. versionDir .. fileName
