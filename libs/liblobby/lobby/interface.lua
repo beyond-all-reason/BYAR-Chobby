@@ -402,7 +402,7 @@ end
 function Interface:RejoinBattle(battleID)
 	local battle = self:GetBattle(battleID)
 	if battle then
-		self:ConnectToBattle(self.useSpringRestart, battle.ip, battle.port, nil, self:GetScriptPassword())
+		self:ConnectToBattle(self.useSpringRestart, battle.ip, battle.port, nil, self:GetScriptPassword(), nil, nil, nil, nil, nil, battle.founder)
 	end
 
 	return self
@@ -784,7 +784,7 @@ function Interface:_OnClientStatus(userName, status)
 			local myBattleStatus = self.userBattleStatus[self.myUserName]
 			if myBattle and myBattle.founder == userName and not (Spring.GetGameName() ~= "" and myBattleStatus.isSpectator) and not self.commandBuffer and (not myBattleStatus.isSpectator or WG.Chobby.Configuration.autoLaunchAsSpectator) then
 				local battle = self:GetBattle(self.myBattleID)
-				self:ConnectToBattle(self.useSpringRestart, battle.ip, battle.port, nil, self:GetScriptPassword())
+				self:ConnectToBattle(self.useSpringRestart, battle.ip, battle.port, nil, self:GetScriptPassword(), nil, nil, nil, nil, nil, battle.founder)
 			end
 		end
 	end
