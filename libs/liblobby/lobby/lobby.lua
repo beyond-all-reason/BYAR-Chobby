@@ -89,7 +89,7 @@ function Lobby:_PreserveData()
 	}
 end
 
-local function GenerateScriptTxt(battleIp, battlePort, clientPort, scriptPassword, myName)
+local function GenerateScriptTxt(battleIp, battlePort, clientPort, scriptPassword, myName, serverName)
 	local scriptTxt =
 [[
 [GAME]
@@ -100,13 +100,15 @@ local function GenerateScriptTxt(battleIp, battlePort, clientPort, scriptPasswor
 	IsHost=0;
 	MyPlayerName=__MY_PLAYER_NAME__;
 	MyPasswd=__MY_PASSWD__;
+	ShowServerName=__SERVER_NAME__;
 }]]
 
 	scriptTxt = scriptTxt:gsub("__IP__", battleIp)
-                         :gsub("__PORT__", battlePort)
-                         :gsub("__CLIENT_PORT__", clientPort or 0)
-                         :gsub("__MY_PLAYER_NAME__", myName or lobby:GetMyUserName() or "noname")
-                         :gsub("__MY_PASSWD__", scriptPassword)
+						:gsub("__PORT__", battlePort)
+						:gsub("__CLIENT_PORT__", clientPort or 0)
+						:gsub("__MY_PLAYER_NAME__", myName or lobby:GetMyUserName() or "noname")
+						:gsub("__MY_PASSWD__", scriptPassword)
+						:gsub("__SERVER_NAME__", serverName or "unknown server")
 	return scriptTxt
 end
 
@@ -312,7 +314,7 @@ function Lobby:SayBattleEx(message)
 	return self
 end
 
-function Lobby:ConnectToBattle(useSpringRestart, battleIp, battlePort, clientPort, scriptPassword, myName, gameName, mapName, engineName, battleType)
+function Lobby:ConnectToBattle(useSpringRestart, battleIp, battlePort, clientPort, scriptPassword, myName, gameName, mapName, engineName, battleType, serverName)
 	local battle = self.battles[self.myBattleID] or {}
 	gameName = gameName or battle.gameName
 	mapName = mapName or battle.mapName
@@ -335,7 +337,7 @@ function Lobby:ConnectToBattle(useSpringRestart, battleIp, battlePort, clientPor
 	if engineName and (Config.multiplayerLaunchNewSpring or not Config:IsValidEngineVersion(engineName)) and not Config.useWrongEngine then
 		if WG.WrapperLoopback and WG.WrapperLoopback.StartNewSpring and WG.SettingsWindow and WG.SettingsWindow.GetSettingsString then
 			local params = {
-				StartScriptContent = GenerateScriptTxt(battleIp, battlePort, clientPort, scriptPassword, myName),
+				StartScriptContent = GenerateScriptTxt(battleIp, battlePort, clientPort, scriptPassword, myName, serverName),
 				Engine = engineName,
 				SpringSettings = WG.SettingsWindow.GetSettingsString(),
 			}
@@ -372,7 +374,7 @@ function Lobby:ConnectToBattle(useSpringRestart, battleIp, battlePort, clientPor
 		Spring.Echo(springURL)
 		Spring.Restart(springURL, "")
 	else
-		local scriptTxt = GenerateScriptTxt(battleIp, battlePort, clientPort, scriptPassword, myName)
+		local scriptTxt = GenerateScriptTxt(battleIp, battlePort, clientPort, scriptPassword, myName, serverName)
 		Spring.Echo(scriptTxt)
 		--local scriptFileName = "scriptFile.txt"
 		--local scriptFile = io.open(scriptFileName, "w")
