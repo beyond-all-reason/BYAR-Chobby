@@ -91,7 +91,6 @@ function Configuration:init()
 	self.battleFilterNonFriend = false
 	self.battleFilterRunning = false
 	self.battleFilterLocked = false
-	self.battleFilterVsAI = false
 	self.battleFilterRedundant = true
 	self.battleFilterRedundantRegions = {"EU - ", "USA - ", "AUS - ","EU - ENGINE TESTING ","US - ","AU - ", "UK - "}
 	self.hostRegions = {"DE","EU","EU2","US","US2","AU"}
@@ -671,7 +670,6 @@ function Configuration:GetConfigData()
 		battleFilterNonFriend = self.battleFilterNonFriend,
 		battleFilterRunning = self.battleFilterRunning,
 		battleFilterLocked = self.battleFilterLocked,
-		battleFilterVsAI = self.battleFilterVsAI,
 		channels = self.channels,
 		gameConfigName = self.gameConfigName,
 		language = self.language,

@@ -80,7 +80,7 @@ function BattleListWindow:init(parent)
 	Label:New {
 		x = 20,
 		right = 5,
-		bottom = 13,
+		bottom = 15,
 		height = 20,
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		caption = "Filter out:",
@@ -88,7 +88,7 @@ function BattleListWindow:init(parent)
 	}
 
 	local checkPassworded = Checkbox:New {
-		x = "17%",
+		x = 110,
 		width = 21,
 		bottom = 8,
 		height = 30,
@@ -107,7 +107,7 @@ function BattleListWindow:init(parent)
 		tooltip = "Hides all battles that require a password to join",
 	}
 	local checkNonFriend = Checkbox:New {
-		x = "35%",
+		x = 280,
 		width = 21,
 		bottom = 8,
 		height = 30,
@@ -126,7 +126,7 @@ function BattleListWindow:init(parent)
 		tooltip = "Hides all battles that don't have your friends in them",
 	}
 	local checkRunning = Checkbox:New {
-		x = "52%",
+		x = 435,
 		width = 21,
 		bottom = 8,
 		height = 30,
@@ -145,29 +145,8 @@ function BattleListWindow:init(parent)
 		tooltip = "Hides all battles that are in progress",
 	}
 
-	local checkVsAI = Checkbox:New {
-		x = "67%",
-		width = 21,
-		bottom = 8,
-		height = 30,
-		boxalign = "left",
-		boxsize = 20,
-		caption = " Vs AI",
-		checked = Configuration.battleFilterLocked or false,
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
-		OnChange = {
-			function (obj, newState)
-				Configuration:SetConfigValue("battleFilterVsAI", newState)
-				self:SoftUpdate()
-			end
-		},
-		parent = self.window,
-		tooltip = "Hides all battles with AIs, including PvE",
-	}
-
-
     local checkLocked = Checkbox:New {
-		x = "79%",
+		x = 575,
 		width = 21,
 		bottom = 8,
 		height = 30,
@@ -190,8 +169,7 @@ function BattleListWindow:init(parent)
 		checkPassworded:SetToggle(Configuration.battleFilterPassworded2)
 		checkNonFriend:SetToggle(Configuration.battleFilterNonFriend)
 		checkRunning:SetToggle(Configuration.battleFilterRunning)
-		checkVsAI:SetToggle(Configuration.battleFilterVsAI)
-		checkLocked:SetToggle(Configuration.battleFilterLocked)
+        checkLocked:SetToggle(Configuration.battleFilterLocked)
 	end
 	WG.Delay(UpdateCheckboxes, 0.2)
 
@@ -756,10 +734,6 @@ function BattleListWindow:ItemInFilter(id)
 	end
 
 	if Configuration.battleFilterRunning and battle.isRunning then
-		return false
-	end
-
-	if Configuration.battleFilterVsAI and string.find(battle.title, "vs AI") or string.find(battle.title, "vs Scavengers") or string.find(battle.title, "vs Raptors") then
 		return false
 	end
 
