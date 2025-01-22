@@ -60,7 +60,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		return
 	end
 	self.emailRequired = (params and params.emailRequired) or false
-	self.windowHeight = (params and params.windowHeight) or (self.emailRequired and 430+200) or 390+200
+	self.windowHeight = (params and params.windowHeight) or (self.emailRequired and 460+200) or 420+200
 	self.loginAfterRegister = (params and params.loginAfterRegister) or false
 
 	local registerChildren = {}
@@ -445,7 +445,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 	self.txtErrorRegister = TextBox:New {
 		x = 15,
 		right = 15,
-		y = self.windowHeight - 216,
+		y = self.windowHeight - 246,
 		height = 90,
 		text = "",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
