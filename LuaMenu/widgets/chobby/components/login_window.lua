@@ -1230,6 +1230,7 @@ function LoginWindow:tryRegister()
 	local username = self.ebUsernameRegister.text
 
 	if username == '' then
+		self.txtErrorRegister:SetText(Configuration:GetErrorColor() .. "Username is required.")
 		return
 	end
 	local isinValidUserName = isInValidUserName(username)
