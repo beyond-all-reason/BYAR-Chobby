@@ -85,7 +85,7 @@ function BattleListWindow:init(parent)
 	Label:New {
 		x = 20,
 		right = 5,
-		bottom = 13,
+		bottom = 15,
 		height = 20,
 		objectOverrideFont = myFont2,
 		caption = "Filter out:",
@@ -149,7 +149,6 @@ function BattleListWindow:init(parent)
 		parent = self.window,
 		tooltip = "Hides all battles that are in progress",
 	}
-
 	local checkVsAI = Checkbox:New {
 		x = "65%",
 		width = 21,
@@ -169,8 +168,6 @@ function BattleListWindow:init(parent)
 		parent = self.window,
 		tooltip = "Hides all battles with AIs, including PvE",
 	}
-
-
     local checkLocked = Checkbox:New {
 		x = "77%",
 		width = 21,
@@ -195,8 +192,7 @@ function BattleListWindow:init(parent)
 		checkPassworded:SetToggle(Configuration.battleFilterPassworded2)
 		checkNonFriend:SetToggle(Configuration.battleFilterNonFriend)
 		checkRunning:SetToggle(Configuration.battleFilterRunning)
-		checkVsAI:SetToggle(Configuration.battleFilterVsAI)
-		checkLocked:SetToggle(Configuration.battleFilterLocked)
+        checkLocked:SetToggle(Configuration.battleFilterLocked)
 	end
 	WG.Delay(UpdateCheckboxes, 0.2)
 
