@@ -221,7 +221,7 @@ local function GetUserComboBoxOptions(userName, isInBattle, control, showTeamCol
 																													comboOptions[#comboOptions + 1] = "Add Bonus" end
 	if (iAmBoss or (iPlay and not bossed)) and not bs.aiLib and isInBattle and not bs.isSpectator then								comboOptions[#comboOptions + 1] = "Force Spectator" end
 	if (iAmBoss or (iPlay and not bossed)) and not itsme and not info.isBot and isInBattle and not bs.aiLib then						comboOptions[#comboOptions + 1] = "Kickban" end
-	if info.isBot or bs.aiLib then																					comboOptions[#comboOptions + 1] = "Clone AI" end
+	if bs.aiLib then																								comboOptions[#comboOptions + 1] = "Clone AI" end
 	if bs.aiLib and bs.owner == myUserName and isInBattle then														comboOptions[#comboOptions + 1] = "Remove" end
 	if not itsme and not info.isBot and not bs.aiLib then															comboOptions[#comboOptions + 1] = "Report User" end
 																													comboOptions[#comboOptions + 1] = "Copy Name"
