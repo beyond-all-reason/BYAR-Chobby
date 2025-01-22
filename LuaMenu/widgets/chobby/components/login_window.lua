@@ -1230,9 +1230,10 @@ function LoginWindow:tryRegister()
 	local username = self.ebUsernameRegister.text
 
 	if username == '' then
-		self.txtErrorRegister:SetText(Configuration:GetErrorColor() .. "Username is required.")
+		self.txtErrorRegister:SetText(Configuration:GetErrorColor() .. "No username provided.")
 		return
 	end
+
 	local isinValidUserName = isInValidUserName(username)
 	if isinValidUserName then
 		self.txtErrorRegister:SetText(Configuration:GetErrorColor() .. isinValidUserName)
@@ -1259,10 +1260,6 @@ function LoginWindow:tryRegister()
 
 	local password = (self.ebPasswordRegister.visible and self.ebPasswordRegister.text) or nil
 	local email = (self.emailRequired and self.ebEmail.visible and self.ebEmail.text) or nil
-	if username == '' then
-		self.txtErrorRegister:SetText(Configuration:GetErrorColor() .. "No username provided.")
-		return
-	end
 
 	if password == '' then
 		self.txtErrorRegister:SetText(Configuration:GetErrorColor() .. "No password provided.")
@@ -1278,7 +1275,7 @@ function LoginWindow:tryRegister()
 		self.txtErrorRegister:SetText(Configuration:GetErrorColor() .. "Registration error:" .. err)
 		lobby:RemoveListener("OnRegistrationDenied", self.onRegistrationDenied)
 	end
-	
+
 	lobby:AddListener("OnRegistrationDenied", self.onRegistrationDenied)
 
 	if (lobby:GetConnectionStatus() ~= "connected") or self.loginAttempts >= 3 then
