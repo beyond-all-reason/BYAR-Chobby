@@ -1,26 +1,64 @@
+local mapsByGameType = {
+	["1v1"] = {
+		"Altair_Crossing_V4.1",
+		"Eye Of Horus 1.7.1",
+		"Isidis crack 1.1",
+		"Hotlips Remake v3.1.1",
+	},
+	["2v2"] = {
+		"Archsimkats_Valley_V1",
+		"Ditched_V1",
+		"Otago 1.43",
+		"Eye Of Horus 1.7.1",
+	},
+	["3v3"] = {
+		"Archsimkats_Valley_V1",
+		"Ditched_V1",
+		"Otago 1.43",
+		"Oort_Cloud_V2",
+	},
+	["Scavengers"] = {
+		"Altair_Crossing_V4.1",
+		"Eye Of Horus 1.7.1",
+		"Ditched_V1",
+		"Riverrun_V1",
+	},
+	["Raptors"] = {
+		"Archsimkats_Valley_V1",
+		"Otago 1.43",
+		"Isidis crack 1.1",
+		"Salmiakki 1.3",
+	},
+}
+
+local gameTypes = {
+	"1v1",
+	"2v2",
+	"3v3",
+	"Scavengers",
+	"Raptors",
+}
+
 local skirmishSetupData = {
+	mapsByGameType = mapsByGameType,
 	pages = {
 		{
 			humanName = "Select Game Type",
 			name = "gameType",
-			options = {
-				"1v1",
-				"2v2",
-				"3v3",
-				"Scavengers",
-				"Raptors",
-			},
+			minimap = false,
+			options = gameTypes,
 			optionTooltip = {
 				"1 vs 1 against AI",
 				"2 vs 2 with an AI ally and enemies",
 				"3 vs 3 with AI allies and enemies",
-				"PvE: Defend against waves of Scavenger units",
-				"PvE: Face hordes of alien Raptors",
+				"Survival: Defend against waves of Scavenger units",
+				"Survival: Face hordes of alien Raptors",
 			}
 		},
 		{
 			humanName = "Select Difficulty",
 			name = "difficulty",
+			minimap = false,
 			options = {
 				"Easy",
 				"Medium",
@@ -37,14 +75,11 @@ local skirmishSetupData = {
 			name = "map",
 			minimap = true,
 			tipText = "Click 'Advanced' for more maps and options.",
-			options = {
-				"Archsimkats_Valley_V1",
-				"Eye Of Horus 1.7.1",
-				"Ditched_V1",
-				"Otago 1.43",
-				"Altair_Crossing_V4.1",
-				"Isidis crack 1.1",
-			},
+			getDynamicOptions = function(pageChoices)
+				local selectedGameType = gameTypes[pageChoices.gameType or 1]
+				Spring.Echo("Selected game type string: " .. tostring(selectedGameType))
+				return mapsByGameType[selectedGameType]
+			end,
 		},
 	},
 }
@@ -55,7 +90,9 @@ function skirmishSetupData.ApplyFunction(battleLobby, pageChoices)
 	local map = pageChoices.map or 1
 
 	local pageConfig = skirmishSetupData.pages
-	battleLobby:SelectMap(pageConfig[3].options[map])
+	local selectedGameType = pageConfig[1].options[gameType]
+	local mapOptions = skirmishSetupData.mapsByGameType[selectedGameType]
+	battleLobby:SelectMap(mapOptions[map])
 
 	battleLobby:SetBattleStatus({
 		allyNumber = 0,

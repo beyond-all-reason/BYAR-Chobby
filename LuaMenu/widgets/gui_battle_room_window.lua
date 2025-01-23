@@ -2589,11 +2589,22 @@ local function InitializeSetupPage(subPanel, screenHeight, pageConfig, nextPage,
 
 	local buttons = {}
 
+	-- Get options early to determine layout
+	local options = pageConfig.options
+	if pageConfig.getDynamicOptions then
+		options = pageConfig.getDynamicOptions(selectedOptions)
+	end
+	if not options then
+		Spring.Echo("No options available for page", pageConfig.name)
+		options = {}
+	end
+	local numOptions = #options
+
 	local nextButton = Button:New {
 		name = 'nextButton',
 		x = "36%",
 		right = "36%",
-		y = 2*buttonScale + 5 + (#pageConfig.options)*buttonScale,
+		y = 4*buttonScale + 5 + numOptions*buttonScale,
 		height = buttonHeight,
 		classname = "action_button",
 		caption = (nextPage and "Next") or i18n("start"),
@@ -2619,8 +2630,8 @@ local function InitializeSetupPage(subPanel, screenHeight, pageConfig, nextPage,
 	if pageConfig.tipText then
 		tipTextBox = TextBox:New {
 			name = 'tipTextBox',
-			x = "26%",
-			y = 3*buttonScale + 20 + (#pageConfig.options)*buttonScale,
+			x = "28%",
+			y = 3*buttonScale + 20 + numOptions*buttonScale,
 			right = "26%",
 			height = 200,
 			align = "left",
@@ -2672,81 +2683,139 @@ local function InitializeSetupPage(subPanel, screenHeight, pageConfig, nextPage,
 		}
 	end
 
-	for i = 1, #pageConfig.options do
-		local x, y, right, height, caption, tooltip
-		local mapImageFile, needDownload = Configuration:GetMinimapImage(pageConfig.options[i])
-		local haveMap = VFS.HasArchive(pageConfig.options[i])
-		local mapButtonCaption = nil
-		if pageConfig.minimap then
-			if i%2 == 1 then
-				x, y, right, height = "25%", (i + 1)*buttonScale - 10, "51%", 2*buttonHeight
+	local function GenerateOptionButtons(pageConfig, selectedOptions, nextButton)
+		local buttons = {}
+		local buttonFont = 3
+		local buttonHeight = 70
+		local buttonScale = 85
+		local options = pageConfig.options
+		local tipTextBox = selectedOptions.currentControl:GetChildByName('tipTextBox')
+		if pageConfig.getDynamicOptions then
+			options = pageConfig.getDynamicOptions(selectedOptions)
+		end
+		if not options then
+			Spring.Echo("No options available for page", pageConfig.name)
+			return {}
+		end
+
+		for i = 1, #options do
+			local x, y, right, height, caption, tooltip
+			local mapImageFile, needDownload = Configuration:GetMinimapImage(options[i])
+			local haveMap = VFS.HasArchive(options[i])
+			local mapButtonCaption = nil
+			if pageConfig.minimap then
+				if i%2 == 1 then
+					x, y, right, height = "25%", (i + 1)*buttonScale - 10, "51%", 2*buttonHeight
+				else
+					x, y, right, height = "51%", i*buttonScale - 10, "25%", 2*buttonHeight
+				end
+				tooltip = options[i]
+				caption = ""
 			else
-				x, y, right, height = "51%", i*buttonScale - 10, "25%", 2*buttonHeight
+				x, y, right, height = "36%", buttonHeight - 4 + i*buttonScale, "36%", buttonHeight
+				caption = options[i]
 			end
-			tooltip = pageConfig.options[i]
-			caption = ""
-		else
-			x, y, right, height = "36%", buttonHeight - 4 + i*buttonScale, "36%", buttonHeight
-			caption = pageConfig.options[i]
-		end
-		if not haveMap then
-			mapButtonCaption = i18n("click_to_download_map")
-		else
-			mapButtonCaption = i18n("click_to_pick_map")
-		end
-		buttons[i] = Button:New {
-			name = 'pageConfig.options'..tostring(i),
-			x = x,
-			y = y,
-			right = right,
-			height = height,
-			classname = "option_button",
-			caption = caption,
-			objectOverrideFont = WG.Chobby.Configuration:GetFont(buttonFont),
-			tooltip = (pageConfig.optionTooltip and pageConfig.optionTooltip[i]) or (pageConfig.minimap and MINIMAP_TOOLTIP_PREFIX .. pageConfig.options[i] .. "|" .. mapButtonCaption),
-			OnClick = {
-				function(obj)
-					for j = 1, #buttons do
-						if j ~= i then
-							ButtonUtilities.SetButtonDeselected(buttons[j])
+			if not haveMap then
+				mapButtonCaption = i18n("click_to_download_map")
+			else
+				mapButtonCaption = i18n("click_to_pick_map")
+			end
+
+			buttons[i] = Button:New {
+				x = x,
+				y = y,
+				right = right,
+				height = height,
+				classname = "option_button",
+				caption = caption,
+				objectOverrideFont = WG.Chobby.Configuration:GetFont(buttonFont),
+				tooltip = (pageConfig.optionTooltip and pageConfig.optionTooltip[i]) or (pageConfig.minimap and MINIMAP_TOOLTIP_PREFIX .. options[i] .. "|" .. mapButtonCaption),
+				OnClick = {
+					function(obj)
+						for j = 1, #buttons do
+							if j ~= i then
+								ButtonUtilities.SetButtonDeselected(buttons[j])
+							end
+						end
+						ButtonUtilities.SetButtonSelected(obj)
+						selectedOptions[pageConfig.name] = i
+
+						-- If this is a game type selection and we have map selection page
+						if pageConfig.name == "gameType" and selectedOptions.currentControl then
+							local mapPage = selectedOptions.pages[3]
+							if mapPage and mapPage.getDynamicOptions then
+								Spring.Echo("Selected game type: " .. i)
+								selectedOptions.gameType = i  -- Store the selection explicitly
+
+								-- Store references to control buttons before clearing
+								local nextButton = selectedOptions.currentControl:GetChildByName('nextButton')
+								local advButton = selectedOptions.currentControl:GetChildByName('advButton')
+								local prevButton = selectedOptions.currentControl:GetChildByName('prevPage')
+
+								-- Clear only map buttons
+								local children = selectedOptions.currentControl.children
+								for j = #children, 1, -1 do
+									local child = children[j]
+									if child.name:find("tipTextBox") or child.name:find("advButton") or child.name:find("prevPage") then
+										-- do nothing
+									else
+										selectedOptions.currentControl:RemoveChild(child)
+									end
+								end
+
+								-- Regenerate map buttons
+								local newButtons = GenerateOptionButtons(mapPage, selectedOptions, nextButton)
+								for _, button in ipairs(newButtons) do
+									selectedOptions.currentControl:AddChild(button)
+								end
+							end
+						end
+
+						nextButton:SetVisibility(true)
+						if tipTextBox then
+							tipTextBox:SetVisibility(true)
 						end
 					end
-					ButtonUtilities.SetButtonSelected(obj)
+				},
+				parent = subPanel,  -- Add the button to the parent panel
+			}
+			if pageConfig.minimap then
+				local imMinimap = Image:New {
+					x = 0,
+					y = 0,
+					right = 0,
+					bottom = 0,
+					keepAspect = true,
+					file = mapImageFile,
+					fallbackFile = Configuration:GetLoadingImage(2),
+					checkFileExists = needDownload,
+					parent = buttons[i],
+				}
+			else
+				if i == 1  then
+					ButtonUtilities.SetButtonSelected(buttons[i])
 					selectedOptions[pageConfig.name] = i
 					nextButton:SetVisibility(true)
-					if tipTextBox then
-						tipTextBox:SetVisibility(true)
-					end
-					if advButton then
-						advButton:SetVisibility(true)
-					end
 				end
-			},
-			parent = subPanel,
-		}
-		if pageConfig.minimap then
-			local imMinimap = Image:New {
-				name = 'pageConfig.minimap'..tostring(i),
-				x = 0,
-				y = 0,
-				right = 0,
-				bottom = 0,
-				keepAspect = true,
-				file = mapImageFile,
-				fallbackFile = Configuration:GetLoadingImage(2),
-				checkFileExists = needDownload,
-				parent = buttons[i],
-			}
+			end
+
+
 		end
-		ButtonUtilities.SetButtonSelected(buttons[i])
+
+		return buttons
 	end
+
+	buttons = GenerateOptionButtons(pageConfig, selectedOptions, nextButton)
 
 	return subPanel
 end
 
 local function SetupEasySetupPanel(mainWindow, standardSubPanel, setupData)
 	local pageConfigs = setupData.pages
-	local selectedOptions = {} -- Passed and modified by reference
+	local selectedOptions = {
+		pages = pageConfigs,  -- Store page configs
+		currentControl = nil  -- Will be set when needed
+	}
 
 	local function ApplyFunction(startGame)
 		local battle = battleLobby:GetBattle(battleLobby:GetMyBattleID())
@@ -2775,6 +2844,9 @@ local function SetupEasySetupPanel(mainWindow, standardSubPanel, setupData)
 			padding = {0, 0, 0, 0},
 			parent = mainWindow,
 		}
+		if i == 3 then  -- Store reference to the map page's control
+			selectedOptions.currentControl = pages[i]
+		end
 	end
 
 	for i = 1, #pages do
