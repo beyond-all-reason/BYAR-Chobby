@@ -181,8 +181,6 @@ local function LoadGameByFilename(filename)
 	if saveData.engineVersion and (Engine.versionFull ~= saveData.engineVersion) then
 		-- Both should be "105.1.1-1723-gd990800 BAR105" or whatever
 		local ssfFileName = SAVE_DIR .. '/' .. filename .. ".ssf"
-		-- we have an engine version mismatch, try in a different engine!
-		Spring.Echo("Off-engine savegame found, attempting to start with: ",game,saveData.map, nil,nil, ssfFileName,saveData.engineVersion)
 
 		--This one does not work because the player IDs will mismatch and spam errors
 		--WG.SteamCoopHandler.AttemptGameStart("replay", game,saveData.map, nil,nil, ssfFileName,saveData.engineVersion)
@@ -208,8 +206,19 @@ local function LoadGameByFilename(filename)
 			StartScriptContent = script,
 			SpringSettings = WG.SettingsWindow.GetSettingsString(),
 			StartDemoName = scriptfilename,
-			Engine = string.gsub(saveData.engineVersion, "BAR105", "bar"),
 		}
+
+		if saveData.engineVersion:match("^2") then	--Handle new naming scheme
+			local year, month = saveData.engineVersion:match("^%d%d(%d%d)%.(%d%d)")
+			local branch = "rel" .. year .. month
+			params.Engine = branch .. "." .. saveData.engineVersion
+		else	--Assume old naming scheme
+			params.Engine = string.gsub(saveData.engineVersion, "BAR105", "bar")
+		end
+
+		-- we have an engine version mismatch, try in a different engine!
+		Spring.Echo("Off-engine savegame found, attempting to start with: ",game,saveData.map, nil,nil, ssfFileName,params.Engine)
+
 		if WG.Chobby and WG.Chobby.InformationPopup then
 			WG.Chobby.InformationPopup("The saved game uses a different engine, so it will be opened in a new window.")
 			Spring.SetConfigInt("Fullscreen", 1, false)
