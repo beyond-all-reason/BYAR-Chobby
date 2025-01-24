@@ -2680,7 +2680,7 @@ local function InitializeSetupPage(subPanel, screenHeight, pageConfig, nextPage,
 		}
 	end
 
-	local function GenerateOptionButtons(pageConfig, selectedOptions, nextButton)
+	local function GenerateSimpleSkirmishButtons(pageConfig, selectedOptions, nextButton)
 		local buttons = {}
 		local options = pageConfig.options
 		local tipTextBox = selectedOptions.currentControl:GetChildByName('tipTextBox')
@@ -2746,7 +2746,7 @@ local function InitializeSetupPage(subPanel, screenHeight, pageConfig, nextPage,
 										selectedOptions.currentControl:RemoveChild(child)
 									end
 								end
-								local newButtons = GenerateOptionButtons(mapPage, selectedOptions, nextButton)
+								local newButtons = GenerateSimpleSkirmishButtons(mapPage, selectedOptions, nextButton)
 								for _, button in ipairs(newButtons) do
 									selectedOptions.currentControl:AddChild(button)
 								end
@@ -2782,15 +2782,15 @@ local function InitializeSetupPage(subPanel, screenHeight, pageConfig, nextPage,
 		end
 		return buttons
 	end
-	buttons = GenerateOptionButtons(pageConfig, selectedOptions, nextButton)
+	GenerateSimpleSkirmishButtons(pageConfig, selectedOptions, nextButton)
 	return subPanel
 end
 
 local function SetupEasySetupPanel(mainWindow, standardSubPanel, setupData)
 	local pageConfigs = setupData.pages
 	local selectedOptions = {
-		pages = pageConfigs,  -- Store page configs
-		currentControl = nil  -- Will be set when needed
+		pages = pageConfigs,
+		currentControl = nil
 	}
 
 	local function ApplyFunction(startGame)

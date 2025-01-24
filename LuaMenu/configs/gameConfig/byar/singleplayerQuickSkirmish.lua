@@ -85,7 +85,7 @@ local skirmishSetupData = {
 }
 
 function skirmishSetupData.ApplyFunction(battleLobby, pageChoices)
-	local difficulty = pageChoices.difficulty or 2
+	local difficulty = pageChoices.difficulty or 1
 	local gameType = pageChoices.gameType or 1
 	local map = pageChoices.map or 1
 
