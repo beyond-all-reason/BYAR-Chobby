@@ -157,7 +157,7 @@ skin.button_simple = {
   padding = {10, 10, 10, 10},
 
   backgroundColor = {0.70, 0.70, 0.75, 0.65},
-  focusColor  = {0.15, 0.65, 0.85, 0.8},
+  focusColor  = {0.05, 0.58, 1.0, 0.81},
   borderColor = {0.40, 0.40, 0.50, 0.15},
 
   DrawControl = DrawButton,
