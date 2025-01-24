@@ -2688,7 +2688,7 @@ local function InitializeSetupPage(subPanel, screenHeight, pageConfig, nextPage,
 			options = pageConfig.getDynamicOptions(selectedOptions)
 		end
 		if not options then
-			Spring.Echo("No options available for page", pageConfig.name)
+			Spring.Echo("Simple Skirmish: No options available for page ", pageConfig.name)
 			return {}
 		end
 
@@ -2734,7 +2734,7 @@ local function InitializeSetupPage(subPanel, screenHeight, pageConfig, nextPage,
 						if pageConfig.name == "gameType" and selectedOptions.currentControl then
 							local mapPage = selectedOptions.pages[3]
 							if mapPage and mapPage.getDynamicOptions then
-								Spring.Echo("Selected game type: " .. i)
+								Spring.Echo("Simple Skirmish: Selected game type " .. i)
 								local nextButton = selectedOptions.currentControl:GetChildByName('nextButton')
 								selectedOptions.gameType = i
 								local children = selectedOptions.currentControl.children
