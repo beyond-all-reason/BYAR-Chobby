@@ -2578,18 +2578,15 @@ end
 local function InitializeSetupPage(subPanel, screenHeight, pageConfig, nextPage, prevPage, selectedOptions, ApplyFunction)
 	local Configuration = WG.Chobby.Configuration
 
-	local buttonScale, buttonHeight, buttonFont = 70, 64, 4
+	local buttonScale, buttonHeight, buttonFont = 80, 70, 3
 	if screenHeight < 900 then
-		buttonScale = 60
+		buttonScale = 57
 		buttonHeight = 56
-		buttonFont = 4
+		buttonFont = 3
 	end
 
 	subPanel:SetVisibility(not prevPage)
 
-	local buttons = {}
-
-	-- Get options early to determine layout
 	local options = pageConfig.options
 	if pageConfig.getDynamicOptions then
 		options = pageConfig.getDynamicOptions(selectedOptions)
@@ -2685,9 +2682,6 @@ local function InitializeSetupPage(subPanel, screenHeight, pageConfig, nextPage,
 
 	local function GenerateOptionButtons(pageConfig, selectedOptions, nextButton)
 		local buttons = {}
-		local buttonFont = 3
-		local buttonHeight = 70
-		local buttonScale = 85
 		local options = pageConfig.options
 		local tipTextBox = selectedOptions.currentControl:GetChildByName('tipTextBox')
 		if pageConfig.getDynamicOptions then
@@ -2709,7 +2703,6 @@ local function InitializeSetupPage(subPanel, screenHeight, pageConfig, nextPage,
 				else
 					x, y, right, height = "51%", i*buttonScale - 10, "25%", 2*buttonHeight
 				end
-				tooltip = options[i]
 				caption = ""
 			else
 				x, y, right, height = "36%", buttonHeight - 4 + i*buttonScale, "36%", buttonHeight
@@ -2720,7 +2713,6 @@ local function InitializeSetupPage(subPanel, screenHeight, pageConfig, nextPage,
 			else
 				mapButtonCaption = i18n("click_to_pick_map")
 			end
-
 			buttons[i] = Button:New {
 				x = x,
 				y = y,
@@ -2739,45 +2731,34 @@ local function InitializeSetupPage(subPanel, screenHeight, pageConfig, nextPage,
 						end
 						ButtonUtilities.SetButtonSelected(obj)
 						selectedOptions[pageConfig.name] = i
-
-						-- If this is a game type selection and we have map selection page
 						if pageConfig.name == "gameType" and selectedOptions.currentControl then
 							local mapPage = selectedOptions.pages[3]
 							if mapPage and mapPage.getDynamicOptions then
 								Spring.Echo("Selected game type: " .. i)
-								selectedOptions.gameType = i  -- Store the selection explicitly
-
-								-- Store references to control buttons before clearing
 								local nextButton = selectedOptions.currentControl:GetChildByName('nextButton')
-								local advButton = selectedOptions.currentControl:GetChildByName('advButton')
-								local prevButton = selectedOptions.currentControl:GetChildByName('prevPage')
-
-								-- Clear only map buttons
+								selectedOptions.gameType = i
 								local children = selectedOptions.currentControl.children
 								for j = #children, 1, -1 do
 									local child = children[j]
 									if child.name:find("tipTextBox") or child.name:find("advButton") or child.name:find("prevPage") then
-										-- do nothing
+										-- Leave these buttons alone
 									else
 										selectedOptions.currentControl:RemoveChild(child)
 									end
 								end
-
-								-- Regenerate map buttons
 								local newButtons = GenerateOptionButtons(mapPage, selectedOptions, nextButton)
 								for _, button in ipairs(newButtons) do
 									selectedOptions.currentControl:AddChild(button)
 								end
 							end
 						end
-
 						nextButton:SetVisibility(true)
 						if tipTextBox then
 							tipTextBox:SetVisibility(true)
 						end
 					end
 				},
-				parent = subPanel,  -- Add the button to the parent panel
+				parent = subPanel,
 			}
 			if pageConfig.minimap then
 				local imMinimap = Image:New {
@@ -2798,15 +2779,10 @@ local function InitializeSetupPage(subPanel, screenHeight, pageConfig, nextPage,
 					nextButton:SetVisibility(true)
 				end
 			end
-
-
 		end
-
 		return buttons
 	end
-
 	buttons = GenerateOptionButtons(pageConfig, selectedOptions, nextButton)
-
 	return subPanel
 end
 
