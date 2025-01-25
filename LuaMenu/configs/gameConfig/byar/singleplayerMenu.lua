@@ -1,8 +1,7 @@
-
 local items = 	{
 	{
 		name = "skirmish",
-		control = WG.BattleRoomWindow.GetSingleplayerControl(),
+		control = WG.BattleRoomWindow.GetSingleplayerControl(VFS.Include(LUA_DIRNAME .. "configs/gameConfig/byar/singleplayerQuickSkirmish.lua")),
 		entryCheck = WG.BattleRoomWindow.SetSingleplayerGame,
 	},
 	{

@@ -45,6 +45,8 @@ local IMG_LINK     = LUA_DIRNAME .. "images/link.png"
 local IMG_CHECKBOX		= LUA_DIRNAME .. "images/checkbox.png"
 local IMG_CHECKARROW		= LUA_DIRNAME .. "images/checkbox_arrow.png"
 
+local MINIMAP_TOOLTIP_PREFIX = "minimap_tooltip_"
+
 local MINIMUM_QUICKPLAY_PLAYERS = 4 -- Hax until the server tells me a number.
 
 local lastUserToChangeStartBoxes = ''
@@ -511,7 +513,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		tooltip = "Currently selected map. Green boxes show where each team will start"
 	}
 
-	if battleLobby.name == "singleplayer" and config.devMode then 
+	if battleLobby.name == "singleplayer" and WG.Chobby.Configuration.simplifiedSkirmishSetup ~= true and config.devMode then
 		local comboboxstartpostype = ComboBox:New{
 			name = 'comboboxstartpostype',
 			x = "67.15%",
@@ -2576,22 +2578,30 @@ end
 local function InitializeSetupPage(subPanel, screenHeight, pageConfig, nextPage, prevPage, selectedOptions, ApplyFunction)
 	local Configuration = WG.Chobby.Configuration
 
-	local buttonScale, buttonHeight, buttonFont = 70, 64, 4
+	local buttonScale, buttonHeight, buttonFont = 80, 70, 3
 	if screenHeight < 900 then
-		buttonScale = 60
+		buttonScale = 57
 		buttonHeight = 56
-		buttonFont = 4
+		buttonFont = 3
 	end
 
 	subPanel:SetVisibility(not prevPage)
 
-	local buttons = {}
+	local options = pageConfig.options
+	if pageConfig.getDynamicOptions then
+		options = pageConfig.getDynamicOptions(selectedOptions)
+	end
+	if not options then
+		Spring.Echo("No options available for page", pageConfig.name)
+		options = {}
+	end
+	local numOptions = #options
 
 	local nextButton = Button:New {
 		name = 'nextButton',
 		x = "36%",
 		right = "36%",
-		y = 2*buttonScale + 5 + (#pageConfig.options)*buttonScale,
+		y = 4*buttonScale + 5 + numOptions*buttonScale,
 		height = buttonHeight,
 		classname = "action_button",
 		caption = (nextPage and "Next") or i18n("start"),
@@ -2617,8 +2627,8 @@ local function InitializeSetupPage(subPanel, screenHeight, pageConfig, nextPage,
 	if pageConfig.tipText then
 		tipTextBox = TextBox:New {
 			name = 'tipTextBox',
-			x = "26%",
-			y = 3*buttonScale + 20 + (#pageConfig.options)*buttonScale,
+			x = "28%",
+			y = 3*buttonScale + 20 + numOptions*buttonScale,
 			right = "26%",
 			height = 200,
 			align = "left",
@@ -2670,81 +2680,130 @@ local function InitializeSetupPage(subPanel, screenHeight, pageConfig, nextPage,
 		}
 	end
 
-	for i = 1, #pageConfig.options do
-		local x, y, right, height, caption, tooltip
-		if pageConfig.minimap then
-			if i%2 == 1 then
-				x, y, right, height = "25%", (i + 1)*buttonScale - 10, "51%", 2*buttonHeight
-			else
-				x, y, right, height = "51%", i*buttonScale - 10, "25%", 2*buttonHeight
-			end
-			tooltip = pageConfig.options[i]
-			caption = ""
-		else
-			x, y, right, height = "36%", buttonHeight - 4 + i*buttonScale, "36%", buttonHeight
-			caption = pageConfig.options[i]
+	local function GenerateSimpleSkirmishButtons(pageConfig, selectedOptions, nextButton)
+		local buttons = {}
+		local options = pageConfig.options
+		local tipTextBox = selectedOptions.currentControl:GetChildByName('tipTextBox')
+		if pageConfig.getDynamicOptions then
+			options = pageConfig.getDynamicOptions(selectedOptions)
 		end
-		buttons[i] = Button:New {
-			name = 'pageConfig.options'..tostring(i),
-			x = x,
-			y = y,
-			right = right,
-			height = height,
-			classname = "option_button",
-			caption = caption,
-			tooltip = tooltip,
-			objectOverrideFont = WG.Chobby.Configuration:GetFont(buttonFont),
-			tooltip = pageConfig.optionTooltip and pageConfig.optionTooltip[i],
-			OnClick = {
-				function(obj)
-					for j = 1, #buttons do
-						if j ~= i then
-							ButtonUtilities.SetButtonDeselected(buttons[j])
+		if not options then
+			Spring.Echo("Simple Skirmish: No options available for page ", pageConfig.name)
+			return {}
+		end
+
+		for i = 1, #options do
+			local x, y, right, height, caption, tooltip
+			local mapImageFile, needDownload = Configuration:GetMinimapImage(options[i])
+			local haveMap = VFS.HasArchive(options[i])
+			local mapButtonCaption = nil
+			if pageConfig.minimap then
+				if i%2 == 1 then
+					x, y, right, height = "25%", (i + 1)*buttonScale - 10, "51%", 2*buttonHeight
+				else
+					x, y, right, height = "51%", i*buttonScale - 10, "25%", 2*buttonHeight
+				end
+				caption = ""
+			else
+				x, y, right, height = "36%", buttonHeight - 4 + i*buttonScale, "36%", buttonHeight
+				caption = options[i]
+			end
+			if not haveMap then
+				mapButtonCaption = i18n("click_to_download_map")
+			else
+				mapButtonCaption = i18n("click_to_pick_map")
+			end
+			buttons[i] = Button:New {
+				x = x,
+				y = y,
+				right = right,
+				height = height,
+				classname = "button_simple",
+				caption = caption,
+				objectOverrideFont = WG.Chobby.Configuration:GetFont(buttonFont),
+				tooltip = (pageConfig.optionTooltip and pageConfig.optionTooltip[i]) or (pageConfig.minimap and MINIMAP_TOOLTIP_PREFIX .. options[i] .. "|" .. mapButtonCaption),
+				OnClick = {
+					function(obj)
+						for j = 1, #buttons do
+							if j ~= i then
+								ButtonUtilities.SetButtonDeselected(buttons[j])
+							end
+						end
+						ButtonUtilities.SetButtonSelected(obj)
+						selectedOptions[pageConfig.name] = i
+						if pageConfig.name == "gameType" and selectedOptions.currentControl then
+							local mapPage = selectedOptions.pages[3]
+							if mapPage and mapPage.getDynamicOptions then
+								Spring.Echo("Simple Skirmish: Selected game type " .. i)
+								local nextButton = selectedOptions.currentControl:GetChildByName('nextButton')
+								selectedOptions.gameType = i
+								local children = selectedOptions.currentControl.children
+								for j = #children, 1, -1 do
+									local child = children[j]
+									if child.name:find("nextButton") or child.name:find("tipTextBox") or child.name:find("advButton") or child.name:find("prevPage") then
+										-- Leave these buttons alone
+									else
+										selectedOptions.currentControl:RemoveChild(child)
+									end
+								end
+								local newButtons = GenerateSimpleSkirmishButtons(mapPage, selectedOptions, nextButton)
+								for _, button in ipairs(newButtons) do
+									selectedOptions.currentControl:AddChild(button)
+								end
+							end
+						end
+						nextButton:SetVisibility(true)
+						if tipTextBox then
+							tipTextBox:SetVisibility(true)
 						end
 					end
-					ButtonUtilities.SetButtonSelected(obj)
+				},
+				parent = subPanel,
+			}
+			if pageConfig.minimap then
+				local imMinimap = Image:New {
+					x = 0,
+					y = 0,
+					right = 0,
+					bottom = 0,
+					keepAspect = true,
+					file = mapImageFile,
+					fallbackFile = Configuration:GetLoadingImage(2),
+					checkFileExists = needDownload,
+					parent = buttons[i],
+				}
+			else
+				if i == 1  then
+					ButtonUtilities.SetButtonSelected(buttons[i])
 					selectedOptions[pageConfig.name] = i
 					nextButton:SetVisibility(true)
-					if tipTextBox then
-						tipTextBox:SetVisibility(true)
-					end
-					if advButton then
-						advButton:SetVisibility(true)
-					end
 				end
-			},
-			parent = subPanel,
-		}
-		if pageConfig.minimap then
-			local mapImageFile, needDownload = Configuration:GetMinimapImage(pageConfig.options[i])
-			local imMinimap = Image:New {
-				name = 'pageConfig.minimap'..tostring(i),
-				x = 0,
-				y = 0,
-				right = 0,
-				bottom = 0,
-				keepAspect = true,
-				file = mapImageFile,
-				fallbackFile = Configuration:GetLoadingImage(2),
-				checkFileExists = needDownload,
-				parent = buttons[i],
-			}
+			end
 		end
-		ButtonUtilities.SetButtonSelected(buttons[i])
+		return buttons
 	end
-
+	GenerateSimpleSkirmishButtons(pageConfig, selectedOptions, nextButton)
 	return subPanel
 end
 
 local function SetupEasySetupPanel(mainWindow, standardSubPanel, setupData)
 	local pageConfigs = setupData.pages
-	local selectedOptions = {} -- Passed and modified by reference
+	local selectedOptions = {
+		pages = pageConfigs,
+		currentControl = nil
+	}
 
 	local function ApplyFunction(startGame)
 		local battle = battleLobby:GetBattle(battleLobby:GetMyBattleID())
 		setupData.ApplyFunction(battleLobby, selectedOptions)
 		if startGame then
 			if haveMapAndGame then
+				local Configuration = WG.Chobby.Configuration
+					if Configuration.gameConfig.mapStartBoxes.singleplayerboxes then
+						if currentStartRects ~= {} then
+							Configuration.gameConfig.mapStartBoxes.singleplayerboxes = currentStartRects
+						end
+					end
 				WG.SteamCoopHandler.AttemptGameStart("skirmish", battle.gameName, battle.mapName, nil, true)
 			else
 				Spring.Echo("Do something if map or game is missing")
@@ -2767,6 +2826,9 @@ local function SetupEasySetupPanel(mainWindow, standardSubPanel, setupData)
 			padding = {0, 0, 0, 0},
 			parent = mainWindow,
 		}
+		if i == 3 then  -- Store reference to the map page's control
+			selectedOptions.currentControl = pages[i]
+		end
 	end
 
 	for i = 1, #pages do

@@ -7,6 +7,7 @@ local aiCustomData       = VFS.Include(LUA_DIRNAME .. "configs/gameConfig/" .. s
 local singleplayerConfig = VFS.Include(LUA_DIRNAME .. "configs/gameConfig/" .. shortname .. "/singleplayerMenu.lua")
 local helpSubmenuConfig  = VFS.Include(LUA_DIRNAME .. "configs/gameConfig/" .. shortname .. "/helpSubmenuConfig.lua")
 local skirmishDefault    = VFS.Include(LUA_DIRNAME .. "configs/gameConfig/" .. shortname .. "/skirmishDefault.lua")
+local skirmishSetupData  = VFS.Include(LUA_DIRNAME .. "configs/gameConfig/byar/singleplayerQuickSkirmish.lua")
 local rankFunction       = VFS.Include(LUA_DIRNAME .. "configs/gameConfig/byar/rankFunction.lua")
 local backgroundConfig   = VFS.Include(LUA_DIRNAME .. "configs/gameConfig/" .. shortname .. "/skinning/skinConfig.lua")
 
@@ -97,6 +98,7 @@ local externalFuncAndData = {
 	singleplayerConfig     = singleplayerConfig,
 	helpSubmenuConfig      = helpSubmenuConfig,
 	skirmishDefault        = skirmishDefault,
+	skirmishSetupData      = skirmishSetupData,
 	sidedata               = sidedata,
 	rankFunction           = rankFunction,
 	--springSettingsPath     = springSettingsPath,
