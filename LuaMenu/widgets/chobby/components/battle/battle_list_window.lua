@@ -157,7 +157,7 @@ function BattleListWindow:init(parent)
 		boxalign = "left",
 		boxsize = 20,
 		caption = " Vs AI",
-		checked = Configuration.battleFilterLocked or false,
+		checked = Configuration.battleFilterVsAI or false,
 		objectOverrideFont = myFont2,
 		OnChange = {
 			function (obj, newState)
@@ -193,6 +193,7 @@ function BattleListWindow:init(parent)
 		checkNonFriend:SetToggle(Configuration.battleFilterNonFriend)
 		checkRunning:SetToggle(Configuration.battleFilterRunning)
         checkLocked:SetToggle(Configuration.battleFilterLocked)
+		checkVsAI:SetToggle(Configuration.battleFilterVsAI)
 	end
 	WG.Delay(UpdateCheckboxes, 0.2)
 
