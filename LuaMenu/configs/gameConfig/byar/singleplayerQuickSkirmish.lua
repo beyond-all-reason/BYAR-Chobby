@@ -94,6 +94,20 @@ function skirmishSetupData.ApplyFunction(battleLobby, pageChoices)
 	local mapOptions = skirmishSetupData.mapsByGameType[selectedGameType]
 	battleLobby:SelectMap(mapOptions[map])
 
+	if mapOptions[map] == "Archsimkats_Valley_V1" then
+		WG.BattleRoomWindow.RemoveStartRect()
+		local l = 0
+		local r = 70
+		local t = 0
+		local b = 90
+		WG.BattleRoomWindow.AddStartRect(0, l, t, r, b)
+		local l = 130
+		local r = 200
+		local t = 110
+		local b = 200
+		WG.BattleRoomWindow.AddStartRect(1, l, t, r, b)
+	end
+
 	battleLobby:SetBattleStatus({
 		allyNumber = 0,
 		isSpectator = false,

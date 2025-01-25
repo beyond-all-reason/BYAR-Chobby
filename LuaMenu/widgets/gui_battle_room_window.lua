@@ -2798,6 +2798,12 @@ local function SetupEasySetupPanel(mainWindow, standardSubPanel, setupData)
 		setupData.ApplyFunction(battleLobby, selectedOptions)
 		if startGame then
 			if haveMapAndGame then
+				local Configuration = WG.Chobby.Configuration
+					if Configuration.gameConfig.mapStartBoxes.singleplayerboxes then
+						if currentStartRects ~= {} then
+							Configuration.gameConfig.mapStartBoxes.singleplayerboxes = currentStartRects
+						end
+					end
 				WG.SteamCoopHandler.AttemptGameStart("skirmish", battle.gameName, battle.mapName, nil, true)
 			else
 				Spring.Echo("Do something if map or game is missing")
