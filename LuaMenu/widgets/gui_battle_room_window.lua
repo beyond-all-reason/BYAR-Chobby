@@ -2608,15 +2608,23 @@ local function InitializeSetupPage(subPanel, screenHeight, pageConfig, nextPage,
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(buttonFont),
 		OnClick = {
 			function(obj)
-				subPanel:SetVisibility(false)
 				if nextPage then
 					WG.Analytics.SendOnetimeEvent("lobby:singleplayer:skirmish:" .. pageConfig.name, selectedOptions[pageConfig.name])
 					nextPage:SetVisibility(true)
 				else
-					WG.Analytics.SendOnetimeEvent("lobby:singleplayer:skirmish:" .. pageConfig.name, selectedOptions[pageConfig.name])
-					WG.Analytics.SendOnetimeEvent("lobby:singleplayer:skirmish:start_quick")
-					ApplyFunction(true)
+					local selectedMap = selectedOptions.map or ""
+					local haveMap = VFS.HasArchive(selectedMap)
+					if not haveMap then
+						WG.DownloadHandler.MaybeDownloadArchive(selectedMap, "map", -1)
+						WG.Chobby.InformationPopup("You do not have the map for this skirmish, check your downloads tab to see the download progress.", {caption = "OK"})
+						return
+					else
+						WG.Analytics.SendOnetimeEvent("lobby:singleplayer:skirmish:" .. pageConfig.name, selectedOptions[pageConfig.name])
+						WG.Analytics.SendOnetimeEvent("lobby:singleplayer:skirmish:start_quick")
+						ApplyFunction(true)
+					end
 				end
+				subPanel:SetVisibility(false)
 			end
 		},
 		parent = subPanel,
@@ -2694,24 +2702,26 @@ local function InitializeSetupPage(subPanel, screenHeight, pageConfig, nextPage,
 
 		for i = 1, #options do
 			local x, y, right, height, caption, tooltip
-			local mapImageFile, needDownload = Configuration:GetMinimapImage(options[i])
-			local haveMap = VFS.HasArchive(options[i])
+			local mapImageFile, needDownload
 			local mapButtonCaption = nil
 			if pageConfig.minimap then
+				caption = ""
+				mapImageFile, needDownload = Configuration:GetMinimapImage(options[i])
+				local haveMap = VFS.HasArchive(options[i])
 				if i%2 == 1 then
 					x, y, right, height = "25%", (i + 1)*buttonScale - 10, "51%", 2*buttonHeight
 				else
 					x, y, right, height = "51%", i*buttonScale - 10, "25%", 2*buttonHeight
 				end
-				caption = ""
+				if not haveMap then
+					WG.DownloadHandler.MaybeDownloadArchive(options[i], "map", -1)
+					mapButtonCaption = i18n("click_to_download_map")
+				else
+					mapButtonCaption = i18n("click_to_pick_map")
+				end
 			else
 				x, y, right, height = "36%", buttonHeight - 4 + i*buttonScale, "36%", buttonHeight
 				caption = options[i]
-			end
-			if not haveMap then
-				mapButtonCaption = i18n("click_to_download_map")
-			else
-				mapButtonCaption = i18n("click_to_pick_map")
 			end
 			buttons[i] = Button:New {
 				x = x,
@@ -2751,6 +2761,10 @@ local function InitializeSetupPage(subPanel, screenHeight, pageConfig, nextPage,
 									selectedOptions.currentControl:AddChild(button)
 								end
 							end
+						end
+						if pageConfig.name == "map" then
+							WG.DownloadHandler.MaybeDownloadArchive(options[i], "map", -1)
+							selectedOptions.map = options[i]
 						end
 						nextButton:SetVisibility(true)
 						if tipTextBox then
