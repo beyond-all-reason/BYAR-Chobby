@@ -75,9 +75,17 @@ local skirmishSetupData = {
 			name = "map",
 			minimap = true,
 			tipText = "Click 'Advanced' for more maps and options.",
+			options = (function()
+				local queueMapsForDownload = {}
+				for _, maps in pairs(mapsByGameType) do
+					for _, map in ipairs(maps) do
+						table.insert(queueMapsForDownload, map)
+					end
+				end
+				return queueMapsForDownload
+			end)(),
 			getDynamicOptions = function(pageChoices)
 				local selectedGameType = gameTypes[pageChoices.gameType or 1]
-				Spring.Echo("Selected game type string: " .. tostring(selectedGameType))
 				return mapsByGameType[selectedGameType]
 			end,
 		},
@@ -113,7 +121,6 @@ function skirmishSetupData.ApplyFunction(battleLobby, pageChoices)
 		isSpectator = false,
 	})
 
-	-- Handle PvE modes
 	local pveDifficultyMap = {
 		["Easy"] = "easy",
 		["Medium"] = "normal",
