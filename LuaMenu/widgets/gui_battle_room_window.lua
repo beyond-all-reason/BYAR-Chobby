@@ -2742,9 +2742,9 @@ local function InitializeSetupPage(subPanel, screenHeight, pageConfig, nextPage,
 						ButtonUtilities.SetButtonSelected(obj)
 						selectedOptions[pageConfig.name] = i
 						if pageConfig.name == "gameType" and selectedOptions.currentControl then
+							Spring.Echo("Simple Skirmish: Selected game type: " .. options[i])
 							local mapPage = selectedOptions.pages[3]
 							if mapPage and mapPage.getDynamicOptions then
-								Spring.Echo("Simple Skirmish: Selected game type " .. i)
 								local nextButton = selectedOptions.currentControl:GetChildByName('nextButton')
 								selectedOptions.gameType = i
 								local children = selectedOptions.currentControl.children
@@ -2761,8 +2761,10 @@ local function InitializeSetupPage(subPanel, screenHeight, pageConfig, nextPage,
 									selectedOptions.currentControl:AddChild(button)
 								end
 							end
-						end
-						if pageConfig.name == "map" then
+						elseif pageConfig.name == "difficulty" then
+							Spring.Echo("Simple Skirmish: Selected difficulty: " .. options[i])
+						elseif pageConfig.name == "map" then
+							Spring.Echo("Simple Skirmish: Selected map: " .. options[i])
 							WG.DownloadHandler.MaybeDownloadArchive(options[i], "map", -1)
 							selectedOptions.map = options[i]
 						end

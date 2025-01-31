@@ -86,7 +86,6 @@ local skirmishSetupData = {
 			end)(),
 			getDynamicOptions = function(pageChoices)
 				local selectedGameType = gameTypes[pageChoices.gameType or 1]
-				Spring.Echo("Selected game type string: " .. tostring(selectedGameType))
 				return mapsByGameType[selectedGameType]
 			end,
 		},
