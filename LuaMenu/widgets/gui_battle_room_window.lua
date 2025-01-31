@@ -2616,9 +2616,6 @@ local function InitializeSetupPage(subPanel, screenHeight, pageConfig, nextPage,
 					WG.Analytics.SendOnetimeEvent("lobby:singleplayer:skirmish:" .. pageConfig.name, selectedOptions[pageConfig.name])
 					WG.Analytics.SendOnetimeEvent("lobby:singleplayer:skirmish:start_quick")
 					ApplyFunction(true)
-					if haveMapAndGame then
-						subPanel:SetVisibility(false)
-					end
 				end
 			end
 		},
@@ -2822,8 +2819,9 @@ local function SetupEasySetupPanel(mainWindow, standardSubPanel, setupData)
 				WG.Chobby.InformationPopup("You do not have the map for this skirmish, check your downloads tab to see the download progress.", {caption = "OK"})
 				return
 			end
+		else
+			standardSubPanel:SetVisibility(true)
 		end
-		standardSubPanel:SetVisibility(true)
 	end
 
 	local _, screenHeight = Spring.GetWindowGeometry()
