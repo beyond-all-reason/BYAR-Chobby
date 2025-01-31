@@ -19,6 +19,7 @@ local welcomePanelItems = {
         Header = "Mark this date in your calendars as we go down in RTS history!",
         Text = "Join us as Beyond All Reason celebrates 40,000 Discord members with an epic 24-hour event featuring never-before-seen RTS battles! Massive 40v40 wars, 64-player FFAs, and more—live-streamed by top casters. Don’t miss the action on February 2nd!",
         Image = "LuaMenu/images/BAR_News_40000_Discord_Members_Square.png",
+        Time = "2025-02-02T13:00:00",
         Url = "https://www.beyondallreason.info/news/40-000-discord-members-celebration-event",
         UrlText = "Read the announcement",
     },
