@@ -77,7 +77,6 @@ local skirmishSetupData = {
 			tipText = "Click 'Advanced' for more maps and options.",
 			getDynamicOptions = function(pageChoices)
 				local selectedGameType = gameTypes[pageChoices.gameType or 1]
-				Spring.Echo("Selected game type string: " .. tostring(selectedGameType))
 				return mapsByGameType[selectedGameType]
 			end,
 		},
@@ -87,7 +86,7 @@ local skirmishSetupData = {
 function skirmishSetupData.ApplyFunction(battleLobby, pageChoices)
 	local difficulty = pageChoices.difficulty or 1
 	local gameType = pageChoices.gameType or 1
-	local map = pageChoices.map or 1
+	local map = pageChoices.map or 2
 
 	local pageConfig = skirmishSetupData.pages
 	local selectedGameType = pageConfig[1].options[gameType]

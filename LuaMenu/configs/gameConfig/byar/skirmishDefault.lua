@@ -1,6 +1,7 @@
 local randomSkirmishEnabled = Spring.GetConfigInt("randomSkirmishSetup", 1)
+local simpleSkirmishEnabled = Spring.GetConfigInt("simplifiedSkirmishSetup", 1)
 
-if randomSkirmishEnabled == 1 then
+if randomSkirmishEnabled == 1 and simpleSkirmishEnabled ~= 1 then
 	local listOfCertifiedMaps = VFS.Include("luamenu/configs/gameconfig/byar/mapdetails.lua")
 	local convertedListOfMaps = {}
 	for pickedMap, mapDetails in pairs(listOfCertifiedMaps) do
@@ -41,12 +42,11 @@ if randomSkirmishEnabled == 1 then
 				startboxes =  {[0] = {0, 160, 200, 200}, [1] = {0, 0, 200, 40}, }
 			end
 			skirmishTable = {map = map, enemyAI = enemyAI, friendlyAI = friendlyAI,startboxes = startboxes}
-			
 		end
 	end
 
 	return skirmishTable
 else
-	return { map = "Quicksilver Remake 1.24",}
+	return { map = "Avalanche 3.4",}
 end
 

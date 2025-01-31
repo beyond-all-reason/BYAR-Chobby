@@ -226,6 +226,7 @@ return {
 		flushLogs_tooltip = "Immediately flush infolog.txt to disk for debuggging.",
 		keep_queues = "Stay in MM queues on launch",
 		simplifiedSkirmishSetup = "Simple skirmish setup",
+		simplifiedSkirmishSetup_tooltip = "Provides step-by-step instructions while setting up a singleplayer skirmish.",
 		debugMode = "Debug mode",
 		ShowhiddenModopions = "Show Hidden Modoptions",
 		ShowhiddenTooltip = "WARNING: Hidden options may not work. Rearranges Tabs",
