@@ -16,11 +16,11 @@ local welcomePanelItems = {
     },
 
     {
-        Header = "New Recoil Engine release is LIVE!",
-        Text = "Discover the latest Recoil Engine release featuring the new RmlUI framework, enhancing UI design with web technologies. Explore major graphical upgrades, improved gameplay mechanics, and key bug fixes. Special thanks to the dedicated contributors!" .. " \n" .. " \n" .. "Please report any bugs you face. Check out the full patch notes for detailed insights.",
-        Image = "LuaMenu/images/Recoil engine.png",
-        Url = "https://www.beyondallreason.info/microblogs/140",
-        UrlText = "Read the patchnotes",
+        Header = "Mark this date in your calendars as we go down in RTS history!",
+        Text = "Join us as Beyond All Reason celebrates 40,000 Discord members with an epic 24-hour event featuring never-before-seen RTS battles! Massive 40v40 wars, 64-player FFAs, and more—live-streamed by top casters. Don’t miss the action on February 2nd!",
+        Image = "LuaMenu/images/BAR_News_40000_Discord_Members_Square.png",
+        Url = "https://www.beyondallreason.info/news/40-000-discord-members-celebration-event",
+        UrlText = "Read the announcement",
     },
 
     {
