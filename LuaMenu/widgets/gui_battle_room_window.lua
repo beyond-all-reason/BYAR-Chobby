@@ -2603,24 +2603,30 @@ local function InitializeSetupPage(subPanel, screenHeight, pageConfig, nextPage,
 		right = "36%",
 		y = 4*buttonScale + 5 + numOptions*buttonScale,
 		height = buttonHeight,
-		classname = "action_button",
+		classname = (nextPage and "action_button") or "ready_button",
 		caption = (nextPage and "Next") or i18n("start"),
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(buttonFont),
 		OnClick = {
 			function(obj)
-				subPanel:SetVisibility(false)
 				if nextPage then
+					subPanel:SetVisibility(false)
 					WG.Analytics.SendOnetimeEvent("lobby:singleplayer:skirmish:" .. pageConfig.name, selectedOptions[pageConfig.name])
 					nextPage:SetVisibility(true)
 				else
 					WG.Analytics.SendOnetimeEvent("lobby:singleplayer:skirmish:" .. pageConfig.name, selectedOptions[pageConfig.name])
 					WG.Analytics.SendOnetimeEvent("lobby:singleplayer:skirmish:start_quick")
 					ApplyFunction(true)
+					if haveMapAndGame then
+						subPanel:SetVisibility(false)
+					end
 				end
 			end
 		},
 		parent = subPanel,
 	}
+	if not nextPage then
+		nextButton:StyleReady()
+	end
 	nextButton:Hide()
 
 	local tipTextBox
@@ -2698,6 +2704,7 @@ local function InitializeSetupPage(subPanel, screenHeight, pageConfig, nextPage,
 			local haveMap = VFS.HasArchive(options[i])
 			local mapButtonCaption = nil
 			if pageConfig.minimap then
+				WG.DownloadHandler.MaybeDownloadArchive(options[i], "map", -1)
 				if i%2 == 1 then
 					x, y, right, height = "25%", (i + 1)*buttonScale - 10, "51%", 2*buttonHeight
 				else
@@ -2732,9 +2739,9 @@ local function InitializeSetupPage(subPanel, screenHeight, pageConfig, nextPage,
 						ButtonUtilities.SetButtonSelected(obj)
 						selectedOptions[pageConfig.name] = i
 						if pageConfig.name == "gameType" and selectedOptions.currentControl then
+							Spring.Echo("Simple Skirmish: Selected game type: " .. options[i])
 							local mapPage = selectedOptions.pages[3]
 							if mapPage and mapPage.getDynamicOptions then
-								Spring.Echo("Simple Skirmish: Selected game type " .. i)
 								local nextButton = selectedOptions.currentControl:GetChildByName('nextButton')
 								selectedOptions.gameType = i
 								local children = selectedOptions.currentControl.children
@@ -2751,6 +2758,11 @@ local function InitializeSetupPage(subPanel, screenHeight, pageConfig, nextPage,
 									selectedOptions.currentControl:AddChild(button)
 								end
 							end
+						elseif pageConfig.name == "difficulty" then
+							Spring.Echo("Simple Skirmish: Selected difficulty: " .. options[i])
+						elseif pageConfig.name == "map" then
+							Spring.Echo("Simple Skirmish: Selected map: " .. options[i])
+							WG.DownloadHandler.MaybeDownloadArchive(options[i], "map", -1)
 						end
 						nextButton:SetVisibility(true)
 						if tipTextBox then
@@ -2806,7 +2818,9 @@ local function SetupEasySetupPanel(mainWindow, standardSubPanel, setupData)
 					end
 				WG.SteamCoopHandler.AttemptGameStart("skirmish", battle.gameName, battle.mapName, nil, true)
 			else
-				Spring.Echo("Do something if map or game is missing")
+				MaybeDownloadMap(battle)
+				WG.Chobby.InformationPopup("You do not have the map for this skirmish, check your downloads tab to see the download progress.", {caption = "OK"})
+				return
 			end
 		end
 		standardSubPanel:SetVisibility(true)
