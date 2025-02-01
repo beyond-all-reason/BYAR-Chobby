@@ -607,31 +607,23 @@ end
 --------------------------------------------------------------------------------
 -- Graphics
 
-local settings = {
-	"AllowDeferredMapRendering",
-	"AllowDeferredModelRendering",
-	"AdvMapShading",
-	"AdvUnitShading",
-	"VSync",
-	"VSyncGame",
-	"CamMode",
-	"DevUI",
-	"Fullscreen",
-	"HardwareCursor",
-	"MSAA",
-	"MSAALevel",
-	"MinimapOnLeft",
-	"ShadowMapSize",
-	"UnitIconDist",
-	"UnitIconFadeStart",
-	"VSync",
-	"VSyncGame",
-	"XResolution",
-	"YResolution",
-	"XResolutionWindowed",
-	"YResolutionWindowed",
-	"water",
-	"graphicsPreset",
+local settings_abbr = {
+	CamMode = "CamMode",
+	DevUI = "DevUI",
+	FullS = "Fullscreen",
+	HWCursor = "HardwareCursor",
+	MSAA = "MSAA",
+	MSAAx = "MSAALevel",
+	Shadow = "ShadowMapSize",
+	IconD = "UnitIconDist",
+	VSync = "VSync",
+	VSyncG = "VSyncGame",
+	Xrez = "XResolution",
+	Yrez = "YResolution",
+	XrezW = "XResolutionWindowed",
+	YrezW = "YResolutionWindowed",
+	water = "water",
+	gPreset = "graphicsPreset",
 }
 
 local function IsTesselationShaderSupported()
@@ -640,8 +632,8 @@ end
 
 local function SendGraphicsSettings()
 	local settingsTable = {}
-	for i, settingkey in ipairs(settings) do
-		settingsTable[settingkey] = Spring.GetConfigInt(settingkey, -1)
+	for shortname, settingkey in pairs(settings_abbr) do
+		settingsTable[shortname] = Spring.GetConfigInt(settingkey, -1)
 	end
 	-- Convert it to json:
 	local settingsJson = Spring.Utilities.json.encode(settingsTable)
