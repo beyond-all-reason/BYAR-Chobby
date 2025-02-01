@@ -617,15 +617,20 @@ local function IsTesselationShaderSupported()
 end
 
 local function SendGraphicsSettings()
-	for i = 1, #settings do
-		local value = Spring.GetConfigInt(settings[i], -1)
-		Analytics.SendOnetimeEvent("settings:" .. settings[i], value)
+	local settingsTable = {}
+	for i, settingkey in ipairs(settings) do
+		settingsTable[settingkey] = Spring.GetConfigInt(settingkey, -1)
 	end
+	-- Convert it to json:
+	local settingsJson = Spring.Utilities.json.encode(settingsTable)
+	-- check if it matches the previously uploaded client property:
+
+	Analytics.SendOnetimeEvent("graphics:settings", settingsJson)
 end
 
 function widget:ActivateGame()
 	-- Give time for the settings that the player will use to be applied properly.
-	WG.Delay(SendGraphicsSettings, 30)
+	WG.Delay(SendGraphicsSettings, 60)
 end
 
 --------------------------------------------------------------------------------
@@ -718,8 +723,6 @@ function DelayedInitialize()
 	WG.Delay(LateHWInfo,15)
 	WG.Delay(GetInfologs,17)
 	WG.Delay(GetDesyncGameStates, 25)
-
-
 end
 
 --------------------------------------------------------------------------------
