@@ -217,7 +217,7 @@ local function CreateReplayEntry(
 	if not (t1 and t2 and t3 and t4 and t5) then
 		return
 	end
-	local replayDateString = convertUtcToLocal(t1,t2,t3,t4,t5,t6)
+	local replayDateString = convertUtcToLocal(t1,t2,t3,t4,t5)
 
 	-- Compute the time of the replay
 	local hours, minutes = math.floor(time / 3600), math.floor(time / 60) % 60
