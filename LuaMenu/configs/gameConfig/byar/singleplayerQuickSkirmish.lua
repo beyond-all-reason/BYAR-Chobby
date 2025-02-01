@@ -105,6 +105,18 @@ function skirmishSetupData.ApplyFunction(battleLobby, pageChoices)
 		local t = 110
 		local b = 200
 		WG.BattleRoomWindow.AddStartRect(1, l, t, r, b)
+	elseif mapOptions[map] == "Charlie In The Hills Remake v1.1" then
+		WG.BattleRoomWindow.RemoveStartRect()
+		local l = 51
+		local r = 149
+		local t = 22
+		local b = 54
+		WG.BattleRoomWindow.AddStartRect(0, l, t, r, b)
+		local l = 51
+		local r = 149
+		local t = 146
+		local b = 178
+		WG.BattleRoomWindow.AddStartRect(1, l, t, r, b)
 	end
 
 	battleLobby:SetBattleStatus({
