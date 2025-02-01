@@ -228,9 +228,13 @@ end
 function Analytics.SendOnetimeEvent(eventName, value)
 	if PRINT_DEBUG then Spring.Echo("BAR Analytics.SendOnetimeEvent(eventName, value)", eventName, value) end
 	if onetimeEvents[eventName] then
+
+	-- Do not send onetimeEvents when they dont change. This is to prevent spamming the server with the same data.
+	if onetimeEvents[eventName] and (onetimeEvents[eventName] == (value or true)) then
 		return
 	end
 	onetimeEvents[eventName] = true
+	onetimeEvents[eventName] = value or true
 
 	SendBARAnalytics(eventName, value, false)
 end
@@ -610,6 +614,26 @@ local settings = {
 	"AllowDeferredModelRendering",
 	"AdvMapShading",
 	"AdvUnitShading",
+	"VSync",
+	"VSyncGame",
+	"CamMode",
+	"DevUI",
+	"Fullscreen",
+	"HardwareCursor",
+	"MSAA",
+	"MSAALevel",
+	"MinimapOnLeft",
+	"ShadowMapSize",
+	"UnitIconDist",
+	"UnitIconFadeStart",
+	"VSync",
+	"VSyncGame",
+	"XResolution",
+	"YResolution",
+	"XResolutionWindowed",
+	"YResolutionWindowed",
+	"water",
+	"graphicsPreset",
 }
 
 local function IsTesselationShaderSupported()
