@@ -166,6 +166,29 @@ local function playerWidget(playerInfo)
 	return ret
 end
 
+-- Convert UTC Time To User's Local Time
+local function convertUtcToLocal(year, month, day, hour, minute)
+  local utcDate = {
+    year = year,
+    month = month,
+    day = day,
+    hour = hour,
+    min = minute,
+    sec = 0
+  }
+
+  local utcTimestamp = os.time(utcDate)
+    
+  -- Get the local time offset in seconds
+  local localOffset = os.difftime(os.time(), os.time(os.date("!*t")))
+  
+  local localTimestamp = utcTimestamp + localOffset
+    
+  -- Convert the local timestamp to a readable date
+  local replayDateString = os.date("%Y-%m-%d %H:%M", localTimestamp)
+  return replayDateString
+end
+
 local function CreateReplayEntry(
 	replayPath, engineName, gameName, mapName, players, time, winningAllyTeamIds
 )
@@ -194,7 +217,7 @@ local function CreateReplayEntry(
 	if not (t1 and t2 and t3 and t4 and t5) then
 		return
 	end
-	local replayDateString = string.format("%s-%s-%s %s:%s", t1, t2, t3, t4, t5)
+	local replayDateString = convertUtcToLocal(t1,t2,t3,t4,t5,t6)
 
 	-- Compute the time of the replay
 	local hours, minutes = math.floor(time / 3600), math.floor(time / 60) % 60
