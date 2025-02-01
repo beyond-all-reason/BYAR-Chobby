@@ -2631,16 +2631,16 @@ local function InitializeSetupPage(subPanel, screenHeight, pageConfig, nextPage,
 
 	local tipTextBox
 	if pageConfig.tipText then
-		tipTextBox = TextBox:New {
+		tipTextBox = Label:New {
 			name = 'tipTextBox',
-			x = "28%",
+			x = "6%",
 			y = 3*buttonScale + 20 + numOptions*buttonScale,
-			right = "26%",
+			right = "5%",
 			height = 200,
-			align = "left",
+			align = "center",
 			objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 			objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
-			text = pageConfig.tipText,
+			caption = pageConfig.tipText,
 			parent = subPanel,
 		}
 		tipTextBox:Hide()
