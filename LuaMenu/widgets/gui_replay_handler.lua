@@ -179,8 +179,14 @@ local function convertUtcToLocal(year, month, day, hour, minute, seconds)
 
   local utcTimestamp = os.time(utcDate)
     
-  -- Get the local time offset in seconds
-  local localOffset = os.difftime(os.time(), os.time(os.date("!*t")))
+  -- Get the UTC time table
+  local utcTimeTable = os.date("!*t", utcTimestamp)
+
+  -- Get the local time table for the same UTC timestamp
+  local localTimeTable = os.date("*t", utcTimestamp)
+
+  -- Calculate the difference between UTC and local time by comparing their Unix timestamps
+  local localOffset = os.difftime(os.time(localTimeTable), os.time(utcTimeTable))
   
   local localTimestamp = utcTimestamp + localOffset
     
