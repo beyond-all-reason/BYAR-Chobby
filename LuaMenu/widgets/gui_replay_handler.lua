@@ -167,14 +167,14 @@ local function playerWidget(playerInfo)
 end
 
 -- Convert UTC Time To User's Local Time
-local function convertUtcToLocal(year, month, day, hour, minute)
+local function convertUtcToLocal(year, month, day, hour, minute, seconds)
   local utcDate = {
     year = year,
     month = month,
     day = day,
     hour = hour,
     min = minute,
-    sec = 0
+    sec = seconds
   }
 
   local utcTimestamp = os.time(utcDate)
@@ -213,11 +213,11 @@ local function CreateReplayEntry(
 	fileName = string.gsub(fileName, "%.sdfz", "")
 
 	-- Extract replay time from the filename
-	local t1, t2, t3, t4, t5 = string.match(fileName, "(%d%d%d%d)-?(%d%d)-?(%d%d)_(%d%d)-?(%d%d)")
-	if not (t1 and t2 and t3 and t4 and t5) then
+	local t1, t2, t3, t4, t5, t6 = string.match(fileName, "(%d%d%d%d)-?(%d%d)-?(%d%d)_(%d%d)-?(%d%d)-?(%d%d)")
+	if not (t1 and t2 and t3 and t4 and t5 and t6) then
 		return
 	end
-	local replayDateString = convertUtcToLocal(t1,t2,t3,t4,t5)
+	local replayDateString = convertUtcToLocal(t1,t2,t3,t4,t5,t6)
 
 	-- Compute the time of the replay
 	local hours, minutes = math.floor(time / 3600), math.floor(time / 60) % 60
