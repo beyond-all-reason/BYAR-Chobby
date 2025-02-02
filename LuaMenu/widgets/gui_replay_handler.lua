@@ -166,35 +166,6 @@ local function playerWidget(playerInfo)
 	return ret
 end
 
--- Convert UTC Time To User's Local Time
-local function convertUtcToLocal(year, month, day, hour, minute, seconds)
-  local utcDate = {
-    year = year,
-    month = month,
-    day = day,
-    hour = hour,
-    min = minute,
-    sec = seconds
-  }
-
-  local utcTimestamp = os.time(utcDate)
-    
-  -- Get the UTC time table
-  local utcTimeTable = os.date("!*t", utcTimestamp)
-
-  -- Get the local time table for the same UTC timestamp
-  local localTimeTable = os.date("*t", utcTimestamp)
-
-  -- Calculate the difference between UTC and local time by comparing their Unix timestamps
-  local localOffset = os.difftime(os.time(localTimeTable), os.time(utcTimeTable))
-  
-  local localTimestamp = utcTimestamp + localOffset
-    
-  -- Convert the local timestamp to a readable date
-  local replayDateString = os.date("%Y-%m-%d %H:%M", localTimestamp)
-  return replayDateString
-end
-
 local function CreateReplayEntry(
 	replayPath, engineName, gameName, mapName, players, time, winningAllyTeamIds
 )
@@ -223,7 +194,14 @@ local function CreateReplayEntry(
 	if not (t1 and t2 and t3 and t4 and t5 and t6) then
 		return
 	end
-	local replayDateString = convertUtcToLocal(t1,t2,t3,t4,t5,t6)
+
+  -- Construct the UTC time string
+  local utcTimeString = string.format("%04d-%02d-%02dT%02d:%02d:%02dZ", t1, t2, t3, t4, t5, t6)
+  local localTimeTable = Spring.Utilities.UtcToLocal(utcTimeString)
+
+  -- Format the local time table into a yyyy-mm-dd HH:mm string
+  local replayDateString = string.format("%04d-%02d-%02d %02d:%02d", localTimeTable[6], localTimeTable[5], localTimeTable[4], localTimeTable[3], localTimeTable[2])
+
 
 	-- Compute the time of the replay
 	local hours, minutes = math.floor(time / 3600), math.floor(time / 60) % 60
