@@ -43,7 +43,7 @@ local background = {
 }
 -- random background
 local loadscreens = VFS.DirList(LUA_DIRNAME .. "configs/gameConfig/" .. shortname .. "/skinning/loadpictures/", "*.jpg")
-local randomBackgroundImage = loadscreens[1+(math.floor((1000*os.clock())%#loadscreens))] -- hacky hotfix for http://springrts.com/mantis/view.php?id=4572
+local randomBackgroundImage = loadscreens[math.random(#loadscreens)]
 if VFS.FileExists(randomBackgroundImage) then
 	background.image = randomBackgroundImage
 end
