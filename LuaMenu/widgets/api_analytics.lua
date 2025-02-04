@@ -644,6 +644,7 @@ local settings_abbr = {
 	Yrez = "YResolution",
 	XrezW = "XResolutionWindowed",
 	YrezW = "YResolutionWindowed",
+	bLess = "WindowBorderless",
 	water = "water",
 	--gPreset = "graphicsPreset", -- TODO support strings too
 }
