@@ -173,7 +173,7 @@ local function jsonEscapeString(s)
 end
 
 
-function Analytics.SendCrashReportOneTimeEvent(filename, errortype, errorkey, compressedlog, private)
+function Analytics.SendCrashReportOneTimeEvent(filename, errortype, errorkey, compressedlog, private, versionData)
 	if PRINT_DEBUG then
 		Spring.Log("Chobby", LOG.WARNING, "BAR Analytics.SendCrashReportOneTimeEvent(filename, errortype, errorkey, compressedlog)", filename, errortype, errorkey, private)
 	elseif filename ~= "infolog.txt" then
@@ -198,8 +198,11 @@ function Analytics.SendCrashReportOneTimeEvent(filename, errortype, errorkey, co
 	local metadata = {
 		errortype = errortype,
 		shorterror = jsonEscapeString(errorkey),
-		gameversion = Configuration.gameConfig.ShortenNameString(Configuration:GetDefaultGameName()),
-		engineversion = Configuration:GetTruncatedEngineVersion(),
+		gameversion = versionData.game or Configuration.gameConfig.ShortenNameString(Configuration:GetDefaultGameName()),
+		engineversion = versionData.engine or Configuration:GetTruncatedEngineVersion(),
+		lobbyversion = versionData.lobby,
+		map = versionData.map,
+		gameID = versionData.gameID,
 		private = private,
 		filename = filename,
 	}
@@ -278,8 +281,13 @@ local function EscapeSlashesAndQuotes(s)
 	return s
 end
 
+-- ParseInfolog
+-- This function is used to parse the infolog for errors and warnings.
+-- returns nil if no upload was needed, otherwise returns the error data and metadata
+-- "errorType","errorLine", "infologcontents", "versionData"
 local function ParseInfolog(infologpath)
 	local infolog = VFS.LoadFile(infologpath)
+	local versionData = {} -- we need 5 bits of info in this, game, engine, lobby, map and gameID
 
 	if PRINT_DEBUG then Spring.Echo("BAR Analytics: ParseInfolog()", infologpath) end
 	if infolog then
@@ -301,6 +309,20 @@ local function ParseInfolog(infologpath)
 				--if not PRINT_DEBUG then return nil end
 
 			end
+			
+			-- [t=00:00:15.691792][f=-000001] GameID: 0237a267f0fa57016ea12465d0a5cce3
+			if string.find(line,"] GameID: ", nil, true ) then
+				versionData.gameID = string.sub(line, string.find(line,"GameID: ", nil, true) + 8, nil)
+			end
+
+			--[t=00:00:11.702325][f=-000001] infologVersionTags:engine=105.1.1-2731-g1e10cdc gldebugannotations,game=Beyond All Reason $VERSION,lobby=BYAR Chobby test-2687-f9eec46,map=All That Glitters v2.2
+			if string.find(line, "] infologVersionTags:", nil, true) then
+				versionData.engine = string.match(line, "engine=([^,]+)")
+				versionData.game = string.match(line, "game=([^,]+)")
+				versionData.lobby= string.match(line, "lobby=([^,]+)")
+				versionData.map = string.match(line, "map=([^,]+)")
+			end
+
 
 			--plain old luaui errors:
 			-- [t=00:00:55.609414][f=-000001] Error: gl.CreateList: error(2) = [string "LuaUI/Widgets/gui_options.lua"]:576: attempt to perform arithmetic on field 'value' (a boolean value)
@@ -342,7 +364,7 @@ local function ParseInfolog(infologpath)
 				-- "LuaRules/Gadgets/dbg_gadget_profiler.lua"]:514: attempt to perform arithmetic on local 'viewWidth' (a table value)
 				--local errorkeystart = string.find(line,"[string ",nil, true ) or 1
 				--local errorname = string.sub(line, errorkeystart, nil)
-				return "LuaRules",line, infolog
+				return "LuaRules",line, infolog, versionData
 			end
 
 			-- various luamenu errors
@@ -352,14 +374,14 @@ local function ParseInfolog(infologpath)
 				string.find(line, '[liblobby] Error: [string "LuaMenu/', nil, true) then -- exact match
 				--Error: [LuaMenu::RunCallInTraceback] error=4 (LUA_ERRMEM) callin=MousePress trace=[Internal Lua error: Call failure] not enough memory
 				--[liblobby] Error: [string "LuaMenu/Widgets/api_user_handler.lua"]:929:
-				return "LuaMenu",line, infolog
+				return "LuaMenu",line, infolog, versionData
 			end
 
 			if string.find(line, "] Sync error for ", nil, true) and string.find(line,", correct is ", nil, true) then -- exact match
 				-- [t=00:57:33.506372][f=0065713] Sync error for [DE]resopmok in frame 65708 (got 3658c9d5, correct is cb2dd8d7)
 				--local errorkeystart = string.find(line,"Sync error for ",nil, true ) or 1
 				--local errorname = string.sub(line, errorkeystart, nil)
-				return "SyncError", line, infolog
+				return "SyncError", line, infolog, versionData
 			end
 
 			if (string.find(line, "] Error: Spring ", nil, true) and string.find(line," has crashed", nil, true) )
@@ -377,29 +399,29 @@ local function ParseInfolog(infologpath)
 				end
 
 				if string.find(infolog, 'This stacktrace indicates a problem with a skirmish AI', nil , true) then 
-					return "AICrash", stackframe, infolog
+					return "AICrash", stackframe, infolog, versionData
 				else
-					return "EngineCrash", stackframe, infolog
+					return "EngineCrash", stackframe, infolog, versionData
 				end
 			end
 
 			if string.find(line, "TraceFullEcho:[", nil, true) then -- exact match
 				-- TraceFullEcho:[
-				return "LuaUI", line, infolog
+				return "LuaUI", line, infolog, versionData
 			end
 
 			if (string.find(line, "] Error: [PoolArchive::operator()]", nil, true) and string.find(line," could not read file ", nil, true) )
 				or (string.find(line, "] Error: [PoolArchive::GetFileImpl]", nil, true) and string.find(line," failed to read file ", nil, true) ) then
 				--[t=00:00:32.274034][f=-000001] Error: [PoolArchive::operator()] could not read file GZIP reason: "C:\Program Files\Beyond-All-Reason\data\\pool\86\bb62a5817c16400370c72fd3adda9e.gz: incorrect data check", SYSTEM reason: "Unknown error" (bytesRead=-1 fileSize=4295404)
 				--[t=00:00:48.760963][f=-000001] Error: [PoolArchive::GetFileImpl] failed to read file "C:\Program Files\Beyond-All-Reason\data\\pool\86\bb62a5817c16400370c72fd3adda9e.gz" after 1000 tries
-				return "CorruptPool", line, infolog
+				return "CorruptPool", line, infolog, versionData
 			end
 
 			if (string.find(line, "] Warning:", nil, true) and string.find(line," This stacktrace indicates a problem with your graphics card driver, ", nil, true) )
 				or (string.find(line, "] Error:", nil, true) and string.find(line," This stacktrace indicates a problem with your graphics card driver, ", nil, true) ) then
 				--[t=08:52:35.906100][f=0057171] Warning: This stacktrace indicates a problem with your graphics card driver, please try upgrading it. Specifically recommended is the latest version; do not forget to use a driver removal utility first.
 				--[t=01:04:41.755395][f=0025823] Error: This stacktrace indicates a problem with your graphics card driver, please try upgrading it. Specifically recommended is the latest version; do not forget to use a driver removal utility first.
-				return "GraphicsDriverProblem", line, infolog
+				return "GraphicsDriverProblem", line, infolog, versionData
 			end
 		end
 	else
@@ -488,7 +510,7 @@ local function GetInfologs()
  		if onetimeEvents["reportedcrashes"][filename] ~= nil then -- we already reported this one
 			Spring.Echo("Already processed an error in ", filename)
 		else
-			local errortype, errorkey, fullinfolog = ParseInfolog(filename)
+			local errortype, errorkey, fullinfolog, versionData = ParseInfolog(filename)
 			local function ExitSpring()
 				Spring.Echo("Quitting...")
 				Spring.Quit()
@@ -555,7 +577,7 @@ local function GetInfologs()
 				WG.Chobby.ConfirmationPopup(ExitSpring, "Warning: BAR has detected a problem with your graphics card drivers." .. " \n \n" .. "Graphics driver corruption can be caused by unexpected shutdowns, conflicting software during installation, or hardware problems." .. " \n \n" .. "Exit the game and uninstall your existing graphics drivers. Then install the latest ones from the official website of the chip manufacturer of your GPU (Nvidia, AMD, or Intel). If problems persist then try uninstalling and reinstalling the drivers again using a driver removal utility." .. " \n \n" .. "Ignoring this will lead to crashes or other problems.", nil, promptWidth, promptHeight, "Exit Now", "Ignore", nil)
 			elseif errortype ~= nil then
 
-				if PRINT_DEBUG then Spring.Echo("BAR Analytics: GetInfologs() found an error:", filename, errortype, errorkey) end
+				if PRINT_DEBUG then Spring.Echo("BAR Analytics: GetInfologs() found an error:", filename, errortype, errorkey, versionData) end
 
 				local compressedlog = Spring.Utilities.Base64Encode(VFS.ZlibCompress(fullinfolog))
 				if WG.Chobby.Configuration.uploadLogPrompt == "Prompt" then
@@ -567,7 +589,7 @@ local function GetInfologs()
 							end
 							--Spring.Echo("Uncompressed length:", string.len(fullinfolog), "Compressed base64 length:", string.len(compressedlog))
 							Spring.Echo("User agreed to upload infolog", filename, "with error", errortype)
-							Analytics.SendCrashReportOneTimeEvent(filename, errortype, errorkey, compressedlog, false)
+							Analytics.SendCrashReportOneTimeEvent(filename, errortype, errorkey, compressedlog, false, versionData)
 						end
 
 						local function dontreportinfolog()
@@ -576,7 +598,7 @@ local function GetInfologs()
 							end
 							Spring.Echo("User declined to upload infolog", filename, "with error", errortype)
 							compressedlog = Spring.Utilities.Base64Encode(VFS.ZlibCompress("private"))
-							Analytics.SendCrashReportOneTimeEvent(filename, errortype, errorkey, compressedlog, true)
+							Analytics.SendCrashReportOneTimeEvent(filename, errortype, errorkey, compressedlog, true, versionData)
 						end
 
 						WG.Chobby.ConfirmationPopup(reportinfolog, "BAR has detected a ["..errortype.."] error during one of your previous games in:\n •    " .. filename .. "\n \nSuch infologs help us fix any bugs you may have encountered.\n \nThis file contains information such as your username, your system configuration and the path the game was installed to. This data will not be made public.\n \nDo you agree to upload this infolog?\n \n → You can specify always yes or always no in the Settings tab -> Error log uploading.", "uploadLogPromptDoNotAskAgain", promptWidth, promptHeight, "Yes", "No", dontreportinfolog, nil)
@@ -584,10 +606,10 @@ local function GetInfologs()
 					return
 				else
 					if WG.Chobby.Configuration.uploadLogPrompt == "Always Yes" then
-						Analytics.SendCrashReportOneTimeEvent(filename,errortype, errorkey, compressedlog, false)
+						Analytics.SendCrashReportOneTimeEvent(filename,errortype, errorkey, compressedlog, false, versionData)
 					else
 						compressedlog = Spring.Utilities.Base64Encode(VFS.ZlibCompress("private"))
-						Analytics.SendCrashReportOneTimeEvent(filename,errortype, errorkey, compressedlog, true)
+						Analytics.SendCrashReportOneTimeEvent(filename,errortype, errorkey, compressedlog, true, versionData)
 					end
 
 				end
