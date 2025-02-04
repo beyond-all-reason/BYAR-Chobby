@@ -645,7 +645,7 @@ local settings_abbr = {
 	XrezW = "XResolutionWindowed",
 	YrezW = "YResolutionWindowed",
 	water = "water",
-	gPreset = "graphicsPreset",
+	--gPreset = "graphicsPreset", -- TODO support strings too
 }
 
 local function IsTesselationShaderSupported()
@@ -655,7 +655,7 @@ end
 local function SendGraphicsSettings()
 	local settingsTable = {}
 	for shortname, settingkey in pairs(settings_abbr) do
-		settingsTable[shortname] = Spring.GetConfigInt(settingkey, -1)
+		settingsTable[shortname] = Spring.GetConfigInt(settingkey, -9)
 	end
 	-- Convert it to json:
 	local settingsJson = Spring.Utilities.json.encode(settingsTable)
