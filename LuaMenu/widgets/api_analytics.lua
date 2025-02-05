@@ -475,7 +475,16 @@ local function GetDesyncGameStates()
 				--validate:write(compressedlog)
 				--validate:close()
 				--Spring.Echo("Crash Dump Header is",string.sub(compressedlog, 1, 1000))
-				Analytics.SendCrashReportOneTimeEvent(filename, "SyncError", filename, compressedlog, false)
+				local header = string.sub(infolog, 1, 1000)
+				-- Parse the following fields in the lines of the header:
+				local versionData = {
+					map = string.match(header, "mapName: ([^\n]+)"),
+					game = string.match(header, "modName: ([^\n]+)"),
+					engine = string.match(header, "syncVer: ([^\n]+)"),
+					gameID = string.match(header, "gameID: ([^\n]+)"),
+				}
+
+				Analytics.SendCrashReportOneTimeEvent(filename, "SyncError", filename, compressedlog, false, versionData)
 				Spring.Echo("Dump done in ", Spring.DiffTimers(Spring.GetTimer(), t1), Spring.DiffTimers(t1,t0))
 			end
 		end
