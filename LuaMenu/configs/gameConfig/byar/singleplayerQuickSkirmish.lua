@@ -117,6 +117,18 @@ function skirmishSetupData.ApplyFunction(battleLobby, pageChoices)
 		local t = 146
 		local b = 178
 		WG.BattleRoomWindow.AddStartRect(1, l, t, r, b)
+	elseif mapOptions[map] == "Ancient Vault v1.4" then
+		WG.BattleRoomWindow.RemoveStartRect()
+		local l = 0
+		local r = 200
+		local t = 0
+		local b = 62
+		WG.BattleRoomWindow.AddStartRect(0, l, t, r, b)
+		local l = 0
+		local r = 200
+		local t = 163
+		local b = 200
+		WG.BattleRoomWindow.AddStartRect(1, l, t, r, b)
 	end
 
 	battleLobby:SetBattleStatus({
