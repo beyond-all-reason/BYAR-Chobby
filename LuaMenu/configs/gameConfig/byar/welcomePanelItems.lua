@@ -25,28 +25,11 @@ local welcomePanelItems = {
     },
 ]]
     {
-        Header = "Balance Update: New Behavior for High/Low Trajectory Weapons",
-        Text = " \n" .. "Attention, Commanders! The High/Low Trajectory toggle has been removed and is now automated. Both high and low trajectory modes now share the same damage and area of effect (AOE). Previously, high trajectory had higher damage and AOE but a slower fire rate which introduced additional confusion. The system now prioritizes low trajectory, but if there are no suitable low-trajectory targets or if the selected target can't be reached with low trajectory, the system will automatically switch to high trajectory." .. " \n" .. " \n" .. "Affected units: Gauntlet, Agitator, Amputator, Rattlesnake, Persecutor, Eviscerator, Vanguard",
-    },
-
-    {
-        Header = "Map Update: Eclipsed 0.9.6",
-        Text = " \n" .. " \n" .. "Thanks to player feedback this 1v1 map has received a few changes, the largest change being a map size change from 16x16 to 14x14." .. " \n" .. " \n" .. "25% less map. Same great taste.",
-        Image = "LuaMenu/configs/gameConfig/byar/minimapOverride/Eclipsed_0.9.5.jpg",
-    },
-    
-    {
         Header = "Now Available: BAR Guides",
         Text = "New to Beyond All Reason? Check out these new Guides on Discord written by Zeteo!" .. " \n" .. " \n",
         Url = "https://discord.com/channels/549281623154229250/1303141562120929320/1303141562120929320",
         UrlText = "Read the new Guides",
     },
-
-    {
-        Header = "New Feature: Option Presets",
-        Text = "A comprehensive new system for saving and loading game configurations and modoptions. It supports current map, startboxes, modoptions, and AI team placement and configurations. You can access this dialog by clicking on the Option Presets button in the battle room. Thanks to jere500 for the contribution.",
-    },
-
     {
         Header = "BAR is accepting donations again! ",
         Text = "Dear Commanders, we are delighted to announce the reopening of our donation platform after a longer-than-expected hiatus." .. " \n" .. " \n" .. "As we've been hard at work refining BAR to ensure maximum enjoyment for our ever-expanding community, we repeatedly placed donation efforts on hold to focus on other priorities." .. " \n" .. " \n" .. "Support BAR with our newly reopened donation platform!" .. " \n",
