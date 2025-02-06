@@ -14,7 +14,7 @@ local welcomePanelItems = {
         Header = "Welcome to Beyond All Reason",
         Text = "Welcome back Commander. We hope you are ready for epic Singleplayer and Multiplayer battles. Check out our Discord and join the community!\n",
     },
-
+--[[ -- replace with VOD link when uploaded
     {
         Header = "Mark this date in your calendars as we go down in RTS history!",
         Text = "Join us as Beyond All Reason celebrates 40,000 Discord members with an epic 24-hour event featuring never-before-seen RTS battles! Massive 40v40 wars, 64-player FFAs, and more—live-streamed by top casters. Don’t miss the action on February 2nd!",
@@ -23,7 +23,7 @@ local welcomePanelItems = {
         Url = "https://www.beyondallreason.info/news/40-000-discord-members-celebration-event",
         UrlText = "Read the announcement",
     },
-
+]]
     {
         Header = "Balance Update: New Behavior for High/Low Trajectory Weapons",
         Text = " \n" .. "Attention, Commanders! The High/Low Trajectory toggle has been removed and is now automated. Both high and low trajectory modes now share the same damage and area of effect (AOE). Previously, high trajectory had higher damage and AOE but a slower fire rate which introduced additional confusion. The system now prioritizes low trajectory, but if there are no suitable low-trajectory targets or if the selected target can't be reached with low trajectory, the system will automatically switch to high trajectory." .. " \n" .. " \n" .. "Affected units: Gauntlet, Agitator, Amputator, Rattlesnake, Persecutor, Eviscerator, Vanguard",
