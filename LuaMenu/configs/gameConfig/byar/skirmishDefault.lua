@@ -1,7 +1,7 @@
 local randomSkirmishEnabled = Spring.GetConfigInt("randomSkirmishSetup", 1)
 local simpleSkirmishEnabled = Spring.GetConfigInt("simplifiedSkirmishSetup", 1)
 
-if randomSkirmishEnabled == 1 and simpleSkirmishEnabled ~= 1 then
+if randomSkirmishEnabled == 1 and simpleSkirmishEnabled == 0 then
 	local listOfCertifiedMaps = VFS.Include("luamenu/configs/gameconfig/byar/mapdetails.lua")
 	local convertedListOfMaps = {}
 	for pickedMap, mapDetails in pairs(listOfCertifiedMaps) do
