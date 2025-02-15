@@ -24,6 +24,12 @@ local welcomePanelItems = {
         UrlText = "Read the announcement",
     },
 ]]
+
+    {
+        Header = "New Map: Gasbag_Grabens",
+        Text = " \n" .. " \n" .. "The terraforming mission in Sector G026 has failed. Destroy all opposition before the acid claims you." .. " \n" .. " \n" ..  "1v1 recommended, 2v2s and 3v3s playable. By AidanNaut.",
+        Image = "LuaMenu/configs/gameConfig/byar/minimapOverride/Gasbag_Grabens_0.9.1.jpg",
+    },
     {
         Header = "Now Available: BAR Guides",
         Text = "New to Beyond All Reason? Check out these new Guides on Discord written by Zeteo!" .. " \n" .. " \n",
