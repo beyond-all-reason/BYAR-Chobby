@@ -100,6 +100,7 @@ local function CreateSideChangeWindow(opts)
 		y = 150,
 		width = sideChangeWindow.width * 0.5,
 		height = 40,
+		caption = Configuration:GetSideById(selectedFaction).name or "",
 		items = factionNames,
 		parent = sideChangeWindow,
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
