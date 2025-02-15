@@ -189,6 +189,7 @@ return {
 		submit = "Submit",
 		time_in_queue = "Time in queue",
 		leave = "Leave",
+		leave_lobby = "Leave Lobby",
 		invite_friends = "Invite Friends",
 		users = "Users",
 		battles = "Battles",
