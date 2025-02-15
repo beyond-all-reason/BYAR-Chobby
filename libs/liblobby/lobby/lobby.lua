@@ -279,10 +279,6 @@ function Lobby:JoinBattle(battleID, password, scriptPassword)
 end
 
 function Lobby:LeaveBattle()
-	local myBattleID = self:GetMyBattleID()
-	if myBattleID then
-		self:_OnLeaveBattle(myBattleID)
-	end
 	return self
 end
 
