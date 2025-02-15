@@ -26,7 +26,7 @@ local welcomePanelItems = {
 ]]
 
     {
-        Header = "New Map: Gasbag_Grabens",
+        Header = "New Map: Gasbag Grabens",
         Text = " \n" .. " \n" .. "The terraforming mission in Sector G026 has failed. Destroy all opposition before the acid claims you." .. " \n" .. " \n" ..  "1v1 recommended, 2v2s and 3v3s playable. By AidanNaut.",
         Image = "LuaMenu/configs/gameConfig/byar/minimapOverride/Gasbag_Grabens_0.9.1.jpg",
     },
