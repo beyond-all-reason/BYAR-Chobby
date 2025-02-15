@@ -12,9 +12,6 @@ return {
 	{
 		name = "Legion",
 		logo = SIDEPICS_DIR .. "legion.png",
-	},
-	{
-		name = "Random",
-		logo = SIDEPICS_DIR .. "random.png",
+		requiresModoption = "experimentallegionfaction",
 	},
 }
