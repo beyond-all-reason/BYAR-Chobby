@@ -20,11 +20,22 @@ local function CreateSideChangeWindow(opts)
 	local Configuration = WG.Chobby.Configuration
 	local sidedata = Configuration:GetSideData()
 
+	local battleLobby = WG.LibLobby.localLobby
+	local battle = battleLobby:GetBattle(battleLobby:GetMyBattleID())
+	if not battle then
+		battleLobby = WG.LibLobby.lobby
+	end
+
 	local factionMap = {}
 	local factionNames = {}
+
+	local modoptions = battleLobby.modoptions
+
 	for index, data in ipairs(sidedata) do
-		factionMap[data.name] = index - 1
-		table.insert(factionNames, data.name)
+		if not data.requiresModoption or (modoptions and modoptions[data.requiresModoption] == "1") then
+			factionMap[data.name] = index - 1
+			table.insert(factionNames, data.name)
+		end
 	end
 
 	local sideChangeWindow = Window:New {
