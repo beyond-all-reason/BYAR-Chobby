@@ -158,6 +158,11 @@ function InterfaceSkirmish:_StartScript(gameName, mapName, playerName, friendLis
 	local chickenAdded = false
 	for userName, data in pairs(self.userBattleStatus) do
 		if data.allyNumber and data.aiLib then
+			local sideData = WG.Chobby.Configuration:GetSideById(data.side)
+			if sideData and sideData.requiresModoption and
+			   (not self.modoptions or self.modoptions[sideData.requiresModoption] ~= "1") then
+				data.side = 0
+			end
 			if friendAllyTeam == data.allyNumber and aiReplaceCount > 0 and not string.find(data.aiLib, "Raptor") then
 				aiReplaceCount = aiReplaceCount - 1
 			else
