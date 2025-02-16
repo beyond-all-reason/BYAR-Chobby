@@ -88,6 +88,11 @@ function InterfaceSkirmish:_StartScript(gameName, mapName, playerName, friendLis
 
 	for userName, data in pairs(self.userBattleStatus) do
 		if data.allyNumber and not data.aiLib then --every player must have an allynumber!
+			local sideData = WG.Chobby.Configuration:GetSideById(data.side)
+			if sideData and sideData.requiresModoption and
+			   (not self.modoptions or self.modoptions[sideData.requiresModoption] ~= "1") then
+				data.side = 0
+			end
 			players[playerCount] = {
 				Name = userName,
 				Team = teamCount,
