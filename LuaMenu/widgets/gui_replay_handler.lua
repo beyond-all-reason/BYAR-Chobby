@@ -65,7 +65,7 @@ local function translatePlayerProps(player)
 	player.country = player.countryCode
 	player.countryCode = nil
 
-	player.side = (player.faction == "Armada") and 1 or (player.faction == "Cortex" and 2) or (player.faction == "Legion" and 3) or nil
+	player.side = (player.faction == "Armada") and 0 or (player.faction == "Cortex" and 1) or (player.faction == "Legion" and 2) or nil
 
 	player.level = player.rank and (player.rank + 1)
 	player.rank  = nil
