@@ -9,4 +9,13 @@ return {
 		name = "Cortex",
 		logo = SIDEPICS_DIR .. "cortex.png",
 	},
+	{
+		name = "Legion",
+		logo = SIDEPICS_DIR .. "legion.png",
+		requiresModoption = "experimentallegionfaction",
+	},
+	{
+		name = "Random",
+		logo = SIDEPICS_DIR .. "random.png",
+	},
 }

@@ -1236,6 +1236,15 @@ function Lobby:_OnJoinedBattle(battleID, userName, scriptPassword)
 		Spring.Log(LOG_SECTION, LOG.WARNING, "_OnJoinedBattle nonexistent battle.")
 		return
 	end
+	if userName == self:GetMyUserName() then
+		local lastFaction = WG.Chobby.Configuration.lastFactionChoice
+		if lastFaction then
+			local sideData = WG.Chobby.Configuration:GetSideById(lastFaction)
+			if sideData and sideData.requiresModoption and (not self.modoptions or self.modoptions[sideData.requiresModoption] ~= "1") then
+				WG.Chobby.Configuration.lastFactionChoice = 0
+			end
+		end
+	end
 	local found = false
 	local users = battle.users
 	for i = 1, #users do
