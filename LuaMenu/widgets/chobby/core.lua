@@ -97,8 +97,6 @@ function Chobby:GetRegisteredComponents()
 end
 
 function Chobby:_DrawScreen()
-	self:WrapCall(function()
-	end)
 end
 
 function Chobby:_ViewResize(sw, sh)
