@@ -58,10 +58,6 @@ function BattleListWindow:init(parent)
 		}
 	end
 
-	local function update()
-		self:Update()
-	end
-
 	self.infoPanel = Panel:New {
 		classname = "overlay_window",
 		x = "15%",
@@ -259,7 +255,7 @@ function BattleListWindow:init(parent)
 
 	local function onConfigurationChange(listener, key, value)
 		if key == "displayBadEngines2" then
-			update()
+			self:Update()
 		elseif key == "battleFilterRedundant" then
 			self:SoftUpdate()
 		end
@@ -273,7 +269,7 @@ function BattleListWindow:init(parent)
 	end
 	WG.DownloadHandler.AddListener("DownloadFinished", downloadFinished)
 
-	update()
+	self:Update()
 end
 
 function BattleListWindow:RemoveListeners()
