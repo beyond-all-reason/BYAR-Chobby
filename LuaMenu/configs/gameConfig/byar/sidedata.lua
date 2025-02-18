@@ -18,6 +18,7 @@ return {
 	{
 		name = "Random",
 		logo = SIDEPICS_DIR .. "random.png",
+		requiresModoption = "optionthatdoesntexist",
 		singleplayerOnly = true,
 	},
 }
