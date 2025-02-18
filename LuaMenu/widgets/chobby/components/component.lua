@@ -18,8 +18,5 @@ function Component:unregister()
 	end
 end
 
-function Component:ScaleUpdate(scale)
-end
-
 function Component:ViewResize(viewSizeX, viewSizeY)
 end
