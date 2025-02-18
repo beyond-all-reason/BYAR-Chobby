@@ -6,7 +6,6 @@ local includes = {
 	"components/configuration.lua",
 
 	-- basic components
-	"components/component.lua",
 	"components/list_window.lua",
 	"components/console.lua",
 	"components/user_list_panel.lua",
@@ -92,8 +91,8 @@ function Chobby:_Initialize()
 	end)
 end
 
-function Chobby:GetRegisteredComponents()
-	return Component.registeredComponents
+function Chobby:GetRegisteredPopups()
+	return PriorityPopup.registeredPopups
 end
 
 function Chobby:_DrawScreen()
@@ -101,8 +100,8 @@ end
 
 function Chobby:_ViewResize(sw, sh)
 	self:WrapCall(function()
-		for i, comp in pairs(self:GetRegisteredComponents()) do
-			comp:ViewResize(sw, sh)
+		for i, popup in pairs(self:GetRegisteredPopups()) do
+			popup:ViewResize(sw, sh)
 		end
 	end)
 end
