@@ -32,9 +32,11 @@ local function CreateSideChangeWindow(opts)
 	local modoptions = battleLobby.modoptions
 
 	for index, data in ipairs(sidedata) do
-		if not data.requiresModoption or (modoptions and modoptions[data.requiresModoption] == "1" and battleLobby.name == "singleplayer") then
-			factionMap[data.name] = index - 1
-			table.insert(factionNames, data.name)
+		if not data.requiresModoption or (modoptions and modoptions[data.requiresModoption] == "1") then
+			if not data.singleplayerOnly or battleLobby.name == "singleplayer" then
+				factionMap[data.name] = index - 1
+				table.insert(factionNames, data.name)
+			end
 		end
 	end
 
