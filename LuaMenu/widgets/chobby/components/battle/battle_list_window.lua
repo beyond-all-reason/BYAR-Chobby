@@ -192,6 +192,7 @@ function BattleListWindow:init(parent)
 		checkVsAI:SetToggle(Configuration.battleFilterVsAI)
 	end
 	WG.Delay(UpdateCheckboxes, 0.2)
+	-- Delay required as Configuration:GetConfigData (where these values are set) runs after this is initialised.
 
 	self:SetMinItemWidth(100000)
 	self.columns = 3
