@@ -6,6 +6,8 @@ local includes = {
 	"components/configuration.lua",
 
 	-- basic components
+	"components/party_window.lua",
+	"components/party_wrapper.lua",
 	"components/list_window.lua",
 	"components/console.lua",
 	"components/user_list_panel.lua",
