@@ -1,8 +1,7 @@
-SortableList = Component:extends{}
+SortableList = LCS.class{}
 
 function SortableList:init(holder, headings, itemHeight, defaultSort, sortDirection, scrollPanelOverride, ItemInFilter)
-	self:DoInit() -- Lack of inheritance strikes again.
-
+	
 	self.sortBy = false
 	self.smallToLarge = sortDirection
 	if self.smallToLarge == nil then

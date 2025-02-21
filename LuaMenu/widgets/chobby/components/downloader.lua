@@ -1,8 +1,6 @@
-Downloader = Component:extends{}
+Downloader = LCS.class{}
 
 function Downloader:init(buttonsMode, tbl, timeout, updateListener, completeListener, queueFont, visibleListener)
-	self:super("init")
-
 	self.wrapperAsFallback = false
 
 	queueFont = queueFont or 1
