@@ -46,13 +46,14 @@ function PartyWrapper:AddMember(username)
             caption = username,
             ignoreItemCaption = true,
             selectByName = true,
-            items = { (lobby.myUserName ~= username) and "Remove from party" },
+            -- items = { (lobby.myUserName ~= username) and "Remove from party" },
+            items = {},
             OnSelectName = {
-                function(_, selectedName)
-                    if selectedName == "Remove from party" then
-                        WG.PartyWindow.Get():RemovePlayerFromMyParty(username)
-                    end
-                end
+                -- function(_, selectedName)
+                --     if selectedName == "Remove from party" then
+                        -- lobby:RemovePlayerFromMyParty(username)
+                --     end
+                -- end
             }
         }
 
@@ -85,7 +86,7 @@ function PartyWrapper:AddInvite(username)
             OnSelectName = {
                 function(_, selectedName)
                     if selectedName == "Cancel invite" then
-                        WG.PartyWindow.Get():CancelInviteToMyParty(username)
+                        lobby:CancelInviteToMyParty(username)
                     end
                 end
             }

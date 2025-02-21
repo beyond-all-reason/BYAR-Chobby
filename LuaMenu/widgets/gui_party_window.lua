@@ -17,9 +17,6 @@ function PartyWindow.GetControl()
 	partyWindow = partyWindow or WG.Chobby.PartyWindow()
 	return partyWindow.window
 end
-function PartyWindow.Get()
-    return partyWindow
-end
 
 function widget:Initialize()
 	WG.PartyWindow = PartyWindow

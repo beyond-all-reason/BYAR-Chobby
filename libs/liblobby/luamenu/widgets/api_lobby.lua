@@ -44,6 +44,7 @@ function widget:Initialize()
 	end
 	if WG.Server.protocol == "spring" then
 		Interface = VFS.Include(LIB_LOBBY_DIRNAME .. "interface.lua", nil, VFS.RAW_FIRST)
+		VFS.Include(LIB_LOBBY_DIRNAME .. "parties.lua", nil, VFS.RAW_FIRST)
 	else
 		Spring.Log("liblobby", LOG.ERROR, "Invalid liblobby interface specified: " .. tostring(WG.Server.interface))
 	end
