@@ -3064,15 +3064,18 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 				if battleLobby.name ~= "singleplayer" then
 					if WG.TextEntryWindow then
 						WG.TextEntryWindow.CreateTextEntryWindow({
-							defaultValue = "",
+							defaultValue = battleTitle:gsub("(.*)|.*$", "%1"):gsub("%s*$", ""),
 							caption = i18n("rename_battle"),
 							labelCaption = i18n("rename_caption"),
 							hint = i18n("rename_hint"),
 							height = 280,
-							width = 480,
+							width = 550,
 							oklabel = i18n("rename"),
 							OnAccepted = function(newname)
 								lobby:SayBattle("!rename " .. newname)
+							end,
+							OnOpen = function(editBox)
+								editBox:SelectAll()
 							end
 						})
 					end

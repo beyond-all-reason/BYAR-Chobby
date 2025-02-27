@@ -143,6 +143,9 @@ local function CreateTextEntryWindow(opts)
 		},
 	}
 
+	if opts.OnOpen then
+		opts.OnOpen(eb)
+	end
 
 	WG.Chobby.PriorityPopup(TextEntryWindow, CloseFunction, CloseFunction, screen0, nil, opts.disableAcceptHotkey)
 
