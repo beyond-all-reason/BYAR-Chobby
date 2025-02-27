@@ -26,6 +26,12 @@ local welcomePanelItems = {
 ]]
 
     {
+        Header = "Faster Map Downloads?",
+        Text = "Since February 16, we’ve been testing a Pro plan for map hosting. Let us know if it made a difference!",
+        Url = "https://forms.gle/J2Ah8Uecfh2Zgb6y7",
+        UrlText = "Give Feedback",
+    },
+    {
         Header = "New Map: Gasbag Grabens",
         Text = " \n" .. " \n" .. "The terraforming mission in Sector G026 has failed. Destroy all opposition before the acid claims you." .. " \n" .. " \n" ..  "1v1 recommended, 2v2s and 3v3s playable. By AidanNaut.",
         Image = "LuaMenu/configs/gameConfig/byar/minimapOverride/Gasbag_Grabens_0.9.1.jpg",
