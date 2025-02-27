@@ -980,4 +980,13 @@ function EditBox:TextEditing(utf8, start, length)
 	return true
 end
 
+function EditBox:SelectAll()
+	if not self.multiline then
+		self:_SetSelection(1, 1, #self.text + 1, 1)
+	else
+		self:_SetSelection(1, 1, #self.lines[#self.lines].text + 1, #self.lines)
+	end
+	self:Invalidate()
+end
+
 --// =============================================================================
