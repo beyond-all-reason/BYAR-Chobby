@@ -75,6 +75,8 @@ function Lobby:_Clean()
 
 	-- reconnection delay in seconds
 	self.reconnectionDelay = 15
+
+	self.commandsAwaitingResponse = {}
 end
 
 function Lobby:_PreserveData()

@@ -34,6 +34,9 @@ function PartyWindow:init(parent)
         visible = false,
         OnClick = {
             function()
+                if lobby.myPartyID then
+                    self:LeaveMyCurrentParty()
+                end
                 lobby:CreateParty()
             end
         },
@@ -64,7 +67,7 @@ function PartyWindow:init(parent)
         y = 60,
         OnClick = {
             function()
-                self:LeaveCurrentParty()
+                self:LeaveMyCurrentParty()
             end
         }
     }
@@ -75,6 +78,34 @@ function PartyWindow:init(parent)
     lobby:AddListener("OnAccepted", function()
         self.requiresLoginLabel:Hide()
         self.createPartyButton:Show()
+    end)
+
+    lobby:AddListener("OnDisconnected", function()
+        self.requiresLoginLabel:Show()
+        self.createPartyButton:Hide()
+        self.leavePartyButton:Hide()
+        self.invitesLabel:Hide()
+        self.yourPartyLabel:Hide()
+
+        for partyID, partyWrapper in pairs(self.partyWrappers) do
+            partyWrapper.wrapper:Dispose()
+        end
+    end)
+
+    lobby:AddListener("OnJoinedParty", function(_, ...)
+        self:JoinedParty(...)
+    end)
+
+    lobby:AddListener("OnLeftParty", function(_, ...)
+        self:LeftParty(...)
+    end)
+
+    lobby:AddListener("OnInvitedToParty", function(_, ...)
+        self:InvitedToParty(...)
+    end)
+
+    lobby:AddListener("OnPartyInviteCancelled", function(_, ...)
+        self:InviteToPartyCancelled(...)
     end)
 end
 
@@ -98,21 +129,35 @@ function PartyWindow:UpdateLayout()
     end
 end
 
+function PartyWindow:LeaveMyCurrentParty()
+    local myPartyID = lobby.myPartyID
+    lobby:LeaveMyCurrentParty(function()
+        self.partyWrappers[myPartyID].wrapper:Dispose()
+        self.partyWrappers[myPartyID] = nil
+        self.yourPartyLabel:Hide()
+        self.leavePartyButton:Hide()
+
+        self:UpdateLayout()
+    end)
+end
+
 function PartyWindow:LeftParty(partyID, username)
     if username == lobby.myUserName then
         self.partyWrappers[partyID].wrapper:Dispose()
         self.partyWrappers[partyID] = nil
-        self.yourPartyLabel:Hide()
-        self.leavePartyButton:Hide()
     else
         self.partyWrappers[partyID]:RemoveMember(username)
+        
+        if not next(self.partyWrappers[partyID].rows) then
+            self.partyWrappers[partyID].wrapper:Dispose()
+            self.partyWrappers[partyID] = nil
+        end
     end
 
     self:UpdateLayout()
 end
 function PartyWindow:JoinedParty(partyID, username)
     if username == lobby.myUserName then
-
         self.partyWrappers[partyID] = self.partyWrappers[partyID] or PartyWrapper(self.window)
         if self.partyWrappers[partyID].acceptInviteButton then
             self.partyWrappers[partyID].acceptInviteButton:Dispose()
@@ -135,7 +180,14 @@ function PartyWindow:InvitedToParty(partyID, username)
             caption = "Accept invite",
             x = 200,
             parent = self.partyWrappers[partyID].wrapper,
-            OnClick = { function() lobby:AcceptInviteToParty(partyID) end }
+            OnClick = {
+                function() 
+                    if lobby.myPartyID then
+                        self:LeaveMyCurrentParty()
+                    end
+                    lobby:AcceptInviteToParty(partyID)
+                end
+            }
         }
 
         self.partyWrappers[partyID].wrapper:Show()
