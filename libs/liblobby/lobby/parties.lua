@@ -73,7 +73,15 @@ end
 Interface.commands["s.party.invite_to_party_cancelled"] = Interface._OnPartyInviteCancelled
 Interface.commandPattern["s.party.invite_to_party_cancelled"] = "(%S+)%s(%S+)"
 
+-- Warning: Duplicates of this message might be received, 
+-- so it's important the implementation can handle that.
+-- Ideally that would be fixed server-side, but we're 
+-- trying to conserve effort on this feature.
 function Interface:_OnJoinedParty(partyID, username)
+    if self.parties[partyID].members[username] then
+        return
+    end
+
     if username == self.myUserName then
         self.parties = self.parties or {}
         self.parties[partyID] = self.parties[partyID] or { invites = {}, members = {} }
