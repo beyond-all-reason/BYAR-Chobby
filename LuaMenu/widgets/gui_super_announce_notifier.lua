@@ -143,14 +143,14 @@ local function SuperAnnouncePopup()
 
 	Checkbox:New {
 		x = 15,
-		width = 150,
+		width = 170,
 		bottom = 3,
 		height = 35,
 		boxalign = "right",
-		boxsize = 15,
+		boxsize = 20,
 		caption = i18n("do_not_ask_again"),
 		checked = Configuration[doNotAskAgainKey] or false,
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		parent = superAnnounceWindow,
 		OnClick = {
 			function (obj)
