@@ -1,11 +1,27 @@
 PartyWindow = LCS.class{}
 
+PartyWindow.RIGHT_MARGIN = 20
+PartyWindow.LEFT_MARGIN = 20
+PartyWindow.TOP_MARGIN = 17
+PartyWindow.BOTTOM_MARGIN = 0
+
+PartyWindow.TITLE_HEIGHT = 20
+PartyWindow.SECTION_HEADER_HEIGHT = 15 -- font1 size
+
+PartyWindow.MINOR_SPACING = 5
+PartyWindow.MAJOR_SPACING = 20
+
+PartyWindow.BUTTON_WIDTH = 100
+
+PartyWindow.CONTENT_Y_OFFSET = PartyWindow.TITLE_HEIGHT + PartyWindow.MINOR_SPACING
+
 function PartyWindow:init(parent)
     self.window = Window:New{
         x = 0,
         right = 0,
         y = 0,
         bottom = 0,
+        padding = { PartyWindow.LEFT_MARGIN, PartyWindow.TOP_MARGIN, PartyWindow.RIGHT_MARGIN, PartyWindow.BOTTOM_MARGIN },
         parent = parent,
         resizable = false,
         draggable = false,
@@ -13,24 +29,23 @@ function PartyWindow:init(parent)
     }
 
     Label:New {
-        x = 40,
-        y = 40,
         parent = self.window,
+        objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
         caption = i18n("parties"),
     }
 
     self.requiresLoginLabel = Label:New {
-        x = 40,
-        y = 60,
+        y = PartyWindow.CONTENT_Y_OFFSET,
+        objectOverrideFont = WG.Chobby.Configuration:GetFont(1, "parties_require_login", { color = { 0.5, 0.5, 0.5, 1 } }),
         parent = self.window,
-        caption = "Requires login"
+        caption = "(Requires login)"
     }
 
     self.createPartyButton = Button:New {
         caption = "Create Party",
         parent = self.window,
-        right = 40,
-        y = 40,
+        right = 0,
+        width = PartyWindow.BUTTON_WIDTH,
         visible = false,
         OnClick = {
             function()
@@ -46,15 +61,13 @@ function PartyWindow:init(parent)
     -- In a party
 
     self.yourPartyLabel = Label:New {
-        y = 60,
-        x = 40,
+        y = PartyWindow.CONTENT_Y_OFFSET,
         caption = "Your Party",
         parent = self.window
     }
     self.yourPartyLabel:Hide()
 
     self.invitesLabel = Label:New {
-        x = 40,
         caption = "Your Invites:",
         parent = self.window
     }
@@ -63,8 +76,9 @@ function PartyWindow:init(parent)
     self.leavePartyButton = Button:New {
         caption = "Leave Party",
         parent = self.window,
-        right = 40,
-        y = 60,
+        width = PartyWindow.BUTTON_WIDTH,
+        right = 0,
+        y = PartyWindow.CONTENT_Y_OFFSET,
         OnClick = {
             function()
                 self:LeaveMyCurrentParty()
@@ -110,22 +124,27 @@ function PartyWindow:init(parent)
     end)
 end
 
-PartyWindow.MY_PARTY_YOFFSET = 80
-PartyWindow.SPACING = 8
-
 function PartyWindow:UpdateLayout()
-    local offset = lobby.myPartyID and (PartyWindow.MY_PARTY_YOFFSET + self.partyWrappers[lobby.myPartyID]:TotalHeight() + PartyWindow.SPACING) or PartyWindow.MY_PARTY_YOFFSET
+    local offset = PartyWindow.CONTENT_Y_OFFSET
     
-    self.invitesLabel:SetPos(40, offset)
+    if lobby.myPartyID then
+        offset = offset + 
+                 PartyWindow.SECTION_HEADER_HEIGHT + 
+                 PartyWindow.MINOR_SPACING +
+                 self.partyWrappers[lobby.myPartyID]:TotalHeight() + 
+                 PartyWindow.MINOR_SPACING
+    end
+    
+    self.invitesLabel:SetPos(0, offset)
     self.invitesLabel:Hide()
 
-    offset = offset + PartyWrapper.ROW_HEIGHT
+    offset = offset + PartyWindow.SECTION_HEADER_HEIGHT
 
     for partyID, partyWrapper in pairs(self.partyWrappers) do
         if partyID ~= lobby.myPartyID then
             self.invitesLabel:Show()
-            partyWrapper.wrapper:SetPos(40, offset)
-            offset = offset + partyWrapper:TotalHeight() + PartyWindow.SPACING
+            partyWrapper.wrapper:SetPos(0, offset)
+            offset = offset + partyWrapper:TotalHeight() + PartyWindow.MINOR_SPACING
         end
     end
 end
@@ -162,8 +181,9 @@ function PartyWindow:JoinedParty(partyID, username)
         self.partyWrappers[partyID] = self.partyWrappers[partyID] or PartyWrapper(self.window)
         if self.partyWrappers[partyID].acceptInviteButton then
             self.partyWrappers[partyID].acceptInviteButton:Dispose()
+            self.partyWrappers[partyID].acceptInviteButton = nil
         end
-        self.partyWrappers[partyID].wrapper:SetPos(40, PartyWindow.MY_PARTY_YOFFSET)
+        self.partyWrappers[partyID].wrapper:SetPos(0, PartyWindow.CONTENT_Y_OFFSET + PartyWindow.SECTION_HEADER_HEIGHT + PartyWindow.MINOR_SPACING)
         self.partyWrappers[partyID].wrapper:Show()
         self.yourPartyLabel:Show()
         self.leavePartyButton:Show()
@@ -179,7 +199,8 @@ function PartyWindow:InvitedToParty(partyID, username)
         self.partyWrappers[partyID] = PartyWrapper(self.window)
         self.partyWrappers[partyID].acceptInviteButton = Button:New{
             caption = "Accept invite",
-            x = 200,
+            right = PartyWindow.MINOR_SPACING,
+            width = PartyWindow.BUTTON_WIDTH,
             parent = self.partyWrappers[partyID].wrapper,
             OnClick = {
                 function() 

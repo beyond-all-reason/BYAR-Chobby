@@ -10,6 +10,7 @@ function PartyWrapper:init(parent)
     self.inviteRowCount = 0
 
     self.wrapper = Control:New{
+        classname = "party_wrapper",
         width = "100%",
         height = self:TotalHeight(),
         parent = parent
@@ -17,7 +18,7 @@ function PartyWrapper:init(parent)
 end
 
 function PartyWrapper:TotalHeight()
-    return (self.rowCount + self.inviteRowCount) * PartyWrapper.ROW_HEIGHT
+    return (self.rowCount + self.inviteRowCount) * PartyWrapper.ROW_HEIGHT + PartyWindow.MINOR_SPACING * 2
 end
 
 function PartyWrapper:UpdateLayout()
@@ -41,6 +42,8 @@ function PartyWrapper:AddMember(username)
     if not self.rows[username] then
         self.rows[username] = ComboBox:New{
             y = self:TotalHeight(),
+            x = PartyWindow.MINOR_SPACING,
+            width = 200 - PartyWindow.MINOR_SPACING * 3,
             parent = self.wrapper,
             showSelection = false,
             caption = username,
