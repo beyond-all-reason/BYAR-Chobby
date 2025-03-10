@@ -60,7 +60,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		return
 	end
 	self.emailRequired = (params and params.emailRequired) or false
-	self.windowHeight = (params and params.windowHeight) or (self.emailRequired and 430+200) or 390+200
+	self.windowHeight = (params and params.windowHeight) or (self.emailRequired and 460+200) or 420+200
 	self.loginAfterRegister = (params and params.loginAfterRegister) or false
 
 	local registerChildren = {}
@@ -445,13 +445,33 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 	self.txtErrorRegister = TextBox:New {
 		x = 15,
 		right = 15,
-		y = self.windowHeight - 216,
+		y = self.windowHeight - 246,
 		height = 90,
 		text = "",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(11),
 	}
 	registerChildren[#registerChildren + 1] = self.txtErrorRegister
+
+	local function reenablebtnLogin()
+		self.btnLogin.tooltip = nil
+		self.btnLogin.suppressButtonReaction = false
+		self.btnLogin:SetEnabled(true)
+		self.btnLogin.OnClick = {
+			function()
+				btnLoginOnClick()
+			end
+		}
+	end
+
+	function btnLoginOnClick()
+		self.btnLogin.tooltip = "Please wait a moment before retrying login"
+		self.btnLogin.suppressButtonReaction = true
+		self.btnLogin:SetEnabled(false)
+		self.btnLogin.OnClick = {}
+		self:MayBeDisconnectBeforeTryLogin()
+		WG.Delay(reenablebtnLogin, 5)
+	end
 
 	self.btnLogin = Button:New {
 		right = 140,
@@ -461,10 +481,13 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		caption = i18n("login_verb"),
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		classname = "action_button",
+		tooltip = nil,
 		OnClick = {
 			function()
-				if lobby:GetConnectionStatus() ~= "connecting" then
-					self:MayBeDisconnectBeforeTryLogin()
+				if lobby:GetConnectionStatus() ~= "connected" then
+					btnLoginOnClick()
+				else
+					self.txtError:SetText(Configuration:GetErrorColor() .. "Already logged in")
 				end
 			end
 		},
@@ -554,7 +577,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 
 	self.lblChangeUserName =  Label:New {
 		x = pad + formw * 0 ,
-		y = pad + formh * 2 ,
+		y = pad + formh * 1 ,
 		width =   formw * 1 ,
 		height =  formh * 1 ,
 		-- caption = i18n("register_long"),
@@ -879,7 +902,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 
 	self.lblChangeEmailVerification =  Label:New {
 		x = pad + formw * 0 ,
-		y = pad + formh * 21 ,
+		y = pad + formh * 19 ,
 		width =   formw * 1 ,
 		height =  formh * 1 ,
 		-- caption = i18n("register_long"),
@@ -1207,8 +1230,10 @@ function LoginWindow:tryRegister()
 	local username = self.ebUsernameRegister.text
 
 	if username == '' then
+		self.txtErrorRegister:SetText(Configuration:GetErrorColor() .. "No username provided.")
 		return
 	end
+
 	local isinValidUserName = isInValidUserName(username)
 	if isinValidUserName then
 		self.txtErrorRegister:SetText(Configuration:GetErrorColor() .. isinValidUserName)
@@ -1235,10 +1260,6 @@ function LoginWindow:tryRegister()
 
 	local password = (self.ebPasswordRegister.visible and self.ebPasswordRegister.text) or nil
 	local email = (self.emailRequired and self.ebEmail.visible and self.ebEmail.text) or nil
-	if username == '' then
-		self.txtErrorRegister:SetText(Configuration:GetErrorColor() .. "No username provided.")
-		return
-	end
 
 	if password == '' then
 		self.txtErrorRegister:SetText(Configuration:GetErrorColor() .. "No password provided.")
@@ -1254,7 +1275,7 @@ function LoginWindow:tryRegister()
 		self.txtErrorRegister:SetText(Configuration:GetErrorColor() .. "Registration error:" .. err)
 		lobby:RemoveListener("OnRegistrationDenied", self.onRegistrationDenied)
 	end
-	
+
 	lobby:AddListener("OnRegistrationDenied", self.onRegistrationDenied)
 
 	if (lobby:GetConnectionStatus() ~= "connected") or self.loginAttempts >= 3 then

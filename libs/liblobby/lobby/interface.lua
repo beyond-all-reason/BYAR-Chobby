@@ -402,7 +402,7 @@ end
 function Interface:RejoinBattle(battleID)
 	local battle = self:GetBattle(battleID)
 	if battle then
-		self:ConnectToBattle(self.useSpringRestart, battle.ip, battle.port, nil, self:GetScriptPassword())
+		self:ConnectToBattle(self.useSpringRestart, battle.ip, battle.port, nil, self:GetScriptPassword(), nil, nil, nil, nil, nil, battle.founder)
 	end
 
 	return self
@@ -784,7 +784,7 @@ function Interface:_OnClientStatus(userName, status)
 			local myBattleStatus = self.userBattleStatus[self.myUserName]
 			if myBattle and myBattle.founder == userName and not (Spring.GetGameName() ~= "" and myBattleStatus.isSpectator) and not self.commandBuffer and (not myBattleStatus.isSpectator or WG.Chobby.Configuration.autoLaunchAsSpectator) then
 				local battle = self:GetBattle(self.myBattleID)
-				self:ConnectToBattle(self.useSpringRestart, battle.ip, battle.port, nil, self:GetScriptPassword())
+				self:ConnectToBattle(self.useSpringRestart, battle.ip, battle.port, nil, self:GetScriptPassword(), nil, nil, nil, nil, nil, battle.founder)
 			end
 		end
 	end
@@ -2148,18 +2148,15 @@ local function buildDisregardListID(ignores, avoids, blocks)
 	for _, userID in ipairs(blocks) do
 		table.insert(disregardListID, {userID = userID, status = Configuration.BLOCK})
 	end
+
 	for _, userID in ipairs(avoids) do
-		if table.ifind(disregardListID, userID) then
-			Spring.Log(LOG_SECTION, LOG.ERROR, string.format("Found same user in 2 disregard lists (%s and %s):%s", "blocks", "avoids", userID))
-		else
+		if not table.ifindByKey(disregardListID, userID, "userID") then
 			table.insert(disregardListID, {userID = userID, status = Configuration.AVOID})
 		end
 	end
+
 	for _, userID in ipairs(ignores) do
-		local i = table.ifind(disregardListID, userID)
-		if i then
-			Spring.Log(LOG_SECTION, LOG.ERROR, string.format("Found same user in 2 disregard lists (%s and %s):%s", disregardListID[i].status == Configuration.BLOCK and "blocks" or "avoids", "ignores" , userID))
-		else
+		if not table.ifindByKey(disregardListID, userID, "userID") then
 			table.insert(disregardListID, {userID = userID, status = Configuration.IGNORE})
 		end
 	end

@@ -351,7 +351,7 @@ local function GetBattleTooltip(battleID, battle, showMapName)
 		if not battleTooltip.spectatorCount then
 			battleTooltip.spectatorCount = GetTooltipLine(battleTooltip.mainControl, nil, nil, 130)
 		end
-		battleTooltip.spectatorCount.Update(offset, "Spectators: " .. battle.spectatorCount)
+		battleTooltip.spectatorCount.Update(offset,"|    " .. "Spectators: " .. battle.spectatorCount)
 
 		offset = offset + 21
 	elseif battleTooltip.playerCount then

@@ -61,7 +61,7 @@ local function MakeExclusivePopup(text, buttonText, ClickFunc, buttonClass, heig
 	if replacablePopup then
 		replacablePopup:Close()
 	end
-	replacablePopup = WG.Chobby.InformationPopup(text, {caption = buttonText, closeFunc = ClickFunc, buttonClass = buttonClass, height = height, width = 500})
+	replacablePopup = WG.Chobby.InformationPopup(text, {caption = buttonText, closeFunc = ClickFunc, buttonClass = buttonClass, height = height, width = 540})
 end
 
 local function CloseExclusivePopup()
@@ -159,7 +159,49 @@ end
 --------------------------------------------------------------------------------
 -- Downloading
 
-local function CheckDownloads(gameName, mapName, DoneFunc, gameList)
+-- outcome example: "105.1.1-1354-g72b2d55 BAR105" -> "engine/105.1.1-1354-g72b2d55 bar"
+local function GetEnginePath(engineVersion)
+	if engineVersion:match("^2") then	--Handle new naming scheme
+		local year, month = engineVersion:match("^%d%d(%d%d)%.(%d%d)")
+		local branch = "rel" .. year .. month
+		engineVersion = branch .. "." .. engineVersion
+	end
+	return ("engine/" .. engineVersion:gsub(" BAR105", " bar")):lower() -- maybe there are more special cases to take in mind here for very old demos or future ones!
+end
+
+local function haveEngineVersion(engineVersion)
+	local springExecutable = Platform.osFamily == "Windows" and "spring.exe" or "spring"
+	if engineVersion:match("^2") then	--Handle new naming scheme
+		local year, month = engineVersion:match("^%d%d(%d%d)%.(%d%d)")
+		local branch = "rel" .. year .. month
+		engineVersion = branch .. "." .. engineVersion
+	end
+	return VFS.FileExists(GetEnginePath(engineVersion) .. "//" .. springExecutable)
+end
+
+-- outcome example: https://github.com/beyond-all-reason/spring/releases/download/spring_bar_%7BBAR105%7D105.1.1-1354-g72b2d55/spring_bar_.BAR105.105.1.1-1354-g72b2d55_windows-64-minimal-portable.7z
+-- new naming example :https://github.com/beyond-all-reason/spring/releases/download/2025.01.5/spring_bar_.rel2501.2025.01.5_linux-64-minimal-portable.7z
+local function GetEngineDownloadUrl(engineVersion)
+	local sanitizedEngineVersion = WG.Chobby.Configuration:SanitizeEngineVersion(engineVersion)
+	local branch = sanitizedEngineVersion:match("%s([%w-.]*)") or ""
+	local pureVersion = sanitizedEngineVersion:gsub(" " .. branch, "")
+	local year, month = pureVersion:match("^%d%d(%d%d)%.(%d%d)")
+	local versionDir
+	if pureVersion:match("^2") then	--Handle new naming scheme
+		branch = "rel" .. year .. month
+		versionDir = pureVersion .. "/"
+	else	--Assume old naming scheme
+		versionDir = "spring_bar_%7B" .. branch .. "%7D" .. pureVersion .. "/"
+	end
+	local baseUrl = "https://github.com/beyond-all-reason/spring/releases/download/"
+	local platform64 = Platform.osFamily:lower() .. "-64"
+	local fileName = "spring_bar_." .. branch .. "." .. pureVersion .. "_" .. platform64 .. "-minimal-portable.7z"
+	return baseUrl .. versionDir .. fileName
+end
+
+-- gameList = nil
+-- local oneTimeResourceDl = false
+local function CheckDownloads(gameName, mapName, DoneFunc, gameList, engineVersion)
 	local haveGame = (not gameName) or WG.Package.ArchiveExists(gameName)
 	if not haveGame then
 		WG.DownloadHandler.MaybeDownloadArchive(gameName, "game", -1)
@@ -179,12 +221,21 @@ local function CheckDownloads(gameName, mapName, DoneFunc, gameList)
 		end
 	end
 
-	if haveGame and haveMap then
+	local haveEngine = not engineVersion or haveEngineVersion(engineVersion)
+	if not haveEngine then
+		WG.DownloadHandler.MaybeDownloadArchive(engineVersion, "resource", -1,{ -- FB 2023-05-14: Use resource download until engine-download is supported by launcher
+			url = GetEngineDownloadUrl(engineVersion),
+			destination = GetEnginePath(engineVersion),
+			extract = true,
+		})
+	end
+
+	if haveGame and haveMap and haveEngine then
 		return true
 	end
 
 	local function Update()
-		if ((not gameName) or WG.Package.ArchiveExists(gameName)) and ((not mapName) or VFS.HasArchive(mapName)) then
+		if ((not gameName) or WG.Package.ArchiveExists(gameName)) and ((not mapName) or VFS.HasArchive(mapName)) and ((not engineVersion) or haveEngineVersion(engineVersion)) then
 			if gameList then
 				for i = 1, #gameList do
 					if not WG.Package.ArchiveExists(gameList[i]) then
@@ -230,8 +281,14 @@ local function CheckDownloads(gameName, mapName, DoneFunc, gameList)
 		downloading.downloads[mapName] = #downloading.progress
 	end
 
+	if not haveEngine then
+		dlString = dlString .. ("\n - " .. engineVersion .. ": %d%%")
+		downloading.progress[#downloading.progress + 1] = 0
+		downloading.downloads[engineVersion] = #downloading.progress
+	end
+
 	downloading.dlString = dlString
-	MakeExclusivePopup(string.format(dlString, unpack(downloading.progress)), "Cancel", CancelFunc, "negative_button", (gameList and (180 + (#gameList)*40)))
+	MakeExclusivePopup(string.format(dlString, unpack(downloading.progress)), "Cancel", CancelFunc, "negative_button", (gameList and (220 + (#gameList)*40)))
 end
 
 
@@ -345,7 +402,7 @@ end
 -- External functions: Widget <-> Widget
 
 function SteamCoopHandler.AttemptGameStart(gameType, gameName, mapName, scriptTable, newFriendsReplaceAI, newReplayFile, newEngineVersion)
-	if coopClient then
+	if coopClient then -- ZK only, always false 
 		local statusAndInvitesPanel = WG.Chobby.interfaceRoot.GetStatusAndInvitesPanel()
 		if statusAndInvitesPanel and statusAndInvitesPanel.GetChildByName("coopPanel") then
 			WG.Chobby.InformationPopup("Only the host of the coop party can launch games.")
@@ -394,7 +451,11 @@ function SteamCoopHandler.AttemptGameStart(gameType, gameName, mapName, scriptTa
 					MakeExclusivePopup("Wrapper is required to watch replays with old engine versions.")
 					return
 				end
-				local engine = string.gsub(string.gsub(startEngineVersion, " maintenance", ""), " develop", "")
+				if startEngineVersion:match("^2") then	--Handle new naming scheme
+					local year, month = startEngineVersion:match("^%d%d(%d%d)%.(%d%d)")
+					local branch = "rel" .. year .. month
+					startEngineVersion = branch .. "." .. startEngineVersion
+				end
 				local engine = string.gsub(startEngineVersion, "BAR105", "bar") -- because this is the path we use
 				local params = {
 					StartDemoName = startReplayFile, -- dont remove the 'demos/' string from it now
@@ -462,7 +523,7 @@ function SteamCoopHandler.AttemptGameStart(gameType, gameName, mapName, scriptTa
 		WG.WrapperLoopback.SteamHostGameRequest(args)
 	end
 
-	if CheckDownloads(gameName, mapName, DownloadsComplete) then
+	if CheckDownloads(gameName, mapName, DownloadsComplete, _, newEngineVersion) then
 		DownloadsComplete()
 	end
 end

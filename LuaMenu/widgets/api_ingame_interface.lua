@@ -42,7 +42,7 @@ local LOAD_FILENAME = "loadFilename "
 local RESTART_GAME = "restartGame"
 local GAME_INIT = "ingameInfoInit"
 local GAME_START = "ingameInfoStart"
-
+local GAME_SAVED = "gameSaved"
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 -- Utilities
@@ -137,7 +137,16 @@ end
 
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
--- Load and Restart
+-- Save, Load and Restart
+
+local function HandleSaveGame(msg)
+    if string.find(msg, GAME_SAVED) ~= 1 then
+        return
+    end
+	if WG.LoadGame and WG.LoadGameWindow then
+		WG.LoadGameWindow.RefreshSaveList()
+	end
+end
 
 local function HandleLoadGame(msg)
 	if string.find(msg, LOAD_FILENAME) ~= 1 then
@@ -226,6 +235,9 @@ function widget:RecvLuaMsg(msg)
 		return
 	end
 	if HandleGameInfoStart(msg) then
+		return
+	end
+	if HandleSaveGame(msg) then
 		return
 	end
 end

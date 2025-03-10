@@ -45,6 +45,8 @@ local IMG_LINK     = LUA_DIRNAME .. "images/link.png"
 local IMG_CHECKBOX		= LUA_DIRNAME .. "images/checkbox.png"
 local IMG_CHECKARROW		= LUA_DIRNAME .. "images/checkbox_arrow.png"
 
+local MINIMAP_TOOLTIP_PREFIX = "minimap_tooltip_"
+
 local MINIMUM_QUICKPLAY_PLAYERS = 4 -- Hax until the server tells me a number.
 
 local lastUserToChangeStartBoxes = ''
@@ -139,355 +141,219 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	local minimapBottomClearance = 160
 
 	local currentMapName
+	local oldSelectedBoxes = 1
+	local startBoxSelect = {}
+	local startBoxDefaultImage = LUA_DIRNAME .. "images/load_img_128.png"
+	local freezeSettings = true
+
 	local mapLinkWidth = 150
 	currentStartRects = {}
-
 
 	local externalFunctions = {}
 
 	local startBoxPanel = Control:New{
 		name = 'startBoxPanel',
 		x = 0,
-		y = 22,
+		y = 24,
 		width = "100%",
 		height = 25,
 		padding = {0,0,0,0},
 		parent = rightInfo,
 	}
-	-- the buttons needed are:
-	-- splitV , splitH, splitC1_2, splitC2_2, split4, add, remove
-	local btnSplitV = Button:New{
-		name = 'btnSplitV',
-		x = "0%",
-		bottom = 0,
-		width = "12%",
+
+	local startBoxImageHolder = Control:New{
+		name = 'startBoxImageHolder',
+		x = "12%",
+		y = 0,
+		width = "15%",
 		height = "100%",
-		maxWidth = 50,
-		maxHeight = 50,
-		classname = "button_small",
-		caption = "",
-		noFont = true,
-		padding = {0, 0, 0, 0},
 		parent = startBoxPanel,
-		tooltip = "Split start boxes left vs right",
-		OnClick = {
-			function ()
-				local battleStatus = battleLobby:GetUserBattleStatus(myUserName) or {}
-				if battleStatus.isSpectator then
-					return
+	}
+
+	local startBoxImage = Image:New {
+		name = 'startBoxImage',
+		x = 0,
+		y = 0,
+		width = "100%",
+		height = "100%",
+		keepAspect = true,
+		file = startBoxDefaultImage,
+		parent = startBoxImageHolder,
+	}
+
+	local startBoxSelectorNames = {"Default Boxes", "East vs West", "North vs South", "NW vs SE", "NE vs SW", "4 Corners", "4 Sides"}
+	local startBoxSelectorTooltips = {"Reset to default", "East vs West", "North vs South", "Northwest vs Southeast", "Northeast vs Southwest", "Southwest vs Northeast vs Northwest vs Southeast", "West vs East vs North vs South"}
+	local startBoxSelectorImages = {startBoxDefaultImage, LUA_DIRNAME .. "images/startboxsplit_v.png", LUA_DIRNAME .. "images/startboxsplit_h.png", LUA_DIRNAME .. "images/startboxsplit_c1.png", LUA_DIRNAME .. "images/startboxsplit_c2.png", LUA_DIRNAME .. "images/startboxsplit_c.png", LUA_DIRNAME .. "images/startboxsplit_s.png"}
+	local startBoxComboBox = ComboBox:New{
+		name = 'startBoxComboBox',
+		x = "12.25%",
+		y = 1,
+		right = "12.5%",
+		bottom = 1,
+		items = startBoxSelectorNames,
+		itemsTooltips = startBoxSelectorTooltips,
+		itemImages = startBoxSelectorImages,
+		itemKeyToName = startBoxSelectorNames,
+		objectOverrideFont = config:GetFont(2),
+		parent = startBoxPanel,
+		selectByName = true,
+		tooltip = "Change the layout of the start boxes",
+		OnSelectName = {
+			function(obj, selected, item)
+				if freezeSettings then return end -- so these funcs dont run on first init
+
+				local newSelectedBoxes = selected
+
+				local function cancelFunc()
+					freezeSettings = true
+					obj:Select(oldSelectedBoxes)
+					freezeSettings = false
 				end
-				WG.IntegerSelectorWindow.CreateIntegerSelectorWindow({
-					defaultValue = 20,
-					minValue = 3,
-					maxValue = 50,
-					caption = "Change start boxes",
-					labelCaption = "Split the map start boxes vertically, with X percent of the map going to left and right start boxes.",
-					imageFile = LUA_DIRNAME .. "images/startboxsplit_v.png",
-					OnAccepted = function(integervalue)
+
+				local imageFileMap = {
+					["Default Boxes"] = startBoxSelectorImages[1],
+					["East vs West"] = startBoxSelectorImages[2],
+					["North vs South"] = startBoxSelectorImages[3],
+					["NW vs SE"] = startBoxSelectorImages[4],
+					["NE vs SW"] = startBoxSelectorImages[5],
+					["4 Corners"] = startBoxSelectorImages[6],
+					["4 Sides"] = startBoxSelectorImages[7],
+				}
+
+				local function UpdateBoxes()
+					oldSelectedBoxes = newSelectedBoxes
+
+					local newImageFile = imageFileMap[selected]
+					startBoxImage.file = newImageFile
+					startBoxImage:Invalidate()
+				end
+
+				local function MakeIntegerSelectorWindow()
+					WG.IntegerSelectorWindow.CreateIntegerSelectorWindow({
+						defaultValue = 20,
+						minValue = startBoxSelect.Min,
+						maxValue = startBoxSelect.Max,
+						caption = "Change start boxes",
+						imageFile = imageFileMap[selected],
+						keepAspect = true,
+						labelCaption = startBoxSelect.Caption,
+						OnAccepted = function(integervalue)
+							if battleLobby.name == "singleplayer" then
+								externalFunctions.RemoveStartRect()
+								startBoxSelect.AcceptFuncSingleplayer(integervalue)
+							else
+								startBoxSelect.AcceptFunc(integervalue)
+							end
+							UpdateBoxes()
+						end,
+						OnCancelled = function () cancelFunc() end
+					})
+				end
+
+				if selected == "Default Boxes" then
+					local function defaultBoxes()
 						if battleLobby.name == "singleplayer" then
-							externalFunctions.RemoveStartRect()
-							externalFunctions.AddStartRect(0, 0, 0, integervalue *2, 200)
-							externalFunctions.AddStartRect(1, 200 - integervalue *2, 0, 200, 200)
+							battleLobby:SelectMap(battle.mapName)
+						elseif battle.nbTeams and tonumber(battle.nbTeams) > 1 then --Minimum 2 teams in multiplayer until PvE boxes are supported
+							battleLobby:SayBattle("!loadboxes")
 						else
+							battleLobby:SayBattle("!loadboxes \""..battle.mapName.."\" 2 0")
+						end
+						UpdateBoxes()
+					end
+					WG.Chobby.ConfirmationPopup(defaultBoxes, "Restore default start boxes for the current number of teams: (" .. (battle.nbTeams or emptyTeamIndex or 1) .. ")", nil, 330, 230, i18n("ok"),nil, cancelFunc)
+					return
+				else
+					if selected == "East vs West" then
+						startBoxSelect.Min = 3
+						startBoxSelect.Max = 50
+						startBoxSelect.Caption = "Split the map start boxes vertically, with X percent of the map going to left and right start boxes."
+						startBoxSelect.AcceptFunc = function(integervalue)
 							battleLobby:SayBattle("!split v "..tostring(integervalue))
 						end
-					end
-				})
-			end
-		}
-	}
-
-	local imSplitV = Image:New {
-		name = 'imSplitV',
-		x = 0,
-		y = 0,
-		right = 0,
-		bottom = 0,
-		keepAspect = false,
-		file = LUA_DIRNAME .. "images/startboxsplit_v.png",
-		parent = btnSplitV,
-		tooltip = btnSplitV.tooltip,
-	}
-
-	local btnSplitH = Button:New{
-		name = 'btnSplitH',
-		x = "12.5%",
-		bottom = 0,
-		width = '12%',
-		height = "100%",
-		maxWidth = 50,
-		maxHeight = 50,
-		parent = startBoxPanel,
-		classname = "button_small",
-		caption = "",
-		noFont = true,
-		padding = {0, 0, 0, 0},
-		tooltip = "Split start boxes top vs bottom",
-		OnClick = {
-			function ()
-				local battleStatus = battleLobby:GetUserBattleStatus(myUserName) or {}
-				if battleStatus.isSpectator then
-					return
-				end
-				WG.IntegerSelectorWindow.CreateIntegerSelectorWindow({
-					defaultValue = 20,
-					minValue = 3,
-					maxValue = 50,
-					caption = "Change start boxes",
-					labelCaption = "Split the map start boxes horizontally, with X percent of the map going to top and bottom start boxes.",
-					imageFile = LUA_DIRNAME .. "images/startboxsplit_h.png",
-					OnAccepted = function(integervalue)
-						if battleLobby.name == "singleplayer" then
-							externalFunctions.RemoveStartRect()
-							externalFunctions.AddStartRect(0, 0, 0, 200, integervalue * 2)
-							externalFunctions.AddStartRect(1, 0, 200 - integervalue *2, 200, 200)
-						else
+						startBoxSelect.AcceptFuncSingleplayer = function(integervalue)
+							externalFunctions.AddStartRect(0, 0, 0, integervalue *2, 200)
+							externalFunctions.AddStartRect(1, 200 - integervalue *2, 0, 200, 200)
+						end
+					elseif selected == "North vs South" then
+						startBoxSelect.Min = 3
+						startBoxSelect.Max = 50
+						startBoxSelect.Caption = "Split the map start boxes horizontally, with X percent of the map going to top and bottom start boxes."
+						startBoxSelect.AcceptFunc = function(integervalue)
 							battleLobby:SayBattle("!split h "..tostring(integervalue))
 						end
-					end
-				})
-			end
-		}
-	}
-
-	local imSplitH = Image:New {
-		name = 'imSplitH',
-		x = 0,
-		y = 0,
-		right = 0,
-		bottom = 0,
-		keepAspect = false,
-		file = LUA_DIRNAME .. "images/startboxsplit_h.png",
-		parent = btnSplitH,
-		tooltip = btnSplitH.tooltip,
-	}
-
-	local btnSplitC1 = Button:New{
-		name = 'btnSplitC1',
-		x = "25%",
-		bottom = 0,
-		width = '12%',
-		height = "100%",
-		maxWidth = 50,
-		maxHeight = 50,
-		parent = startBoxPanel,
-		classname = "button_small",
-		caption = "",
-		noFont = true,
-		padding = {0, 0, 0, 0},
-		tooltip = "Split start boxes top left vs bottom right",
-		OnClick = {
-			function ()
-				local battleStatus = battleLobby:GetUserBattleStatus(myUserName) or {}
-				if battleStatus.isSpectator then
-					return
-				end
-				WG.IntegerSelectorWindow.CreateIntegerSelectorWindow({
-					defaultValue = 20,
-					minValue = 3,
-					maxValue = 50,
-					caption = "Change start boxes",
-					labelCaption = "Split the map start boxes along the corners, with X percent of the map going to top left and bottom right start boxes.",
-					imageFile = LUA_DIRNAME .. "images/startboxsplit_c1.png",
-					OnAccepted = function(integervalue)
-						if battleLobby.name == "singleplayer" then
-							externalFunctions.RemoveStartRect()
-							externalFunctions.AddStartRect(0, 0, 0, integervalue *2, integervalue * 2)
-							externalFunctions.AddStartRect(1, 200 - integervalue *2, 200 - integervalue *2, 200, 200)
-						else
+						startBoxSelect.AcceptFuncSingleplayer = function(integervalue)
+							externalFunctions.AddStartRect(0, 0, 0, 200, integervalue * 2)
+							externalFunctions.AddStartRect(1, 0, 200 - integervalue *2, 200, 200)
+						end
+					elseif selected == "NW vs SE" then
+						startBoxSelect.Min = 3
+						startBoxSelect.Max = 50
+						startBoxSelect.Caption = "Split the map start boxes along the corners, with X percent of the map going to top left and bottom right start boxes."
+						startBoxSelect.AcceptFunc = function(integervalue)
 							battleLobby:SayBattle("!split c1 "..tostring(integervalue))
 						end
-					end
-				})
-			end
-		}
-	}
-
-	local imSplitC1 = Image:New {
-		name = 'imSplitC1',
-		x = 0,
-		y = 0,
-		right = 0,
-		bottom = 0,
-		keepAspect = false,
-		file = LUA_DIRNAME .. "images/startboxsplit_c1.png",
-		parent = btnSplitC1,
-		tooltip = btnSplitC1.tooltip,
-	}
-
-	local btnSplitC2 = Button:New{
-		name = 'btnSplitC2',
-		x = "37.5%",
-		bottom = 0,
-		width = '12%',
-		height = "100%",
-		maxWidth = 50,
-		maxHeight = 50,
-		parent = startBoxPanel,
-		classname = "button_small",
-		caption = "",
-		noFont = true,
-		padding = {0, 0, 0, 0},
-		tooltip = "Split start boxes bottom left vs top right",
-		OnClick = {
-			function ()
-				local battleStatus = battleLobby:GetUserBattleStatus(myUserName) or {}
-				if battleStatus.isSpectator then
-					return
-				end
-				WG.IntegerSelectorWindow.CreateIntegerSelectorWindow({
-					defaultValue = 20,
-					minValue = 3,
-					maxValue = 50,
-					caption = "Change start boxes",
-					labelCaption = "Split the map start boxes along the corners, with X percent of the map going to bottom left and top right start boxes.",
-					imageFile = LUA_DIRNAME .. "images/startboxsplit_c2.png",
-					OnAccepted = function(integervalue)
-						if battleLobby.name == "singleplayer" then
-							externalFunctions.RemoveStartRect()
-							externalFunctions.AddStartRect(0, 0, 200- integervalue*2 , integervalue *2, 200)
-							externalFunctions.AddStartRect(1, 200-integervalue *2, 0, 200, integervalue *2 )
-						else
+						startBoxSelect.AcceptFuncSingleplayer = function(integervalue)
+							externalFunctions.AddStartRect(0, 0, 0, integervalue *2, integervalue * 2)
+							externalFunctions.AddStartRect(1, 200 - integervalue *2, 200 - integervalue *2, 200, 200)
+						end
+					elseif selected == "NE vs SW" then
+						startBoxSelect.Min = 3
+						startBoxSelect.Max = 50
+						startBoxSelect.Caption = "Split the map start boxes along the corners, with X percent of the map going to bottom left and top right start boxes."
+						startBoxSelect.AcceptFunc = function(integervalue)
 							battleLobby:SayBattle("!split c2 "..tostring(integervalue))
 						end
-					end
-				})
-			end
-		}
-	}
-
-	local imSplitC2 = Image:New {
-		name = 'imSplitC2',
-		x = 0,
-		y = 0,
-		right = 0,
-		bottom = 0,
-		keepAspect = false,
-		file = LUA_DIRNAME .. "images/startboxsplit_c2.png",
-		parent = btnSplitC2,
-		tooltip = btnSplitC2.tooltip,
-	}
-
-
-	local btnSplitC4 = Button:New{
-		name = 'btnSplitC4',
-		x = "50%",
-		bottom = 0,
-		width = '12%',
-		height = "100%",
-		maxWidth = 50,
-		maxHeight = 50,
-		parent = startBoxPanel,
-		classname = "button_small",
-		caption = "",
-		noFont = true,
-		padding = {0, 0, 0, 0},
-		tooltip = "Split start boxes into 4 corners for 4 teams",
-		OnClick = {
-			function ()
-				local battleStatus = battleLobby:GetUserBattleStatus(myUserName) or {}
-				if battleStatus.isSpectator then
-					return
-				end
-				WG.IntegerSelectorWindow.CreateIntegerSelectorWindow({
-					defaultValue = 20,
-					minValue = 3,
-					maxValue = 50,
-					caption = "Change start boxes",
-					labelCaption = "Split the map start boxes along the corners, with X percent of the map going to all 4 corners.",
-					imageFile = LUA_DIRNAME .. "images/startboxsplit_c.png",
-					OnAccepted = function(integervalue)
-						if battleLobby.name == "singleplayer" then
-							externalFunctions.RemoveStartRect()
+						startBoxSelect.AcceptFuncSingleplayer = function(integervalue)
+							externalFunctions.AddStartRect(0, 0, 200- integervalue*2 , integervalue *2, 200)
+							externalFunctions.AddStartRect(1, 200-integervalue *2, 0, 200, integervalue *2 )
+						end
+					elseif selected == "4 Corners" then
+						startBoxSelect.Min = 3
+						startBoxSelect.Max = 50
+						startBoxSelect.Caption = "Split the map start boxes along the corners, with X percent of the map going to all 4 corners."
+						startBoxSelect.AcceptFunc = function(integervalue)
+							battleLobby:SayBattle("!split c "..tostring(integervalue))
+						end
+						startBoxSelect.AcceptFuncSingleplayer = function(integervalue)
 							externalFunctions.AddStartRect(0, 0, 200- integervalue*2 , integervalue *2, 200)
 							externalFunctions.AddStartRect(1, 200-integervalue *2, 0, 200, integervalue *2 )
 							externalFunctions.AddStartRect(2, 0, 0, integervalue *2, integervalue * 2)
 							externalFunctions.AddStartRect(3, 200 - integervalue *2, 200 - integervalue *2, 200, 200)
-						else
-							battleLobby:SayBattle("!split c "..tostring(integervalue))
 						end
-					end
-				})
-			end
-		}
-	}
-
-	local imSplitC4 = Image:New {
-		name = 'imSplitC4',
-		x = 0,
-		y = 0,
-		right = 0,
-		bottom = 0,
-		keepAspect = false,
-		file = LUA_DIRNAME .. "images/startboxsplit_c.png",
-		parent = btnSplitC4,
-		tooltip = btnSplitC4.tooltip,
-	}
-
-
-	local btnSplitS4 = Button:New{
-		name = 'btnSplitS4',
-		x = "62.5%",
-		bottom = 0,
-		width = '12%',
-		height = "100%",
-		maxWidth = 50,
-		maxHeight = 50,
-		parent = startBoxPanel,
-		classname = "button_small",
-		caption = "",
-		noFont = true,
-		padding = {0, 0, 0, 0},
-		tooltip = "Split start boxes into 4 sides for 4 teams",
-		OnClick = {
-			function ()
-				local battleStatus = battleLobby:GetUserBattleStatus(myUserName) or {}
-				if battleStatus.isSpectator then
-					return
-				end
-				WG.IntegerSelectorWindow.CreateIntegerSelectorWindow({
-					defaultValue = 20,
-					minValue = 3,
-					maxValue = 33,
-					caption = "Change start boxes",
-					labelCaption = "Split the map start boxes along the sides, with X percent of the map going to all 4 sides.",
-					imageFile = LUA_DIRNAME .. "images/startboxsplit_s.png",
-					OnAccepted = function(integervalue)
-						if battleLobby.name == "singleplayer" then
-							externalFunctions.RemoveStartRect()
+					elseif selected == "4 Sides" then
+						startBoxSelect.Min = 3
+						startBoxSelect.Max = 33
+						startBoxSelect.Caption = "Split the map start boxes along the sides, with X percent of the map going to all 4 sides."
+						startBoxSelect.AcceptFunc = function(integervalue)
+							battleLobby:SayBattle("!split s "..tostring(integervalue))
+						end
+						startBoxSelect.AcceptFuncSingleplayer = function(integervalue)
 							externalFunctions.AddStartRect(0, 0, 100 - integervalue , integervalue *2, 100 + integervalue)
 							externalFunctions.AddStartRect(1, 200-integervalue *2, 100-integervalue, 200, 100 + integervalue)
 							externalFunctions.AddStartRect(2, 100 - integervalue , 0, 100 + integervalue, integervalue * 2)
 							externalFunctions.AddStartRect(3, 100 - integervalue , 200 - integervalue *2, 100+ integervalue, 200)
-						else
-							battleLobby:SayBattle("!split s "..tostring(integervalue))
 						end
 					end
-				})
+				MakeIntegerSelectorWindow()
+				end
 			end
 		}
 	}
 
-	local imSplitS4 = Image:New {
-		name = 'imSplitS4',
-		x = 0,
-		y = 0,
-		right = 0,
-		bottom = 0,
-		keepAspect = false,
-		file = LUA_DIRNAME .. "images/startboxsplit_s.png",
-		parent = btnSplitS4,
-		tooltip = btnSplitS4.tooltip,
-	}
-
+	StartBoxComboBoxSelectDefault = function()
+		startBoxComboBox:Select(1)
+		oldSelectedBoxes = 1
+		startBoxImage.file = startBoxDefaultImage
+		startBoxImage:Invalidate()
+	end
 
 	local btnAddBox = Button:New{
 		name = 'btnAddBox',
-		x = "75%",
-		bottom = 0,
-		width = '12%',
-		height = "100%",
-		maxWidth = 50,
+		x = 0,
+		y = 1,
+		width = "12%",
+		bottom = 1,
 		maxHeight = 50,
 		parent = startBoxPanel,
 		classname = "button_small",
@@ -497,10 +363,6 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		tooltip = "Add a new start box in the center",
 		OnClick = {
 			function ()
-				local battleStatus = battleLobby:GetUserBattleStatus(myUserName) or {}
-				if battleStatus.isSpectator then
-					return
-				end
 				if battleLobby.name == "singleplayer" then
 					externalFunctions.AddStartRect(#currentStartRects,66, 66, 133, 133)
 				else
@@ -516,7 +378,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		y = 0,
 		right = 0,
 		bottom = 0,
-		keepAspect = false,
+		keepAspect = true,
 		file = LUA_DIRNAME .. "images/startboxsplit_add.png",
 		parent = btnAddBox,
 		tooltip = btnAddBox.tooltip,
@@ -524,11 +386,10 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 
 	local btnClearBox = Button:New{
 		name = 'btnClearBox',
-		x = "87.5%",
-		bottom = 0,
-		width = '12%',
-		height = "100%",
-		maxWidth = 50,
+		y = 1,
+		width = "12%",
+		bottom = 1,
+		right = 1,
 		maxHeight = 50,
 		parent = startBoxPanel,
 		classname = "button_small",
@@ -538,10 +399,6 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		tooltip = "Remove last start box",
 		OnClick = {
 			function ()
-				local battleStatus = battleLobby:GetUserBattleStatus(myUserName) or {}
-				if battleStatus.isSpectator then
-					return
-				end
 				if battleLobby.name == "singleplayer" then
 					if #currentStartRects > 0 then
 						externalFunctions.RemoveStartRect(#currentStartRects -1)
@@ -559,12 +416,11 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		y = 0,
 		right = 0,
 		bottom = 0,
-		keepAspect = false,
+		keepAspect = true,
 		file = LUA_DIRNAME .. "images/startboxsplit_remove.png",
 		parent = btnClearBox,
 		tooltip = btnClearBox.tooltip,
 	}
-
 
 	local function UpdateStartRectPositionsInMinimap(width)
 
@@ -623,7 +479,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 			return
 		end
 		mapName = battle.mapName:gsub("_", " ")
-		mapName = StringUtilities.GetTruncatedStringWithDotDot(mapName, lblMapName.font, width - 22)
+		mapName = StringUtilities.GetTruncatedStringWithDotDot(mapName, lblMapName.font, width)
 		lblMapName:SetCaption(mapName)
 	end
 	SetMapName(battle.mapName, mapLinkWidth)
@@ -657,12 +513,12 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		tooltip = "Currently selected map. Green boxes show where each team will start"
 	}
 
-	if battleLobby.name == "singleplayer" and config.devMode then 
+	if battleLobby.name == "singleplayer" and WG.Chobby.Configuration.simplifiedSkirmishSetup ~= true and config.devMode then
 		local comboboxstartpostype = ComboBox:New{
 			name = 'comboboxstartpostype',
-			x = 0,
-			bottom = 100,
-			right = 0,
+			x = "60%",
+			right = 98,
+			y = 15,
 			height = 30,
 			itemHeight = 22,
 			selectByName = true,
@@ -683,7 +539,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 					battle.startPosType = nil
 				end
 			},
-			parent = rightInfo,
+			parent = mainWindow,
 		}
 	end
 
@@ -1005,7 +861,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 				minimapPanel:UpdateClientArea()
 
 				lblMapName:SetPos(nil, xSize + 2)
-				startBoxPanel:SetPos(nil,xSize + 24,nil, xSize / 8)
+				startBoxPanel:SetPos(nil,xSize + 24,nil, math.min(50, math.round(xSize / 8)))
 
 			else
 				local horPadding = ((xSize + minimapBottomClearance) - ySize)/2
@@ -1017,7 +873,8 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 				minimapPanel:UpdateClientArea()
 
 				lblMapName:SetPos(nil, ySize - minimapBottomClearance + 2)
-				startBoxPanel:SetPos(nil,ySize - minimapBottomClearance + 24,nil, xSize / 8)
+				startBoxPanel:SetPos(nil,ySize - minimapBottomClearance + 24, nil, math.min(50, math.round(xSize / 8)))
+
 
 			end
 		end
@@ -1339,9 +1196,9 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	end
 
 	-- Lobby interface
-	function externalFunctions.UpdateUserTeamStatus(userName, allyNumber, isSpectator)
+	function externalFunctions.UpdateUserTeamStatus(userName, allyNumber, isSpectator, queuePos)
 		if userName == myUserName then
-			if isSpectator then
+			if battleLobby.name ~= "singleplayer" and battle.bossed ~= true and (isSpectator or (queuePos and queuePos > 0)) then
 				-- SetButtonStateSpectating()
 				startBoxPanel:Hide()
 				minimapPanel.disableChildrenHitTest = true --omg this is amazing
@@ -1370,9 +1227,6 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		if battleID ~= updatedBattleID then
 			return
 		end
-
-		-- only on init of single player lobby:
-
 		if battleInfo.mapName then
 			SetMapName(battleInfo.mapName, mapLinkWidth)
 			imMinimap.file, imMinimap.checkFileExists = config:GetMinimapImage(battleInfo.mapName)
@@ -1416,6 +1270,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 						externalFunctions.AddStartRect(1,160,0,200,200)
 					end
 
+					StartBoxComboBoxSelectDefault()
 				else
 					Spring.Echo("No map startBoxes found or disabled for map",mapName,"teamcount:",allyTeamCount)
 				end
@@ -1494,7 +1349,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 					Spring.PlaySoundFile("sounds/Alarm_light5_mixdown.wav", WG.Chobby.Configuration.menuNotificationVolume or 1) -- RING SOUND
 
 					local userControl = WG.UserHandler.GetNotificationUser(mynewbestfriend)
-					userControl:SetPos(30, 30, 250, 20)
+					userControl:SetPos(30, 30, 250, 80)
 					Chotify:Post({
 						title = i18n("A Player Joined You"),
 						body = userControl,
@@ -1634,6 +1489,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	MaybeDownloadGame(battle)
 	MaybeDownloadMap(battle)
 	UpdateArchiveStatus(true)
+	freezeSettings = false
 	externalFunctions.rightInfo = rightInfo
 
 	return externalFunctions
@@ -2722,30 +2578,38 @@ end
 local function InitializeSetupPage(subPanel, screenHeight, pageConfig, nextPage, prevPage, selectedOptions, ApplyFunction)
 	local Configuration = WG.Chobby.Configuration
 
-	local buttonScale, buttonHeight, buttonFont = 70, 64, 4
+	local buttonScale, buttonHeight, buttonFont = 80, 70, 3
 	if screenHeight < 900 then
-		buttonScale = 60
+		buttonScale = 57
 		buttonHeight = 56
-		buttonFont = 4
+		buttonFont = 3
 	end
 
 	subPanel:SetVisibility(not prevPage)
 
-	local buttons = {}
+	local options = pageConfig.options
+	if pageConfig.getDynamicOptions then
+		options = pageConfig.getDynamicOptions(selectedOptions)
+	end
+	if not options then
+		Spring.Echo("No options available for page", pageConfig.name)
+		options = {}
+	end
+	local numOptions = #options
 
 	local nextButton = Button:New {
 		name = 'nextButton',
 		x = "36%",
 		right = "36%",
-		y = 2*buttonScale + 5 + (#pageConfig.options)*buttonScale,
+		bottom = "4%",
 		height = buttonHeight,
-		classname = "action_button",
+		classname = (nextPage and "action_button") or "ready_button",
 		caption = (nextPage and "Next") or i18n("start"),
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(buttonFont),
 		OnClick = {
 			function(obj)
-				subPanel:SetVisibility(false)
 				if nextPage then
+					subPanel:SetVisibility(false)
 					WG.Analytics.SendOnetimeEvent("lobby:singleplayer:skirmish:" .. pageConfig.name, selectedOptions[pageConfig.name])
 					nextPage:SetVisibility(true)
 				else
@@ -2757,20 +2621,23 @@ local function InitializeSetupPage(subPanel, screenHeight, pageConfig, nextPage,
 		},
 		parent = subPanel,
 	}
+	if not nextPage then
+		nextButton:StyleReady()
+	end
 	nextButton:Hide()
 
 	local tipTextBox
 	if pageConfig.tipText then
-		tipTextBox = TextBox:New {
+		tipTextBox = Label:New {
 			name = 'tipTextBox',
-			x = "26%",
-			y = 3*buttonScale + 20 + (#pageConfig.options)*buttonScale,
-			right = "26%",
+			x = "6%",
+			y = 3*buttonScale + 20 + numOptions*buttonScale,
+			right = "5%",
 			height = 200,
-			align = "left",
+			align = "center",
 			objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 			objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
-			text = pageConfig.tipText,
+			caption = pageConfig.tipText,
 			parent = subPanel,
 		}
 		tipTextBox:Hide()
@@ -2816,87 +2683,145 @@ local function InitializeSetupPage(subPanel, screenHeight, pageConfig, nextPage,
 		}
 	end
 
-	for i = 1, #pageConfig.options do
-		local x, y, right, height, caption, tooltip
-		if pageConfig.minimap then
-			if i%2 == 1 then
-				x, y, right, height = "25%", (i + 1)*buttonScale - 10, "51%", 2*buttonHeight
-			else
-				x, y, right, height = "51%", i*buttonScale - 10, "25%", 2*buttonHeight
-			end
-			tooltip = pageConfig.options[i]
-			caption = ""
-		else
-			x, y, right, height = "36%", buttonHeight - 4 + i*buttonScale, "36%", buttonHeight
-			caption = pageConfig.options[i]
+	local function GenerateSimpleSkirmishButtons(pageConfig, selectedOptions, nextButton)
+		local buttons = {}
+		local options = pageConfig.options
+		local tipTextBox = selectedOptions.currentControl:GetChildByName('tipTextBox')
+		if pageConfig.getDynamicOptions then
+			options = pageConfig.getDynamicOptions(selectedOptions)
 		end
-		buttons[i] = Button:New {
-			name = 'pageConfig.options'..tostring(i),
-			x = x,
-			y = y,
-			right = right,
-			height = height,
-			classname = "option_button",
-			caption = caption,
-			tooltip = tooltip,
-			objectOverrideFont = WG.Chobby.Configuration:GetFont(buttonFont),
-			tooltip = pageConfig.optionTooltip and pageConfig.optionTooltip[i],
-			OnClick = {
-				function(obj)
-					for j = 1, #buttons do
-						if j ~= i then
-							ButtonUtilities.SetButtonDeselected(buttons[j])
+		if not options then
+			Spring.Echo("Simple Skirmish: No options available for page ", pageConfig.name)
+			return {}
+		end
+
+		for i = 1, #options do
+			local x, y, right, height, caption, tooltip
+			local mapImageFile, needDownload = Configuration:GetMinimapImage(options[i])
+			local haveMap = VFS.HasArchive(options[i])
+			local mapButtonCaption = nil
+			if pageConfig.minimap then
+				WG.DownloadHandler.MaybeDownloadArchive(options[i], "map", -1)
+				if i%2 == 1 then
+					x, y, right, height = "25%", (i + 1)*buttonScale - 10, "51%", 2*buttonHeight
+				else
+					x, y, right, height = "51%", i*buttonScale - 10, "25%", 2*buttonHeight
+				end
+				caption = ""
+			else
+				x, y, right, height = "36%", buttonHeight - 4 + i*buttonScale, "36%", buttonHeight
+				caption = options[i]
+			end
+			if not haveMap then
+				mapButtonCaption = i18n("click_to_download_map")
+			else
+				mapButtonCaption = i18n("click_to_pick_map")
+			end
+			buttons[i] = Button:New {
+				x = x,
+				y = y,
+				right = right,
+				height = height,
+				classname = "button_simple",
+				caption = caption,
+				objectOverrideFont = WG.Chobby.Configuration:GetFont(buttonFont),
+				tooltip = (pageConfig.optionTooltip and pageConfig.optionTooltip[i]) or (pageConfig.minimap and MINIMAP_TOOLTIP_PREFIX .. options[i] .. "|" .. mapButtonCaption),
+				OnClick = {
+					function(obj)
+						for j = 1, #buttons do
+							if j ~= i then
+								ButtonUtilities.SetButtonDeselected(buttons[j])
+							end
+						end
+						ButtonUtilities.SetButtonSelected(obj)
+						selectedOptions[pageConfig.name] = i
+						if pageConfig.name == "gameType" and selectedOptions.currentControl then
+							Spring.Echo("Simple Skirmish: Selected game type: " .. options[i])
+							local mapPage = selectedOptions.pages[3]
+							if mapPage and mapPage.getDynamicOptions then
+								local nextButton = selectedOptions.currentControl:GetChildByName('nextButton')
+								selectedOptions.gameType = i
+								local children = selectedOptions.currentControl.children
+								for j = #children, 1, -1 do
+									local child = children[j]
+									if child.name:find("nextButton") or child.name:find("tipTextBox") or child.name:find("advButton") or child.name:find("prevPage") then
+										-- Leave these buttons alone
+									else
+										selectedOptions.currentControl:RemoveChild(child)
+									end
+								end
+								local newButtons = GenerateSimpleSkirmishButtons(mapPage, selectedOptions, nextButton)
+								for _, button in ipairs(newButtons) do
+									selectedOptions.currentControl:AddChild(button)
+								end
+							end
+						elseif pageConfig.name == "difficulty" then
+							Spring.Echo("Simple Skirmish: Selected difficulty: " .. options[i])
+						elseif pageConfig.name == "map" then
+							Spring.Echo("Simple Skirmish: Selected map: " .. options[i])
+							WG.DownloadHandler.MaybeDownloadArchive(options[i], "map", -1)
+						end
+						nextButton:SetVisibility(true)
+						if tipTextBox then
+							tipTextBox:SetVisibility(true)
 						end
 					end
-					ButtonUtilities.SetButtonSelected(obj)
+				},
+				parent = subPanel,
+			}
+			if pageConfig.minimap then
+				local imMinimap = Image:New {
+					x = 0,
+					y = 0,
+					right = 0,
+					bottom = 0,
+					keepAspect = true,
+					file = mapImageFile,
+					fallbackFile = Configuration:GetLoadingImage(2),
+					checkFileExists = needDownload,
+					parent = buttons[i],
+				}
+			else
+				if i == 1  then
+					ButtonUtilities.SetButtonSelected(buttons[i])
 					selectedOptions[pageConfig.name] = i
 					nextButton:SetVisibility(true)
-					if tipTextBox then
-						tipTextBox:SetVisibility(true)
-					end
-					if advButton then
-						advButton:SetVisibility(true)
-					end
 				end
-			},
-			parent = subPanel,
-		}
-		if pageConfig.minimap then
-			local mapImageFile, needDownload = Configuration:GetMinimapImage(pageConfig.options[i])
-			local imMinimap = Image:New {
-				name = 'pageConfig.minimap'..tostring(i),
-				x = 0,
-				y = 0,
-				right = 0,
-				bottom = 0,
-				keepAspect = true,
-				file = mapImageFile,
-				fallbackFile = Configuration:GetLoadingImage(2),
-				checkFileExists = needDownload,
-				parent = buttons[i],
-			}
+			end
 		end
-		ButtonUtilities.SetButtonSelected(buttons[i])
+		return buttons
 	end
-
+	GenerateSimpleSkirmishButtons(pageConfig, selectedOptions, nextButton)
 	return subPanel
 end
 
 local function SetupEasySetupPanel(mainWindow, standardSubPanel, setupData)
 	local pageConfigs = setupData.pages
-	local selectedOptions = {} -- Passed and modified by reference
+	local selectedOptions = {
+		pages = pageConfigs,
+		currentControl = nil
+	}
 
 	local function ApplyFunction(startGame)
 		local battle = battleLobby:GetBattle(battleLobby:GetMyBattleID())
 		setupData.ApplyFunction(battleLobby, selectedOptions)
 		if startGame then
 			if haveMapAndGame then
+				local Configuration = WG.Chobby.Configuration
+					if Configuration.gameConfig.mapStartBoxes.singleplayerboxes then
+						if currentStartRects ~= {} then
+							Configuration.gameConfig.mapStartBoxes.singleplayerboxes = currentStartRects
+						end
+					end
 				WG.SteamCoopHandler.AttemptGameStart("skirmish", battle.gameName, battle.mapName, nil, true)
 			else
-				Spring.Echo("Do something if map or game is missing")
+				MaybeDownloadMap(battle)
+				WG.Chobby.InformationPopup("You do not have the map for this skirmish, check your downloads tab to see the download progress.", {caption = "OK"})
+				return
 			end
+		else
+			standardSubPanel:SetVisibility(true)
 		end
-		standardSubPanel:SetVisibility(true)
 	end
 
 	local _, screenHeight = Spring.GetWindowGeometry()
@@ -2913,6 +2838,9 @@ local function SetupEasySetupPanel(mainWindow, standardSubPanel, setupData)
 			padding = {0, 0, 0, 0},
 			parent = mainWindow,
 		}
+		if i == 3 then  -- Store reference to the map page's control
+			selectedOptions.currentControl = pages[i]
+		end
 	end
 
 	for i = 1, #pages do
@@ -3063,31 +2991,26 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 
 	local infoHandler = SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, battleLobby:GetMyUserName())
 
-	if not isSingleplayer then
-		local btnQuitBattle = Button:New {
-			name = 'btnQuitBattle',
-			right = 12,
-			y = 7,
-			width = 160,
-			height = 45,
-			objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
-			caption = "Leave Lobby",
-			classname = "negative_button",
-			tooltip = "Leave the multiplayer battleroom",
+	local btnQuitBattle = Button:New {
+		name = 'btnQuitBattle',
+		right = 12,
+		y = 7,
+		width = (isSingleplayer and 80) or 160,
+		height = 45,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+		caption = (isSingleplayer and i18n("close")) or i18n("leave_lobby"),
+		classname = "negative_button",
+		tooltip = (isSingleplayer and "Close the battleroom") or "Leave the multiplayer battleroom",
 			OnClick = {
 				function()
 					battleLobby:LeaveBattle()
-					if WG and WG.Chobby and 
-						WG.Chobby.interfaceRoot and 
-						WG.Chobby.interfaceRoot.OpenMultiplayerTabByName then
-
+					if WG and WG.Chobby and WG.Chobby.interfaceRoot and WG.Chobby.interfaceRoot.OpenMultiplayerTabByName and not isSingleplayer then
 						WG.Chobby.interfaceRoot.OpenMultiplayerTabByName("multiplayer")
 					end
 				end
 			},
 			parent = mainWindow,
-		}
-	end
+	}
 
 	local btnInviteFriends = Button:New {
 		name = 'btnInviteFriends',
@@ -3141,15 +3064,18 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 				if battleLobby.name ~= "singleplayer" then
 					if WG.TextEntryWindow then
 						WG.TextEntryWindow.CreateTextEntryWindow({
-							defaultValue = "",
+							defaultValue = battleTitle:gsub("(.*)|.*$", "%1"):gsub("%s*$", ""),
 							caption = i18n("rename_battle"),
 							labelCaption = i18n("rename_caption"),
 							hint = i18n("rename_hint"),
 							height = 280,
-							width = 480,
+							width = 550,
 							oklabel = i18n("rename"),
 							OnAccepted = function(newname)
 								lobby:SayBattle("!rename " .. newname)
+							end,
+							OnOpen = function(editBox)
+								editBox:SelectAll()
 							end
 						})
 					end
@@ -3406,7 +3332,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	local function OnUpdateUserTeamStatus(listener, userName, allyNumber, isSpectator, queuePos)
 		-- Spring.Echo("room:OnUpdateUserTeamStatus userName:" .. tostring(userName) .. " allyNumber:" .. tostring(allyNumber) .. " isSpectator:" .. tostring(isSpectator))
 		--votePanel.VoteButtonVisible(isSpectator == false)
-		infoHandler.UpdateUserTeamStatus(userName, allyNumber, isSpectator)
+		infoHandler.UpdateUserTeamStatus(userName, allyNumber, isSpectator, queuePos)
 		playerHandler.UpdateUserTeamStatus(userName, allyNumber, isSpectator, queuePos)
 	end
 
@@ -3524,7 +3450,16 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		-- should only be called on messages from founder (host)
 		local myUserName = battleLobby:GetMyUserName()
 		local iAmMentioned = (string.find(message,myUserName,nil,true) ~= nil)
-		--Spring.Echo("Parsing", userName, message, myUserName,iAmMentioned)
+
+		-- Restore default position on startbox selector when map, preset or teamcount changes
+		if string.match(message, "Global setting changed by .- %((nbTeams=%d+)%)$")
+		or string.match(message, "Loaded boxes of map .%w+. ")
+		or string.match(message, "Map changed by .-%: .+$")
+		or string.match(message, "Preset .%w+. %(.-%) applied by .+$")
+		then
+			StartBoxComboBoxSelectDefault()
+			return false
+		end
 
 		if iAmMentioned then return false end
 
@@ -3740,7 +3675,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		local userInfo = lobby:TryGetUser(userName)
 		if userInfo then
 			local userControl = WG.UserHandler.GetNotificationUser(userName)
-			userControl:SetPos(30, 30, 250, 20)
+			userControl:SetPos(30, 30, 250, 80)
 			Chotify:Post({
 				title = "User Rang You", --i18n("User Rang You"),
 				body = userControl,
@@ -4162,9 +4097,9 @@ end
 
 
 function BattleRoomWindow.SetTeams(numberOfTeams)
-	if not battleLobby.name == "singleplayer" then
+	if battleLobby.name ~= "singleplayer" then
 		-- command to set the teams
-		battleLobby:SayBattle(string.format("!nbteams %d", numberOfTeams))
+		battleLobby:SayBattle(string.format("!nbTeams %d", numberOfTeams))
 	end
 end
 

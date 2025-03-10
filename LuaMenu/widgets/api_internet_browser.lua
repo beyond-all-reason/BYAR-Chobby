@@ -109,7 +109,10 @@ function BrowserHandler.AddClickableUrls(chatString, onTextClick, textTooltip)
 			endIndex = urlEnd,
 			OnTextClick = {
 				function()
-					BrowserHandler.OpenUrl(urlString)
+					local function OpenURL()
+						BrowserHandler.OpenUrl(urlString)
+					end
+					WG.Chobby.ConfirmationPopup(OpenURL, "Open URL: " .. " \n" .. " \n" .. urlString, nil, 615, 250, "Open", "Cancel")
 				end
 			}
 		}

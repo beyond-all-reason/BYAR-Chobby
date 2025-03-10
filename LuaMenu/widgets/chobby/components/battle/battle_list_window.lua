@@ -4,6 +4,11 @@ local IMG_BATTLE_RUNNING  = LUA_DIRNAME .. "images/ingame.png"
 local IMG_LOCK            = LUA_DIRNAME .. "images/lock.png"
 local IMG_KEY             = LUA_DIRNAME .. "images/key.png"
 
+local myFont1 = WG.Chobby.Configuration:GetFont(1)
+local myFont2 = WG.Chobby.Configuration:GetFont(2)
+local myFont3 = WG.Chobby.Configuration:GetFont(3)
+local myHintFont = WG.Chobby.Configuration:GetFont(11)
+
 
 function BattleListWindow:init(parent)
 
@@ -18,8 +23,8 @@ function BattleListWindow:init(parent)
 		height = 37,
 		hint = i18n("searchbar_hint"),
 		text = "",
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
-		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(11),
+		objectOverrideFont = myFont3,
+		objectOverrideHintFont = myHintFont,
 		useIME = false,
 		parent = self.window,
 		OnTextModified = {
@@ -42,7 +47,7 @@ function BattleListWindow:init(parent)
 			width = 160,
 			height = 45,
 			caption = i18n("open_mp_game"),
-			objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+			objectOverrideFont = myFont3,
 			classname = "option_button",
 			parent = self.window,
 			OnClick = {
@@ -51,10 +56,6 @@ function BattleListWindow:init(parent)
 				end
 			},
 		}
-	end
-
-	local function update()
-		self:Update()
 	end
 
 	self.infoPanel = Panel:New {
@@ -82,13 +83,13 @@ function BattleListWindow:init(parent)
 		right = 5,
 		bottom = 15,
 		height = 20,
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideFont = myFont2,
 		caption = "Filter out:",
 		parent = self.window
 	}
 
 	local checkPassworded = Checkbox:New {
-		x = 110,
+		x = "15%",
 		width = 21,
 		bottom = 8,
 		height = 30,
@@ -96,7 +97,7 @@ function BattleListWindow:init(parent)
 		boxsize = 20,
 		caption = " Passworded",
 		checked = Configuration.battleFilterPassworded2 or false,
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideFont = myFont2,
 		OnChange = {
 			function (obj, newState)
 				Configuration:SetConfigValue("battleFilterPassworded2", newState)
@@ -107,7 +108,7 @@ function BattleListWindow:init(parent)
 		tooltip = "Hides all battles that require a password to join",
 	}
 	local checkNonFriend = Checkbox:New {
-		x = 280,
+		x = "33%",
 		width = 21,
 		bottom = 8,
 		height = 30,
@@ -115,7 +116,7 @@ function BattleListWindow:init(parent)
 		boxsize = 20,
 		caption = " Non-friend",
 		checked = Configuration.battleFilterNonFriend or false,
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideFont = myFont2,
 		OnChange = {
 			function (obj, newState)
 				Configuration:SetConfigValue("battleFilterNonFriend", newState)
@@ -126,7 +127,7 @@ function BattleListWindow:init(parent)
 		tooltip = "Hides all battles that don't have your friends in them",
 	}
 	local checkRunning = Checkbox:New {
-		x = 435,
+		x = "50%",
 		width = 21,
 		bottom = 8,
 		height = 30,
@@ -134,7 +135,7 @@ function BattleListWindow:init(parent)
 		boxsize = 20,
 		caption = " Running",
 		checked = Configuration.battleFilterRunning or false,
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideFont = myFont2,
 		OnChange = {
 			function (obj, newState)
 				Configuration:SetConfigValue("battleFilterRunning", newState)
@@ -144,9 +145,27 @@ function BattleListWindow:init(parent)
 		parent = self.window,
 		tooltip = "Hides all battles that are in progress",
 	}
-
+	local checkVsAI = Checkbox:New {
+		x = "65%",
+		width = 21,
+		bottom = 8,
+		height = 30,
+		boxalign = "left",
+		boxsize = 20,
+		caption = " Vs AI",
+		checked = Configuration.battleFilterVsAI or false,
+		objectOverrideFont = myFont2,
+		OnChange = {
+			function (obj, newState)
+				Configuration:SetConfigValue("battleFilterVsAI", newState)
+				self:SoftUpdate()
+			end
+		},
+		parent = self.window,
+		tooltip = "Hides all battles with AIs, including PvE",
+	}
     local checkLocked = Checkbox:New {
-		x = 575,
+		x = "77%",
 		width = 21,
 		bottom = 8,
 		height = 30,
@@ -154,7 +173,7 @@ function BattleListWindow:init(parent)
 		boxsize = 20,
 		caption = " Locked",
 		checked = Configuration.battleFilterLocked or false,
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideFont = myFont2,
 		OnChange = {
 			function (obj, newState)
 				Configuration:SetConfigValue("battleFilterLocked", newState)
@@ -170,8 +189,10 @@ function BattleListWindow:init(parent)
 		checkNonFriend:SetToggle(Configuration.battleFilterNonFriend)
 		checkRunning:SetToggle(Configuration.battleFilterRunning)
         checkLocked:SetToggle(Configuration.battleFilterLocked)
+		checkVsAI:SetToggle(Configuration.battleFilterVsAI)
 	end
 	WG.Delay(UpdateCheckboxes, 0.2)
+	-- Delay required as Configuration:GetConfigData (where these values are set) runs after this is initialised.
 
 	self:SetMinItemWidth(100000)
 	self.columns = 3
@@ -235,7 +256,7 @@ function BattleListWindow:init(parent)
 
 	local function onConfigurationChange(listener, key, value)
 		if key == "displayBadEngines2" then
-			update()
+			self:Update()
 		elseif key == "battleFilterRedundant" then
 			self:SoftUpdate()
 		end
@@ -249,7 +270,7 @@ function BattleListWindow:init(parent)
 	end
 	WG.DownloadHandler.AddListener("DownloadFinished", downloadFinished)
 
-	update()
+	self:Update()
 end
 
 function BattleListWindow:RemoveListeners()
@@ -420,7 +441,7 @@ function BattleListWindow:MakeWatchBattle(battleID, battle)
 		right = 0,
 		height = 20,
 		valign = 'center',
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideFont = myFont2,
 		caption = (battle.title or "") .. " - Click to watch",
 		parent = parentButton,
 		OnResize = {
@@ -472,7 +493,7 @@ function BattleListWindow:MakeWatchBattle(battleID, battle)
 		y = 20,
 		height = 15,
 		valign = 'center',
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
+		objectOverrideFont = myFont1,
 		caption = playerCount .. ((playerCount == 1 and " player on " ) or " players on ") .. battle.mapName:gsub("_", " "),
 		parent = parentButton,
 	}
@@ -494,7 +515,7 @@ function BattleListWindow:MakeWatchBattle(battleID, battle)
 		y = 36,
 		height = 15,
 		valign = 'center',
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
+		objectOverrideFont = myFont1,
 		caption = modeName,
 		parent = parentButton,
 	}
@@ -561,7 +582,7 @@ function BattleListWindow:MakeJoinBattle(battleID, battle)
 		height = 20,
 		align = "left",
 		valign = 'center',
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideFont = myFont2,
 		--caption = battle.title .. " | " .. battle.mapName:gsub("_", " "),
 		caption = battle.title,
 		parent = parentButton,
@@ -606,7 +627,7 @@ function BattleListWindow:MakeJoinBattle(battleID, battle)
 		--align = "right",
 		valign = 'center',
 		caption = battle.mapName:gsub("_", " "),
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideFont = myFont2,
 		parent = parentButton,
 		OnResize = {
 			function (obj, xSize, ySize)
@@ -670,7 +691,7 @@ function BattleListWindow:MakeJoinBattle(battleID, battle)
 		height = 20,
 		align = "right",
 		valign = 'center',
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideFont = myFont2,
 		caption = lobby:GetBattlePlayerCount(battleID) .. "/" .. battle.maxPlayers,
 		parent = parentButton,
 	}
@@ -734,6 +755,10 @@ function BattleListWindow:ItemInFilter(id)
 	end
 
 	if Configuration.battleFilterRunning and battle.isRunning then
+		return false
+	end
+
+	if Configuration.battleFilterVsAI and (string.find(battle.title, "vs AI") or string.find(battle.title, "vs Scavengers") or string.find(battle.title, "vs Raptors")) then
 		return false
 	end
 
@@ -1358,7 +1383,7 @@ function BattleListWindow:OpenHostWindow()
 		height = 35,
 		align = "center",
 		caption = i18n("open_mp_game"),
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+		objectOverrideFont = myFont3,
 		parent = hostBattleWindow,
 	}
 
@@ -1373,8 +1398,8 @@ function BattleListWindow:OpenHostWindow()
 		--text = "You can host a game by requesting an empty battle room. You can lock the battle rooms (!lock) to prevent anyone from joining, otherwise anyone can join your game.",--i18n("game_name") .. ":",
 		text = "Choose whether you want a public or a private custom battle where you are the boss and only you may change game settings. Only the boss leaving the room can unboss them. Anyone may join public battles, but private battles are password protected.",
 		--i18n("game_name") .. ":",
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
-		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideFont = myFont2,
+		objectOverrideHintFont = myFont2,
 		parent = hostBattleWindow,
 	}
 
@@ -1385,7 +1410,7 @@ function BattleListWindow:OpenHostWindow()
 		align = "right",
 		height = 35,
 		caption = "Geographical region",-- i18n("game_type") .. ":",
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideFont = myFont2,
 		parent = hostBattleWindow,
 	}
 
@@ -1396,10 +1421,8 @@ function BattleListWindow:OpenHostWindow()
 		height = 35,
 		itemHeight = 22,
 		text = "",
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
-				text = "",
 		items = {'Europe', 'North America', 'Australia', 'East Asia'}, -- {'EU','US','AU','EA'}
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideFont = myFont2,
 		selected = 1,
 		tooltip = "You may choose any region you wish, BAR is not sensitive to latency.",
 		parent = hostBattleWindow,
@@ -1414,7 +1437,7 @@ function BattleListWindow:OpenHostWindow()
 		boxsize = 20,
 		caption = "Friends only",
 		checked =  false,
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideFont = myFont2,
 		OnChange = {
 			function (obj, newState)
 				allowFriendsToJoin =  newState
@@ -1437,7 +1460,7 @@ function BattleListWindow:OpenHostWindow()
 			boxsize = 20,
 			caption = "Passworded private battle",
 			checked =  false,
-			objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+			objectOverrideFont = myFont2,
 			OnChange = {
 				function (obj, newState)
 					userWantsPrivateBattle =  newState
@@ -1461,7 +1484,7 @@ function BattleListWindow:OpenHostWindow()
 		align = "left",
 		height = 35,
 		caption = "",-- i18n("game_type") .. ":",
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideFont = myFont2,
 		parent = hostBattleWindow,
 	}
 
@@ -1612,6 +1635,7 @@ function BattleListWindow:OpenHostWindow()
 	end
 
 	local function reenableHost()
+		buttonHost.tooltip = "Request a hosted battle. Please be patient while the lobby spins up."
 		buttonHost.suppressButtonReaction = false
 		buttonHost:SetEnabled(true)
 		buttonHost.OnClick = {
@@ -1622,6 +1646,7 @@ function BattleListWindow:OpenHostWindow()
 	end
 
 	function buttonHostOnClick()
+		buttonHost.tooltip = "Please wait for more time before requesting another hosted battle"
 		buttonHost.suppressButtonReaction = true
 		buttonHost:SetEnabled(false)
 		buttonHost.OnClick = {}
@@ -1635,7 +1660,7 @@ function BattleListWindow:OpenHostWindow()
 		bottom = 1,
 		height = 70,
 		caption = i18n("host"),
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+		objectOverrideFont = myFont3,
 		parent = hostBattleWindow,
 		classname = "action_button",
 		tooltip = "Request a hosted battle. Please be patient while the lobby spins up.",
@@ -1652,7 +1677,7 @@ function BattleListWindow:OpenHostWindow()
 		bottom = 1,
 		height = 70,
 		caption = i18n("cancel"),
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+		objectOverrideFont = myFont3,
 		parent = hostBattleWindow,
 		classname = "negative_button",
 		OnClick = {
@@ -1737,7 +1762,7 @@ function BattleListWindow:JoinBattle(battle, _, _, joinAsPlayer)
 			right = 15,
 			y = 15,
 			height = 35,
-			objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+			objectOverrideFont = myFont3,
 			caption = i18n("enter_battle_password"),
 			parent = passwordWindow,
 		}
@@ -1749,8 +1774,8 @@ function BattleListWindow:JoinBattle(battle, _, _, joinAsPlayer)
 			height = 35,
 			text = "",
 			hint = i18n("password"),
-			objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
-			objectOverrideHintFont = WG.Chobby.Configuration:GetFont(11),
+			objectOverrideFont = myFont3,
+			objectOverrideHintFont = myHintFont,
 			passwordInput = true,
 			useIME = false,
 			parent = passwordWindow,
@@ -1772,7 +1797,7 @@ function BattleListWindow:JoinBattle(battle, _, _, joinAsPlayer)
 			bottom = 1,
 			height = 70,
 			caption = i18n("join"),
-			objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+			objectOverrideFont = myFont3,
 			classname = "action_button",
 			OnClick = {
 				function()
@@ -1787,7 +1812,7 @@ function BattleListWindow:JoinBattle(battle, _, _, joinAsPlayer)
 			bottom = 1,
 			height = 70,
 			caption = i18n("cancel"),
-			objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+			objectOverrideFont = myFont3,
 			classname = "negative_button",
 			OnClick = {
 				function()

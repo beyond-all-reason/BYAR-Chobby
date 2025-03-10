@@ -181,8 +181,6 @@ local function LoadGameByFilename(filename)
 	if saveData.engineVersion and (Engine.versionFull ~= saveData.engineVersion) then
 		-- Both should be "105.1.1-1723-gd990800 BAR105" or whatever
 		local ssfFileName = SAVE_DIR .. '/' .. filename .. ".ssf"
-		-- we have an engine version mismatch, try in a different engine!
-		Spring.Echo("Off-engine savegame found, attempting to start with: ",game,saveData.map, nil,nil, ssfFileName,saveData.engineVersion)
 
 		--This one does not work because the player IDs will mismatch and spam errors
 		--WG.SteamCoopHandler.AttemptGameStart("replay", game,saveData.map, nil,nil, ssfFileName,saveData.engineVersion)
@@ -208,8 +206,19 @@ local function LoadGameByFilename(filename)
 			StartScriptContent = script,
 			SpringSettings = WG.SettingsWindow.GetSettingsString(),
 			StartDemoName = scriptfilename,
-			Engine = string.gsub(saveData.engineVersion, "BAR105", "bar"),
 		}
+
+		if saveData.engineVersion:match("^2") then	--Handle new naming scheme
+			local year, month = saveData.engineVersion:match("^%d%d(%d%d)%.(%d%d)")
+			local branch = "rel" .. year .. month
+			params.Engine = branch .. "." .. saveData.engineVersion
+		else	--Assume old naming scheme
+			params.Engine = string.gsub(saveData.engineVersion, "BAR105", "bar")
+		end
+
+		-- we have an engine version mismatch, try in a different engine!
+		Spring.Echo("Off-engine savegame found, attempting to start with: ",game,saveData.map, nil,nil, ssfFileName,params.Engine)
+
 		if WG.Chobby and WG.Chobby.InformationPopup then
 			WG.Chobby.InformationPopup("The saved game uses a different engine, so it will be opened in a new window.")
 			Spring.SetConfigInt("Fullscreen", 1, false)
@@ -421,7 +430,7 @@ local function InitializeControls(parent)
 	Label:New {
 		x = 15,
 		right = 5,
-		y = 14,
+		y = 17,
 		height = 20,
 		parent = parent,
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
@@ -435,8 +444,8 @@ local function InitializeControls(parent)
 	local listHolder = Control:New {
 		x = 4,
 		right = 7,
-		y = 52,
-		bottom = 15,
+		y = 62,
+		bottom = 5,
 		parent = parent,
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		resizable = false,
@@ -453,10 +462,33 @@ local function InitializeControls(parent)
 	local saveList = WG.Chobby.SortableList(listHolder, headings, 80, 3, false)
 	PopulateSaveList(saveList)
 
+	Button:New {
+		right = 15,
+		y = 7,
+		width = 120,
+		height = 45,
+		caption = i18n("refresh"),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		classname = "option_button",
+		tooltip = "Refresh the list of saved games",
+		parent = parent,
+		OnClick = {
+			function()
+				parent:ClearChildren()
+				InitializeControls(parent)
+			end
+		}
+	}
+
 	local externalFunctions = {}
 
 	function externalFunctions.PopulateSaveList()
 		PopulateSaveList(saveList)
+	end
+
+	function externalFunctions.RefreshSaveList()
+		parent:ClearChildren()
+		InitializeControls(parent)
 	end
 
 	return externalFunctions
@@ -467,9 +499,9 @@ end
 -- External Interface
 
 local LoadGameWindow = {}
+local controlFuncs
 
 function LoadGameWindow.GetControl()
-	local controlFuncs
 
 	local window = Control:New {
 		name = "loadGameHandler",
@@ -489,6 +521,14 @@ function LoadGameWindow.GetControl()
 		},
 	}
 	return window
+end
+
+function LoadGameWindow.RefreshSaveList()
+	WG.Delay(function ()
+		if controlFuncs then
+			controlFuncs.RefreshSaveList()
+		end
+	end, 0.5)
 end
 
 --------------------------------------------------------------------------------

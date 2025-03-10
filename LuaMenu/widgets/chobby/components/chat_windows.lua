@@ -104,21 +104,19 @@ function ChatWindows:init()
 	)
 	lobby:AddListener("OnSaidPrivate",
 		function(listener, userName, message, msgDate)
-			if userName == 'Nightwatch' then
-				local chanName, userName, msgDate, message = message:match('.-|(.+)|(.+)|(.+)|(.*)')
-				local channelConsole = self:GetChannelConsole(chanName)
-				if channelConsole ~= nil then
-					channelConsole:AddMessage(message, userName, msgDate)
-				end
-			else
-				local chanName = userName .. " messages"
-				local privateChatConsole = self:GetPrivateChatConsole(userName)
-				if self:IsChannelSelected(chanName) and self.activeUnreadMessages and self.activeUnreadMessages ~= 0 then
-					self.activeUnreadMessages = self.activeUnreadMessages + 1
-				end
-				privateChatConsole:AddMessage(message, userName, msgDate)
-				self:_NotifyTab(chanName, userName, "Private", true, message, "sounds/beep4.wav", 15)
+			local chanName = userName .. " messages"
+			local privateChatConsole = self:GetPrivateChatConsole(userName)
+			if self:IsChannelSelected(chanName) and self.activeUnreadMessages and self.activeUnreadMessages ~= 0 then
+				self.activeUnreadMessages = self.activeUnreadMessages + 1
 			end
+			privateChatConsole:AddMessage(message, userName, msgDate)
+			if userName == 'Coordinator' then
+				message = message and message:gsub("#", "")
+				if message == "" or nil then
+					return
+				end
+			end
+			self:_NotifyTab(chanName, userName, "Private", true, message, "sounds/beep4.wav", 15)
 		end
 	)
 	lobby:AddListener("OnSaidPrivateEx",
@@ -539,21 +537,21 @@ function ChatWindows:SetTabActivation(tabName, activationLevel, outlineColor)
 		if (ctrl.activationLevel or 0) > activationLevel then
 			return
 		end
-		ctrl.font = Configuration:GetFont(8, "chat_badge_" .. activationLevel, {
+		ctrl.font = Configuration:GetFont(1, "chat_badge_" .. activationLevel, {
 			outline = true,
 			outlineColor = outlineColor,
 			color = outlineColor,
 		})
 		if ctrl._badge then
-			ctrl._badge.font = Configuration:GetFont(8, "chat_badge_" .. activationLevel, {
+			ctrl._badge.font = Configuration:GetFont(1, "chat_badge_" .. activationLevel, {
 				outline = true,
 				outlineColor = outlineColor,
 				color = outlineColor,
 			})
 		end
 	else
-		ctrl.font = Configuration:GetFont(8, "chat_badge_white", {
-			outline = false,
+		ctrl.font = Configuration:GetFont(1, "chat_badge_white", {
+			outline = true,
 			outlineColor = {0,0,0,1},
 			color = {1,1,1,1},
 		})
@@ -577,7 +575,7 @@ function ChatWindows:SetTabBadge(tabName, text)
 			width = 14,
 			height = 12,
 			caption = text,
-			objectOverrideFont = WG.Chobby.Configuration:GetFont(8, "chat_badge_black", {
+			objectOverrideFont = WG.Chobby.Configuration:GetFont(1, "chat_badge_black", {
 				outline = true,
 				autoOutlineColor = false,
 				outlineColor = { 0, 0, 0, 0.6 },

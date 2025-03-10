@@ -31,10 +31,14 @@ local USE_WRAPPER_DOWNLOAD = true
 local typeMap = {
 	game = "RAPID",
 	map = "MAP",
+	engine = "ENGINE",
+	resource = "RESOURCE",
 }
 local reverseTypeMap = {
 	RAPID = "game",
 	MAP = "map",
+	ENGINE = "engine",
+	RESOURCE = "resource",
 }
 
 --------------------------------------------------------------------------------
@@ -50,7 +54,7 @@ local function CallListeners(event, ...)
 		local listener = eventListeners[i]
 		args = {...}
 		xpcall(function() listener(listener, unpack(args)) end,
-			function(err) Spring.Echo("Download Handler Listener Error", err) end )
+			function(err) Spring.Echo("Download Handler Listener Error", err, event) end )
 	end
 	return true
 end
@@ -132,7 +136,7 @@ local function DownloadQueueUpdate()
 	local front = downloadQueue[1]
 	if not front.active then
 		if USE_WRAPPER_DOWNLOAD and WG.WrapperLoopback and WG.WrapperLoopback.DownloadFile then
-			WG.WrapperLoopback.DownloadFile(front.name, typeMap[front.fileType])
+			WG.WrapperLoopback.DownloadFile(front.name, typeMap[front.fileType], front.resource)
 			CallListeners("DownloadStarted", front.id, front.name, front.fileType)
 		else
 			VFS.DownloadArchive(front.name, front.fileType)
@@ -239,7 +243,7 @@ end
 --------------------------------------------------------------------------------
 -- Externals Functions
 
-function externalFunctions.QueueDownload(name, fileType, priority, retryCount)
+function externalFunctions.QueueDownload(name, fileType, priority, retryCount, resource)
 	priority = priority or 1
 	if priority == -1 then
 		priority = topPriority + 1
@@ -266,9 +270,10 @@ function externalFunctions.QueueDownload(name, fileType, priority, retryCount)
 		priority = priority,
 		id = downloadCount,
 		retryCount = retryCount or 0,
+		resource = resource,
 	}
 	requestUpdate = true
-	CallListeners("DownloadQueued", downloadCount, name, fileType)
+	CallListeners("DownloadQueued", downloadCount, name, fileType, resource)
 end
 
 function externalFunctions.SetDownloadTopPriority(name, fileType)
@@ -283,20 +288,13 @@ function externalFunctions.SetDownloadTopPriority(name, fileType)
 	return true
 end
 
-function externalFunctions.CancelDownload(name, fileType)
+function externalFunctions.CancelDownload(name, fileType, success)
 	local index = GetDownloadIndex(downloadQueue, name, fileType)
 	if not index then
 		return false
 	end
 
-	if downloadQueue[index].active then
-		if USE_WRAPPER_DOWNLOAD and WG.WrapperLoopback and WG.WrapperLoopback.AbortDownload then
-			WG.WrapperLoopback.AbortDownload(name, typeMap[fileType])
-		end
-		return
-	end
-
-	downloadQueue[index].removalType = "cancel"
+	downloadQueue[index].removalType = (success == "fail") and "fail" or "cancel"
 	removedDownloads[#removedDownloads + 1] = downloadQueue[index]
 
 	downloadQueue[index] = downloadQueue[#downloadQueue]
@@ -329,9 +327,22 @@ function externalFunctions.RemoveRemovedDownload(name, fileType)
 	return true
 end
 
-function externalFunctions.MaybeDownloadArchive(name, archiveType, priority)
-	if not VFS.HasArchive(name) then
+local function haveEngineDir(path)
+	local springExecutable = Platform.osFamily == "Windows" and "spring.exe" or "spring"
+	return VFS.FileExists(path .. "//" .. springExecutable)
+end
+
+function externalFunctions.MaybeDownloadArchive(name, archiveType, priority, resource)
+	if archiveType == "resource" then
+		local haveEngine = haveEngineDir(resource.destination)
+		if not haveEngine then
+			externalFunctions.QueueDownload(name, archiveType, priority, _, resource)
+		end
+		return
+
+	elseif not VFS.HasArchive(name) then
 		externalFunctions.QueueDownload(name, archiveType, priority)
+		return
 	end
 end
 
@@ -356,10 +367,12 @@ function wrapperFunctions.DownloadFinished(name, fileType, success, aborted)
 		RemoveDownload(name, fileType, true, (aborted and "cancel") or (success and "success") or "fail")
 	end
 
-	--Chotify:Post({
-	--	title = "Download " .. ((success and "Finished") or "Failed"),
-	--	body = (name or "???") .. " of type " .. (fileType or "???"),
-	--})
+	if not success then
+		Chotify:Post({
+			title = i18n("download_failed"),
+			body = (name or "???") .. " of type " .. (fileType or "???"),
+		})
+	end
 end
 
 function wrapperFunctions.DownloadFileProgress(name, progress, totalLength)
@@ -369,7 +382,7 @@ function wrapperFunctions.DownloadFileProgress(name, progress, totalLength)
 	end
 
 	totalLength = (tonumber(totalLength or 0) or 0)/1023^2
-	CallListeners("DownloadProgress", downloadQueue[index].id, totalLength*math.min(1, (tonumber(progress or 0) or 0)/100), totalLength, name)
+	CallListeners("DownloadProgress", downloadQueue[index].id, totalLength*math.min(1, (tonumber(progress or 0) or 0)/100), totalLength, downloadQueue[index].name)
 end
 
 function wrapperFunctions.ImageDownloadFinished(requestToken, imageUrl, imagePath)

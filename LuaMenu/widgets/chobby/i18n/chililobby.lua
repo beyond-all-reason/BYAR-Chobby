@@ -76,7 +76,7 @@ return {
 		delete_confirm = "Are you sure you want to delete this saved game?",
 		load_confirm = "Loading will lose any unsaved progress. Are you sure?",
 		replay_not_found = "Replay file not found, refresh the list!",
-		replay_different_version = "This replay requires a different engine version (FIXME download automatically if necessary)",
+		replay_different_version = "This replay requires a different engine version (will be downloaded automatically if necessary)",
 		--
 		start_download = 'Start download',
 		download_noun = 'Download',
@@ -189,6 +189,7 @@ return {
 		submit = "Submit",
 		time_in_queue = "Time in queue",
 		leave = "Leave",
+		leave_lobby = "Leave Lobby",
 		invite_friends = "Invite Friends",
 		users = "Users",
 		battles = "Battles",
@@ -204,6 +205,7 @@ return {
 			other = "%{count} items left to download.",
 		},
 		downloads_completed = "All downloads completed.",
+		download_failed = "Download Failed",
 		wip_challenges = "WiP Challenges",
 		["scenarios"] = "Scenarios",
 		-- Settings
@@ -225,6 +227,7 @@ return {
 		flushLogs_tooltip = "Immediately flush infolog.txt to disk for debuggging.",
 		keep_queues = "Stay in MM queues on launch",
 		simplifiedSkirmishSetup = "Simple skirmish setup",
+		simplifiedSkirmishSetup_tooltip = "Provides step-by-step instructions while setting up a singleplayer skirmish.",
 		debugMode = "Debug mode",
 		ShowhiddenModopions = "Show Hidden Modoptions",
 		ShowhiddenTooltip = "WARNING: Hidden options may not work. Rearranges Tabs",

@@ -190,11 +190,18 @@ local function CreateReplayEntry(
 	fileName = string.gsub(fileName, "%.sdfz", "")
 
 	-- Extract replay time from the filename
-	local t1, t2, t3, t4, t5 = string.match(fileName, "(%d%d%d%d)-?(%d%d)-?(%d%d)_(%d%d)-?(%d%d)")
-	if not (t1 and t2 and t3 and t4 and t5) then
+	local t1, t2, t3, t4, t5, t6 = string.match(fileName, "(%d%d%d%d)-?(%d%d)-?(%d%d)_(%d%d)-?(%d%d)-?(%d%d)")
+	if not (t1 and t2 and t3 and t4 and t5 and t6) then
 		return
 	end
-	local replayDateString = string.format("%s-%s-%s %s:%s", t1, t2, t3, t4, t5)
+
+  -- Construct the UTC time string
+  local utcTimeString = string.format("%04d-%02d-%02dT%02d:%02d:%02dZ", t1, t2, t3, t4, t5, t6)
+  local localTimeTable = Spring.Utilities.UtcToLocal(utcTimeString)
+
+  -- Format the local time table into a yyyy-mm-dd HH:mm string
+  local replayDateString = string.format("%04d-%02d-%02d %02d:%02d", localTimeTable[6], localTimeTable[5], localTimeTable[4], localTimeTable[3], localTimeTable[2])
+
 
 	-- Compute the time of the replay
 	local hours, minutes = math.floor(time / 3600), math.floor(time / 60) % 60

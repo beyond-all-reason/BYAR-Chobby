@@ -14,40 +14,40 @@ local welcomePanelItems = {
         Header = "Welcome to Beyond All Reason",
         Text = "Welcome back Commander. We hope you are ready for epic Singleplayer and Multiplayer battles. Check out our Discord and join the community!\n",
     },
+--[[ -- replace with VOD link when uploaded
+    {
+        Header = "Mark this date in your calendars as we go down in RTS history!",
+        Text = "Join us as Beyond All Reason celebrates 40,000 Discord members with an epic 24-hour event featuring never-before-seen RTS battles! Massive 40v40 wars, 64-player FFAs, and more—live-streamed by top casters. Don’t miss the action on February 2nd!",
+        Image = "LuaMenu/images/BAR_News_40000_Discord_Members_Square.png",
+        Time = "2025-02-02T13:00:00",
+        Url = "https://www.beyondallreason.info/news/40-000-discord-members-celebration-event",
+        UrlText = "Read the announcement",
+    },
+]]
 
     {
-        Header = "New Map: Claymore",
-        Text = " \n" .. " \n" .. "A volcanic island of black sand and sparse vegetation. 5-10-15 player FFA. By Moose and Beherith.",
-        Image = "LuaMenu/configs/gameConfig/byar/minimapOverride/Claymore_3.jpg",
+        Header = "Faster Map Downloads?",
+        Text = "Since February 16, we’ve been testing a Pro plan for map hosting. Let us know if it made a difference!",
+        Url = "https://forms.gle/J2Ah8Uecfh2Zgb6y7",
+        UrlText = "Give Feedback",
     },
-
     {
-        Header = "New Map: Eclipsed",
-        Text = " \n" .. " \n" .. "A macro style map. 1v1 recommended. 2v2s to 5v5s are playable. By AidanNaut.",
-        Image = "LuaMenu/configs/gameConfig/byar/minimapOverride/Eclipsed_0.8.1.jpg",
+        Header = "New Map: Gasbag Grabens",
+        Text = " \n" .. " \n" .. "The terraforming mission in Sector G026 has failed. Destroy all opposition before the acid claims you." .. " \n" .. " \n" ..  "1v1 recommended, 2v2s and 3v3s playable. By AidanNaut.",
+        Image = "LuaMenu/configs/gameConfig/byar/minimapOverride/Gasbag_Grabens_0.9.1.jpg",
     },
-
     {
-        Header = "New Official Trailer released, help us making it big!",
-        Text = "We've just deployed a brand-new cinematic trailer, and we need your help to spread the word! We believe the strongest community is built through word-of-mouth, so we're counting on you to take Beyond All Reason to new heights. " .. " \n" .. " \n" .. "Watch the trailer, share it with your friends, and let’s make this a massive success together! \n",
-        Image = "LuaMenu/images/trailer.png",
-        Url = "https://www.beyondallreason.info/news/bar-trailer-2024",
-        UrlText = "Watch the trailer",
+        Header = "Now Available: BAR Guides",
+        Text = "New to Beyond All Reason? Check out these new Guides on Discord written by Zeteo!" .. " \n" .. " \n",
+        Url = "https://discord.com/channels/549281623154229250/1303141562120929320/1303141562120929320",
+        UrlText = "Read the new Guides",
     },
-
     {
         Header = "BAR is accepting donations again! ",
         Text = "Dear Commanders, we are delighted to announce the reopening of our donation platform after a longer-than-expected hiatus." .. " \n" .. " \n" .. "As we've been hard at work refining BAR to ensure maximum enjoyment for our ever-expanding community, we repeatedly placed donation efforts on hold to focus on other priorities." .. " \n" .. " \n" .. "Support BAR with our newly reopened donation platform!" .. " \n",
         Image = "LuaMenu/images/donate.png",
         Url = "https://www.beyondallreason.info/news/support-bar-with-our-newly-reopened-donation-platform",
         UrlText = "Read Announcement",
-    },
-
-    {
-        Header = "Guides for new players",
-        Url = "https://www.youtube.com/channel/UCAByJ5NKeMmQ95EIWgBtbEw",
-        Text = "Requiem has created some guides for new players. If you're new to the game and want to learn the basics via video we highly recommend you check them out.\n",
-        UrlText = "Link to video guides"
     },
 
     --{

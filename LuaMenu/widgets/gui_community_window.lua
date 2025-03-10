@@ -204,6 +204,8 @@ end
 -- News
 
 local function GetDateTimeDisplay(parentControl, xPosition, yPosition, timeString)
+	local timeTextColor = WG.Chobby.Configuration.selectedColor
+
 	local localTimeString = Spring.Utilities.ArchaicUtcToLocal(timeString, i18n)
 	if localTimeString then
 		localTimeString = localTimeString .. " of your local time."
@@ -217,7 +219,7 @@ local function GetDateTimeDisplay(parentControl, xPosition, yPosition, timeStrin
 		height = 22,
 		align = "left",
 		valign = "top",
-		text = localTimeString or utcTimeString, -- Fallback
+		text = timeTextColor .. localTimeString or utcTimeString, -- Fallback
 		tooltip = string.gsub(timeString, "T", " at ") .. " UTC",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
@@ -262,13 +264,12 @@ local function GetDateTimeDisplay(parentControl, xPosition, yPosition, timeStrin
 
 	function externalFunctions.UpdateCountdown()
 		local difference, inTheFuture, isNow = Spring.Utilities.GetTimeDifference(timeString)
-
 		if isNow then
-			countdown:SetText("Starting " .. difference .. ".")
+			countdown:SetText(timeTextColor .. "Starting " .. difference .. ".")
 		elseif inTheFuture then
-			countdown:SetText("Starting in " .. difference .. ".")
+			countdown:SetText(timeTextColor .. "Starting in " .. difference .. ".")
 		else
-			countdown:SetText( "Started " .. difference .. " ago.")
+			countdown:SetText(timeTextColor .. "Started " .. difference .. " ago.")
 		end
 	end
 	externalFunctions.UpdateCountdown()

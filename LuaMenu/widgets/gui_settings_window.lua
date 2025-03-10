@@ -1067,7 +1067,7 @@ local function GetLobbyTabControls()
 	children[#children + 1], offset = AddCheckboxSetting(offset, i18n("non_friend_notifications"), "nonFriendNotifications", true, nil,  i18n("non_friend_notifications_tooltip"))
 	--children[#children + 1], offset = AddCheckboxSetting(offset, i18n("notifyForAllChat"), "notifyForAllChat", false)
 	--children[#children + 1], offset = AddCheckboxSetting(offset, i18n("only_featured_maps"), "onlyShowFeaturedMaps", true)
-	--children[#children + 1], offset = AddCheckboxSetting(offset, i18n("simplifiedSkirmishSetup"), "simplifiedSkirmishSetup", true) -- not used by BAR
+	children[#children + 1], offset = AddCheckboxSetting(offset, i18n("simplifiedSkirmishSetup"), "simplifiedSkirmishSetup", true, nil, i18n("simplifiedSkirmishSetup_tooltip"))
 	children[#children + 1], offset = AddCheckboxSetting(offset, i18n("animate_lobby"), "animate_lobby", true, nil, i18n("animate_lobby_tooltip"))
 	children[#children + 1], offset = AddCheckboxSetting(offset, i18n("drawFullSpeed"), "drawAtFullSpeed", false, nil, i18n("drawFullSpeed_tooltip"))
 	children[#children + 1], offset = AddCheckboxSetting(offset, i18n("fixFlicker"), "fixFlicker", true, nil, i18n("fixFlicker_tooltip"))
@@ -1221,7 +1221,13 @@ local function GetLobbyTabControls()
 			else
 				Spring.SetConfigInt("randomSkirmishSetup", 0)
 			end
-			--Configuration:SetConfigValue("randomSkirmishSetup", value)
+		end
+		if key == "simplifiedSkirmishSetup" then
+			if value == true then
+				Spring.SetConfigInt("simplifiedSkirmishSetup", 1)
+			else
+				Spring.SetConfigInt("simplifiedSkirmishSetup", 0)
+			end
 		end
 
 		if key == "queueExitConfirmPromptDoNotAskAgain" and cbQueueExitConfirmPromptDoNotAskAgain.checked ~= value then

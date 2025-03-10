@@ -91,6 +91,7 @@ function Configuration:init()
 	self.battleFilterNonFriend = false
 	self.battleFilterRunning = false
 	self.battleFilterLocked = false
+	self.battleFilterVsAI = false
 	self.battleFilterRedundant = true
 	self.battleFilterRedundantRegions = {"EU - ", "USA - ", "AUS - ","EU - ENGINE TESTING ","US - ","AU - ", "UK - "}
 	self.hostRegions = {"DE","EU","EU2","US","US2","AU"}
@@ -283,7 +284,7 @@ function Configuration:init()
 	self.nonFriendNotifications = true -- Party, chat
 	self.friendActivityNotification = true
 	self.addFriendWindowButton = true
-	self.simplifiedSkirmishSetup = false
+	self.simplifiedSkirmishSetup = true
 	self.debugMode = false
 	self.devMode = VFS.FileExists("devmode.txt") or VFS.FileExists("devmode.txt.txt") or VFS.FileExists("devmode.rtf.txt")
 	self.ShowhiddenModopions = false
@@ -303,7 +304,7 @@ function Configuration:init()
 	self.useSpringRestart = false
 	self.menuMusicVolume = 0.5
 	self.menuNotificationVolume = 0.8
-	self.menuBackgroundBrightness = 1
+	self.menuBackgroundBrightness = 0.8
 	self.gameOverlayOpacity = 0.5
 	self.coopConnectDelay = 5
 	self.showMatchMakerBattles = false
@@ -377,6 +378,14 @@ function Configuration:init()
 	self.saneCharacters = {}
 	for i = 1, #saneCharacterList do
 		self.saneCharacters[saneCharacterList[i]] = true
+	end
+
+	local engineSaneCharacterList = {
+		"-", ".", " ",
+	}
+	self.engineSaneCharacters = {}
+	for i = 1, #engineSaneCharacterList do
+		self.engineSaneCharacters[engineSaneCharacterList[i]] = true
 	end
 
 	self.barMngSettings = {
@@ -662,6 +671,7 @@ function Configuration:GetConfigData()
 		battleFilterNonFriend = self.battleFilterNonFriend,
 		battleFilterRunning = self.battleFilterRunning,
 		battleFilterLocked = self.battleFilterLocked,
+		battleFilterVsAI = self.battleFilterVsAI,
 		channels = self.channels,
 		gameConfigName = self.gameConfigName,
 		language = self.language,
@@ -1050,6 +1060,26 @@ function Configuration:IsValidEngineVersion(engineVersion)
 	--Spring.Echo(" Spring.Utilities.GetEngineVersion() ",Spring.Utilities.GetEngineVersion() )
 	--Spring.Echo(" self:GetTruncatedEngineVersion()",self:GetTruncatedEngineVersion())
 	return validengine
+end
+
+function Configuration:SanitizeEngineVersion(engineVersion)
+	local ret = ""
+	local length = string.len(engineVersion)
+	for i = 1, length do
+		local c = string.sub(engineVersion, i, i)
+		if self.saneCharacters[c] or self.engineSaneCharacters[c] then
+			ret = ret .. c
+		end
+	end
+
+	local oldFormat = "(%d+)%.(%d+)%.(%d+)%-(%d+)%-g([%x][%x][%x][%x][%x][%x][%x])%s"
+	local newFormat = "(%d+)%.(%d+)%.(%d+)"
+	if not ret:match(oldFormat) and not ret:match(newFormat) then
+        Spring.Echo("Invalid engine version format: " .. engineVersion)
+		ret = ""
+    end
+
+	return ret
 end
 
 function Configuration:SanitizeName(name, usedNames)
