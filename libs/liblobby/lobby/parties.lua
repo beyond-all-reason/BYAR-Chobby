@@ -83,7 +83,6 @@ function Interface:_OnJoinedParty(partyID, username)
     end
 
     if username == self.myUserName then
-        self.parties = self.parties or {}
         self.parties[partyID] = self.parties[partyID] or { invites = {}, members = {} }
         self.myPartyID = partyID
     end

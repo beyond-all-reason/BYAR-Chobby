@@ -36,6 +36,9 @@ function Lobby:_Clean()
 	self.hasOutgoingFriendRequestsByID = {} -- map
 	self.isDisregardedID = {} -- map
 
+	self.parties = {}
+	self.myPartyID = nil
+
 	self.loginInfoEndSent = false
 	self.userCountLimited = false
 

@@ -89,6 +89,7 @@ function PartyWindow:init(parent)
 
         for partyID, partyWrapper in pairs(self.partyWrappers) do
             partyWrapper.wrapper:Dispose()
+            self.partyWrappers[partyID] = nil
         end
     end)
 
