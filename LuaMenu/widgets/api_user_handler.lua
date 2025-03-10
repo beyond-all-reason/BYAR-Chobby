@@ -600,6 +600,24 @@ local function OnPartyLeft(listener, partyID, partyUsers)
 end
 --]]
 
+local function OnPartyStatusUpdate(listener, partyID, username)
+	if lobby.myUserName == username then
+		for i = 1, #userListList do
+			for _username, userControls in pairs(userListList[i]) do
+				userControls.mainControl.items = GetUserComboBoxOptions(
+					userName, userControls.isInBattle, userControls, userControls.imTeamColor ~= nil, userControls.imSide ~= nil
+				)
+			end
+		end
+	else
+		for _username, userControls in pairs(partyUsers) do
+			userControls.mainControl.items = GetUserComboBoxOptions(
+				userName, userControls.isInBattle, userControls, userControls.imTeamColor ~= nil, userControls.imSide ~= nil
+			)
+		end
+	end
+end
+
 local function UpdateUserBattleStatus(listener, userName, battleStatusDiff)
 	local Configuration = WG.Chobby.Configuration
 	UpdateUserComboboxOptions(_, userName)
@@ -1867,6 +1885,10 @@ local function AddListeners()
 	lobby:AddListener("OnJoinedBattle", UpdateUserBattle)
 	lobby:AddListener("OnLeftBattle", UpdateUserBattle)
 
+	lobby:AddListener("OnInvitedToParty", OnPartyStatusUpdate)
+	lobby:AddListener("OnPartyInviteCancelled", OnPartyStatusUpdate)
+	lobby:AddListener("OnJoinedParty", OnPartyStatusUpdate)
+	lobby:AddListener("OnLeftParty", OnPartyStatusUpdate)
 end
 
 --------------------------------------------------------------------------------

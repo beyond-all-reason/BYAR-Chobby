@@ -33,7 +33,10 @@ end
 function Interface:InvitePlayerToMyParty(username, successCallback, errorCallback)
     table.insert(self.commandsAwaitingResponse, { 
         cmd = "c.party.invite_to_party", 
-        successCallback = successCallback and function() successCallback() end, 
+        successCallback = function()
+                self:_OnInvitedToParty(self.myPartyID, username)
+                if successCallback then successCallback() end
+            end, 
         errorCallback = errorCallback and function() errorCallback() end 
     })
     self:_SendCommand("c.party.invite_to_party " .. username)
