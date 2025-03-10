@@ -44,11 +44,11 @@ end
 
 function Interface:CancelInviteToMyParty(username, successCallback, errorCallback)
     table.insert(self.commandsAwaitingResponse, { 
-        cmd = "c.party.cancel_invite_to_my_party", 
+        cmd = "c.party.cancel_invite_to_party", 
         successCallback = successCallback and function() successCallback() end, 
         errorCallback = errorCallback and function() errorCallback() end 
     })
-    self:_SendCommand("c.party.cancel_invite_to_my_party " .. username)
+    self:_SendCommand("c.party.cancel_invite_to_party " .. username)
 end
 
 function Interface:_OnInvitedToParty(partyID, username)
@@ -73,8 +73,8 @@ function Interface:_OnPartyInviteCancelled(partyID, username)
 
     self:_CallListeners("OnPartyInviteCancelled", partyID, username)
 end
-Interface.commands["s.party.invite_to_party_cancelled"] = Interface._OnPartyInviteCancelled
-Interface.commandPattern["s.party.invite_to_party_cancelled"] = "(%S+)%s(%S+)"
+Interface.commands["s.party.invite_cancelled"] = Interface._OnPartyInviteCancelled
+Interface.commandPattern["s.party.invite_cancelled"] = "(%S+)%s(%S+)"
 
 -- Warning: Duplicates of this message might be received, 
 -- so it's important the implementation can handle that.
