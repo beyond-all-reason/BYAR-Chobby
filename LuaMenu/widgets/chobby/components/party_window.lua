@@ -217,8 +217,10 @@ function PartyWindow:InvitedToParty(partyID, username)
         self.invitesLabel:Show()
     end
     
-    self.partyWrappers[partyID]:AddInvite(username)
-    
+    if partyID == lobby.myPartyID then
+        self.partyWrappers[partyID]:AddInvite(username)
+    end
+
     self:UpdateLayout()
 end
 function PartyWindow:InviteToPartyCancelled(partyID, username)
