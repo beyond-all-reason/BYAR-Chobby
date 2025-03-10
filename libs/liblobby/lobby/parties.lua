@@ -78,7 +78,7 @@ Interface.commandPattern["s.party.invite_to_party_cancelled"] = "(%S+)%s(%S+)"
 -- Ideally that would be fixed server-side, but we're 
 -- trying to conserve effort on this feature.
 function Interface:_OnJoinedParty(partyID, username)
-    if self.parties[partyID].members[username] then
+    if self.parties[partyID] and self.parties[partyID].members[username] then
         return
     end
 
