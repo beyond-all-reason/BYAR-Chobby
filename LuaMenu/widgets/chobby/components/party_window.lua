@@ -16,7 +16,7 @@ function PartyWindow:init(parent)
         x = 40,
         y = 40,
         parent = self.window,
-        caption = "Parties",
+        caption = i18n("parties"),
     }
 
     self.requiresLoginLabel = Label:New {

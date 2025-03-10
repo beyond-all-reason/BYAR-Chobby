@@ -81,6 +81,7 @@ return {
 		start_download = 'Start download',
 		download_noun = 'Download',
 		friends = 'Friends',
+		parties = 'Parties',
 		start_verb = 'Start',
 		open_mp_game = "Host Game",
 		searchbar_hint = "Search for lobby, map or player",
