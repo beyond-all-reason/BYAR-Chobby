@@ -113,17 +113,16 @@ function PartyWindow:UpdateLayout()
     local offset = PartyWindow.CONTENT_Y_OFFSET
     
     if lobby.myPartyID then
-        offset = offset + 
-                 PartyWindow.SECTION_HEADER_HEIGHT + 
-                 PartyWindow.MINOR_SPACING +
-                 self.partyWrappers[lobby.myPartyID]:TotalHeight() + 
+        local myPartyWrapper = self.partyWrappers[lobby.myPartyID]
+        offset = myPartyWrapper.wrapper.y +
+                 myPartyWrapper:TotalHeight() + 
                  PartyWindow.MINOR_SPACING
     end
     
     self.invitesLabel:SetPos(0, offset)
     self.invitesLabel:Hide()
 
-    offset = offset + PartyWindow.SECTION_HEADER_HEIGHT
+    offset = offset + PartyWindow.SECTION_HEADER_HEIGHT + PartyWindow.MINOR_SPACING
 
     for partyID, partyWrapper in pairs(self.partyWrappers) do
         if partyID ~= lobby.myPartyID then
@@ -195,7 +194,7 @@ function PartyWindow:InvitedToParty(partyID, username)
         self.partyWrappers[partyID] = PartyWrapper(self.window)
         self.partyWrappers[partyID].acceptInviteButton = Button:New{
             caption = "Accept invite",
-            right = PartyWindow.MINOR_SPACING,
+            right = 0,
             width = PartyWindow.BUTTON_WIDTH,
             parent = self.partyWrappers[partyID].wrapper,
             OnClick = {
