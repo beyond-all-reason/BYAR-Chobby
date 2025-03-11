@@ -1,6 +1,6 @@
 PartyWrapper = LCS.class{}
 
-PartyWrapper.ROW_HEIGHT = 25
+PartyWrapper.ROW_HEIGHT = 22
 
 function PartyWrapper:init(parent)
     self.rows = {}
@@ -18,8 +18,13 @@ function PartyWrapper:init(parent)
 end
 
 function PartyWrapper:TotalHeight()
-    return (self.rowCount + self.inviteRowCount) * PartyWrapper.ROW_HEIGHT + PartyWindow.MINOR_SPACING * 2
+    return self:ContentHeight() + PartyWindow.MINOR_SPACING * 2
 end
+
+function PartyWrapper:ContentHeight()
+    return (self.rowCount + self.inviteRowCount) * PartyWrapper.ROW_HEIGHT
+end
+
 
 function PartyWrapper:UpdateLayout()
     local index = 0
@@ -31,7 +36,7 @@ function PartyWrapper:UpdateLayout()
     index = 0
 
     for username, inviteRow in pairs(self.inviteRows) do
-        inviteRow:SetPos(nil, (index + self.rowCount) * PartyWrapper.ROW_HEIGHT) 
+        inviteRow:SetPos(nil, (index + self.rowCount) * PartyWrapper.ROW_HEIGHT)
         index = index + 1
     end
 
@@ -40,25 +45,11 @@ end
 
 function PartyWrapper:AddMember(username)
     if not self.rows[username] then
-        self.rows[username] = ComboBox:New{
-            y = self:TotalHeight(),
-            x = PartyWindow.MINOR_SPACING,
-            width = 200 - PartyWindow.MINOR_SPACING * 3,
-            parent = self.wrapper,
-            showSelection = false,
-            caption = username,
-            ignoreItemCaption = true,
-            selectByName = true,
-            -- items = { (lobby.myUserName ~= username) and "Remove from party" },
-            items = {},
-            OnSelectName = {
-                -- function(_, selectedName)
-                --     if selectedName == "Remove from party" then
-                        -- lobby:RemovePlayerFromMyParty(username)
-                --     end
-                -- end
-            }
-        }
+        local userControl = WG.UserHandler.GetPartyUser(username, "member")
+        userControl.y = self:ContentHeight()
+        userControl._relativeBounds.right = PartyWindow.MAJOR_SPACING + PartyWindow.BUTTON_WIDTH
+        self.wrapper:AddChild(userControl)
+        self.rows[username] = userControl
 
         self.rowCount = self.rowCount + 1
 
@@ -78,22 +69,11 @@ end
 
 function PartyWrapper:AddInvite(username)
     if not self.inviteRows[username] then
-        self.inviteRows[username] = ComboBox:New{
-            y = self:TotalHeight(),
-            parent = self.wrapper,
-            showSelection = false,
-            caption = username,
-            ignoreItemCaption = true,
-            selectByName = true,
-            items = { (lobby.myUserName ~= username) and "Cancel invite" },
-            OnSelectName = {
-                function(_, selectedName)
-                    if selectedName == "Cancel invite" then
-                        lobby:CancelInviteToMyParty(username)
-                    end
-                end
-            }
-        }
+        local userControl = WG.UserHandler.GetPartyUser(username, "invite")
+        userControl.y = self:ContentHeight()
+        userControl._relativeBounds.right = PartyWindow.MAJOR_SPACING + PartyWindow.BUTTON_WIDTH
+        self.wrapper:AddChild(userControl)
+        self.inviteRows[username] = userControl
 
         self.inviteRowCount = self.inviteRowCount + 1
 
