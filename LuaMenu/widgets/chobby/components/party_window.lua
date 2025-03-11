@@ -73,20 +73,6 @@ function PartyWindow:init(parent)
     }
     self.invitesLabel:Hide()
 
-    self.leavePartyButton = Button:New {
-        caption = "Leave Party",
-        parent = self.window,
-        width = PartyWindow.BUTTON_WIDTH,
-        right = 0,
-        y = PartyWindow.CONTENT_Y_OFFSET,
-        OnClick = {
-            function()
-                self:LeaveMyCurrentParty()
-            end
-        }
-    }
-    self.leavePartyButton:Hide()
-
     self.partyWrappers = {}
 
     lobby:AddListener("OnAccepted", function()
@@ -97,7 +83,6 @@ function PartyWindow:init(parent)
     lobby:AddListener("OnDisconnected", function()
         self.requiresLoginLabel:Show()
         self.createPartyButton:Hide()
-        self.leavePartyButton:Hide()
         self.invitesLabel:Hide()
         self.yourPartyLabel:Hide()
 
@@ -155,7 +140,6 @@ function PartyWindow:LeaveMyCurrentParty()
         self.partyWrappers[myPartyID].wrapper:Dispose()
         self.partyWrappers[myPartyID] = nil
         self.yourPartyLabel:Hide()
-        self.leavePartyButton:Hide()
 
         self:UpdateLayout()
     end)
@@ -183,10 +167,22 @@ function PartyWindow:JoinedParty(partyID, username)
             self.partyWrappers[partyID].acceptInviteButton:Dispose()
             self.partyWrappers[partyID].acceptInviteButton = nil
         end
+        Button:New {
+            caption = "Leave Party",
+            parent = self.partyWrappers[partyID].wrapper,
+            width = PartyWindow.BUTTON_WIDTH,
+            right = 0,
+            y = 0,
+            OnClick = {
+                function()
+                    self:LeaveMyCurrentParty()
+                end
+            }
+        }
+
         self.partyWrappers[partyID].wrapper:SetPos(0, PartyWindow.CONTENT_Y_OFFSET + PartyWindow.SECTION_HEADER_HEIGHT + PartyWindow.MINOR_SPACING)
         self.partyWrappers[partyID].wrapper:Show()
         self.yourPartyLabel:Show()
-        self.leavePartyButton:Show()
     end
 
     self.partyWrappers[partyID]:RemoveInvite(username)
