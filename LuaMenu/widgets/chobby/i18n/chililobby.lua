@@ -82,6 +82,8 @@ return {
 		download_noun = 'Download',
 		friends = 'Friends',
 		parties = 'Parties',
+		party_status_invite = 'Invite pending',
+		party_status_member = 'Partied',
 		start_verb = 'Start',
 		open_mp_game = "Host Game",
 		searchbar_hint = "Search for lobby, map or player",

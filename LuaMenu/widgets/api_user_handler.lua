@@ -215,8 +215,8 @@ local function GetUserComboBoxOptions(userName, isInBattle, control, showTeamCol
 	if not (itsme or bs.aiLib) then																					comboOptions[#comboOptions + 1] = "Message" end
 	if isInBattle and not (itsme or bs.aiLib or info.isBot) then													comboOptions[#comboOptions + 1] = "Ring" end
 	if not (itsme or bs.aiLib or isInBattle) and info.battleID and validEngine then									comboOptions[#comboOptions + 1] = "Join Battle" end
-	if not (itsme or inMyParty or invitedToMyParty) and myParty then												comboOptions[#comboOptions + 1] = "Invite to Party"; Spring.Echo("Adding \"Invite to Party\"") end
-	if not (itsme) and invitedToMyParty then																		comboOptions[#comboOptions + 1] = "Cancel Party Invite"; Spring.Echo("Adding \"Cancel Party Invite\"") end
+	if not (itsme or inMyParty or invitedToMyParty) and myParty then												comboOptions[#comboOptions + 1] = "Invite to Party" end
+	if not (itsme) and invitedToMyParty then																		comboOptions[#comboOptions + 1] = "Cancel Party Invite" end
 	if not (itsme or bs.aiLib or info.isBot) then																	comboOptions[#comboOptions + 1] = info.isFriend and "Unfriend" or "Friend"
 									  if info.isDisregarded and info.isDisregarded == Configuration.IGNORE then     comboOptions[#comboOptions + 1] = "Unignore"
 																													comboOptions[#comboOptions + 1] = "Avoid"
@@ -495,20 +495,22 @@ local function UpdateUserControlStatus(userName, userControls)
 end
 
 local function UpdateVisualPartyStatus(userControls)
-	if userControls.partyStatus == "invite" and not userControls.tbPartyStatusInvite then
-		userControls.tbPartyStatusInvite = TextBox:New {
-			x = userControls.tbName.x + userControls.nameActualLength,
-			y = userControls.tbName.y,
-			right = 0,
-			bottom = 4,
-			text = "(Invite pending)",
-			objectOverrideFont = WG.Chobby.Configuration:GetFont(1, "party_invite", {color = {0.5, 0.5, 0.5, 1}}),
-			parent = userControls.mainControl
-		}
+	if userControls.partyStatus and userControls.showPartyStatus and userControls.showPartyStatus[userControls.partyStatus] then
+		if not userControls.tbPartyStatus then
+			userControls.tbPartyStatus = TextBox:New {
+				x = userControls.tbName.x + userControls.nameActualLength + 5,
+				y = userControls.tbName.y,
+				right = 0,
+				bottom = 4,
+				objectOverrideFont = WG.Chobby.Configuration:GetFont(1, "party_invite", {color = {0.5, 0.5, 0.5, 1}}),
+				parent = userControls.mainControl
+			}
+		end
+		userControls.tbPartyStatus:SetText(string.format("(%s)", i18n(userControls.partyStatus)))
 	else
-		if userControls.tbPartyStatusInvite then
-			userControls.tbPartyStatusInvite:Dispose()
-			userControls.tbPartyStatusInvite = nil
+		if userControls.tbPartyStatus then
+			userControls.tbPartyStatus:Dispose()
+			userControls.tbPartyStatus = nil
 		end
 	end
 end
@@ -640,9 +642,9 @@ local function OnPartyStatusUpdate(listener, partyID, username)
 
 	local partyStatus
 	if lobby.parties[partyID] and lobby.parties[partyID].members[username] then
-		partyStatus = "member"
-	elseif lobby.parties[partyID] and lobby.parties[partyID].members[username] then
-		partyStatus = "invite"
+		partyStatus = "party_status_member"
+	elseif lobby.parties[partyID] and lobby.parties[partyID].invites[username] then
+		partyStatus = "party_status_invite"
 	end
 
 	for name, list in pairs(namedUserList) do
@@ -951,6 +953,7 @@ local function GetUserControls(userName, opts)
 	userControls.replayUserInfo		= opts.replayUserInfo or false
 	userControls.colorizeFriends    = opts.colorizeFriends or false
 	userControls.partyStatus        = opts.partyStatus
+	userControls.showPartyStatus    = opts.showPartyStatus
 
 	local userInfo = userControls.replayUserInfo or userControls.lobby:GetUser(userName) or {}
 	local bs = userControls.replayUserInfo or userControls.lobby:GetUserBattleStatus(userName) or {}
@@ -1828,6 +1831,7 @@ function userHandler.GetPartyUser(userName, partyStatus)
 		colorizeFriends = true,
 		height = WG.Chobby.PartyWrapper.ROW_HEIGHT,
 		partyStatus = partyStatus,
+		showPartyStatus = { party_status_invite = true },
 		hideStatus = true -- Ideally we'd show this, but it has so much of a hardcoded position that I don't want to change it out for the invite.
 	})
 end
@@ -1869,6 +1873,7 @@ function userHandler.GetFriendUser(userName)
 		offsetY          = 6,
 		height           = 80,
 		maxNameLength    = WG.Chobby.Configuration.friendMaxNameLength,
+		showPartyStatus = { party_status_invite = true, party_status_member = true },
 		steamInvite      = true,
 	})
 end

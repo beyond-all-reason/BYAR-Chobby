@@ -45,7 +45,7 @@ end
 
 function PartyWrapper:AddMember(username)
     if not self.rows[username] then
-        local userControl = WG.UserHandler.GetPartyUser(username, "member")
+        local userControl = WG.UserHandler.GetPartyUser(username, "party_status_member")
         userControl.y = self:ContentHeight()
         userControl._relativeBounds.right = PartyWindow.MAJOR_SPACING + PartyWindow.BUTTON_WIDTH
         self.wrapper:AddChild(userControl)
@@ -69,7 +69,7 @@ end
 
 function PartyWrapper:AddInvite(username)
     if not self.inviteRows[username] then
-        local userControl = WG.UserHandler.GetPartyUser(username, "invite")
+        local userControl = WG.UserHandler.GetPartyUser(username, "party_status_invite")
         userControl.y = self:ContentHeight()
         userControl._relativeBounds.right = PartyWindow.MAJOR_SPACING + PartyWindow.BUTTON_WIDTH
         self.wrapper:AddChild(userControl)
