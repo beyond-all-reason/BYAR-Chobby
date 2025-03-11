@@ -151,7 +151,7 @@ function PartyWindow:LeftParty(partyID, username)
     else
         self.partyWrappers[partyID]:RemoveMember(username)
         
-        if not next(self.partyWrappers[partyID].rows) then
+        if not next(lobby.parties[partyID].members) then
             self.partyWrappers[partyID].wrapper:Dispose()
             self.partyWrappers[partyID] = nil
         end
