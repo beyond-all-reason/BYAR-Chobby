@@ -1652,7 +1652,9 @@ local function GetUserControls(userName, opts)
 				end
 			end
 
-			userControls.tbPartyStatusInvite:SetPos(offset)
+			if userControls.tbPartyStatusInvite then
+				userControls.tbPartyStatusInvite:SetPos(offset)
+			end
 		end
 	end
 
