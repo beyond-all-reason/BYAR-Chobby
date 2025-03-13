@@ -1,6 +1,3 @@
---------------------------------------------------------------------------------
---------------------------------------------------------------------------------
-
 function widget:GetInfo()
 	return {
 		name      = "Team change window",
@@ -53,7 +50,6 @@ local function CreateTeamChangeWindow(opts)
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		text = opts.labelCaption,
 		parent = teamChangeWindow,
-		-- XXX handle longer strings gracefully
 	}
 
 	local btnOK = Button:New {
@@ -81,7 +77,7 @@ local function CreateTeamChangeWindow(opts)
 	}
 
 	local cmbTeams = ComboBox:New {
-		x = "5%",
+		x = "25%",
 		y = "40%",
 		width = "50%",
 		height = 35,
