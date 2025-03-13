@@ -1054,10 +1054,9 @@ local function GetUserControls(userName, opts)
 						if battleStatus.isSpectator then
 							return
 						end
-						WG.IntegerSelectorWindow.CreateIntegerSelectorWindow({
-							defaultValue = (battleStatus.allyNumber or 1) + 1,
-							minValue = 1,
-							maxValue = 16,
+						WG.TeamChangeWindow.CreateTeamChangeWindow({
+							initialTeam = (battleStatus.allyNumber or 1) + 1,
+							maxTeams = 16,
 							caption = "Change Team",
 							labelCaption = "Change "..userName.." to Team: ",
 							OnAccepted = function(allyTeamID)
