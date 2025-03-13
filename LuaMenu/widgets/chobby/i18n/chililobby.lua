@@ -491,6 +491,7 @@ return {
 		customGames = "Spezielle Spiele",
 		playing = "Am Spielen",
 		pick_map = "Karte wechseln",
+		pick_team = "Team wechseln",
 		add_team = "Team hinzufügen",
 		players = "Spieler",
 		submit = "Abschicken",
