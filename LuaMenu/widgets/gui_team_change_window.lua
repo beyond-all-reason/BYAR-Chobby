@@ -20,7 +20,7 @@ local function CreateTeamChangeWindow(opts)
 	end
 
 	local teamChangeWindow = Window:New {
-		caption = "Change Team",
+		caption = i18n("pick_team"),
 		name = "teamChangeWindow",
 		parent = screen0,
 		width = 280,
