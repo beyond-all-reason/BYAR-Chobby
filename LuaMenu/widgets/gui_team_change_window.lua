@@ -43,7 +43,7 @@ local function CreateTeamChangeWindow(opts)
 	local lblTitle = TextBox:New {
 		x = 15,
 		y = 15,
-		width = teamChangeWindow.width - teamChangeWindow.padding[1] - teamChangeWindow.padding[3],
+    width = "80%",
 		height = 35,
 		align = "center",
 		multiline = true,
