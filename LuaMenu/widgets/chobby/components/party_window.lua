@@ -46,6 +46,7 @@ function PartyWindow:init(parent)
         parent = self.window,
         right = 0,
         width = PartyWindow.BUTTON_WIDTH,
+        classname = "option_button",
         visible = false,
         OnClick = {
             function()
@@ -172,6 +173,7 @@ function PartyWindow:JoinedParty(partyID, username)
             width = PartyWindow.BUTTON_WIDTH,
             right = 0,
             y = 0,
+            classname = "negative_button",
             OnClick = {
                 function()
                     self:LeaveMyCurrentParty()
@@ -194,6 +196,7 @@ function PartyWindow:InvitedToParty(partyID, username)
         self.partyWrappers[partyID] = PartyWrapper(self.window)
         self.partyWrappers[partyID].acceptInviteButton = Button:New{
             caption = "Accept invite",
+            classname = "positive_button",
             right = 0,
             width = PartyWindow.BUTTON_WIDTH,
             parent = self.partyWrappers[partyID].wrapper,
