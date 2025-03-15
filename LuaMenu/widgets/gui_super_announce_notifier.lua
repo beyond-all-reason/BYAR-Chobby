@@ -10,7 +10,7 @@ function widget:GetInfo()
 		version   = "1.0",
 		license   = "GNU LGPL, v2.1 or later",
 		layer     = 0,
-		enabled   = true  --  disabling this won't turn the announcement off
+		enabled   = false  --  disabling this after enabling won't turn the announcement off 
 	}
 end
 
@@ -19,7 +19,7 @@ end
 --------------------------------------------------------------------------------
 -- Initialization
 local IMG_SUPERANNOUNCE = LUA_DIRNAME .. "images/trailer.png"
-local doNotAskAgainKey = "superAnnouncePopupSeen" -- change this for new announcement
+local doNotAskAgainKey = "season2AnnouncePopupSeen" -- change this for new announcement
 
 local enableAnnouncement = false -- this is the actual enable/disable switch
 local announceDate = {0, 15, 8, 27, 4, 2018} -- second, minute, hour, day, month, year
@@ -59,7 +59,7 @@ local function SuperAnnouncePopup()
 		height = 35,
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(7),
 		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(7),
-		caption = "The New BAR Trailer is here!",
+		caption = "Beyond All Reason: Season 2 is here!",
 		parent = superAnnounceWindow
 	}
 
@@ -84,7 +84,7 @@ local function SuperAnnouncePopup()
 		height = 35,
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
-		text = "You can help out by watching the the new trailer for BAR. This lets Youtube know that people are interested in BAR which should, in turn, show the game to more potential players. For more info read the official announcement on our website.",
+		text = "A new season has begun and your rank has been reset to ##. This seasonal update brings balance changes, a new look for Supreme Isthmus, new leaderboards, and changes to Tau and uncertainty.",
 		parent = superAnnounceWindow
 	}
 
@@ -97,7 +97,7 @@ local function SuperAnnouncePopup()
 		y = offset,
 		right = "26%",
 		height = 65,
-		caption = "Watch the Trailer",
+		caption = "See your final rank",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(5),
 		classname = "action_button",
 		padding = {2,4,4,4},
@@ -115,7 +115,7 @@ local function SuperAnnouncePopup()
 		y = offset,
 		right = "27%",
 		height = 42,
-		caption = "Read annoucement",
+		caption = "Read announcement",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		classname = "option_button",
 		padding = {2,4,4,4},
