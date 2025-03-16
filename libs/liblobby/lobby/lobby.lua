@@ -279,10 +279,6 @@ function Lobby:JoinBattle(battleID, password, scriptPassword)
 end
 
 function Lobby:LeaveBattle()
-	local myBattleID = self:GetMyBattleID()
-	if myBattleID then
-		self:_OnLeaveBattle(myBattleID)
-	end
 	return self
 end
 
@@ -1239,6 +1235,12 @@ function Lobby:_OnJoinedBattle(battleID, userName, scriptPassword)
 	if not battle then
 		Spring.Log(LOG_SECTION, LOG.WARNING, "_OnJoinedBattle nonexistent battle.")
 		return
+	end
+	if userName == self:GetMyUserName() then
+		local lastFaction = WG.Chobby.Configuration.lastFactionChoice
+		if lastFaction and lastFaction > 1 then
+			WG.Chobby.Configuration.lastFactionChoice = 0
+		end
 	end
 	local found = false
 	local users = battle.users

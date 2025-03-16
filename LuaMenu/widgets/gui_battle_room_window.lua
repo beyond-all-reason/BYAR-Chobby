@@ -516,8 +516,8 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	if battleLobby.name == "singleplayer" and WG.Chobby.Configuration.simplifiedSkirmishSetup ~= true and config.devMode then
 		local comboboxstartpostype = ComboBox:New{
 			name = 'comboboxstartpostype',
-			x = "67.15%",
-			right = 13,
+			x = "60%",
+			right = 98,
 			y = 15,
 			height = 30,
 			itemHeight = 22,
@@ -2601,7 +2601,7 @@ local function InitializeSetupPage(subPanel, screenHeight, pageConfig, nextPage,
 		name = 'nextButton',
 		x = "36%",
 		right = "36%",
-		y = 4*buttonScale + 5 + numOptions*buttonScale,
+		bottom = "4%",
 		height = buttonHeight,
 		classname = (nextPage and "action_button") or "ready_button",
 		caption = (nextPage and "Next") or i18n("start"),
@@ -2991,31 +2991,26 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 
 	local infoHandler = SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, battleLobby:GetMyUserName())
 
-	if not isSingleplayer then
-		local btnQuitBattle = Button:New {
-			name = 'btnQuitBattle',
-			right = 12,
-			y = 7,
-			width = 160,
-			height = 45,
-			objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
-			caption = "Leave Lobby",
-			classname = "negative_button",
-			tooltip = "Leave the multiplayer battleroom",
+	local btnQuitBattle = Button:New {
+		name = 'btnQuitBattle',
+		right = 12,
+		y = 7,
+		width = (isSingleplayer and 80) or 160,
+		height = 45,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+		caption = (isSingleplayer and i18n("close")) or i18n("leave_lobby"),
+		classname = "negative_button",
+		tooltip = (isSingleplayer and "Close the battleroom") or "Leave the multiplayer battleroom",
 			OnClick = {
 				function()
 					battleLobby:LeaveBattle()
-					if WG and WG.Chobby and 
-						WG.Chobby.interfaceRoot and 
-						WG.Chobby.interfaceRoot.OpenMultiplayerTabByName then
-
+					if WG and WG.Chobby and WG.Chobby.interfaceRoot and WG.Chobby.interfaceRoot.OpenMultiplayerTabByName and not isSingleplayer then
 						WG.Chobby.interfaceRoot.OpenMultiplayerTabByName("multiplayer")
 					end
 				end
 			},
 			parent = mainWindow,
-		}
-	end
+	}
 
 	local btnInviteFriends = Button:New {
 		name = 'btnInviteFriends',
@@ -3069,15 +3064,18 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 				if battleLobby.name ~= "singleplayer" then
 					if WG.TextEntryWindow then
 						WG.TextEntryWindow.CreateTextEntryWindow({
-							defaultValue = "",
+							defaultValue = battleTitle:gsub("(.*)|.*$", "%1"):gsub("%s*$", ""),
 							caption = i18n("rename_battle"),
 							labelCaption = i18n("rename_caption"),
 							hint = i18n("rename_hint"),
 							height = 280,
-							width = 480,
+							width = 550,
 							oklabel = i18n("rename"),
 							OnAccepted = function(newname)
 								lobby:SayBattle("!rename " .. newname)
+							end,
+							OnOpen = function(editBox)
+								editBox:SelectAll()
 							end
 						})
 					end
@@ -3217,8 +3215,8 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		-- Buttons Play and Spec
 
 		local battleID = battleLobby:GetMyBattleID()
-		local maxPlayers = battleLobby.battles[battleID].maxPlayers or 0
-		local playerCount = battleLobby:GetBattlePlayerCount(battleID)
+		local maxPlayers = (battleLobby and battleLobby.battles and battleLobby.battles[battleID].maxPlayers) or 0
+		local playerCount = (battleLobby and battleLobby:GetBattlePlayerCount(battleID)) or 0
 		local myBs = battleLobby:GetUserBattleStatus(battleLobby.myUserName) or {}
 		local iAmPlayer = myBs.isSpectator ~= nil and myBs.isSpectator == false
 		local iAmQueued = myBs.queuePos and myBs.queuePos > 0

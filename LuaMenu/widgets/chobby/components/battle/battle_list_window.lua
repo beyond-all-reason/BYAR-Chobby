@@ -58,10 +58,6 @@ function BattleListWindow:init(parent)
 		}
 	end
 
-	local function update()
-		self:Update()
-	end
-
 	self.infoPanel = Panel:New {
 		classname = "overlay_window",
 		x = "15%",
@@ -196,6 +192,7 @@ function BattleListWindow:init(parent)
 		checkVsAI:SetToggle(Configuration.battleFilterVsAI)
 	end
 	WG.Delay(UpdateCheckboxes, 0.2)
+	-- Delay required as Configuration:GetConfigData (where these values are set) runs after this is initialised.
 
 	self:SetMinItemWidth(100000)
 	self.columns = 3
@@ -259,7 +256,7 @@ function BattleListWindow:init(parent)
 
 	local function onConfigurationChange(listener, key, value)
 		if key == "displayBadEngines2" then
-			update()
+			self:Update()
 		elseif key == "battleFilterRedundant" then
 			self:SoftUpdate()
 		end
@@ -273,7 +270,7 @@ function BattleListWindow:init(parent)
 	end
 	WG.DownloadHandler.AddListener("DownloadFinished", downloadFinished)
 
-	update()
+	self:Update()
 end
 
 function BattleListWindow:RemoveListeners()

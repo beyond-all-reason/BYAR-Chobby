@@ -1,6 +1,6 @@
 local mapsByGameType = {
 	["1v1"] = {
-		"Onyx Cauldron 2.2.1",
+		"Onyx Cauldron 2.2.2",
 		"Avalanche 3.4",
 		"Ravaged Remake v1.2",
 		"Shallow Straits v1.0.1",

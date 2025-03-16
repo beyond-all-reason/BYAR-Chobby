@@ -753,6 +753,7 @@ function Configuration:GetConfigData()
 		useLastGameSpectatorState = self.useLastGameSpectatorState,
 		friendsFilterOnline = self.friendsFilterOnline,
 		queueExitConfirmPromptDoNotAskAgain = self.queueExitConfirmPromptDoNotAskAgain,
+		season2AnnouncePopupSeen = self.season2AnnouncePopupSeen
 	}
 end
 

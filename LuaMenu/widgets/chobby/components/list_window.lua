@@ -1,7 +1,6 @@
-ListWindow = Component:extends{}
+ListWindow = LCS.class{}
 
 function ListWindow:init(parent, title, noWindow, windowClassname, noClose, customPadding, bottomSpacing)
-	self:DoInit() -- Lack of inheritance strikes again.
 
 	self.CancelFunc = function ()
 		self:HideWindow()
