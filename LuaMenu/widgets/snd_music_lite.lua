@@ -254,7 +254,7 @@ function widget:Initialize()
 	end
 
 	for i = 1,1000 do
-		if Spring.GetConfigInt("boomboxcaptured", 0) == 1 or (tonumber(os.date("%m")) == 4 and tonumber(os.date("%d")) == 1 and math.random() <= 0.25) then -- Play Beyond All Rhythm once on next launch after capturing a boombox
+		if Spring.GetConfigInt("boomboxcaptured", 0) == 1 or (tonumber(os.date("%m")) == 4 and tonumber(os.date("%d")) <= 3 and math.random() <= 0.25) then -- Play Beyond All Rhythm once on next launch after capturing a boombox
 			openTrack = aprilfoolsTrackList[math.random(1,#aprilfoolsTrackList)]
 			Spring.SetConfigInt("boomboxcaptured", 0)
 		elseif tonumber(os.date("%m")) == 12 and tonumber(os.date("%d")) >= 12 then -- Xmas event
