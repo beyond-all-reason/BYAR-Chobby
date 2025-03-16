@@ -335,7 +335,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
   self.lblRegistrationMultiplayer = Label:New {
 		x = 15,
 		width = 170,
-		y = 260,
+		y = 240,
 		height = 35,
 		caption = i18n("required_for_online"),
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
@@ -346,7 +346,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		self.altAcknowlegementLabel = Label:New {
 				x = 15,
 				width = 170,
-				y = 305,
+				y = 320,
 				height = 35,
 				caption = i18n("alt_acknowledgement"),
 				objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
@@ -356,7 +356,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		self.TextAcknowledgementBox = EditBox:New {
 			x = 15,
 			width = '90%',
-	        y = 365,
+	        y = 380,
 	        height = 35,
 			text = "",
             hint = i18n("ask_moderation"),
