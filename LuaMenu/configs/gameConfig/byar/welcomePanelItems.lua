@@ -14,20 +14,17 @@ local welcomePanelItems = {
         Header = "Welcome to Beyond All Reason",
         Text = "Welcome back Commander. We hope you are ready for epic Singleplayer and Multiplayer battles. Check out our Discord and join the community!\n",
     },
---[[ -- replace with VOD link when uploaded
     {
-        Header = "Mark this date in your calendars as we go down in RTS history!",
-        Text = "Join us as Beyond All Reason celebrates 40,000 Discord members with an epic 24-hour event featuring never-before-seen RTS battles! Massive 40v40 wars, 64-player FFAs, and more—live-streamed by top casters. Don’t miss the action on February 2nd!",
-        Image = "LuaMenu/images/BAR_News_40000_Discord_Members_Square.png",
-        Time = "2025-02-02T13:00:00",
-        Url = "https://www.beyondallreason.info/news/40-000-discord-members-celebration-event",
-        UrlText = "Read the announcement",
+        Header = "Beyond All Reason: Season 2 | Balance patch and a ton of great news",
+        Text = " \n" .. "Beyond All Reason kicks off 2025 with a massive Seasonal Update! New balance changes, rating adjustments, maps, and the highly anticipated Alpha Cup 2025. Join the battle and shape the future of BAR!",
+        Image = "LuaMenu/images/welcomepanel/season2small.png",
+        Time = "2025-03-23T11:00:00",
+        Url = "https://www.beyondallreason.info/news/season-2-is-here",
+        UrlText = "Read Announcement",
     },
-]]
-
     {
         Header = "Faster Map Downloads?",
-        Text = "Since February 16, we’ve been testing a Pro plan for map hosting. Let us know if it made a difference!",
+        Text = "Since February 16, we've been testing a Pro plan for map hosting. Let us know if it made a difference!",
         Url = "https://forms.gle/J2Ah8Uecfh2Zgb6y7",
         UrlText = "Give Feedback",
     },
