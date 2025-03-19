@@ -56,7 +56,7 @@ return {
 		change_password = "Change Password",
 		submit_email = "Submit email",
 		submit_verification = "Submit Verification",
-		required_for_online = "Warning: Outlook, Hotmail, MSN and Live mail \ncurrently can't be verified, please use \nother service",
+		required_for_online = "Required for online play only",
 		ask_moderation = "Ask moderation on Discord for keyword",
 		-- gui_battle_status_panel
 		spectating_game_status = "Spectating",
