@@ -1041,6 +1041,7 @@ function Control:_UpdateChildrenDList()
 		if (contentWidth <= 0) or (contentHeight <= 0) then
 			return
 		end
+		return
 		self:CreateViewTexture("children", contentWidth, contentHeight, self.DrawChildrenForList, self, true)
 	end
 
