@@ -420,6 +420,7 @@ end
 --// =============================================================================
 
 function Control:UpdateClientArea(dontRedraw)
+function Control:UpdateClientArea(dontRedraw, dontRealignParent)
 	local padding = self.padding
 
 	self.clientWidth  = self.width  - padding[1] - padding[3]
@@ -439,6 +440,7 @@ function Control:UpdateClientArea(dontRedraw)
 	end
 
 	if (self.parent) and (self.parent:InheritsFrom('control')) then
+	if (not dontRealignParent) and (self.parent) and (self.parent:InheritsFrom('control')) then
 		--FIXME sometimes this makes self:RequestRealign() redundant! try to reduce the Align() calls somehow
 		self.parent:RequestRealign()
 	end
@@ -552,6 +554,7 @@ end
 -- @param clientArea TODO
 -- @bool dontUpdateRelative TODO
 function Control:SetPos(x, y, w, h, clientArea, dontUpdateRelative)
+function Control:SetPos(x, y, w, h, clientArea, dontUpdateRelative, dontRealignParent)
 	local changed = false
 	local redraw  = false
 
@@ -629,6 +632,7 @@ function Control:SetPos(x, y, w, h, clientArea, dontUpdateRelative)
 
 	if (changed) or (not self.clientArea) then
 		self:UpdateClientArea(not redraw)
+		self:UpdateClientArea(not redraw, dontRealignParent)
 	end
 end
 

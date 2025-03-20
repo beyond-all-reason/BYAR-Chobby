@@ -352,13 +352,13 @@ function ListWindow:SwapPlaces(panel1, panel2)
 
 	panel1._relativeBounds.left = x2
 	panel1._relativeBounds.width = w2
-	panel1:SetPos(nil, y2, nil, h2)
-	panel1:UpdateClientArea()
+	panel1:SetPos(nil, y2, nil, h2, nil, nil, true) -- dontRealignParent = true, because its just a swap
+	panel1:UpdateClientArea(nil, true)
 
 	panel2._relativeBounds.left = x1
 	panel2._relativeBounds.width = w1
-	panel2:SetPos(nil, y1, nil, h1)
-	panel2:UpdateClientArea()
+	panel2:SetPos(nil, y1, nil, h1, nil, nil, true) -- dontRealignParent = true, because its just a swap
+	panel2:UpdateClientArea(nil, true)
 
 	-- Swap positions in table
 	panel1.index = panel2.index
