@@ -31,7 +31,7 @@ end
 
 --Spring.Echo("supertrace",WG,WG.Chobby,WG.Chobby.Configuration.devMode)
 local devmode = tracy and ((VFS.FileExists("devmode.txt") and true) or false)
-Spring.Echo("tracy", tracy, tracy.stub, devmode)
+Spring.Echo("Checking for Tracy profiler build:", tracy, tracy.stub, devmode)
 
 local functionaddresscache = {} -- This tables keys are listener functions, mapped to source lines
 
@@ -43,11 +43,8 @@ function Lobby:_CallListeners(event, ...)
 	local eventListeners = ShallowCopy(self.listeners[event])
 	local args = {...}
 	local n = select("#", ...)
-	local rameventstart 
-	local ramlistenerstart
 	if devmode then 
 		tracy.ZoneBeginN("Lobby:"..event)
-		rameventstart = gcinfo()
 	end
 	for i = 1, #eventListeners do
 		local listener = eventListeners[i]
@@ -67,10 +64,7 @@ function Lobby:_CallListeners(event, ...)
 			else
 				functionaddress = functionaddresscache[listener]
 			end
-
-
 			if functionaddress then 
-				ramlistenerstart = gcinfo()
 				tracy.ZoneBeginN(functionaddress)
 			end
 		end
@@ -78,18 +72,16 @@ function Lobby:_CallListeners(event, ...)
 			function(err) self:_PrintError(err) end )
 		if devmode and functionaddress then 
 			tracy.ZoneEnd()
-			local ramlistenerend = gcinfo ()
-			if ramlistenerend - ramlistenerstart > 0 then
-				tracy.Message(tostring(ramlistenerend - ramlistenerstart))
+			if tracy and tracy.LuaTracyPlot then
+				tracy.LuaTracyPlot("LuaMenuMem", gcinfo() * 1000)
 			end
 		end
 			
 	end
 	if devmode then
 		tracy.ZoneEnd()
-		local rameventend = gcinfo()
-		if rameventend - rameventstart > 0 then
-			tracy.Message(tostring(rameventend - rameventstart))
+		if tracy and tracy.LuaTracyPlot then
+			tracy.LuaTracyPlot("LuaMenuMem", gcinfo() * 1000)
 		end
 	end
 	return true
