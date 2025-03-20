@@ -419,7 +419,7 @@ end
 
 --// =============================================================================
 
-function Control:UpdateClientArea(dontRedraw)
+function Control:UpdateClientArea(dontRedraw, dontRealignParent)
 	local padding = self.padding
 
 	self.clientWidth  = self.width  - padding[1] - padding[3]
@@ -438,7 +438,7 @@ function Control:UpdateClientArea(dontRedraw)
 			}
 	end
 
-	if (self.parent) and (self.parent:InheritsFrom('control')) then
+	if (not dontRealignParent) and (self.parent) and (self.parent:InheritsFrom('control')) then
 		--FIXME sometimes this makes self:RequestRealign() redundant! try to reduce the Align() calls somehow
 		self.parent:RequestRealign()
 	end
@@ -551,7 +551,7 @@ end
 -- @int h height
 -- @param clientArea TODO
 -- @bool dontUpdateRelative TODO
-function Control:SetPos(x, y, w, h, clientArea, dontUpdateRelative)
+function Control:SetPos(x, y, w, h, clientArea, dontUpdateRelative, dontRealignParent)
 	local changed = false
 	local redraw  = false
 
@@ -628,7 +628,7 @@ function Control:SetPos(x, y, w, h, clientArea, dontUpdateRelative)
 	end
 
 	if (changed) or (not self.clientArea) then
-		self:UpdateClientArea(not redraw)
+		self:UpdateClientArea(not redraw, dontRealignParent)
 	end
 end
 
@@ -1041,7 +1041,7 @@ function Control:_UpdateChildrenDList()
 		if (contentWidth <= 0) or (contentHeight <= 0) then
 			return
 		end
-		self:CreateViewTexture("children", contentWidth, contentHeight, self.DrawChildrenForList, self, true)
+		return
 	end
 
 	--FIXME
