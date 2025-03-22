@@ -10,15 +10,12 @@ return {
 		logo = SIDEPICS_DIR .. "cortex.png",
 	},
 	{
+		name = "Random",
+		logo = SIDEPICS_DIR .. "random.png",
+	},
+	{
 		name = "Legion",
 		logo = SIDEPICS_DIR .. "legion.png",
 		requiresModoption = "experimentallegionfaction",
-		singleplayerOnly = true,
-	},
-	{
-		name = "Random",
-		logo = SIDEPICS_DIR .. "random.png",
-		requiresModoption = "optionthatdoesntexist",
-		singleplayerOnly = true,
 	},
 }
