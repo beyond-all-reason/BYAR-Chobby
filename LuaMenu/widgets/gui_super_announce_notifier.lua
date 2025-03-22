@@ -3,14 +3,14 @@
 
 function widget:GetInfo()
 	return {
-		name      = "Super Announcement Notifier",
+		name      = "Super Announcement Notifier 1.0",
 		desc      = "For important news. Opens a priority popup shortly after launch.",
 		author    = "Moose, GoogleFrog",
 		date      = "11 November 2024",
 		version   = "1.0",
 		license   = "GNU LGPL, v2.1 or later",
 		layer     = 0,
-		enabled   = false  --  disabling this after enabling won't turn the announcement off 
+		enabled   = true  --  disabling this after enabling won't turn the announcement off 
 	}
 end
 
@@ -18,11 +18,11 @@ end
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 -- Initialization
-local IMG_SUPERANNOUNCE = LUA_DIRNAME .. "images/trailer.png"
+local IMG_SUPERANNOUNCE = LUA_DIRNAME .. "images/welcomepanel/season2.png"
 local doNotAskAgainKey = "season2AnnouncePopupSeen" -- change this for new announcement
 
-local enableAnnouncement = false -- this is the actual enable/disable switch
-local announceDate = {0, 15, 8, 27, 4, 2018} -- second, minute, hour, day, month, year
+local enableAnnouncement = true -- this is the actual enable/disable switch
+local announceDate = {0, 0, 11, 23, 3, 2025} -- second, minute, hour, day, month, year (UTC)
 
 local function SuperAnnouncePopup()
 	local Configuration = WG.Chobby.Configuration
@@ -84,7 +84,7 @@ local function SuperAnnouncePopup()
 		height = 35,
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
-		text = "A new season has begun and your rank has been reset to ##. This seasonal update brings balance changes, a new look for Supreme Isthmus, new leaderboards, and changes to Tau and uncertainty.",
+		text = "A new season has begun and your rank may have changed." .. " \n" .. "This seasonal update brings balance changes featuring a Tier 1 rework, a new look for Supreme Isthmus, a new leaderboard for the season, and adjustments to Tau and uncertainty." .. " \n" .. "Read the official announcement for more details about these changes, including balance patch notes.",
 		parent = superAnnounceWindow
 	}
 
@@ -97,13 +97,13 @@ local function SuperAnnouncePopup()
 		y = offset,
 		right = "26%",
 		height = 65,
-		caption = "See your final rank",
+		caption = "See the final S1 ranks",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(5),
 		classname = "action_button",
 		padding = {2,4,4,4},
 		OnClick = {
 			function()
-				WG.BrowserHandler.OpenUrl("https://youtu.be/8K_fSWfOC1w?si=XDExlc7a8tuq6bHe")
+				WG.BrowserHandler.OpenUrl("https://bar-rts.com/leaderboards?season=1")
 			end
 		},
 		parent = superAnnounceWindow
@@ -121,7 +121,7 @@ local function SuperAnnouncePopup()
 		padding = {2,4,4,4},
 		OnClick = {
 			function()
-				WG.BrowserHandler.OpenUrl("https://www.beyondallreason.info/news/bar-trailer-2024")
+				WG.BrowserHandler.OpenUrl("https://www.beyondallreason.info/news/season-2-is-here")
 			end
 		},
 		parent = superAnnounceWindow,
