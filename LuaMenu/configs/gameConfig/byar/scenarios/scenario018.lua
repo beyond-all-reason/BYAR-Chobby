@@ -15,7 +15,7 @@ You start the game with Fatboy, Gunslinger, Welder, a Compass radar bot, some Gh
 The Cortex Commander also has his technology crippled, and does not have access to Tier 2 units, but if left to his devices, could amass a critical force of T1 units capable of overpowering your ragtag band. 
  
 Tips:
- - Ghosts are cloakable, stealthy spies, that can be self-destructed for a large EMP blast to stun groups of units.
+ - Ghosts are cloakable, stealthy spies, that can be issued an Attack order to self-destruct for a large EMP blast to stun groups of units.
  - Fatboy has a very large range, and a huge area of effect, but a is slow and hard to maneuver. Use Gunslinger to keep any smaller Tier 1 units away from him. 
  - Gunslinger will heal himself quickly after taking damage, and will gain extra HP and a faster reload time with experience gained from damaging enemy units. 
  - Welder is quite tanky, and can be used to absorb damage from any defenses. 
@@ -349,9 +349,13 @@ The difficulty modifier will change the amount of resources you and the enemy re
 			{name = 'cordl', x = 3952, y = 39, z = 608, rot = 32767 , team = 1},
 			{name = 'cordl', x = 3920, y = 43, z = 720, rot = 32767 , team = 1},
 			{name = 'cordl', x = 3856, y = 33, z = 832, rot = 32767 , team = 1},
-			{name = 'armspy', x = 380, y = 198, z = 620, rot = 7963 , team = 0},
-			{name = 'armspy', x = 500, y = 198, z = 631, rot = 14701 , team = 0},
-			{name = 'armspy', x = 268, y = 198, z = 627, rot = 1521 , team = 0},
+			{name = 'armspy', x = 457, y = 198, z = 564, rot = 692 , team = 0},
+			{name = 'armspy', x = 537, y = 198, z = 569, rot = 948 , team = 0},
+			{name = 'armspy', x = 371, y = 198, z = 565, rot = -2779 , team = 0},
+			{name = 'armspy', x = 284, y = 198, z = 564, rot = -4762 , team = 0},
+			{name = 'armspy', x = 196, y = 198, z = 565, rot = -6223 , team = 0},
+			{name = 'armspy', x = 193, y = 198, z = 756, rot = -11271 , team = 0},
+			{name = 'armspy', x = 192, y = 198, z = 647, rot = -13282 , team = 0},
 			{name = 'corgeo', x = 4816, y = 398, z = 1808, rot = 32767 , team = 1},
 			--{name = 'coraca', x = 4745, y = 96, z = 1008, rot = -12630 , team = 1},
 			{name = 'corvipe', x = 5464, y = 125, z = 1128, rot = 32767 , team = 1},
