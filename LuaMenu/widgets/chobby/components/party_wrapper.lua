@@ -15,6 +15,15 @@ function PartyWrapper:init(parent)
         height = self:TotalHeight(),
         parent = parent
     }
+
+    self.inviteTip = Label:New{
+        parent = self.wrapper,
+        -- we only show this when we're the only player in the party, so can hard-code y
+        y = PartyWrapper.ROW_HEIGHT,
+        caption = i18n("how_to_invite_to_party"),
+        objectOverrideFont = Configuration:GetFont(1, "how_to_invite_to_party", { color = { 0.5, 0.5, 0.5, 1 } })
+    }
+    self.inviteTip:Hide()
 end
 
 function PartyWrapper:TotalHeight()
@@ -22,9 +31,12 @@ function PartyWrapper:TotalHeight()
 end
 
 function PartyWrapper:ContentHeight()
-    return (self.rowCount + self.inviteRowCount) * PartyWrapper.ROW_HEIGHT
+    return (self.rowCount + self.inviteRowCount + (self:ShouldShowInviteTip() and 1 or 0)) * PartyWrapper.ROW_HEIGHT
 end
 
+function PartyWrapper:ShouldShowInviteTip()
+    return self.rowCount == 1 and self.inviteRowCount == 0 and self.rows[lobby.myUserName]
+end
 
 function PartyWrapper:UpdateLayout()
     local index = 0
@@ -38,6 +50,12 @@ function PartyWrapper:UpdateLayout()
     for username, inviteRow in pairs(self.inviteRows) do
         inviteRow:SetPos(nil, (index + self.rowCount) * PartyWrapper.ROW_HEIGHT)
         index = index + 1
+    end
+
+    if self:ShouldShowInviteTip() then
+        self.inviteTip:Show()
+    else
+        self.inviteTip:Hide()
     end
 
     self.wrapper:Resize(nil, self:TotalHeight())

@@ -91,6 +91,7 @@ return {
 		parties = 'Parties',
 		party_status_invite = 'Invite pending',
 		party_status_member = 'Partied',
+		how_to_invite_to_party = "Right click a player and select \"Invite to Party\" to invite them to your party",
 		start_verb = 'Start',
 		open_mp_game = "Host Game",
 		searchbar_hint = "Search for lobby, map or player",
