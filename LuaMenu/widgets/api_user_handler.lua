@@ -1071,9 +1071,9 @@ local function GetUserControls(userName, opts)
 					 	end
 					--]]
 					elseif selectedName == "Invite to Party" then
-						lobby:InvitePlayerToMyParty(userName)
+						lobby:InvitePlayerToMyParty(userName, nil, function(errorMessage) WG.Chobby.ErrorPopup(i18n("error_party_invite_player_failed", { error_message = errorMessage })) end)
 					elseif selectedName == "Cancel Party Invite" then
-						lobby:CancelInviteToMyParty(userName)
+						lobby:CancelInviteToMyParty(userName, nil, function(errorMessage) WG.Chobby.ErrorPopup(i18n("error_party_cancel_invite_failed", { error_message = errorMessage })) end)
 					elseif selectedName == "Change Color" then
 						local battleStatus = userControls.lobby:GetUserBattleStatus(userName) or {}
 						if battleStatus.isSpectator then

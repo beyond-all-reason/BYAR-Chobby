@@ -53,7 +53,12 @@ function PartyWindow:init(parent)
                 if lobby.myPartyID then
                     self:LeaveMyCurrentParty()
                 end
-                lobby:CreateParty()
+                lobby:CreateParty(
+                    nil,
+                    function(errorMessage)
+                        ErrorPopup(i18n("error_party_create_failed", { error_message = errorMessage }))
+                    end
+                )
             end
         },
     }
@@ -142,6 +147,9 @@ function PartyWindow:LeaveMyCurrentParty()
         self.yourPartyLabel:Hide()
 
         self:UpdateLayout()
+    end, 
+    function(errorMessage)
+        ErrorPopup(i18n("error_party_leave_failed", { error_message = errorMessage }))
     end)
 end
 
@@ -205,7 +213,13 @@ function PartyWindow:InvitedToParty(partyID, username)
                     if lobby.myPartyID then
                         self:LeaveMyCurrentParty()
                     end
-                    lobby:AcceptInviteToParty(partyID)
+                    lobby:AcceptInviteToParty(
+                        partyID, 
+                        nil, 
+                        function(errorMessage)
+                            ErrorPopup(i18n("error_party_accept_invite_failed", { error_message = errorMessage }))
+                        end
+                    )
                 end
             }
         }

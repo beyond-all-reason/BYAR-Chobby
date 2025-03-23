@@ -4,7 +4,7 @@ function Interface:CreateParty(successCallback, errorCallback)
         successCallback = successCallback and function(tags)
             successCallback(getTag(tags, "party_id"))
         end, 
-        errorCallback = errorCallback and function() errorCallback() end 
+        errorCallback = errorCallback and function(tags) errorCallback(getTag(tags, "msg")) end
     })
 
     self:_SendCommand("c.party.create_new_party")
@@ -14,7 +14,7 @@ function Interface:AcceptInviteToParty(partyID, successCallback, errorCallback)
     table.insert(self.commandsAwaitingResponse, { 
         cmd = "c.party.accept_invite_to_party", 
         successCallback = successCallback and function() successCallback() end, 
-        errorCallback = errorCallback and function() errorCallback() end 
+        errorCallback = errorCallback and function(tags) errorCallback(getTag(tags, "msg")) end
     })
     
     self:_SendCommand("c.party.accept_invite_to_party " .. partyID)
@@ -24,7 +24,7 @@ function Interface:LeaveMyCurrentParty(successCallback, errorCallback)
     table.insert(self.commandsAwaitingResponse, { 
         cmd = "c.party.leave_current_party",
         successCallback = successCallback,
-        errorCallback = errorCallback 
+        errorCallback = errorCallback and function(tags) errorCallback(getTag(tags, "msg")) end
     })
     self.myPartyID = nil
     self:_SendCommand("c.party.leave_current_party ")
@@ -37,7 +37,7 @@ function Interface:InvitePlayerToMyParty(username, successCallback, errorCallbac
                 self:_OnInvitedToParty(self.myPartyID, username)
                 if successCallback then successCallback() end
             end, 
-        errorCallback = errorCallback and function() errorCallback() end 
+            errorCallback = errorCallback and function(tags) errorCallback(getTag(tags, "msg")) end
     })
     self:_SendCommand("c.party.invite_to_party " .. username)
 end
@@ -46,7 +46,7 @@ function Interface:CancelInviteToMyParty(username, successCallback, errorCallbac
     table.insert(self.commandsAwaitingResponse, { 
         cmd = "c.party.cancel_invite_to_party", 
         successCallback = successCallback and function() successCallback() end, 
-        errorCallback = errorCallback and function() errorCallback() end 
+        errorCallback = errorCallback and function(tags) errorCallback(getTag(tags, "msg")) end
     })
     self:_SendCommand("c.party.cancel_invite_to_party " .. username)
 end

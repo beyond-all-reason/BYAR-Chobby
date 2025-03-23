@@ -21,6 +21,13 @@ return {
 		date = "Date",
 		game_version = "Game Version",
 
+		error_popup_title = "Error",
+		error_party_create_failed = "Failed to create party: %{error_message}",
+		error_party_accept_invite_failed = "Failed to accept party invite: %{error_message}",
+		error_party_leave_failed = "Failed to leave party: %{error_message}",
+		error_party_invite_player_failed = "Failed to invite player: %{error_message}",
+		error_party_cancel_invite_failed = "Failed to cancel party invite: %{error_message}",
+
 		-- console
 		type_here_to_chat = "Type here to chat. Press enter to send.",
 		-- login_window
