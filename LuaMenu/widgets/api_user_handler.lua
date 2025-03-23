@@ -1932,7 +1932,10 @@ local function AddListeners()
 	--]]
 
 	lobby:AddListener("OnAddUser", UpdateUserActivity)
-	lobby:AddListener("OnRemoveUser", UpdateUserActivity)
+	lobby:AddListener("OnRemoveUser", function(listener, username)
+		UpdateUserActivity(listener, username)
+		OnPartyStatusUpdate(listener, nil, username)
+	end)
 	lobby:AddListener("OnAddUser", UpdateUserCountry)
 	lobby:AddListener("OnUpdateUserBattleStatus", UpdateUserBattleStatus)
 	WG.LibLobby.localLobby:AddListener("OnUpdateUserBattleStatus", UpdateUserBattleStatus)

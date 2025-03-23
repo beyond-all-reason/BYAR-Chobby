@@ -688,6 +688,10 @@ function Lobby:_OnRemoveUser(userName)
 
 	self.userNamesLC[userName:lower()] = nil
 
+	for partyID, party in pairs(self.parties) do
+		party.invites[userName] = nil
+	end
+
 	self:_CallListeners("OnRemoveUser", userName)
 end
 

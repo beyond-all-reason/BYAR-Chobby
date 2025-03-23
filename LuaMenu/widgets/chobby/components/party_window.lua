@@ -98,6 +98,14 @@ function PartyWindow:init(parent)
         end
     end)
 
+    lobby:AddListener("OnRemoveUser", function(_, username)
+        for partyID, partyWrapper in pairs(self.partyWrappers) do
+            if partyWrapper.inviteRows[username] then
+                partyWrapper:RemoveInvite(username)
+            end
+        end
+    end)
+
     lobby:AddListener("OnJoinedParty", function(_, ...)
         self:JoinedParty(...)
     end)
