@@ -231,7 +231,7 @@ local function CreateScenarioPanel(shortname, sPanel)
 	local summarySP = ScrollPanel:New {
 		x = 0,
 		y = "5%",
-		width = "49%",
+		width = "51%",
 		height = "14%",
 		parent = sPanel,
 		horizontalScrollbar = true,
