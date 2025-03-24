@@ -23,6 +23,13 @@ local welcomePanelItems = {
         UrlText = "Read Announcement",
     },
     {
+        Header = "We need you! Creative Call to Arms Vol.2",
+        Text = "We’re now seeking volunteers to design icons for weapon types to enhance the game’s visual identity. We need icons for weapon stats like Ground to Air, Air to Ground, Damage, Burst, Reload Time, and more. " .. " \n" .. " \n" .. "Let's create something awesome together! Check #concept-art channel on Discord for more details (needs Development role).",
+        Image = "LuaMenu/images/welcomepanel/CTA2.png",
+        Url = "https://discord.com/channels/549281623154229250/1346438415176040561/1353700113641508884",
+        UrlText = "Go to #concept-art",
+    },
+    {
         Header = "Faster Map Downloads?",
         Text = "Since February 16, we've been testing a Pro plan for map hosting. Let us know if it made a difference!",
         Url = "https://forms.gle/J2Ah8Uecfh2Zgb6y7",
