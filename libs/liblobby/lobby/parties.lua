@@ -23,10 +23,15 @@ end
 function Interface:LeaveMyCurrentParty(successCallback, errorCallback)
     table.insert(self.commandsAwaitingResponse, { 
         cmd = "c.party.leave_current_party",
-        successCallback = successCallback,
+        successCallback = function(tags)
+            self:_OnLeftParty(self.myPartyID, self.myUserName)
+            if successCallback then
+                successCallback()
+            end
+        end,
         errorCallback = errorCallback and function(tags) errorCallback(getTag(tags, "msg")) end
     })
-    self.myPartyID = nil
+    
     self:_SendCommand("c.party.leave_current_party ")
 end
 

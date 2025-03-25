@@ -149,13 +149,7 @@ end
 
 function PartyWindow:LeaveMyCurrentParty()
     local myPartyID = lobby.myPartyID
-    lobby:LeaveMyCurrentParty(function()
-        self.partyWrappers[myPartyID].wrapper:Dispose()
-        self.partyWrappers[myPartyID] = nil
-        self.yourPartyLabel:Hide()
-
-        self:UpdateLayout()
-    end, 
+    lobby:LeaveMyCurrentParty(nil, 
     function(errorMessage)
         ErrorPopup(i18n("error_party_leave_failed", { error_message = errorMessage }))
     end)
@@ -165,6 +159,8 @@ function PartyWindow:LeftParty(partyID, username)
     if username == lobby.myUserName then
         self.partyWrappers[partyID].wrapper:Dispose()
         self.partyWrappers[partyID] = nil
+
+        self.yourPartyLabel:Hide()
     else
         self.partyWrappers[partyID]:RemoveMember(username)
         
