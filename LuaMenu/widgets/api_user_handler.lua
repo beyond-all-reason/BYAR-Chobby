@@ -629,34 +629,41 @@ local function OnPartyLeft(listener, partyID, partyUsers)
 end
 --]]
 
+local function GetPartyStatus(partyID, username)
+	local party = lobby.parties[partyID]
+	if party and partyID == lobby.myPartyID then
+		if party.members[username] then
+			return "party_status_member"
+		elseif party.invites[username] then
+			return "party_status_invite"
+		end
+	end
+end
+
+
 local function OnPartyStatusUpdate(listener, partyID, username)
+	local party = lobby.parties[partyID]
 	if lobby.myUserName == username then
 		for name, list in pairs(namedUserList) do
 			for _username, userControls in pairs(list) do
+				userControls.partyStatus = GetPartyStatus(partyID, _username)
+				UpdateVisualPartyStatus(userControls)
 				userControls.mainControl.items = GetUserComboBoxOptions(
 					_username, userControls.isInBattle, userControls, userControls.imTeamColor ~= nil, userControls.imSide ~= nil
 				)
 			end
 		end
-	end
-
-	local partyStatus
-	if partyID == lobby.myPartyID then
-		if lobby.parties[partyID] and lobby.parties[partyID].members[username] then
-			partyStatus = "party_status_member"
-		elseif lobby.parties[partyID] and lobby.parties[partyID].invites[username] then
-			partyStatus = "party_status_invite"
-		end
-	end
-
-	for name, list in pairs(namedUserList) do
-		local userControls = list[username]
-		if userControls then
-			userControls.partyStatus = partyStatus
-			UpdateVisualPartyStatus(userControls)
-			userControls.mainControl.items = GetUserComboBoxOptions(
-				username, userControls.isInBattle, userControls, userControls.imTeamColor ~= nil, userControls.imSide ~= nil
-			)
+	else
+		local partyStatus = GetPartyStatus(partyID, username)
+		for name, list in pairs(namedUserList) do
+			local userControls = list[username]
+			if userControls then
+				userControls.partyStatus = partyStatus
+				UpdateVisualPartyStatus(userControls)
+				userControls.mainControl.items = GetUserComboBoxOptions(
+					username, userControls.isInBattle, userControls, userControls.imTeamColor ~= nil, userControls.imSide ~= nil
+				)
+			end
 		end
 	end
 end
