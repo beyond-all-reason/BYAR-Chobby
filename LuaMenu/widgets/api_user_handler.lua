@@ -1007,7 +1007,7 @@ local function GetUserControls(userName, opts)
 			--objectOverrideFont = WG.Chobby.Configuration:GetFont(2,{shadow = false}), -- this for some reason allocates a new font object :(
 			itemHeight = 30,
 			selected = 0,
-			maxDropDownWidth = large and 220 or 150,
+			maxDropDownWidth = large and 220 or 170,
 			minDropDownHeight = 0,
 			maxDropDownHeight = 400,
 			items = GetUserComboBoxOptions(userName, isInBattle, userControls, showTeamColor, showSide),
@@ -1715,7 +1715,7 @@ local function _GetUserDropdownMenu(userName, isInBattle)
 
 	local x,y = Spring.GetMouseState()
 	local screenWidth, screenHeight = Spring.GetWindowGeometry()
-	userControls.mainControl:SetPos(math.max(0, x - 60), screenHeight - y - userControls.mainControl.height + 5, 120)
+	userControls.mainControl:SetPos(math.max(0, x - 60), screenHeight - y - userControls.mainControl.height + 5, 170)
 
 	local function delayFunc()
 		-- Must click on the new ComboBox, otherwise an infinite loop may be caused.
