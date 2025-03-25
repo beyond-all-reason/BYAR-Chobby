@@ -641,10 +641,12 @@ local function OnPartyStatusUpdate(listener, partyID, username)
 	end
 
 	local partyStatus
-	if lobby.parties[partyID] and lobby.parties[partyID].members[username] then
-		partyStatus = "party_status_member"
-	elseif lobby.parties[partyID] and lobby.parties[partyID].invites[username] then
-		partyStatus = "party_status_invite"
+	if partyID == lobby.myPartyID then
+		if lobby.parties[partyID] and lobby.parties[partyID].members[username] then
+			partyStatus = "party_status_member"
+		elseif lobby.parties[partyID] and lobby.parties[partyID].invites[username] then
+			partyStatus = "party_status_invite"
+		end
 	end
 
 	for name, list in pairs(namedUserList) do
