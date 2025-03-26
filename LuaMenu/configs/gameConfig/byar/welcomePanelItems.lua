@@ -61,9 +61,9 @@ local welcomePanelItems = {
         UrlText = "Sign Up",
     },
     {
-        Header = "New Map: Gasbag Grabens",
-        Text = " \n" .. " \n" .. "The terraforming mission in Sector G026 has failed. Destroy all opposition before the acid claims you." .. " \n" .. " \n" ..  "1v1 recommended, 2v2s and 3v3s playable. By AidanNaut.",
-        Image = "LuaMenu/configs/gameConfig/byar/minimapOverride/Gasbag_Grabens_0.9.1.jpg",
+        Header = "New Map: Project SD-129",
+        Text = "Project SD-129 is a massive up to 32-player FFA and Team FFA map by Nikuksis, set on a donut-shaped asteroid with a space backdrop." .. " \n" .. " \n" .. "Designed for chaotic free-for-alls but also balanced for team play, Asteroid Isles in the middle feature some resources that are only reachable by air. Try it now!",
+        Image = "LuaMenu/configs/gameConfig/byar/minimapOverride/Project_SD-129_v1.0.jpg",
     },
     {
         Header = "Now Available: BAR Guides",
