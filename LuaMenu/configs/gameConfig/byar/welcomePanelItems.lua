@@ -25,6 +25,7 @@ local welcomePanelItems = {
     {
         Header = "Creative Call to Arms - April Fools Music Edition.",
         Text = "Are you a music producer yourself? Or maybe you have a friend who is and would like to get some recognition? " .. " \n" .. " \n" .. "Create a remix/cover of any BAR track, or even a mix of BAR themes in a single track, and it might end up featured in the game!\n\nAn unique opportunity for aspiring music artists to shine!" .. " \n" .. " \n" .. "You have to be quick though, You only have a few days!",
+        Image = "LuaMenu/images/welcomepanel/BAR OST.png",
         Url = "https://discord.com/channels/549281623154229250/697141979892416512/1354571123207180418",
         UrlText = "Announcement on Discord",
         Time = "2025-04-01T06:00:00",
