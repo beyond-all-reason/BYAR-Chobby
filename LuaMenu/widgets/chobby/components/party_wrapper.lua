@@ -45,7 +45,7 @@ function PartyWrapper:UpdateLayout()
         row:SetPos(nil, index * PartyWrapper.ROW_HEIGHT)
         index = index + 1
     end
-    
+
     index = 0
 
     for username, inviteRow in pairs(self.inviteRows) do

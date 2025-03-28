@@ -1,9 +1,9 @@
 function Interface:CreateParty(successCallback, errorCallback)
-    table.insert(self.commandsAwaitingResponse, { 
-        cmd = "c.party.create_new_party", 
+    table.insert(self.commandsAwaitingResponse, {
+        cmd = "c.party.create_new_party",
         successCallback = successCallback and function(tags)
             successCallback(getTag(tags, "party_id"))
-        end, 
+        end,
         errorCallback = errorCallback and function(tags) errorCallback(getTag(tags, "msg")) end
     })
 
@@ -11,17 +11,17 @@ function Interface:CreateParty(successCallback, errorCallback)
 end
 
 function Interface:AcceptInviteToParty(partyID, successCallback, errorCallback)
-    table.insert(self.commandsAwaitingResponse, { 
-        cmd = "c.party.accept_invite_to_party", 
-        successCallback = successCallback and function() successCallback() end, 
+    table.insert(self.commandsAwaitingResponse, {
+        cmd = "c.party.accept_invite_to_party",
+        successCallback = successCallback and function() successCallback() end,
         errorCallback = errorCallback and function(tags) errorCallback(getTag(tags, "msg")) end
     })
-    
+
     self:_SendCommand("c.party.accept_invite_to_party " .. partyID)
 end
 
 function Interface:LeaveMyCurrentParty(successCallback, errorCallback)
-    table.insert(self.commandsAwaitingResponse, { 
+    table.insert(self.commandsAwaitingResponse, {
         cmd = "c.party.leave_current_party",
         successCallback = function(tags)
             self:_OnLeftParty(self.myPartyID, self.myUserName)
@@ -31,13 +31,13 @@ function Interface:LeaveMyCurrentParty(successCallback, errorCallback)
         end,
         errorCallback = errorCallback and function(tags) errorCallback(getTag(tags, "msg")) end
     })
-    
+
     self:_SendCommand("c.party.leave_current_party ")
 end
 
 function Interface:InvitePlayerToMyParty(username, successCallback, errorCallback)
-    table.insert(self.commandsAwaitingResponse, { 
-        cmd = "c.party.invite_to_party", 
+    table.insert(self.commandsAwaitingResponse, {
+        cmd = "c.party.invite_to_party",
         successCallback = function()
                 self:_OnInvitedToParty(self.myPartyID, username)
                 if successCallback then successCallback() end
@@ -48,8 +48,8 @@ function Interface:InvitePlayerToMyParty(username, successCallback, errorCallbac
 end
 
 function Interface:CancelInviteToMyParty(username, successCallback, errorCallback)
-    table.insert(self.commandsAwaitingResponse, { 
-        cmd = "c.party.cancel_invite_to_party", 
+    table.insert(self.commandsAwaitingResponse, {
+        cmd = "c.party.cancel_invite_to_party",
         successCallback = successCallback and function() successCallback() end, 
         errorCallback = errorCallback and function(tags) errorCallback(getTag(tags, "msg")) end
     })
@@ -87,9 +87,9 @@ end
 Interface.commands["s.party.invite_cancelled"] = Interface._OnPartyInviteCancelled
 Interface.commandPattern["s.party.invite_cancelled"] = "(%S+)%s(%S+)"
 
--- Warning: Duplicates of this message might be received, 
+-- Warning: Duplicates of this message might be received,
 -- so it's important the implementation can handle that.
--- Ideally that would be fixed server-side, but we're 
+-- Ideally that would be fixed server-side, but we're
 -- trying to conserve effort on this feature.
 function Interface:_OnJoinedParty(partyID, username)
     if self.parties[partyID] and self.parties[partyID].members[username] then
@@ -107,7 +107,7 @@ function Interface:_OnJoinedParty(partyID, username)
 end
 Interface.commands["s.party.joined_party"] = Interface._OnJoinedParty
 Interface.commandPattern["s.party.joined_party"] = "(%S+)%s(%S+)"
-    
+
 function Interface:_OnLeftParty(partyID, username)
     local partyDestroyed
 
@@ -118,7 +118,7 @@ function Interface:_OnLeftParty(partyID, username)
         partyDestroyed = true
     else
         self.parties[partyID].members[username] = nil
-        
+
         if not next(self.parties[partyID].members) then
             self.parties[partyID] = nil
             partyDestroyed = true

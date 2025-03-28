@@ -125,14 +125,14 @@ end
 
 function PartyWindow:UpdateLayout()
     local offset = PartyWindow.CONTENT_Y_OFFSET
-    
+
     if lobby.myPartyID then
         local myPartyWrapper = self.partyWrappers[lobby.myPartyID]
         offset = myPartyWrapper.wrapper.y +
-                 myPartyWrapper:TotalHeight() + 
+                 myPartyWrapper:TotalHeight() +
                  PartyWindow.MINOR_SPACING
     end
-    
+
     self.invitesLabel:SetPos(0, offset)
     self.invitesLabel:Hide()
 

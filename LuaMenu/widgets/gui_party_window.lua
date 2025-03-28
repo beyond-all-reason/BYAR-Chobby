@@ -11,6 +11,7 @@ function widget:GetInfo()
 		enabled   = true  --  loaded by default?
 	}
 end
+
 local PartyWindow = {}
 
 function PartyWindow.GetControl()
