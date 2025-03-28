@@ -205,9 +205,9 @@ local function GetUserComboBoxOptions(userName, isInBattle, control, showTeamCol
 	local bossed = info.battleID and control.lobby.battles[info.battleID] and control.lobby.battles[info.battleID].bossed
 	local validEngine = info.battleID and control.lobby.battles[info.battleID] and (Configuration.displayBadEngines2 or Configuration:IsValidEngineVersion(control.lobby.battles[info.battleID].engineVersion))
 
-	local myParty, inMyParty, invitedToMyParty
+	local inMyParty, invitedToMyParty
 	if control.lobby.myPartyID then
-		myParty = control.lobby.parties[control.lobby.myPartyID]
+		local myParty = control.lobby.parties[control.lobby.myPartyID]
 		inMyParty = myParty.members[userName] ~= nil
 		invitedToMyParty = myParty.invites[userName] ~= nil
 	end
@@ -215,7 +215,7 @@ local function GetUserComboBoxOptions(userName, isInBattle, control, showTeamCol
 	if not (itsme or bs.aiLib) then																					comboOptions[#comboOptions + 1] = "Message" end
 	if isInBattle and not (itsme or bs.aiLib or info.isBot) then													comboOptions[#comboOptions + 1] = "Ring" end
 	if not (itsme or bs.aiLib or isInBattle) and info.battleID and validEngine then									comboOptions[#comboOptions + 1] = "Join Battle" end
-	if not (itsme or inMyParty or invitedToMyParty) and myParty then												comboOptions[#comboOptions + 1] = "Invite to Party" end
+	if not (itsme or inMyParty or invitedToMyParty) then															comboOptions[#comboOptions + 1] = "Invite to Party" end
 	if not (itsme) and invitedToMyParty then																		comboOptions[#comboOptions + 1] = "Cancel Party Invite" end
 	if not (itsme or bs.aiLib or info.isBot) then																	comboOptions[#comboOptions + 1] = info.isFriend and "Unfriend" or "Friend"
 									  if info.isDisregarded and info.isDisregarded == Configuration.IGNORE then     comboOptions[#comboOptions + 1] = "Unignore"
@@ -1078,7 +1078,16 @@ local function GetUserControls(userName, opts)
 					 	end
 					--]]
 					elseif selectedName == "Invite to Party" then
-						lobby:InvitePlayerToMyParty(userName, nil, function(errorMessage) WG.Chobby.ErrorPopup(i18n("error_party_invite_player_failed", { error_message = errorMessage })) end)
+						if lobby.myPartyID then
+							lobby:InvitePlayerToMyParty(userName, nil, function(errorMessage) WG.Chobby.ErrorPopup(i18n("error_party_invite_player_failed", { error_message = errorMessage })) end)
+						else
+							lobby:CreateParty(function()
+								lobby:InvitePlayerToMyParty(userName, nil, function(errorMessage) WG.Chobby.ErrorPopup(i18n("error_party_invite_player_failed", { error_message = errorMessage })) end)
+							end,
+							function(errorMessage)
+								WG.Chobby.ErrorPopup(i18n("error_party_invite_player_failed", { error_message = errorMessage }))
+							end)
+						end
 					elseif selectedName == "Cancel Party Invite" then
 						lobby:CancelInviteToMyParty(userName, nil, function(errorMessage) WG.Chobby.ErrorPopup(i18n("error_party_cancel_invite_failed", { error_message = errorMessage })) end)
 					elseif selectedName == "Change Color" then
