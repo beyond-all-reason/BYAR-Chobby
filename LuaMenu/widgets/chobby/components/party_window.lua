@@ -170,7 +170,7 @@ function PartyWindow:LeftParty(partyID, username, partyDestroyed)
 end
 function PartyWindow:JoinedParty(partyID, username)
     if username == lobby.myUserName then
-        self.partyWrappers[partyID] = self.partyWrappers[partyID] or PartyWrapper(self.window)
+        self.partyWrappers[partyID] = self.partyWrappers[partyID] or PartyWrapper(self.window, partyID)
         if self.partyWrappers[partyID].acceptInviteButton then
             self.partyWrappers[partyID].acceptInviteButton:Dispose()
             self.partyWrappers[partyID].acceptInviteButton = nil
@@ -201,7 +201,7 @@ function PartyWindow:JoinedParty(partyID, username)
 end
 function PartyWindow:InvitedToParty(partyID, username)
     if username == lobby.myUserName then
-        self.partyWrappers[partyID] = PartyWrapper(self.window)
+        self.partyWrappers[partyID] = PartyWrapper(self.window, partyID)
         self.partyWrappers[partyID].acceptInviteButton = Button:New{
             caption = "Accept invite",
             classname = "positive_button",

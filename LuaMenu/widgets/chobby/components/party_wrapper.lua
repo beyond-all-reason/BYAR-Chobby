@@ -2,12 +2,13 @@ PartyWrapper = LCS.class{}
 
 PartyWrapper.ROW_HEIGHT = 22
 
-function PartyWrapper:init(parent)
+function PartyWrapper:init(parent, partyID)
     self.rows = {}
     self.inviteRows = {}
     self.parent = parent
     self.rowCount = 0
     self.inviteRowCount = 0
+    self.partyID = partyID
 
     self.wrapper = Control:New{
         classname = "party_wrapper",
@@ -63,7 +64,7 @@ end
 
 function PartyWrapper:AddMember(username)
     if not self.rows[username] then
-        local userControl = WG.UserHandler.GetPartyUser(username, "party_status_member")
+        local userControl = WG.UserHandler.GetPartyUser(username, self.partyID, "party_status_member")
         userControl.y = self:ContentHeight()
         userControl._relativeBounds.right = PartyWindow.MAJOR_SPACING + PartyWindow.BUTTON_WIDTH
         self.wrapper:AddChild(userControl)
@@ -87,7 +88,7 @@ end
 
 function PartyWrapper:AddInvite(username)
     if not self.inviteRows[username] then
-        local userControl = WG.UserHandler.GetPartyUser(username, "party_status_invite")
+        local userControl = WG.UserHandler.GetPartyUser(username, self.partyID, "party_status_invite")
         userControl.y = self:ContentHeight()
         userControl._relativeBounds.right = PartyWindow.MAJOR_SPACING + PartyWindow.BUTTON_WIDTH
         self.wrapper:AddChild(userControl)

@@ -631,7 +631,7 @@ end
 
 local function GetPartyStatus(partyID, username)
 	local party = lobby.parties[partyID]
-	if party and partyID == lobby.myPartyID then
+	if party then
 		if party.members[username] then
 			return "party_status_member"
 		elseif party.invites[username] then
@@ -642,11 +642,10 @@ end
 
 
 local function OnPartyStatusUpdate(listener, partyID, username)
-	local party = lobby.parties[partyID]
 	if lobby.myUserName == username then
 		for name, list in pairs(namedUserList) do
 			for _username, userControls in pairs(list) do
-				userControls.partyStatus = GetPartyStatus(partyID, _username)
+				userControls.partyStatus = GetPartyStatus(lobby.parties[name] and name or lobby.myPartyID, _username)
 				UpdateVisualPartyStatus(userControls)
 				userControls.mainControl.items = GetUserComboBoxOptions(
 					_username, userControls.isInBattle, userControls, userControls.imTeamColor ~= nil, userControls.imSide ~= nil
@@ -654,11 +653,10 @@ local function OnPartyStatusUpdate(listener, partyID, username)
 			end
 		end
 	else
-		local partyStatus = GetPartyStatus(partyID, username)
 		for name, list in pairs(namedUserList) do
 			local userControls = list[username]
 			if userControls then
-				userControls.partyStatus = partyStatus
+				userControls.partyStatus = GetPartyStatus(lobby.parties[name] and name or lobby.myPartyID, username)
 				UpdateVisualPartyStatus(userControls)
 				userControls.mainControl.items = GetUserComboBoxOptions(
 					username, userControls.isInBattle, userControls, userControls.imTeamColor ~= nil, userControls.imSide ~= nil
@@ -1835,7 +1833,13 @@ function userHandler.GetDebriefingUser(userName)
 	})
 end
 
-function userHandler.GetPartyUser(userName, partyStatus)
+function userHandler.GetPartyUser(userName, partyID, partyStatus)
+	local partyUsers = namedUserList[partyID]
+	if not partyUsers then
+		partyUsers = {}
+		namedUserList[partyID] = partyUsers
+		userListList[#userListList] = partyUsers
+	end
 	return _GetUser(partyUsers, userName, {
 		showCountry = true,
 		showRank = true,
@@ -1958,7 +1962,16 @@ local function AddListeners()
 	lobby:AddListener("OnInvitedToParty", OnPartyStatusUpdate)
 	lobby:AddListener("OnPartyInviteCancelled", OnPartyStatusUpdate)
 	lobby:AddListener("OnJoinedParty", OnPartyStatusUpdate)
-	lobby:AddListener("OnLeftParty", OnPartyStatusUpdate)
+	lobby:AddListener("OnLeftParty", function(listener, partyID, username, partyDestroyed)
+		local partyUsers = namedUserList[partyID]
+		namedUserList[partyID] = nil
+		for i = 1, #namedUserList do
+			if namedUserList[i] == partyUsers then
+				table.remove(namedUserList, i)
+			end
+		end
+		OnPartyStatusUpdate(listener, partyID, username)
+	end)
 end
 
 --------------------------------------------------------------------------------
