@@ -2199,7 +2199,6 @@ function Interface:_OnOK(tags)
 	end
 
 	for index, commandInfo in ipairs(self.commandsAwaitingResponse) do
-		Spring.Echo(index, commandInfo.cmd, cmd)
 		if commandInfo.cmd == cmd then
 			if commandInfo.successCallback then
 				commandInfo.successCallback(tags)
