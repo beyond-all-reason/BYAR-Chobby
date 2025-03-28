@@ -70,6 +70,12 @@ Interface.commands["s.party.invited_to_party"] = Interface._OnInvitedToParty
 Interface.commandPattern["s.party.invited_to_party"] = "(%S+)%s(%S+)"
 
 function Interface:_OnPartyInviteCancelled(partyID, username)
+    if not self.parties[partyID] then
+        -- when the last member leaves a party, it is destroyed.
+        -- We then receive a cancel message for each invite, so we'll no-op that case.
+        return
+    end
+
     if username == self.myUserName then
         self.parties[partyID] = nil
     else
@@ -103,14 +109,23 @@ Interface.commands["s.party.joined_party"] = Interface._OnJoinedParty
 Interface.commandPattern["s.party.joined_party"] = "(%S+)%s(%S+)"
     
 function Interface:_OnLeftParty(partyID, username)
+    local partyDestroyed
+
     if username == self.myUserName then
         self.parties[partyID] = nil
         self.myPartyID = nil
+
+        partyDestroyed = true
     else
         self.parties[partyID].members[username] = nil
+        
+        if not next(self.parties[partyID].members) then
+            self.parties[partyID] = nil
+            partyDestroyed = true
+        end
     end
 
-    self:_CallListeners("OnLeftParty", partyID, username)
+    self:_CallListeners("OnLeftParty", partyID, username, partyDestroyed)
 end
 Interface.commands["s.party.left_party"] = Interface._OnLeftParty
 Interface.commandPattern["s.party.left_party"] = "(%S+)%s(%S+)"

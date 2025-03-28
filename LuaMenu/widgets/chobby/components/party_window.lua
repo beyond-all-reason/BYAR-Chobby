@@ -155,19 +155,15 @@ function PartyWindow:LeaveMyCurrentParty()
     end)
 end
 
-function PartyWindow:LeftParty(partyID, username)
-    if username == lobby.myUserName then
+function PartyWindow:LeftParty(partyID, username, partyDestroyed)
+    if partyDestroyed then
         self.partyWrappers[partyID].wrapper:Dispose()
         self.partyWrappers[partyID] = nil
-
-        self.yourPartyLabel:Hide()
+        if username == lobby.myUserName then
+            self.yourPartyLabel:Hide()
+        end
     else
         self.partyWrappers[partyID]:RemoveMember(username)
-        
-        if not next(lobby.parties[partyID].members) then
-            self.partyWrappers[partyID].wrapper:Dispose()
-            self.partyWrappers[partyID] = nil
-        end
     end
 
     self:UpdateLayout()
