@@ -227,9 +227,7 @@ function PartyWindow:InvitedToParty(partyID, username)
         self.partyWrappers[partyID].wrapper:Show()
 
         self.invitesLabel:Show()
-    end
-    
-    if partyID == lobby.myPartyID then
+    else
         self.partyWrappers[partyID]:AddInvite(username)
     end
 
