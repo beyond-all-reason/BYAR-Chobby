@@ -1279,17 +1279,17 @@ function BattleListWindow:OpenHostWindow()
 
 		['Host[EU1]'] = {limit = 120, current = 0, online = false, priority = 0.3, region = 'EU', location = "Frankfurt"}, -- Lower priority because it is on a SSDNodes host, which isnt the best regarding latency 
 		['Host[EU2]'] = {limit = 120, current = 0, online = false, priority = 1.0, region = 'EU', location = "Vienna"},
-		['Host[EU3]'] = {limit = 25,  current = 0, online = false, priority = 1.0, region = 'EU', location = "Frankfurt"},
+		['Host[EU3]'] = {limit = 25,  current = 0, online = false, priority = 0.5, region = 'EU', location = "Frankfurt"}, -- Lower prio because it runs files
 		['Host[EU4]'] = {limit = 150, current = 0, online = false, priority = 1.0, region = 'EU', location = "Dusseldorf"},  -- this is pointed to integration server
-		['Host[EU5]'] = {limit = 150, current = 0, online = false, priority = 0.01,region = 'EU',location = "Frankfurt"}, -- Further deproiritize because ssdnodes is trash
+		['Host[EU5]'] = {limit = 150, current = 0, online = false, priority = 0.1, region = 'EU', location = "Frankfurt"}, -- Further deproiritize because ssdnodes is trash
 		['Host[EU6]'] = {limit = 120, current = 0, online = false, priority = 1.0, region = 'EU', location = "Amsterdam"},
 		['Host[EU7]'] = {limit = 200, current = 0, online = false, priority = 1.0, region = 'EU', location = "Amsterdam"}, -- This runs on integration server, but has plenty of capacity
+		['Host[EU8]'] = {limit = 150, current = 0, online = false, priority = 1.0, region = 'EU', location = "Zurich"}, 
 		
 		['Host[US1]'] = {limit = 120, current = 0, online = false, priority = 1.0, region = 'US', location = "Virginia"},
 		['Host[US2]'] = {limit = 60,  current = 0, online = false, priority = 1.0, region = 'US', location = "Chicago"},
 		['Host[US3]'] = {limit = 80,  current = 0, online = false, priority = 1.0, region = 'US', location = "St. Louis"},
 		['Host[US4]'] = {limit = 150, current = 0, online = false, priority = 0.3, region = 'US', location = "Seattle"}, -- Seems to see more cpu steal than the rest
-
 
 		['Host[EA1]'] = {limit = 100, current = 0, online = false, priority = 1.0, region = 'EA', location = "HK"}, -- Seems to see more cpu steal than the rest
 	}
