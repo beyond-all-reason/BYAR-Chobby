@@ -2193,10 +2193,24 @@ function Interface:_OnOK(tags)
 	local Configuration = WG.Chobby.Configuration
 	local tags = parseTags(tags)
 	local cmd = getTag(tags, "cmd", false)
-	local userName = getTag(tags, "userName", false)
-	if not (cmd and userName) then
+
+	if not cmd then
 		Spring.Log(LOG_SECTION, LOG.WARNING, "Received OK command with wrong format.")
-		return
+	end
+
+	for index, commandInfo in ipairs(self.commandsAwaitingResponse) do
+		if commandInfo.cmd == cmd then
+			if commandInfo.successCallback then
+				commandInfo.successCallback(tags)
+			end
+			table.remove(self.commandsAwaitingResponse, index)
+			return
+		end
+	end
+
+	local userName = getTag(tags, "userName", false)
+	if not userName then
+		Spring.Log(LOG_SECTION, LOG.WARNING, "Received OK command with wrong format.")
 	end
 
 	if cmd == 'c.user.ignore' then
@@ -2218,6 +2232,17 @@ Interface.commandPattern["OK"] = "(.+)"
 function Interface:_OnNo(tags)
 	local tags = parseTags(tags)
 	local cmd = getTag(tags, "cmd", false) or "unknown"
+
+	for index, commandInfo in ipairs(self.commandsAwaitingResponse) do
+		if commandInfo.cmd == cmd then
+			if commandInfo.errorCallback then
+				commandInfo.errorCallback(tags)
+			end
+			table.remove(self.commandsAwaitingResponse, index)
+			return
+		end
+	end
+
 	local userName = getTag(tags, "userName", false) or "unknown"
 	Spring.Log(LOG_SECTION, LOG.ERROR, string.format("Server answered NO to command=%s and userName=%s", cmd, userName))
 end

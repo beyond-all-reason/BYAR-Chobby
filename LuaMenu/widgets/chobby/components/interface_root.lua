@@ -478,6 +478,7 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 	end
 	rightPanelTabs[#rightPanelTabs + 1] = {name = "chat", control = chatWindows.window}
 	rightPanelTabs[#rightPanelTabs + 1] = {name = "friends", control = WG.FriendWindow.GetControl()}
+	rightPanelTabs[#rightPanelTabs + 1] = {name = "parties", control = WG.PartyWindow.GetControl()}
 	rightPanelTabs[#rightPanelTabs + 1] = {name = "settings", control = WG.SettingsWindow.GetControl()}
 	rightPanelTabs[#rightPanelTabs + 1] = {name = "downloads", control = WG.DownloadWindow.GetControl()}
 
