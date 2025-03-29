@@ -215,7 +215,7 @@ local function GetUserComboBoxOptions(userName, isInBattle, control, showTeamCol
 	if not (itsme or bs.aiLib) then																					comboOptions[#comboOptions + 1] = "Message" end
 	if isInBattle and not (itsme or bs.aiLib or info.isBot) then													comboOptions[#comboOptions + 1] = "Ring" end
 	if not (itsme or bs.aiLib or isInBattle) and info.battleID and validEngine then									comboOptions[#comboOptions + 1] = "Join Battle" end
-	if not (itsme or inMyParty or invitedToMyParty) then															comboOptions[#comboOptions + 1] = "Invite to Party" end
+	if not (itsme or inMyParty or invitedToMyParty or info.isBot or bs.aiLib) then									comboOptions[#comboOptions + 1] = "Invite to Party" end
 	if not (itsme) and invitedToMyParty then																		comboOptions[#comboOptions + 1] = "Cancel Party Invite" end
 	if not (itsme or bs.aiLib or info.isBot) then																	comboOptions[#comboOptions + 1] = info.isFriend and "Unfriend" or "Friend"
 									  if info.isDisregarded and info.isDisregarded == Configuration.IGNORE then     comboOptions[#comboOptions + 1] = "Unignore"
