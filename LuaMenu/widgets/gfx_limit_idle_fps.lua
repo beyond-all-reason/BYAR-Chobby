@@ -6,7 +6,7 @@ function widget:GetInfo()
 		author = "Floris",
 		date = "2020",
 		license = "",
-		layer = 1002,
+		layer = -math.huge,
 		--handler   = true,
 		--api       = true, -- Makes KeyPress occur before chili (but also fails with WG.LimitFps)
 		enabled   = true,
@@ -149,6 +149,8 @@ awayTimer = Timer(awayTime, becomeAway)
 local lastMouseX, lastMouseY = Spring.GetMouseState()
 local nextFrameTime = os.clock()
 
+local initialized
+
 ------------
 -- Config --
 ------------
@@ -254,6 +256,9 @@ local function init()
 end
 
 function widget:Initialize()
+	-- We delay init to ensure we get first access to UI callins, but still init after WG.Chobby.
+	if not WG.Chobby then return end
+
 	if WG.Chobby and WG.Chobby.Configuration then
 		drawAtFullspeed = WG.Chobby.Configuration.drawAtFullSpeed
 	end
@@ -293,10 +298,16 @@ end
 ------------
 
 function widget:ViewResize(vsx, vsy)
+	if not initialized then return end
 	WG.LimitFps.ForceRedrawPeriod(0.5)
 end
 
 function widget:Update()
+	if not initialized then
+		self:Initialize()
+		initialized = true
+	end
+
 	if not WG.Chobby.interfaceRoot.GetLobbyInterfaceHolder().visible then
 		return
 	end
@@ -323,9 +334,6 @@ function widget:Update()
 		if mouseOffscreen then
 			SetVSyncState(VSYNC_STATE_OFFSCREEN)
 		else
-			if Spring.GetKeyState(8) then -- backspace pressed
-				logUserInput()
-			end
 			if mouseX ~= lastMouseX or mouseY ~= lastMouseY or lmb or mmb or rmb  then
 				lastMouseX, lastMouseY = mouseX, mouseY
 				logUserInput()
@@ -362,6 +370,7 @@ end
 
 -- Enables Draw{Genesis,Screen,ScreenPost} callins if true is returned, otherwise they are called once every 30 seconds. Only active when a game isn't running.
 function widget:AllowDraw()
+	if not initialized then return end
 	if WG.Chobby.Configuration.fixFlicker then
 		return true
 	end
