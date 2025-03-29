@@ -41,13 +41,6 @@ local welcomePanelItems = {
         Header = "Upcoming Events:",
     },
     {
-        Header = "Master's League: Series III",
-        Text = "Min 25 OS 1v1 Tournament",
-        Time = "2025-03-29T16:00:00",
-        Url = "https://discord.gg/YgSUjQpTZe",
-        UrlText = "Join the Discord",
-    },
-    {
         Header = "BAR Academy Live",
         Text = "1v1 Replay reviews with BARCast and Neb",
         Time = "2025-04-02T01:00:00",
@@ -62,11 +55,18 @@ local welcomePanelItems = {
         UrlText = "Sign Up",
     },
     {   
-        Header = "Alpha Cup 2025",
+        Header = "Alpha Cup V 2025",
         Text = "Crown a new 1v1 Champion! All welcome.",
         Time = "2025-04-12T16:00:00",
         Url = "https://challonge.com/eb74xb0p",
         UrlText = "Sign Up",
+    },
+    {
+        Header = "Apprentice League",
+        Text = "Maximum 30 OS 1v1 Tournament",
+        Time = "2025-04-12T01:00:00",
+        Url = "https://discord.gg/YgSUjQpTZe",
+        UrlText = "Join the Discord",
     },
     {
         Header = "New Map: Project SD-129",
