@@ -6,7 +6,7 @@ function widget:GetInfo()
 		author = "Floris",
 		date = "2020",
 		license = "",
-		layer = -math.huge,
+		layer = 1002,
 		--handler   = true,
 		--api       = true, -- Makes KeyPress occur before chili (but also fails with WG.LimitFps)
 		enabled   = true,
@@ -35,15 +35,15 @@ local drawAtFullspeed = true
 local isOffscreen = false
 local nextFrameTime = os.clock()
 local frameDelayTime = 0
-local enabled = false
 
 local msaaLevel = tonumber(Spring.GetConfigInt("MSAALevel", 0))
 
-local vsyncValueGame = Spring.GetConfigInt("VSync",1)
-if vsyncValueGame > 3 then
-	vsyncValueGame = 1
+local defaultVSyncGame = Spring.GetConfigInt("VSync",1)
+if defaultVSyncGame > 3 then
+	defaultVSyncGame = 1
 end
-vsyncValueGame = Spring.GetConfigInt("VSyncGame", vsyncValueGame)	-- its stored here as assurance cause lobby/game also changes vsync when idle and lobby could think game has set vsync 4+ after a hard crash
+defaultVSyncGame = Spring.GetConfigInt("VSyncGame", defaultVSyncGame)	-- its stored here as assurance cause lobby/game also changes vsync when idle and lobby could think game has set vsync 4+ after a hard crash
+
 local vsyncValueLobby = 1
 local vsyncValueSleep = vsyncValueLobby + 2
 local maxVsync = 6
@@ -160,14 +160,21 @@ function widget:Initialize()
 	WG.isAway = function()
 		return isAway
 	end
+
+	WG.Chobby.interfaceRoot.GetLobbyInterfaceHolder().OnShow = { function()
+		Spring.SetConfigInt("VSync", vsyncValueLobby)
+	end }
+	WG.Chobby.interfaceRoot.GetLobbyInterfaceHolder().OnHide = { function()
+		Spring.SetConfigInt("VSync", Spring.GetConfigInt("VSyncGame", defaultVSyncGame))
+	end }
 end
 
 function widget:Shutdown()
 	if WG.Chobby and WG.Chobby.Configuration then
 		WG.Chobby.Configuration.drawAtFullSpeed = drawAtFullspeed
 	end
-	if enabled then
-		Spring.SetConfigInt("VSync", vsyncValueGame)
+	if WG.Chobby.interfaceRoot.GetLobbyInterfaceHolder().visible then
+		Spring.SetConfigInt("VSync", Spring.GetConfigInt("VSyncGame", defaultVSyncGame))
 	end
 end
 
@@ -176,16 +183,7 @@ function widget:ViewResize(vsx, vsy)
 end
 
 function widget:Update()
-	local prevEnabled = enabled
-	if WG.Chobby and WG.Chobby.interfaceRoot then
-		enabled = WG.Chobby.interfaceRoot.GetLobbyInterfaceHolder().visible
-	end
-	if prevEnabled ~= enabled then
-		Spring.SetConfigInt("VSync", (enabled and vsyncValueLobby or vsyncValueGame))
-	end
-	if enabled then
-		vsyncValueGame = Spring.GetConfigInt("VSyncGame", vsyncValueGame)
-
+	if WG.Chobby.interfaceRoot.GetLobbyInterfaceHolder().visible then
 		if Spring.GetKeyState(8) then -- backspace pressed
 			logUserInput()
 		end
