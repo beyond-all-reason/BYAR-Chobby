@@ -31,7 +31,7 @@ function ErrorPopup:init(errorMessage)
 
     Button:New{
         caption = "Close",
-        x = (316 - 135) / 2,
+        x = (316 - 135 - 32) / 2, -- total width - button width - total padding/magic number (???)
         bottom = 1,
         width = 135,
         height = 70,
