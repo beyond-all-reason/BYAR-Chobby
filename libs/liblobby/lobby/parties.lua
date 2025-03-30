@@ -1,3 +1,7 @@
+----------------------
+-- Client -> Server --
+----------------------
+
 function Interface:CreateParty(successCallback, errorCallback)
     table.insert(self.commandsAwaitingResponse, {
         cmd = "c.party.create_new_party",
@@ -56,11 +60,21 @@ function Interface:CancelInviteToMyParty(username, successCallback, errorCallbac
     self:_SendCommand("c.party.cancel_invite_to_party " .. username)
 end
 
+----------------------
+-- Server -> Client --
+----------------------
+-- Party-related server messages may be erroneously duplicated.
+-- Thus, all commands implement checks to safely handle erroneous duplicates.
 function Interface:_OnInvitedToParty(partyID, username)
+    local party = self.parties[partyID]
+    if party and party.invites[username] then
+        return
+    end
+
     if username == self.myUserName then
         self.parties[partyID] = { invites = { [username] = true }, members = {} }
     else
-        self.parties[partyID].invites[username] = true
+        party.invites[username] = true
     end
 
     self:_CallListeners("OnInvitedToParty", partyID, username)
@@ -69,16 +83,15 @@ Interface.commands["s.party.invited_to_party"] = Interface._OnInvitedToParty
 Interface.commandPattern["s.party.invited_to_party"] = "(%S+)%s(%S+)"
 
 function Interface:_OnPartyInviteCancelled(partyID, username)
-    if not self.parties[partyID] then
-        -- when the last member leaves a party, it is destroyed.
-        -- We then receive a cancel message for each invite, so we'll no-op that case.
+    local party = self.parties[partyID]
+    if not (party and party.invites[username]) then
         return
-    end
+    end 
 
     if username == self.myUserName then
         self.parties[partyID] = nil
     else
-        self.parties[partyID].invites[username] = nil
+        party.invites[username] = nil
     end
 
     self:_CallListeners("OnPartyInviteCancelled", partyID, username)
@@ -86,21 +99,19 @@ end
 Interface.commands["s.party.invite_cancelled"] = Interface._OnPartyInviteCancelled
 Interface.commandPattern["s.party.invite_cancelled"] = "(%S+)%s(%S+)"
 
--- Warning: Duplicates of this message might be received,
--- so it's important the implementation can handle that.
--- Ideally that would be fixed server-side, but we're
--- trying to conserve effort on this feature.
 function Interface:_OnJoinedParty(partyID, username)
-    if self.parties[partyID] and self.parties[partyID].members[username] then
+    local party = self.parties[partyID]
+    if party and party.members[username] then
         return
     end
 
     if username == self.myUserName then
-        self.parties[partyID] = self.parties[partyID] or { invites = {}, members = {} }
+        party = party or { invites = {}, members = {} }
+        self.parties[partyID] = party
         self.myPartyID = partyID
     end
-    self.parties[partyID].invites[username] = nil
-    self.parties[partyID].members[username] = true
+    party.invites[username] = nil
+    party.members[username] = true
 
     self:_CallListeners("OnJoinedParty", partyID, username)
 end
@@ -108,6 +119,9 @@ Interface.commands["s.party.joined_party"] = Interface._OnJoinedParty
 Interface.commandPattern["s.party.joined_party"] = "(%S+)%s(%S+)"
 
 function Interface:_OnLeftParty(partyID, username)
+    local party = self.parties[partyID]
+    if not (party and party.members[username]) then return end
+
     local partyDestroyed
 
     if username == self.myUserName then
@@ -116,9 +130,9 @@ function Interface:_OnLeftParty(partyID, username)
 
         partyDestroyed = true
     else
-        self.parties[partyID].members[username] = nil
+        party.members[username] = nil
 
-        if not next(self.parties[partyID].members) then
+        if not next(party.members) then
             self.parties[partyID] = nil
             partyDestroyed = true
         end
