@@ -254,7 +254,7 @@ function playlistBuild()
 	end
 
 	for i = 1,1000 do
-		if Spring.GetConfigInt('UseSoundtrackAprilFools', 1) == 1 and ((tonumber(os.date("%m")) == 4 and tonumber(os.date("%d")) == 1) or (tonumber(os.date("%m")) == 4 and tonumber(os.date("%d")) <= 3 and math.random() <= 0.25)) then -- April Fools event
+		if Spring.GetConfigInt('UseSoundtrackAprilFools', 1) == 1 and ((tonumber(os.date("%m")) == 4 and tonumber(os.date("%d")) == 1) or (tonumber(os.date("%m")) == 4 and tonumber(os.date("%d")) <= 7 and math.random() <= 0.25)) then -- April Fools event
 			openTrack = aprilfoolsTrackList[math.random(1,#aprilfoolsTrackList)]
 		elseif tonumber(os.date("%m")) == 12 and tonumber(os.date("%d")) >= 12 then -- Xmas event
 			openTrack = xmasTrackList[math.random(1,#xmasTrackList)]
