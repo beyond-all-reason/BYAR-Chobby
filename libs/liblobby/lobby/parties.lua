@@ -57,7 +57,6 @@ function Interface:CancelInviteToMyParty(username, successCallback, errorCallbac
 end
 
 function Interface:_OnInvitedToParty(partyID, username)
-    self.parties = self.parties or {}
     if username == self.myUserName then
         self.parties[partyID] = { invites = { [username] = true }, members = {} }
     else
