@@ -168,6 +168,7 @@ function widget:ActivateMenu()
 		return
 	end
 	-- start playing music again
+	playlistBuild()
 	local newTrack = GetRandomTrack(previousTrack)
 	StartTrack(newTrack)
 	previousTrack = newTrack
@@ -189,8 +190,7 @@ function tableshuffle(sequence, firstIndex) -- doesn't seem like Chobby has comm
 	end
 end
 
-function widget:Initialize()
-
+function playlistBuild()
 	math.randomseed( math.ceil(os.clock()*1000000) )
 	math.random(); math.random(); math.random()
 	Spring.Echo("RANDOMSEED", math.ceil(os.clock()*1000000))
@@ -272,6 +272,10 @@ function widget:Initialize()
 			peaceTracksIndex = 1
 		end
 	end
+end
+
+function widget:Initialize()
+	playlistBuild()
 
 	local Configuration = WG.Chobby.Configuration
 
