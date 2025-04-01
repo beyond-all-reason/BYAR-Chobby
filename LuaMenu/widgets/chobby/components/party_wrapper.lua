@@ -5,9 +5,12 @@ PartyWrapper.ROW_HEIGHT = 22
 function PartyWrapper:init(parent, partyID)
     self.rows = {}
     self.inviteRows = {}
-    self.parent = parent
+    self.actionButtons = {}
     self.rowCount = 0
     self.inviteRowCount = 0
+    self.actionButtonCount = 0
+    
+    self.parent = parent
     self.partyID = partyID
 
     self.wrapper = Control:New{
@@ -32,11 +35,36 @@ function PartyWrapper:TotalHeight()
 end
 
 function PartyWrapper:ContentHeight()
-    return (self.rowCount + self.inviteRowCount + (self:ShouldShowInviteTip() and 1 or 0)) * PartyWrapper.ROW_HEIGHT
+    return math.max(self.actionButtonCount, (self.rowCount + self.inviteRowCount + (self:ShouldShowInviteTip() and 1 or 0))) * PartyWrapper.ROW_HEIGHT
 end
 
 function PartyWrapper:ShouldShowInviteTip()
     return self.rowCount == 1 and self.inviteRowCount == 0 and self.rows[lobby.myUserName]
+end
+
+function PartyWrapper:AddActionButton(caption, classname, action)
+    self.actionButtonCount = self.actionButtonCount + 1
+    self.actionButtons[self.actionButtonCount] = Button:New{
+        caption = caption,
+        classname = classname,
+        OnClick = { action },
+
+        right = 0,
+        width = PartyWindow.BUTTON_WIDTH,
+        y = PartyWrapper.ROW_HEIGHT * (self.actionButtonCount - 1) + 1,
+        parent = self.wrapper,
+    }
+    self:UpdateLayout()
+end
+
+function PartyWrapper:ClearActionButtons()
+    for _, actionButton in ipairs(self.actionButtons) do
+        actionButton:Dispose()
+    end
+    self.actionButtons = {}
+    self.actionButtonCount = 0
+
+    self:UpdateLayout()
 end
 
 function PartyWrapper:UpdateLayout()

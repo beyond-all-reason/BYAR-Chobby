@@ -24,6 +24,16 @@ function Interface:AcceptInviteToParty(partyID, successCallback, errorCallback)
     self:_SendCommand("c.party.accept_invite_to_party " .. partyID)
 end
 
+function Interface:DeclineInviteToParty(partyID, successCallback, errorCallback)
+    table.insert(self.commandsAwaitingResponse, {
+        cmd = "c.party.decline_invite_to_party",
+        successCallback = successCallback and function() successCallback() end,
+        errorCallback = errorCallback and function(tags) errorCallback(getTag(tags, "msg")) end
+    })
+
+    self:_SendCommand("c.party.decline_invite_to_party " .. partyID)
+end
+
 function Interface:LeaveMyCurrentParty(successCallback, errorCallback)
     table.insert(self.commandsAwaitingResponse, {
         cmd = "c.party.leave_current_party",

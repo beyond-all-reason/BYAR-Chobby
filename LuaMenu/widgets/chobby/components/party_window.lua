@@ -169,63 +169,52 @@ function PartyWindow:LeftParty(partyID, username, partyDestroyed)
     self:UpdateLayout()
 end
 function PartyWindow:JoinedParty(partyID, username)
-    if username == lobby.myUserName then
-        self.partyWrappers[partyID] = self.partyWrappers[partyID] or PartyWrapper(self.window, partyID)
-        if self.partyWrappers[partyID].acceptInviteButton then
-            self.partyWrappers[partyID].acceptInviteButton:Dispose()
-            self.partyWrappers[partyID].acceptInviteButton = nil
-        end
-        Button:New {
-            caption = "Leave Party",
-            parent = self.partyWrappers[partyID].wrapper,
-            width = PartyWindow.BUTTON_WIDTH,
-            right = 0,
-            y = 0,
-            classname = "negative_button",
-            OnClick = {
-                function()
-                    self:LeaveMyCurrentParty()
-                end
-            }
-        }
+    local partyWrapper = self.partyWrappers[partyID] or PartyWrapper(self.window, partyID)
 
-        self.partyWrappers[partyID].wrapper:SetPos(0, PartyWindow.CONTENT_Y_OFFSET + PartyWindow.SECTION_HEADER_HEIGHT + PartyWindow.MINOR_SPACING)
-        self.partyWrappers[partyID].wrapper:Show()
+    if username == lobby.myUserName then
+        partyWrapper:ClearActionButtons()
+        partyWrapper:AddActionButton("Leave Party", "negative_button", function() self:LeaveMyCurrentParty() end)
+
+        partyWrapper.wrapper:SetPos(0, PartyWindow.CONTENT_Y_OFFSET + PartyWindow.SECTION_HEADER_HEIGHT + PartyWindow.MINOR_SPACING)
+        partyWrapper.wrapper:Show()
         self.yourPartyLabel:Show()
     end
-
-    self.partyWrappers[partyID]:RemoveInvite(username)
-    self.partyWrappers[partyID]:AddMember(username)
-
+    
+    partyWrapper:RemoveInvite(username)
+    partyWrapper:AddMember(username)
+    
+    self.partyWrappers[partyID] = partyWrapper
     self:UpdateLayout()
 end
 function PartyWindow:InvitedToParty(partyID, username)
     if username == lobby.myUserName then
         self.partyWrappers[partyID] = PartyWrapper(self.window, partyID)
-        self.partyWrappers[partyID].acceptInviteButton = Button:New{
-            caption = "Accept invite",
-            classname = "positive_button",
-            right = 0,
-            width = PartyWindow.BUTTON_WIDTH,
-            parent = self.partyWrappers[partyID].wrapper,
-            OnClick = {
-                function() 
-                    if lobby.myPartyID then
-                        self:LeaveMyCurrentParty()
-                    end
-                    lobby:AcceptInviteToParty(
-                        partyID, 
-                        nil, 
-                        function(errorMessage)
-                            ErrorPopup(i18n("error_party_accept_invite_failed", { error_message = errorMessage }))
-                        end
-                    )
+        self.partyWrappers[partyID]:AddActionButton("Accept invite", "positive_button", function() 
+            if lobby.myPartyID then
+                self:LeaveMyCurrentParty()
+            end
+            lobby:AcceptInviteToParty(
+                partyID,
+                nil, 
+                function(errorMessage)
+                    ErrorPopup(i18n("error_party_accept_invite_failed", { error_message = errorMessage }))
                 end
-            }
-        }
+            )
+        end)
+
+        self.partyWrappers[partyID]:AddActionButton("Decline invite", "negative_button",
+            function() 
+                lobby:DeclineInviteToParty(
+                    partyID,
+                    nil, 
+                    function(errorMessage)
+                        ErrorPopup(i18n("error_party_decline_invite_failed", { error_message = errorMessage }))
+                    end
+                )
+            end
+        )
 
         self.partyWrappers[partyID].wrapper:Show()
-
         self.invitesLabel:Show()
     else
         self.partyWrappers[partyID]:AddInvite(username)
