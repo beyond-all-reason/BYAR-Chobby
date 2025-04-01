@@ -1,7 +1,6 @@
--- Sometimes this gets cached, hence the variable..
-local ENABLED = false
+-- Seems unwise to make this a GUI setting, even if it's Dev-only...
+-- I wonder if there's a good way to have local overrides without it being tracked by Git.
 local AUTO_QUIT_ON_FINISH = false
-local REPLAY_START_TIME = 1.0
 
 function widget:GetInfo()
 	return {
@@ -11,46 +10,57 @@ function widget:GetInfo()
 		date = "",
 		license = "",
 		layer = 99999,
-		enabled = ENABLED
+		enabled = true
 	}
 end
 
-if ENABLED then
-
 VFS.Include("libs/json.lua")
-local startClock
+
+local Configuration
+local lobby
+
+local enabled = false
 
 function widget:Initialize()
-	Spring.Echo("===Command replay initialized===")
 	lobby = WG.LibLobby.lobby
-
-	startClock = os.clock()
 end
 
-local executed = false
-function widget:Update()
-	if executed then
-		if AUTO_QUIT_ON_FINISH then
-			Spring.Quit()
-		end
+function widget:Initialize()
+	lobby = WG.LibLobby.lobby
+	WG.Delay(function()
+		Configuration = WG.Chobby.Configuration
+		SetState(Configuration.replayServerCommands)
+
+		Configuration:AddListener("OnConfigurationChange",
+			function(listener, key, value)
+				if key == "replayServerCommands" then
+					SetState(value)
+				end
+			end
+		)
+	end, 0.1)
+end
+
+function SetState(value)
+	if enabled == value then
 		return
 	end
+	enabled = value
 
-	-- Give it some time to load the lobby before streaming commands
-	if os.clock() - startClock < REPLAY_START_TIME then
-		return
-	end
+	if enabled then
+		Spring.Echo("===Command replay starting...===")
 
-	executed = true
-
-	if STREAM_COMMANDS then
 		cmds = json.decode(VFS.LoadFile("commands.json"))
-		Spring.Echo("Commands: " .. tostring(#cmds))
+		Spring.Echo("Total commands: " .. tostring(#cmds))
 
 		for i, v in ipairs(cmds) do
 			lobby:CommandReceived(v)
 		end
-	end
-end
 
+		if AUTO_QUIT_ON_FINISH then
+			Spring.Quit()
+		end
+	else
+		Spring.Echo("===Command capture disabled===")
+	end
 end
