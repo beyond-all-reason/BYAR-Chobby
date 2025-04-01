@@ -89,10 +89,26 @@ return {
 		start_download = 'Start download',
 		download_noun = 'Download',
 		friends = 'Friends',
+
+		----------------------
+		-- Non-Zero-k parties
 		parties = 'Parties',
+
 		party_status_invite = 'Invite pending',
 		party_status_member = 'Partied',
+
+		your_party_title = "Your party",
+		your_party_invites = "Your invites:",
+		parties_require_login = "(Requires login)",
+
+		create_new_party = "Create party",
+		leave_my_party = "Leave party",
+		accept_party_invite = "Accept invite",
+		decline_party_invite = "Decline invite",
+
 		how_to_invite_to_party = "Right click a player and select \"Invite to Party\" to invite them to your party",
+		----------------------
+
 		start_verb = 'Start',
 		open_mp_game = "Host Game",
 		searchbar_hint = "Search for lobby, map or player",

@@ -38,11 +38,11 @@ function PartyWindow:init(parent)
         y = PartyWindow.CONTENT_Y_OFFSET,
         objectOverrideFont = WG.Chobby.Configuration:GetFont(1, "parties_require_login", { color = { 0.5, 0.5, 0.5, 1 } }),
         parent = self.window,
-        caption = "(Requires login)"
+        caption = i18n("parties_require_login")
     }
 
     self.createPartyButton = Button:New {
-        caption = "Create Party",
+        caption = i18n("create_new_party"),
         parent = self.window,
         right = 0,
         width = PartyWindow.BUTTON_WIDTH,
@@ -68,13 +68,13 @@ function PartyWindow:init(parent)
 
     self.yourPartyLabel = Label:New {
         y = PartyWindow.CONTENT_Y_OFFSET,
-        caption = "Your Party",
+        caption = i18n("your_party_title"),
         parent = self.window
     }
     self.yourPartyLabel:Hide()
 
     self.invitesLabel = Label:New {
-        caption = "Your Invites:",
+        caption = i18n("your_party_invites"),
         parent = self.window
     }
     self.invitesLabel:Hide()
@@ -173,7 +173,7 @@ function PartyWindow:JoinedParty(partyID, username)
 
     if username == lobby.myUserName then
         partyWrapper:ClearActionButtons()
-        partyWrapper:AddActionButton("Leave Party", "negative_button", function() self:LeaveMyCurrentParty() end)
+        partyWrapper:AddActionButton(i18n("leave_my_party"), "negative_button", function() self:LeaveMyCurrentParty() end)
 
         partyWrapper.wrapper:SetPos(0, PartyWindow.CONTENT_Y_OFFSET + PartyWindow.SECTION_HEADER_HEIGHT + PartyWindow.MINOR_SPACING)
         partyWrapper.wrapper:Show()
@@ -189,7 +189,7 @@ end
 function PartyWindow:InvitedToParty(partyID, username)
     if username == lobby.myUserName then
         self.partyWrappers[partyID] = PartyWrapper(self.window, partyID)
-        self.partyWrappers[partyID]:AddActionButton("Accept invite", "positive_button", function() 
+        self.partyWrappers[partyID]:AddActionButton(i18n("accept_party_invite"), "positive_button", function() 
             if lobby.myPartyID then
                 self:LeaveMyCurrentParty()
             end
@@ -202,7 +202,7 @@ function PartyWindow:InvitedToParty(partyID, username)
             )
         end)
 
-        self.partyWrappers[partyID]:AddActionButton("Decline invite", "negative_button",
+        self.partyWrappers[partyID]:AddActionButton(i18n("decline_party_invite"), "negative_button",
             function() 
                 lobby:DeclineInviteToParty(
                     partyID,
