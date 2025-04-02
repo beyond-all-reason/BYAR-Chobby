@@ -41,10 +41,10 @@ local welcomePanelItems = {
         Header = "Upcoming Events:",
     },
     {
-        Header = "Fight Night Open",
+        Header = "Fight Night - All-Welcome",
         Text = "Casual 1v1 Tournament - practice for Alpha Cup!",
         Time = "2025-04-04T01:00:00",
-        Url = "https://bfn.challonge.com/MS4",
+        Url = "https://bfn.challonge.com/FN1",
         UrlText = "Sign Up",
     },
     {   
