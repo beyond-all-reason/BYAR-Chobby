@@ -41,11 +41,11 @@ local welcomePanelItems = {
         Header = "Upcoming Events:",
     },
     {
-        Header = "BAR Academy Live",
-        Text = "1v1 Replay reviews with BARCast and Neb",
-        Time = "2025-04-02T01:00:00",
-        Url = "https://twitch.tv/BeyondAllReasonOfficial",
-        UrlText = "Watch Here",
+        Header = "Fight Night Open",
+        Text = "Casual 1v1 Tournament - practice for Alpha Cup!",
+        Time = "2025-04-04T01:00:00",
+        Url = "https://bfn.challonge.com/MS4",
+        UrlText = "Sign Up",
     },
     {   
         Header = "Dominaticus BAR Open Royale",
