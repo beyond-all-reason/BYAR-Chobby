@@ -1238,8 +1238,11 @@ function Lobby:_OnJoinedBattle(battleID, userName, scriptPassword)
 	end
 	if userName == self:GetMyUserName() then
 		local lastFaction = WG.Chobby.Configuration.lastFactionChoice
-		if lastFaction and lastFaction > 1 then
-			WG.Chobby.Configuration.lastFactionChoice = 0
+		if lastFaction then
+			local sideData = WG.Chobby.Configuration:GetSideById(lastFaction)
+			if sideData and sideData.requiresModoption and (not self.modoptions or self.modoptions[sideData.requiresModoption] ~= "1") then
+				WG.Chobby.Configuration.lastFactionChoice = 0	-- Our default side is Armada
+			end
 		end
 	end
 	local found = false
