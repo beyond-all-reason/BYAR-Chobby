@@ -22,12 +22,16 @@ local previousTrackType = "intro" -- intro or peace
 local loopTrack	-- string trackPath
 local randomTrackList
 local openTrack
-local playedTracks = {}
 local introTracksIndex = 0
 local peaceTracksIndex = 0
 
-local eventType = "none"
-local eventTrackPlayed = false
+local musicDirOriginal 			= 'luamenu/configs/gameconfig/byar/lobbyMusic/original'
+local musicDirEventAprilFools 	= 'luamenu/configs/gameconfig/byar/lobbyMusic/event/aprilfools'
+local musicDirEventXmas 		= 'luamenu/configs/gameconfig/byar/lobbyMusic/event/xmas'
+local musicDirCustom 			= 'music/custom/menu'
+local musicDirCustom2 			= 'music/custom/peace'
+
+local allowedExtensions = "{*.ogg,*.mp3}"
 
 local easterEggCountdown = Spring.GetConfigInt('ChobbyLaunchesCount', 0) + 1 -- Don't play easter egg intro song for first few launches to not make weird first impression
 Spring.SetConfigInt('ChobbyLaunchesCount', easterEggCountdown)
@@ -47,23 +51,12 @@ local function GetRandomTrack(previousTrack)
 			end
 			nextTrack = peaceTrackList[peaceTracksIndex]
 		elseif (previousTrackType == "peace" or (not peaceTrackList[1])) and introTrackList[1] then -- we're checking if there are any intro tracks
-			if Spring.GetConfigInt('UseSoundtrackAprilFools', 1) == 1 and (math.random() <= 0.25 and (tonumber(os.date("%m")) == 4 and tonumber(os.date("%d")) <= 7 and math.random() <= 0.25)) then
-				nextTrack = aprilfoolsTrackList[math.random(#aprilfoolsTrackList)]
-				trackType = "intro"
-			elseif Spring.GetConfigInt('UseSoundtrackAprilFoolsPostEvent', 0) == 1 and (math.random() <= 0.1 and (not (tonumber(os.date("%m")) == 4 and tonumber(os.date("%d")) <= 7 and math.random() <= 0.25))) then
-				nextTrack = aprilfoolsTrackList[math.random(#aprilfoolsTrackList)]
-				trackType = "intro"
-			elseif math.random() <= 0.1 and (tonumber(os.date("%m")) == 12 and tonumber(os.date("%d")) >= 12) then
-				nextTrack = xmasTrackList[math.random(#xmasTrackList)]
-				trackType = "intro"
-			else
-				trackType = "intro"
-				introTracksIndex = introTracksIndex + 1
-				if not introTrackList[introTracksIndex] then
-					introTracksIndex = 1
-				end
-				nextTrack = introTrackList[introTracksIndex]
+			trackType = "intro"
+			introTracksIndex = introTracksIndex + 1
+			if not introTrackList[introTracksIndex] then
+				introTracksIndex = 1
 			end
+			nextTrack = introTrackList[introTracksIndex]
 		end
 
 		if nextTrack and trackType then
@@ -199,29 +192,30 @@ function playlistBuild()
 	Spring.Echo("RANDOMSEED", math.ceil(os.clock()*1000000))
 
 	randomTrackList = {}
-	aprilfoolsTrackList = {}
-	local originalSoundtrackEnabled = Spring.GetConfigInt('UseSoundtrackNew', 1)
-	local customSoundtrackEnabled	= Spring.GetConfigInt('UseSoundtrackCustom', 1)
-	local allowedExtensions = "{*.ogg,*.mp3}"
 
 	-- Original Soundtrack List
-	if originalSoundtrackEnabled == 1 then
-		local musicDirOriginal 		= 'luamenu/configs/gameconfig/byar/lobbyMusic/original'
+	if Spring.GetConfigInt('UseSoundtrackNew', 1) == 1 then
 		randomTrackList = playlistMerge(randomTrackList, VFS.DirList(musicDirOriginal, allowedExtensions))
-	end
-	if true then
-		local musicDirEventAprilFools = 'luamenu/configs/gameconfig/byar/lobbyMusic/event/aprilfools'
-		aprilfoolsTrackList = VFS.DirList(musicDirEventAprilFools, allowedExtensions)
 
-		local musicDirEventXmas = 'luamenu/configs/gameconfig/byar/lobbyMusic/event/xmas'
-		xmasTrackList = VFS.DirList(musicDirEventXmas, allowedExtensions)
+		-- April Fools
+		if Spring.GetConfigInt('UseSoundtrackAprilFools', 1) == 1 and (tonumber(os.date("%m")) == 4 and tonumber(os.date("%d")) <= 7) then
+			randomTrackList = playlistMerge(randomTrackList, VFS.DirList(musicDirEventAprilFools, allowedExtensions))
+			customIntroTrack = VFS.DirList(musicDirEventAprilFools, allowedExtensions)[math.random(1,#VFS.DirList(musicDirEventAprilFools, allowedExtensions))]
+		end
+		if Spring.GetConfigInt('UseSoundtrackAprilFoolsPostEvent', 0) == 1 and (not (tonumber(os.date("%m")) == 4 and tonumber(os.date("%d")) <= 7)) then
+			randomTrackList = playlistMerge(randomTrackList, VFS.DirList(musicDirEventAprilFools, allowedExtensions))
+		end
+
+		-- Xmas
+		if (tonumber(os.date("%m")) == 12 and tonumber(os.date("%d")) >= 12) then
+			randomTrackList = playlistMerge(randomTrackList, VFS.DirList(musicDirEventXmas, allowedExtensions))
+			customIntroTrack = VFS.DirList(musicDirEventXmas, allowedExtensions)[math.random(1,#VFS.DirList(musicDirEventXmas, allowedExtensions))]
+		end
 	end
 
 	-- Custom Soundtrack List
-	if customSoundtrackEnabled == 1 then
-		local musicDirCustom 		= 'music/custom/menu'
+	if Spring.GetConfigInt('UseSoundtrackCustom', 1) == 1 then
 		randomTrackList = playlistMerge(randomTrackList, VFS.DirList(musicDirCustom, allowedExtensions))
-		local musicDirCustom2 		= 'music/custom/peace'
 		randomTrackList = playlistMerge(randomTrackList, VFS.DirList(musicDirCustom2, allowedExtensions))
 	end
 
@@ -245,7 +239,8 @@ function playlistBuild()
 
 	tableshuffle(introTrackList)
 	tableshuffle(peaceTrackList)
-
+	
+	--[[
 	Spring.Echo("Intro Tracks")
 	for _, file in pairs(introTrackList) do
 		Spring.Echo(file)
@@ -255,14 +250,12 @@ function playlistBuild()
 	for _, file in pairs(peaceTrackList) do
 		Spring.Echo(file)
 	end
+	]]
 
 	for i = 1,1000 do
-		if Spring.GetConfigInt('UseSoundtrackAprilFools', 1) == 1 and ((tonumber(os.date("%m")) == 4 and tonumber(os.date("%d")) == 1) or (tonumber(os.date("%m")) == 4 and tonumber(os.date("%d")) <= 7 and math.random() <= 0.75)) then -- April Fools event
-			openTrack = aprilfoolsTrackList[math.random(1,#aprilfoolsTrackList)]
-		elseif tonumber(os.date("%m")) == 12 and tonumber(os.date("%d")) >= 12 then -- Xmas event
-			openTrack = xmasTrackList[math.random(1,#xmasTrackList)]
-		elseif Spring.GetConfigInt('UseSoundtrackAprilFoolsPostEvent', 0) == 1 and math.random() <= 0.25 and (not (tonumber(os.date("%m")) == 4 and tonumber(os.date("%d")) <= 7 )) then
-			openTrack = aprilfoolsTrackList[math.random(1,#aprilfoolsTrackList)]
+		if customIntroTrack then
+			openTrack = customIntroTrack
+			break
 		end
 		if openTrack then
 			break
@@ -275,6 +268,9 @@ function playlistBuild()
 		else
 			openTrack = peaceTrackList[1]
 			peaceTracksIndex = 1
+		end
+		if openTrack then
+			break
 		end
 	end
 end
