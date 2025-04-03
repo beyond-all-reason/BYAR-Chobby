@@ -50,7 +50,7 @@ local welcomePanelItems = {
     {   
         Header = "Dominaticus BAR Open Royale",
         Text = "All-Welcome 4v4 Tournament",
-        Time = "2025-04-05T14:00:00",
+        Time = "2025-04-06T13:00:00",
         Url = "https://form.jotform.com/250542038778058",
         UrlText = "Sign Up",
     },
