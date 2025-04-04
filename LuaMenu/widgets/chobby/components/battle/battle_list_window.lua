@@ -1290,6 +1290,7 @@ function BattleListWindow:OpenHostWindow()
 		['Host[US2]'] = {limit = 60,  current = 0, online = false, priority = 1.0, region = 'US', location = "Chicago"},
 		['Host[US3]'] = {limit = 80,  current = 0, online = false, priority = 1.0, region = 'US', location = "St. Louis"},
 		['Host[US4]'] = {limit = 150, current = 0, online = false, priority = 0.3, region = 'US', location = "Seattle"}, -- Seems to see more cpu steal than the rest
+		['Host[US5]'] = {limit = 150, current = 0, online = false, priority = 1.0, region = 'US', location = "Chicago"}, -- Seems to see more cpu steal than the rest
 
 		['Host[EA1]'] = {limit = 100, current = 0, online = false, priority = 1.0, region = 'EA', location = "HK"}, -- Seems to see more cpu steal than the rest
 	}
