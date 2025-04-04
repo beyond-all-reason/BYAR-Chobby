@@ -205,9 +205,18 @@ local function GetUserComboBoxOptions(userName, isInBattle, control, showTeamCol
 	local bossed = info.battleID and control.lobby.battles[info.battleID] and control.lobby.battles[info.battleID].bossed
 	local validEngine = info.battleID and control.lobby.battles[info.battleID] and (Configuration.displayBadEngines2 or Configuration:IsValidEngineVersion(control.lobby.battles[info.battleID].engineVersion))
 
+	local inMyParty, invitedToMyParty
+	if control.lobby.myPartyID then
+		local myParty = control.lobby.parties[control.lobby.myPartyID]
+		inMyParty = myParty.members[userName] ~= nil
+		invitedToMyParty = myParty.invites[userName] ~= nil
+	end
+
 	if not (itsme or bs.aiLib) then																					comboOptions[#comboOptions + 1] = "Message" end
 	if isInBattle and not (itsme or bs.aiLib or info.isBot) then													comboOptions[#comboOptions + 1] = "Ring" end
 	if not (itsme or bs.aiLib or isInBattle) and info.battleID and validEngine then									comboOptions[#comboOptions + 1] = "Join Battle" end
+	if not (itsme or inMyParty or invitedToMyParty or info.isBot or bs.aiLib) then									comboOptions[#comboOptions + 1] = "Invite to Party" end
+	if not (itsme) and invitedToMyParty then																		comboOptions[#comboOptions + 1] = "Cancel Party Invite" end
 	if not (itsme or bs.aiLib or info.isBot) then																	comboOptions[#comboOptions + 1] = info.isFriend and "Unfriend" or "Friend"
 									  if info.isDisregarded and info.isDisregarded == Configuration.IGNORE then     comboOptions[#comboOptions + 1] = "Unignore"
 																													comboOptions[#comboOptions + 1] = "Avoid"
@@ -485,6 +494,27 @@ local function UpdateUserControlStatus(userName, userControls)
 	end
 end
 
+local function UpdateVisualPartyStatus(userControls)
+	if userControls.partyStatus and userControls.showPartyStatus and userControls.showPartyStatus[userControls.partyStatus] then
+		if not userControls.tbPartyStatus then
+			userControls.tbPartyStatus = TextBox:New {
+				x = userControls.tbName.x + userControls.nameActualLength + 5,
+				y = userControls.tbName.y,
+				right = 0,
+				bottom = 4,
+				objectOverrideFont = WG.Chobby.Configuration:GetFont(1, "party_invite", {color = {0.5, 0.5, 0.5, 1}}),
+				parent = userControls.mainControl
+			}
+		end
+		userControls.tbPartyStatus:SetText(string.format("(%s)", i18n(userControls.partyStatus)))
+	else
+		if userControls.tbPartyStatus then
+			userControls.tbPartyStatus:Dispose()
+			userControls.tbPartyStatus = nil
+		end
+	end
+end
+
 local function UpdateUserComboboxOptions(_, userName)
 	for i = 1, #userListList do
 		local userList = userListList[i]
@@ -598,6 +628,43 @@ local function OnPartyLeft(listener, partyID, partyUsers)
 	end
 end
 --]]
+
+local function GetPartyStatus(partyID, username)
+	local party = lobby.parties[partyID]
+	if party then
+		if party.members[username] then
+			return "party_status_member"
+		elseif party.invites[username] then
+			return "party_status_invite"
+		end
+	end
+end
+
+
+local function OnPartyStatusUpdate(listener, partyID, username)
+	if lobby.myUserName == username then
+		for name, list in pairs(namedUserList) do
+			for _username, userControls in pairs(list) do
+				userControls.partyStatus = GetPartyStatus(lobby.parties[name] and name or lobby.myPartyID, _username)
+				UpdateVisualPartyStatus(userControls)
+				userControls.mainControl.items = GetUserComboBoxOptions(
+					_username, userControls.isInBattle, userControls, userControls.imTeamColor ~= nil, userControls.imSide ~= nil
+				)
+			end
+		end
+	else
+		for name, list in pairs(namedUserList) do
+			local userControls = list[username]
+			if userControls then
+				userControls.partyStatus = GetPartyStatus(lobby.parties[name] and name or lobby.myPartyID, username)
+				UpdateVisualPartyStatus(userControls)
+				userControls.mainControl.items = GetUserComboBoxOptions(
+					username, userControls.isInBattle, userControls, userControls.imTeamColor ~= nil, userControls.imSide ~= nil
+				)
+			end
+		end
+	end
+end
 
 local function UpdateUserBattleStatus(listener, userName, battleStatusDiff)
 	local Configuration = WG.Chobby.Configuration
@@ -892,6 +959,8 @@ local function GetUserControls(userName, opts)
 	userControls.isSingleplayer     = opts.isSingleplayer or false -- is needed by UpdateUserBattleStatus
 	userControls.replayUserInfo		= opts.replayUserInfo or false
 	userControls.colorizeFriends    = opts.colorizeFriends or false
+	userControls.partyStatus        = opts.partyStatus
+	userControls.showPartyStatus    = opts.showPartyStatus
 
 	local userInfo = userControls.replayUserInfo or userControls.lobby:GetUser(userName) or {}
 	local bs = userControls.replayUserInfo or userControls.lobby:GetUserBattleStatus(userName) or {}
@@ -936,7 +1005,7 @@ local function GetUserControls(userName, opts)
 			--objectOverrideFont = WG.Chobby.Configuration:GetFont(2,{shadow = false}), -- this for some reason allocates a new font object :(
 			itemHeight = 30,
 			selected = 0,
-			maxDropDownWidth = large and 220 or 150,
+			maxDropDownWidth = large and 220 or 170,
 			minDropDownHeight = 0,
 			maxDropDownHeight = 400,
 			items = GetUserComboBoxOptions(userName, isInBattle, userControls, showTeamColor, showSide),
@@ -1008,6 +1077,19 @@ local function GetUserControls(userName, opts)
 					 		WG.BrowserHandler.OpenUrl(Configuration.gameConfig.link_userPage(userInfo.accountID))
 					 	end
 					--]]
+					elseif selectedName == "Invite to Party" then
+						if lobby.myPartyID then
+							lobby:InvitePlayerToMyParty(userName, nil, function(errorMessage) WG.Chobby.ErrorPopup(i18n("error_party_invite_player_failed", { error_message = errorMessage })) end)
+						else
+							lobby:CreateParty(function()
+								lobby:InvitePlayerToMyParty(userName, nil, function(errorMessage) WG.Chobby.ErrorPopup(i18n("error_party_invite_player_failed", { error_message = errorMessage })) end)
+							end,
+							function(errorMessage)
+								WG.Chobby.ErrorPopup(i18n("error_party_invite_player_failed", { error_message = errorMessage }))
+							end)
+						end
+					elseif selectedName == "Cancel Party Invite" then
+						lobby:CancelInviteToMyParty(userName, nil, function(errorMessage) WG.Chobby.ErrorPopup(i18n("error_party_cancel_invite_failed", { error_message = errorMessage })) end)
 					elseif selectedName == "Change Color" then
 						local battleStatus = userControls.lobby:GetUserBattleStatus(userName) or {}
 						if battleStatus.isSpectator then
@@ -1565,6 +1647,7 @@ local function GetUserControls(userName, opts)
 		end
 	end
 
+	UpdateVisualPartyStatus(userControls)
 
 	if autoResize then
 		userControls.mainControl.OnResize = userControls.mainControl.OnResize or {}
@@ -1583,6 +1666,10 @@ local function GetUserControls(userName, opts)
 					userControls.statusImages[i]:SetPos(offset)
 					offset = offset + 21
 				end
+			end
+
+			if userControls.tbPartyStatusInvite then
+				userControls.tbPartyStatusInvite:SetPos(offset)
 			end
 		end
 	end
@@ -1635,7 +1722,7 @@ local function _GetUserDropdownMenu(userName, isInBattle)
 
 	local x,y = Spring.GetMouseState()
 	local screenWidth, screenHeight = Spring.GetWindowGeometry()
-	userControls.mainControl:SetPos(math.max(0, x - 60), screenHeight - y - userControls.mainControl.height + 5, 120)
+	userControls.mainControl:SetPos(math.max(0, x - 60), screenHeight - y - userControls.mainControl.height + 5, 170)
 
 	local function delayFunc()
 		-- Must click on the new ComboBox, otherwise an infinite loop may be caused.
@@ -1755,8 +1842,21 @@ function userHandler.GetDebriefingUser(userName)
 	})
 end
 
-function userHandler.GetPartyUser(userName)
+function userHandler.GetPartyUser(userName, partyID, partyStatus)
+	local partyUsers = namedUserList[partyID]
+	if not partyUsers then
+		partyUsers = {}
+		namedUserList[partyID] = partyUsers
+		userListList[#userListList] = partyUsers
+	end
 	return _GetUser(partyUsers, userName, {
+		showCountry = true,
+		showRank = true,
+		colorizeFriends = true,
+		height = WG.Chobby.PartyWrapper.ROW_HEIGHT,
+		partyStatus = partyStatus,
+		showPartyStatus = { party_status_invite = true },
+		hideStatus = true -- Ideally we'd show this, but it has so much of a hardcoded position that I don't want to change it out for the invite.
 	})
 end
 
@@ -1797,6 +1897,7 @@ function userHandler.GetFriendUser(userName)
 		offsetY          = 6,
 		height           = 80,
 		maxNameLength    = WG.Chobby.Configuration.friendMaxNameLength,
+		showPartyStatus = { party_status_invite = true, party_status_member = true },
 		steamInvite      = true,
 	})
 end
@@ -1853,7 +1954,10 @@ local function AddListeners()
 	--]]
 
 	lobby:AddListener("OnAddUser", UpdateUserActivity)
-	lobby:AddListener("OnRemoveUser", UpdateUserActivity)
+	lobby:AddListener("OnRemoveUser", function(listener, username)
+		UpdateUserActivity(listener, username)
+		OnPartyStatusUpdate(listener, nil, username)
+	end)
 	lobby:AddListener("OnAddUser", UpdateUserCountry)
 	lobby:AddListener("OnUpdateUserBattleStatus", UpdateUserBattleStatus)
 	WG.LibLobby.localLobby:AddListener("OnUpdateUserBattleStatus", UpdateUserBattleStatus)
@@ -1864,6 +1968,19 @@ local function AddListeners()
 	lobby:AddListener("OnJoinedBattle", UpdateUserBattle)
 	lobby:AddListener("OnLeftBattle", UpdateUserBattle)
 
+	lobby:AddListener("OnInvitedToParty", OnPartyStatusUpdate)
+	lobby:AddListener("OnPartyInviteCancelled", OnPartyStatusUpdate)
+	lobby:AddListener("OnJoinedParty", OnPartyStatusUpdate)
+	lobby:AddListener("OnLeftParty", function(listener, partyID, username, partyDestroyed)
+		local partyUsers = namedUserList[partyID]
+		namedUserList[partyID] = nil
+		for i = 1, #namedUserList do
+			if namedUserList[i] == partyUsers then
+				table.remove(namedUserList, i)
+			end
+		end
+		OnPartyStatusUpdate(listener, partyID, username)
+	end)
 end
 
 --------------------------------------------------------------------------------

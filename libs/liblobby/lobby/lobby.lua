@@ -36,6 +36,9 @@ function Lobby:_Clean()
 	self.hasOutgoingFriendRequestsByID = {} -- map
 	self.isDisregardedID = {} -- map
 
+	self.parties = {}
+	self.myPartyID = nil
+
 	self.loginInfoEndSent = false
 	self.userCountLimited = false
 
@@ -75,6 +78,8 @@ function Lobby:_Clean()
 
 	-- reconnection delay in seconds
 	self.reconnectionDelay = 15
+
+	self.commandsAwaitingResponse = {}
 end
 
 function Lobby:_PreserveData()
@@ -682,6 +687,10 @@ function Lobby:_OnRemoveUser(userName)
 	self.userCount = self.userCount - 1 -- this shows: userCount reflects the "online users"
 
 	self.userNamesLC[userName:lower()] = nil
+
+	for partyID, party in pairs(self.parties) do
+		party.invites[userName] = nil
+	end
 
 	self:_CallListeners("OnRemoveUser", userName)
 end
