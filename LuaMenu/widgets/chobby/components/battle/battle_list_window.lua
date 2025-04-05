@@ -1635,7 +1635,7 @@ function BattleListWindow:OpenHostWindow()
 		end
 	end
 
-	local function reenableHost()
+	local function reEnableBtnHost()
 		buttonHost.tooltip = "Request a hosted battle. Please be patient while the lobby spins up."
 		buttonHost.suppressButtonReaction = false
 		buttonHost:SetEnabled(true)
@@ -1652,7 +1652,7 @@ function BattleListWindow:OpenHostWindow()
 		buttonHost:SetEnabled(false)
 		buttonHost.OnClick = {}
 		HostBattle()
-		WG.Delay(reenableHost, 15)
+		WG.Delay(reEnableBtnHost, 15)
 	end
 
 	buttonHost = Button:New {

@@ -453,7 +453,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 	}
 	registerChildren[#registerChildren + 1] = self.txtErrorRegister
 
-	local function reenablebtnLogin()
+	local function reEnableBtnLogin()
 		self.btnLogin.tooltip = nil
 		self.btnLogin.suppressButtonReaction = false
 		self.btnLogin:SetEnabled(true)
@@ -470,7 +470,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		self.btnLogin:SetEnabled(false)
 		self.btnLogin.OnClick = {}
 		self:MayBeDisconnectBeforeTryLogin()
-		WG.Delay(reenablebtnLogin, 5)
+		WG.Delay(reEnableBtnLogin, 5)
 	end
 
 	self.btnLogin = Button:New {
