@@ -470,7 +470,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		self.btnLogin:SetEnabled(false)
 		self.btnLogin.OnClick = {}
 		self:MayBeDisconnectBeforeTryLogin()
-		WG.Delay(reEnableBtnLogin, 5)
+		WG.Delay(reEnableBtnLogin, 20)
 	end
 
 	self.btnLogin = Button:New {
