@@ -33,18 +33,11 @@ local welcomePanelItems = {
         Header = "Upcoming Events:",
     },
     {
-        Header = "Fight Night Open",
-        Text = "Casual 1v1 Tournament - practice for Alpha Cup!",
-        Time = "2025-04-04T01:00:00",
-        Url = "https://bfn.challonge.com/FN1",
-        UrlText = "Sign Up",
-    },
-    {   
-        Header = "Dominaticus BAR Open Royale",
-        Text = "All-Welcome 4v4 Tournament",
-        Time = "2025-04-06T13:00:00",
-        Url = "https://form.jotform.com/250542038778058",
-        UrlText = "Sign Up",
+        Header = "BAR Academy Live! - 1v1 Replay Reviews",
+        Text = "1v1 Replay reviews with BARCast and neb_",
+        Time = "2025-04-08T17:00:00",
+        Url = "https://twitch.tv/BeyondAll",
+        UrlText = "Watch Here!",
     },
     {   
         Header = "Alpha Cup V 2025",
