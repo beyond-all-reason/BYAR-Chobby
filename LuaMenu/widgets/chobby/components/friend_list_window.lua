@@ -293,7 +293,7 @@ function FriendListWindow:init(parent)
 
 	if WG.Chobby.Configuration.addFriendWindowButton then
 		local addFriendEditBox = EditBox:New {
-			right = 440,
+			right = 295,
 			width = 130,
 			y = 15,
 			height = 30,
@@ -306,7 +306,7 @@ function FriendListWindow:init(parent)
 		}
 
 		local addFriendButton = Button:New {
-			right = 310,
+			right = 165,
 			width = 120,
 			y = 15,
 			height = 30,
@@ -324,7 +324,7 @@ function FriendListWindow:init(parent)
 	end
 
 	self.checkOnlineOnly = Checkbox:New {
-		right = 165,
+		right = 20,
 		width = 120,
 		y = 15,
 		height = 30,
@@ -338,23 +338,6 @@ function FriendListWindow:init(parent)
 		end},
 		parent = self.window,
 		tooltip = "Shows online friends only",
-	}
-
-	self.makePartyButton = Button:New {
-		right = 20,
-		width = 120,
-		y = 15,
-		height = 30,
-		caption = "Make Party",
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
-		classname = "option_button",
-		parent = self.window,
-		tooltip = "Opens the party manager on BAR server website in your browser",
-		OnClick = {
-			function()
-				WG.BrowserHandler.OpenUrl("https://server4.beyondallreason.info/teiserver/account/parties")
-			end
-		},
 	}
 
 	self.btnSteamFriends:SetVisibility(Configuration.canAuthenticateWithSteam)
