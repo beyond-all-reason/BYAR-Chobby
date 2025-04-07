@@ -15,20 +15,12 @@ local welcomePanelItems = {
         Text = "Welcome back Commander. We hope you are ready for epic Singleplayer and Multiplayer battles. Check out our Discord and join the community!\n",
     },
     {
-        Header = "Beyond All Reason: Season 2 | Balance patch and a ton of great news",
-        Text = " \n" .. "Beyond All Reason kicks off 2025 with a massive Seasonal Update! New balance changes, rating adjustments, maps, and the highly anticipated Alpha Cup 2025. Join the battle and shape the future of BAR!",
-        Image = "LuaMenu/images/welcomepanel/season2small.png",
-        Time = "2025-03-23T11:00:00",
-        Url = "https://www.beyondallreason.info/news/season-2-is-here",
-        UrlText = "Read Announcement",
-    },
-    {
-        Header = "Creative Call to Arms - April Fools Music Edition.",
-        Text = "Are you a music producer yourself? Or maybe you have a friend who is and would like to get some recognition? " .. " \n" .. " \n" .. "Create a remix/cover of any BAR track, or even a mix of BAR themes in a single track, and it might end up featured in the game!\n\nAn unique opportunity for aspiring music artists to shine!" .. " \n" .. " \n" .. "You have to be quick though, You only have a few days!",
-        Image = "LuaMenu/images/welcomepanel/BAR OST.png",
-        Url = "https://discord.com/channels/549281623154229250/697141979892416512/1354571123207180418",
-        UrlText = "Announcement on Discord",
-        Time = "2025-04-01T06:00:00",
+        Header = "Alpha Cup V 2025",
+        Text =" \n" .. "Join us for an epic weekend of 1v1 madness as we crown the new 1v1 champion!" .. " \n" .. " \n" .. "All are welcome - let's make this the biggest Alpha Cup yet!",
+        Image = "LuaMenu/images/AlphaCupV.png",
+        Time = "2025-04-12T16:00:00",
+        Url = "https://challonge.com/eb74xb0p",
+        UrlText = "Sign Up"
     },
     {
         Header = "We need you! Creative Call to Arms Vol.2",
@@ -46,13 +38,6 @@ local welcomePanelItems = {
         Time = "2025-04-08T17:00:00",
         Url = "https://twitch.tv/BeyondAll",
         UrlText = "Watch Here!",
-    },
-    {   
-        Header = "Alpha Cup V 2025",
-        Text = "Crown a new 1v1 Champion! All welcome.",
-        Time = "2025-04-12T16:00:00",
-        Url = "https://challonge.com/eb74xb0p",
-        UrlText = "Sign Up",
     },
     {
         Header = "Apprentice League",
