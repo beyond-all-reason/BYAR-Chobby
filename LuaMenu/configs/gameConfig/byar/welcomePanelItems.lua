@@ -36,7 +36,7 @@ local welcomePanelItems = {
         Header = "BAR Academy Live! - 1v1 Replay Reviews",
         Text = "1v1 Replay reviews with BARCast and neb_",
         Time = "2025-04-08T17:00:00",
-        Url = "https://twitch.tv/BeyondAll",
+        Url = "https://twitch.tv/BeyondAllReasonOfficial",
         UrlText = "Watch Here!",
     },
     {
