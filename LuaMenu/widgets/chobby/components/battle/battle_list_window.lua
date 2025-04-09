@@ -1274,7 +1274,7 @@ function BattleListWindow:OpenHostWindow()
 	-- Enumerate all known clusters and their number of children
 	local regions = {'EU','US','AU','EA'}
 	local clusters = {
-		['Host[AU1]'] = {limit = 80,  current = 0, online = false, priority = 0.2, region = 'AU', location = "Sydney"}, -- lower priority because its at contabo
+		['Host[AU1]'] = {limit = 150,  current = 0, online = false, priority = 1.0, region = 'AU', location = "Sydney"}, -- lower priority because its at contabo
 		['Host[AU2]'] = {limit = 40,  current = 0, online = false, priority = 1.0, region = 'AU', location = "Sydney"}, -- higher priority OVH host
 
 		['Host[EU1]'] = {limit = 120, current = 0, online = false, priority = 0.3, region = 'EU', location = "Frankfurt"}, -- Lower priority because it is on a SSDNodes host, which isnt the best regarding latency 
