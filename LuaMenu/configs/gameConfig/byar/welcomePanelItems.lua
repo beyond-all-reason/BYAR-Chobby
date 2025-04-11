@@ -34,10 +34,19 @@ local welcomePanelItems = {
     },
     {
         Header = "Apprentice League",
-        Text = "Maximum 30 OS 1v1 Tournament",
+        Text = "Maximum 35 OS 1v1 Tournament",
+        Image = "LuaMenu/images/twitchmisc/FightNight.png",
         Time = "2025-04-12T01:00:00",
         Url = "https://discord.gg/YgSUjQpTZe",
         UrlText = "Join the Discord",
+    },
+    {
+        Header = "King of The Hill",
+        Text = "Come join us for our Epic King of the Hill games in Beyond All Reason - hosted by the AllReasonNoLogic crew!",
+        Image = "LuaMenu/images/twitchmisc/KOTH.png",
+        Time = "2025-04-17T11:00:00",
+        Url = "https://.twitch.tv/BeyondAllReasonOfficial",
+        UrlText = "Join the Twitch Stream",
     },
     {
         Header = "New Map: Project SD-129",
