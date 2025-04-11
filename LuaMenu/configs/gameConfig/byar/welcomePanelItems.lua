@@ -19,8 +19,8 @@ local welcomePanelItems = {
         Text =" \n" .. "Join us for an epic weekend of 1v1 madness as we crown the new 1v1 champion!" .. " \n" .. " \n" .. "All are welcome - let's make this the biggest Alpha Cup yet!",
         Image = "LuaMenu/images/AlphaCupV.png",
         Time = "2025-04-12T16:00:00",
-        Url = "https://challonge.com/eb74xb0p",
-        UrlText = "Sign Up"
+        Url = "https://www.beyondallreason.info/news/get-ready-for-the-alpha-cup-v-tournament-info",
+        UrlText = "Read Announcement",
     },
     {
         Header = "We need you! Creative Call to Arms Vol.2",
