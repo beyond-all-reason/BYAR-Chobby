@@ -45,7 +45,7 @@ local welcomePanelItems = {
         Text = "Come join us for our Epic King of the Hill games in Beyond All Reason - hosted by the AllReasonNoLogic crew!",
         Image = "LuaMenu/images/twitchmisc/KOTH.png",
         Time = "2025-04-17T11:00:00",
-        Url = "https://.twitch.tv/BeyondAllReasonOfficial",
+        Url = "https://twitch.tv/BeyondAllReasonOfficial",
         UrlText = "Join the Twitch Stream",
     },
     {
