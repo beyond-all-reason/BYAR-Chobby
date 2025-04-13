@@ -15,14 +15,6 @@ local welcomePanelItems = {
         Text = "Welcome back Commander. We hope you are ready for epic Singleplayer and Multiplayer battles. Check out our Discord and join the community!\n",
     },
     {
-        Header = "Alpha Cup V 2025",
-        Text =" \n" .. "Join us for an epic weekend of 1v1 madness as we crown the new 1v1 champion!" .. " \n" .. " \n" .. "All are welcome - let's make this the biggest Alpha Cup yet!",
-        Image = "LuaMenu/images/AlphaCupV.png",
-        Time = "2025-04-13T16:00:00",
-        Url = "https://www.beyondallreason.info/news/get-ready-for-the-alpha-cup-v-tournament-info",
-        UrlText = "Read Announcement",
-    },
-    {
         Header = "We need you! Creative Call to Arms Vol.2",
         Text = "We’re now seeking volunteers to design icons for weapon types to enhance the game’s visual identity. We need icons for weapon stats like Ground to Air, Air to Ground, Damage, Burst, Reload Time, and more. " .. " \n" .. " \n" .. "Let's create something awesome together! Check #concept-art channel on Discord for more details (needs Development role).",
         Image = "LuaMenu/images/welcomepanel/CTA2.png",
@@ -33,14 +25,6 @@ local welcomePanelItems = {
         Header = "Upcoming Events:",
     },
     {
-        Header = "King of The Hill",
-        Text = "Come join us for our Epic King of the Hill games in Beyond All Reason - hosted by the AllReasonNoLogic crew!",
-        Image = "LuaMenu/images/twitchmisc/KOTH.png",
-        Time = "2025-04-13T11:00:00",
-        Url = "https://twitch.tv/BeyondAllReasonOfficial",
-        UrlText = "Join the Twitch Stream",
-    },
-    {
         Header = "BAR Academy Live!",
         Text = "Join BARCast and neb_ as they review 1v1 academy tickets live!",
         Time = "2025-04-15T17:00:00",
@@ -48,8 +32,8 @@ local welcomePanelItems = {
         UrlText = "Watch Live",
     },
     {
-        Header = "Master's League",
-        Text = "Minimum 25 OS 1v1 Tournament",
+        Header = "Apprentice League",
+        Text = "Max 35 OS 1v1 Tournament",
         Image = "LuaMenu/images/twitchmisc/FightNight.png",
         Time = "2025-04-19T17:00:00",
         Url = "https://discord.gg/YgSUjQpTZe",
