@@ -29,6 +29,13 @@ skin.general = {
   --padding         = {5, 5, 5, 5}, --// padding: left, top, right, bottom
 }
 
+skin.party_wrapper = {
+  BackgroundTileImage = ":cl:panel2_bg.png",
+  bkgndtiles = {14,14,14,14},
+
+  DrawControl = DrawBackgroundedControl
+}
+
 skin.button = {
   TileImageBK = ":cl:tech_button_small2_bk.png",
   TileImageFG = ":cl:tech_button_small2_fg.png",

@@ -6,6 +6,8 @@ local includes = {
 	"components/configuration.lua",
 
 	-- basic components
+	"components/party_window.lua",
+	"components/party_wrapper.lua",
 	"components/list_window.lua",
 	"components/console.lua",
 	"components/user_list_panel.lua",
@@ -31,6 +33,7 @@ local includes = {
 	"components/tab_panel_handler.lua",
 	"components/submenu_handler.lua",
 	"components/priority_popup.lua",
+	"components/error_popup.lua",
 	"components/ai_list_window.lua",
 	"components/aioptions_window.lua",
 	"components/game_list_window.lua",
