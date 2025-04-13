@@ -33,14 +33,6 @@ local welcomePanelItems = {
         Header = "Upcoming Events:",
     },
     {
-        Header = "King of The Hill",
-        Text = "Come join us for our Epic King of the Hill games in Beyond All Reason - hosted by the AllReasonNoLogic crew!",
-        Image = "LuaMenu/images/twitchmisc/KOTH.png",
-        Time = "2025-04-13T11:00:00",
-        Url = "https://twitch.tv/BeyondAllReasonOfficial",
-        UrlText = "Join the Twitch Stream",
-    },
-    {
         Header = "BAR Academy Live!",
         Text = "Join BARCast and neb_ as they review 1v1 academy tickets live!",
         Time = "2025-04-15T17:00:00",
@@ -48,8 +40,8 @@ local welcomePanelItems = {
         UrlText = "Watch Live",
     },
     {
-        Header = "Master's League",
-        Text = "Minimum 25 OS 1v1 Tournament",
+        Header = "Apprentice League",
+        Text = "Max 35 OS 1v1 Tournament",
         Image = "LuaMenu/images/twitchmisc/FightNight.png",
         Time = "2025-04-19T17:00:00",
         Url = "https://discord.gg/YgSUjQpTZe",
