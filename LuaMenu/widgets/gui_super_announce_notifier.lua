@@ -18,11 +18,11 @@ end
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 -- Initialization
-local IMG_SUPERANNOUNCE = LUA_DIRNAME .. "images/welcomepanel/season2.png"
-local doNotAskAgainKey = "season2AnnouncePopupSeen" -- change this for new announcement
+local IMG_SUPERANNOUNCE = LUA_DIRNAME .. "images/welcomepanel/alphacupv.png"
+local doNotAskAgainKey = "AlphaCupV" -- change this for new announcement
 
-local enableAnnouncement = false -- this is the actual enable/disable switch
-local announceDate = {0, 0, 11, 23, 3, 2025} -- second, minute, hour, day, month, year (UTC)
+local enableAnnouncement = true -- this is the actual enable/disable switch
+local announceDate = {0, 0, 16, 13, 4, 2025} -- second, minute, hour, day, month, year (UTC)
 
 local function SuperAnnouncePopup()
 	local Configuration = WG.Chobby.Configuration
@@ -59,7 +59,7 @@ local function SuperAnnouncePopup()
 		height = 35,
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(7),
 		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(7),
-		caption = "Beyond All Reason: Season 2 is here!",
+		caption = "Alpha Cup V is Live!",
 		parent = superAnnounceWindow
 	}
 
@@ -84,7 +84,7 @@ local function SuperAnnouncePopup()
 		height = 35,
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
-		text = "A new season has begun and your rank may have changed." .. " \n" .. "This seasonal update brings balance changes featuring a Tier 1 rework, a new look for Supreme Isthmus, a new leaderboard for the season, and adjustments to Tau and uncertainty." .. " \n" .. "Read the official announcement for more details about these changes, including balance patch notes.",
+		text = "Commanders, the moment of truth has arrived. After an intense weekend of high-stakes battles, Alpha Cup V is down to the final four! " .. " \n" .. " \n" .. "Don’t miss the most thrilling Beyond All Reason showdown of the year. Who will be the next champion?",
 		parent = superAnnounceWindow
 	}
 
@@ -97,13 +97,13 @@ local function SuperAnnouncePopup()
 		y = offset,
 		right = "26%",
 		height = 65,
-		caption = "See the final S1 ranks",
+		caption = "Watch on Twitch",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(5),
 		classname = "action_button",
 		padding = {2,4,4,4},
 		OnClick = {
 			function()
-				WG.BrowserHandler.OpenUrl("https://bar-rts.com/leaderboards?season=1")
+				WG.BrowserHandler.OpenUrl("https://www.twitch.tv/beyondallreasonofficial")
 			end
 		},
 		parent = superAnnounceWindow
@@ -121,7 +121,7 @@ local function SuperAnnouncePopup()
 		padding = {2,4,4,4},
 		OnClick = {
 			function()
-				WG.BrowserHandler.OpenUrl("https://www.beyondallreason.info/news/season-2-is-here")
+				WG.BrowserHandler.OpenUrl("https://www.beyondallreason.info/news/get-ready-for-the-alpha-cup-v-tournament-info")
 			end
 		},
 		parent = superAnnounceWindow,
