@@ -35,7 +35,7 @@ local welcomePanelItems = {
     {
         Header = "BAR Academy Live!",
         Text = "Join BARCast and neb_ as they review 1v1 academy tickets live!",
-        Time = "2025-04-15T17:00:00",
+        Time = "2025-04-15T15:00:00",
         Url = "https://twitch.tv/BeyondAllReasonOfficial",
         UrlText = "Watch Live",
     },
