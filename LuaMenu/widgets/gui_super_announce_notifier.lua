@@ -10,7 +10,7 @@ function widget:GetInfo()
 		version   = "1.0",
 		license   = "GNU LGPL, v2.1 or later",
 		layer     = 0,
-		enabled   = true  --  disabling this after enabling won't turn the announcement off 
+		enabled   = false  --  disabling this after enabling won't turn the announcement off 
 	}
 end
 
@@ -21,7 +21,7 @@ end
 local IMG_SUPERANNOUNCE = LUA_DIRNAME .. "images/welcomepanel/alphacupv.png"
 local doNotAskAgainKey = "AlphaCupV" -- change this for new announcement
 
-local enableAnnouncement = true -- this is the actual enable/disable switch
+local enableAnnouncement = false -- this is the actual enable/disable switch
 local announceDate = {0, 0, 16, 13, 4, 2025} -- second, minute, hour, day, month, year (UTC)
 
 local function SuperAnnouncePopup()
