@@ -16,11 +16,10 @@ local welcomePanelItems = {
     },
     {
         Header = "Alpha Cup V 2025",
-        Text =" \n" .. "Join us for an epic weekend of 1v1 madness as we crown the new 1v1 champion!" .. " \n" .. " \n" .. "All are welcome - let's make this the biggest Alpha Cup yet!",
+        Text =" \n" .. "Congratulations to our new 1v1 Champion - Autopilot! In case you missed it, you can still rewatch the Alpha Cup madness on YouTube." .. " \n" .. " \n" .. "Thank you to everyone in the community for making this event happen! At 87 players, this was the biggest Alpha Cup yet!",
         Image = "LuaMenu/images/AlphaCupV.png",
-        Time = "2025-04-13T16:00:00",
-        Url = "https://www.beyondallreason.info/news/get-ready-for-the-alpha-cup-v-tournament-info",
-        UrlText = "Read Announcement",
+        Url = "https://www.youtube.com/watch?v=u-6QLG2leNs&t=3s",
+        UrlText = "Watch the Finals",
     },
     {
         Header = "We need you! Creative Call to Arms Vol.2",
@@ -35,7 +34,8 @@ local welcomePanelItems = {
     {
         Header = "BAR Academy Live!",
         Text = "Join BARCast and neb_ as they review 1v1 academy tickets live!",
-        Time = "2025-04-15T17:00:00",
+        Image = "LuaMenu/images/twitchmisc/MentorsPencil.png",
+        Time = "2025-04-15T15:00:00",
         Url = "https://twitch.tv/BeyondAllReasonOfficial",
         UrlText = "Watch Live",
     },
