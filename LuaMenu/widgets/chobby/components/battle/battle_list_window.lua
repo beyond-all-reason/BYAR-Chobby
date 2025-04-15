@@ -1284,7 +1284,7 @@ function BattleListWindow:OpenHostWindow()
 		['Host[EU5]'] = {limit = 150, current = 0, online = false, priority = 0.1, region = 'EU', location = "Frankfurt"}, -- Further deproiritize because ssdnodes is trash
 		['Host[EU6]'] = {limit = 120, current = 0, online = false, priority = 1.0, region = 'EU', location = "Amsterdam"},
 		['Host[EU7]'] = {limit = 200, current = 0, online = false, priority = 1.0, region = 'EU', location = "Amsterdam"}, -- This runs on integration server, but has plenty of capacity
-		['Host[EU8]'] = {limit = 150, current = 0, online = false, priority = 1.0, region = 'EU', location = "Zurich"}, 
+		['Host[EU8]'] = {limit = 300, current = 0, online = false, priority = 3.0, region = 'EU', location = "Zurich"},    -- TEMPORARILY BUMP CAPACITY FOR SWAP LOAD TEST
 		
 		['Host[US1]'] = {limit = 120, current = 0, online = false, priority = 1.0, region = 'US', location = "Virginia"},
 		['Host[US2]'] = {limit = 50,  current = 0, online = false, priority = 1.0, region = 'US', location = "Chicago"},
