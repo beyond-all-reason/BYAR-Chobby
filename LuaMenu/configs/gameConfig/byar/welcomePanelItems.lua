@@ -16,7 +16,7 @@ local welcomePanelItems = {
     },
     {
         Header = "Alpha Cup V 2025",
-        Text =" \n" .. "Congratulations to our new 1v1 Champion - Autopilot! In case you missed it, you can still rewatch the Alpha Cup madness on YouTube." .. " \n" .. " \n" .. "Thank you to everyone in the community for making this event happen! At 87 players, this was the biggest Alpha Cup yet!",
+        Text =" \n" .. "Congratulations to our new 1v1 Champion - Autopilot! In case you missed it, you can still rewatch the Alpha Cup madness on YouTube." .. " \n" .. " \n" .. "Thank you to everyone in the community for making this event happen! At 87 players, this was the biggest Alpha Cup yet.",
         Image = "LuaMenu/images/AlphaCupV.png",
         Url = "https://www.youtube.com/watch?v=u-6QLG2leNs&t=3s",
         UrlText = "Watch the Finals",
@@ -30,14 +30,6 @@ local welcomePanelItems = {
     },
     {
         Header = "Upcoming Events:",
-    },
-    {
-        Header = "BAR Academy Live!",
-        Text = "Join BARCast and neb_ as they review 1v1 academy tickets live!",
-        Image = "LuaMenu/images/twitchmisc/MentorsPencil.png",
-        Time = "2025-04-15T15:00:00",
-        Url = "https://twitch.tv/BeyondAllReasonOfficial",
-        UrlText = "Watch Live",
     },
     {
         Header = "Apprentice League",
