@@ -32,14 +32,6 @@ local welcomePanelItems = {
         Header = "Upcoming Events:",
     },
     {
-        Header = "BAR Academy Live!",
-        Text = "Join BARCast and neb_ as they review 1v1 academy tickets live!",
-        Image = "LuaMenu/images/twitchmisc/MentorsPencil.png",
-        Time = "2025-04-15T15:00:00",
-        Url = "https://twitch.tv/BeyondAllReasonOfficial",
-        UrlText = "Watch Live",
-    },
-    {
         Header = "Apprentice League",
         Text = "Max 35 OS 1v1 Tournament",
         Image = "LuaMenu/images/twitchmisc/FightNight.png",
