@@ -109,34 +109,39 @@ end
 
 
 local function LoadScenarios()
-	scenarios = {}
-	local files = VFS.DirList("LuaMenu/configs/gameConfig/byar/scenarios/")
-	for i = 1, #files do
-		if string.find(files[i],".lua") and string.find (files[i], "scenario") then
-			local success, error = pcall ( function()
-				local newscen = VFS.Include(files[i])
-				scenarios[#scenarios+1] = newscen
-			end)
+    scenarios = {}
+    local files = VFS.DirList("LuaMenu/configs/gameConfig/byar/scenarios/")
+    for i = 1, #files do
+        if string.find(files[i],".lua") and string.find (files[i], "scenario") and 
+        -- 2025.04.16 : Disable these three scenarios as they crash BARB on load on new engine 2025.03.9:
+            (not string.find(files[i],"scenario018", nil, true)) and
+            (not string.find(files[i],"scenario019", nil, true)) and
+            (not string.find(files[i],"scenario009", nil, true))
+        then
+            local success, error = pcall ( function()
+                local newscen = VFS.Include(files[i])
+                scenarios[#scenarios+1] = newscen
+            end)
 
-			if not success then
-				Spring.Echo("Error: loading scenario ",files[i], error)
-				newscen = {title = "Error " ..files[i] ,
-							scenarioid = "failed to load",
-							index = -1,
-							difficulty = -1,
-							mapfilename = "",
-							error = files[i] .. '\n' .. error,
-				}
-				scenarios[#scenarios+1] = newscen
-			end
-		end
-	end
+            if not success then
+                Spring.Echo("Error: loading scenario ",files[i], error)
+                newscen = {title = "Error " ..files[i] ,
+                            scenarioid = "failed to load",
+                            index = -1,
+                            difficulty = -1,
+                            mapfilename = "",
+                            error = files[i] .. '\n' .. error,
+                }
+                scenarios[#scenarios+1] = newscen
+            end
+        end
+    end
 
-	local function SortFunc(a,b)
-		return a.difficulty < b.difficulty
-	end
+    local function SortFunc(a,b)
+        return a.difficulty < b.difficulty
+    end
 
-	table.sort(scenarios, SortFunc )
+    table.sort(scenarios, SortFunc )
 end
 
 
