@@ -112,12 +112,7 @@ local function LoadScenarios()
     scenarios = {}
     local files = VFS.DirList("LuaMenu/configs/gameConfig/byar/scenarios/")
     for i = 1, #files do
-        if string.find(files[i],".lua") and string.find (files[i], "scenario") and 
-        -- 2025.04.16 : Disable these three scenarios as they crash BARB on load on new engine 2025.03.9:
-            (not string.find(files[i],"scenario018", nil, true)) and
-            (not string.find(files[i],"scenario019", nil, true)) and
-            (not string.find(files[i],"scenario009", nil, true))
-        then
+        if string.find(files[i],".lua") and string.find (files[i], "scenario") then
             local success, error = pcall ( function()
                 local newscen = VFS.Include(files[i])
                 scenarios[#scenarios+1] = newscen
