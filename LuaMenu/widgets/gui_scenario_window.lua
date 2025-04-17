@@ -19,9 +19,6 @@ end
 	-- push
 
 
-
---------------------------------------------------------------------------------
---------------------------------------------------------------------------------
 -- Local Variables
 local reloadcount = 0
 local scenarioWindow
@@ -109,10 +106,11 @@ end
 
 
 local function LoadScenarios()
+	local dummyVar = 'temp'	-- delete this any time
     scenarios = {}
     local files = VFS.DirList("LuaMenu/configs/gameConfig/byar/scenarios/")
     for i = 1, #files do
-        if string.find(files[i],".lua") and string.find (files[i], "scenario") then
+        if string.find(files[i], ".lua") and string.find(files[i], "scenario") then
             local success, error = pcall ( function()
                 local newscen = VFS.Include(files[i])
                 scenarios[#scenarios+1] = newscen
