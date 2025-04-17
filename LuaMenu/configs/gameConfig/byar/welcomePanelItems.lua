@@ -40,6 +40,14 @@ local welcomePanelItems = {
         UrlText = "Join the Discord",
     },
     {
+        Header = "King of The Hill",
+        Text = "Join the AllReasonNoLogic crew this Sunday for their weekly King of the Hill event!",
+        Image = "LuaMenu/images/twitchmisc/KOTH.png",
+        Time = "2025-04-20T11:00:00",
+        Url = "https://twitch.tv/BeyondAllReasonOfficial",
+        UrlText = "Watch on Twitch",
+    },
+    {
         Header = "New Map: Project SD-129",
         Text = "Project SD-129 is a massive up to 32-player FFA and Team FFA map by Nikuksis, set on a donut-shaped asteroid with a space backdrop." .. " \n" .. " \n" .. "Designed for chaotic free-for-alls but also balanced for team play, Asteroid Isles in the middle feature some resources that are only reachable by air. Try it now!",
         Image = "LuaMenu/configs/gameConfig/byar/minimapOverride/Project_SD-129_v1.0.jpg",
