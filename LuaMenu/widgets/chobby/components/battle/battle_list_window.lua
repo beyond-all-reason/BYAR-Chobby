@@ -1274,25 +1274,25 @@ function BattleListWindow:OpenHostWindow()
 	-- Enumerate all known clusters and their number of children
 	local regions = {'EU','US','AU','EA'}
 	local clusters = {
-		['Host[AU1]'] = {limit = 150,  current = 0, online = false, priority = 1.0, region = 'AU', location = "Sydney"}, -- lower priority because its at contabo
-		['Host[AU2]'] = {limit = 40,  current = 0, online = false, priority = 1.0, region = 'AU', location = "Sydney"}, -- higher priority OVH host
+		['Host[AU1]'] = {limit = 150,  current = 0, online = false, priority = 1.0, region = 'AU', location = "Sydney"},   -- HostHatch is a good provider
+		['Host[AU2]'] = {limit = 40,  current = 0, online = false, priority = 1.0, region = 'AU', location = "Sydney"},    -- higher priority OVH host
 
-		['Host[EU1]'] = {limit = 120, current = 0, online = false, priority = 0.3, region = 'EU', location = "Frankfurt"}, -- Lower priority because it is on a SSDNodes host, which isnt the best regarding latency 
+		['Host[EU1]'] = {limit = 150, current = 0, online = false, priority = 1.0, region = 'EU', location = "Vienna"}, 
 		['Host[EU2]'] = {limit = 120, current = 0, online = false, priority = 1.0, region = 'EU', location = "Vienna"},
 		['Host[EU3]'] = {limit = 25,  current = 0, online = false, priority = 0.5, region = 'EU', location = "Frankfurt"}, -- Lower prio because it runs files
-		['Host[EU4]'] = {limit = 150, current = 0, online = false, priority = 1.0, region = 'EU', location = "Dusseldorf"},  -- this is pointed to integration server
+		['Host[EU4]'] = {limit = 150, current = 0, online = false, priority = 1.0, region = 'EU', location = "Dusseldorf"},-- this is pointed to integration server
 		['Host[EU5]'] = {limit = 150, current = 0, online = false, priority = 0.1, region = 'EU', location = "Frankfurt"}, -- Further deproiritize because ssdnodes is trash
 		['Host[EU6]'] = {limit = 120, current = 0, online = false, priority = 1.0, region = 'EU', location = "Amsterdam"},
-		['Host[EU7]'] = {limit = 200, current = 0, online = false, priority = 1.0, region = 'EU', location = "Amsterdam"}, -- This runs on integration server, but has plenty of capacity
-		['Host[EU8]'] = {limit = 150, current = 0, online = false, priority = 1.0, region = 'EU', location = "Zurich"}, 
+		['Host[EU7]'] = {limit = 250, current = 0, online = false, priority = 1.0, region = 'EU', location = "Amsterdam"}, -- This runs on integration server, but has plenty of capacity
+		['Host[EU8]'] = {limit = 150, current = 0, online = false, priority = 1.0, region = 'EU', location = "Zurich"},    -- TEMPORARILY BUMP CAPACITY FOR SWAP LOAD TEST
 		
 		['Host[US1]'] = {limit = 120, current = 0, online = false, priority = 1.0, region = 'US', location = "Virginia"},
-		['Host[US2]'] = {limit = 60,  current = 0, online = false, priority = 1.0, region = 'US', location = "Chicago"},
+		['Host[US2]'] = {limit = 50,  current = 0, online = false, priority = 1.0, region = 'US', location = "Chicago"},
 		['Host[US3]'] = {limit = 80,  current = 0, online = false, priority = 1.0, region = 'US', location = "St. Louis"},
 		['Host[US4]'] = {limit = 150, current = 0, online = false, priority = 0.3, region = 'US', location = "Seattle"}, -- Seems to see more cpu steal than the rest
-		['Host[US5]'] = {limit = 150, current = 0, online = false, priority = 1.0, region = 'US', location = "Chicago"}, -- Seems to see more cpu steal than the rest
+		['Host[US5]'] = {limit = 150, current = 0, online = false, priority = 1.0, region = 'US', location = "Chicago"}, 
 
-		['Host[EA1]'] = {limit = 100, current = 0, online = false, priority = 1.0, region = 'EA', location = "HK"}, -- Seems to see more cpu steal than the rest
+		['Host[EA1]'] = {limit = 120, current = 0, online = false, priority = 1.0, region = 'EA', location = "HK"}, 
 	}
 
 	-- Try to check for their engine version too. It is unlikely that a cluster has multiple engines (except during a switch, so scratch that)
