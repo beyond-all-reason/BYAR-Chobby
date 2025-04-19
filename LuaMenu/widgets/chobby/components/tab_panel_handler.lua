@@ -604,17 +604,15 @@ function GetTabPanelHandler(name, conf)
 	end
 
 	for i = 1, #initialTabs do
-		if initialTabs[i] then
-			externalFunctions.AddTab(
-				initialTabs[i].name,
-				i18n(initialTabs[i].name),
-				initialTabs[i].control,
-				nil, nil, nil,
-				initialTabs[i].entryCheck,
-				initialTabs[i].submenuData,
-				initialTabs[i].entryCheckBootMode
-			)
-		end
+		externalFunctions.AddTab(
+			initialTabs[i].name,
+			i18n(initialTabs[i].name),
+			initialTabs[i].control,
+			nil, nil, nil,
+			initialTabs[i].entryCheck,
+			initialTabs[i].submenuData,
+			initialTabs[i].entryCheckBootMode
+		)
 	end
 
 	externalFunctions.Rescale()
