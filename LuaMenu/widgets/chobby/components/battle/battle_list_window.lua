@@ -1277,7 +1277,7 @@ function BattleListWindow:OpenHostWindow()
 		['Host[AU1]'] = {limit = 150,  current = 0, online = false, priority = 1.0, region = 'AU', location = "Sydney"},   -- HostHatch is a good provider
 		['Host[AU2]'] = {limit = 40,  current = 0, online = false, priority = 1.0, region = 'AU', location = "Sydney"},    -- higher priority OVH host
 
-		['Host[EU1]'] = {limit = 120, current = 0, online = false, priority = 0.3, region = 'EU', location = "Frankfurt"}, -- Lower priority because it is on a SSDNodes host, which isnt the best regarding latency 
+		['Host[EU1]'] = {limit = 150, current = 0, online = false, priority = 1.0, region = 'EU', location = "Vienna"}, 
 		['Host[EU2]'] = {limit = 120, current = 0, online = false, priority = 1.0, region = 'EU', location = "Vienna"},
 		['Host[EU3]'] = {limit = 25,  current = 0, online = false, priority = 0.5, region = 'EU', location = "Frankfurt"}, -- Lower prio because it runs files
 		['Host[EU4]'] = {limit = 150, current = 0, online = false, priority = 1.0, region = 'EU', location = "Dusseldorf"},-- this is pointed to integration server
