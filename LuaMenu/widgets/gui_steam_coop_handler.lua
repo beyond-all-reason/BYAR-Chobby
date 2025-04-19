@@ -161,20 +161,26 @@ end
 
 -- outcome example: "105.1.1-1354-g72b2d55 BAR105" -> "engine/105.1.1-1354-g72b2d55 bar"
 local function GetEnginePath(engineVersion)
-	if engineVersion:match("^2") then	--Handle new naming scheme
+	if engineVersion:match("^2025.01") then	--Handle newer naming scheme
 		local year, month = engineVersion:match("^%d%d(%d%d)%.(%d%d)")
 		local branch = "rel" .. year .. month
 		engineVersion = branch .. "." .. engineVersion
+	elseif
+		engineVersion:match("^2") then	--Handle newest naming scheme
+		engineVersion = "recoil_" .. engineVersion
 	end
 	return ("engine/" .. engineVersion:gsub(" BAR105", " bar")):lower() -- maybe there are more special cases to take in mind here for very old demos or future ones!
 end
 
 local function haveEngineVersion(engineVersion)
 	local springExecutable = Platform.osFamily == "Windows" and "spring.exe" or "spring"
-	if engineVersion:match("^2") then	--Handle new naming scheme
+	if engineVersion:match("^2025.01") then	--Handle newer naming scheme
 		local year, month = engineVersion:match("^%d%d(%d%d)%.(%d%d)")
 		local branch = "rel" .. year .. month
 		engineVersion = branch .. "." .. engineVersion
+	elseif
+		engineVersion:match("^2") then	--Handle newest naming scheme
+		engineVersion = "recoil_" .. engineVersion
 	end
 	return VFS.FileExists(GetEnginePath(engineVersion) .. "//" .. springExecutable)
 end
@@ -451,10 +457,12 @@ function SteamCoopHandler.AttemptGameStart(gameType, gameName, mapName, scriptTa
 					MakeExclusivePopup("Wrapper is required to watch replays with old engine versions.")
 					return
 				end
-				if startEngineVersion:match("^2") then	--Handle new naming scheme
+				if startEngineVersion:match("^2025.01") then	--Handle newer naming scheme
 					local year, month = startEngineVersion:match("^%d%d(%d%d)%.(%d%d)")
 					local branch = "rel" .. year .. month
 					startEngineVersion = branch .. "." .. startEngineVersion
+				elseif startEngineVersion:match("^2") then	--Handle newest naming scheme
+					startEngineVersion = "recoil_" .. startEngineVersion
 				end
 				local engine = string.gsub(startEngineVersion, "BAR105", "bar") -- because this is the path we use
 				local params = {
