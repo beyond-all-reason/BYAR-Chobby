@@ -32,14 +32,6 @@ local welcomePanelItems = {
         Header = "Upcoming Events:",
     },
     {
-        Header = "Apprentice League",
-        Text = "Max 35 OS 1v1 Tournament",
-        Image = "LuaMenu/images/twitchmisc/FightNight.png",
-        Time = "2025-04-19T17:00:00",
-        Url = "https://discord.gg/YgSUjQpTZe",
-        UrlText = "Join the Discord",
-    },
-    {
         Header = "King of The Hill",
         Text = "Join the AllReasonNoLogic crew this Sunday for their weekly King of the Hill event!",
         Image = "LuaMenu/images/twitchmisc/KOTH.png",
