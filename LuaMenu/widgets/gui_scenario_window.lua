@@ -110,7 +110,22 @@ local function LoadScenarios()
     scenarios = {}
     local files = VFS.DirList("LuaMenu/configs/gameConfig/byar/scenarios/")
     for i = 1, #files do
-        if string.find(files[i], ".lua") and string.find(files[i], "scenario") then
+        if string.find(files[i], ".lua") and string.find(files[i], "scenario") and
+		
+		-- 2025.04.19 : Disable these three scenarios as they crash BARB on load on new engine 2025.03.9:
+		-- They crash because the startscript scenariodata base64 string is too large and causes barb's regex parser
+		-- to stack overflow on init. 
+		(not string.find(files[i],"scenario008", nil, true)) and
+		(not string.find(files[i],"scenario009", nil, true)) and
+		(not string.find(files[i],"scenario010", nil, true)) and
+		(not string.find(files[i],"scenario012", nil, true)) and
+		(not string.find(files[i],"scenario018", nil, true)) and
+		(not string.find(files[i],"scenario019", nil, true)) and
+		(not string.find(files[i],"scenario020", nil, true)) and
+		(not string.find(files[i],"scenario021", nil, true)) and
+		(not string.find(files[i],"scenario022", nil, true)) 
+		
+		then
             local success, error = pcall ( function()
                 local newscen = VFS.Include(files[i])
                 scenarios[#scenarios+1] = newscen
@@ -921,10 +936,20 @@ local function InitializeControls(parentControl)
 		padding = {0,0,0,0},
 		parent = parentControl,
 	}
+	local scenarioWarningLabel = Label:New {
+		x = 0,
+		y = 0,
+		width = "100%",
+		height = 30,
+		parent = scenarioSelectorPanel,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+		caption = "Some scenarios have been temporarily disabled pending fixes",
+	}
+
 	scenarioScrollPanel = ScrollPanel:New {
 		x = 0,
 		right = 0,
-		y = 0,
+		y = 30,
 		bottom = 0,
 		parent = scenarioSelectorPanel,
 		horizontalScrollbar = false,
@@ -932,7 +957,7 @@ local function InitializeControls(parentControl)
 
 	scenarioPanel = Control:New{
 		x = "2%",
-		y = 55,
+		y = 85,
 		right = "2%",
 		bottom = '2%',
 
