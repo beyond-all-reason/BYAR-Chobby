@@ -124,7 +124,6 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		text = Configuration.userName or Configuration.suggestedNameFromSteam or "",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(11),
-		useIME = false,
 	}
 	loginChildren[#loginChildren+1] = self.ebUsername
 
@@ -150,7 +149,6 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		hint = i18n("enter_password"),
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(11),
-		useIME = false,
 		OnKeyPress = {
 			function(obj, key, mods, ...)
 				if key == Spring.GetKeyCode("enter") or key == Spring.GetKeyCode("numpad_enter") then
@@ -186,7 +184,6 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		text = Configuration.userName or Configuration.suggestedNameFromSteam or "",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(11),
-		useIME = false,
 	}
 	registerChildren[#registerChildren+1] = self.ebUsernameRegister
 
@@ -212,7 +209,6 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		hint = i18n("enter_password"),
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(11),
-		useIME = false,
 		OnKeyPress = {
 			function(obj, key, mods, ...)
 				if key == Spring.GetKeyCode("enter") or key == Spring.GetKeyCode("numpad_enter") then
@@ -236,7 +232,6 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		text = i18n("confirm") .. ":",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(11),
-		useIME = false,
 	}
 	registerChildren[#registerChildren + 1] = self.txtConfirmPassword
 
@@ -271,7 +266,6 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 			text = i18n("email") .. ":",
 			objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 			objectOverrideHintFont = WG.Chobby.Configuration:GetFont(11),
-   		useIME = false,
 		}
 		registerChildren[#registerChildren + 1] = self.txtEmail
 
@@ -284,7 +278,6 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 			hint = i18n("enter_email"),
 			objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 			objectOverrideHintFont = WG.Chobby.Configuration:GetFont(11),
-			useIME = false,
 			OnKeyPress = {
 				function(obj, key, mods, ...)
 					if key == Spring.GetKeyCode("enter") or key == Spring.GetKeyCode("numpad_enter") then
@@ -305,7 +298,6 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 			text = i18n("confirm") .. ":",
 			objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 			objectOverrideHintFont = WG.Chobby.Configuration:GetFont(11),
-   		useIME = false,
 		}
 		registerChildren[#registerChildren + 1] = self.txtConfirmEmail
 
@@ -318,7 +310,6 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
             hint = i18n('confirm_email'),
 			objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 			objectOverrideHintFont = WG.Chobby.Configuration:GetFont(11),
-			useIME = false,
 			OnKeyPress = {
 				function(obj, key, mods, ...)
 					if key == Spring.GetKeyCode("enter") or key == Spring.GetKeyCode("numpad_enter") then
@@ -362,7 +353,6 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
             hint = i18n("ask_moderation"),
 			objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 			objectOverrideHintFont = WG.Chobby.Configuration:GetFont(11),
-			useIME = false,
 		}
 		registerChildren[#registerChildren + 1] = self.TextAcknowledgementBox
 	end
@@ -595,7 +585,6 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
 		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(1),
 		tooltip = 'User name may contain only letters, numbers, square brackets and underscores',
-		useIME = false,
 	}
 	recoverChildren[#recoverChildren+1] = self.ebChangeUserName
 
@@ -682,7 +671,6 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
 		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(1),
 		tooltip = 'Make sure you enter your valid email address',
-		useIME = false,
 	}
 	recoverChildren[#recoverChildren+1] = self.ebResetPasswordEmail
 
@@ -706,7 +694,6 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
 		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(1),
 		tooltip = 'You will recieve this code via email after submitting your email in the above box',
-		useIME = false,
 	}
 	recoverChildren[#recoverChildren+1] = self.ebResetPasswordVerification
 
@@ -806,7 +793,6 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
 		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(1),
 		tooltip = 'Enter your old password here',
-		useIME = false,
 	}
 	recoverChildren[#recoverChildren+1] = self.ebChangePasswordOld
 
@@ -830,7 +816,6 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
 		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(1),
 		tooltip = 'Enter your new password here',
-		useIME = false,
 	}
 	recoverChildren[#recoverChildren+1] = self.ebChangePasswordNew
 
@@ -896,7 +881,6 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
 		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(1),
 		tooltip = 'Make sure you enter your new email address',
-		useIME = false,
 	}
 	recoverChildren[#recoverChildren+1] = self.ebChangeEmailEmail
 
@@ -920,7 +904,6 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
 		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(1),
 		tooltip = 'You will recieve this code via email after submitting your email in the above box',
-		useIME = false,
 	}
 	recoverChildren[#recoverChildren+1] = self.ebChangeEmailVerification
 
@@ -1664,7 +1647,6 @@ function LoginWindow:createAgreementWindow()
 			text = i18n("email_verification_code") .. ":",
 			objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 			objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
-			useIME = false,
 			parent = self.agreementWindow,
 		}
 		self.ebVerif = EditBox:New {
@@ -1675,7 +1657,6 @@ function LoginWindow:createAgreementWindow()
 			text = "",
 			objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 			objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
-			useIME = false,
 			parent = self.agreementWindow,
 		}
 	end

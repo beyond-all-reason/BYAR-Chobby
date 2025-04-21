@@ -695,7 +695,6 @@ local function InitializeControls(parentControl)
 			text = "/demos/",
 			objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
 			objectOverrideHintFont = WG.Chobby.Configuration:GetFont(1),
-			useIME = false,
 			parent = parentControl,
 			tooltip = "Enter the path to the replay",
 			OnFocusUpdate = {
