@@ -25,7 +25,6 @@ function BattleListWindow:init(parent)
 		text = "",
 		objectOverrideFont = myFont3,
 		objectOverrideHintFont = myHintFont,
-		useIME = false,
 		parent = self.window,
 		OnTextModified = {
 			function (input)
@@ -1778,7 +1777,6 @@ function BattleListWindow:JoinBattle(battle, _, _, joinAsPlayer)
 			objectOverrideFont = myFont3,
 			objectOverrideHintFont = myHintFont,
 			passwordInput = true,
-			useIME = false,
 			parent = passwordWindow,
 		}
 

@@ -295,7 +295,6 @@ local function GetValueEntryBox(parent, name, position, currentValue)
 		text = tostring(currentValue),
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(3),
-		useIME = false,
 		parent = parent,
 		OnFocusUpdate = {
 			function (obj)
@@ -606,7 +605,6 @@ local function AddNumberSetting(offset, caption, desc, key, default, minVal, max
 		text = ToPercent(default*100),
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
-		useIME = false,
 		OnFocusUpdate = {
 			function (obj)
 				if obj.focused or freezeSettings then
@@ -1367,7 +1365,6 @@ local function GetVoidTabControls()
 		text = Configuration:GetServerAddress(),
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
-		useIME = false,
 		tooltip = "Requires a lobby restart for changes to take effect. Current live server: server4.beyondallreason.info",
 		OnFocusUpdate = {
 			function (obj)
@@ -1400,7 +1397,6 @@ local function GetVoidTabControls()
 		text = tostring(Configuration.serverPort),
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
-		useIME = false,
 		OnFocusUpdate = {
 			function (obj)
 				if obj.focused then
@@ -1858,7 +1854,6 @@ local function ProcessSettingsNumber(data, offset, defaults, customSettingsSwitc
 		text = FormatFunc(Configuration.settingsMenuValues[data.name] or defaults[data.name]),
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
-		useIME = false,
 		OnFocusUpdate = {
 			function (obj)
 				if obj.focused or freezeSettings then
