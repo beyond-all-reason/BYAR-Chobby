@@ -1,4 +1,8 @@
 -- $Id: api_base64.lua 3171 2008-11-06 09:06:29Z det $
+-- Author: Alex Kloss
+-- Contact: http://www.it-rfc.de
+-- Date: 2006-2008
+-- License: LGPL2
 
 -- Public functions:
 --  * Spring.Utilities.Base64Encode(string data) -> string
@@ -6,19 +10,6 @@
 
 -- bitshift functions (<<, >> equivalent)
 -- shift left
-function widget:GetInfo()
-	return {
-		name      = "base64",
-		desc      = "base64 API",
-		author    = "Alex Kloss", -- Contact: http://www.it-rfc.de
-		date      = "2006-2008",
-		license   = "LGPL2",
-		layer     = -999,
-		enabled   = true,  --  loaded by default?
-		api       = true,
-		hidden    = true,
-	}
-	end
 
 Spring.Utilities = Spring.Utilities or {}
 
