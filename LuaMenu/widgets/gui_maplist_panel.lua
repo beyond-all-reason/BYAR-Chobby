@@ -396,12 +396,12 @@ local function InitializeControls()
 	end
 
 	Label:New {
-		x = 35,
+		x = 22,
 		right = 5,
-		y = 22,
+		y = 1,
 		height = 21,
 		parent = captionHolder,
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
 		caption = maincaption,
 	}
 
@@ -576,21 +576,22 @@ local function InitializeControls()
 
 	WG.Chobby.PriorityPopup(mapListWindow, CloseFunc)
 
---[[ 	local btnOnlineMaps = Button:New {
-		right = 102,
+	local btnOnlineMaps = Button:New {
+		right = 286,
 		y = 13,
 		width = 180,
 		height = 35,
 		caption = i18n("download_maps"),
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		tooltip = i18n("download_maps_tooltip"),
 		classname = "option_button",
 		parent = mapListWindow,
 		OnClick = {
 			function ()
-				WG.BrowserHandler.OpenUrl(Configuration.gameConfig.link_maps())
+				WG.BrowserHandler.OpenUrl("https://www.beyondallreason.info/maps")
 			end
 		},
-	} ]]
+	}
 
 	-------------------------
 	-- Filtering
