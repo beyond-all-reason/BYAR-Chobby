@@ -470,14 +470,14 @@ local function InitializeControls()
 	}
 
 	local headings = {
-		{name = "Name", x = 22, width = 248},
-		{name = "Size", tooltip = "Choose larger maps for longer games.",x = 272, width = 80},
-		{name = "#", tooltip = "Ideal max playercount (in total)",x = 354, width = 28},
-		{name = "Type", tooltip = "Each map is designed with a specific gameplay setup in mind, but can be played as you desire.\n- 1v1: Designed for small, competitive games\n- Teams: Has resources for multiple players\n- FFA: Free-for-all games", x = 384, width = 100},
-		{name = "Terrain", tooltip = "Water maps have underwater resources, and feature naval combat. Bots perform better than vehicles on Hilly maps. Metal maps have unlimited Metal resources.", x = 486, width = 142},
-		{name = "", tooltip = "Downloaded", x = 630, width = 40, image = "LuaMenu/images/download.png"},
-		{name = "Certified", tooltip = "Certified maps guarantee the best experience, Classic maps offer a great variety of gameplay, and third party maps are marked as Unofficial", x = 672, width = 100},
-		{name = "", tooltip = "Sort by default order", x = 774, width = 16},
+		{name = "Name", tooltip = "Alphabetical order.", x = 20, width = 248},
+		{name = "Size", tooltip = "Choose larger maps for longer games.",x = 270, width = 80},
+		{name = "#", tooltip = "Ideal max playercount (in total).",x = 352, width = 28},
+		{name = "Type", tooltip = "Each map is designed with a specific gameplay setup in mind, but can be played as you desire.\n- 1v1: Designed for small, competitive games\n- Teams: Has resources for multiple players\n- FFA: Free-for-all games", x = 382, width = 100},
+		{name = "Terrain", tooltip = "Water maps have underwater resources, and feature naval combat. Bots perform better than vehicles on Hilly maps. Metal maps have unlimited Metal resources.", x = 484, width = 142},
+		{name = "", tooltip = "Downloaded", x = 628, width = 40, image = "LuaMenu/images/download.png"},
+		{name = "Certified", tooltip = "Certified maps guarantee the best experience, Classic maps offer a great variety of gameplay, and third party maps are marked as Unofficial.", x = 670, width = 100},
+		{name = "", tooltip = "Sort by default order.", x = 772, width = 38, image = "LuaMenu/images/load_img_128.png"},
 	}
 
 	local featuredMapList = WG.CommunityWindow.LoadStaticCommunityData().MapItems or {}
