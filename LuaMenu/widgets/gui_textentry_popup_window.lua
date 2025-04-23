@@ -122,7 +122,6 @@ local function CreateTextEntryWindow(opts)
 		hint = opts.hint or "",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(11),
-		useIME = false,
 		parent = TextEntryWindow,
 		--multiline = true,
 		OnFocusUpdate = {

@@ -300,7 +300,6 @@ function FriendListWindow:init(parent)
 			text = "",
 			objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
 			objectOverrideHintFont = WG.Chobby.Configuration:GetFont(1),
-			useIME = false,
 			parent = self.window,
 			tooltip = "Name of new friend",
 		}

@@ -194,10 +194,7 @@ local function GetTooltipLine(parent, hasImage, fontSize, xOffset, imageWidth)
 	end
 
 	function externalFunctions.GetLines()
-		-- Does not work so always returns 1.
-		local text = textDisplay.text
-		local _, _, numLines = textDisplay.font:GetTextHeight(text)
-		return numLines
+		return #textDisplay.physicalLines or 1
 	end
 
 	function externalFunctions.GetFont()
@@ -301,7 +298,7 @@ local function GetBattleTooltip(battleID, battle, showMapName)
 			y = 0,
 			width = width,
 			height = 120,
-			padding = {0, 0, 0, 0},
+			padding = {0, 0, 7, 0},
 		}
 	end
 	local offset = 7
@@ -310,13 +307,11 @@ local function GetBattleTooltip(battleID, battle, showMapName)
 	if not battleTooltip.title then
 		battleTooltip.title = GetTooltipLine(battleTooltip.mainControl, nil, 3)
 	end
-	local title = battle.title
 	--if battle.isMatchMaker then
 	--	title = (title or "") .. " - Click to watch"
 	--end
-	local truncatedName = StringUtilities.GetTruncatedStringWithDotDot(title, battleTooltip.title.GetFont(), width - 10)
-	battleTooltip.title.Update(offset, truncatedName)
-	offset = offset + 25 -- * battleTooltip.title.GetLines() -- Not required with truncation
+	battleTooltip.title.Update(offset, battle.title)
+	offset = offset + 25 * battleTooltip.title.GetLines()
 
 	-- Battle Type (ZK specific)
 	-- if battle.battleMode then

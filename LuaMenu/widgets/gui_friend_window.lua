@@ -41,7 +41,6 @@ local function InitializeControls(window)
 			text = "",
 			objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 			objectOverrideHintFont = WG.Chobby.Configuration:GetFont(3),
-			useIME = false,
 			parent = window,
 			tooltip = "Name of new friend",
 		}

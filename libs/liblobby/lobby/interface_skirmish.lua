@@ -322,7 +322,7 @@ function InterfaceSkirmish:_StartScript(gameName, mapName, playerName, friendLis
 		numusers = playerCount + aiCount,
 		startpostype = startPosType or 2,
 		modoptions = self.modoptions,
-		GameStartDelay = 5,
+		GameStartDelay = WG.Chobby.Configuration.devMode and 0 or 5,
 	}
 
 	for i, ai in pairs(ais) do
