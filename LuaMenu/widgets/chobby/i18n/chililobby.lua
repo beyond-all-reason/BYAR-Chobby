@@ -74,7 +74,7 @@ return {
 		simple_ai_list_tooltip = "Hides some developer-only AIs from the list",
 		login_with_steam = "Login with Steam",
 		use_steam_browser = "Use Steam browser",
-		download_maps = "Download Maps",
+		download_maps = "Manual Download",
 		download_maps_tooltip = "Browse and Download Maps online",
 		download_replays = "Download Replays",
 		refresh = "Refresh",
