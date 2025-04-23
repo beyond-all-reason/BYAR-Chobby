@@ -32,20 +32,20 @@ local welcomePanelItems = {
         Header = "Upcoming Events:",
     },
     {
-        Header = "BAR Academy Live!",
-        Text = "Join the BAR Academy with BARCast and neb_ for their weekly cast of 1v1 replay reviews.",
-        Image = "LuaMenu/images/twitchmisc/MentorsPencil.png",
-        Time = "2025-04-23T01:00:00",
-        Url = "https://twitch.tv/BeyondAllReasonOfficial",
-        UrlText = "Watch on Twitch",
-    },
-    {
         Header = "Master's League",
         Text = "Compete in the Master's League for the final 1v1 tournament of April!" .. " \n" .. " \n" .. "Join the Fight Night Discord for info and sign up. Min 25 OS or organizer approval required.",
         Image = "LuaMenu/images/twitchmisc/FightNight.png",
         Time = "2025-04-26T17:00:00",
         Url = "https://discord.gg/YgSUjQpTZe",
         UrlText = "Join the Discord",
+    },
+    {
+        Header = "King of The Hill",
+        Text = "Join the AllReasonNoLogic crew for some free-for-all chaos in their weekly King of The Hill cast!",
+        Time = "2025-04-27T11:00:00",
+        Image = "LuaMenu/images/twitchmisc/KOTH.png",
+        Url = "https://twitch.tv/BeyondAllReasonOfficial",
+        UrlText = "Watch on Twitch",
     },
     {
         Header = "New Map: Project SD-129",
