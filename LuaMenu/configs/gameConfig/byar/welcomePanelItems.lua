@@ -15,20 +15,21 @@ local welcomePanelItems = {
         Text = "Welcome back Commander. We hope you are ready for epic Singleplayer and Multiplayer battles. Check out our Discord and join the community!\n",
     },
     {
+        Header = "Get Ready for Faction Wars 1.0!",
+        Time = "2025-05-17T14:00:00",
+        Text = "May is the Month of Legion, and Faction Wars is just around the corner. Commanders, it's time to start cooking!" .. " \n" .. " \n" .. "Sign up before May 10th to secure your spot in the biggest 3v3 Tournament of the Summer - Legion is enabled, and we have lots of fun things planned. Stay tuned!",
+        Image = "LuaMenu/images/FactionWars3v3.png",
+        Url = "https://bfn.challonge.com/FWQualifier",
+        UrlText = "Sign Up & Info",
+    },   
+    {
         Header = "Alpha Cup V 2025",
         Text =" \n" .. "Congratulations to our new 1v1 Champion - Autopilot! In case you missed it, you can still rewatch the Alpha Cup madness on YouTube." .. " \n" .. " \n" .. "Thank you to everyone in the community for making this event happen! At 87 players, this was the biggest Alpha Cup yet.",
         Image = "LuaMenu/images/AlphaCupV.png",
         Url = "https://youtu.be/EZCU_lza-ro?si=hm0dPqSu0drIosk-&t=1203s",
         UrlText = "Watch the Qualifier",
     },
-    {
-        Header = "We need you! Creative Call to Arms Vol.2",
-        Text = "We’re now seeking volunteers to design icons for weapon types to enhance the game’s visual identity. We need icons for weapon stats like Ground to Air, Air to Ground, Damage, Burst, Reload Time, and more. " .. " \n" .. " \n" .. "Let's create something awesome together! Check #concept-art channel on Discord for more details (needs Development role).",
-        Image = "LuaMenu/images/welcomepanel/CTA2.png",
-        Url = "https://discord.com/channels/549281623154229250/1346438415176040561/1353700113641508884",
-        UrlText = "Go to #concept-art",
-    },
-    {
+{
         Header = "Upcoming Events:",
     },
     {
