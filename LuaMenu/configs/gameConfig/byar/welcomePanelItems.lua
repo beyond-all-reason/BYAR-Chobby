@@ -48,14 +48,6 @@ local welcomePanelItems = {
         UrlText = "Watch on Twitch",
     },
     {
-        Header = "Master's League",
-        Text = "Compete in the Master's League for the final 1v1 tournament of April!" .. " \n" .. " \n" .. "Join the Fight Night Discord for info and sign up. Min 25 OS or organizer approval required.",
-        Image = "LuaMenu/images/twitchmisc/FightNight.png",
-        Time = "2025-04-26T17:00:00",
-        Url = "https://discord.gg/YgSUjQpTZe",
-        UrlText = "Join the Discord",
-    },
-    {
         Header = "New Map: Project SD-129",
         Text = "Project SD-129 is a massive up to 32-player FFA and Team FFA map by Nikuksis, set on a donut-shaped asteroid with a space backdrop." .. " \n" .. " \n" .. "Designed for chaotic free-for-alls but also balanced for team play, Asteroid Isles in the middle feature some resources that are only reachable by air. Try it now!",
         Image = "LuaMenu/configs/gameConfig/byar/minimapOverride/Project_SD-129_v1.0.jpg",
