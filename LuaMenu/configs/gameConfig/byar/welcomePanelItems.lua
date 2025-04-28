@@ -16,7 +16,7 @@ local welcomePanelItems = {
     },
     {
         Header = "Get Ready for Faction Wars 1.0!",
-        Time = "2025-05-17T14:00:00",
+        Time = "2025-05-17T15:00:00",
         Text = "May is the Month of Legion, and Faction Wars is just around the corner. Commanders, it's time to start cooking!" .. " \n" .. " \n" .. "Sign up before May 10th to secure your spot in the biggest 3v3 Tournament of the Summer - Legion is enabled, and we have lots of fun things planned. Stay tuned!",
         Image = "LuaMenu/images/FactionWars3v3.png",
         Url = "https://bfn.challonge.com/FWQualifier",
