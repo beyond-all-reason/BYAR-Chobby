@@ -15,7 +15,7 @@ local welcomePanelItems = {
         Text = "Welcome back Commander. We hope you are ready for epic Singleplayer and Multiplayer battles. Check out our Discord and join the community!\n",
     },
     {
-        Header = "Get Ready for Faction Wars 1.0!",
+        Header = "Get Ready for Faction Wars!",
         Time = "2025-05-17T15:00:00",
         Text = "May is the Month of Legion, and Faction Wars is just around the corner. Commanders, it's time to start cooking!" .. " \n" .. " \n" .. "Sign up before May 10th to secure your spot in the biggest 3v3 Tournament of the Summer - Legion is enabled, and we have lots of fun things planned. Stay tuned!",
         Image = "LuaMenu/images/FactionWars3v3.png",
@@ -23,11 +23,11 @@ local welcomePanelItems = {
         UrlText = "Sign Up & Info",
     },   
     {
-        Header = "Alpha Cup V 2025",
+        Header = "Alpha Cup V Finals are on YouTube!",
         Text =" \n" .. "Congratulations to our new 1v1 Champion - Autopilot! In case you missed it, you can still rewatch the Alpha Cup madness on YouTube." .. " \n" .. " \n" .. "Thank you to everyone in the community for making this event happen! At 87 players, this was the biggest Alpha Cup yet.",
         Image = "LuaMenu/images/AlphaCupV.png",
-        Url = "https://youtu.be/EZCU_lza-ro?si=hm0dPqSu0drIosk-&t=1203s",
-        UrlText = "Watch the Qualifier",
+        Url = "https://www.youtube.com/watch?v=DCPU8qOLiSQ",
+        UrlText = "Watch the Finals",
     },
 {
         Header = "Upcoming Events:",
