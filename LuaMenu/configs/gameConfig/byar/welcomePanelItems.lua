@@ -15,6 +15,11 @@ local welcomePanelItems = {
         Text = "Welcome back Commander. We hope you are ready for epic Singleplayer and Multiplayer battles. Check out our Discord and join the community!\n",
     },
     {
+        Header = "New Map: Prismatic Anomaly",
+        Text = "Anomalous light signatures were detected on a moon orbiting an Astral Compound." .. " \n" .. " \n" .. "Preliminary scans have revealed structures of unknown orgin. Further investigation is necessary."  .. " \n" .. " \n" ..  "Designed for 3v3, supports 1v1 to 5v5. Made by Zagupi.",
+        Image = "LuaMenu/images/prismaticanomaly.png",
+    },
+    {
         Header = "Get Ready for Faction Wars!",
         Time = "2025-05-17T15:00:00",
         Text = "May is the Month of Legion, and Faction Wars is just around the corner. Commanders, it's time to start cooking!" .. " \n" .. " \n" .. "Sign up before May 10th to secure your spot in the biggest 3v3 Tournament of the Summer - Legion is enabled, and we have lots of fun things planned. Stay tuned!",
@@ -24,7 +29,7 @@ local welcomePanelItems = {
     },   
     {
         Header = "Alpha Cup V Finals are on YouTube!",
-        Text =" \n" .. "Congratulations to our new 1v1 Champion - Autopilot! In case you missed it, you can still rewatch the Alpha Cup madness on YouTube." .. " \n" .. " \n" .. "Thank you to everyone in the community for making this event happen! At 87 players, this was the biggest Alpha Cup yet.",
+        Text =" \n" .. "Congratulations to our new 1v1 Champion! In case you missed it, you can still rewatch the Alpha Cup madness on YouTube." .. " \n" .. " \n" .. "Thank you to everyone in the community for making this event happen! At 87 players, this was the biggest Alpha Cup yet.",
         Image = "LuaMenu/images/AlphaCupV.png",
         Url = "https://www.youtube.com/watch?v=DCPU8qOLiSQ",
         UrlText = "Watch the Finals",
@@ -47,11 +52,6 @@ local welcomePanelItems = {
         Image = "LuaMenu/images/twitchmisc/KOTH.png",
         Url = "https://twitch.tv/BeyondAllReasonOfficial",
         UrlText = "Watch on Twitch",
-    },
-    {
-        Header = "New Map: Project SD-129",
-        Text = "Project SD-129 is a massive up to 32-player FFA and Team FFA map by Nikuksis, set on a donut-shaped asteroid with a space backdrop." .. " \n" .. " \n" .. "Designed for chaotic free-for-alls but also balanced for team play, Asteroid Isles in the middle feature some resources that are only reachable by air. Try it now!",
-        Image = "LuaMenu/configs/gameConfig/byar/minimapOverride/Project_SD-129_v1.0.jpg",
     },
     {
         Header = "Now Available: BAR Guides",
