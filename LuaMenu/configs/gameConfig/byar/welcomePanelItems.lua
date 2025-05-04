@@ -34,16 +34,8 @@ local welcomePanelItems = {
         Url = "https://www.youtube.com/watch?v=DCPU8qOLiSQ",
         UrlText = "Watch the Finals",
     },
-{
-        Header = "Upcoming Events:",
-    },
     {
-        Header = "Apprentice League",
-        Text = "Maximum 35 OS 1v1 tournament - with Legion enabled!" .. " \n" .. " \n" .. "Join the Fight Night Discord for info and sign up.",
-        Image = "LuaMenu/images/twitchmisc/FightNight.png",
-        Time = "2025-05-03T17:00:00",
-        Url = "https://discord.gg/YgSUjQpTZe",
-        UrlText = "Join the Discord",
+        Header = "Upcoming Events:",
     },
     {
         Header = "King of The Hill",
