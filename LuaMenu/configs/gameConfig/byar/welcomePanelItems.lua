@@ -17,8 +17,18 @@ local welcomePanelItems = {
     {
         Header = "New Map: Prismatic Anomaly",
         Text = "Anomalous light signatures were detected on a moon orbiting an Astral Compound." .. " \n" .. " \n" .. "Preliminary scans have revealed structures of unknown orgin. Further investigation is necessary."  .. " \n" .. " \n" ..  "Designed for 3v3, supports 1v1 to 5v5. Made by Zagupi.",
-        Image = "LuaMenu/images/prismaticanomaly.png",
+        Image = "LuaMenu/images/maps/prismaticanomaly.png",
     },
+    {
+        Header = "New Map: Sand Crowns",
+        Text = "Corner spawns fight over sand crowns surrounding secluded sharp peaks."  .. " \n" .. " \n" ..  "The pale landscape is dotted with vibrant blue crystals."  .. " \n" .. " \n" ..  "Supports up to 4v4v4v4. Made by Phalange.",
+        Image = "LuaMenu/images/maps/sandcrowns.png",
+    },
+--    {
+--        Header = "New Map: Pools of Ilys",
+--        Text = "Crucial geothermal vents were discovered on the surface of Ilys. Make landfall and secure."  .. " \n" .. " \n" ..  "Vast ponds breakup an icy landscape rich with geothermal power."  .. " \n" .. " \n" ..  "Designed for 1v1 - 3v3, supports up to 5v5. Made by neb_",
+--        Image = "LuaMenu/images/maps/poolsofilys.png",
+--    },
     {
         Header = "Get Ready for Faction Wars!",
         Time = "2025-05-17T15:00:00",
@@ -27,15 +37,23 @@ local welcomePanelItems = {
         Url = "https://bfn.challonge.com/FWQualifier",
         UrlText = "Sign Up & Info",
     },   
-    {
-        Header = "Alpha Cup V Finals are on YouTube!",
-        Text =" \n" .. "Congratulations to our new 1v1 Champion! In case you missed it, you can still rewatch the Alpha Cup madness on YouTube." .. " \n" .. " \n" .. "Thank you to everyone in the community for making this event happen! At 87 players, this was the biggest Alpha Cup yet.",
-        Image = "LuaMenu/images/AlphaCupV.png",
-        Url = "https://www.youtube.com/watch?v=DCPU8qOLiSQ",
-        UrlText = "Watch the Finals",
-    },
+--    {
+--        Header = "Alpha Cup V Finals are on YouTube!",
+--        Text =" \n" .. "Congratulations to our new 1v1 Champion! In case you missed it, you can still rewatch the Alpha Cup madness on YouTube." .. " \n" .. " \n" .. "Thank you to everyone in the community for making this event happen! At 87 players, this was the biggest Alpha Cup yet.",
+--        Image = "LuaMenu/images/AlphaCupV.png",
+--        Url = "https://www.youtube.com/watch?v=DCPU8qOLiSQ",
+--        UrlText = "Watch the Finals",
+--    },
     {
         Header = "Upcoming Events:",
+    },
+    {
+        Header = "Fight Night Open 2v2",
+        Text = "Find a partner and join our 2v2 Legion-enabled tournament! All-welcome.",
+        Time = "2025-05-10T17:00:00",
+        Image = "LuaMenu/images/twitchmisc/FightNight.png",
+        Url = "https://bfn.challonge.com/FN2",
+        UrlText = "Sign Up",
     },
     {
         Header = "King of The Hill",
