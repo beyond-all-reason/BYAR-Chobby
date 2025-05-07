@@ -17,7 +17,7 @@ local welcomePanelItems = {
     {
         Header = "Code of Conduct Update – May 2025",
         Text = "We've made some important updates to the BAR Code of Conduct to help keep our community welcoming, respectful, and focused." .. " \n" .. " \n" .. "Noteable changes include: clarified expectations, new guidelines on offensive names, and reinforcement on the importance of good faith participation. For details, please read the full changes on GitHub.",
-        Url = "https://github.com/beyond-all-reason/code-of-conduct/commit/ff9dcddb1a1754be918ef1f04eac7c7995a8bbab",
+        Url = "https://github.com/beyond-all-reason/code-of-conduct/compare/c935fa6...main?diff=split&w#:~:text=%40%40%20-1%2C13%20%2B1%2C15%20%40%40-,%23%20Overview,-%23%20Overview",
         UrlText = "Read the Full Changes",
     },
     {
