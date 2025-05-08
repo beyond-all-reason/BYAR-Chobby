@@ -834,7 +834,7 @@ local function InitializeControls(window)
 	AddLinkButton(leftCenter, "\255\255\225\20" .. "Donate",   "We are once again accepting donations! Support the project now!", "https://www.beyondallreason.info/donate-for-bar",0, 0, "75.5%", 0) --last
 	AddLinkButton(leftCenter, "Code of Conduct",  "Code of conduct and terms of use", "https://www.beyondallreason.info/code-of-conduct", 0, 0, "50.5%", "25.5%") --third
 	AddLinkButton(leftCenter, "Website", "Visit our website for more, opens https://www.beyondallreason.info/", "https://www.beyondallreason.info/",   0, 0, "25.5%", "50.5%") --second
-	AddLinkButton(leftCenter, "Join our Discord", "Opens a link to https://discord.gg/N968ddE in your browser.", "https://discord.gg/N968ddE", 0, 0, 0, "75.5%") --first
+	AddLinkButton(leftCenter, "Join our Discord", "Opens a link to https://discord.gg/beyond-all-reason in your browser.", "https://discord.gg/beyond-all-reason", 0, 0, 0, "75.5%") --first
 
 	-- News Handler
 	--[[
