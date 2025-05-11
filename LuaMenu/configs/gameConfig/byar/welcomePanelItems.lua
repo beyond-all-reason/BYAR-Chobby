@@ -42,14 +42,6 @@ local welcomePanelItems = {
         Header = "Upcoming Events:",
     },
     {
-        Header = "GERBAR Teamworx Cup",
-        Text = "To celebrate their one year anniversary, GERBAR discord is hosting an OS-limited Tournament open to all BAR players, regardless of nationality.",
-        Time = "2025-05-10T16:00:00",
-        Image = "LuaMenu/images/twitchmisc/Teamwork_Cup_v26.png",
-        Url = "https://challonge.com/TeamWorxCup",
-        UrlText = "Sign Up",
-    },
-    {
         Header = "Faction Wars Qualifier",
         Time = "2025-05-17T15:00:00",
         Text = "Sign up before May 15th to secure your spot in the biggest 3v3 Tournament of the Summer - Legion is enabled, and we have lots of fun things planned. Stay tuned!",        
