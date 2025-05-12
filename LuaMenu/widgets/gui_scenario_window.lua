@@ -54,16 +54,25 @@ local unitdefname_to_humanname = {} -- from en.lua, attached at the end of the f
 --------------------------------------------------------------------------------
 -- Utilities
 
+--- Format a number of seconds as a time string.
+-- The formatting differs depending on whether the duration is at least one hour.
+-- If there is a full hour: `h:mm:ss` and otherwise: `m:ss`
+-- Example outputs:
+-- - 10: `0:10`
+-- - 60: `1:00`
+-- - 3599: `59:59`
+-- - 7280: `2:01:20`
 local function SecondsToTimeString(s)
 	local hours = math.floor(s/3600)
 	s = math.fmod(s, 3600 )
 	local minutes = math.floor(s/60)
 	s = math.fmod(s,60)
-	result = ""
+
 	if hours>0 then
-		result = string.format("%d:",hours)
+		return string.format("%d:%02d:%02d",hours,minutes,s)
+	else
+		return string.format("%d:%02d",minutes,s)
 	end
-	return result .. string.format("%d:%02d",minutes,s)
 end
 
 local function MaybeDownloadMap(mapName)
