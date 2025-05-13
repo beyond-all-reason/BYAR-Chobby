@@ -13,13 +13,21 @@ local welcomePanelItems = {
     {
         Header = "Welcome to Beyond All Reason",
         Text = "Welcome back Commander. We hope you are ready for epic Singleplayer and Multiplayer battles. Check out our Discord and join the community!\n",
+    },    
+    {
+        Header = "This Saturday: Kicking Off Faction Wars!",
+        Time = "2025-05-17T15:00:00",
+        Text = "It's almost time - sign up before Saturday to participate in the largest 3v3 Tournament BAR has ever seen!" .. " \n" .. " \n" .. "We've already reached 30 teams - how high can we go?",
+        Image = "LuaMenu/images/FactionWars3v3.png",
+        Url = "https://bfn.challonge.com/FWQualifier",
+        UrlText = "Sign Up & Info",
     },
     {
         Header = "Code of Conduct Update – May 2025",
         Text = "We've made some important updates to the BAR Code of Conduct to help keep our community welcoming, respectful, and focused." .. " \n" .. " \n" .. "Noteable changes include: clarified expectations, new guidelines on offensive names, and reinforcement on the importance of good faith participation. For details, please read the full changes on GitHub.",
         Url = "https://github.com/beyond-all-reason/code-of-conduct/compare/c935fa6...main?diff=split&w#:~:text=%40%40%20-1%2C13%20%2B1%2C15%20%40%40-,%23%20Overview,-%23%20Overview",
         UrlText = "Read the Full Changes",
-    },
+    },  
     {
         Header = "New Map: Pools of Ilys",
         Text = "Crucial geothermal vents were discovered on the surface of Ilys. Make landfall and secure."  .. " \n" .. " \n" ..  "Vast ponds breakup an icy landscape rich with geothermal power."  .. " \n" .. " \n" ..  "Designed for 1v1 - 3v3, supports up to 5v5. Made by neb_",
@@ -30,6 +38,11 @@ local welcomePanelItems = {
         Text = "Corner spawns fight over sand crowns surrounding secluded sharp peaks."  .. " \n" .. " \n" ..  "The pale landscape is dotted with vibrant blue crystals."  .. " \n" .. " \n" ..  "Supports up to 4v4v4v4. Made by Phalange.",
         Image = "LuaMenu/images/maps/sandcrowns.png",
     },
+    {
+        Header = "New Map: Prismatic Anomaly",
+        Text = "Anomalous light signatures were detected on a moon orbiting an Astral Compound." .. " \n" .. " \n" .. "Preliminary scans have revealed structures of unknown orgin. Further investigation is necessary."  .. " \n" .. " \n" ..  "Designed for 3v3, supports 1v1 to 5v5. Made by Zagupi.",
+        Image = "LuaMenu/images/maps/prismaticanomaly.png",
+    },
 --    {
 --        Header = "Get Ready for Faction Wars!",
 --        Time = "2025-05-17T15:00:00",
@@ -38,17 +51,9 @@ local welcomePanelItems = {
 --        Url = "https://bfn.challonge.com/FWQualifier",
 --        UrlText = "Sign Up & Info",
 --    },   
-    {
-        Header = "Upcoming Events:",
-    },
-    {
-        Header = "Faction Wars Qualifier",
-        Time = "2025-05-17T15:00:00",
-        Text = "Sign up before May 15th to secure your spot in the biggest 3v3 Tournament of the Summer - Legion is enabled, and we have lots of fun things planned. Stay tuned!",        
-        Image = "LuaMenu/images/FactionWars3v3.png",
-        Url = "https://bfn.challonge.com/FWQualifier",
-        UrlText = "Sign Up & Info",
-    }, 
+--    {
+--        Header = "Upcoming Events:",
+--    },
 --    {
 --        Header = "Fight Night Open 2v2",
 --        Text = "Find a partner and join our 2v2 Legion-enabled tournament! All-welcome.",
