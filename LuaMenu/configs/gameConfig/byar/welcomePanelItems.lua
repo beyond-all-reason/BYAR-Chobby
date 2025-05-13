@@ -54,7 +54,6 @@ local welcomePanelItems = {
 --    {
 --        Header = "Upcoming Events:",
 --    },
-
 --    {
 --        Header = "Fight Night Open 2v2",
 --        Text = "Find a partner and join our 2v2 Legion-enabled tournament! All-welcome.",
