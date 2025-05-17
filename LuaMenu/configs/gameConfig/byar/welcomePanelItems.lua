@@ -15,12 +15,12 @@ local welcomePanelItems = {
         Text = "Welcome back Commander. We hope you are ready for epic Singleplayer and Multiplayer battles. Check out our Discord and join the community!\n",
     },    
     {
-        Header = "This Saturday: Kicking Off Faction Wars!",
+        Header = "Kicking Off Faction Wars!",
         Time = "2025-05-17T15:00:00",
-        Text = "It's almost time - sign up before Saturday to participate in the largest 3v3 Tournament BAR has ever seen!" .. " \n" .. " \n" .. "We've already reached 30 teams - how high can we go?",
+        Text = "It's time! Tune in to the Faction Wars Qualifier Stream as 25 teams compete for 8 qualifying spots in the biggest 3v3 tournament yet." .. " \n" .. " \n" .. "Casted by Lostdeadman, Hells Hound, Brightworks, Shadowsperke, Angry Strawberry, Big Fellas, and more!",
         Image = "LuaMenu/images/FactionWars3v3.png",
-        Url = "https://bfn.challonge.com/FWQualifier",
-        UrlText = "Sign Up & Info",
+        Url = "https://www.twitch.tv/beyondallreasonofficial",
+        UrlText = "Watch Now",
     },
     {
         Header = "Code of Conduct Update – May 2025",
