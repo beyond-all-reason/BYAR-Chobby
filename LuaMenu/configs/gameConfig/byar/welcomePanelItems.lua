@@ -17,7 +17,7 @@ local welcomePanelItems = {
     {
         Header = "Kicking Off Faction Wars!",
         Time = "2025-05-17T15:00:00",
-        Text = "It's time! Tune in to the Faction Wars Qualifier Stream as 25 teams compete for 8 qualifying spots in the biggest 3v3 tournament yet." .. " \n" .. " \n" .. "Casted by Lostdeadman, Hells Hound, Brightworks, Shadowsperke, Angry Strawberry, Big Fellas, and more!",
+        Text = "It's time! Tune in to the Faction Wars Qualifier Stream as 26 teams compete for 8 qualifying spots in the biggest 3v3 tournament yet." .. " \n" .. " \n" .. "Casted by Lostdeadman, Hells Hound, Brightworks, Shadowsperke, Angry Strawberry, Big Fellas, and more!",
         Image = "LuaMenu/images/FactionWars3v3.png",
         Url = "https://www.twitch.tv/beyondallreasonofficial",
         UrlText = "Watch Now",
