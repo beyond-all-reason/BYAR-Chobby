@@ -14,14 +14,14 @@ local welcomePanelItems = {
         Header = "Welcome to Beyond All Reason",
         Text = "Welcome back Commander. We hope you are ready for epic Singleplayer and Multiplayer battles. Check out our Discord and join the community!\n",
     },    
-    {
-        Header = "Kicking Off Faction Wars!",
-        Time = "2025-05-17T15:00:00",
-        Text = "It's time! Tune in to the Faction Wars Qualifier Stream as 26 teams compete for 8 qualifying spots in the biggest 3v3 tournament yet." .. " \n" .. " \n" .. "Casted by Lostdeadman, Hells Hound, Brightworks, Shadowsperke, Angry Strawberry, Big Fellas, and more!",
-        Image = "LuaMenu/images/FactionWars3v3.png",
-        Url = "https://www.twitch.tv/beyondallreasonofficial",
-        UrlText = "Watch Now",
-    },
+    --{
+       -- Header = "Faction Wars Main Stage",
+       -- Time = "2025-05-24T15:00:00",
+       -- Text = "It's time! Tune in to the Faction Wars Main Stage as the 8 qualifying teams compete for 4 spots in the semi-finals",
+        --Image = "LuaMenu/images/FactionWars3v3.png",
+        --Url = "https://www.twitch.tv/beyondallreasonofficial",
+        --UrlText = "Watch Here",
+    --},
     {
         Header = "Code of Conduct Update – May 2025",
         Text = "We've made some important updates to the BAR Code of Conduct to help keep our community welcoming, respectful, and focused." .. " \n" .. " \n" .. "Noteable changes include: clarified expectations, new guidelines on offensive names, and reinforcement on the importance of good faith participation. For details, please read the full changes on GitHub.",
