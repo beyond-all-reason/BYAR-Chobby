@@ -23,9 +23,10 @@ local welcomePanelItems = {
         --UrlText = "Watch Here",
     --},
     {
-        Header = "Code of Conduct Update – May 2025",
-        Text = "We've made some important updates to the BAR Code of Conduct to help keep our community welcoming, respectful, and focused." .. " \n" .. " \n" .. "Noteable changes include: clarified expectations, new guidelines on offensive names, and reinforcement on the importance of good faith participation. For details, please read the full changes on GitHub.",
-        Url = "https://github.com/beyond-all-reason/code-of-conduct/compare/c935fa6...main?diff=split&w#:~:text=%40%40%20-1%2C13%20%2B1%2C15%20%40%40-,%23%20Overview,-%23%20Overview",
+        Header = "The Lightbringer Update is Here!",
+        Text = "Commanders, after two weeks of a testing run for the Lightbringer Update, we are thrilled to announce the merge went without any major issues. This update represents the largest visual overhaul we have ever attempted. Enjoy BAR battles being more lit than ever!" .. " \n" .. " \n" .. "We have prepared a detailed post about the update and a Cinematic Highlights Video, check it out!",
+		    Image = "LuaMenu/images/welcomepanel/lightbringerbox.png",
+        Url = "https://www.beyondallreason.info/news/lightbringer-update",
         UrlText = "Read the Full Changes",
     },
     {
