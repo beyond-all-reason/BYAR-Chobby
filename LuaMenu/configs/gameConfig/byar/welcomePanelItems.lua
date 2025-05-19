@@ -27,6 +27,13 @@ local welcomePanelItems = {
         Text = "We've made some important updates to the BAR Code of Conduct to help keep our community welcoming, respectful, and focused." .. " \n" .. " \n" .. "Noteable changes include: clarified expectations, new guidelines on offensive names, and reinforcement on the importance of good faith participation. For details, please read the full changes on GitHub.",
         Url = "https://github.com/beyond-all-reason/code-of-conduct/compare/c935fa6...main?diff=split&w#:~:text=%40%40%20-1%2C13%20%2B1%2C15%20%40%40-,%23%20Overview,-%23%20Overview",
         UrlText = "Read the Full Changes",
+    },
+    {
+        Header = "Nation Wars #4 – Registration Open",
+        Text = "The 4th edition of our friendly competition to find out which nation is the best at BAR is coming in hot this June!\nWill the United States defend their title, or will YOU claim it and bolster your flag's pride?".." \n".." \n".."Join the Nation Wars Discord, rally your fellows, and form a team of 4 to 6 players to represent your nation!\nIf more than 2 teams register for the same nation, they will play national qualifiers to determine the best 2 to enter the main event.".." \n".." \n".."You have until May 30 to sign up, before battling it out in 4v4 against the other nations on the weekends of June 14/15 and June 21/22.\nFull rules available on the Nation Wars Discord.",
+        Image = "LuaMenu/images/nation_wars.png",
+        Url = "https://discord.gg/qurXWcjmNN",
+        UrlText = "Nation Wars Discord",
     },  
     {
         Header = "New Map: Pools of Ilys",
