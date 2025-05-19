@@ -54,7 +54,7 @@ local function SuperAnnouncePopup()
 		x = (width-760)/2,
 		y = (height-670)/2,
 		width = 760,
-		height = 670,
+		height = 700,
 		caption = "",
 		resizable = false,
 		draggable = false,
@@ -80,25 +80,27 @@ local function SuperAnnouncePopup()
 		right = 2,
 		align = "center",
 		y = 80,
-		width = 160,
-		height = 90,
+		width = 450,
+		height = 253,
 		keepAspect = true,
 		file = IMG_SUPERANNOUNCE,
 		parent = superAnnounceWindow
 	}
 
 	local offset = superAnnounceWindow.height * 0.65
+	offset = offset + 40
 
 	TextBox:New {
 		x = 28,
 		right = 28,
-		y = offset - 120,
+		y = offset - 125,
 		height = 35,
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
 		text = "Commanders, after two weeks of a testing run for the Lightbringer Update, we are thrilled to announce the merge went without any major issues. Enjoy BAR battles being more lit than ever!" .. " \n" .. " \n" .. "We have prepared a detailed post about the update and a Cinematic Highlights Video, check it out!",
 		parent = superAnnounceWindow
 	}
+	
 
 	local function CancelFunc()
 		superAnnounceWindow:Dispose()
