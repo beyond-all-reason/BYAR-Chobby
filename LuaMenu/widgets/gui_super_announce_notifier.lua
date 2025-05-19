@@ -3,14 +3,14 @@
 
 function widget:GetInfo()
 	return {
-		name      = "Super Announcement Notifier 1.0",
+		name      = "Super Announcement Notifier 1.01",
 		desc      = "For important news. Opens a priority popup shortly after launch.",
 		author    = "Moose, GoogleFrog",
 		date      = "11 November 2024",
 		version   = "1.0",
 		license   = "GNU LGPL, v2.1 or later",
 		layer     = 0,
-		enabled   = true  --  disabling this after enabling won't turn the announcement off 
+		enabled   = true  -- DO NOT DISABLE? disabling this after enabling won't turn the announcement off 
 	}
 end
 
@@ -22,7 +22,19 @@ local IMG_SUPERANNOUNCE = LUA_DIRNAME .. "images/welcomepanel/lightbringer.png"
 local doNotAskAgainKey = "lb" -- change this for new announcement
 
 local enableAnnouncement = true -- this is the actual enable/disable switch
+-- The date from whichforth this announcement is meant to be visbile
+-- So that you may make once ahead of time
 local announceDate = {0, 0, 0, 0, 0, 0} -- second, minute, hour, day, month, year (UTC)
+
+-- shoutout to PTAQ for breaking things
+announceDate = {
+	math.min(math.max(1, announceDate[1] or 0), 60),
+	math.min(math.max(1, announceDate[2] or 0), 60),
+	math.min(math.max(1, announceDate[3] or 0), 24),
+	math.min(math.max(1, announceDate[4] or 0), 28), -- no way am i checking how this handles 31 in a 28 day month
+	math.min(math.max(1, announceDate[5] or 0), 12),
+	math.min(math.max(2024, announceDate[6] or 0), 2077)
+}
 
 local function SuperAnnouncePopup()
 	local Configuration = WG.Chobby.Configuration
