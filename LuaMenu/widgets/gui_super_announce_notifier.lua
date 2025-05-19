@@ -19,7 +19,7 @@ end
 --------------------------------------------------------------------------------
 -- Initialization
 local IMG_SUPERANNOUNCE = LUA_DIRNAME .. "images/welcomepanel/lightbringer.png"
-local doNotAskAgainKey = "lb" -- change this for new announcement
+local doNotAskAgainValue = "lb" -- change this for new announcement
 
 local enableAnnouncement = true -- this is the actual enable/disable switch
 -- The date from whichforth this announcement is meant to be visbile
@@ -39,7 +39,7 @@ announceDate = {
 local function SuperAnnouncePopup()
 	local Configuration = WG.Chobby.Configuration
 
-	if enableAnnouncement == false or Configuration[doNotAskAgainKey] then
+	if enableAnnouncement == false or Configuration.supperAnnouncementKey == doNotAskAgainValue then
 		return
 	end
 
@@ -163,12 +163,14 @@ local function SuperAnnouncePopup()
 		boxalign = "right",
 		boxsize = 20,
 		caption = "Do not notify again",
-		checked = Configuration[doNotAskAgainKey] or false,
+		checked = Configuration.supperAnnouncementKey == doNotAskAgainValue or false,
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		parent = superAnnounceWindow,
 		OnClick = {
 			function (obj)
-				Configuration:SetConfigValue(doNotAskAgainKey, obj.checked)
+				if obj.checked then
+					Configuration:SetConfigValue("supperAnnouncementKey", doNotAskAgainValue)
+				end
 			end
 		}
 	}

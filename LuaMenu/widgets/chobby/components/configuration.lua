@@ -413,6 +413,7 @@ function Configuration:init()
 	-- should be removed at about 1.1.2024 together with all other occurences of tempChangedShowSkill
 	-- remember if new default of showSkill was applied
 	self.tempChangedShowSkill = false
+	self.supperAnnouncementKey = "nil"
 end
 
 ---------------------------------------------------------------------------------
@@ -753,7 +754,7 @@ function Configuration:GetConfigData()
 		useLastGameSpectatorState = self.useLastGameSpectatorState,
 		friendsFilterOnline = self.friendsFilterOnline,
 		queueExitConfirmPromptDoNotAskAgain = self.queueExitConfirmPromptDoNotAskAgain,
-		season2AnnouncePopupSeen = self.season2AnnouncePopupSeen
+		supperAnnouncementKey = self.supperAnnouncementKey
 	}
 end
 
