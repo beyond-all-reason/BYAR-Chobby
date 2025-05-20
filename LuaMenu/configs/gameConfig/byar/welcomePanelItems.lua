@@ -13,7 +13,8 @@ local welcomePanelItems = {
     {
         Header = "Welcome to Beyond All Reason",
         Text = "Welcome back Commander. We hope you are ready for epic Singleplayer and Multiplayer battles. Check out our Discord and join the community!\n",
-    },    
+    },
+
     --{
        -- Header = "Faction Wars Main Stage",
        -- Time = "2025-05-24T15:00:00",
@@ -22,6 +23,7 @@ local welcomePanelItems = {
         --Url = "https://www.twitch.tv/beyondallreasonofficial",
         --UrlText = "Watch Here",
     --},
+
     {
         Header = "The Lightbringer Update is Here!",
         Text = "Commanders, after two weeks of a testing run for the Lightbringer Update, we are thrilled to announce the merge went without any major issues. This update represents the largest visual overhaul we have ever attempted. Enjoy BAR battles being more lit than ever!" .. " \n" .. " \n" .. "We have prepared a detailed post about the update and a Cinematic Highlights Video, check it out!",
@@ -29,13 +31,15 @@ local welcomePanelItems = {
         Url = "https://www.beyondallreason.info/news/lightbringer-update",
         UrlText = "Read the Full Changes",
     },
+
     {
         Header = "Nation Wars #4 – Registration Open",
         Text = "The 4th edition of our friendly competition to find out which nation is the best at BAR is coming in hot this June!\nWill the United States defend their title, or will YOU claim it and bolster your flag's pride?".." \n".." \n".."Join the Nation Wars Discord, rally your fellows, and form a team of 4 to 6 players to represent your nation!\nIf more than 2 teams register for the same nation, they will play national qualifiers to determine the best 2 to enter the main event.".." \n".." \n".."You have until May 30 to sign up, before battling it out in 4v4 against the other nations on the weekends of June 14/15 and June 21/22.\nFull rules available on the Nation Wars Discord.",
         Image = "LuaMenu/images/nation_wars.png",
         Url = "https://discord.gg/qurXWcjmNN",
         UrlText = "Nation Wars Discord",
-    },  
+    },
+
     {
         Header = "New Map: Pools of Ilys",
         Text = "Crucial geothermal vents were discovered on the surface of Ilys. Make landfall and secure."  .. " \n" .. " \n" ..  "Vast ponds breakup an icy landscape rich with geothermal power."  .. " \n" .. " \n" ..  "Designed for 1v1 - 3v3, supports up to 5v5. Made by neb_",
@@ -51,31 +55,14 @@ local welcomePanelItems = {
         Text = "Anomalous light signatures were detected on a moon orbiting an Astral Compound." .. " \n" .. " \n" .. "Preliminary scans have revealed structures of unknown orgin. Further investigation is necessary."  .. " \n" .. " \n" ..  "Designed for 3v3, supports 1v1 to 5v5. Made by Zagupi.",
         Image = "LuaMenu/images/maps/prismaticanomaly.png",
     },
---    {
---        Header = "Get Ready for Faction Wars!",
---        Time = "2025-05-17T15:00:00",
---        Text = "May is the Month of Legion, and Faction Wars is just around the corner. Commanders, it's time to start cooking!" .. " \n" .. " \n" .. "Sign up before May 10th to secure your spot in the biggest 3v3 Tournament of the Summer - Legion is enabled, and we have lots of fun things planned. Stay tuned!",
---        Image = "LuaMenu/images/FactionWars3v3.png",
---        Url = "https://bfn.challonge.com/FWQualifier",
---        UrlText = "Sign Up & Info",
---    },   
---    {
---        Header = "Upcoming Events:",
---    },
---    {
---        Header = "Fight Night Open 2v2",
---        Text = "Find a partner and join our 2v2 Legion-enabled tournament! All-welcome.",
---        Time = "2025-05-10T17:00:00",
---        Image = "LuaMenu/images/twitchmisc/FightNight.png",
---        Url = "https://bfn.challonge.com/FN2",
---        UrlText = "Sign Up",
---    },
+
     {
         Header = "Now Available: BAR Guides",
         Text = "New to Beyond All Reason? Check out these new Guides on Discord written by Zeteo!" .. " \n" .. " \n",
         Url = "https://discord.com/channels/549281623154229250/1303141562120929320/1303141562120929320",
         UrlText = "Read the new Guides",
     },
+
     {
         Header = "BAR is accepting donations again! ",
         Text = "Dear Commanders, we are delighted to announce the reopening of our donation platform after a longer-than-expected hiatus." .. " \n" .. " \n" .. "As we've been hard at work refining BAR to ensure maximum enjoyment for our ever-expanding community, we repeatedly placed donation efforts on hold to focus on other priorities." .. " \n" .. " \n" .. "Support BAR with our newly reopened donation platform!" .. " \n",
@@ -100,18 +87,9 @@ local welcomePanelItems = {
     --[[
     {
         Header = "New engine release",
-        Url = nil, -- should be nil if you dont want a clickable link button
-        Time = nil, --"",
         Text = "We've just released a new engine update. Be sure to report any issues to #bugreports on the discord and thank you for bearing with us through any teething problems with it.."
     },
     --]]
-
-    --{
-    --    Header = "Code of Conduct",
-    --    Url = "https://www.beyondallreason.info/code-of-conduct",
-    --    Text = "We recently updated our code of conduct; be sure to check it out. As our community growth we've added the ability to report problems, click a user and select 'report user' to alert the moderator team to an issue. See the full code of conduct at https://www.beyondallreason.info/code-of-conduct",
-    --    UrlText = "Code of Conduct Link"
-    --},
 
     {
         Header = "Play with your friends: use our servers!",
