@@ -15,14 +15,14 @@ local welcomePanelItems = {
         Text = "Welcome back Commander. We hope you are ready for epic Singleplayer and Multiplayer battles. Check out our Discord and join the community!\n",
     },
 
-    --{
-       -- Header = "Faction Wars Main Stage",
-       -- Time = "2025-05-24T15:00:00",
-       -- Text = "It's time! Tune in to the Faction Wars Main Stage as the 8 qualifying teams compete for 4 spots in the semi-finals",
-        --Image = "LuaMenu/images/FactionWars3v3.png",
-        --Url = "https://www.twitch.tv/beyondallreasonofficial",
-        --UrlText = "Watch Here",
-    --},
+    {
+        Header = "Faction Wars: Main Stage!",
+        Time = "2025-05-24T15:00:00",
+        Text = "Catch the qualifying 8 teams go head to head this weekend as they fight over four spots in the Semi Finals!"  .. " \n" .. " \n" ..  "Casted by Lostdeadman, Hells Hound, Angry Strawberry, vdb and more!",
+        Image = "LuaMenu/images/FactionWars3v3.png",
+        Url = "https://www.youtube.com/watch?v=2juI32sre1o",
+        UrlText = "Watch The Qualifier",
+    },
 
     {
         Header = "The Lightbringer Update is Here!",
