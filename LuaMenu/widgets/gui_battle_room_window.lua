@@ -1499,6 +1499,9 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	return externalFunctions
 end
 
+local ARM_MASK = 2^0
+local COR_MASK = 2^1
+local LEG_MASK = 2^2
 local function AddTeamButtons(parent, offX, joinFunc, aiFunc, unjoinable, disallowBots, allyTeam)
 	if not disallowBots then
 		local addAiButton = Button:New {
@@ -1655,9 +1658,9 @@ local function AddTeamButtons(parent, offX, joinFunc, aiFunc, unjoinable, disall
 					teamFactionsSigns[3] = "✔  "
 					teamFactionsSigns[4] = "✔  "
 				else
-					teamFactionsSigns[2] = math.bit_and(newbitmask, 1) == 1 and "✔  " or "🔒  "
-					teamFactionsSigns[3] = math.bit_and(newbitmask, 2) == 2 and "✔  " or "🔒  "
-					teamFactionsSigns[4] = math.bit_and(newbitmask, 4) == 4 and "✔  " or "🔒  "
+					teamFactionsSigns[2] = math.bit_and(newbitmask, ARM_MASK) ~= 0 and "✔  " or "🔒  "
+					teamFactionsSigns[3] = math.bit_and(newbitmask, COR_MASK) ~= 0 and "✔  " or "🔒  "
+					teamFactionsSigns[4] = math.bit_and(newbitmask, LEG_MASK) ~= 0 and "✔  " or "🔒  "
 				end
 				currentBitmask = bitmask
 				currentOurBitmask = newbitmask
@@ -1676,17 +1679,17 @@ local function AddTeamButtons(parent, offX, joinFunc, aiFunc, unjoinable, disall
 				factionCor:Show()
 				factionLeg:Show()
 			else
-				if math.bit_and(currentOurBitmask, 1) == 1 then
+				if math.bit_and(currentOurBitmask, ARM_MASK) ~= 0 then
 					factionArm:Show()
 				else
 					factionArm:Hide()
 				end
-				if math.bit_and(currentOurBitmask, 2) == 2 then
+				if math.bit_and(currentOurBitmask, COR_MASK) ~= 0 then
 					factionCor:Show()
 				else
 					factionCor:Hide()
 				end
-				if math.bit_and(currentOurBitmask, 4) == 4 then
+				if math.bit_and(currentOurBitmask, LEG_MASK) ~= 0 then
 					factionLeg:Show()
 				else
 					factionLeg:Hide()
