@@ -1502,6 +1502,7 @@ end
 local ARM_MASK = 2^0
 local COR_MASK = 2^1
 local LEG_MASK = 2^2
+local FULL_BITMASK = math.bit_and(ARM_MASK, COR_MASK, LEG_MASK)
 local function AddTeamButtons(parent, offX, joinFunc, aiFunc, unjoinable, disallowBots, allyTeam)
 	if not disallowBots then
 		local addAiButton = Button:New {
@@ -1543,7 +1544,7 @@ local function AddTeamButtons(parent, offX, joinFunc, aiFunc, unjoinable, disall
 
 
 		-- isolate our 3 bits
-		local ourBitmask = 7
+		local ourBitmask = FULL_BITMASK
 		for i = 1, myAllyTeam do
 			ourBitmask = ourBitmask * 8
 		end
@@ -1624,14 +1625,15 @@ local function AddTeamButtons(parent, offX, joinFunc, aiFunc, unjoinable, disall
 						newbitmask = 0
 						newbitmask = math.bit_and(currentBitmask, math.bit_inv(ourBitmask))
 					else
+						-- Shift 2,3 and 4 into 1,2, and 4 to match the faction bit value
 						local bit = selected == 4 and 4 or selected - 1
 						if currentOurBitmask == bit then
-							newbitmask = math.bit_xor(7, bit)
+							newbitmask = math.bit_xor(FULL_BITMASK, bit)
 						else
 							newbitmask = math.bit_xor(currentOurBitmask, bit)
 						end
 
-						if newbitmask == 7 then
+						if newbitmask == FULL_BITMASK then
 							newbitmask = 0
 						end
 						newbitmask = math.bit_or(
