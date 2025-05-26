@@ -19,7 +19,7 @@ local welcomePanelItems = {
         Header = "Faction Wars: Conclusion",
         Text = "Thank you to all of the 24 teams who participated in the first ever Faction Wars! The community participation has been incredible, and we can't wait to organize the next one."  .. " \n" .. " \n" ..  "Congratulations to our new Champions - we won't spoil it, though, so you'll have to watch the finals...",
         Image = "LuaMenu/images/FactionWars3v3.png",
-        Url = "https://www.youtube.com/watch?v=EXy5zLXFDLo",
+        Url = "https://youtu.be/S7SCLm_ydQU?si=oqdMe3iZNdl5zYdh",
         UrlText = "Watch The Finals",
     },
 
