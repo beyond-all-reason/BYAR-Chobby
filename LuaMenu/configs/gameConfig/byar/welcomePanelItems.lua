@@ -16,20 +16,19 @@ local welcomePanelItems = {
     },
 
     {
+        Header = "Faction Wars: Conclusion",
+        Text = "Thank you to all of the 24 teams who participated in the first ever Faction Wars! The community participation has been incredible, and we can't wait to organize the next one."  .. " \n" .. " \n" ..  "Congratulations to our new Champions - we won't spoil it, though, so you'll have to watch the finals...",
+        Image = "LuaMenu/images/FactionWars3v3.png",
+        Url = "https://www.youtube.com/watch?v=EXy5zLXFDLo",
+        UrlText = "Watch The Finals",
+    },
+
+    {
         Header = "The Lightbringer Update is Here!",
         Text = "Commanders, after two weeks of a testing run for the Lightbringer Update, we are thrilled to announce the merge went without any major issues. This update represents the largest visual overhaul we have ever attempted. Enjoy BAR battles being more lit than ever!" .. " \n" .. " \n" .. "We have prepared a detailed post about the update and a Cinematic Highlights Video, check it out!",
 	    Image = "LuaMenu/images/welcomepanel/lightbringerbox.png",
         Url = "https://www.beyondallreason.info/news/lightbringer-update",
         UrlText = "Read the Full Changes",
-    },
-
-    {
-        Header = "Faction Wars: Main Stage!",
-        Time = "2025-05-24T15:00:00",
-        Text = "Catch the qualifying 8 teams go head to head this weekend as they fight over four spots in the Semi Finals!"  .. " \n" .. " \n" ..  "Casted by Lostdeadman, Hells Hound, Angry Strawberry, vdb and more!",
-        Image = "LuaMenu/images/FactionWars3v3.png",
-        Url = "https://www.youtube.com/watch?v=2juI32sre1o",
-        UrlText = "Watch The Qualifier",
     },
 
     {
