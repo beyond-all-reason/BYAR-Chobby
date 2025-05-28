@@ -3158,11 +3158,11 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	local MessageListener
 	if battleLobby.name == "singleplayer" then
 		MessageListener = function(message)
-			if message:find("!bset") then
+			if message:find("!bset ") then
 				local cmdCounter = 0
 				local modoptions = battleLobby:GetMyBattleModoptions()
 				for newLineSeperated in message:gmatch("[^\n]+") do
-					if newLineSeperated:starts("!bset") then
+					if newLineSeperated:starts("!bset ") then
 						cmdCounter = cmdCounter + 1
 						local i = newLineSeperated:find(" ", 7)
 						modoptions[newLineSeperated:sub(7, i-1)] = newLineSeperated:sub(i+1)
