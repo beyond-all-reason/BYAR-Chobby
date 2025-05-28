@@ -3162,6 +3162,30 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 			battleLobby:SayBattle(message)
 		end
 	end
+
+	if battleLobby.name == "singleplayer" then
+		local realMessageListiner = MessageListener
+		MessageListener = function(message)
+			if message:find("!bset ") then
+				local cmdCounter = 0
+				local modoptions = battleLobby:GetMyBattleModoptions()
+				for newLineSeperated in message:gmatch("[^\n]+") do
+					if newLineSeperated:starts("!bset ") then
+						cmdCounter = cmdCounter + 1
+						local i = newLineSeperated:find(" ", 7)
+						modoptions[newLineSeperated:sub(7, i-1)] = newLineSeperated:sub(i+1)
+					end
+				end
+				battleLobby:SetModOptions(modoptions)
+				battleLobby:SayBattleEx(
+					"\255\128\128\255"..-- My Cool Blue™ (it purple)
+					"Intercepted: "..cmdCounter.." \"bset\" commands"
+				)
+				return
+			end
+			realMessageListiner(message)
+		end
+	end
 	local battleRoomConsole = WG.Chobby.Console("Battleroom Chat", MessageListener, true, nil, true)
 
 	local chatPanel = Control:New {
