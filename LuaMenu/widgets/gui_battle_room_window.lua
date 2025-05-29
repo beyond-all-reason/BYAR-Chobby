@@ -3155,7 +3155,14 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	end
 	UpdateBattleTitle()
 
-	local MessageListener
+	local function MessageListener(message)
+		if message:starts("/me ") then
+			battleLobby:SayBattleEx(message:sub(5))
+		else
+			battleLobby:SayBattle(message)
+		end
+	end
+
 	if battleLobby.name == "singleplayer" then
 		MessageListener = function(message)
 			if message:find("!bset ") then
@@ -3175,14 +3182,6 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 				)
 				return
 			end
-			if message:starts("/me ") then
-				battleLobby:SayBattleEx(message:sub(5))
-			else
-				battleLobby:SayBattle(message)
-			end
-		end
-	else
-		MessageListener = function(message)
 			if message:starts("/me ") then
 				battleLobby:SayBattleEx(message:sub(5))
 			else
