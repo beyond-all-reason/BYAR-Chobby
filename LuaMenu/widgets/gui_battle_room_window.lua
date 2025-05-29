@@ -3176,7 +3176,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 					end
 				end
 				battleLobby:SetModOptions(modoptions)
-				battleLobby:SayBattle(
+				battleLobby:SayBattleEx(
 					"\255\128\128\255"..-- My Cool Blue™ (it purple)
 					"Intercepted: "..cmdCounter.." \"bset\" commands"
 				)
