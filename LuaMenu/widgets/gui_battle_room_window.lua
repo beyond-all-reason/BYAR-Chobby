@@ -1502,7 +1502,7 @@ end
 local ARM_MASK = 2^0
 local COR_MASK = 2^1
 local LEG_MASK = 2^2
-local FULL_BITMASK = math.bit_and(ARM_MASK, COR_MASK, LEG_MASK)
+local FULL_BITMASK = math.bit_or(ARM_MASK, COR_MASK, LEG_MASK)
 local function AddTeamButtons(parent, offX, joinFunc, aiFunc, unjoinable, disallowBots, allyTeam)
 	if not disallowBots then
 		local addAiButton = Button:New {
