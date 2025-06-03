@@ -3171,7 +3171,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 				local modoptions = battleLobby:GetMyBattleModoptions()
 				for line in message:gmatch("[^\n]+") do
 					if line:starts("!bset ") then
-						local key, value = line:match("^!bset%s+(%a%w*)%s+(.+)%s*$")
+						local key, value = line:match("^!bset%s+([%a_][%w_]*)%s+(.+)%s*$")
 						if key and value then
 							modoptions[key] = value
 							cmdCounter = cmdCounter + 1
