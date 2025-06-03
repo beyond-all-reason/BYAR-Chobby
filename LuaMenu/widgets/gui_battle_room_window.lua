@@ -3164,7 +3164,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	end
 
 	if battleLobby.name == "singleplayer" then
-		local realMessageListiner = MessageListener
+		local realMessageListener = MessageListener
 		MessageListener = function(message)
 			if message:find("!bset ") then
 				local cmdCounter = 0
