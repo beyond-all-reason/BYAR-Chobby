@@ -3188,7 +3188,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 					)
 				end
 			else
-				realMessageListiner(message)
+				realMessageListener(message)
 			end
 		end
 	end
