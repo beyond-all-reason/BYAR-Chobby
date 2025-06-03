@@ -3187,9 +3187,9 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 						"Applied: "..cmdCounter.." \"bset\" commands"
 					)
 				end
-				return
+			else
+				realMessageListiner(message)
 			end
-			realMessageListiner(message)
 		end
 	end
 	local battleRoomConsole = WG.Chobby.Console("Battleroom Chat", MessageListener, true, nil, true)
