@@ -16,14 +16,6 @@ local welcomePanelItems = {
     },
 
     {
-        Header = "Faction Wars: Conclusion",
-        Text = "Thank you to all of the 24 teams who participated in the first ever Faction Wars! The community participation has been incredible, and we can't wait to organize the next one."  .. " \n" .. " \n" ..  "Congratulations to our new Champions - we won't spoil it, though, so you'll have to watch the finals...",
-        Image = "LuaMenu/images/FactionWars3v3.png",
-        Url = "https://youtu.be/S7SCLm_ydQU?si=oqdMe3iZNdl5zYdh",
-        UrlText = "Watch The Finals",
-    },
-
-    {
         Header = "The Lightbringer Update is Here!",
         Text = "Commanders, after two weeks of a testing run for the Lightbringer Update, we are thrilled to announce the merge went without any major issues. This update represents the largest visual overhaul we have ever attempted. Enjoy BAR battles being more lit than ever!" .. " \n" .. " \n" .. "We have prepared a detailed post about the update and a Cinematic Highlights Video, check it out!",
 	    Image = "LuaMenu/images/welcomepanel/lightbringerbox.png",
@@ -40,19 +32,23 @@ local welcomePanelItems = {
     },
 
     {
-        Header = "New Map: Pools of Ilys",
-        Text = "Crucial geothermal vents were discovered on the surface of Ilys. Make landfall and secure."  .. " \n" .. " \n" ..  "Vast ponds breakup an icy landscape rich with geothermal power."  .. " \n" .. " \n" ..  "Designed for 1v1 - 3v3, supports up to 5v5. Made by neb_",
-        Image = "LuaMenu/images/maps/poolsofilys.png",
+        Header = "Upcoming Events",
     },
+
     {
-        Header = "New Map: Sand Crowns",
-        Text = "Corner spawns fight over sand crowns surrounding secluded sharp peaks."  .. " \n" .. " \n" ..  "The pale landscape is dotted with vibrant blue crystals."  .. " \n" .. " \n" ..  "Supports up to 4v4v4v4. Made by Phalange.",
-        Image = "LuaMenu/images/maps/sandcrowns.png",
+        Header = "Factory Costs Modoption Test Lobby",
+        Text = "We will be testing the new modoption which reduces the cost of T2 factories. Join in on the fun and help find the most broken new strategies!",
+        Time = "2025-06-04T17:00:00",
+        Url = "https://discord.com/channels/549281623154229250/1378679303595888710",
+        UrlText = "Join the Discussion",
     },
+
     {
-        Header = "New Map: Prismatic Anomaly",
-        Text = "Anomalous light signatures were detected on a moon orbiting an Astral Compound." .. " \n" .. " \n" .. "Preliminary scans have revealed structures of unknown orgin. Further investigation is necessary."  .. " \n" .. " \n" ..  "Designed for 3v3, supports 1v1 to 5v5. Made by Zagupi.",
-        Image = "LuaMenu/images/maps/prismaticanomaly.png",
+        Header = "Discord Wars - 5v5 Tournament",
+        Text = "A few of the National BAR discords have teamed up to host a 5v5 tournament this Friday." .. " \n" .. " \n" .. "All are welcome, no matter your skill. Teams will be balanced for an even playing field.  No team? No problem! Sign up and you'll be paired with your dream team!",
+        Time = "2025-06-06T18:00:00",
+        Url = "https://challonge.com/DiscordWars",
+        UrlText = "Sign Up",
     },
 
     {
