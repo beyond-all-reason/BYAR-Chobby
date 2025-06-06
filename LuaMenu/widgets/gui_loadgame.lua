@@ -211,7 +211,12 @@ local function LoadGameByFilename(filename)
 		if saveData.engineVersion:match("^2") then	--Handle new naming scheme
 			local year, month = saveData.engineVersion:match("^%d%d(%d%d)%.(%d%d)")
 			local branch = "rel" .. year .. month
-			params.Engine = branch .. "." .. saveData.engineVersion
+			if tonumber(month) and tonumber(month) >=4 and tonumber(year) and tonumber(year) >=25 then
+				params.Engine = "recoil_"..saveData.engineVersion
+			else
+				params.Engine = branch .. "." .. saveData.engineVersion
+			end
+			Spring.Echo("Save file contains Engine Version: ", saveData.engineVersion, "However, the engine is a new version, so lets see year, month, branch:", year, month, branch, "attempting to start with ", params.Engine)
 		else	--Assume old naming scheme
 			params.Engine = string.gsub(saveData.engineVersion, "BAR105", "bar")
 		end
