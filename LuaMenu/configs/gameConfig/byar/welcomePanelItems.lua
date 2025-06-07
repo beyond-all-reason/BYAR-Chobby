@@ -31,25 +31,10 @@ local welcomePanelItems = {
         UrlText = "Nation Wars Discord",
     },
 
-    {
-        Header = "Upcoming Events",
-    },
+   -- {
+ --       Header = "Upcoming Events",
+  --  },
 
-    {
-        Header = "Factory Costs Modoption Test Lobby",
-        Text = "We will be testing the new modoption which reduces the cost of T2 factories. Join in on the fun and help find the most broken new strategies!",
-        Time = "2025-06-04T17:00:00",
-        Url = "https://discord.com/channels/549281623154229250/1378679303595888710",
-        UrlText = "Join the Discussion",
-    },
-
-    {
-        Header = "Discord Wars - 5v5 Tournament",
-        Text = "A few of the National BAR discords have teamed up to host a 5v5 tournament this Friday." .. " \n" .. " \n" .. "All are welcome, no matter your skill. Teams will be balanced for an even playing field.  No team? No problem! Sign up and you'll be paired with your dream team!",
-        Time = "2025-06-06T18:00:00",
-        Url = "https://challonge.com/DiscordWars",
-        UrlText = "Sign Up",
-    },
 
     {
         Header = "Now Available: BAR Guides",
