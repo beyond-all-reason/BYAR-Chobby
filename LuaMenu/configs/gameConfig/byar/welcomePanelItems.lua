@@ -24,11 +24,11 @@ local welcomePanelItems = {
     },
 
     {
-        Header = "Nation Wars #4 – Registration Open",
-        Text = "The 4th edition of our friendly competition to find out which nation is the best at BAR is coming in hot this June!\nWill the United States defend their title, or will YOU claim it and bolster your flag's pride?".." \n".." \n".."Join the Nation Wars Discord, rally your fellows, and form a team of 4 to 6 players to represent your nation!\nIf more than 2 teams register for the same nation, they will play national qualifiers to determine the best 2 to enter the main event.".." \n".." \n".."You have until June 6 to sign up, before battling it out in 4v4 against the other nations on the weekends of June 14/15 and June 21/22.\nFull rules / format / map pool / schedule available on the Nation Wars Discord.",
-        Image = "LuaMenu/images/nation_wars.png",
-        Url = "https://discord.gg/qurXWcjmNN",
-        UrlText = "Nation Wars Discord",
+        Header = "Help Keep BAR Clean - Join the Overwatch Team!",
+        Text = "As BAR grows, so does the need for solid community moderation. We're looking for reliable, level-headed players to join the Overwatch Team—a trusted group that helps review reports, flag issues, and keep things fair.".." \n".." \n".."If you’re active and care about a respectful game space, we’d love your help!".." \n".." \n".."Grab the development role from ⁠Channels & Roles to access the thread below:",
+        Image = "LuaMenu/images/overwatch.png",
+        Url = "https://discord.com/channels/549281623154229250/1097438343861649458",
+        UrlText = "Sign Up for Overwatch",
     },
 
    -- {
