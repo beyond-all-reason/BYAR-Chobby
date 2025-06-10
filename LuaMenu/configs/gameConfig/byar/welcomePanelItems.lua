@@ -24,6 +24,14 @@ local welcomePanelItems = {
     },
 
     {
+        Header = "Nation Wars #4 – Group stage",
+        Text = "The 4th edition of our friendly competition to find out which nation is the best at BAR is coming in hot this June!\nWill the United States defend their title, or will another nation claim it?".." \n".." \n".."Tune in to Twitch on the weekend of June 14/15 and watch teams of competitors hailing from 20 nations battle it out in 4v4.\nOnly 8 teams will manage to claw their way out of the group stage and qualify for elimination brackets on June 21/22.".." \n".." \n".."Full details available on the Nation Wars Discord.",
+        Image = "LuaMenu/images/nation_wars.png",
+        Url = "https://discord.gg/qurXWcjmNN",
+        UrlText = "Nation Wars Discord",
+    },
+
+    {
         Header = "Help Keep BAR Clean - Join the Overwatch Team!",
         Text = "As BAR grows, so does the need for solid community moderation. We're looking for reliable, level-headed players to join the Overwatch Team—a trusted group that helps review reports, flag issues, and keep things fair.".." \n".." \n".."If you’re active and care about a respectful game space, we’d love your help!".." \n".." \n".."Grab the development role from ⁠Channels & Roles to access the thread below:",
         Image = "LuaMenu/images/overwatch.png",
@@ -31,10 +39,9 @@ local welcomePanelItems = {
         UrlText = "Sign Up for Overwatch",
     },
 
-   -- {
- --       Header = "Upcoming Events",
-  --  },
-
+    -- {
+    --     Header = "Upcoming Events",
+    -- },
 
     {
         Header = "Now Available: BAR Guides",
