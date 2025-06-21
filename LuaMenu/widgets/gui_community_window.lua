@@ -203,6 +203,56 @@ end
 --------------------------------------------------------------------------------
 -- News
 
+local function GetTextHash(header, text)
+	local combinedText = (header or "") .. ". " .. (text or "")
+	if combinedText == ". " or combinedText == "" then
+		return ""
+	end
+	
+	local hash = ""
+	for sentence in string.gmatch(combinedText, "[^%.%!%?]+") do
+		sentence = string.gsub(sentence, "^%s*", "")
+		if sentence ~= "" then
+			local firstChar = string.sub(sentence, 1, 1)
+			if firstChar ~= "" then
+				hash = hash .. firstChar
+			end
+		end
+	end
+	
+	return hash
+end
+
+local function CleanupSeenWelcomeItems(currentWelcomeItems)
+	local seenWelcomeItems = WG.Chobby.Configuration.seenWelcomeItems or {}
+	if not currentWelcomeItems or #currentWelcomeItems == 0 then
+		return
+	end
+	
+	local currentItemHashes = {}
+	for i = 1, #currentWelcomeItems do
+		local itemHash = GetTextHash(currentWelcomeItems[i].Header, currentWelcomeItems[i].Text)
+		if itemHash ~= "" then
+			currentItemHashes[itemHash] = true
+		end
+	end
+	
+	local hasChanges = false
+	local cleanedSeenItems = {}
+	for itemKey, seen in pairs(seenWelcomeItems) do
+		if currentItemHashes[itemKey] then
+			cleanedSeenItems[itemKey] = seen
+		else
+			hasChanges = true
+		end
+	end
+	
+	if hasChanges then
+		WG.Chobby.Configuration:SetConfigValue("seenWelcomeItems", cleanedSeenItems)
+	end
+end
+
+
 local function GetDateTimeDisplay(parentControl, xPosition, yPosition, timeString)
 	local timeTextColor = WG.Chobby.Configuration.selectedColor
 
@@ -395,8 +445,8 @@ local function GetNewsEntry(parentHolder, index, headingSize, timeAsTooltip, top
 
 		if not controls.heading then
 			local seenWelcomeItems = WG.Chobby.Configuration.seenWelcomeItems or {}
-			local itemKey = entryData.heading
-			local isNewItem = not seenWelcomeItems[itemKey]
+			local itemKey = GetTextHash(entryData.heading, entryData.text)
+			local isNewItem = itemKey ~= "" and not seenWelcomeItems[itemKey]
 			
 			if isNewItem then
 				seenWelcomeItems[itemKey] = true
@@ -895,6 +945,8 @@ local function InitializeControls(window)
 	if WG.Chobby.Configuration and WG.Chobby.Configuration.gameConfig and WG.Chobby.Configuration.gameConfig.welcomePanelItems then
 		welcomePanelItems = WG.Chobby.Configuration.gameConfig.welcomePanelItems
 	end
+
+	CleanupSeenWelcomeItems(welcomePanelItems)
 
 	local newsHandler = GetNewsHandler(topWide, 4)
 	if welcomePanelItems then
