@@ -276,6 +276,38 @@ local function GetDateTimeDisplay(parentControl, xPosition, yPosition, timeStrin
 
 	return externalFunctions
 end
+				
+local function UpdatePulse(controls, entryData, pulseStartTime)
+	if not controls or not controls.visible then
+		return
+	end
+	
+	local currentTime = os.clock()
+	local elapsed = currentTime - pulseStartTime
+	local pulseTransitionTime = 1.0
+	local pulseIntermissionTime = 3.0
+	local pulseColor = {255, 235, 30}
+	local cycleTime = pulseTransitionTime + pulseIntermissionTime
+	local cyclePosition = elapsed % cycleTime
+	
+	local text = entryData.heading
+	if cyclePosition <= pulseTransitionTime then
+		local timeInPulse = cyclePosition / pulseTransitionTime
+		local pulsePhase = math.sin(timeInPulse * math.pi)
+		
+		local r = math.floor(255 - ((255 - pulseColor[1]) * pulsePhase))
+		local g = math.floor(255 - ((255 - pulseColor[2]) * pulsePhase))
+		local b = math.floor(255 - ((255 - pulseColor[3]) * pulsePhase))
+		
+		local interpolatedColor = string.format("\255%c%c%c", r, g, b)
+		text = interpolatedColor .. entryData.heading
+	else
+		text = "\255\255\255\255" .. entryData.heading
+	end
+	
+	controls:SetText(text)
+	WG.Delay(function() UpdatePulse(controls, entryData, pulseStartTime) end, 0.05)
+end
 
 local headingFormats = {
 	[2] = {
@@ -362,6 +394,15 @@ local function GetNewsEntry(parentHolder, index, headingSize, timeAsTooltip, top
 		end
 
 		if not controls.heading then
+			local seenWelcomeItems = WG.Chobby.Configuration.seenWelcomeItems or {}
+			local itemKey = entryData.heading
+			local isNewItem = not seenWelcomeItems[itemKey]
+			
+			if isNewItem then
+				seenWelcomeItems[itemKey] = true
+				WG.Chobby.Configuration:SetConfigValue("seenWelcomeItems", seenWelcomeItems)
+			end
+			
 			controls.heading = TextBox:New{
 				x = 4, -- Fireball: Why not textpos(=6) ?
 				y = headFormat.inButton,	-- Fireball: doesn't matter, overwritten by DoResize
@@ -374,6 +415,10 @@ local function GetNewsEntry(parentHolder, index, headingSize, timeAsTooltip, top
 				objectOverrideHintFont = WG.Chobby.Configuration:GetFont(7),
 				parent = holder,
 			}
+
+			if isNewItem and not entryData.noPulse then
+				UpdatePulse(controls.heading, entryData, os.clock())
+			end
 		else
 			controls.heading:SetText(entryData.heading)
 		end
@@ -560,6 +605,7 @@ local function GetNewsHandler(parentControl, headingSize, timeAsTooltip, topHead
 				atTime = items[i].Time,
 				text = items[i].Text,
 				urlText = items[i].UrlText,
+				noPulse = items[i].NoPulse,
 			}
 			if items[i].Image then
 				local imagePos = string.find(items[i].Image, "news")
