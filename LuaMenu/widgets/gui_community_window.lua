@@ -276,11 +276,9 @@ local function GetDateTimeDisplay(parentControl, xPosition, yPosition, timeStrin
 
 	return externalFunctions
 end
-
-
-local pulseStartTime = os.clock()
-local function UpdatePulse(controls, entryData)
-	if not controls.heading or not controls.heading.visible then
+				
+local function UpdatePulse(controls, entryData, pulseStartTime)
+	if not controls or not controls.visible then
 		return
 	end
 	
@@ -307,8 +305,8 @@ local function UpdatePulse(controls, entryData)
 		text = "\255\255\255\255" .. entryData.heading
 	end
 	
-	controls.heading:SetText(text)
-	WG.Delay(UpdatePulse, 0.05) -- 20 FPS updates
+	controls:SetText(text)
+	WG.Delay(function() UpdatePulse(controls, entryData, pulseStartTime) end, 0.05)
 end
 
 local headingFormats = {
@@ -419,7 +417,7 @@ local function GetNewsEntry(parentHolder, index, headingSize, timeAsTooltip, top
 			}
 
 			if isNewItem and not entryData.noPulse then
-				UpdatePulse(controls.heading, entryData)
+				UpdatePulse(controls.heading, entryData, os.clock())
 			end
 		else
 			controls.heading:SetText(entryData.heading)
