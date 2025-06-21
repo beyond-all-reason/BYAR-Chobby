@@ -3458,10 +3458,9 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 			end
 		end
 
-		if battleLobby.name ~= "singleplayer" then
-			-- status only contains bossed if it changed
-			if myBs.isBoss ~= nil then
-				if myBs.isBoss == true then
+		if battleLobby.name ~= "singleplayer" and username == battleLobby.myUserName then
+			if status.isBoss ~= nil then
+				if status.isBoss == true then
 					for team, locker in pairs(factionComboBoxes) do
 						locker:Show()
 					end
