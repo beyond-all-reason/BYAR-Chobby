@@ -277,6 +277,40 @@ local function GetDateTimeDisplay(parentControl, xPosition, yPosition, timeStrin
 	return externalFunctions
 end
 
+
+local pulseStartTime = os.clock()
+local function UpdatePulse(controls, entryData)
+	if not controls.heading or not controls.heading.visible then
+		return
+	end
+	
+	local currentTime = os.clock()
+	local elapsed = currentTime - pulseStartTime
+	local pulseTransitionTime = 1.0
+	local pulseIntermissionTime = 3.0
+	local pulseColor = {255, 235, 30}
+	local cycleTime = pulseTransitionTime + pulseIntermissionTime
+	local cyclePosition = elapsed % cycleTime
+	
+	local text = entryData.heading
+	if cyclePosition <= pulseTransitionTime then
+		local timeInPulse = cyclePosition / pulseTransitionTime
+		local pulsePhase = math.sin(timeInPulse * math.pi)
+		
+		local r = math.floor(255 - ((255 - pulseColor[1]) * pulsePhase))
+		local g = math.floor(255 - ((255 - pulseColor[2]) * pulsePhase))
+		local b = math.floor(255 - ((255 - pulseColor[3]) * pulsePhase))
+		
+		local interpolatedColor = string.format("\255%c%c%c", r, g, b)
+		text = interpolatedColor .. entryData.heading
+	else
+		text = "\255\255\255\255" .. entryData.heading
+	end
+	
+	controls.heading:SetText(text)
+	WG.Delay(UpdatePulse, 0.05) -- 20 FPS updates
+end
+
 local headingFormats = {
 	[2] = {
 		buttonSize = 28,
@@ -385,41 +419,7 @@ local function GetNewsEntry(parentHolder, index, headingSize, timeAsTooltip, top
 			}
 
 			if isNewItem and not entryData.noPulse then
-				local pulseStartTime = os.clock()
-				
-				local function UpdatePulse()
-					if not controls.heading or not controls.heading.visible then
-						return
-					end
-					
-					local currentTime = os.clock()
-					local elapsed = currentTime - pulseStartTime
-					local pulseTransitionTime = 1.0
-					local pulseIntermissionTime = 3.0
-					local pulseColor = {255, 235, 30}
-					local cycleTime = pulseTransitionTime + pulseIntermissionTime
-					local cyclePosition = elapsed % cycleTime
-					
-					local text = entryData.heading
-					if cyclePosition <= pulseTransitionTime then
-						local timeInPulse = cyclePosition / pulseTransitionTime
-						local pulsePhase = math.sin(timeInPulse * math.pi)
-						
-						local r = math.floor(255 - ((255 - pulseColor[1]) * pulsePhase))
-						local g = math.floor(255 - ((255 - pulseColor[2]) * pulsePhase))
-						local b = math.floor(255 - ((255 - pulseColor[3]) * pulsePhase))
-						
-						local interpolatedColor = string.format("\255%c%c%c", r, g, b)
-						text = interpolatedColor .. entryData.heading
-					else
-						text = "\255\255\255\255" .. entryData.heading
-					end
-					
-					controls.heading:SetText(text)
-					WG.Delay(UpdatePulse, 0.05) -- 20 FPS updates
-				end
-				
-				UpdatePulse()
+				UpdatePulse(controls.heading, entryData)
 			end
 		else
 			controls.heading:SetText(entryData.heading)
