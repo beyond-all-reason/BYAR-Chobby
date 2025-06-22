@@ -210,14 +210,14 @@ local function UpdatePulse(controls, entryData, pulseStartTime)
 		return false
 	end
 	
-	local PULSE_INITIAL_DELAY = 8
-	local PULSE_ON_DURATION = 0.25
+	local PULSE_INITIAL_DELAY = 10
+	local PULSE_ON_DURATION = 0.5
 	local PULSE_OFF_DURATION = 0
 	local PULSE_TRANSITION_DURATION = 0.5
-	local PULSE_TOTAL_CYCLES = 20
+	local PULSE_TOTAL_CYCLES = 3
 	local PULSE_QUARTER_PI = math.pi * 0.5
 	
-	local PULSE_DIM_COLOR = {192, 192, 192}
+	local PULSE_DIM_COLOR = {170, 170, 170}
 	local PULSE_BRIGHT_COLOR = {255, 255, 255}
 	
 	local function InterpolateColor(normalizedIntensity)
@@ -513,7 +513,7 @@ local function GetNewsEntry(parentHolder, index, headingSize, timeAsTooltip, top
 				parent = holder,
 			}
 
-			if isNewItem and not entryData.noPulse  or 1 == 1 then
+			if isNewItem and not entryData.noPulse then
 				StartPulse(controls.heading, entryData)
 			end
 		else
