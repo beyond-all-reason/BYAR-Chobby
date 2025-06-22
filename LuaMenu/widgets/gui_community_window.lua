@@ -201,6 +201,83 @@ end
 
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
+-- Pulse Management
+
+local activePulses = {}
+
+local function UpdatePulse(controls, entryData, pulseStartTime)
+	if not controls or not controls.visible then
+		return false
+	end
+	
+	local PULSE_INITIAL_DELAY = 8
+	local PULSE_ON_DURATION = 0.25
+	local PULSE_OFF_DURATION = 0
+	local PULSE_TRANSITION_DURATION = 0.5
+	local PULSE_TOTAL_CYCLES = 20
+	local PULSE_QUARTER_PI = math.pi * 0.5
+	
+	local PULSE_DIM_COLOR = {192, 192, 192}
+	local PULSE_BRIGHT_COLOR = {255, 255, 255}
+	
+	local function InterpolateColor(normalizedIntensity)
+		local r = math.floor(PULSE_DIM_COLOR[1] + ((PULSE_BRIGHT_COLOR[1] - PULSE_DIM_COLOR[1]) * normalizedIntensity))
+		local g = math.floor(PULSE_DIM_COLOR[2] + ((PULSE_BRIGHT_COLOR[2] - PULSE_DIM_COLOR[2]) * normalizedIntensity))
+		local b = math.floor(PULSE_DIM_COLOR[3] + ((PULSE_BRIGHT_COLOR[3] - PULSE_DIM_COLOR[3]) * normalizedIntensity))
+		return string.format("\255%c%c%c", r, g, b)
+	end
+	
+	local currentTime = os.clock()
+	local elapsedTime = currentTime - pulseStartTime
+	local totalCycleTime = PULSE_OFF_DURATION + PULSE_TRANSITION_DURATION + PULSE_ON_DURATION + PULSE_TRANSITION_DURATION
+	
+	if elapsedTime < PULSE_INITIAL_DELAY then
+		controls:SetText(entryData.heading)
+		return true
+	end
+	
+	local pulseElapsedTime = elapsedTime - PULSE_INITIAL_DELAY
+	local positionInCycle = pulseElapsedTime % totalCycleTime
+	local totalCyclesCompleted = pulseElapsedTime / totalCycleTime
+	
+	if totalCyclesCompleted >= PULSE_TOTAL_CYCLES then
+		controls:SetText(InterpolateColor(1) .. entryData.heading)
+		return false
+	end
+	
+	local text
+	local phase1End = PULSE_ON_DURATION
+	local phase2End = phase1End + PULSE_TRANSITION_DURATION
+	local phase3End = phase2End + PULSE_OFF_DURATION
+	
+	if positionInCycle <= phase1End then
+		text = InterpolateColor(1) .. entryData.heading
+	elseif positionInCycle <= phase2End then
+		local transitionProgress = (positionInCycle - phase1End) / PULSE_TRANSITION_DURATION
+		local intensityLevel = math.cos(transitionProgress * PULSE_QUARTER_PI)
+		text = InterpolateColor(intensityLevel) .. entryData.heading
+	elseif positionInCycle <= phase3End then
+		text = InterpolateColor(0) .. entryData.heading
+	else
+		local transitionProgress = (positionInCycle - phase3End) / PULSE_TRANSITION_DURATION
+		local intensityLevel = math.sin(transitionProgress * PULSE_QUARTER_PI)
+		text = InterpolateColor(intensityLevel) .. entryData.heading
+	end
+	
+	controls:SetText(text)
+	return true
+end
+
+local function StartPulse(controls, entryData)
+	activePulses[#activePulses + 1] = {
+		controls = controls,
+		entryData = entryData,
+		startTime = os.clock()
+	}
+end
+
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 -- News
 
 local function GetTextHash(header, text)
@@ -327,70 +404,7 @@ local function GetDateTimeDisplay(parentControl, xPosition, yPosition, timeStrin
 	return externalFunctions
 end
 				
-local function UpdatePulse(controls, entryData, pulseStartTime)
-	if not controls or not controls.visible then
-		return
-	end
-	
-	local PULSE_INITIAL_DELAY = 8
-	local PULSE_ON_DURATION = 0.25
-	local PULSE_OFF_DURATION = 0.25
-	local PULSE_TRANSITION_DURATION = 0.5
-	local PULSE_TOTAL_CYCLES = 3
-	local PULSE_UPDATE_INTERVAL = 0.05
-	local PULSE_QUARTER_PI = math.pi * 0.5
-	
-	local PULSE_DIM_COLOR = {192, 192, 192}
-	local PULSE_BRIGHT_COLOR = {255, 255, 255}
-	
-	local function InterpolateColor(normalizedIntensity)
-		local r = math.floor(PULSE_DIM_COLOR[1] + ((PULSE_BRIGHT_COLOR[1] - PULSE_DIM_COLOR[1]) * normalizedIntensity))
-		local g = math.floor(PULSE_DIM_COLOR[2] + ((PULSE_BRIGHT_COLOR[2] - PULSE_DIM_COLOR[2]) * normalizedIntensity))
-		local b = math.floor(PULSE_DIM_COLOR[3] + ((PULSE_BRIGHT_COLOR[3] - PULSE_DIM_COLOR[3]) * normalizedIntensity))
-		return string.format("\255%c%c%c", r, g, b)
-	end
-	
-	local currentTime = os.clock()
-	local elapsedTime = currentTime - pulseStartTime
-	local totalCycleTime = PULSE_OFF_DURATION + PULSE_TRANSITION_DURATION + PULSE_ON_DURATION + PULSE_TRANSITION_DURATION
-	
-	if elapsedTime < PULSE_INITIAL_DELAY then
-		controls:SetText(entryData.heading)
-		WG.Delay(function() UpdatePulse(controls, entryData, pulseStartTime) end, PULSE_UPDATE_INTERVAL)
-		return
-	end
-	
-	local pulseElapsedTime = elapsedTime - PULSE_INITIAL_DELAY
-	local positionInCycle = pulseElapsedTime % totalCycleTime
-	local totalCyclesCompleted = pulseElapsedTime / totalCycleTime
-	
-	if totalCyclesCompleted >= PULSE_TOTAL_CYCLES then
-		controls:SetText(InterpolateColor(1) .. entryData.heading)
-		return
-	end
-	
-	local text
-	local phase1End = PULSE_ON_DURATION
-	local phase2End = phase1End + PULSE_TRANSITION_DURATION
-	local phase3End = phase2End + PULSE_OFF_DURATION
-	
-	if positionInCycle <= phase1End then
-		text = InterpolateColor(1) .. entryData.heading
-	elseif positionInCycle <= phase2End then
-		local transitionProgress = (positionInCycle - phase1End) / PULSE_TRANSITION_DURATION
-		local intensityLevel = math.cos(transitionProgress * PULSE_QUARTER_PI)
-		text = InterpolateColor(intensityLevel) .. entryData.heading
-	elseif positionInCycle <= phase3End then
-		text = InterpolateColor(0) .. entryData.heading
-	else
-		local transitionProgress = (positionInCycle - phase3End) / PULSE_TRANSITION_DURATION
-		local intensityLevel = math.sin(transitionProgress * PULSE_QUARTER_PI)
-		text = InterpolateColor(intensityLevel) .. entryData.heading
-	end
-	
-	controls:SetText(text)
-	WG.Delay(function() UpdatePulse(controls, entryData, pulseStartTime) end, PULSE_UPDATE_INTERVAL)
-end
+
 
 local headingFormats = {
 	[2] = {
@@ -500,7 +514,7 @@ local function GetNewsEntry(parentHolder, index, headingSize, timeAsTooltip, top
 			}
 
 			if isNewItem and not entryData.noPulse  or 1 == 1 then
-				UpdatePulse(controls.heading, entryData, os.clock())
+				StartPulse(controls.heading, entryData)
 			end
 		else
 			controls.heading:SetText(entryData.heading)
@@ -1083,6 +1097,19 @@ local function DelayedInitialize()
 		WG.Chobby.interfaceRoot.OpenRightPanelTab("welcome")
 		--Spring.Echo("Opened welcome panel")
 	--end
+end
+
+function widget:Update()
+	local i = 1
+	while i <= #activePulses do
+		local pulse = activePulses[i]
+		local stillActive = UpdatePulse(pulse.controls, pulse.entryData, pulse.startTime)
+		if not stillActive then
+			table.remove(activePulses, i)
+		else
+			i = i + 1
+		end
+	end
 end
 
 function widget:Initialize()
