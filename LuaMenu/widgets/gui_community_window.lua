@@ -332,31 +332,64 @@ local function UpdatePulse(controls, entryData, pulseStartTime)
 		return
 	end
 	
-	local currentTime = os.clock()
-	local elapsed = currentTime - pulseStartTime
-	local pulseTransitionTime = 1.0
-	local pulseIntermissionTime = 3.0
-	local pulseColor = {255, 235, 30}
-	local cycleTime = pulseTransitionTime + pulseIntermissionTime
-	local cyclePosition = elapsed % cycleTime
+	local PULSE_INITIAL_DELAY = 8
+	local PULSE_ON_DURATION = 0.25
+	local PULSE_OFF_DURATION = 0.25
+	local PULSE_TRANSITION_DURATION = 0.5
+	local PULSE_TOTAL_CYCLES = 3
+	local PULSE_UPDATE_INTERVAL = 0.05
+	local PULSE_QUARTER_PI = math.pi * 0.5
 	
-	local text = entryData.heading
-	if cyclePosition <= pulseTransitionTime then
-		local timeInPulse = cyclePosition / pulseTransitionTime
-		local pulsePhase = math.sin(timeInPulse * math.pi)
-		
-		local r = math.floor(255 - ((255 - pulseColor[1]) * pulsePhase))
-		local g = math.floor(255 - ((255 - pulseColor[2]) * pulsePhase))
-		local b = math.floor(255 - ((255 - pulseColor[3]) * pulsePhase))
-		
-		local interpolatedColor = string.format("\255%c%c%c", r, g, b)
-		text = interpolatedColor .. entryData.heading
+	local PULSE_DIM_COLOR = {192, 192, 192}
+	local PULSE_BRIGHT_COLOR = {255, 255, 255}
+	
+	local function InterpolateColor(normalizedIntensity)
+		local r = math.floor(PULSE_DIM_COLOR[1] + ((PULSE_BRIGHT_COLOR[1] - PULSE_DIM_COLOR[1]) * normalizedIntensity))
+		local g = math.floor(PULSE_DIM_COLOR[2] + ((PULSE_BRIGHT_COLOR[2] - PULSE_DIM_COLOR[2]) * normalizedIntensity))
+		local b = math.floor(PULSE_DIM_COLOR[3] + ((PULSE_BRIGHT_COLOR[3] - PULSE_DIM_COLOR[3]) * normalizedIntensity))
+		return string.format("\255%c%c%c", r, g, b)
+	end
+	
+	local currentTime = os.clock()
+	local elapsedTime = currentTime - pulseStartTime
+	local totalCycleTime = PULSE_OFF_DURATION + PULSE_TRANSITION_DURATION + PULSE_ON_DURATION + PULSE_TRANSITION_DURATION
+	
+	if elapsedTime < PULSE_INITIAL_DELAY then
+		controls:SetText(entryData.heading)
+		WG.Delay(function() UpdatePulse(controls, entryData, pulseStartTime) end, PULSE_UPDATE_INTERVAL)
+		return
+	end
+	
+	local pulseElapsedTime = elapsedTime - PULSE_INITIAL_DELAY
+	local positionInCycle = pulseElapsedTime % totalCycleTime
+	local totalCyclesCompleted = pulseElapsedTime / totalCycleTime
+	
+	if totalCyclesCompleted >= PULSE_TOTAL_CYCLES then
+		controls:SetText(InterpolateColor(1) .. entryData.heading)
+		return
+	end
+	
+	local text
+	local phase1End = PULSE_ON_DURATION
+	local phase2End = phase1End + PULSE_TRANSITION_DURATION
+	local phase3End = phase2End + PULSE_OFF_DURATION
+	
+	if positionInCycle <= phase1End then
+		text = InterpolateColor(1) .. entryData.heading
+	elseif positionInCycle <= phase2End then
+		local transitionProgress = (positionInCycle - phase1End) / PULSE_TRANSITION_DURATION
+		local intensityLevel = math.cos(transitionProgress * PULSE_QUARTER_PI)
+		text = InterpolateColor(intensityLevel) .. entryData.heading
+	elseif positionInCycle <= phase3End then
+		text = InterpolateColor(0) .. entryData.heading
 	else
-		text = "\255\255\255\255" .. entryData.heading
+		local transitionProgress = (positionInCycle - phase3End) / PULSE_TRANSITION_DURATION
+		local intensityLevel = math.sin(transitionProgress * PULSE_QUARTER_PI)
+		text = InterpolateColor(intensityLevel) .. entryData.heading
 	end
 	
 	controls:SetText(text)
-	WG.Delay(function() UpdatePulse(controls, entryData, pulseStartTime) end, 0.05)
+	WG.Delay(function() UpdatePulse(controls, entryData, pulseStartTime) end, PULSE_UPDATE_INTERVAL)
 end
 
 local headingFormats = {
@@ -466,7 +499,7 @@ local function GetNewsEntry(parentHolder, index, headingSize, timeAsTooltip, top
 				parent = holder,
 			}
 
-			if isNewItem and not entryData.noPulse then
+			if isNewItem and not entryData.noPulse  or 1 == 1 then
 				UpdatePulse(controls.heading, entryData, os.clock())
 			end
 		else
