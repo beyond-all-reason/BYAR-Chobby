@@ -303,19 +303,19 @@ local function CleanupSeenWelcomeItems(currentWelcomeItems)
 		return
 	end
 	
-	local currentItemHashes = {}
+	local currentItemHeaders = {}
 	for i = 1, #currentWelcomeItems do
-		local itemHash = GetTextHash(currentWelcomeItems[i].Header, currentWelcomeItems[i].Text)
-		if itemHash ~= "" then
-			currentItemHashes[itemHash] = true
+		local itemHeader = currentWelcomeItems[i].Header
+		if itemHeader ~= "" then
+			currentItemHeaders[itemHeader] = true
 		end
 	end
 	
 	local hasChanges = false
 	local cleanedSeenItems = {}
-	for itemKey, seen in pairs(seenWelcomeItems) do
-		if currentItemHashes[itemKey] then
-			cleanedSeenItems[itemKey] = seen
+	for itemKey, textLength in pairs(seenWelcomeItems) do
+		if currentItemHeaders[itemKey] then
+			cleanedSeenItems[itemKey] = textLength
 		else
 			hasChanges = true
 		end
@@ -487,16 +487,19 @@ local function GetNewsEntry(parentHolder, index, headingSize, timeAsTooltip, top
 			end
 		end
 
+		-- Handle new item detection and pulsing (do this on every call, not just first)
+		local seenWelcomeItems = WG.Chobby.Configuration.seenWelcomeItems or {}
+		local itemKey = entryData.heading
+		local textLength = string.len(entryData.text or "")
+		local storedTextLength = seenWelcomeItems[itemKey]
+		local isNewItem = itemKey ~= "" and (not storedTextLength or storedTextLength ~= textLength)
+		
+		if isNewItem then
+			seenWelcomeItems[itemKey] = textLength
+			WG.Chobby.Configuration:SetConfigValue("seenWelcomeItems", seenWelcomeItems)
+		end
+		
 		if not controls.heading then
-			local seenWelcomeItems = WG.Chobby.Configuration.seenWelcomeItems or {}
-			local itemKey = GetTextHash(entryData.heading, entryData.text)
-			local isNewItem = itemKey ~= "" and not seenWelcomeItems[itemKey]
-			
-			if isNewItem then
-				seenWelcomeItems[itemKey] = true
-				WG.Chobby.Configuration:SetConfigValue("seenWelcomeItems", seenWelcomeItems)
-			end
-			
 			controls.heading = TextBox:New{
 				x = 4, -- Fireball: Why not textpos(=6) ?
 				y = headFormat.inButton,	-- Fireball: doesn't matter, overwritten by DoResize
@@ -509,37 +512,38 @@ local function GetNewsEntry(parentHolder, index, headingSize, timeAsTooltip, top
 				objectOverrideHintFont = WG.Chobby.Configuration:GetFont(7),
 				parent = holder,
 			}
-			
-			if isNewItem and not entryData.noPulse then
-				controls.headingBackground = Control:New{
-					x = 2,
-					y = controls.heading.y - 7,
-					right = 2,
-					height = headFormat.height,
-					parent = holder,
-					pulseAlpha = PULSE_MIN_ALPHA,
-					pulseComplete = false,
-					DrawControl = function(self)
-						if self.pulseComplete then return end
-						
-						local x, y, w, h = self.x, self.y, self.width, self.height
-						local alpha = self.pulseAlpha
-						
-						gl.Color(PULSE_BG_COLOR[1], PULSE_BG_COLOR[2], PULSE_BG_COLOR[3], alpha)
-						gl.Rect(x, y, x + w, y + h)
-						
-						gl.Color(PULSE_BORDER_COLOR[1], PULSE_BORDER_COLOR[2], PULSE_BORDER_COLOR[3], alpha)
-						gl.LineWidth(2)
-						gl.Shape(GL.LINE_LOOP, {{v={x,y}}, {v={x+w,y}}, {v={x+w,y+h}}, {v={x,y+h}}})
-						gl.LineWidth(1)
-						gl.Color(1, 1, 1, 1)
-					end,
-				}
-				controls.headingBackground:SendToBack()
-				StartPulse(controls.headingBackground, entryData)
-			end
 		else
 			controls.heading:SetText(entryData.heading)
+		end
+		
+		-- Create pulsing background if needed (and doesn't already exist)
+		if isNewItem and not entryData.noPulse and not controls.headingBackground then
+			controls.headingBackground = Control:New{
+				x = 2,
+				y = controls.heading.y - 7,
+				right = 2,
+				height = headFormat.height + 14,
+				parent = holder,
+				pulseAlpha = PULSE_MIN_ALPHA,
+				pulseComplete = false,
+				DrawControl = function(self)
+					if self.pulseComplete then return end
+					
+					local x, y, w, h = self.x, self.y, self.width, self.height
+					local alpha = self.pulseAlpha
+					
+					gl.Color(PULSE_BG_COLOR[1], PULSE_BG_COLOR[2], PULSE_BG_COLOR[3], alpha)
+					gl.Rect(x, y, x + w, y + h)
+					
+					gl.Color(PULSE_BORDER_COLOR[1], PULSE_BORDER_COLOR[2], PULSE_BORDER_COLOR[3], alpha)
+					gl.LineWidth(2)
+					gl.Shape(GL.LINE_LOOP, {{v={x,y}}, {v={x+w,y}}, {v={x+w,y+h}}, {v={x,y+h}}})
+					gl.LineWidth(1)
+					gl.Color(1, 1, 1, 1)
+				end,
+			}
+			controls.headingBackground:SendToBack()
+			StartPulse(controls.headingBackground, entryData)
 		end
 
 		offset = offset + controls.heading.height
@@ -623,6 +627,10 @@ local function GetNewsEntry(parentHolder, index, headingSize, timeAsTooltip, top
 		if controls.heading and controls.heading.visible then
 			headingSize = (#controls.heading.physicalLines)*headFormat.fontSize
 			controls.heading:SetPos(nil, nil, nil, headingSize)
+			
+			if controls.headingBackground then
+				controls.headingBackground:SetPos(nil, controls.heading.y - 7, nil, headingSize + 14)
+			end
 		end
 		offset = offset + headingSize + headFormat.spacing
 
@@ -717,7 +725,6 @@ local function GetNewsHandler(parentControl, headingSize, timeAsTooltip, topHead
 			return
 		end
 		for i = 1, #items do
-			Spring.Echo("Adding news item",items[i].Header)
 			local entry = {
 				heading = items[i].Header,
 				link = items[i].Url,
