@@ -1549,12 +1549,6 @@ local function AddTeamButtons(parent, offX, joinFunc, aiFunc, unjoinable, disall
 			ourBitmask = ourBitmask * 8
 		end
 		local currentBitmask, currentOurBitmask = 0, 0
-		do
-			local modoptions = battleLobby:GetMyBattleModoptions()
-			if modoptions then
-				currentBitmask = tonumber(modoptions.factionlimiter) or 0
-			end
-		end
 
 		local teamFactionsSigns = {"ALL","✔  ","✔  ","✔  ","RESET"}
 		local teamFactionsNames = {"ALL", "Armada", "Cortex", "Legion", "RESET"}
@@ -1729,7 +1723,12 @@ local function AddTeamButtons(parent, offX, joinFunc, aiFunc, unjoinable, disall
 			keepAspect = true,
 			file = LUA_DIRNAME .. "configs/gameConfig/byar/sidepics/" .. "legion.png",
 		}
-		setCaption()
+		local modoptions = battleLobby:GetMyBattleModoptions()
+		if modoptions and modoptions.factionlimiter then
+			teamFactionsSet.updateBitmaskReading(tonumber(modoptions.factionlimiter))
+			setCaption()
+		end
+		modoptions = nil
 
 		if battleLobby.name == "singleplayer" then
 			if not WG.Chobby.Configuration.ShowhiddenModopions then
@@ -1737,7 +1736,8 @@ local function AddTeamButtons(parent, offX, joinFunc, aiFunc, unjoinable, disall
 			end
 		else
 			local a = battleLobby:GetBattle(battleLobby:GetMyBattleID())
-			if not a.bossed then
+			local myBs = battleLobby:GetUserBattleStatus(battleLobby.myUserName) or {}
+			if not myBs.isBoss then
 				factionWraper:Hide()
 			end
 		end
@@ -3980,8 +3980,11 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		end
 		local factionlimiter = modoptions.factionlimiter
 		if factionlimiter then
-			for _, locker in pairs(factionComboBoxes) do
-				locker.updateBitmaskReading(tonumber(factionlimiter))
+			for i = 0, 7 do
+				local locker = factionComboBoxes[i]
+				if locker then
+					locker.updateBitmaskReading(tonumber(factionlimiter))
+				end
 			end
 		end
 	end
