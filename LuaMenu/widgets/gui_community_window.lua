@@ -214,72 +214,60 @@ end
 
 local activePulses = {}
 
-local function UpdatePulse(controls, entryData, pulseStartTime)
-	if not controls or not controls.visible then
+local PULSE_INITIAL_DELAY = 10
+local PULSE_ON_DURATION = 0.5
+local PULSE_FADEIN_DURATION = 0.4
+local PULSE_FADEOUT_DURATION = 0.6
+local PULSE_TOTAL_CYCLES = 2
+local PULSE_MIN_ALPHA = 0.0
+local PULSE_MAX_ALPHA = 0.5
+local PULSE_QUARTER_PI = math.pi * 0.5
+local PULSE_BG_COLOR = {0.2, 0.4, 0.7}
+local PULSE_BORDER_COLOR = {0.1, 0.3, 0.6}
+
+local function UpdatePulse(backgroundControl, entryData, pulseStartTime)
+	if not backgroundControl or not backgroundControl.visible then
 		return false
 	end
 	
-	local PULSE_INITIAL_DELAY = 12
-	local PULSE_ON_DURATION = 0.5
-	local PULSE_OFF_DURATION = 0
-	local PULSE_FADEIN_DURATION = 0.40
-	local PULSE_FADEOUT_DURATION = 0.60
-	local PULSE_TOTAL_CYCLES = 3
-	local PULSE_QUARTER_PI = math.pi * 0.5
-	
-	local PULSE_MIN_ALPHA = 0.0
-	local PULSE_MAX_ALPHA = 0.5
-	
-	local function InterpolateAlpha(normalizedIntensity)
-		return PULSE_MIN_ALPHA + ((PULSE_MAX_ALPHA - PULSE_MIN_ALPHA) * normalizedIntensity)
-	end
-	
-	local currentTime = os.clock()
-	local elapsedTime = currentTime - pulseStartTime
-	local totalCycleTime = PULSE_FADEIN_DURATION + PULSE_ON_DURATION + PULSE_FADEOUT_DURATION + PULSE_OFF_DURATION
+	local elapsedTime = os.clock() - pulseStartTime
 	
 	if elapsedTime < PULSE_INITIAL_DELAY then
-		controls.pulseAlpha = PULSE_MIN_ALPHA
+		backgroundControl.pulseAlpha = PULSE_MIN_ALPHA
 		return true
 	end
 	
-	local pulseElapsedTime = elapsedTime - PULSE_INITIAL_DELAY
-	local positionInCycle = pulseElapsedTime % totalCycleTime
-	local totalCyclesCompleted = pulseElapsedTime / totalCycleTime
+	local cycleTime = PULSE_FADEIN_DURATION + PULSE_ON_DURATION + PULSE_FADEOUT_DURATION
+	local pulseTime = elapsedTime - PULSE_INITIAL_DELAY
+	local cyclePosition = pulseTime % cycleTime
+	local completedCycles = pulseTime / cycleTime
 	
-	if totalCyclesCompleted >= PULSE_TOTAL_CYCLES then
-		controls.pulseAlpha = PULSE_MIN_ALPHA
-		controls.pulseComplete = true
+	if completedCycles >= PULSE_TOTAL_CYCLES then
+		backgroundControl.pulseAlpha = PULSE_MIN_ALPHA
+		backgroundControl.pulseComplete = true
 		return false
 	end
 	
-	local alpha
-	local phase1End = PULSE_FADEIN_DURATION
-	local phase2End = phase1End + PULSE_ON_DURATION
-	local phase3End = phase2End + PULSE_FADEOUT_DURATION
-	local phase4End = phase3End + PULSE_OFF_DURATION
+	local alpha = PULSE_MIN_ALPHA
+	local alphaRange = PULSE_MAX_ALPHA - PULSE_MIN_ALPHA
 	
-	if positionInCycle <= phase1End then
-		local transitionProgress = positionInCycle / PULSE_FADEIN_DURATION
-		local intensityLevel = math.sin(transitionProgress * PULSE_QUARTER_PI)
-		alpha = InterpolateAlpha(intensityLevel)
-	elseif positionInCycle <= phase2End then
-		alpha = InterpolateAlpha(1)
-	elseif positionInCycle <= phase3End then
-		local transitionProgress = (positionInCycle - phase2End) / PULSE_FADEOUT_DURATION
-		local intensityLevel = math.cos(transitionProgress * PULSE_QUARTER_PI)
-		alpha = InterpolateAlpha(intensityLevel)
-	else
-		alpha = InterpolateAlpha(0)
+	if cyclePosition <= PULSE_FADEIN_DURATION then
+		local progress = cyclePosition / PULSE_FADEIN_DURATION
+		alpha = PULSE_MIN_ALPHA + alphaRange * math.sin(progress * PULSE_QUARTER_PI)
+	elseif cyclePosition <= PULSE_FADEIN_DURATION + PULSE_ON_DURATION then
+		alpha = PULSE_MAX_ALPHA
+	elseif cyclePosition <= PULSE_FADEIN_DURATION + PULSE_ON_DURATION + PULSE_FADEOUT_DURATION then
+		local progress = (cyclePosition - PULSE_FADEIN_DURATION - PULSE_ON_DURATION) / PULSE_FADEOUT_DURATION
+		alpha = PULSE_MIN_ALPHA + alphaRange * math.cos(progress * PULSE_QUARTER_PI)
 	end
 	
-	controls.pulseAlpha = alpha
+	backgroundControl.pulseAlpha = alpha
 	return true
 end
 
-local function StartPulse(controls, entryData)
+local function StartPulse(backgroundControl, entryData)
 	activePulses[#activePulses + 1] = {
-		controls = controls,
+		controls = backgroundControl,
 		entryData = entryData,
 		startTime = os.clock()
 	}
@@ -522,31 +510,26 @@ local function GetNewsEntry(parentHolder, index, headingSize, timeAsTooltip, top
 				parent = holder,
 			}
 			
-			local textY = controls.heading.y
 			controls.headingBackground = Control:New{
 				x = 2,
-				y = textY - 7,
+				y = controls.heading.y - 7,
 				right = 2,
 				height = headFormat.height,
 				parent = holder,
-				pulseAlpha = 0.9,
+				pulseAlpha = PULSE_MAX_ALPHA,
+				pulseComplete = false,
 				DrawControl = function(self)
-					if self.pulseComplete then
-						return
-					end
-					local x, y = self.x, self.y
-					local width, height = self.width, self.height
-					gl.Color(0.2, 0.4, 0.7, self.pulseAlpha)
-					gl.Rect(x, y, x + width, y + height)
+					if self.pulseComplete then return end
 					
-					gl.Color(0.1, 0.3, 0.6, self.pulseAlpha)
+					local x, y, w, h = self.x, self.y, self.width, self.height
+					local alpha = self.pulseAlpha
+					
+					gl.Color(PULSE_BG_COLOR[1], PULSE_BG_COLOR[2], PULSE_BG_COLOR[3], alpha)
+					gl.Rect(x, y, x + w, y + h)
+					
+					gl.Color(PULSE_BORDER_COLOR[1], PULSE_BORDER_COLOR[2], PULSE_BORDER_COLOR[3], alpha)
 					gl.LineWidth(2)
-					gl.Shape(GL.LINE_LOOP, {
-						{v = {x, y}},
-						{v = {x + width, y}},
-						{v = {x + width, y + height}},
-						{v = {x, y + height}}
-					})
+					gl.Shape(GL.LINE_LOOP, {{v={x,y}}, {v={x+w,y}}, {v={x+w,y+h}}, {v={x,y+h}}})
 					gl.LineWidth(1)
 					gl.Color(1, 1, 1, 1)
 				end,
