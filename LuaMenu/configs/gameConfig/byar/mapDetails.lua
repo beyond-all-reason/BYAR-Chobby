@@ -7,6 +7,7 @@
 --
 
 return {
+['32x32 Hotstepper 0.5']={Width=32, Height=32, Is1v1=nil, IsTeam=nil, IsFFA=1, IsCertified=nil, Special=nil, Flat=nil, Hills=1, Water=nil, IsInPool=1, PlayerCount='64', TeamCount='4', Author='AidanNaut', InfoText='Test map.', LastUpdate=1750291585},
 ['AcidicQuarry 5.17']={Width=12, Height=12, Is1v1=nil, IsTeam=1, IsFFA=1, IsCertified=1, Special='Air', Flat=nil, Hills=1, Water=nil, IsInPool=1, PlayerCount='4', TeamCount='4', Author='BasiC', InfoText='4 elevated islands amongst a sea of smaller islands. Version 5.17 with fixed metal.', LastUpdate=1683982335},
 ['Adamantium_Factory_V1']={Width=24, Height=24, Is1v1=nil, IsTeam=1, IsFFA=1, IsCertified=1, Special='Metal', Flat=1, Hills=nil, Water=nil, IsInPool=1, PlayerCount='64', TeamCount='16', Author='Beherith', InfoText='64 manufacturing stations strewn on a factory floor. Resources are higher in the center stations.', LastUpdate=1708685711},
 ['All That Glitters v2.2']={Width=12, Height=20, Is1v1=nil, IsTeam=1, IsFFA=nil, IsCertified=nil, Special=nil, Flat=1, Hills=1, Water=nil, IsInPool=1, PlayerCount='16', TeamCount='2', Author='Nikuksis', InfoText='Classic version.', LastUpdate=1748771405},
