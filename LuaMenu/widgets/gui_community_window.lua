@@ -510,33 +510,32 @@ local function GetNewsEntry(parentHolder, index, headingSize, timeAsTooltip, top
 				parent = holder,
 			}
 			
-			controls.headingBackground = Control:New{
-				x = 2,
-				y = controls.heading.y - 7,
-				right = 2,
-				height = headFormat.height,
-				parent = holder,
-				pulseAlpha = PULSE_MAX_ALPHA,
-				pulseComplete = false,
-				DrawControl = function(self)
-					if self.pulseComplete then return end
-					
-					local x, y, w, h = self.x, self.y, self.width, self.height
-					local alpha = self.pulseAlpha
-					
-					gl.Color(PULSE_BG_COLOR[1], PULSE_BG_COLOR[2], PULSE_BG_COLOR[3], alpha)
-					gl.Rect(x, y, x + w, y + h)
-					
-					gl.Color(PULSE_BORDER_COLOR[1], PULSE_BORDER_COLOR[2], PULSE_BORDER_COLOR[3], alpha)
-					gl.LineWidth(2)
-					gl.Shape(GL.LINE_LOOP, {{v={x,y}}, {v={x+w,y}}, {v={x+w,y+h}}, {v={x,y+h}}})
-					gl.LineWidth(1)
-					gl.Color(1, 1, 1, 1)
-				end,
-			}
-			controls.headingBackground:SendToBack()
-
-			if isNewItem and not entryData.noPulse or 1 == 1 then
+			if isNewItem and not entryData.noPulse then
+				controls.headingBackground = Control:New{
+					x = 2,
+					y = controls.heading.y - 7,
+					right = 2,
+					height = headFormat.height,
+					parent = holder,
+					pulseAlpha = PULSE_MIN_ALPHA,
+					pulseComplete = false,
+					DrawControl = function(self)
+						if self.pulseComplete then return end
+						
+						local x, y, w, h = self.x, self.y, self.width, self.height
+						local alpha = self.pulseAlpha
+						
+						gl.Color(PULSE_BG_COLOR[1], PULSE_BG_COLOR[2], PULSE_BG_COLOR[3], alpha)
+						gl.Rect(x, y, x + w, y + h)
+						
+						gl.Color(PULSE_BORDER_COLOR[1], PULSE_BORDER_COLOR[2], PULSE_BORDER_COLOR[3], alpha)
+						gl.LineWidth(2)
+						gl.Shape(GL.LINE_LOOP, {{v={x,y}}, {v={x+w,y}}, {v={x+w,y+h}}, {v={x,y+h}}})
+						gl.LineWidth(1)
+						gl.Color(1, 1, 1, 1)
+					end,
+				}
+				controls.headingBackground:SendToBack()
 				StartPulse(controls.headingBackground, entryData)
 			end
 		else
