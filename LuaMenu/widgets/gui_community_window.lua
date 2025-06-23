@@ -142,7 +142,16 @@ local function GetLadderHandler(parentControl)
 		parent = holder,
 	}
 
-	local heading = TextBox:New{
+	local headingPanel = Panel:New{
+		x = 4,
+		y = 7,
+		right = 4,
+		height = 24,
+		backgroundColor = {0.5, 0, 0.5, 0.8},
+		parent = holder,
+	}
+	
+		local heading = TextBox:New{
 		x = 4,
 		y = 7,
 		right = 4,
@@ -210,29 +219,27 @@ local function UpdatePulse(controls, entryData, pulseStartTime)
 		return false
 	end
 	
-	local PULSE_INITIAL_DELAY = 10
+	local PULSE_INITIAL_DELAY = 12
 	local PULSE_ON_DURATION = 0.5
 	local PULSE_OFF_DURATION = 0
-	local PULSE_TRANSITION_DURATION = 0.5
+	local PULSE_FADEIN_DURATION = 0.40
+	local PULSE_FADEOUT_DURATION = 0.60
 	local PULSE_TOTAL_CYCLES = 3
 	local PULSE_QUARTER_PI = math.pi * 0.5
 	
-	local PULSE_DIM_COLOR = {170, 170, 170}
-	local PULSE_BRIGHT_COLOR = {255, 255, 255}
+	local PULSE_MIN_ALPHA = 0.0
+	local PULSE_MAX_ALPHA = 0.5
 	
-	local function InterpolateColor(normalizedIntensity)
-		local r = math.floor(PULSE_DIM_COLOR[1] + ((PULSE_BRIGHT_COLOR[1] - PULSE_DIM_COLOR[1]) * normalizedIntensity))
-		local g = math.floor(PULSE_DIM_COLOR[2] + ((PULSE_BRIGHT_COLOR[2] - PULSE_DIM_COLOR[2]) * normalizedIntensity))
-		local b = math.floor(PULSE_DIM_COLOR[3] + ((PULSE_BRIGHT_COLOR[3] - PULSE_DIM_COLOR[3]) * normalizedIntensity))
-		return string.format("\255%c%c%c", r, g, b)
+	local function InterpolateAlpha(normalizedIntensity)
+		return PULSE_MIN_ALPHA + ((PULSE_MAX_ALPHA - PULSE_MIN_ALPHA) * normalizedIntensity)
 	end
 	
 	local currentTime = os.clock()
 	local elapsedTime = currentTime - pulseStartTime
-	local totalCycleTime = PULSE_OFF_DURATION + PULSE_TRANSITION_DURATION + PULSE_ON_DURATION + PULSE_TRANSITION_DURATION
+	local totalCycleTime = PULSE_FADEIN_DURATION + PULSE_ON_DURATION + PULSE_FADEOUT_DURATION + PULSE_OFF_DURATION
 	
 	if elapsedTime < PULSE_INITIAL_DELAY then
-		controls:SetText(entryData.heading)
+		controls.pulseAlpha = PULSE_MIN_ALPHA
 		return true
 	end
 	
@@ -241,30 +248,32 @@ local function UpdatePulse(controls, entryData, pulseStartTime)
 	local totalCyclesCompleted = pulseElapsedTime / totalCycleTime
 	
 	if totalCyclesCompleted >= PULSE_TOTAL_CYCLES then
-		controls:SetText(InterpolateColor(1) .. entryData.heading)
+		controls.pulseAlpha = PULSE_MIN_ALPHA
+		controls.pulseComplete = true
 		return false
 	end
 	
-	local text
-	local phase1End = PULSE_ON_DURATION
-	local phase2End = phase1End + PULSE_TRANSITION_DURATION
-	local phase3End = phase2End + PULSE_OFF_DURATION
+	local alpha
+	local phase1End = PULSE_FADEIN_DURATION
+	local phase2End = phase1End + PULSE_ON_DURATION
+	local phase3End = phase2End + PULSE_FADEOUT_DURATION
+	local phase4End = phase3End + PULSE_OFF_DURATION
 	
 	if positionInCycle <= phase1End then
-		text = InterpolateColor(1) .. entryData.heading
-	elseif positionInCycle <= phase2End then
-		local transitionProgress = (positionInCycle - phase1End) / PULSE_TRANSITION_DURATION
-		local intensityLevel = math.cos(transitionProgress * PULSE_QUARTER_PI)
-		text = InterpolateColor(intensityLevel) .. entryData.heading
-	elseif positionInCycle <= phase3End then
-		text = InterpolateColor(0) .. entryData.heading
-	else
-		local transitionProgress = (positionInCycle - phase3End) / PULSE_TRANSITION_DURATION
+		local transitionProgress = positionInCycle / PULSE_FADEIN_DURATION
 		local intensityLevel = math.sin(transitionProgress * PULSE_QUARTER_PI)
-		text = InterpolateColor(intensityLevel) .. entryData.heading
+		alpha = InterpolateAlpha(intensityLevel)
+	elseif positionInCycle <= phase2End then
+		alpha = InterpolateAlpha(1)
+	elseif positionInCycle <= phase3End then
+		local transitionProgress = (positionInCycle - phase2End) / PULSE_FADEOUT_DURATION
+		local intensityLevel = math.cos(transitionProgress * PULSE_QUARTER_PI)
+		alpha = InterpolateAlpha(intensityLevel)
+	else
+		alpha = InterpolateAlpha(0)
 	end
 	
-	controls:SetText(text)
+	controls.pulseAlpha = alpha
 	return true
 end
 
@@ -512,9 +521,40 @@ local function GetNewsEntry(parentHolder, index, headingSize, timeAsTooltip, top
 				objectOverrideHintFont = WG.Chobby.Configuration:GetFont(7),
 				parent = holder,
 			}
+			
+			local textY = controls.heading.y
+			controls.headingBackground = Control:New{
+				x = 2,
+				y = textY - 7,
+				right = 2,
+				height = headFormat.height,
+				parent = holder,
+				pulseAlpha = 0.9,
+				DrawControl = function(self)
+					if self.pulseComplete then
+						return
+					end
+					local x, y = self.x, self.y
+					local width, height = self.width, self.height
+					gl.Color(0.2, 0.4, 0.7, self.pulseAlpha)
+					gl.Rect(x, y, x + width, y + height)
+					
+					gl.Color(0.1, 0.3, 0.6, self.pulseAlpha)
+					gl.LineWidth(2)
+					gl.Shape(GL.LINE_LOOP, {
+						{v = {x, y}},
+						{v = {x + width, y}},
+						{v = {x + width, y + height}},
+						{v = {x, y + height}}
+					})
+					gl.LineWidth(1)
+					gl.Color(1, 1, 1, 1)
+				end,
+			}
+			controls.headingBackground:SendToBack()
 
-			if isNewItem and not entryData.noPulse then
-				StartPulse(controls.heading, entryData)
+			if isNewItem and not entryData.noPulse or 1 == 1 then
+				StartPulse(controls.headingBackground, entryData)
 			end
 		else
 			controls.heading:SetText(entryData.heading)
