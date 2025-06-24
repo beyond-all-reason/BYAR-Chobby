@@ -24,8 +24,8 @@ local welcomePanelItems = {
     },
 
     {
-        Header = "Nation Wars #4 – Knockout stage",
-        Text = "16 teams entered the group stage last weekend and battled it out in 4v4, with the best 8 now advancing to the knockout stage.\nWill the United States defend their title, or will another nation claim it?".." \n".." \n".."Tune in to Twitch this weekend June 21/22 and watch the remaining competitors fight their way through the brackets.\nFor each team, the only acceptable outcome is the complete elimination of the others.".." \n".." \n".."Full details and stream links available on the Nation Wars Discord.",
+        Header = "Nation Wars #4 – Results",
+        Text = "16 teams entered the group stage, 8 advanced to the knockout stage, but only 1 stands at the top...\nCongratulations to Germany for their victory this year!\nCanada takes the 2nd place, with the Eastern Europe coalition representing 5 different countries ending up 3rd.".." \n".." \n".."Thanks to all competitors for participating!\nWatch out for the neat gold/silver/bronze medals displayed in-game on the respective teams' players.",
         Image = "LuaMenu/images/nation_wars.png",
         Url = "https://discord.gg/qurXWcjmNN",
         UrlText = "Nation Wars Discord",
