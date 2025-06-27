@@ -1,7 +1,7 @@
 { 
     "title": "Beyond All Reason",
     "log_upload_url": "https://log.beyondallreason.dev",
-    "error_suffix": "For support please <a href=\"special:log-upload-ask\">upload log</a> and share it with us on <a target=\"_blank\" href=\"https://discord.gg/beyond-all-reason\">Discord</a>.",
+    "error_suffix": "For support please check <a target=\"_blank\" href=\"https://www.beyondallreason.info/troubleshooting\">troubleshooting page</a> or <a href=\"special:log-upload-ask\">upload log</a> and share it with us on <a target=\"_blank\" href=\"https://discord.gg/beyond-all-reason\">Discord</a>.",
     "setups": [
         {
             "package": {
@@ -219,6 +219,7 @@
         }
     ],
     "links": [
+        {"title": "Troubleshooting", "url": "https://www.beyondallreason.info/troubleshooting"},
         {"title": "Privacy Policy", "url": "https://www.beyondallreason.info/privacy"}
     ],
     "json_files": {
