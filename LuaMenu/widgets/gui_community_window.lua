@@ -400,8 +400,6 @@ local function GetDateTimeDisplay(parentControl, xPosition, yPosition, timeStrin
 
 	return externalFunctions
 end
-				
-
 
 local headingFormats = {
 	[2] = {
@@ -487,7 +485,6 @@ local function GetNewsEntry(parentHolder, index, headingSize, timeAsTooltip, top
 			end
 		end
 
-		-- Handle new item detection and pulsing (do this on every call, not just first)
 		local seenWelcomeItems = WG.Chobby.Configuration.seenWelcomeItems or {}
 		local itemKey = entryData.heading
 		local textLength = string.len(entryData.text or "")
@@ -516,7 +513,6 @@ local function GetNewsEntry(parentHolder, index, headingSize, timeAsTooltip, top
 			controls.heading:SetText(entryData.heading)
 		end
 		
-		-- Create pulsing background if needed (and doesn't already exist)
 		if isNewItem and not entryData.noPulse and not controls.headingBackground then
 			controls.headingBackground = Control:New{
 				x = 2,
@@ -1129,14 +1125,11 @@ local function DelayedInitialize()
 end
 
 function widget:Update()
-	local i = 1
-	while i <= #activePulses do
+	for i = #activePulses, 1, -1 do
 		local pulse = activePulses[i]
 		local stillActive = UpdatePulse(pulse.controls, pulse.entryData, pulse.startTime)
 		if not stillActive then
 			table.remove(activePulses, i)
-		else
-			i = i + 1
 		end
 	end
 end
