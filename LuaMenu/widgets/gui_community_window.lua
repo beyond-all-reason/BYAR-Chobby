@@ -142,7 +142,16 @@ local function GetLadderHandler(parentControl)
 		parent = holder,
 	}
 
-	local heading = TextBox:New{
+	local headingPanel = Panel:New{
+		x = 4,
+		y = 7,
+		right = 4,
+		height = 24,
+		backgroundColor = {0.5, 0, 0.5, 0.8},
+		parent = holder,
+	}
+	
+		local heading = TextBox:New{
 		x = 4,
 		y = 7,
 		right = 4,
@@ -201,7 +210,122 @@ end
 
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
+-- Pulse Management
+
+local activePulses = {}
+
+local PULSE_INITIAL_DELAY = 10
+local PULSE_ON_DURATION = 0.1
+local PULSE_FADEIN_DURATION = 0.2
+local PULSE_FADEOUT_DURATION = 1.2
+local PULSE_TOTAL_CYCLES = 2
+local PULSE_MIN_ALPHA = 0.0
+local PULSE_MAX_ALPHA = 0.5
+local PULSE_QUARTER_PI = math.pi * 0.5
+local PULSE_BG_COLOR = {0.2, 0.4, 0.7}
+local PULSE_BORDER_COLOR = {0.1, 0.3, 0.6}
+
+local function UpdatePulse(backgroundControl, entryData, pulseStartTime)
+	if not backgroundControl or not backgroundControl.visible then
+		return false
+	end
+	
+	local elapsedTime = os.clock() - pulseStartTime
+	
+	if elapsedTime < PULSE_INITIAL_DELAY then
+		backgroundControl.pulseAlpha = PULSE_MIN_ALPHA
+		return true
+	end
+	
+	local cycleTime = PULSE_FADEIN_DURATION + PULSE_ON_DURATION + PULSE_FADEOUT_DURATION
+	local pulseTime = elapsedTime - PULSE_INITIAL_DELAY
+	local cyclePosition = pulseTime % cycleTime
+	local completedCycles = pulseTime / cycleTime
+	
+	if completedCycles >= PULSE_TOTAL_CYCLES then
+		backgroundControl.pulseAlpha = PULSE_MIN_ALPHA
+		backgroundControl.pulseComplete = true
+		return false
+	end
+	
+	local alpha = PULSE_MIN_ALPHA
+	local alphaRange = PULSE_MAX_ALPHA - PULSE_MIN_ALPHA
+	
+	if cyclePosition <= PULSE_FADEIN_DURATION then
+		local progress = cyclePosition / PULSE_FADEIN_DURATION
+		alpha = PULSE_MIN_ALPHA + alphaRange * math.sin(progress * PULSE_QUARTER_PI)
+	elseif cyclePosition <= PULSE_FADEIN_DURATION + PULSE_ON_DURATION then
+		alpha = PULSE_MAX_ALPHA
+	elseif cyclePosition <= PULSE_FADEIN_DURATION + PULSE_ON_DURATION + PULSE_FADEOUT_DURATION then
+		local progress = (cyclePosition - PULSE_FADEIN_DURATION - PULSE_ON_DURATION) / PULSE_FADEOUT_DURATION
+		alpha = PULSE_MIN_ALPHA + alphaRange * math.cos(progress * PULSE_QUARTER_PI)
+	end
+	
+	backgroundControl.pulseAlpha = alpha
+	return true
+end
+
+local function StartPulse(backgroundControl, entryData)
+	activePulses[#activePulses + 1] = {
+		controls = backgroundControl,
+		entryData = entryData,
+		startTime = os.clock()
+	}
+end
+
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 -- News
+
+local function GetTextHash(header, text)
+	local combinedText = (header or "") .. ". " .. (text or "")
+	if combinedText == ". " or combinedText == "" then
+		return ""
+	end
+	
+	local hash = ""
+	for sentence in string.gmatch(combinedText, "[^%.%!%?]+") do
+		sentence = string.gsub(sentence, "^%s*", "")
+		if sentence ~= "" then
+			local firstChar = string.sub(sentence, 1, 1)
+			if firstChar ~= "" then
+				hash = hash .. firstChar
+			end
+		end
+	end
+	
+	return hash
+end
+
+local function CleanupSeenWelcomeItems(currentWelcomeItems)
+	local seenWelcomeItems = WG.Chobby.Configuration.seenWelcomeItems or {}
+	if not currentWelcomeItems or #currentWelcomeItems == 0 then
+		return
+	end
+	
+	local currentItemHeaders = {}
+	for i = 1, #currentWelcomeItems do
+		local itemHeader = currentWelcomeItems[i].Header
+		if itemHeader ~= "" then
+			currentItemHeaders[itemHeader] = true
+		end
+	end
+	
+	local hasChanges = false
+	local cleanedSeenItems = {}
+	for itemKey, textLength in pairs(seenWelcomeItems) do
+		if currentItemHeaders[itemKey] then
+			cleanedSeenItems[itemKey] = textLength
+		else
+			hasChanges = true
+		end
+	end
+	
+	if hasChanges then
+		WG.Chobby.Configuration:SetConfigValue("seenWelcomeItems", cleanedSeenItems)
+	end
+end
+
 
 local function GetDateTimeDisplay(parentControl, xPosition, yPosition, timeString)
 	local timeTextColor = WG.Chobby.Configuration.selectedColor
@@ -361,6 +485,17 @@ local function GetNewsEntry(parentHolder, index, headingSize, timeAsTooltip, top
 			end
 		end
 
+		local seenWelcomeItems = WG.Chobby.Configuration.seenWelcomeItems or {}
+		local itemKey = entryData.heading
+		local textLength = string.len(entryData.text or "")
+		local storedTextLength = seenWelcomeItems[itemKey]
+		local isNewItem = itemKey ~= "" and (not storedTextLength or storedTextLength ~= textLength)
+		
+		if isNewItem then
+			seenWelcomeItems[itemKey] = textLength
+			WG.Chobby.Configuration:SetConfigValue("seenWelcomeItems", seenWelcomeItems)
+		end
+		
 		if not controls.heading then
 			controls.heading = TextBox:New{
 				x = 4, -- Fireball: Why not textpos(=6) ?
@@ -376,6 +511,35 @@ local function GetNewsEntry(parentHolder, index, headingSize, timeAsTooltip, top
 			}
 		else
 			controls.heading:SetText(entryData.heading)
+		end
+		
+		if isNewItem and not entryData.noPulse and not controls.headingBackground then
+			controls.headingBackground = Control:New{
+				x = 2,
+				y = controls.heading.y - 7,
+				right = 2,
+				height = headFormat.height + 14,
+				parent = holder,
+				pulseAlpha = PULSE_MIN_ALPHA,
+				pulseComplete = false,
+				DrawControl = function(self)
+					if self.pulseComplete then return end
+					
+					local x, y, w, h = self.x, self.y, self.width, self.height
+					local alpha = self.pulseAlpha
+					
+					gl.Color(PULSE_BG_COLOR[1], PULSE_BG_COLOR[2], PULSE_BG_COLOR[3], alpha)
+					gl.Rect(x, y, x + w, y + h)
+					
+					gl.Color(PULSE_BORDER_COLOR[1], PULSE_BORDER_COLOR[2], PULSE_BORDER_COLOR[3], alpha)
+					gl.LineWidth(2)
+					gl.Shape(GL.LINE_LOOP, {{v={x,y}}, {v={x+w,y}}, {v={x+w,y+h}}, {v={x,y+h}}})
+					gl.LineWidth(1)
+					gl.Color(1, 1, 1, 1)
+				end,
+			}
+			controls.headingBackground:SendToBack()
+			StartPulse(controls.headingBackground, entryData)
 		end
 
 		offset = offset + controls.heading.height
@@ -459,6 +623,10 @@ local function GetNewsEntry(parentHolder, index, headingSize, timeAsTooltip, top
 		if controls.heading and controls.heading.visible then
 			headingSize = (#controls.heading.physicalLines)*headFormat.fontSize
 			controls.heading:SetPos(nil, nil, nil, headingSize)
+			
+			if controls.headingBackground then
+				controls.headingBackground:SetPos(nil, controls.heading.y - 7, nil, headingSize + 14)
+			end
 		end
 		offset = offset + headingSize + headFormat.spacing
 
@@ -553,13 +721,13 @@ local function GetNewsHandler(parentControl, headingSize, timeAsTooltip, topHead
 			return
 		end
 		for i = 1, #items do
-			Spring.Echo("Adding news item",items[i].Header)
 			local entry = {
 				heading = items[i].Header,
 				link = items[i].Url,
 				atTime = items[i].Time,
 				text = items[i].Text,
 				urlText = items[i].UrlText,
+				noPulse = items[i].NoPulse,
 			}
 			if items[i].Image then
 				local imagePos = string.find(items[i].Image, "news")
@@ -850,6 +1018,8 @@ local function InitializeControls(window)
 		welcomePanelItems = WG.Chobby.Configuration.gameConfig.welcomePanelItems
 	end
 
+	CleanupSeenWelcomeItems(welcomePanelItems)
+
 	local newsHandler = GetNewsHandler(topWide, 4)
 	if welcomePanelItems then
 		newsHandler.ReplaceNews(welcomePanelItems)
@@ -952,6 +1122,16 @@ local function DelayedInitialize()
 		WG.Chobby.interfaceRoot.OpenRightPanelTab("welcome")
 		--Spring.Echo("Opened welcome panel")
 	--end
+end
+
+function widget:Update()
+	for i = #activePulses, 1, -1 do
+		local pulse = activePulses[i]
+		local stillActive = UpdatePulse(pulse.controls, pulse.entryData, pulse.startTime)
+		if not stillActive then
+			table.remove(activePulses, i)
+		end
+	end
 end
 
 function widget:Initialize()
