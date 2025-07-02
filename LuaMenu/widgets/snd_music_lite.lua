@@ -195,6 +195,7 @@ function playlistBuild()
 
 	-- Original Soundtrack List
 	if Spring.GetConfigInt('UseSoundtrackNew', 1) == 1 then
+		customIntroTrack = "luamenu/configs/gameConfig/byar/lobbyMusic/original/matteo dell'acqua - foobar (intro).ogg"
 		randomTrackList = playlistMerge(randomTrackList, VFS.DirList(musicDirOriginal, allowedExtensions))
 
 		-- April Fools
