@@ -1597,7 +1597,6 @@ local function AddTeamButtons(parent, offX, joinFunc, aiFunc, unjoinable, disall
 			itemKeyToName = teamFactionsNames,
 			selected = 5,
 			OnDispose = {function()
-					-- a new box might end up overwriting this one before this gets disposed
 					if factionComboBoxes[allyTeam] == factionWraper then
 						factionComboBoxes[allyTeam] = nil
 					end
@@ -3491,12 +3490,18 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		if battleLobby.name ~= "singleplayer" and username == battleLobby.myUserName then
 			if status.isBoss ~= nil then
 				if status.isBoss == true then
-					for team, locker in pairs(factionComboBoxes) do
-						locker:Show()
+					for i = 0, 7 do
+						local locker = factionComboBoxes[i]
+						if locker then
+							locker:Show()
+						end
 					end
 				else
-					for team, locker in pairs(factionComboBoxes) do
-						locker:Hide()
+					for i = 0, 7 do
+						local locker = factionComboBoxes[i]
+						if locker then
+							locker:Hide()
+						end
 					end
 				end
 			end
@@ -4010,10 +4015,11 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		end
 		local factionlimiter = modoptions.factionlimiter
 		if factionlimiter then
+			factionlimiter = tonumber(factionlimiter)
 			for i = 0, 7 do
 				local locker = factionComboBoxes[i]
 				if locker then
-					locker.updateBitmaskReading(tonumber(factionlimiter))
+					locker.updateBitmaskReading(factionlimiter)
 				end
 			end
 		end
