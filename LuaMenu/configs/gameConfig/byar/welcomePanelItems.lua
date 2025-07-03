@@ -39,9 +39,17 @@ local welcomePanelItems = {
         UrlText = "Sign Up for Overwatch",
     },
 
-    -- {
-    --     Header = "Upcoming Events",
-    -- },
+    {
+        Header = "Upcoming Events",
+    },
+
+    {
+        Header = "Discord Wars - 5v5 Tournament",
+        Text = "A few of the National BAR discords have teamed up to host a 5v5 tournament this Friday." .. " \n" .. " \n" .. "All are welcome, no matter your skill. Teams will be balanced for an even playing field.  No team? No problem! Sign up and you'll be paired with your dream team!",
+        Time = "2025-07-04T18:00:00",
+        Url = "https://challonge.com/DiscordWars",
+        UrlText = "Sign Up",
+    },
 
     {
         Header = "Now Available: BAR Guides",
