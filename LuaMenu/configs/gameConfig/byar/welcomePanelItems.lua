@@ -24,14 +24,6 @@ local welcomePanelItems = {
     },
 
     {
-        Header = "Nation Wars #4 – Results",
-        Text = "16 teams entered the group stage, 8 advanced to the knockout stage, but only 1 stands at the top...\nCongratulations to Germany for their victory this year!\nCanada takes the 2nd place, with the Eastern Europe coalition representing 5 different countries ending up 3rd.".." \n".." \n".."Thanks to all competitors for participating!\nWatch out for the neat gold/silver/bronze medals displayed in-game on the respective teams' players.",
-        Image = "LuaMenu/images/nation_wars.png",
-        Url = "https://discord.gg/qurXWcjmNN",
-        UrlText = "Nation Wars Discord",
-    },
-
-    {
         Header = "Help Keep BAR Clean - Join the Overwatch Team!",
         Text = "As BAR grows, so does the need for solid community moderation. We're looking for reliable, level-headed players to join the Overwatch Team—a trusted group that helps review reports, flag issues, and keep things fair.".." \n".." \n".."If you’re active and care about a respectful game space, we’d love your help!".." \n".." \n".."Grab the development role from ⁠Channels & Roles to access the thread below:",
         Image = "LuaMenu/images/overwatch.png",
@@ -47,7 +39,7 @@ local welcomePanelItems = {
         Header = "Discord Wars - 5v5 Tournament",
         Text = "A few of the National BAR discords have teamed up to host a 5v5 tournament this Friday." .. " \n" .. " \n" .. "All are welcome, no matter your skill. Teams will be balanced for an even playing field.  No team? No problem! Sign up and you'll be paired with your dream team!",
         Time = "2025-07-04T18:00:00",
-        Url = "https://challonge.com/DiscordWars",
+        Url = "https://challonge.com/discordwars2",
         UrlText = "Sign Up",
     },
 
