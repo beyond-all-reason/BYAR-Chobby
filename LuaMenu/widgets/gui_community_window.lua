@@ -277,26 +277,6 @@ end
 --------------------------------------------------------------------------------
 -- News
 
-local function GetTextHash(header, text)
-	local combinedText = (header or "") .. ". " .. (text or "")
-	if combinedText == ". " or combinedText == "" then
-		return ""
-	end
-	
-	local hash = ""
-	for sentence in string.gmatch(combinedText, "[^%.%!%?]+") do
-		sentence = string.gsub(sentence, "^%s*", "")
-		if sentence ~= "" then
-			local firstChar = string.sub(sentence, 1, 1)
-			if firstChar ~= "" then
-				hash = hash .. firstChar
-			end
-		end
-	end
-	
-	return hash
-end
-
 local function CleanupSeenWelcomeItems(currentWelcomeItems)
 	local seenWelcomeItems = WG.Chobby.Configuration.seenWelcomeItems or {}
 	if not currentWelcomeItems or #currentWelcomeItems == 0 then
@@ -313,9 +293,9 @@ local function CleanupSeenWelcomeItems(currentWelcomeItems)
 	
 	local hasChanges = false
 	local cleanedSeenItems = {}
-	for itemKey, textLength in pairs(seenWelcomeItems) do
-		if currentItemHeaders[itemKey] then
-			cleanedSeenItems[itemKey] = textLength
+	for itemHeader, textLength in pairs(seenWelcomeItems) do
+		if currentItemHeaders[itemHeader] then
+			cleanedSeenItems[itemHeader] = textLength
 		else
 			hasChanges = true
 		end
@@ -486,13 +466,13 @@ local function GetNewsEntry(parentHolder, index, headingSize, timeAsTooltip, top
 		end
 
 		local seenWelcomeItems = WG.Chobby.Configuration.seenWelcomeItems or {}
-		local itemKey = entryData.heading
+		local itemHeader = entryData.heading
 		local textLength = string.len(entryData.text or "")
-		local storedTextLength = seenWelcomeItems[itemKey]
-		local isNewItem = itemKey ~= "" and (not storedTextLength or storedTextLength ~= textLength)
+		local storedTextLength = seenWelcomeItems[itemHeader]
+		local isNewItem = itemHeader ~= "" and (not storedTextLength or storedTextLength ~= textLength)
 		
 		if isNewItem then
-			seenWelcomeItems[itemKey] = textLength
+			seenWelcomeItems[itemHeader] = textLength
 			WG.Chobby.Configuration:SetConfigValue("seenWelcomeItems", seenWelcomeItems)
 		end
 		
