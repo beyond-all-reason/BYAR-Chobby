@@ -279,7 +279,7 @@ end
 
 local function CleanupSeenWelcomeItems(currentWelcomeItems)
 	local seenWelcomeItems = WG.Chobby.Configuration.seenWelcomeItems or {}
-	if not currentWelcomeItems or #currentWelcomeItems == 0 then
+	if not currentWelcomeItems then
 		return
 	end
 	
@@ -1006,6 +1006,7 @@ local function InitializeControls(window)
 	end
 
 	local function OnNewsList(_, welcomePanelItems)
+		CleanupSeenWelcomeItems(welcomePanelItems)
 		newsHandler.ReplaceNews(welcomePanelItems)
 	end
 	lobby:AddListener("OnNewsList", OnNewsList)
