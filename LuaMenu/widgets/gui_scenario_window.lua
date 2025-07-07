@@ -146,8 +146,6 @@ local function LoadScenarios()
     table.sort(scenarios, SortFunc )
 end
 
-
-
 local function EncodeScenarioOptions(scenario)
 	scenario.scenariooptions.version = scenario.version
 	scenario.scenariooptions.scenarioid = scenario.scenarioid
@@ -188,6 +186,13 @@ local function SetScore(scenarioID,scenarioVersion,difficulty,time,resources,gam
 	end
 end
 
+local function RefreshScores(scenarioID,scenarioVersion,difficulty)
+	myscores = GetBestScores(scenarioID,scenarioVersion,difficulty)
+	if myscores == nil then
+		myscores = {time = "0", resources = "0"}
+	end
+end
+
 --------------------------------------------------------------------------------
 -- GUI
 
@@ -218,10 +223,7 @@ local function CreateScenarioPanel(shortname, sPanel)
 		end
 	end
 
-	myscores = GetBestScores(scen.scenarioid, scen.version, mydifficulty.name)
-	if myscores == nil then
-		myscores = {time = "0", resources = "0"}
-	end
+	RefreshScores(scen.scenarioid, scen.version, mydifficulty.name)
 	myside = (scen.allowedsides and scen.allowedsides[1]) or "Armada"
 
 
@@ -636,13 +638,10 @@ local function CreateScenarioPanel(shortname, sPanel)
 		end
 		lbldifflevelpersonal:SetCaption("Difficulty: "..tostring(mydifficulty.name))
     
-    myscores = GetBestScores(scen.scenarioid, scen.version, mydifficulty.name)
-    if myscores == nil then
-      myscores = {time = "0", resources = "0"}
-    end
-    
-    mytime:SetCaption(SecondsToTimeString(myscores.time))
-    myresources:SetCaption(string.format( "%.2fK metal",myscores.resources/1000.0))
+		RefreshScores(scen.scenarioid, scen.version, mydifficulty.name)
+		
+		mytime:SetCaption(SecondsToTimeString(myscores.time))
+		myresources:SetCaption(string.format( "%.2fK metal",myscores.resources/1000.0))
 	end
 
 	local difficultCombo = ComboBox:New{
@@ -1112,6 +1111,9 @@ function widget:SetConfigData(data)
 
 	Spring.Echo("Scenario Window SetConfigData")
 	scoreData = data.scores or {}
+	if scoreData[scenarioID][scenarioVersion][difficulty] then
+		RefreshScores(scoreData[scenarioID],scoreData[scenarioVersion],scoreData[difficulty])
+	end
 end
 
 local function DelayedInitialize()
