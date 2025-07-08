@@ -37,6 +37,12 @@ local mydifficulty = {name = "Normal", playerhandicap = 100, enemyhandicap = 100
 local myscores = {time = 0, resources = 0}
 local myside = nil
 
+local lastScenarioID
+local lastScenarioVersion
+local lastDifficulty
+local lastTime
+local lastResources
+local scoreLabels = {}
 local scoreData = {} -- a table, with keys being scenario uniqueIDs, e.g.:
 --[[
 { supcrossingvsbarbs001 = {
@@ -155,14 +161,29 @@ end
 
 local function GetBestScores(scenarioID,scenarioVersion,difficulty)
 	--Spring.Echo("GetBestScores",scenarioID,scenarioVersion,difficulty)
-	if scoreData[scenarioID] and
-		scoreData[scenarioID][scenarioVersion] and
-		scoreData[scenarioID][scenarioVersion][difficulty] then
-			myscores = scoreData[scenarioID][scenarioVersion][difficulty]
-			Spring.Echo(myscores)
-			return myscores
+	if scoreData[scenarioID] 
+	and	scoreData[scenarioID][scenarioVersion] 
+	and	scoreData[scenarioID][scenarioVersion][difficulty] then
+		Spring.Echo(scoreData[scenarioID][scenarioVersion][difficulty])
+		return scoreData[scenarioID][scenarioVersion][difficulty]
 	else
 		return nil
+	end
+end
+
+local function RefreshScores(scenarioID,scenarioVersion,difficulty)
+	Spring.Echo("Scenario Window RefreshScores")
+	myscores = GetBestScores(scenarioID,scenarioVersion,difficulty)
+	if myscores == nil then
+		myscores = {time = "0", resources = "0"}
+	end
+	
+	if scoreLabels[scenarioID] 
+	and scoreLabels[scenarioID][scenarioVersion] 
+	and scoreLabels[scenarioID][scenarioVersion][difficulty] then
+		local labels = scoreLabels[scenarioID][scenarioVersion][difficulty]
+		labels.time:SetCaption(SecondsToTimeString(myscores.time))
+		labels.resources:SetCaption(string.format("%.2fK metal", myscores.resources / 1000.0))
 	end
 end
 
@@ -186,13 +207,6 @@ local function SetScore(scenarioID,scenarioVersion,difficulty,time,resources,gam
 	end
 end
 
-local function RefreshScores(scenarioID,scenarioVersion,difficulty)
-	myscores = GetBestScores(scenarioID,scenarioVersion,difficulty)
-	if myscores == nil then
-		myscores = {time = "0", resources = "0"}
-	end
-end
-
 --------------------------------------------------------------------------------
 -- GUI
 
@@ -211,7 +225,6 @@ local function CreateScenarioPanel(shortname, sPanel)
 	end
 	
 	MaybeDownloadMap(scen.mapfilename)
-
 
 	local difficulties = {}
 	local defaultdifficultyindex = 1
@@ -263,7 +276,6 @@ local function CreateScenarioPanel(shortname, sPanel)
 	if numdisabledunits > 0 then
 		summarytext = summarytext .. additionalText
 	end
-
 
 	local summarytextbox = TextBox:New {
 		x = 0,
@@ -466,7 +478,6 @@ local function CreateScenarioPanel(shortname, sPanel)
 		caption = "Personal Records",
 	}
 
-
 	local lbldifflevelpersonal = Label:New{
 		x = "76%",
 		y = "72.5%",
@@ -504,7 +515,7 @@ local function CreateScenarioPanel(shortname, sPanel)
 		height = "5%",
 		parent = sPanel,
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2, "scn_label"),
-		caption = "My Resources ",
+		caption = "My Resources: ",
 	}
 
 	local myresources = Label:New{
@@ -514,7 +525,7 @@ local function CreateScenarioPanel(shortname, sPanel)
 		height = "5%",
 		parent = sPanel,
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
-		caption =  string.format( "%.2fK metal",myscores.resources/1000.0),
+		caption = string.format( "%.2fK metal",myscores.resources/1000.0),
 	}
 
 	if scen.author then
@@ -634,14 +645,13 @@ local function CreateScenarioPanel(shortname, sPanel)
 
 	local function UpdateDifficulty(newdifficultyname)
 		for i, diff in pairs(scen.difficulties) do
-			if diff.name == newdifficultyname then mydifficulty = diff end
+			if diff.name == newdifficultyname then 
+				mydifficulty = diff 
+			end
 		end
+
 		lbldifflevelpersonal:SetCaption("Difficulty: "..tostring(mydifficulty.name))
-    
 		RefreshScores(scen.scenarioid, scen.version, mydifficulty.name)
-		
-		mytime:SetCaption(SecondsToTimeString(myscores.time))
-		myresources:SetCaption(string.format( "%.2fK metal",myscores.resources/1000.0))
 	end
 
 	local difficultCombo = ComboBox:New{
@@ -667,6 +677,19 @@ local function CreateScenarioPanel(shortname, sPanel)
 		parent = sPanel,
 	}
 
+	local function SaveScoreLabels(scenarioID, scenarioVersion, difficulty)
+		scoreLabels[scenarioID] = scoreLabels[scenarioID] or {}
+		scoreLabels[scenarioID][scenarioVersion] = scoreLabels[scenarioID][scenarioVersion] or {}
+		scoreLabels[scenarioID][scenarioVersion][difficulty] = scoreLabels[scenarioID][scenarioVersion][difficulty] or {}
+		scoreLabels[scenarioID][scenarioVersion][difficulty] = {
+			time = mytime,
+			resources = myresources
+		}
+	end
+	
+	for _, diff in pairs(scen.difficulties) do
+		SaveScoreLabels(scen.scenarioid, scen.version, diff.name)
+	end
 
 	local function createstartscript()
 		local basescript = scen.startscript
@@ -736,6 +759,7 @@ local function CreateScenarioPanel(shortname, sPanel)
 		},
 		parent = sPanel,
 	}
+
 	startmissionbutton:SetEnabled(true)
 	startmissionbutton:StyleReady()
 end
@@ -1081,18 +1105,22 @@ function widget:RecvLuaMsg(msg)
 				WG.Analytics.SendRepeatEvent("system:benchmark", stats)
 			end
 		else
-			local decodedscenopts = Spring.Utilities.json.decode(Spring.Utilities.
-			Base64Decode(stats.scenariooptions))
-
-			Spring.Echo(decodedscenopts.scenarioid,decodedscenopts.version,stats.endtime,stats.metalUsed + stats.energyUsed/60.0,stats.won)
+			local decodedscenopts = Spring.Utilities.json.decode(Spring.Utilities
+			.Base64Decode(stats.scenariooptions))
+			lastScenarioID = decodedscenopts.scenarioid
+			lastScenarioVersion = decodedscenopts.version
+			lastDifficulty = decodedscenopts.difficulty
+			lastTime = stats.endtime
+			lastResources = (stats.metalUsed + stats.energyUsed/60.0) or 0 
 			local won = (stats.won and stats.cheated ~= true ) or false
-			local resourcesused = (stats.metalUsed + stats.energyUsed/60.0) or 0 
+			
+			Spring.Echo(lastScenarioID, lastScenarioVersion, lastDifficulty, lastTime, lastResources, won)
 			if WG.Analytics and WG.Analytics.SendRepeatEvent then
-				WG.Analytics.SendRepeatEvent("game_start:singleplayer:scenario_end", {scenarioid = decodedscenopts.scenarioid, difficulty = decodedscenopts.difficulty, won = won, endtime = stats.endtime, resources = resourcesused })
+				WG.Analytics.SendRepeatEvent("game_start:singleplayer:scenario_end", {scenarioid = lastScenarioID, difficulty =  lastDifficulty, won = won, endtime = lastTime, resources = lastResources })
 			end
 
 			if won then
-				SetScore(decodedscenopts.scenarioid,decodedscenopts.version,decodedscenopts.difficulty, stats.endtime,resourcesused,won)
+				SetScore(lastScenarioID, lastScenarioVersion, lastDifficulty, lastTime, lastResources, won)
 				widget:Initialize()
 				MakeScenarioScrollPanelChildren()
 			end
@@ -1108,17 +1136,16 @@ function widget:GetConfigData()
 end
 
 function widget:SetConfigData(data)
-
 	Spring.Echo("Scenario Window SetConfigData")
 	scoreData = data.scores or {}
-	if scoreData[scenarioID][scenarioVersion][difficulty] then
-		RefreshScores(scoreData[scenarioID],scoreData[scenarioVersion],scoreData[difficulty])
-	end
 end
 
 local function DelayedInitialize()
 	local Configuration = WG.Chobby.Configuration
 	--SetScore("testscores","1.0","Hard",100,9999) -- seems to work
+	if lastScenarioID and lastScenarioVersion and lastDifficulty then
+		RefreshScores(lastScenarioID, lastScenarioVersion, lastDifficulty)
+	end
 end
 
 function widget:Initialize()
