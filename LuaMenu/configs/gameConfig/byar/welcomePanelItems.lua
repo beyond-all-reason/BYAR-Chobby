@@ -16,6 +16,13 @@ local welcomePanelItems = {
     },
 
     {
+        Header = "Legion Player Survey",
+        Text = "Please take 5 minutes to share your impressions of the Legion tier 1 combat aircraft.",
+        Url = "https://docs.google.com/forms/d/1bC6ESAQWV_6TWgG9WOEESW3AvHKnTUX3vtQsLz3lMc0/",
+        UrlText = "Take Survey",
+    },
+
+    {
         Header = "The Lightbringer Update is Here!",
         Text = "Commanders, after two weeks of a testing run for the Lightbringer Update, we are thrilled to announce the merge went without any major issues. This update represents the largest visual overhaul we have ever attempted. Enjoy BAR battles being more lit than ever!" .. " \n" .. " \n" .. "We have prepared a detailed post about the update and a Cinematic Highlights Video, check it out!",
 	    Image = "LuaMenu/images/welcomepanel/lightbringerbox.png",
