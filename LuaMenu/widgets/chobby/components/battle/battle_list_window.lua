@@ -691,7 +691,7 @@ function BattleListWindow:MakeJoinBattle(battleID, battle)
 		align = "right",
 		valign = 'center',
 		objectOverrideFont = myFont2,
-		caption = lobby:GetBattlePlayerCount(battleID) .. "/" .. battle.maxPlayers,
+		caption = lobby:GetBattlePlayerCount(battleID) .. "/" .. math.min(battle.maxPlayers, battle.teamSize * battle.nbTeams),
 		parent = parentButton,
 	}
 
@@ -1084,7 +1084,7 @@ function BattleListWindow:JoinedBattle(battleID)
 	if playersCaption then
 		local newPlayerCount = lobby:GetBattlePlayerCount(battleID)
 		if battleButton.previousPlayerCount ~= newPlayerCount then 
-			playersCaption:SetCaption(newPlayerCount .. "/" .. battle.maxPlayers)
+			playersCaption:SetCaption(newPlayerCount .. "/" .. math.min(battle.maxPlayers, battle.teamSize * battle.nbTeams))
 			battleButton.previousPlayerCount = newPlayerCount
 		end
 	else
@@ -1115,7 +1115,7 @@ function BattleListWindow:LeftBattle(battleID)
 	if playersCaption then
 		local newPlayerCount = lobby:GetBattlePlayerCount(battleID)
 		if battleButton.previousPlayerCount ~= newPlayerCount then 
-			playersCaption:SetCaption(newPlayerCount .. "/" .. battle.maxPlayers)
+			playersCaption:SetCaption(newPlayerCount .. "/" .. math.min(battle.maxPlayers, battle.teamSize * battle.nbTeams))
 			battleButton.previousPlayerCount = newPlayerCount
 		end
 	else
@@ -1195,7 +1195,7 @@ function BattleListWindow:OnUpdateBattleInfo(battleID)
 		local newPlayerCount = lobby:GetBattlePlayerCount(battleID)
 		if battleButton.previousPlayerCount ~= newPlayerCount then 
 			local playersCaption = battleButton:GetChildByName("playersCaption")
-			playersCaption:SetCaption(newPlayerCount .. "/" .. battle.maxPlayers)
+			playersCaption:SetCaption(newPlayerCount .. "/" .. math.min(battle.maxPlayers, battle.teamSize * battle.nbTeams))
 			battleButton.previousPlayerCount = newPlayerCount
 		end
 
