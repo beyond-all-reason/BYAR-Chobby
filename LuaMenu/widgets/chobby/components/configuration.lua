@@ -283,6 +283,7 @@ function Configuration:init()
 	self.ingameNotifcations = true -- Party, chat
 	self.nonFriendNotifications = true -- Party, chat
 	self.friendActivityNotification = true
+	self.doNotDisturb = false
 	self.addFriendWindowButton = true
 	self.simplifiedSkirmishSetup = true
 	self.debugMode = false
@@ -687,6 +688,7 @@ function Configuration:GetConfigData()
 		notifyForAllChat = self.notifyForAllChat,
 		ingameNotifcations = self.ingameNotifcations,
 		nonFriendNotifications = self.nonFriendNotifications,
+		doNotDisturb = self.doNotDisturb,
 		simplifiedSkirmishSetup = self.simplifiedSkirmishSetup,
 		debugMode = self.debugMode,
 		debugAutoWin = self.debugAutoWin,
