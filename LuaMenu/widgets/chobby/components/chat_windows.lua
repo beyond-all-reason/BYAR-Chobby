@@ -590,7 +590,7 @@ end
 function ChatWindows:_NotifyTab(tabName, userName, chanName, nameMentioned, message, sound, popupDuration)
 	if tabName ~= self.currentTab then
 		-- TODO: Fix naming of self.tabbars (these are consoles)
-		if (nameMentioned or chanName == "Private") and WG.Chobby.Configuration.gameConfig.sayPrivateSelectAndActivateChatTab then
+		if (nameMentioned or chanName == "Private") and WG.Chobby.Configuration.gameConfig.sayPrivateSelectAndActivateChatTab and not WG.Chobby.Configuration.doNotDisturb then
 			WG.Chobby.interfaceRoot.OpenRightPanelTab("chat")
 			self.tabPanel.tabBar:Select(tabName)
 		end
