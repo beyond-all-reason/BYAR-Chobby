@@ -254,7 +254,7 @@ return {
 		fixFlicker = "Fix lobby flickering",
 		fixFlicker_tooltip = "At the cost of significant idle CPU load: Enable this if you experience flickering in the lobby.",
 		flushLogs = "Flush logs to disk",
-		flushLogs_tooltip = "Immediately flush infolog.txt to disk for debuggging.",
+		flushLogs_tooltip = "Immediately flush infolog.txt to disk for debugging.",
 		keep_queues = "Stay in MM queues on launch",
 		simplifiedSkirmishSetup = "Simple skirmish setup",
 		simplifiedSkirmishSetup_tooltip = "Provides step-by-step instructions while setting up a singleplayer skirmish.",
