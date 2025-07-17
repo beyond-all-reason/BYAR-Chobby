@@ -251,7 +251,7 @@ local function CreateScenarioPanel(shortname, sPanel)
 		for unitid, count in pairs(scen.unitlimits) do
 			local humanName = unitdefname_to_humanname[unitid]
 			if not humanName then
-				Spring.Echo("Error: No human name for: " .. unitid)
+				Spring.Log("gui_scenario_window", LOG.ERROR, "Error No human name for: " .. unitid)
 				humanName = "human name missing"
 			end
 	
