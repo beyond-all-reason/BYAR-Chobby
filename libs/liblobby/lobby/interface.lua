@@ -2352,6 +2352,52 @@ end
 Interface.commands["s.battle.extra_data"] = Interface._OnBattleExtraData
 Interface.commandPattern["s.battle.extra_data"] = "(%S+)%s+(.*)"
 
+-- Handle s.battle.teams batch message (sent on login)
+function Interface:_OnBattleTeams(data)
+	Spring.Log(LOG_SECTION, LOG.NOTICE, "Received s.battle.teams message with data: " .. tostring(data))
+	local teamsData = Spring.Utilities.json.decode(Spring.Utilities.Base64Decode(data))
+	if not teamsData then
+		Spring.Log(LOG_SECTION, LOG.ERROR, "Failed to parse s.battle.teams data: " .. tostring(data))
+		return
+	end
+	
+	Spring.Log(LOG_SECTION, LOG.NOTICE, "Parsed teams data: " .. Spring.Utilities.json.encode(teamsData))
+	
+	-- Update each battle with its team data
+	for battleID, teamInfo in pairs(teamsData) do
+		battleID = tonumber(battleID)
+		if battleID then
+			Spring.Log(LOG_SECTION, LOG.NOTICE, "Updating battle " .. battleID .. " with teamSize=" .. tostring(teamInfo.teamSize) .. ", nbTeams=" .. tostring(teamInfo.nbTeams))
+			self:super("_OnUpdateBattleInfo", battleID, {
+				teamSize = teamInfo.teamSize,
+				nbTeams = teamInfo.nbTeams
+			})
+		end
+	end
+end
+Interface.commands["s.battle.teams"] = Interface._OnBattleTeams
+Interface.commandPattern["s.battle.teams"] = "(.+)"
+
+-- Handle s.battle.teams_update individual update message
+function Interface:_OnBattleTeamsUpdate(battleID, data)
+	Spring.Log(LOG_SECTION, LOG.NOTICE, "Received s.battle.teams_update message for battle " .. battleID .. " with data: " .. tostring(data))
+	battleID = tonumber(battleID)
+	local teamData = Spring.Utilities.json.decode(Spring.Utilities.Base64Decode(data))
+	if not teamData then
+		Spring.Log(LOG_SECTION, LOG.ERROR, "Failed to parse s.battle.teams_update data: " .. tostring(data))
+		return
+	end
+	
+	Spring.Log(LOG_SECTION, LOG.NOTICE, "Updating battle " .. battleID .. " with teamSize=" .. tostring(teamData.teamSize) .. ", nbTeams=" .. tostring(teamData.nbTeams))
+	self:super("_OnUpdateBattleInfo", battleID, {
+		teamSize = teamData.teamSize,
+		nbTeams = teamData.nbTeams
+	})
+end
+Interface.commands["s.battle.teams_update"] = Interface._OnBattleTeamsUpdate
+Interface.commandPattern["s.battle.teams_update"] = "([^\t]+)\t(.+)"
+
+
 function Interface:_OnS_Client_Errorlog()
 	self:_CallListeners("OnS_Client_Errorlog")
 end
