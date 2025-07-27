@@ -760,7 +760,7 @@ function Configuration:GetConfigData()
 		friendsFilterOnline = self.friendsFilterOnline,
 		queueExitConfirmPromptDoNotAskAgain = self.queueExitConfirmPromptDoNotAskAgain,
 		supperAnnouncementKey = self.supperAnnouncementKey,
-		rejoinID = self.rejoinID
+		rejoinBattleID = self.rejoinBattleID
 	}
 end
 
