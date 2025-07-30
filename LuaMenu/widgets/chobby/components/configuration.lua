@@ -415,7 +415,10 @@ function Configuration:init()
 	-- remember if new default of showSkill was applied
 	self.tempChangedShowSkill = false
 	self.supperAnnouncementKey = "nil"
+
+	self.rejoinID = "nil"
 end
+
 
 ---------------------------------------------------------------------------------
 -- Settings
@@ -756,7 +759,8 @@ function Configuration:GetConfigData()
 		useLastGameSpectatorState = self.useLastGameSpectatorState,
 		friendsFilterOnline = self.friendsFilterOnline,
 		queueExitConfirmPromptDoNotAskAgain = self.queueExitConfirmPromptDoNotAskAgain,
-		supperAnnouncementKey = self.supperAnnouncementKey
+		supperAnnouncementKey = self.supperAnnouncementKey,
+		rejoinBattleID = self.rejoinBattleID
 	}
 end
 
