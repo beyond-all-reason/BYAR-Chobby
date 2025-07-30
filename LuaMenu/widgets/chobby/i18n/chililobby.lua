@@ -377,6 +377,9 @@ return {
 
 		-- moderation
 		mod_priv_chat = "Remember: Direct Messages are not private and subject to the same moderation rules as other chat. Be careful not to click links from people you don't know and never give out your password.",
+		
+		-- Battle Rejoin
+		rejoinBattlePopup = "You were in a lobby last time. Rejoin it?",
 	},
 	de = {
 		-- general
