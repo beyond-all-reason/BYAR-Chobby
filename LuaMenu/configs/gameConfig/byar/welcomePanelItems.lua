@@ -24,17 +24,27 @@ local welcomePanelItems = {
     },
 
     {
+        Header = "Upcoming Events",
+    },
+
+
+    {
+        Header = "Discord Wars 3 - Small Teams Tournament",
+        Text = "Commanders, join us for the third edition of Discord Wars this Friday." .. "\n" .. "Turn up to show your support for our awesome BAR subcommunities!",
+        Image = "LuaMenu/images/twitchmisc/discordwars3.png",
+        Time = "2025-08-01T18:00:00",
+        Url = "https://challonge.com/rzqyye0m",
+        UrlText = "Sign Up & Info"
+    },
+
+    {
         Header = "Help Keep BAR Clean - Join the Overwatch Team!",
         Text = "As BAR grows, so does the need for solid community moderation. We're looking for reliable, level-headed players to join the Overwatch Team—a trusted group that helps review reports, flag issues, and keep things fair.".." \n".." \n".."If you’re active and care about a respectful game space, we’d love your help!".." \n".." \n".."Grab the development role from ⁠Channels & Roles to access the thread below:",
         Image = "LuaMenu/images/overwatch.png",
         Url = "https://discord.com/channels/549281623154229250/1097438343861649458",
         UrlText = "Sign Up for Overwatch",
     },
-
-    -- {
-    --     Header = "Upcoming Events",
-    -- },
-
+    
     {
         Header = "Now Available: BAR Guides",
         Text = "New to Beyond All Reason? Check out these new Guides on Discord written by Zeteo!" .. " \n" .. " \n",
