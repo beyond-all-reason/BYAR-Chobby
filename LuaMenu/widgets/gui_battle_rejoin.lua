@@ -25,6 +25,7 @@ local function LoginRejoinOption(listener, battleID)
 
 	local battle = lobby:GetBattle(WG.Chobby.Configuration.rejoinBattleID) -- Battle Object
 	if battle == nil then
+		WG.Chobby.Configuration:SetConfigValue("rejoinBattleID", nil)
 		return
 	end
 	
