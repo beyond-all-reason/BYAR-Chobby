@@ -691,9 +691,12 @@ function BattleListWindow:MakeJoinBattle(battleID, battle)
 		align = "right",
 		valign = 'center',
 		objectOverrideFont = myFont2,
-		caption = lobby:GetBattlePlayerCount(battleID) .. "/" .. math.min(battle.maxPlayers, (battle.teamSize or 8) * (battle.nbTeams or 2)),
+		caption = lobby:GetPlayerOccupancy(battleID),
 		parent = parentButton,
 	}
+
+	parentButton.previousMaxPlayers = lobby:GetBattleMaxPlayers(battleID)
+	parentButton.previousPlayerCount = lobby:GetBattlePlayerCount(battleID)
 
 	return parentButton
 end
@@ -1083,11 +1086,9 @@ function BattleListWindow:JoinedBattle(battleID)
 	local playersCaption = battleButton:GetChildByName("playersCaption")
 	if playersCaption then
 		local newPlayerCount = lobby:GetBattlePlayerCount(battleID)
-		local newMaxPlayers = math.min(battle.maxPlayers, (battle.teamSize or 8) * (battle.nbTeams or 2))
-		if battleButton.previousPlayerCount ~= newPlayerCount or battleButton.previousMaxPlayers ~= newMaxPlayers then 
-			playersCaption:SetCaption(newPlayerCount .. "/" .. newMaxPlayers)
+		if battleButton.previousPlayerCount ~= newPlayerCount then 
+			playersCaption:SetCaption(lobby:GetPlayerOccupancy(battleID))
 			battleButton.previousPlayerCount = newPlayerCount
-			battleButton.previousMaxPlayers = newMaxPlayers
 		end
 	else
 		local playersOnMapCaption = battleButton:GetChildByName("playersOnMapCaption")
@@ -1116,11 +1117,9 @@ function BattleListWindow:LeftBattle(battleID)
 	local playersCaption = battleButton:GetChildByName("playersCaption")
 	if playersCaption then
 		local newPlayerCount = lobby:GetBattlePlayerCount(battleID)
-		local newMaxPlayers = math.min(battle.maxPlayers, (battle.teamSize or 8) * (battle.nbTeams or 2))
-		if battleButton.previousPlayerCount ~= newPlayerCount or battleButton.previousMaxPlayers ~= newMaxPlayers then 
-			playersCaption:SetCaption(newPlayerCount .. "/" .. newMaxPlayers)
+		if battleButton.previousPlayerCount ~= newPlayerCount then 
+			playersCaption:SetCaption(lobby:GetPlayerOccupancy(battleID))
 			battleButton.previousPlayerCount = newPlayerCount
-			battleButton.previousMaxPlayers = newMaxPlayers
 		end
 	else
 		local playersOnMapCaption = battleButton:GetChildByName("playersOnMapCaption")
@@ -1197,10 +1196,10 @@ function BattleListWindow:OnUpdateBattleInfo(battleID)
 		-- local gameCaption = items.battleButton:GetChildByName("gameCaption")
 		-- gameCaption:SetCaption(self:_MakeGameCaption(battle))
 		local newPlayerCount = lobby:GetBattlePlayerCount(battleID)
-		local newMaxPlayers = math.min(battle.maxPlayers, (battle.teamSize or 8) * (battle.nbTeams or 2))
+		local newMaxPlayers = lobby:GetBattleMaxPlayers(battleID)
 		if battleButton.previousPlayerCount ~= newPlayerCount or battleButton.previousMaxPlayers ~= newMaxPlayers then 
 			local playersCaption = battleButton:GetChildByName("playersCaption")
-			playersCaption:SetCaption(newPlayerCount .. "/" .. newMaxPlayers)
+			playersCaption:SetCaption(lobby:GetPlayerOccupancy(battleID))
 			battleButton.previousPlayerCount = newPlayerCount
 			battleButton.previousMaxPlayers = newMaxPlayers
 		end
