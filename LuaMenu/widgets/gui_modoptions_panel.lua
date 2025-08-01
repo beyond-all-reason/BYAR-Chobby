@@ -828,7 +828,7 @@ local function tweakSummary(value)
 	value = tostring(value)
 	local hash = Spring.Utilities.Base64Encode(VFS.CalculateHash(value,1))
 	local tweakText = string.format("%d:%s", value:len(), hash:sub(1, 4))
-	if value:find("[^%w%+/=]") then -- Non-base64 character found
+	if value:find("[^%w%-_=]") then -- Non-base64url character found
 		return tweakText
 	end
 	for line in Spring.Utilities.Base64Decode(value):gmatch("([^\r\n]*)[\r\n]?") do
