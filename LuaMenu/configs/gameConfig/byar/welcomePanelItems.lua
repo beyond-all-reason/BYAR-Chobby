@@ -23,19 +23,9 @@ local welcomePanelItems = {
         UrlText = "Read the Full Changes",
     },
 
-    {
-        Header = "Upcoming Events",
-    },
-
-
-    {
-        Header = "Discord Wars 3 - Small Teams Tournament",
-        Text = "Commanders, join us for the third edition of Discord Wars this Friday." .. "\n" .. "Turn up to show your support for our awesome BAR subcommunities!",
-        Image = "LuaMenu/images/twitchmisc/discordwars3.png",
-        Time = "2025-08-01T18:00:00",
-        Url = "https://challonge.com/rzqyye0m",
-        UrlText = "Sign Up & Info"
-    },
+  --  {
+  --      Header = "Upcoming Events",
+  --  },
 
     {
         Header = "Help Keep BAR Clean - Join the Overwatch Team!",
