@@ -341,7 +341,7 @@ local function GetBattleTooltip(battleID, battle, showMapName)
 		if not battleTooltip.playerCount then
 			battleTooltip.playerCount = GetTooltipLine(battleTooltip.mainControl)
 		end
-		battleTooltip.playerCount.Update(offset, "Players: " .. lobby:GetBattlePlayerCount(battleID) .. "/" .. battle.maxPlayers)
+		battleTooltip.playerCount.Update(offset, "Players: " .. lobby:GetPlayerOccupancy(battleID))
 
 		if not battleTooltip.spectatorCount then
 			battleTooltip.spectatorCount = GetTooltipLine(battleTooltip.mainControl, nil, nil, 130)

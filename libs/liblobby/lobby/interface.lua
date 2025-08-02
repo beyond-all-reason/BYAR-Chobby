@@ -2352,6 +2352,29 @@ end
 Interface.commands["s.battle.extra_data"] = Interface._OnBattleExtraData
 Interface.commandPattern["s.battle.extra_data"] = "(%S+)%s+(.*)"
 
+-- Handle s.battle.teams messages
+function Interface:_OnBattleTeams(data)
+	Spring.Log(LOG_SECTION, LOG.NOTICE, "Received s.battle.teams message with data: " .. tostring(data))
+	local teamsData = Spring.Utilities.json.decode(Spring.Utilities.Base64Decode(data))
+	if not teamsData then
+		Spring.Log(LOG_SECTION, LOG.ERROR, "Failed to parse s.battle.teams data: " .. tostring(data))
+		return
+	end
+	
+	-- Update each battle with its team data
+	for battleID, teamInfo in pairs(teamsData) do
+		battleID = tonumber(battleID)
+		if battleID then
+			self:super("_OnUpdateBattleInfo", battleID, {
+				teamSize = teamInfo.teamSize,
+				nbTeams = teamInfo.nbTeams
+			})
+		end
+	end
+end
+Interface.commands["s.battle.teams"] = Interface._OnBattleTeams
+Interface.commandPattern["s.battle.teams"] = "(.+)"
+
 function Interface:_OnS_Client_Errorlog()
 	self:_CallListeners("OnS_Client_Errorlog")
 end

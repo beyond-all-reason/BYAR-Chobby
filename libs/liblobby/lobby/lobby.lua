@@ -2285,6 +2285,20 @@ function Lobby:GetBattlePlayerCount(battleID)
 	end
 end
 
+function Lobby:GetBattleMaxPlayers(battleID)
+	local battle = self:GetBattle(battleID)
+	if not battle then
+		return 0
+	end
+
+	-- fall back to maxPlayers, if nbTeams or teamSize is unknown
+	return (battle.teamSize and battle.nbTeams) and (battle.teamSize * battle.nbTeams) or battle.maxPlayers
+end
+
+function Lobby:GetPlayerOccupancy(battleID)
+	return self:GetBattlePlayerCount(battleID) .. "/" .. self:GetBattleMaxPlayers(battleID)
+end
+
 function Lobby:GetBattleFoundedBy(userName)
 	-- TODO, improve data structures to make this search nice
 	for battleID, battleData in pairs(self.battles) do
