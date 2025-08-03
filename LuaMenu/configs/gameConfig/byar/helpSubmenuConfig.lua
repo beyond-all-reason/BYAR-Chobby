@@ -112,7 +112,7 @@ local communityLines = {
 		"Discord chat server.",
 		"Discord",
 		function ()
-			WG.BrowserHandler.OpenUrl("https://discord.gg/mvVc9vH")
+			WG.BrowserHandler.OpenUrl("https://discord.gg/beyond-all-reason")
 		end
 	},
 	{
