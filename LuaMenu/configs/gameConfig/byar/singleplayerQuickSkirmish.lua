@@ -1,3 +1,16 @@
+if not table.shuffle then
+	---Shuffle sequence using Knuth (Fisher–Yates) algorithm.
+	---@param sequence any[] must be a Lua sequence (i.e. indexes form a contiguous sequence starting from 1), with the exception that we optionally allow starting from 0
+	---@param firstIndex? 0|1 first index in the sequence (optional, default: 1)
+	function table.shuffle(sequence, firstIndex)
+		firstIndex = firstIndex or 1
+		for i = firstIndex, #sequence - 2 + firstIndex do
+			local j = math.random(i, #sequence)
+			sequence[i], sequence[j] = sequence[j], sequence[i]
+		end
+	end
+end
+
 local mapsByGameType = {
 	["1v1"] = {
 		"Onyx Cauldron 2.2.2",
@@ -30,6 +43,20 @@ local mapsByGameType = {
 		"Requiem Outpost 1.0.1",
 	},
 }
+
+table.shuffle(mapsByGameType["1v1"])
+table.shuffle(mapsByGameType["2v2"])
+table.shuffle(mapsByGameType["3v3"])
+table.shuffle(mapsByGameType["Scavengers"])
+table.shuffle(mapsByGameType["Raptors"])
+
+for gameType, maplist in pairs(mapsByGameType) do
+	for index, mapname in pairs(maplist) do
+		if index > 4 then
+			mapsByGameType[gameType][index] = nil
+		end
+	end
+end
 
 local gameTypes = {
 	"1v1",
