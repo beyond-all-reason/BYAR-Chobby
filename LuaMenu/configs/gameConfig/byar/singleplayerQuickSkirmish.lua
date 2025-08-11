@@ -138,9 +138,9 @@ function skirmishSetupData.ApplyFunction(battleLobby, pageChoices)
 
 	-- Handle PvE modes
 	local pveDifficultyMap = {
-		["Easy"] = "easy",
+		["Easy"] = "veryeasy",
 		["Medium"] = "normal",
-		["Hard"] = "hard"
+		["Hard"] = "veryhard"
 	}
 
 	if gameType == 4 then -- Scavengers
@@ -167,7 +167,12 @@ function skirmishSetupData.ApplyFunction(battleLobby, pageChoices)
 			allyNumber = 0,
 			side = math.random(0, 1),
 		}
-		battleLobby:AddAi(displayName .. "(" .. aiNumber .. ")", "BARb", 0, nil, aiOptions, battleStatusOptions)
+		if pageConfig[2].options[difficulty] == "Easy" then
+			battleLobby:AddAi("SimpleAI" .. "(" .. aiNumber .. ")", "SimpleAI", 0, nil, nil, battleStatusOptions)
+		else
+			battleLobby:AddAi(displayName .. "(" .. aiNumber .. ")", "BARb", 0, nil, aiOptions, battleStatusOptions)
+		end
+		
 		aiNumber = aiNumber + 1
 	end
 
@@ -180,7 +185,12 @@ function skirmishSetupData.ApplyFunction(battleLobby, pageChoices)
 			allyNumber = 1,
 			side = math.random(0, 1),
 		}
-		battleLobby:AddAi(displayName .. "(" .. aiNumber .. ")", "BARb", 1, nil, aiOptions, battleStatusOptions)
+		if pageConfig[2].options[difficulty] == "Easy" then
+			battleLobby:AddAi("SimpleAI" .. "(" .. aiNumber .. ")", "SimpleAI", 1, nil, nil, battleStatusOptions)
+		else
+			battleLobby:AddAi(displayName .. "(" .. aiNumber .. ")", "BARb", 1, nil, aiOptions, battleStatusOptions)
+		end
+		
 		aiNumber = aiNumber + 1
 	end
 end
