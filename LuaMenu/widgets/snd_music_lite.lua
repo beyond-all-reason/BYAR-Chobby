@@ -13,6 +13,16 @@ function widget:GetInfo()
 	}
 end
 
+Spring.CreateDir("music/custom/loading")
+Spring.CreateDir("music/custom/peace")
+Spring.CreateDir("music/custom/warlow")
+Spring.CreateDir("music/custom/warhigh")
+Spring.CreateDir("music/custom/war")
+Spring.CreateDir("music/custom/interludes")
+Spring.CreateDir("music/custom/bossfight")
+Spring.CreateDir("music/custom/gameover")
+Spring.CreateDir("music/custom/menu")
+
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 
