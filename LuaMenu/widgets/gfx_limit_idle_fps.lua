@@ -13,42 +13,155 @@ function widget:GetInfo()
 	}
 end
 
-local idleTime = 0.5
-local idleFps = 10	-- lower numbers will result in more severe flicker on some card/driver settings
-local sleepTime = 1
-local sleepFps = 5
-local hibernateTime = 2
-local hibernateFps = 2
-local offscreenFps = 1
+------------
+-- Timers --
+------------
 
-local activeFps = 40
-local activeFullspeedFps = 70	-- reset in init()
+LIBS_DIR = "libs/"
+LCS = loadstring(VFS.LoadFile(LIBS_DIR .. "lcs/LCS.lua"))
+LCS = LCS()
+
+Timer = LCS.class{}
+
+function Timer:init(duration, action)
+	self.endTime = os.clock() + duration
+	self.action = action
+end
+
+function Timer:Update()
+	if self.endTime < os.clock() and not self.hasFired then
+		self.action()
+		self.hasFired = true
+	end
+end
+
+-----------------
+-- VSync State --
+-----------------
+
+local stateTimer
+local awayTimer
+
+local drawAtFullspeed = true
+local maxVsync = 6
+
+-- Used to force more frequent updates in periods of known user interaction.
+-- This is used as an initial value and in ForceRedrawPeriod.
+-- This is equivalent to VSYNC_STATE_INTERACTING, except that it will not
+-- time out into idle/sleep/hibernate. 
+local VSYNC_STATE_GRACE = 1
+-- Used when the user is known to be actively interacting with the application, 
+-- e.g. moving the mouse or typing. Outside of grace mode, any measured interaction with Chobby 
+-- will return the application to VSYNC_STATE_INTERACTING
+local VSYNC_STATE_INTERACTING = 2
+-- IDLE, SLEEP, and HIBERNATE are progressively lower-resource modes which trigger after a delay.
+local VSYNC_STATE_IDLE = 3
+local VSYNC_STATE_SLEEP = 4
+local VSYNC_STATE_HIBERNATE = 5
+-- OFFSCREEN triggers when the mouse is not being handled by the engine (i.e. another application.)
+local VSYNC_STATE_OFFSCREEN = 6
+
+local idleTime = 0.5
+local sleepTime = 1
+local hibernateTime = 2
 local awayTime = 300
 
-local isIdle = false
-local isSleep = false
-local isHibernate = false
-local isAway = false
-local lastUserInputTime = os.clock()
+local vSyncState = VSYNC_STATE_GRACE
+
+local vSyncStateValues = {
+	[VSYNC_STATE_GRACE] = 1,
+	[VSYNC_STATE_INTERACTING] = 1,
+	[VSYNC_STATE_IDLE] = 1,
+	[VSYNC_STATE_SLEEP] = 3,
+	[VSYNC_STATE_HIBERNATE] = maxVsync,
+	[VSYNC_STATE_OFFSCREEN] = maxVsync,
+}
+
+local stateFPSValues = {
+	[VSYNC_STATE_GRACE] = 40,
+	[VSYNC_STATE_INTERACTING] = 40,
+	[VSYNC_STATE_IDLE] = 10, -- lower numbers will result in more severe flicker on some card/driver settings
+	[VSYNC_STATE_SLEEP] = 5,
+	[VSYNC_STATE_HIBERNATE] = 2,
+	[VSYNC_STATE_OFFSCREEN] = 1,
+}
+
+local function SetVSyncState(newVSyncState)
+	if vSyncState ~= newVSyncState then
+		vSyncState = newVSyncState
+		Spring.SetConfigInt("VSync", vSyncStateValues[vSyncState])
+	end
+end
+
+-----------------------
+-- State Transitions --
+-----------------------
+
+local function enterHibernation()
+	SetVSyncState(VSYNC_STATE_HIBERNATE)
+end
+
+local function enterSleep()
+	SetVSyncState(VSYNC_STATE_SLEEP)
+	stateTimer = Timer(hibernateTime - sleepTime, enterHibernation)
+end
+
+local function becomeIdle()
+	SetVSyncState(VSYNC_STATE_IDLE)
+	stateTimer = Timer(sleepTime - idleTime, enterSleep)
+end
+
+local function becomeAway()
+	local lobby = WG.LibLobby.lobby
+	if lobby.SetIngameStatus then
+		lobby:SetIngameStatus(nil, true)
+	end
+end
+
+local function logUserInput()
+	if vSyncState == VSYNC_STATE_GRACE or vSyncState == VSYNC_STATE_OFFSCREEN then
+		return
+	end
+
+	SetVSyncState(VSYNC_STATE_INTERACTING)
+
+	stateTimer = Timer(idleTime, becomeIdle)
+	awayTimer = Timer(awayTime, becomeAway)
+
+	local lobby = WG.LibLobby.lobby
+	if lobby.SetIngameStatus then
+		lobby:SetIngameStatus(nil, false)
+	end
+end
+
+local function concludeGrace()
+	SetVSyncState(VSYNC_STATE_INTERACTING)
+	logUserInput()
+end
+
+stateTimer = Timer(30, concludeGrace)
+awayTimer = Timer(awayTime, becomeAway)
+
+-----------------
+-- Cached Data --
+-----------------
+
 local lastMouseX, lastMouseY = Spring.GetMouseState()
-local drawAtFullspeed = true
-local isOffscreen = false
 local nextFrameTime = os.clock()
-local frameDelayTime = 0
-local enabled = false
+
+local initialized
+
+------------
+-- Config --
+------------
 
 local msaaLevel = tonumber(Spring.GetConfigInt("MSAALevel", 0))
 
-local vsyncValueGame = Spring.GetConfigInt("VSync",1)
-if vsyncValueGame > 3 then
-	vsyncValueGame = 1
+local defaultVSyncGame = Spring.GetConfigInt("VSync",1)
+if defaultVSyncGame > 3 then
+	defaultVSyncGame = 1
 end
-vsyncValueGame = Spring.GetConfigInt("VSyncGame", vsyncValueGame)	-- its stored here as assurance cause lobby/game also changes vsync when idle and lobby could think game has set vsync 4+ after a hard crash
-local vsyncValueLobby = 1
-local vsyncValueSleep = vsyncValueLobby + 2
-local maxVsync = 6
-local vsyncValueHibernate = maxVsync
-local vsyncValueOffscreen = maxVsync
+defaultVSyncGame = Spring.GetConfigInt("VSyncGame", defaultVSyncGame)	-- its stored here as assurance cause lobby/game also changes vsync when idle and lobby could think game has set vsync 4+ after a hard crash
 
 local isLinux = string.find(Platform.osName:lower(), 'linux')	-- not sure what exact implications linux has, but someone reported flickering
 
@@ -58,14 +171,17 @@ local isAmd = (Platform ~= nil and Platform.gpuVendor == 'AMD') or (not isIntel 
 
 if isIntel or isLinux then
 	maxVsync = 4	-- intel seems to no support vsync above 4 (but haven't tested the new intel XE)
-	vsyncValueHibernate = maxVsync
-	vsyncValueOffscreen = maxVsync
+	vSyncStateValues[VSYNC_STATE_OFFSCREEN] = maxVsync
+	
 	idleTime = 0.25
-	idleFps = 30	-- lower numbers will result in more severe flicker on intel gfx
+	stateFPSValues[VSYNC_STATE_IDLE] = 30	-- lower numbers will result in more severe flicker on intel gfx
+	
 	sleepTime = 1
-	sleepFps = 15
+	stateFPSValues[VSYNC_STATE_SLEEP] = 15
+
 	hibernateTime = 2
-	hibernateFps = 2
+	stateFPSValues[VSYNC_STATE_HIBERNATE] = 2
+	vSyncStateValues[VSYNC_STATE_HIBERNATE] = maxVsync
 end
 
 if isAmd then 
@@ -109,165 +225,122 @@ if infolog then
 end
 
 local function init()
-	if monitorFrequency >= 110 then
-		vsyncValueLobby = 2
-	elseif monitorFrequency >= 200 then
-		vsyncValueLobby = 3
+	if monitorFrequency >= 200 then
+		vSyncStateValues[VSYNC_STATE_INTERACTING] = 3
+	elseif monitorFrequency >= 110 then
+		vSyncStateValues[VSYNC_STATE_INTERACTING] = 2
 	else
-		vsyncValueLobby = 1
+		vSyncStateValues[VSYNC_STATE_INTERACTING] = 1
 	end
-	if not drawAtFullspeed then
-		vsyncValueLobby = vsyncValueLobby + 1
-	end
-	vsyncValueSleep = vsyncValueLobby + 2
-	if vsyncValueSleep > maxVsync then vsyncValueSleep = maxVsync end
-	if vsyncValueLobby > maxVsync then vsyncValueLobby = maxVsync end
-	if vsyncValueHibernate > maxVsync then vsyncValueHibernate = maxVsync end
-	if vsyncValueOffscreen > maxVsync then vsyncValueOffscreen = maxVsync end
 
-	activeFullspeedFps = math.ceil(monitorFrequency/vsyncValueLobby)
-	if activeFullspeedFps < 60 then
-		activeFullspeedFps = 60
-	elseif activeFullspeedFps > 80 then
-		activeFullspeedFps = 80
+	if drawAtFullspeed then
+		stateFPSValues[VSYNC_STATE_INTERACTING] = math.ceil(monitorFrequency/vSyncStateValues[VSYNC_STATE_INTERACTING])
+		if stateFPSValues[VSYNC_STATE_INTERACTING] < 60 then
+			stateFPSValues[VSYNC_STATE_INTERACTING] = 60
+		elseif stateFPSValues[VSYNC_STATE_INTERACTING] > 80 then
+			stateFPSValues[VSYNC_STATE_INTERACTING] = 80
+		end
+	else
+		stateFPSValues[VSYNC_STATE_INTERACTING] = 40
+		vSyncStateValues[VSYNC_STATE_INTERACTING] = vSyncStateValues[VSYNC_STATE_INTERACTING] + 1
 	end
-end
 
-local function logUserInput()
-	local clock = os.clock()
-	if clock > lastUserInputTime then
-		lastUserInputTime = clock
-	end
+	stateFPSValues[VSYNC_STATE_GRACE] = stateFPSValues[VSYNC_STATE_INTERACTING]
+	vSyncStateValues[VSYNC_STATE_GRACE] = vSyncStateValues[VSYNC_STATE_INTERACTING]
+	vSyncStateValues[VSYNC_STATE_SLEEP] = vSyncStateValues[VSYNC_STATE_INTERACTING] + 2
+
+	if vSyncStateValues[VSYNC_STATE_SLEEP] > maxVsync then vSyncStateValues[VSYNC_STATE_SLEEP] = maxVsync end
+	if vSyncStateValues[VSYNC_STATE_INTERACTING] > maxVsync then vSyncStateValues[VSYNC_STATE_INTERACTING] = maxVsync end
+	if vSyncStateValues[VSYNC_STATE_HIBERNATE] > maxVsync then vSyncStateValues[VSYNC_STATE_HIBERNATE] = maxVsync end
+	if vSyncStateValues[VSYNC_STATE_OFFSCREEN] > maxVsync then vSyncStateValues[VSYNC_STATE_OFFSCREEN] = maxVsync end
 end
 
 function widget:Initialize()
-	Spring.SetConfigInt("VSync", math.min(maxVsync, vsyncValueLobby))
+	-- We delay init to ensure we get first access to UI callins, but still init after WG.Chobby.
+	if not WG.Chobby then return end
 
 	if WG.Chobby and WG.Chobby.Configuration then
 		drawAtFullspeed = WG.Chobby.Configuration.drawAtFullSpeed
 	end
 	init()
 
+	Spring.SetConfigInt("VSync", math.min(maxVsync, vSyncStateValues[vSyncState]))
+	
 	WG.LimitFps = {}
 	WG.LimitFps.ForceRedrawPeriod = function(time)	-- optional time for duration of prolonged wakeness
-		lastUserInputTime = os.clock() + (time or 0)
-		if nextFrameTime > os.clock() + (1/(drawAtFullspeed and activeFullspeedFps or activeFps)) then
-			nextFrameTime = os.clock()
+		time = time or 0
+		if vSyncState == VSYNC_STATE_GRACE then
+			stateTimer.endTime = math.max(stateTimer.endTime, os.clock() + time)
+		else
+			stateTimer = Timer(time or 0, concludeGrace)
 		end
+		
+		nextFrameTime = os.clock()
 	end
 	WG.LimitFps.ForceRedraw = WG.LimitFps.ForceRedrawPeriod
 
-	WG.isAway = function()
-		return isAway
-	end
+	WG.Chobby.interfaceRoot.GetLobbyInterfaceHolder().OnShow = { function()
+		Spring.SetConfigInt("VSync", vSyncStateValues[VSYNC_STATE_INTERACTING])
+	end }
+	WG.Chobby.interfaceRoot.GetLobbyInterfaceHolder().OnHide = { function()
+		Spring.SetConfigInt("VSync", Spring.GetConfigInt("VSyncGame", defaultVSyncGame))
+	end }
 end
 
 function widget:Shutdown()
-	if WG.Chobby and WG.Chobby.Configuration then
-		WG.Chobby.Configuration.drawAtFullSpeed = drawAtFullspeed
-	end
-	if enabled then
-		Spring.SetConfigInt("VSync", vsyncValueGame)
+	if WG.Chobby.interfaceRoot.GetLobbyInterfaceHolder().visible then
+		Spring.SetConfigInt("VSync", Spring.GetConfigInt("VSyncGame", defaultVSyncGame))
 	end
 end
 
+------------
+-- Update --
+------------
+
 function widget:ViewResize(vsx, vsy)
+	if not initialized then return end
 	WG.LimitFps.ForceRedrawPeriod(0.5)
 end
 
-
-local basememlimit = 200000
-local garbagelimit = basememlimit -- in kilobytes, will adjust upwards as needed
-local lastGCchecktime = Spring.GetTimer()
-
 function widget:Update()
-	if Spring.DiffTimers(Spring.GetTimer(), lastGCchecktime) > 1 then
-		lastGCchecktime = Spring.GetTimer()
-		local ramuse = gcinfo()
-		--Spring.Echo("RAMUSE",ramuse)
-		if ramuse > garbagelimit then 
-			collectgarbage("collect")
-			collectgarbage("collect")
-			local notgarbagemem = gcinfo()
-			local newgarbagelimit = math.min(1000000, notgarbagemem + basememlimit) -- peak 1 GB
-			local msg = string.format("Chobby Using %d MB RAM > %d MB limit, performing garbage collection to %d MB and adjusting limit to %d MB",
-				math.floor(ramuse/1000), 
-				math.floor(garbagelimit/1000), 
-				math.floor(notgarbagemem/1000),
-				math.floor(newgarbagelimit/1000) ) 
-			Spring.Log("Chobby", LOG.NOTICE, msg)
-			garbagelimit = newgarbagelimit
-		end
+	if not initialized then
+		self:Initialize()
+		initialized = true
 	end
 
-	local prevEnabled = enabled
-	if WG.Chobby and WG.Chobby.interfaceRoot then
-		enabled = WG.Chobby.interfaceRoot.GetLobbyInterfaceHolder().visible
+	if not WG.Chobby.interfaceRoot.GetLobbyInterfaceHolder().visible then
+		return
 	end
-	if prevEnabled ~= enabled then
-		Spring.SetConfigInt("VSync", (enabled and vsyncValueLobby or vsyncValueGame))
-	end
-	if enabled then
-		vsyncValueGame = Spring.GetConfigInt("VSyncGame", vsyncValueGame)
 
-		if Spring.GetKeyState(8) then -- backspace pressed
+	if WG.Chobby.Configuration.drawAtFullSpeed ~= drawAtFullspeed then
+		drawAtFullspeed = WG.Chobby.Configuration.drawAtFullSpeed
+		init()
+		Spring.SetConfigInt("VSync", vSyncStateValues[vSyncState])
+	end
+
+	if vSyncState == VSYNC_STATE_GRACE then
+		stateTimer:Update()
+		awayTimer:Update()
+		return
+	end
+
+	local mouseX, mouseY, lmb, mmb, rmb, mouseOffscreen = Spring.GetMouseState()
+	
+	if vSyncState == VSYNC_STATE_OFFSCREEN then
+		if not mouseOffscreen then
 			logUserInput()
 		end
-		local mouseX, mouseY, lmb, mmb, rmb, mouseOffscreen  = Spring.GetMouseState()
-		local clock = os.clock()
-		local prevIsSleep = isSleep
-		local prevIsHibernate = isHibernate
-		local prevIsOffscreen = isOffscreen
-		isOffscreen = mouseOffscreen
-
-		if mouseX ~= lastMouseX or mouseY ~= lastMouseY or lmb or mmb or rmb  then
-			lastMouseX, lastMouseY = mouseX, mouseY
-			logUserInput()
-		end
-
-		if isOffscreen ~= prevIsOffscreen then
-			Spring.SetConfigInt("VSync", (isOffscreen and vsyncValueOffscreen or vsyncValueLobby))
-			if mouseOffscreen then
-				lastUserInputTime = clock - 1
+	else
+		if mouseOffscreen then
+			SetVSyncState(VSYNC_STATE_OFFSCREEN)
+		else
+			if mouseX ~= lastMouseX or mouseY ~= lastMouseY or lmb or mmb or rmb  then
+				lastMouseX, lastMouseY = mouseX, mouseY
+				logUserInput()
 			end
+			stateTimer:Update()
 		end
-
-		if WG.Chobby.Configuration.drawAtFullSpeed ~= drawAtFullspeed then
-			drawAtFullspeed = WG.Chobby.Configuration.drawAtFullSpeed
-			init()
-			Spring.SetConfigInt("VSync", (isHibernate and vsyncValueHibernate or vsyncValueLobby))
-		end
-
-		local prevIsAway = isAway
-		local prevIsIdle = isIdle
-		isIdle = (lastUserInputTime < clock - idleTime)
-
-		if isIdle ~= prevIsIdle then
-			nextFrameTime = clock-1
-		end
-
-		-- launch grace period
-		if os.clock() < 30 and os.clock() - lastUserInputTime > sleepTime+0.01 then
-			lastUserInputTime = clock - (sleepTime+0.01)
-		end
-
-		isSleep = (lastUserInputTime < clock - sleepTime)
-		if not isOffscreen and isSleep ~= prevIsSleep then
-			Spring.SetConfigInt("VSync", (isSleep and vsyncValueSleep or vsyncValueLobby))
-		end
-
-		isHibernate = (lastUserInputTime < clock - hibernateTime)
-		if not isOffscreen and isHibernate ~= prevIsHibernate then
-			Spring.SetConfigInt("VSync", (isHibernate and vsyncValueHibernate or vsyncValueLobby))
-		end
-
-		isAway = (lastUserInputTime < clock - awayTime)
-		if isAway ~= prevIsAway then
-			local lobby = WG.LibLobby.lobby
-			if lobby.SetIngameStatus then
-				lobby:SetIngameStatus(nil,isAway)
-			end
-		end
+		awayTimer:Update()
 	end
 end
 
@@ -297,30 +370,18 @@ end
 
 -- Enables Draw{Genesis,Screen,ScreenPost} callins if true is returned, otherwise they are called once every 30 seconds. Only active when a game isn't running.
 function widget:AllowDraw()
+	if not initialized then return end
 	if WG.Chobby.Configuration.fixFlicker then
 		return true
 	end
 	if msaaLevel == 0 then	-- msaaLevel 0 will induce the lobby flicker glitch
 		return true
 	end
-	if isIdle then
-		if os.clock() > nextFrameTime then
-			if isOffscreen then
-				frameDelayTime = 1/offscreenFps
-			elseif isHibernate then
-				frameDelayTime = 1/hibernateFps
-			elseif isSleep then
-				frameDelayTime = 1/sleepFps
-			else
-				frameDelayTime = 1/idleFps
-			end
-			nextFrameTime = os.clock()+frameDelayTime
-			return true
-		end
-	elseif os.clock() > nextFrameTime then
-		nextFrameTime = os.clock() + (1/(drawAtFullspeed and activeFullspeedFps or activeFps))
-		frameDelayTime = 0.025	-- reset
+
+	if os.clock() > nextFrameTime then
+		nextFrameTime = os.clock() + 1 / stateFPSValues[vSyncState]
 		return true
+	else
+		return false
 	end
-	return false
 end

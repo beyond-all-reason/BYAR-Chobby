@@ -523,20 +523,12 @@ end
 
 --- Hides the objects
 function Object:Hide()
-	local wasHidden = self.hidden
 	self:SetVisibility(false)
-	if not wasHidden then
-		self:CallListeners(self.OnHide, self)
-	end
 end
 
 --- Makes the object visible
 function Object:Show()
-	local wasVisible = not self.hidden
 	self:SetVisibility(true)
-	if not wasVisible then
-		self:CallListeners(self.OnShow, self)
-	end
 end
 
 --- Toggles object visibility
