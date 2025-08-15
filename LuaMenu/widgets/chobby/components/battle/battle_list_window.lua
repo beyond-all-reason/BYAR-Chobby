@@ -29,11 +29,8 @@ function BattleListWindow:init(parent)
 		OnTextModified = {
 			function (input)
 				Configuration.gameConfig.battleListOnlyShow = input.text
-				-- force an update
-				if Configuration.battleFilterRedundant then
-					self:UpdateAllBattleIDs()
-				end
-				self:UpdateFilters()
+				-- when a filter is updated, force an update immediately
+				self:SoftUpdate(true)
 			end
 		}
 	}
@@ -100,7 +97,7 @@ function BattleListWindow:init(parent)
 		OnChange = {
 			function (obj, newState)
 				Configuration:SetConfigValue("battleFilterPassworded2", newState)
-				self:SoftUpdate()
+				self:SoftUpdate(true) -- force the re-sort immediately when any filter box is changed
 			end
 		},
 		parent = self.window,
@@ -119,7 +116,7 @@ function BattleListWindow:init(parent)
 		OnChange = {
 			function (obj, newState)
 				Configuration:SetConfigValue("battleFilterNonFriend", newState)
-				self:SoftUpdate()
+				self:SoftUpdate(true)
 			end
 		},
 		parent = self.window,
@@ -138,7 +135,7 @@ function BattleListWindow:init(parent)
 		OnChange = {
 			function (obj, newState)
 				Configuration:SetConfigValue("battleFilterRunning", newState)
-				self:SoftUpdate()
+				self:SoftUpdate(true)
 			end
 		},
 		parent = self.window,
@@ -157,7 +154,7 @@ function BattleListWindow:init(parent)
 		OnChange = {
 			function (obj, newState)
 				Configuration:SetConfigValue("battleFilterVsAI", newState)
-				self:SoftUpdate()
+				self:SoftUpdate(true)
 			end
 		},
 		parent = self.window,
@@ -176,7 +173,7 @@ function BattleListWindow:init(parent)
 		OnChange = {
 			function (obj, newState)
 				Configuration:SetConfigValue("battleFilterLocked", newState)
-				self:SoftUpdate()
+				self:SoftUpdate(true)
 			end
 		},
 		parent = self.window,
@@ -308,22 +305,21 @@ function BattleListWindow:Update()
 		self:UpdateButtonColor(battle.battleID)
 	end
 
-	self:SoftUpdate()
+	self:SoftUpdate(true) -- on a "hard" update, force the Filters call to be immediate
 end
 
-
-function BattleListWindow:SoftUpdate()
+function BattleListWindow:SoftUpdate(forceNow)
 	-- UpdateFilters is quite heavy, because it sorts all the battles on the
 	-- list, so instead of just calling SoftUpdate functionality directly,
-	-- we only update, if we havent updated in 3 seconds.
+	-- we only update, if we havent updated in 4 seconds.
 	-- Also note, that the previous implementation somehow ran on intermediate states, 
-	-- causeing severe bouncing of battles up and down
-	if self.lastSoftUpdate == nil then
-		self.lastSoftUpdate = Spring.GetTimer()
-	end
+	-- causing severe bouncing of battles up and down
 
+	forceNow = forceNow or false --set default behavior to not force the update now and allow empty calls
+	-- using force now is different from Update() because update will clear and re-add everything, which is expensive!
+	
 	self:UpdateInfoPanel()
-	if Spring.DiffTimers(Spring.GetTimer(), self.lastSoftUpdate) > 3 then
+	if self.lastSoftUpdate == nil or forceNow or Spring.DiffTimers(Spring.GetTimer(), self.lastSoftUpdate) > 4 then
 		self.lastSoftUpdate = Spring.GetTimer()
 		if Configuration.battleFilterRedundant then
 			self:UpdateAllBattleIDs()
@@ -719,6 +715,7 @@ function BattleListWindow:AddBattle(battleID, battle)
 	end
 
 	self:AddRow({button}, battle.battleID)
+	self:RecalculateOrder(battle.battleID) -- when a battle is added to the list, go ahead and ensure it's sorted correctly. Other cases will rely on soft update
 end
 
 function BattleListWindow:ItemInFilter(id)
@@ -1098,7 +1095,6 @@ function BattleListWindow:JoinedBattle(battleID)
 
 	self:UpdateRankIcon(battleID, battle, items)
 	self:UpdateButtonColor(battleID)
-	self:RecalculateOrder(battleID)
 end
 
 function BattleListWindow:LeftBattle(battleID)
@@ -1129,7 +1125,6 @@ function BattleListWindow:LeftBattle(battleID)
 
 	self:UpdateRankIcon(battleID, battle, items)
 	self:UpdateButtonColor(battleID)
-	self:RecalculateOrder(battleID)
 end
 
 function BattleListWindow:OnUpdateBattleInfo(battleID)
@@ -1219,7 +1214,6 @@ function BattleListWindow:OnUpdateBattleInfo(battleID)
 	end
 
 	self:UpdateButtonColor(battleID)
-	self:RecalculateOrder(battleID)
 end
 
 function BattleListWindow:OnBattleIngameUpdate(battleID, isRunning)
@@ -1238,7 +1232,6 @@ function BattleListWindow:OnBattleIngameUpdate(battleID, isRunning)
 	imgIsRunning:SetVisibility(battle.isRunning == true)
 
 	self:UpdateButtonColor(battleID)
-	self:RecalculateOrder(battleID)
 end
 
 function BattleListWindow:OnFriendRequestList()
@@ -1269,7 +1262,6 @@ function BattleListWindow:OnUpdateBattleTitle(battleID, battleTitle)
 	items.battleButton:Invalidate()
 
 	self:UpdateButtonColor(battleID)
-	self:RecalculateOrder(battleID)
 end
 
 
@@ -1834,4 +1826,6 @@ function BattleListWindow:JoinBattle(battle, _, _, joinAsPlayer)
 		local popupHolder = PriorityPopup(passwordWindow, CancelFunc, tryJoin)
 		screen0:FocusControl(ebPassword)
 	end
+	
 end
+
