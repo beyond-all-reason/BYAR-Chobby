@@ -322,7 +322,7 @@ local function CreateMapEntry(mapName, mapData, CloseFunc)--{"ResourceID":7098,"
 			parent = mapButton,
 		}
 
-		sortData = {string.lower(mapName), (mapData.Width or 0)*100 + (mapData.Height or 0), playerCount, string.lower(mapType), string.lower(terrainType), (haveMap and 1) or 0, string.lower(certificationLevel), string.format( "%09d", GetMapAge(mapData.LastUpdate) )  .. mapName }
+		sortData = {string.lower(mapName), (mapData.Width or 0) * (mapData.Height or 0), playerCount, string.lower(mapType), string.lower(terrainType), (haveMap and 1) or 0, string.lower(certificationLevel), string.format( "%09d", GetMapAge(mapData.LastUpdate) )  .. mapName }
 		sortData[9] = sortData[1] .. " " .. mapSizeText .. " " .. sortData[3] .. " " .. sortData[4] .. " " .. sortData[5] .. " " .. sortData[7] .. " " .. sortData[8]-- Used for text filter by name, type, terrain or size. Now includes HAX COLUMN.
 	else
 		sortData = {string.lower(mapName), 0, "", "", "", (haveMap and 1) or 0, certificationLevel,"999999999" .. (haveMap and ' '..mapName) or mapName}
