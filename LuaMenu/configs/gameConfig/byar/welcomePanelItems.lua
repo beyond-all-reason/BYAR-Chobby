@@ -15,12 +15,14 @@ local welcomePanelItems = {
         Text = "Welcome back Commander. We hope you are ready for epic Singleplayer and Multiplayer battles. Check out our Discord and join the community!\n",
     },
 
+
     {
-        Header = "The Lightbringer Update is Here!",
-        Text = "Commanders, after two weeks of a testing run for the Lightbringer Update, we are thrilled to announce the merge went without any major issues. This update represents the largest visual overhaul we have ever attempted. Enjoy BAR battles being more lit than ever!" .. " \n" .. " \n" .. "We have prepared a detailed post about the update and a Cinematic Highlights Video, check it out!",
-	    Image = "LuaMenu/images/welcomepanel/lightbringerbox.png",
-        Url = "https://www.beyondallreason.info/news/lightbringer-update",
-        UrlText = "Read the Full Changes",
+        Header = "Creative Call to Arms - Spooktober Edition.",
+        Text = "Are you a music producer yourself? Or maybe you have a friend who is and would like to get some recognition? " .. " \n" .. " \n" .. "Create a remix/cover of any BAR track, or even a mix of BAR themes in a single track, with a spooky vibe, and it might end up featured in the game!\n\nAn unique opportunity for aspiring music artists to shine!",
+        Image = "LuaMenu/images/welcomepanel/BAR OST.png",
+        Url = "https://discord.com/channels/549281623154229250/697141979892416512/1408421235037310986",
+        UrlText = "Announcement on Discord",
+        Time = "2025-10-18T23:00:00",
     },
 
   --  {
@@ -33,6 +35,14 @@ local welcomePanelItems = {
         Image = "LuaMenu/images/overwatch.png",
         Url = "https://discord.com/channels/549281623154229250/1097438343861649458",
         UrlText = "Sign Up for Overwatch",
+    },
+
+    {
+        Header = "The Lightbringer Update is Here!",
+        Text = "Commanders, after two weeks of a testing run for the Lightbringer Update, we are thrilled to announce the merge went without any major issues. This update represents the largest visual overhaul we have ever attempted. Enjoy BAR battles being more lit than ever!" .. " \n" .. " \n" .. "We have prepared a detailed post about the update and a Cinematic Highlights Video, check it out!",
+	    Image = "LuaMenu/images/welcomepanel/lightbringerbox.png",
+        Url = "https://www.beyondallreason.info/news/lightbringer-update",
+        UrlText = "Read the Full Changes",
     },
     
     {
