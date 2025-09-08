@@ -104,7 +104,7 @@ function BattleListWindow:init(parent)
 		tooltip = "Hides all battles that require a password to join",
 	}
 	local checkNonFriend = Checkbox:New {
-		x = "33%",
+		x = "35%",
 		width = 21,
 		bottom = 8,
 		height = 30,
@@ -123,7 +123,7 @@ function BattleListWindow:init(parent)
 		tooltip = "Hides all battles that don't have your friends in them",
 	}
 	local checkRunning = Checkbox:New {
-		x = "50%",
+		x = "55%",
 		width = 21,
 		bottom = 8,
 		height = 30,
@@ -141,27 +141,34 @@ function BattleListWindow:init(parent)
 		parent = self.window,
 		tooltip = "Hides all battles that are in progress",
 	}
-	local checkVsAI = Checkbox:New {
-		x = "65%",
-		width = 21,
+	local checkVsAI = ComboBox:New {
+		x = "70%",
+		width = 85,
 		bottom = 8,
 		height = 30,
 		boxalign = "left",
 		boxsize = 20,
-		caption = " Vs AI",
-		checked = Configuration.battleFilterVsAI or false,
+		items = {"---", "Vs AI", "PvP"},
 		objectOverrideFont = myFont2,
-		OnChange = {
-			function (obj, newState)
+		selected = (Configuration.battleFilterVsAI == nil and 1) or (Configuration.battleFilterVsAI and 2) or 3,
+		OnSelect = {
+			function (obj)
+				local newState
+				if (obj.selected == 2) then
+					newState = true
+				elseif (obj.selected == 3) then
+					newState = false
+				end
+				
 				Configuration:SetConfigValue("battleFilterVsAI", newState)
 				self:SoftUpdate(true)
 			end
 		},
 		parent = self.window,
-		tooltip = "Hides all battles with AIs, including PvE",
+		tooltip = "Hides all battles with AIs, including PvE or PvP",
 	}
     local checkLocked = Checkbox:New {
-		x = "77%",
+		x = "85%",
 		width = 21,
 		bottom = 8,
 		height = 30,
@@ -185,7 +192,7 @@ function BattleListWindow:init(parent)
 		checkNonFriend:SetToggle(Configuration.battleFilterNonFriend)
 		checkRunning:SetToggle(Configuration.battleFilterRunning)
         checkLocked:SetToggle(Configuration.battleFilterLocked)
-		checkVsAI:SetToggle(Configuration.battleFilterVsAI)
+		checkVsAI:Select((Configuration.battleFilterVsAI == nil and 1) or (Configuration.battleFilterVsAI and 2) or 3)
 	end
 	WG.Delay(UpdateCheckboxes, 0.2)
 	-- Delay required as Configuration:GetConfigData (where these values are set) runs after this is initialised.
@@ -757,8 +764,11 @@ function BattleListWindow:ItemInFilter(id)
 		return false
 	end
 
-	if Configuration.battleFilterVsAI and (string.find(battle.title, "vs AI") or string.find(battle.title, "vs Scavengers") or string.find(battle.title, "vs Raptors")) then
-		return false
+	if Configuration.battleFilterVsAI ~= nil then
+		local vsAI = ((string.find(battle.title, "vs AI") or string.find(battle.title, "vs Scavengers") or string.find(battle.title, "vs Raptors"))) and true or false
+		if Configuration.battleFilterVsAI == vsAI then
+			return false
+		end
 	end
 
 	if Configuration.battleFilterRedundant then
