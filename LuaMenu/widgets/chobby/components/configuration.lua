@@ -91,7 +91,7 @@ function Configuration:init()
 	self.battleFilterNonFriend = false
 	self.battleFilterRunning = false
 	self.battleFilterLocked = false
-	-- self.battleFilterVsAI = nil
+	self.battleFilterVsAI = false
 	self.battleFilterRedundant = true
 	self.battleFilterRedundantRegions = {"EU - ", "USA - ", "AUS - ","EU - ENGINE TESTING ","US - ","AU - ", "UK - "}
 	self.hostRegions = {"DE","EU","EU2","US","US2","AU"}
