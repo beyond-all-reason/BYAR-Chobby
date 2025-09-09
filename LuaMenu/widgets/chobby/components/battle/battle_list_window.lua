@@ -104,7 +104,7 @@ function BattleListWindow:init(parent)
 		tooltip = "Hides all battles that require a password to join",
 	}
 	local checkNonFriend = Checkbox:New {
-		x = "33%",
+		x = "35%",
 		width = 21,
 		bottom = 8,
 		height = 30,
@@ -123,7 +123,7 @@ function BattleListWindow:init(parent)
 		tooltip = "Hides all battles that don't have your friends in them",
 	}
 	local checkRunning = Checkbox:New {
-		x = "50%",
+		x = "55%",
 		width = 21,
 		bottom = 8,
 		height = 30,
@@ -141,27 +141,27 @@ function BattleListWindow:init(parent)
 		parent = self.window,
 		tooltip = "Hides all battles that are in progress",
 	}
-	local checkVsAI = Checkbox:New {
-		x = "65%",
-		width = 21,
+	local combPvMode = ComboBox:New {
+		x = "70%",
+		width = 85,
 		bottom = 8,
 		height = 30,
 		boxalign = "left",
 		boxsize = 20,
-		caption = " Vs AI",
-		checked = Configuration.battleFilterVsAI or false,
+		items = {"---", "PvE", "PvP"},
 		objectOverrideFont = myFont2,
-		OnChange = {
-			function (obj, newState)
-				Configuration:SetConfigValue("battleFilterVsAI", newState)
+		selected = Configuration.battleFilterPvMode or 1,
+		OnSelect = {
+			function (obj)
+				Configuration:SetConfigValue("battleFilterPvMode", obj.selected)
 				self:SoftUpdate(true)
 			end
 		},
 		parent = self.window,
-		tooltip = "Hides all battles with AIs, including PvE",
+		tooltip = "Hides all AI (including PvE) or PvP battles.",
 	}
     local checkLocked = Checkbox:New {
-		x = "77%",
+		x = "85%",
 		width = 21,
 		bottom = 8,
 		height = 30,
@@ -185,7 +185,7 @@ function BattleListWindow:init(parent)
 		checkNonFriend:SetToggle(Configuration.battleFilterNonFriend)
 		checkRunning:SetToggle(Configuration.battleFilterRunning)
         checkLocked:SetToggle(Configuration.battleFilterLocked)
-		checkVsAI:SetToggle(Configuration.battleFilterVsAI)
+		combPvMode:Select(Configuration.battleFilterPvMode)
 	end
 	WG.Delay(UpdateCheckboxes, 0.2)
 	-- Delay required as Configuration:GetConfigData (where these values are set) runs after this is initialised.
@@ -757,8 +757,15 @@ function BattleListWindow:ItemInFilter(id)
 		return false
 	end
 
-	if Configuration.battleFilterVsAI and (string.find(battle.title, "vs AI") or string.find(battle.title, "vs Scavengers") or string.find(battle.title, "vs Raptors")) then
-		return false
+	if Configuration.battleFilterPvMode and Configuration.battleFilterPvMode > 1 then
+		local vsAI = battle.title:find("vs AI") 
+				or battle.title:find("vs Scavengers") 
+				or battle.title:find("vs Raptors")
+
+		if (vsAI and Configuration.battleFilterPvMode == 2)
+		or (not vsAI and Configuration.battleFilterPvMode == 3) then
+			return false
+		end
 	end
 
 	if Configuration.battleFilterRedundant then
