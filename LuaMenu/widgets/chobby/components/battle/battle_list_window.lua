@@ -141,31 +141,24 @@ function BattleListWindow:init(parent)
 		parent = self.window,
 		tooltip = "Hides all battles that are in progress",
 	}
-	local checkVsAI = ComboBox:New {
+	local combPvMode = ComboBox:New {
 		x = "70%",
 		width = 85,
 		bottom = 8,
 		height = 30,
 		boxalign = "left",
 		boxsize = 20,
-		items = {"---", "Vs AI", "PvP"},
+		items = {"---", "PvE", "PvP"},
 		objectOverrideFont = myFont2,
-		selected = (Configuration.battleFilterVsAI == nil and 1) or (Configuration.battleFilterVsAI and 2) or 3,
+		selected = Configuration.battleFilterPvMode or 1,
 		OnSelect = {
 			function (obj)
-				local newState
-				if (obj.selected == 2) then
-					newState = true
-				elseif (obj.selected == 3) then
-					newState = false
-				end
-				
-				Configuration:SetConfigValue("battleFilterVsAI", newState)
+				Configuration:SetConfigValue("battleFilterPvMode", obj.selected)
 				self:SoftUpdate(true)
 			end
 		},
 		parent = self.window,
-		tooltip = "Hides all battles with AIs, including PvE or PvP",
+		tooltip = "Hides all AI (including PvE) or PvP battles.",
 	}
     local checkLocked = Checkbox:New {
 		x = "85%",
@@ -192,7 +185,7 @@ function BattleListWindow:init(parent)
 		checkNonFriend:SetToggle(Configuration.battleFilterNonFriend)
 		checkRunning:SetToggle(Configuration.battleFilterRunning)
         checkLocked:SetToggle(Configuration.battleFilterLocked)
-		checkVsAI:Select((Configuration.battleFilterVsAI == nil and 1) or (Configuration.battleFilterVsAI and 2) or 3)
+		combPvMode:Select(Configuration.battleFilterPvMode)
 	end
 	WG.Delay(UpdateCheckboxes, 0.2)
 	-- Delay required as Configuration:GetConfigData (where these values are set) runs after this is initialised.
@@ -764,9 +757,13 @@ function BattleListWindow:ItemInFilter(id)
 		return false
 	end
 
-	if Configuration.battleFilterVsAI ~= nil then
-		local vsAI = ((string.find(battle.title, "vs AI") or string.find(battle.title, "vs Scavengers") or string.find(battle.title, "vs Raptors"))) and true or false
-		if Configuration.battleFilterVsAI == vsAI then
+	if Configuration.battleFilterPvMode and Configuration.battleFilterPvMode > 1 then
+		local vsAI = battle.title:find("vs AI") 
+				or battle.title:find("vs Scavengers") 
+				or battle.title:find("vs Raptors")
+
+		if (vsAI and Configuration.battleFilterPvMode == 2)
+		or (not vsAI and Configuration.battleFilterPvMode == 3) then
 			return false
 		end
 	end

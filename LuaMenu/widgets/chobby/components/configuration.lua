@@ -187,6 +187,7 @@ function Configuration:init()
 
 	self.noNaiveConfigOverride = {
 		settingsMenuValues = true,
+		battleFilterVsAI = true,
 	}
 
 	self.battleTypeToName = {
@@ -606,6 +607,11 @@ function Configuration:SetConfigData(data)
 		end
 	end
 
+	if data.battleFilterVsAI ~= nil then
+		self.battleFilterPvMode = data.battleFilterVsAI and 2 or 1
+		Spring.Log("Settings", LOG.NOTICE, ("Migrated battleFilterVsAI (%s) -> battleFilterPvMode (%d)"):format(tostring(data.battleFilterVsAI), self.battleFilterPvMode))
+	end
+
 	-- should be removed at 1.1.2024
 	-- replace showSkillOpt once , if it's not already above 1
 	if not self.tempChangedShowSkill then
@@ -677,6 +683,7 @@ function Configuration:GetConfigData()
 		battleFilterRunning = self.battleFilterRunning,
 		battleFilterLocked = self.battleFilterLocked,
 		battleFilterVsAI = self.battleFilterVsAI,
+		battleFilterPvMode = self.battleFilterPvMode,
 		channels = self.channels,
 		gameConfigName = self.gameConfigName,
 		language = self.language,
