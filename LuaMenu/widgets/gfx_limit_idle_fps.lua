@@ -43,7 +43,7 @@ local vsyncValueGame = Spring.GetConfigInt("VSync",1)
 if vsyncValueGame > 3 then
 	vsyncValueGame = 1
 end
-vsyncValueGame = Spring.GetConfigInt("VSyncGame", vsyncValueGame)	-- its stored here as assurance cause lobby/game also changes vsync when idle and lobby could think game has set vsync 4+ after a hard crash
+vsyncValueGame = Spring.GetConfigInt("VSyncGame", vsyncValueGame) * Spring.GetConfigInt("VSyncFraction", 1)	-- its stored here as assurance cause lobby/game also changes vsync when idle and lobby could think game has set vsync 4+ after a hard crash
 local vsyncValueLobby = 1
 local vsyncValueSleep = vsyncValueLobby + 2
 local maxVsync = 6
@@ -208,7 +208,7 @@ function widget:Update()
 		Spring.SetConfigInt("VSync", (enabled and vsyncValueLobby or vsyncValueGame))
 	end
 	if enabled then
-		vsyncValueGame = Spring.GetConfigInt("VSyncGame", vsyncValueGame)
+		vsyncValueGame = Spring.GetConfigInt("VSyncGame", vsyncValueGame) * Spring.GetConfigInt("VSyncFraction", 1)
 
 		if Spring.GetKeyState(8) then -- backspace pressed
 			logUserInput()
