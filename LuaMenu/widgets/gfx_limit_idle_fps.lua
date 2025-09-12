@@ -157,11 +157,11 @@ local initialized
 
 local msaaLevel = tonumber(Spring.GetConfigInt("MSAALevel", 0))
 
-local defaultVSyncGame = Spring.GetConfigInt("VSync",1)
+local defaultVSyncGame = Spring.GetConfigInt("VSync",-1)
 if defaultVSyncGame > 3 then
 	defaultVSyncGame = 1
 end
-defaultVSyncGame = Spring.GetConfigInt("VSyncGame", defaultVSyncGame)	-- its stored here as assurance cause lobby/game also changes vsync when idle and lobby could think game has set vsync 4+ after a hard crash
+defaultVSyncGame = Spring.GetConfigInt("VSyncGame", defaultVSyncGame) * Spring.GetConfigInt("VSyncFraction", 1)	-- its stored here as assurance cause lobby/game also changes vsync when idle and lobby could think game has set vsync 4+ after a hard crash
 
 local isLinux = string.find(Platform.osName:lower(), 'linux')	-- not sure what exact implications linux has, but someone reported flickering
 
@@ -283,13 +283,13 @@ function widget:Initialize()
 		Spring.SetConfigInt("VSync", vSyncStateValues[VSYNC_STATE_INTERACTING])
 	end }
 	WG.Chobby.interfaceRoot.GetLobbyInterfaceHolder().OnHide = { function()
-		Spring.SetConfigInt("VSync", Spring.GetConfigInt("VSyncGame", defaultVSyncGame))
+		Spring.SetConfigInt("VSync", Spring.GetConfigInt("VSyncGame", defaultVSyncGame) * Spring.GetConfigInt("VSyncFraction", 1))
 	end }
 end
 
 function widget:Shutdown()
 	if WG.Chobby.interfaceRoot.GetLobbyInterfaceHolder().visible then
-		Spring.SetConfigInt("VSync", Spring.GetConfigInt("VSyncGame", defaultVSyncGame))
+		Spring.SetConfigInt("VSync", Spring.GetConfigInt("VSyncGame", defaultVSyncGame) * Spring.GetConfigInt("VSyncFraction", 1))
 	end
 end
 
