@@ -91,7 +91,7 @@ function InterfaceSkirmish:_StartScript(gameName, mapName, playerName, friendLis
 			local sideData = WG.Chobby.Configuration:GetSideById(data.side)
 			if sideData and sideData.requiresModoption and
 			   (not self.modoptions or self.modoptions[sideData.requiresModoption] ~= "1") then
-				data.side = 0 -- Our default side is Armada
+				data.side = (WG.Chobby.Configuration.lastFactionChoice or math.random(0, 1))
 			end
 			players[playerCount] = {
 				Name = userName,

@@ -748,7 +748,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 				battleLobby:SetBattleStatus({
 					isSpectator = false,
 					isReady = false,
-					side = (WG.Chobby.Configuration.lastFactionChoice or 0),
+					side = (WG.Chobby.Configuration.lastFactionChoice or math.random(0,1)),
 					teamNumber = unusedTeamID})
 
 				if battleLobby.name == "singleplayer" then
@@ -3991,7 +3991,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		battleLobby:SetBattleStatus({
 			isSpectator = wespecnow,
 			isReady = false,
-			side = (WG.Chobby.Configuration.lastFactionChoice or 0) ,
+			side = (WG.Chobby.Configuration.lastFactionChoice or math.random(0, 1)),
 			sync = (haveMapAndGame and 1) or 2, -- 0 = unknown, 1 = synced, 2 = unsynced
 			-- tamColor = PickRandomColor()
 			-- teamColor = {
@@ -4212,8 +4212,7 @@ function BattleRoomWindow.GetSingleplayerControl(setupData)
 					allyNumber = 0,
 					isSpectator = false,
 					sync = (haveMapAndGame and 1) or 2, -- 0 = unknown, 1 = synced, 2 = unsynced
-
-					side = 0, -- Our default side is Armada
+					side = (WG.Chobby.Configuration.lastFactionChoice or math.random(0, 1)),
 					teamColor = {0,.32,1},
 				})
 

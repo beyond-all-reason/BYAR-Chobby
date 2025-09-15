@@ -160,6 +160,7 @@ function skirmishSetupData.ApplyFunction(battleLobby, pageChoices)
 
 	battleLobby:SetBattleStatus({
 		allyNumber = 0,
+		side = math.random(0, 1),
 		isSpectator = false,
 	})
 

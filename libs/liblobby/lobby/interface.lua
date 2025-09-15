@@ -308,7 +308,7 @@ local function UpdateAndCreateMerge(userData, status)
 		updated = updated or userData.side ~= status.side
 		battleStatus.side = status.side
 	else
-		battleStatus.side = userData.side or 0
+		battleStatus.side = userData.side or math.random(0, 1)
 	end
 
 	return battleStatus, updated
@@ -508,7 +508,7 @@ function Interface:AddAi(aiName, aiLib, allyNumber, version, aiOptions, battleSt
 		allyNumber = allyNumber,
 		playMode = true,
 		sync = 1, -- (0 = unknown, 1 = synced, 2 = unsynced)
-		side = 0,
+		side = math.random(0, 1),
 	}
 
 	local battleStatus, updated = UpdateAndCreateMerge(userData, battleStatusOptions or {})
@@ -1953,7 +1953,7 @@ function Interface:_OnRequestBattleStatus()
 	self:SetBattleStatus({
 		isSpectator = defaultSpec,
 		isReady = false,
-		side = (WG.Chobby.Configuration.lastFactionChoice or 0) ,
+		side = (WG.Chobby.Configuration.lastFactionChoice or math.random(0,1)) ,
 		sync = getSyncStatus(self:GetBattle(self:GetMyBattleID())),
 	})
 end
