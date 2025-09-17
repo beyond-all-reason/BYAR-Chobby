@@ -39,11 +39,6 @@ local enabled = false
 
 local msaaLevel = tonumber(Spring.GetConfigInt("MSAALevel", 0))
 
-local vsyncValueGame = Spring.GetConfigInt("VSync",1)
-if vsyncValueGame > 3 then
-	vsyncValueGame = 1
-end
-vsyncValueGame = Spring.GetConfigInt("VSyncGame", vsyncValueGame) * Spring.GetConfigInt("VSyncFraction", 1)	-- its stored here as assurance cause lobby/game also changes vsync when idle and lobby could think game has set vsync 4+ after a hard crash
 local vsyncValueLobby = 1
 local vsyncValueSleep = vsyncValueLobby + 2
 local maxVsync = 6
@@ -56,7 +51,7 @@ local isIntel = (Platform ~= nil and Platform.gpuVendor == 'Intel')
 local isNvidia = (Platform ~= nil and Platform.gpuVendor == 'Nvidia')
 local isAmd = (Platform ~= nil and Platform.gpuVendor == 'AMD') or (not isIntel and not isNvidia)
 
-if isIntel or isLinux then
+if isIntel or isLinux or isAmd then -- This is an attempted fix at AMD Driver 24.6.1, as it always seems to crash at interval = 5
 	maxVsync = 4	-- intel seems to no support vsync above 4 (but haven't tested the new intel XE)
 	vsyncValueHibernate = maxVsync
 	vsyncValueOffscreen = maxVsync
@@ -68,12 +63,8 @@ if isIntel or isLinux then
 	hibernateFps = 2
 end
 
-if isAmd then 
-	maxVsync = 4 -- This is an attempted fix at AMD Driver 24.6.1, as it always seems to crash at interval = 5
-	local initVsync = Spring.GetConfigInt("VSync", 1)
-	if initVsync > maxVsync then
-		Spring.SetConfigInt("VSync", maxVsync)
-	end
+if Spring.GetConfigInt("VSync", 1) > maxVsync then
+	Spring.SetConfigInt("VSync", maxVsync)
 end
 
 Spring.Echo("Limit Idle FPS is enabled:", widget:GetInfo().enabled, "max set to ", maxVsync, 'for platform', Platform.gpuVendor, isAmd)
@@ -167,7 +158,7 @@ function widget:Shutdown()
 		WG.Chobby.Configuration.drawAtFullSpeed = drawAtFullspeed
 	end
 	if enabled then
-		Spring.SetConfigInt("VSync", vsyncValueGame)
+		Spring.SetConfigInt("VSync", Spring.GetConfigInt("VSyncGame", vsyncValueGame) * Spring.GetConfigInt("VSyncFraction", 1))
 	end
 end
 
@@ -205,11 +196,9 @@ function widget:Update()
 		enabled = WG.Chobby.interfaceRoot.GetLobbyInterfaceHolder().visible
 	end
 	if prevEnabled ~= enabled then
-		Spring.SetConfigInt("VSync", (enabled and vsyncValueLobby or vsyncValueGame))
+		Spring.SetConfigInt("VSync", (enabled and vsyncValueLobby or (Spring.GetConfigInt("VSyncGame", vsyncValueGame) * Spring.GetConfigInt("VSyncFraction", 1))))
 	end
 	if enabled then
-		vsyncValueGame = Spring.GetConfigInt("VSyncGame", vsyncValueGame) * Spring.GetConfigInt("VSyncFraction", 1)
-
 		if Spring.GetKeyState(8) then -- backspace pressed
 			logUserInput()
 		end
