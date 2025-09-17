@@ -63,7 +63,9 @@ local isEncodable
 --- Encodes an arbitrary Lua object / variable.
 -- @param v The Lua object / variable to be JSON encoded.
 -- @return String containing the JSON encoding in internal Lua string format (i.e. not unicode)
-local function encode (v)
+json = {}
+
+function json.encode (v)
   -- Handle nil values
   if v==nil then
     return "null"
@@ -88,12 +90,12 @@ local function encode (v)
     local bArray, maxCount = isArray(v)
     if bArray then
       for i = 1,maxCount do
-        table.insert(rval, encode(v[i]))
+        table.insert(rval, json.encode(v[i]))
       end
     else	-- An object, not an array
       for i,j in base.pairs(v) do
         if isEncodable(i) and isEncodable(j) then
-          table.insert(rval, '"' .. encodeString(i) .. '":' .. encode(j))
+          table.insert(rval, '"' .. encodeString(i) .. '":' .. json.encode(j))
         end
       end
     end
@@ -116,15 +118,15 @@ end
 --- Decodes a JSON string and returns the decoded value as a Lua data structure / value.
 -- @param s The string to scan.
 -- @return Lua objectthat was scanned, as a Lua table / string / number / boolean or nil.
-local function decode(s)
+function json.decode(s)
 	-- Function is re-defined below after token and other items are created.
 	-- Just defined here for code neatness.
-	return null
+	return decode(s)
 end
 
 --- The null function allows one to specify a null value in an associative array (which is otherwise
 -- discarded if you set the value with 'nil' in Lua. Simply set t = { first=json.null }
-local function null()
+function json.null()
   return null -- so json.null() will also return null ;-)
 end
 
@@ -136,7 +138,7 @@ end
 -- This just involves back-quoting inverted commas, back-quotes and newlines, I think ;-)
 -- @param s The string to return as a JSON encoded (i.e. backquoted string)
 -- @return The string appropriately escaped.
-local qrep = {["\\"]="\\\\", ['"']='\\"',['\n']='\\n',['\t']='\\t'}
+local qrep = {["\\"]="\\\\", ['"']='\\"', ["'"]="\\'", ['\n']='\\n', ['\t']='\\t'}
 function encodeString(s)
   return tostring(s):gsub('["\\\n\t]',qrep)
 end
