@@ -316,6 +316,8 @@ function Configuration:init()
 	self.showAiOptions = true
 	self.drawAtFullSpeed = false
 	self.fixFlicker = true
+	self.captureServerCommands = false
+	self.replayServerCommands = false
 	self.lastFactionChoice = 0
 	self.lastStartedBattleID = 0
 	self.lastGameSpectatorState = false
@@ -716,6 +718,8 @@ function Configuration:GetConfigData()
 		confirmation_battleFromBattle = self.confirmation_battleFromBattle,
 		drawAtFullSpeed = self.drawAtFullSpeed,
 		fixFlicker = self.fixFlicker,
+		captureServerCommands = self.captureServerCommands,
+		replayServerCommands = self.replayServerCommands,
 		lastFactionChoice = self.lastFactionChoice,
 		lastStartedBattleID = self.lastStartedBattleID,
 		lastGameSpectatorState = self.lastGameSpectatorState,
