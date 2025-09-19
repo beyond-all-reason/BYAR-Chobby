@@ -19,7 +19,7 @@ local welcomePanelItems = {
     {
         Header = "Creative Call to Arms - Spooktober Edition.",
         Text = "Are you a music producer yourself? Or maybe you have a friend who is and would like to get some recognition? " .. " \n" .. " \n" .. "Create a remix/cover of any BAR track, or even a mix of BAR themes in a single track, with a spooky vibe, and it might end up featured in the game!\n\nAn unique opportunity for aspiring music artists to shine!",
-        Image = "LuaMenu/images/welcomepanel/BAR OST.png",
+        Image = "LuaMenu/images/welcomepanel/Halloween.png",
         Url = "https://discord.com/channels/549281623154229250/697141979892416512/1408421235037310986",
         UrlText = "Announcement on Discord",
         Time = "2025-10-18T23:00:00",
@@ -32,7 +32,7 @@ local welcomePanelItems = {
     {
         Header = "Help Keep BAR Clean - Join the Overwatch Team!",
         Text = "As BAR grows, so does the need for solid community moderation. We're looking for reliable, level-headed players to join the Overwatch Team—a trusted group that helps review reports, flag issues, and keep things fair.".." \n".." \n".."If you’re active and care about a respectful game space, we’d love your help!".." \n".." \n".."Grab the development role from ⁠Channels & Roles to access the thread below:",
-        Image = "LuaMenu/images/overwatch.png",
+        Image = "LuaMenu/images/welcomepanel/overwatch.png",
         Url = "https://discord.com/channels/549281623154229250/1097438343861649458",
         UrlText = "Sign Up for Overwatch",
     },
@@ -55,7 +55,7 @@ local welcomePanelItems = {
     {
         Header = "BAR is accepting donations again! ",
         Text = "Dear Commanders, we are delighted to announce the reopening of our donation platform after a longer-than-expected hiatus." .. " \n" .. " \n" .. "As we've been hard at work refining BAR to ensure maximum enjoyment for our ever-expanding community, we repeatedly placed donation efforts on hold to focus on other priorities." .. " \n" .. " \n" .. "Support BAR with our newly reopened donation platform!" .. " \n",
-        Image = "LuaMenu/images/donate.png",
+        Image = "LuaMenu/images/welcomepanel/donate.png",
         Url = "https://www.beyondallreason.info/news/support-bar-with-our-newly-reopened-donation-platform",
         UrlText = "Read Announcement",
     },
