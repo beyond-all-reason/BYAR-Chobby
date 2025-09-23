@@ -1,16 +1,13 @@
 local CONFIG_FILE = "chobby_config.json"
 
 local function LoadConfig(filePath)
-	if not json then
-		VFS.Include(LIB_LOBBY_DIRNAME .. "json.lua")
-	end
 	if not VFS.FileExists(CONFIG_FILE) then
 		Spring.Log("liblobby", LOG.WARNING, "Missing chobby_config.json file.")
 		return
 	end
 	local config
 	xpcall(function()
-		config = json.decode(VFS.LoadFile(filePath))
+		config = Json.decode(VFS.LoadFile(filePath))
 	end, function(err)
 		Spring.Log("liblobby", LOG.ERROR, err)
 		Spring.Log("liblobby", LOG.ERROR, debug.traceback(err))

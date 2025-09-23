@@ -121,7 +121,7 @@ end
 -- @param Lua object, number The object that was scanned, as a Lua table / string / number / boolean or nil,
 -- and the position of the first character after
 -- the scanned JSON object.
-function json.decode(s, startPos)
+function Json.decode(s, startPos)
 	startPos = startPos and startPos or 1
 	startPos = decode_scanWhitespace(s,startPos)
 	assert(startPos<=string.len(s), 'Unterminated JSON encoded object found at position in [' .. s .. ']')
@@ -181,7 +181,7 @@ function decode_scanArray(s,startPos)
 			startPos = decode_scanWhitespace(s,startPos+1)
 		end
 		assert(startPos<=stringLen, 'JSON String ended unexpectedly scanning array.')
-		object, startPos = json.decode(s,startPos)
+		object, startPos = Json.decode(s,startPos)
 		table.insert(array,object)
 	until false
 end
@@ -273,14 +273,14 @@ function decode_scanObject(s,startPos)
 		end
 		assert(startPos<=stringLen, 'JSON string ended unexpectedly scanning object.')
 		-- Scan the key
-		key, startPos = json.decode(s,startPos)
+		key, startPos = Json.decode(s,startPos)
 		assert(startPos<=stringLen, 'JSON string ended unexpectedly searching for value of key ' .. key)
 		startPos = decode_scanWhitespace(s,startPos)
 		assert(startPos<=stringLen, 'JSON string ended unexpectedly searching for value of key ' .. key)
 		assert(string.sub(s,startPos,startPos)==':','JSON object key-value assignment mal-formed at ' .. startPos)
 		startPos = decode_scanWhitespace(s,startPos+1)
 		assert(startPos<=stringLen, 'JSON string ended unexpectedly searching for value of key ' .. key)
-		value, startPos = json.decode(s,startPos)
+		value, startPos = Json.decode(s,startPos)
 		object[key]=value
 	until false	-- infinite loop while key-value pairs are found
 end

@@ -16,7 +16,6 @@ end
 if ENABLED then
 
 local profiled = {}
-VFS.Include("libs/json.lua")
 
 function widget:Initialize()
 	Spring.Echo("===Command capture initialized===")
@@ -56,7 +55,7 @@ function CaptureFunction(obj, fname, registerName)
 		profiled[registerName].orig(_obj, ...)
 
 		capturedCall["end_time"] = os.clock()
-		Spring.Echo("|CAPTURE| " .. json.encode(capturedCall))
+		Spring.Echo("|CAPTURE| " .. Json.encode(capturedCall))
 	end
 	obj[fname] = overridenFunction
 

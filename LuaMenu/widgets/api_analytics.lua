@@ -4,7 +4,6 @@
 --------------------------------------------------------------------------------
 LIB_LOBBY_DIRNAME = "libs/liblobby/lobby/" -- why is this needed? why doesnt api load first?
 
-VFS.Include(LIB_LOBBY_DIRNAME .. "json.lua")
 VFS.Include(LIB_LOBBY_DIRNAME .. "utilities.lua")
 
 
@@ -118,7 +117,7 @@ function SendBARAnalytics(cmdName,args,isEvent)
 	if PRINT_DEBUG then istest = "_test" end
 	if isEvent then
 		if type(args) ~= "table" then args = {value = args or 0} end
-		args = Spring.Utilities.json.encode(args)
+		args = Json.encode(args)
 		args = Spring.Utilities.Base64Encode(args)		
 		message = "c.telemetry.log_client_event".. istest .. " " .. cmdName .. " " ..args.." ".. machineHash .. "\n"
 	else
@@ -206,7 +205,7 @@ function Analytics.SendCrashReportOneTimeEvent(filename, errortype, errorkey, co
 		private = private,
 		filename = filename,
 	}
-	metadata = Spring.Utilities.json.encode(metadata)
+	metadata = Json.encode(metadata)
 	--Spring.Echo(metadata)
 	metadata = Spring.Utilities.Base64Encode(metadata)
 
@@ -668,7 +667,7 @@ local function SendGraphicsSettings()
 		settingsTable[shortname] = Spring.GetConfigInt(settingkey, -9)
 	end
 	-- Convert it to json:
-	local settingsJson = Spring.Utilities.json.encode(settingsTable)
+	local settingsJson = Json.encode(settingsTable)
 	-- check if it matches the previously uploaded client property:
 
 	Analytics.SendOnetimeEvent("graphics:settings", settingsJson)
@@ -705,7 +704,7 @@ local function LobbyInfo()
 				t[t.count] = username
 			end
 		end
-		local message = "c.telemetry.log_client_event lobby:info " .. Spring.Utilities.Base64Encode(Spring.Utilities.json.encode(t)).." ".. machineHash .. "\n"
+		local message = "c.telemetry.log_client_event lobby:info " .. Spring.Utilities.Base64Encode(Json.encode(t)).." ".. machineHash .. "\n"
 		local client=socket.tcp()
 		local res, err = client:connect(host, port)
 		if not res and err ~= "timeout" then  Spring.Echo("Lobby:Info Error", res, err) else client:send(message) end
