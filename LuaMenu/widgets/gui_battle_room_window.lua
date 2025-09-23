@@ -3870,7 +3870,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 				barManagerPresent = true
 			end
 
-			barManagerTable = Json.decode( barManagerMessage)
+			barManagerTable = Json.decode(barManagerMessage)
 			if barManagerTable['BattleStateChanged'] then
 				for settingKey, settingValue in pairs(barManagerTable['BattleStateChanged']) do
 					local settingCB = spadsStatusPanel:GetChildByName(settingKey)
