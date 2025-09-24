@@ -1698,8 +1698,6 @@ function BattleListWindow:JoinBattle(battle, _, _, joinAsPlayer)
 	-- We can be force joined to an invalid engine version. This widget is not
 	-- the place to deal with this case.
 	if not battle.passworded then
-		WG.BattleRoomWindow.LeaveBattle()
-
 		local removeListeners
 
 		local function onJoinBattle(listener)
@@ -1707,19 +1705,31 @@ function BattleListWindow:JoinBattle(battle, _, _, joinAsPlayer)
 		end
 
 		local function onJoinBattleFailed(listener, reason)
-			WG.Chobby.InformationPopup("Unable to join battle: " .. (reason or ""))
 			removeListeners()
+			WG.Chobby.InformationPopup("Unable to join battle: " .. (reason or ""))
+		end
+
+		local function joinBattle(listener)
+			removeListeners()
+
+			lobby:AddListener("OnJoinBattleFailed", onJoinBattleFailed)
+			lobby:AddListener("OnJoinBattle", onJoinBattle)
+
+			lobby:JoinBattle(battle.battleID, _, _, joinAsPlayer)	
 		end
 
 		removeListeners = function ()
+			lobby:RemoveListener("OnLeftBattle", joinBattle)
 			lobby:RemoveListener("OnJoinBattleFailed", onJoinBattleFailed)
 			lobby:RemoveListener("OnJoinBattle", onJoinBattle)
 		end
 
-		lobby:AddListener("OnJoinBattleFailed", onJoinBattleFailed)
-		lobby:AddListener("OnJoinBattle", onJoinBattle)
-
-		lobby:JoinBattle(battle.battleID, _, _, joinAsPlayer)
+		if lobby:GetMyBattleID() then
+			lobby:AddListener("OnLeftBattle", joinBattle)
+			WG.BattleRoomWindow.LeaveBattle()
+		else
+			joinBattle()
+		end
 	else
 		local tryJoin, passwordWindow
 
