@@ -4,6 +4,9 @@
 VFS.Include(LIB_LOBBY_DIRNAME .. "json.lua")
 VFS.Include(LIB_LOBBY_DIRNAME .. "interface_shared.lua")
 
+local spGetTimer = Spring.GetTimer
+local spDiffTimers = Spring.DiffTimers
+
 -- map lobby commands by name
 Interface.commands = {}
 -- map json lobby commands by name
@@ -410,8 +413,15 @@ end
 
 -- 2023/04/04 Fireball: Added joinAsPlayer to bypass lastGameSpectatorState
 function Interface:JoinBattle(battleID, password, scriptPassword, joinAsPlayer)
-	forcePlayer = joinAsPlayer and true or false -- used by Interfac:_OnRequestBattleStatus
+	if self.lastJoinTime then -- this is for safety on this lower level - ideally callers should take care of
+		local timeDiff = spDiffTimers(spGetTimer(), self.lastJoinTime)
+		if timeDiff < 1 then -- avoid more than 1 JOINBATTLE per second, e.g. double-clicking a battle (otherwise answers from teiserver can be confusing)
+			return self
+		end
+	end
+	self.lastJoinTime = spGetTimer()
 
+	forcePlayer = joinAsPlayer and true or false -- used by Interfac:_OnRequestBattleStatus
 	scriptPassword = scriptPassword or (tostring(math.floor(math.random() * 65536)) .. tostring(math.floor(math.random() * 65536)))
 	password = password or "empty"
 	self.changedTeamIDOnceAfterJoin = false
@@ -1010,6 +1020,7 @@ function Interface:_OnJoinBattle(battleID, hashCode)
 	self._requestedBattleStatus = nil
 	battleID = tonumber(battleID)
 	self:super("_OnJoinBattle", battleID, hashCode)
+	self.lastJoinTime = nil
 end
 Interface.commands["JOINBATTLE"] = Interface._OnJoinBattle
 Interface.commandPattern["JOINBATTLE"] = "(%d+)%s+(%S+)"
@@ -1779,6 +1790,7 @@ Interface.commandPattern["HOSTPORT"] = "(%d+)"
 
 function Interface:_OnJoinBattleFailed(reason)
 	self:_CallListeners("OnJoinBattleFailed", reason)
+	self.lastJoinTime = nil
 end
 Interface.commands["JOINBATTLEFAILED"] = Interface._OnJoinBattleFailed
 Interface.commandPattern["JOINBATTLEFAILED"] = "([^\t]+)"
