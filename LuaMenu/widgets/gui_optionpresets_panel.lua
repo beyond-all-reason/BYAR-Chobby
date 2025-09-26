@@ -71,7 +71,7 @@ local function refreshJSONData()
 	local modfile = io.open("optionsPresets.json", 'r')
 	if modfile ~= nil then
 		local boolOut
-		boolOut, jsondata = pcall(json.decode, modfile:read())
+		boolOut, jsondata = pcall(Json.decode, modfile:read())
 
 		-- handles broken json file
 		if not boolOut or jsondata == nil or type(jsondata) ~= "table" then
@@ -97,7 +97,7 @@ local function refreshJSONData()
 		jsondata = {}
 		-- jsondata["defaultPreset"] = {}
 		modfile = io.open("optionsPresets.json", 'w')
-		local jsonobj = json.encode(jsondata)
+		local jsonobj = Json.encode(jsondata)
 		modfile:write(jsonobj)
 	end
 
@@ -111,7 +111,7 @@ local function saveJSONData()
 		-- maybe some logging
 		return
 	end
-	local jsonobj = json.encode(jsondata)
+	local jsonobj = Json.encode(jsondata)
 	modfile:write(jsonobj)
 	modfile:close()
 end
@@ -802,7 +802,6 @@ end
 function widget:Initialize()
 	CHOBBY_DIR = LUA_DIRNAME .. "widgets/chobby/"
 	VFS.Include(LUA_DIRNAME .. "widgets/chobby/headers/exports.lua", nil, VFS.RAW_FIRST)
-	VFS.Include("libs/json.lua")
 
 	-- clone multiplayer options, if they are defined
 	WG.OptionpresetsPanel = OptionpresetsPanel

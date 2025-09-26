@@ -265,7 +265,7 @@ function Interface:_OnCommandReceived(cmdName, arguments, cmdId)
 	else
 		local jsonCommandFunction = self:_GetJsonCommandFunction(cmdName)
 		if jsonCommandFunction ~= nil then
-			local success, obj = pcall(json.decode, arguments)
+			local success, obj = pcall(Json.decode, arguments)
 			if not success then
 				Spring.Log(LOG_SECTION, LOG.ERROR, "Failed to parse JSON: " .. tostring(arguments))
 			end

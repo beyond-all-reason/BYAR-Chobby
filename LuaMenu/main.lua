@@ -64,6 +64,7 @@ end
 
 VFS.Include("LuaHandler/Utilities/utils.lua", nil, VFS.DEF_MODE)
 VFS.Include("LuaMenu/utils.lua", nil, VFS.DEF_MODE)
+Json = VFS.Include("libs/json.lua", nil, VFS.DEF_MODE)
 
 --// the addon handler
 include "LuaHandler/handler.lua"
