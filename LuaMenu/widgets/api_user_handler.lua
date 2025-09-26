@@ -1116,7 +1116,7 @@ local function GetUserControls(userName, opts)
 							return
 						end
 						WG.SideChangeWindow.CreateSideChangeWindow({
-							initialSide = battleStatus.side or 0,
+							initialSide = battleStatus.side or math.random(0, 1),
 							OnAccepted = function(sideId)
 								if userName == userControls.lobby:GetMyUserName() then
 									Configuration:SetConfigValue("lastFactionChoice", sideId)
