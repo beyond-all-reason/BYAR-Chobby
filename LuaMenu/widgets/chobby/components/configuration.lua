@@ -1,7 +1,5 @@
 Configuration = LCS.class{}
 
-VFS.Include("libs/liblobby/lobby/json.lua")
-
 LIB_LOBBY_DIRNAME = "libs/liblobby/lobby/"
 
 

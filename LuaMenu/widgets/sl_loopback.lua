@@ -1,5 +1,4 @@
 LIB_LOBBY_DIRNAME = "libs/liblobby/lobby/" -- why is this needed? why doesnt api load first?
-VFS.Include(LIB_LOBBY_DIRNAME .. "json.lua")
 
 function widget:GetInfo()
 return {

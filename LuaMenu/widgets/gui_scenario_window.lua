@@ -152,7 +152,7 @@ local function EncodeScenarioOptions(scenario)
 	scenario.scenariooptions.version = scenario.version
 	scenario.scenariooptions.scenarioid = scenario.scenarioid
 	scenario.scenariooptions.difficulty = mydifficulty.name
-	return Spring.Utilities.Base64Encode(Spring.Utilities.json.encode(scenario.scenariooptions))
+	return Spring.Utilities.Base64Encode(Json.encode(scenario.scenariooptions))
 end
 
 local function GetBestScores(scenarioID,scenarioVersion,difficulty)
@@ -1072,7 +1072,7 @@ function widget:RecvLuaMsg(msg)
 
 	if string.find(msg, SCENARIO_COMPLETE_STRING) then
 		msg = string.sub(msg, 16)
-		local stats = Spring.Utilities.json.decode(msg)
+		local stats = Json.decode(msg)
 		--Spring.Utilities.TableEcho(stats)
 
 		if stats.benchmarkcommand then
@@ -1082,7 +1082,7 @@ function widget:RecvLuaMsg(msg)
 				WG.Analytics.SendRepeatEvent("system:benchmark", stats)
 			end
 		else
-			local decodedscenopts = Spring.Utilities.json.decode(Spring.Utilities.
+			local decodedscenopts = Json.decode(Spring.Utilities.
 			Base64Decode(stats.scenariooptions))
 
 			Spring.Echo(decodedscenopts.scenarioid,decodedscenopts.version,stats.endtime,stats.metalUsed + stats.energyUsed/60.0,stats.won)

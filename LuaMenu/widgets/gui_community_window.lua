@@ -35,7 +35,7 @@ local function LoadStaticCommunityData()
 	local data
 	xpcall(
 		function()
-			data = Spring.Utilities.json.decode(VFS.LoadFile(NEWS_FILE))
+			data = Json.Decode(VFS.LoadFile(NEWS_FILE))
 		end,
 		function(err)
 			Spring.Log("community", LOG.ERROR, err)
