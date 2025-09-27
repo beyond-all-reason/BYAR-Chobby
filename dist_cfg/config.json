@@ -284,7 +284,7 @@
         "MoveWarnings": 0,
         "MSAA": 1,
         "MSAALevel": 4,
-        "NetworkTimeout": 120,
+        "NetworkTimeout": 300,
         "NormalMapping": 1,
         "ReconnectTimeout": 15,
         "Roam": 1,
