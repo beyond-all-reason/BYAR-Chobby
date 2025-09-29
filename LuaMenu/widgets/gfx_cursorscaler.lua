@@ -11,12 +11,9 @@ function widget:GetInfo()
 	}
 end
 
-local sizeMult = 1
 local Settings = {}
 Settings['cursorSet'] = 'icexuick'
 Settings['cursorSize'] = 100
-
-local force = true
 
 function split(inputstr, sep)
 	sep = sep or '%s'
@@ -54,7 +51,7 @@ end
 
 function widget:ViewResize()
 	local ssx,ssy = Spring.GetScreenGeometry()
-	autoCursorSize = 100 * (0.6 + (ssx*ssy / 10000000)) * sizeMult
+	autoCursorSize = 100 * (0.6 + (ssx*ssy / 10000000)) * Spring.GetConfigFloat('cursorsize', 1)
 	SetCursor(Settings['cursorSet'])
 end
 
@@ -63,7 +60,6 @@ function widget:Initialize()
 end
 
 function SetCursor(cursorSet)
-	local oldSetName = Settings['cursorSet']..'_'..Settings['cursorSize']
 	Settings['cursorSet'] = cursorSet
 	Settings['cursorSize'] = cursorSets[cursorSet][NearestValue(cursorSets[cursorSet], autoCursorSize)]
 	cursorSet = cursorSet..'_'..Settings['cursorSize']
