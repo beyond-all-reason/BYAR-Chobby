@@ -302,6 +302,7 @@ function Configuration:init()
 	self.editCampaign = false
 	self.activeDebugConsole = false
 	self.onlyShowFeaturedMaps = true
+	self.allowUnofficialMaps = true
 	self.simpleAiList = true
 	self.useSpringRestart = false
 	self.menuMusicVolume = 0.5
@@ -724,6 +725,7 @@ function Configuration:GetConfigData()
 		loadLocalWidgets = self.loadLocalWidgets,
 		activeDebugConsole = self.activeDebugConsole,
 		onlyShowFeaturedMaps = self.onlyShowFeaturedMaps,
+		allowUnofficialMaps = self.allowUnofficialMaps,
 		simpleAiList = self.simpleAiList,
 		coopConnectDelay = self.coopConnectDelay,
 		useSpringRestart = self.useSpringRestart,
