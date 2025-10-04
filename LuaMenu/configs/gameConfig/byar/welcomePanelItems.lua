@@ -36,19 +36,10 @@ local welcomePanelItems = {
     },
 
     {
-        Header = "Discord Wars 5",
-        Text = "In preparation for the upcoming Omega Series, Discord Wars is hosting an all-welcome 5v5 Tournament!" .. " \n" .. " \n" .. "No team? No problem! Just sign up and we'll pair you off!",
-        Image = "LuaMenu/images/welcomepanel/recurring_events/discordwars5.png",
-        Url = "https://challonge.com/DiscordWars5_MiniOmega",
-        UrlText = "Sign Up",
-        Time = "2025-10-02T18:00:00",
-    },
-
-    {
-        Header = "Omega Series 4: Groups Stage",
-        Text = "Join us this weekend to kick off the groups stage of Omega Series 4!" .. " \n" .. " \n" .. "Watch the 8 qualifying teams face off with two groups in a round robin format, with the top 4 teams advancing to the semifinals!",
+        Header = "Omega Series 4: Semifinals",
+        Text = "8 teams entered, but only 4 teams remain..." .. " \n" .. " \n" .. "Watch the Semifinals of Omega Series 4 live on Twitch or Youtube!",
         Image = "LuaMenu/images/welcomepanel/os4.png",
-        Time = "2025-10-04T01:00:00",
+        Time = "2025-10-05T01:00:00",
     },
 
     {
