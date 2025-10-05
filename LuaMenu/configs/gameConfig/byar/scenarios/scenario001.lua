@@ -1,7 +1,7 @@
 local scenariodata = {
 	index			= 1, --  integer, sort order, MUST BE EQUAL TO FILENAME NUMBER
 	scenarioid		= "supcrossingvsbarbs001", -- no spaces, lowercase, this will be used to save the score
-    version         = "1", -- increment this to keep the score when changing a mission
+    version         = "2", -- increment this to keep the score when changing a mission
 	title			= "Outsmart the Barbarians", -- can be anything
 	author			= "Beherith", -- your name here
 	imagepath		= "scenario001.jpg", -- placed next to lua file, should be 3:1 ratio banner style
@@ -44,7 +44,22 @@ Tips:
     scenariooptions = { -- this will get lua->json->base64 and passed to scenariooptions in game
         myoption = "dostuff",
         scenarioid = "supcrossingvsbarbs001",
-		disablefactionpicker = true, -- this is needed to prevent faction picking outside of the allowedsides
+        disablefactionpicker = true, -- this is needed to prevent faction picking outside of the allowedsides
+
+        featureloadout = {
+            {name = 'armcom_heap', x = 256, y = 161, z = 7776, rot = 32767 , scale = 1.0},
+            {name = 'armcom_heap', x = 2192, y = 93, z = 6928, rot = 32767 , scale = 1.0},
+            {name = 'armcom_heap', x = 512, y = 87, z = 5616, rot = 32767 , scale = 1.0},
+            {name = 'armcom_heap', x = 800, y = 177, z = 4288, rot = 32767 , scale = 1.0},
+            {name = 'armcom_heap', x = 784, y = -78, z = 3472, rot = 32767 , scale = 1.0},
+            {name = 'armcom_heap', x = 144, y = 157, z = 1872, rot = 32767 , scale = 1.0},
+            {name = 'corcom_heap', x = 6280, y = 235, z = 1448, rot = 32767 , scale = 1.0},
+            {name = 'corcom_heap', x = 7208, y = -75, z = 4696, rot = 32767 , scale = 1.0},
+            {name = 'corcom_heap', x = 7944, y = 163, z = 440, rot = 32767 , scale = 1.0},
+            {name = 'corcom_heap', x = 7400, y = 176, z = 3896, rot = 32767 , scale = 1.0},
+            {name = 'corcom_heap', x = 8136, y = 157, z = 6792, rot = 32767 , scale = 1.0},
+            {name = 'corcom_heap', x = 7352, y = 171, z = 3304, rot = 32767 , scale = 1.0},
+        },
     },
     -- https://github.com/spring/spring/blob/105.0/doc/StartScriptFormat.txt
 
