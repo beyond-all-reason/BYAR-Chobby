@@ -31,16 +31,9 @@ local welcomePanelItems = {
         Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/Devil's_Postpiles_1.0.png",
     },
 
-    {
-        Header = "Upcoming Events:",
-    },
-
-    {
-        Header = "Omega Series 4: Semifinals",
-        Text = "8 teams entered, but only 4 teams remain..." .. " \n" .. " \n" .. "Watch the Semifinals of Omega Series 4 live on Twitch or Youtube!",
-        Image = "LuaMenu/images/welcomepanel/os4.png",
-        Time = "2025-10-05T01:00:00",
-    },
+--    {
+--        Header = "Upcoming Events:",
+--    },
 
     {
         Header = "Help Keep BAR Clean - Join the Overwatch Team!",
