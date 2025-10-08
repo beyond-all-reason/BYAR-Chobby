@@ -1116,7 +1116,7 @@ function widget:RecvLuaMsg(msg)
 
 			Spring.Echo(lastScenarioID, lastScenarioVersion, lastDifficulty, lastTime, lastResources, won)
 			if WG.Analytics and WG.Analytics.SendRepeatEvent then
-				WG.Analytics.SendRepeatEvent("game_start:singleplayer:scenario_end", {scenarioid = lastScenarioID, difficulty =  lastDifficulty, won = won, endtime = lastTime, resources = lastResources })
+				WG.Analytics.SendRepeatEvent("game_start:singleplayer:scenario_end", {scenarioid = lastScenarioID, difficulty = lastDifficulty, won = won, endtime = lastTime, resources = lastResources })
 			end
 
 			if won then
