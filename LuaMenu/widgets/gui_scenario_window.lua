@@ -264,12 +264,20 @@ local function CreateScenarioPanel(shortname, sPanel)
 	local numdisabledunits = 0
 	if scen.unitlimits then
 		for unitid, count in pairs(scen.unitlimits) do
-			additionalText = additionalText .. "\n  - " .. unitdefname_to_humanname[unitid] .. " (" ..unitid .. "): "
+			local humanName = unitdefname_to_humanname[unitid]
+			if not humanName then
+				Spring.Log("gui_scenario_window", LOG.ERROR, "Error No human name for: " .. unitid)
+				humanName = "human name missing"
+			end
+	
+			additionalText = additionalText .. "\n  - " .. humanName .. " (" .. unitid .. "): "
+	
 			if count == 0 then
 				additionalText = additionalText .. "Disabled"
 			else
 				additionalText = additionalText .. tostring(count)
 			end
+	
 			numdisabledunits = numdisabledunits + 1
 		end
 	end
