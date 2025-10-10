@@ -37,6 +37,7 @@ local peaceTracksIndex = 0
 
 local musicDirOriginal 			= 'luamenu/configs/gameconfig/byar/lobbyMusic/original'
 local musicDirEventAprilFools 	= 'luamenu/configs/gameconfig/byar/lobbyMusic/event/aprilfools'
+local musicDirEventSpooktober 	= 'luamenu/configs/gameconfig/byar/lobbyMusic/event/spooktober'
 local musicDirEventXmas 		= 'luamenu/configs/gameconfig/byar/lobbyMusic/event/xmas'
 local musicDirCustom 			= 'music/custom/menu'
 local musicDirCustom2 			= 'music/custom/peace'
@@ -207,20 +208,39 @@ function playlistBuild()
 	if Spring.GetConfigInt('UseSoundtrackNew', 1) == 1 then
 		customIntroTrack = "luamenu/configs/gameConfig/byar/lobbyMusic/original/matteo dell'acqua - foobar (intro).ogg"
 		randomTrackList = playlistMerge(randomTrackList, VFS.DirList(musicDirOriginal, allowedExtensions))
+	end
 
-		-- April Fools
-		if Spring.GetConfigInt('UseSoundtrackAprilFools', 1) == 1 and (tonumber(os.date("%m")) == 4 and tonumber(os.date("%d")) <= 7) then
-			randomTrackList = playlistMerge(randomTrackList, VFS.DirList(musicDirEventAprilFools, allowedExtensions))
-		end
-		if Spring.GetConfigInt('UseSoundtrackAprilFoolsPostEvent', 0) == 1 and (not (tonumber(os.date("%m")) == 4 and tonumber(os.date("%d")) <= 7)) then
-			randomTrackList = playlistMerge(randomTrackList, VFS.DirList(musicDirEventAprilFools, allowedExtensions))
-		end
+	-- April Fools
+	if Spring.GetConfigInt('UseSoundtrackAprilFools', 1) == 1 and (tonumber(os.date("%m")) == 4 and tonumber(os.date("%d")) <= 7) then
+		randomTrackList = playlistMerge(randomTrackList, VFS.DirList(musicDirEventAprilFools, allowedExtensions))
+	end
+	if Spring.GetConfigInt('UseSoundtrackAprilFoolsPostEvent', 0) == 1 and (not (tonumber(os.date("%m")) == 4 and tonumber(os.date("%d")) <= 7)) then
+		randomTrackList = playlistMerge(randomTrackList, VFS.DirList(musicDirEventAprilFools, allowedExtensions))
+	end
+	if #VFS.DirList(musicDirEventAprilFools, allowedExtensions) >= 1 and Spring.GetConfigInt('UseSoundtrackAprilFools', 1) == 1 and (tonumber(os.date("%m")) == 4 and tonumber(os.date("%d")) == 1) then
+		customIntroTrack = VFS.DirList(musicDirEventAprilFools, allowedExtensions)[math.random(1,#VFS.DirList(musicDirEventAprilFools, allowedExtensions))]
+	end
 
-		-- Xmas
-		if (tonumber(os.date("%m")) == 12 and tonumber(os.date("%d")) >= 12) then
-			randomTrackList = playlistMerge(randomTrackList, VFS.DirList(musicDirEventXmas, allowedExtensions))
-			customIntroTrack = VFS.DirList(musicDirEventXmas, allowedExtensions)[math.random(1,#VFS.DirList(musicDirEventXmas, allowedExtensions))]
-		end
+	-- Spooktober
+	if Spring.GetConfigInt('UseSoundtrackSpooktober', 1) == 1 and (tonumber(os.date("%m")) == 10 and tonumber(os.date("%d")) >= 17) then
+		randomTrackList = playlistMerge(randomTrackList, VFS.DirList(musicDirEventSpooktober, allowedExtensions))
+	end
+	if Spring.GetConfigInt('UseSoundtrackSpooktoberPostEvent', 0) == 1 and (not (tonumber(os.date("%m")) == 10 and tonumber(os.date("%d")) >= 17)) then
+		randomTrackList = playlistMerge(randomTrackList, VFS.DirList(musicDirEventSpooktober, allowedExtensions))
+	end
+	if #VFS.DirList(musicDirEventSpooktober, allowedExtensions) >= 1 and Spring.GetConfigInt('UseSoundtrackSpooktober', 1) == 1 and (tonumber(os.date("%m")) == 10 and tonumber(os.date("%d")) == 31) then
+		customIntroTrack = VFS.DirList(musicDirEventSpooktober, allowedExtensions)[math.random(1,#VFS.DirList(musicDirEventSpooktober, allowedExtensions))]
+	end
+
+	-- Xmas
+	if Spring.GetConfigInt('UseSoundtrackXmas', 1) == 1 and (tonumber(os.date("%m")) == 12 and tonumber(os.date("%d")) >= 12) then
+		randomTrackList = playlistMerge(randomTrackList, VFS.DirList(musicDirEventXmas, allowedExtensions))
+	end
+	if Spring.GetConfigInt('UseSoundtrackXmasPostEvent', 1) == 1 and (not (tonumber(os.date("%m")) == 12 and tonumber(os.date("%d")) >= 12)) then
+		randomTrackList = playlistMerge(randomTrackList, VFS.DirList(musicDirEventXmas, allowedExtensions))
+	end
+	if #VFS.DirList(musicDirEventXmas, allowedExtensions) >= 1 and Spring.GetConfigInt('UseSoundtrackXmas', 1) == 1 and (tonumber(os.date("%m")) == 12 and tonumber(os.date("%d")) >= 24 and tonumber(os.date("%d")) <= 26) then
+		customIntroTrack = VFS.DirList(musicDirEventXmas, allowedExtensions)[math.random(1,#VFS.DirList(musicDirEventXmas, allowedExtensions))]
 	end
 
 	-- Custom Soundtrack List
