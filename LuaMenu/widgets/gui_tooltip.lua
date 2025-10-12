@@ -696,7 +696,11 @@ local function GetUserTooltip(userName, userInfo, userBattleInfo, inBattleroom)
 		elseif userBattleInfo.aiLib then
 			text = "AI: " .. userBattleInfo.aiLib
 		elseif Configuration.showSkillOpt and Configuration.showSkillOpt > 1 and userInfo.skill and userInfo.skillUncertainty then
-			text = "OpenSkill: " .. userInfo.skill 
+			if tonumber(userInfo.skillUncertainty) > 6 then
+				text = "OpenSkill: " .. "??"
+			else
+				text = "OpenSkill: " .. userInfo.skill
+			end
 			if Configuration.showSkillOpt == 3 then
 				text = text .. " (σ=".. userInfo.skillUncertainty .. ")"
 			end
