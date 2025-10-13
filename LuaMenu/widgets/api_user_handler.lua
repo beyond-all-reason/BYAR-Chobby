@@ -284,7 +284,7 @@ local function GetUserSkillFont(userName, userControl)
 
 		skill = tostring(skill)
 
-		if userInfo.skillUncertainty and tonumber(userInfo.skillUncertainty) > 6 then
+		if userInfo.skillUncertainty and tonumber(userInfo.skillUncertainty) > 6.65 then
 			skill = "??"
 		end
 	end
