@@ -15,6 +15,11 @@ end
 -- Structure
 local modoptionDefaults = {}
 local modoptionStructure = {}
+local sharingModesByGame = {}
+local sharingModes
+local selectedSharingModeKey
+local sharingUI = { modeList = nil, rankedBadge = nil }
+local lockedOverlaysByKey = {}
 
 -- Variables
 local battleLobby
@@ -45,6 +50,84 @@ local function UpdateControlValue(key, value)
 			control:SetToggle(value == true or value == 1 or value == "1")
 		end
 	end
+end
+
+-- Enable/disable the interactive control for a given modoption key
+local function SetControlLock(key, locked)
+    if not modoptionControlNames then return end
+    local control = modoptionControlNames[key]
+    if not control then return end
+    if control.SetEnabled then
+        control:SetEnabled(not locked)
+    end
+    -- If the control is embedded in a row control, try disabling that too
+    local parent = control.parent
+    if parent and parent.SetEnabled and parent.name ~= "tabPanel" then
+        parent:SetEnabled(not locked)
+    end
+    -- Fallback: disable input handlers if the widget lacks SetEnabled
+    if control.OnSelectName then
+        control._origOnSelectName = control._origOnSelectName or control.OnSelectName
+        control.OnSelectName = locked and {} or control._origOnSelectName
+    end
+    if control.OnChange then
+        control._origOnChange = control._origOnChange or control.OnChange
+        control.OnChange = locked and {} or control._origOnChange
+    end
+
+    -- Add/remove an input-blocking overlay for controls that don't visually disable
+    local parentRow = control.parent
+    if parentRow and parentRow.name ~= "tabPanel" then
+        local displayValue = localModoptions[key] or modoptionDefaults[key] or ""
+        if control.itemKeyToName then
+            displayValue = control.itemKeyToName[displayValue] or displayValue
+        elseif control.SetToggle then
+            if displayValue == "1" or displayValue == 1 or displayValue == true then
+                displayValue = "Enabled"
+            else
+                displayValue = "Disabled"
+            end
+        else
+            displayValue = tostring(displayValue)
+        end
+
+        if locked then
+            local info = lockedOverlaysByKey[key]
+            if not info then
+                -- Expand narrow areas (e.g. checkboxes) so text like "Disabled" fits
+                local ovX, ovW = control.x, control.width
+                if ovW < 100 then ovW = 300 end
+                local overlay = Label:New {
+                    name = "lockOverlay_" .. key,
+                    x = ovX,
+                    y = control.y,
+                    width = ovW,
+                    height = control.height,
+                    valign = "center",
+                    align = "left",
+                    caption = tostring(displayValue),
+                    tooltip = control.tooltip,
+                    objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+                }
+                parentRow:AddChild(overlay)
+                lockedOverlaysByKey[key] = { overlay = overlay, oldX = control.x }
+                if control.SetPos then control:SetPos(control.x + 4095, control.y) end
+            else
+                info.overlay:SetCaption(tostring(displayValue))
+            end
+        else
+            local info = lockedOverlaysByKey[key]
+            if info then
+                if control.SetPos then control:SetPos(info.oldX or control.x, control.y) end
+                if info.overlay and info.overlay.parent then
+                    info.overlay.parent:RemoveChild(info.overlay)
+                end
+            end
+            lockedOverlaysByKey[key] = nil
+        end
+    end
+
+    -- Simple visual state: if a control supports SetEnabled, that's sufficient.
 end
 
 local function TextFromNum(num, step)
@@ -201,6 +284,8 @@ local function ProcessListOption(data, index)
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		selectByName = true,
 		selected = defaultItem,
+		maxDropDownHeight = 150,
+		selectionOffsetY = -5,
 		OnSelectName =
 			locking and { function (obj, selectedName)
 				processChildrenLocks(unlock and unlock[itemNameToKey[selectedName]] or nil, lock and lock[itemNameToKey[selectedName]] or nil, data.bitmask or 1)
@@ -229,6 +314,97 @@ local function ProcessListOption(data, index)
 		tooltip = data.desc,
 	}
 	list.font = data.def == defaultKey and WG.Chobby.Configuration:GetFont(2) or WG.Chobby.Configuration:GetFont(2, "Changed2", {color = MARKED_AS_CHANGED_COLOR})
+
+	-- Special handling for sharing mode selector
+	if data._isShareModeSelector then
+		local originalOnSelectName = list.OnSelectName[1]
+		list.OnSelectName = {
+			function(obj, selectedName)
+				-- Call original handler first
+				if originalOnSelectName then originalOnSelectName(obj, selectedName) end
+				
+				-- Set the hidden _sharing_mode_selected modoption (internal use only, no UI control)
+				local modeKey = itemNameToKey[selectedName]
+				localModoptions["_sharing_mode_selected"] = modeKey
+				
+				-- Apply sharing mode configuration from sharingoptions.json
+				if sharingModes and sharingModes.modes then
+					for _, mode in ipairs(sharingModes.modes) do
+						if mode.key == modeKey then
+							-- Apply mode configuration
+							local allowRanked = (mode.allowRanked ~= false)
+							WG.SharingModePolicy = WG.SharingModePolicy or {}
+							WG.SharingModePolicy.allowRanked = allowRanked
+							WG.SharingModePolicy.modeLocked = {}
+							
+							-- Set the "Ranked Game" modoption when allowRanked is false
+							if not allowRanked then
+								localModoptions["ranked_game"] = "0"
+								UpdateControlValue("ranked_game", "0")
+							end
+							
+							-- Inform the lobby (if it listens) that ranked should be disabled for this mode
+							if WG.BattleRoomWindow and WG.BattleRoomWindow.SetRankedModeAllowed then
+								WG.BattleRoomWindow.SetRankedModeAllowed(allowRanked)
+							end
+
+							if mode.options then
+								for optKey, rule in pairs(mode.options) do
+									if rule.value ~= nil then
+										local value = rule.value
+										if type(value) == "boolean" then value = tostring((value and 1) or 0) end
+										localModoptions[optKey] = tostring(value)
+										UpdateControlValue(optKey, tostring(value))
+									end
+									if rule.locked then
+										lockedOptions[optKey] = 1
+										WG.SharingModePolicy.modeLocked[optKey] = true
+										SetControlLock(optKey, true)
+									else
+										lockedOptions[optKey] = nil
+										WG.SharingModePolicy.modeLocked[optKey] = nil
+										SetControlLock(optKey, false)
+									end
+									if rule.ui == "hidden" then
+										local child = modoptionControlNames[optKey]
+										if child then
+											-- Hide the row: move its row container off-screen and hide
+											if child.parent and child.parent.name ~= "tabPanel" then
+												child = child.parent
+											end
+											if child.SetPos then child:SetPos(child.x - 4095, child.y) end
+											if child.SetVisibility then child:SetVisibility(false) end
+										end
+									else
+										-- Ensure the row is visible (override any engine disabled rules)
+										local child = modoptionControlNames[optKey]
+										if child then
+											if child.parent and child.parent.name ~= "tabPanel" then
+												child = child.parent
+											end
+											if child.x and child.x < -1000 then
+												child:SetPos(0, child.y)
+											end
+											if child.SetVisibility then child:SetVisibility(true) end
+										end
+									end
+								end
+							end
+							-- Filter out internal options (starting with underscore) before setting mod options
+							local filteredModoptions = {}
+							for key, value in pairs(localModoptions) do
+								if not key:match("^_") then
+									filteredModoptions[key] = value
+								end
+							end
+							battleLobby:SetModOptions(filteredModoptions)
+							break
+						end
+					end
+				end
+			end
+		}
+	end
 
 	modoptionControlNames[data.key] = list
 	control = Control:New {
@@ -322,7 +498,7 @@ local function ProcessBoolOption(data, index)
 	control = Control:New {
 		x = 0,
 		y = index*32,
-		width = 350,
+		width = 625,
 		height = 32,
 		padding = {0, 0, 0, 0},
 		tooltip = data.desc,
@@ -607,6 +783,19 @@ local function PopulateTab(options)
 			end
 		end
 	end
+	
+	-- Add bottom padding spacer to ensure last section is fully visible
+	if row > 0 then
+		local bottomSpacer = Control:New {
+			x = 0,
+			y = row * 32 + 32,
+			width = 1,
+			height = 64,
+		}
+		bottomSpacer.rowOrginal = bottomSpacer.y
+		contentsPanel:AddChild(bottomSpacer)
+	end
+	
 	return {contentsPanel}
 end
 
@@ -646,12 +835,14 @@ local function CreateModoptionWindow()
 		if origCaption ~= caption then
 			tooltip = origCaption
 		end
+		local children = PopulateTab(data.options)
+
 		tabs[#tabs + 1] = {
 			name = key,
 			caption = caption,
 			tooltip = tooltip,
 			objectOverrideFont = WG.Chobby.Configuration:GetFont(fontSize),
-			children = PopulateTab(data.options),
+			children = children,
 			weight = data.weight or weight,
 		}
 	end
@@ -713,7 +904,14 @@ local function CreateModoptionWindow()
 				end
 			end
 		end
-		battleLobby:SetModOptions(localModoptions)
+		-- Filter out internal options (starting with underscore) before setting mod options
+		local filteredModoptions = {}
+		for key, value in pairs(localModoptions) do
+			if not key:match("^_") then
+				filteredModoptions[key] = value
+			end
+		end
+		battleLobby:SetModOptions(filteredModoptions)
 		modoptionsSelectionWindow:Dispose()
 	end
 
@@ -984,7 +1182,6 @@ function ModoptionsPanel.RefreshModoptions()
 						title = data.section,
 						options = {}
 					}
-
 					local options = modoptionStructure.sections[data.section].options
 					options[#options + 1] = data
 				elseif showHidden and devmode then
@@ -993,6 +1190,107 @@ function ModoptionsPanel.RefreshModoptions()
 					end
 					postpendHiddenOptions[#postpendHiddenOptions + 1] = data
 				end
+			end
+		end
+	end
+
+	-- Special handling for options_sharing section - respect original order but move sharing_mode first and add missing subheaders
+	if modoptionStructure.sections["options_sharing"] then
+		local options = modoptionStructure.sections["options_sharing"].options
+		local enriched = {}
+		local categoriesWithManualHeaders = {}
+		local seenCategory = {}
+		local sharingModeOpt = nil
+		
+		-- First pass: identify categories that already have manual subheaders
+		for _, opt in ipairs(options) do
+			if opt.type == "subheader" and opt.sharing_category then
+				categoriesWithManualHeaders[opt.sharing_category] = true
+			end
+		end
+		
+		-- Find and extract sharing_mode option
+		for i, opt in ipairs(options) do
+			if opt.key == "sharing_mode" then
+				sharingModeOpt = opt
+				table.remove(options, i)
+				break
+			end
+		end
+		
+		-- Add sharing_mode first with its subheader (only if no manual one exists)
+		if sharingModeOpt then
+			local category = sharingModeOpt.sharing_category
+			if category and not seenCategory[category] and not categoriesWithManualHeaders[category] then
+				seenCategory[category] = true
+				local title = "-- " .. category:gsub("_", " "):gsub("(%l)(%w*)", function(a,b) return a:upper()..b end)
+				enriched[#enriched + 1] = { key = "subheader_"..category, type = "subheader", name = title, desc = "", font = 2 }
+			end
+			enriched[#enriched + 1] = sharingModeOpt
+		end
+		
+		-- Process remaining options in original order, adding missing subheaders only
+		for _, opt in ipairs(options) do
+			local category = opt.sharing_category
+			
+			-- Add automatic subheader only if:
+			-- 1. This category hasn't been seen yet
+			-- 2. This isn't a manual subheader itself
+			-- 3. This category doesn't already have a manual subheader
+			if category and not seenCategory[category] and opt.type ~= "subheader" and not categoriesWithManualHeaders[category] then
+				seenCategory[category] = true
+				-- Add separator before category
+				if #enriched > 0 then
+					enriched[#enriched + 1] = { key = "separator_before_"..category, type = "separator" }
+				end
+				-- Add subheader with nice formatting
+				local title = "-- " .. category:gsub("_", " "):gsub("(%l)(%w*)", function(a,b) return a:upper()..b end)
+				enriched[#enriched + 1] = { key = "subheader_"..category, type = "subheader", name = title, desc = "", font = 2 }
+			end
+			
+			-- Mark category as seen when we encounter its manual subheader
+			if opt.type == "subheader" and category then
+				seenCategory[category] = true
+			end
+			
+			-- Add the option (including all manual subheaders and separators)
+			enriched[#enriched + 1] = opt
+		end
+		
+		-- Replace section options with organized ones
+		modoptionStructure.sections["options_sharing"].options = enriched
+	end
+
+	-- Handle sharing mode selector integration
+	if modoptionStructure.sections["options_sharing"] then
+		for _, opt in ipairs(modoptionStructure.sections["options_sharing"].options) do
+			if opt.key == "sharing_mode" then
+				-- This is a sharing mode selector - integrate with sharingoptions.json
+				-- Always ensure it has items and is treated as a list
+				opt.type = "list"
+				
+				-- Populate items from sharingoptions.json if available
+				if sharingModes and sharingModes.modes then
+					opt.items = {}
+					for i, mode in ipairs(sharingModes.modes) do
+						opt.items[i] = {
+							key = mode.key,
+							name = mode.name,
+							desc = mode.desc
+						}
+					end
+				else
+					-- Fallback if JSON not loaded - use basic options
+					opt.items = {
+						{ key = "no_sharing", name = "No Sharing", desc = "Disable all sharing" },
+						{ key = "limited_sharing", name = "Limited Sharing", desc = "Allow limited sharing" },
+						{ key = "enabled", name = "Enabled", desc = "Full sharing enabled" },
+						{ key = "customize", name = "Customize", desc = "Custom settings" }
+					}
+				end
+				-- Mark this as a special sharing mode control
+				opt._isShareModeSelector = true
+				break
 			end
 		end
 	end
@@ -1044,6 +1342,22 @@ function ModoptionsPanel.LoadModoptions(gameName, newBattleLobby)
 			modoptionsByGame[gameName] = modoptions
 		end
 
+	end
+
+			-- Load sharing modes (if present)
+		local function LoadSharingOptions()
+			if VFS.FileExists("gamedata/sharingoptions.json") then
+				local jsonStr = VFS.LoadFile("gamedata/sharingoptions.json", VFS.ZIP)
+				if jsonStr then
+					return json.decode(jsonStr)
+				end
+			end
+			return nil
+		end
+	sharingModes = sharingModesByGame[gameName]
+	if not sharingModes then
+		sharingModes = VFS.UseArchive(gameName, LoadSharingOptions)
+		sharingModesByGame[gameName] = sharingModes
 	end
 
 
@@ -1098,6 +1412,7 @@ end
 function widget:Initialize()
 	CHOBBY_DIR = LUA_DIRNAME .. "widgets/chobby/"
 	VFS.Include(LUA_DIRNAME .. "widgets/chobby/headers/exports.lua", nil, VFS.RAW_FIRST)
+	VFS.Include("libs/json.lua")
 
 	WG.ModoptionsPanel = ModoptionsPanel
 end
