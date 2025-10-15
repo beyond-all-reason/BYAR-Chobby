@@ -281,7 +281,12 @@ local function GetUserSkillFont(userName, userControl)
 	if userInfo.skill then
 		skill = math.floor(userInfo.skill + 0.5)
 		if skill < 10 and skill > -10 then skill = " " .. skill end
+
 		skill = tostring(skill)
+
+		if userInfo.skillUncertainty and tonumber(userInfo.skillUncertainty) > 6.65 then
+			skill = "??"
+		end
 	end
 	
 	if config.showSkillOpt == 3 and userInfo.skillUncertainty then

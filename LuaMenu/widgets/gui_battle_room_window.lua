@@ -1749,6 +1749,12 @@ local function SortPlayersBySkill(a, b)
 	local sB = battleLobby:GetUser(b.name)
 	local joinA = tonumber((sA and sA.skill) or 0)
 	local joinB = tonumber((sB and sB.skill) or 0)
+	if tonumber((sA and sA.skillUncertainty) or 0) > 6.65 then
+		joinA = 0
+	end
+	if tonumber((sB and sB.skillUncertainty) or 0) > 6.65 then
+		joinB = 0
+	end
 	return joinA > joinB
 end
 
