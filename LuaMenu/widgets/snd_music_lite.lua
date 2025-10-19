@@ -229,7 +229,7 @@ function playlistBuild()
 	if Spring.GetConfigInt('UseSoundtrackSpooktoberPostEvent', 0) == 1 and (not (tonumber(os.date("%m")) == 10 and tonumber(os.date("%d")) >= 17)) then
 		randomTrackList = playlistMerge(randomTrackList, VFS.DirList(musicDirEventSpooktober, allowedExtensions))
 	end
-	if #VFS.DirList(musicDirEventSpooktober, allowedExtensions) >= 1 and Spring.GetConfigInt('UseSoundtrackSpooktober', 1) == 1 and (tonumber(os.date("%m")) == 10 and tonumber(os.date("%d")) == 31) then
+	if #VFS.DirList(musicDirEventSpooktober, allowedExtensions) >= 1 and Spring.GetConfigInt('UseSoundtrackSpooktober', 1) == 1 and (tonumber(os.date("%m")) == 10 and tonumber(os.date("%d")) >= 17) then
 		customIntroTrack = VFS.DirList(musicDirEventSpooktober, allowedExtensions)[math.random(1,#VFS.DirList(musicDirEventSpooktober, allowedExtensions))]
 	end
 
