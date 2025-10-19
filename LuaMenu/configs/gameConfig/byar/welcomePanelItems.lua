@@ -18,7 +18,8 @@ local welcomePanelItems = {
 
     {
         Header = "Creative Call to Arms - Spooktober Edition.",
-        Text = "Are you a music producer yourself? Or maybe you have a friend who is and would like to get some recognition? " .. " \n" .. " \n" .. "Create a remix/cover of any BAR track, or even a mix of BAR themes in a single track, with a spooky vibe, and it might end up featured in the game!\n\nAn unique opportunity for aspiring music artists to shine!",
+        Text = "\nSpooktober Music Event Is Now Live!\nEnjoy the event music and other Halloween themed decorations until the end of October!",
+        --Text = "Are you a music producer yourself? Or maybe you have a friend who is and would like to get some recognition? " .. " \n" .. " \n" .. "Create a remix/cover of any BAR track, or even a mix of BAR themes in a single track, with a spooky vibe, and it might end up featured in the game!\n\nAn unique opportunity for aspiring music artists to shine!",
         Image = "LuaMenu/images/welcomepanel/Halloween.png",
         Url = "https://discord.com/channels/549281623154229250/697141979892416512/1408421235037310986",
         UrlText = "Announcement on Discord",
