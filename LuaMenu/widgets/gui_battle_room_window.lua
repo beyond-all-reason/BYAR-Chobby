@@ -4237,7 +4237,7 @@ function BattleRoomWindow.GetSingleplayerControl(setupData)
 					isSpectator = false,
 					sync = (haveMapAndGame and 1) or 2, -- 0 = unknown, 1 = synced, 2 = unsynced
 
-					side = 0, -- Our default side is Armada
+					side = WG.Chobby.Configuration.lastFactionChoice or 0, -- Our default side is Armada
 					teamColor = {0,.32,1},
 				})
 
