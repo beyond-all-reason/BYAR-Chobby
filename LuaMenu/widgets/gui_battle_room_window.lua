@@ -2972,7 +2972,13 @@ local function InitializeSetupPage(subPanel, screenHeight, pageConfig, nextPage,
 						selectedOptions[pageConfig.name] = i
 						if pageConfig.name == "gameType" and selectedOptions.currentControl then
 							Spring.Echo("Simple Skirmish: Selected game type: " .. options[i])
-							local mapPage = selectedOptions.pages[3]
+							local mapPage
+							for _, page in ipairs(selectedOptions.pages) do
+								if page.name == "map" then
+									mapPage = page
+									break
+								end
+							end
 							if mapPage and mapPage.getDynamicOptions then
 								local nextButton = selectedOptions.currentControl:GetChildByName('nextButton')
 								selectedOptions.gameType = i
@@ -3073,7 +3079,7 @@ local function SetupEasySetupPanel(mainWindow, standardSubPanel, setupData)
 			padding = {0, 0, 0, 0},
 			parent = mainWindow,
 		}
-		if i == 3 then  -- Store reference to the map page's control
+		if pageConfigs[i].name == "map" then
 			selectedOptions.currentControl = pages[i]
 		end
 	end
