@@ -2810,6 +2810,18 @@ local function InitializeSetupPage(subPanel, screenHeight, pageConfig, nextPage,
 
 	subPanel:SetVisibility(not prevPage)
 
+	local titleLabel = Label:New {
+		name = 'titleLabel',
+		x = "36%",
+		right = "36%",
+		y = 20,
+		height = 30,
+		align = "center",
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+		caption = pageConfig.humanName,
+		parent = subPanel,
+	}
+
 	local options = pageConfig.options
 	if pageConfig.getDynamicOptions then
 		options = pageConfig.getDynamicOptions(selectedOptions)
@@ -2967,7 +2979,7 @@ local function InitializeSetupPage(subPanel, screenHeight, pageConfig, nextPage,
 								local children = selectedOptions.currentControl.children
 								for j = #children, 1, -1 do
 									local child = children[j]
-									if child.name:find("nextButton") or child.name:find("tipTextBox") or child.name:find("advButton") or child.name:find("prevPage") then
+									if child.name:find("nextButton") or child.name:find("tipTextBox") or child.name:find("advButton") or child.name:find("prevPage") or child.name:find("titleLabel") then
 										-- Leave these buttons alone
 									else
 										selectedOptions.currentControl:RemoveChild(child)
