@@ -2810,6 +2810,18 @@ local function InitializeSetupPage(subPanel, screenHeight, pageConfig, nextPage,
 
 	subPanel:SetVisibility(not prevPage)
 
+	local titleLabel = Label:New {
+		name = 'titleLabel',
+		x = "36%",
+		right = "36%",
+		y = 20,
+		height = 30,
+		align = "center",
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+		caption = pageConfig.humanName,
+		parent = subPanel,
+	}
+
 	local options = pageConfig.options
 	if pageConfig.getDynamicOptions then
 		options = pageConfig.getDynamicOptions(selectedOptions)
@@ -2960,14 +2972,20 @@ local function InitializeSetupPage(subPanel, screenHeight, pageConfig, nextPage,
 						selectedOptions[pageConfig.name] = i
 						if pageConfig.name == "gameType" and selectedOptions.currentControl then
 							Spring.Echo("Simple Skirmish: Selected game type: " .. options[i])
-							local mapPage = selectedOptions.pages[3]
+							local mapPage
+							for _, page in ipairs(selectedOptions.pages) do
+								if page.name == "map" then
+									mapPage = page
+									break
+								end
+							end
 							if mapPage and mapPage.getDynamicOptions then
 								local nextButton = selectedOptions.currentControl:GetChildByName('nextButton')
 								selectedOptions.gameType = i
 								local children = selectedOptions.currentControl.children
 								for j = #children, 1, -1 do
 									local child = children[j]
-									if child.name:find("nextButton") or child.name:find("tipTextBox") or child.name:find("advButton") or child.name:find("prevPage") then
+									if child.name:find("nextButton") or child.name:find("tipTextBox") or child.name:find("advButton") or child.name:find("prevPage") or child.name:find("titleLabel") then
 										-- Leave these buttons alone
 									else
 										selectedOptions.currentControl:RemoveChild(child)
@@ -3006,8 +3024,10 @@ local function InitializeSetupPage(subPanel, screenHeight, pageConfig, nextPage,
 				}
 			else
 				if i == 1  then
-					ButtonUtilities.SetButtonSelected(buttons[i])
-					selectedOptions[pageConfig.name] = i
+					if pageConfig.name ~= "faction" then
+						ButtonUtilities.SetButtonSelected(buttons[i])
+						selectedOptions[pageConfig.name] = i
+					end
 					nextButton:SetVisibility(true)
 				end
 			end
@@ -3061,7 +3081,7 @@ local function SetupEasySetupPanel(mainWindow, standardSubPanel, setupData)
 			padding = {0, 0, 0, 0},
 			parent = mainWindow,
 		}
-		if i == 3 then  -- Store reference to the map page's control
+		if pageConfigs[i].name == "map" then
 			selectedOptions.currentControl = pages[i]
 		end
 	end
@@ -4219,7 +4239,7 @@ function BattleRoomWindow.GetSingleplayerControl(setupData)
 					isSpectator = false,
 					sync = (haveMapAndGame and 1) or 2, -- 0 = unknown, 1 = synced, 2 = unsynced
 
-					side = 0, -- Our default side is Armada
+					side = WG.Chobby.Configuration.lastFactionChoice or 0, -- Our default side is Armada
 					teamColor = {0,.32,1},
 				})
 

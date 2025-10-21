@@ -98,6 +98,21 @@ local skirmishSetupData = {
 			}
 		},
 		{
+			humanName = "Select your Faction",
+			name = "faction",
+			minimap = false,
+			options = {
+				"Armada",
+				"Cortex",
+				"Random",
+			},
+			optionTooltip = {
+				"Armada relies on mobility, versatility and stealth, focusing more on direct firepower than indirect artillery.",
+				"Cortex relies on overwhelming firepower, tough frontline units, and conventional artillery.",
+				"Randomly choose from available factions.",
+			}
+		},
+		{
 			humanName = "Select Map",
 			name = "map",
 			minimap = true,
@@ -114,7 +129,7 @@ function skirmishSetupData.ApplyFunction(battleLobby, pageChoices)
 	local difficulty = pageChoices.difficulty or 1
 	local gameType = pageChoices.gameType or 1
 	local map = pageChoices.map or 2
-
+	local faction = pageChoices.faction
 	local pageConfig = skirmishSetupData.pages
 	local selectedGameType = pageConfig[1].options[gameType]
 	local mapOptions = skirmishSetupData.mapsByGameType[selectedGameType]
@@ -158,9 +173,16 @@ function skirmishSetupData.ApplyFunction(battleLobby, pageChoices)
 		WG.BattleRoomWindow.AddStartRect(1, l, t, r, b)
 	end
 
+	local sidedataMap = {
+		["Armada"] = 0,
+		["Cortex"] = 1,
+		["Random"] = 2,
+	}
+
 	battleLobby:SetBattleStatus({
 		allyNumber = 0,
 		isSpectator = false,
+		side = sidedataMap[pageConfig[3].options[faction]],
 	})
 
 	-- Handle PvE modes
