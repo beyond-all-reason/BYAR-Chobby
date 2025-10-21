@@ -1090,6 +1090,10 @@ function ScenarioHandler.GetControl()
 	return window
 end
 
+function ScenarioHandler.reloadGameVersion()
+	DownloadRequirements()
+end
+
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 -- Widget Interface
