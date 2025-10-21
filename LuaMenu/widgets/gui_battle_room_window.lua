@@ -3024,8 +3024,10 @@ local function InitializeSetupPage(subPanel, screenHeight, pageConfig, nextPage,
 				}
 			else
 				if i == 1  then
-					ButtonUtilities.SetButtonSelected(buttons[i])
-					selectedOptions[pageConfig.name] = i
+					if pageConfig.name ~= "faction" then
+						ButtonUtilities.SetButtonSelected(buttons[i])
+						selectedOptions[pageConfig.name] = i
+					end
 					nextButton:SetVisibility(true)
 				end
 			end
