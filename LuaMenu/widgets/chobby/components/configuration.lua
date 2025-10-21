@@ -792,6 +792,9 @@ function Configuration:SetConfigValue(key, value)
 	end
 	if key == "gameConfigName" then
 		self:LoadGameConfig(LUA_DIRNAME .. "configs/gameConfig/" .. value .. "/mainConfig.lua")
+		if self.gameConfig and WG and WG.ScenarioHandler then
+			WG.ScenarioHandler.reloadGameVersion()
+		end
 	end
 	-- if key == "campaignConfigName" then
 	-- 	self.campaignPath = "campaign/" .. value
