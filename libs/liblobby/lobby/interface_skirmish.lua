@@ -324,9 +324,10 @@ function InterfaceSkirmish:_StartScript(gameName, mapName, playerName, friendLis
 		modoptions = self.modoptions,
 		GameStartDelay = WG.Chobby.Configuration.devMode and 0 or 5,
 	}
-	script.modoptions["dateday"] = os.date("%d")
-	script.modoptions["datemonth"] = os.date("%m")
-	script.modoptions["dateyear"] = os.date("%y")
+	script.modoptions["date_day"] = os.date("%d")
+	script.modoptions["date_month"] = os.date("%m")
+	script.modoptions["date_year"] = os.date("%y")
+	script.modoptions["date_hour"] = os.date("%H")
 
 	for i, ai in pairs(ais) do
 		script["ai" .. i] = ai
