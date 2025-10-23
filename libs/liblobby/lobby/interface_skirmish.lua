@@ -326,7 +326,7 @@ function InterfaceSkirmish:_StartScript(gameName, mapName, playerName, friendLis
 	}
 	script.modoptions["date_day"] = os.date("%d")
 	script.modoptions["date_month"] = os.date("%m")
-	script.modoptions["date_year"] = os.date("%y")
+	script.modoptions["date_year"] = os.date("%Y")
 	script.modoptions["date_hour"] = os.date("%H")
 
 	for i, ai in pairs(ais) do
