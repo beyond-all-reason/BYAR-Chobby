@@ -770,7 +770,7 @@ local function CreateModoptionWindow()
 			tooltip = origCaption
 		end
 		local children = PopulateTab(data.options)
-		if key == "sharing" then
+		if key == "options_sharing" then
 			-- Create a fresh scroll panel instead of using the potentially corrupted one
 			local sharingScroll = ScrollPanel:New {
 				name = "sharingTabPanel_" .. (math.random(1000, 9999)),
@@ -784,27 +784,30 @@ local function CreateModoptionWindow()
 			-- Manually rebuild the sharing content
 			local row = 0
 			for _, opt in ipairs(data.options or {}) do
-				local rowData = nil
-				if opt.type == "number" then
-					rowData = ProcessNumberOption(opt, row)
-				elseif opt.type == "string" then
-					rowData = ProcessStringOption(opt, row)
-				elseif opt.type == "subheader" then
-					rowData = ProcessSubHeader(opt, row)
-				elseif opt.type == "bool" then
-					rowData = ProcessBoolOption(opt, row)
-				elseif opt.type == "list" then
-					rowData = ProcessListOption(opt, row)
-				elseif opt.type == "separator" then
-					rowData = ProcessLineSeparator(opt, row)
-					row = row - 0.5
-				end
-				if rowData then
-					local column = math.abs(opt.column or 1)
-					rowData.x = rowData.x + (column - 1) * 625
-					row = row + 1
-					rowData.rowOrginal = rowData.y
-					sharingScroll:AddChild(rowData)
+				-- Skip the sharing_mode option as it's handled by the special dropdown above
+				if opt.key ~= "sharing_mode" then
+					local rowData = nil
+					if opt.type == "number" then
+						rowData = ProcessNumberOption(opt, row)
+					elseif opt.type == "string" then
+						rowData = ProcessStringOption(opt, row)
+					elseif opt.type == "subheader" then
+						rowData = ProcessSubHeader(opt, row)
+					elseif opt.type == "bool" then
+						rowData = ProcessBoolOption(opt, row)
+					elseif opt.type == "list" then
+						rowData = ProcessListOption(opt, row)
+					elseif opt.type == "separator" then
+						rowData = ProcessLineSeparator(opt, row)
+						row = row - 0.5
+					end
+					if rowData then
+						local column = math.abs(opt.column or 1)
+						rowData.x = rowData.x + (column - 1) * 625
+						row = row + 1
+						rowData.rowOrginal = rowData.y
+						sharingScroll:AddChild(rowData)
+					end
 				end
 			end
 
@@ -863,16 +866,16 @@ local function CreateModoptionWindow()
 				end
 				
 				-- Pass the selected mode to the game so it can make its own decisions
-				localModoptions["_sharing_mode_selected"] = modeKey
-				UpdateControlValue("_sharing_mode_selected", modeKey)
+				localModoptions["sharing_mode"] = modeKey
+				UpdateControlValue("sharing_mode", modeKey)
 				
 				-- Inform the lobby (if it listens) that ranked should be disabled for this mode
 				if WG.BattleRoomWindow and WG.BattleRoomWindow.SetRankedModeAllowed then
 					WG.BattleRoomWindow.SetRankedModeAllowed(allowRanked)
 				end
 
-				if mode.options then
-					for optKey, rule in pairs(mode.options) do
+				if mode.modOptions then
+					for optKey, rule in pairs(mode.modOptions) do
 						if rule.value ~= nil then
 							local value = rule.value
 							if type(value) == "boolean" then value = tostring((value and 1) or 0) end
@@ -1307,16 +1310,12 @@ function ModoptionsPanel.RefreshModoptions()
 		else
 			if data.section then
 				if data.hidden ~= true then
-					if data.sharing_category then
-						sharingOptions[#sharingOptions + 1] = data
-					else
-						modoptionStructure.sections[data.section] = modoptionStructure.sections[data.section] or {
-							title = data.section,
-							options = {}
-						}
-						local options = modoptionStructure.sections[data.section].options
-						options[#options + 1] = data
-					end
+					modoptionStructure.sections[data.section] = modoptionStructure.sections[data.section] or {
+						title = data.section,
+						options = {}
+					}
+					local options = modoptionStructure.sections[data.section].options
+					options[#options + 1] = data
 				elseif showHidden and devmode then
 					if not data.name:find("(HIDDEN)") then
 						data.name = "(HIDDEN) "..data.name
@@ -1327,93 +1326,6 @@ function ModoptionsPanel.RefreshModoptions()
 		end
 	end
 
-	if #sharingOptions > 0 then
-		-- Known categories with explicit ordering
-		local knownCategories = {
-			security = 1,
-			units = 2,
-			resources = 3,
-			allied_construction = 4,
-			allied_capture = 5,
-			reclaim = 6,
-			upgrades = 7,
-		}
-		
-		-- Humanize category names by converting snake_case to Title Case
-		local function humanizeCategory(cat)
-			return cat:gsub("_", " "):gsub("(%l)(%w*)", function(a,b) return a:upper()..b end)
-		end
-		
-		-- Collect all categories and assign order values
-		local allCategories = {}
-		for _, opt in ipairs(sharingOptions) do
-			local cat = opt.sharing_category or "other"
-			if not allCategories[cat] then
-				if knownCategories[cat] then
-					allCategories[cat] = knownCategories[cat]
-				else
-					-- Unknown categories get order 100+ and are sorted alphabetically
-					allCategories[cat] = 100
-				end
-			end
-		end
-		
-		-- Sort unknown categories alphabetically among themselves
-		local unknownCats = {}
-		for cat, order in pairs(allCategories) do
-			if order >= 100 then
-				table.insert(unknownCats, cat)
-			end
-		end
-		table.sort(unknownCats)
-		for i, cat in ipairs(unknownCats) do
-			allCategories[cat] = 100 + i
-		end
-		
-		table.sort(sharingOptions, function(a,b)
-			local ca = allCategories[a.sharing_category or 'other'] or 999
-			local cb = allCategories[b.sharing_category or 'other'] or 999
-			if ca == cb then 
-				-- Data-driven dependency ordering: options with depends_on come after their dependency
-				local aKey, bKey = a.key or "", b.key or ""
-				local aDep, bDep = a.depends_on, b.depends_on
-				
-				-- If A depends on B, B comes first
-				if aDep == bKey then return false end
-				if bDep == aKey then return true end
-				
-				-- If both have no dependencies or different dependencies, sort alphabetically
-				return (a.name or aKey) < (b.name or bKey)
-			end
-			return ca < cb
-		end)
-
-		local enriched = {}
-		local seenCat = {}
-		for _, opt in ipairs(sharingOptions) do
-			local cat = opt.sharing_category or "other"
-			if not seenCat[cat] then
-				seenCat[cat] = true
-				local knownTitles = {
-					security = "-- Security",
-					units = "-- Units", 
-					resources = "-- Resources",
-					allied_construction = "-- Allied Construction",
-					allied_capture = "-- Allied Capture",
-					reclaim = "-- Reclaim",
-					upgrades = "-- Upgrades",
-				}
-				local title = knownTitles[cat] or ("-- " .. humanizeCategory(cat))
-				enriched[#enriched + 1] = { key = "subheader_"..cat, type = "subheader", name = title, desc = "", font = 2 }
-			end
-			enriched[#enriched + 1] = opt
-		end
-
-		modoptionStructure.sectionTitles["sharing"] = "Sharing"
-		-- Place Sharing just after Main (which has weight 7)
-		modoptionStructure.sectionWeights["sharing"] = 6
-		modoptionStructure.sections["sharing"] = { title = "sharing", options = enriched, weight = 6 }
-	end
 
 	if not devmode then
 		modoptionStructure.sections["dev"] = nil
@@ -1464,16 +1376,28 @@ function ModoptionsPanel.LoadModoptions(gameName, newBattleLobby)
 
 	end
 
-			-- Load sharing modes (if present)
-		local function LoadSharingOptions()
-			if VFS.FileExists("gamedata/sharingoptions.json") then
-				local jsonStr = VFS.LoadFile("gamedata/sharingoptions.json", VFS.ZIP)
-				if jsonStr then
-					return json.decode(jsonStr)
+		-- Load sharing modes from Lua files in sharing_modes/ directory
+	local function LoadSharingOptions()
+		local sharingModes = {}
+		
+		-- Get all .lua files in sharing_modes/ directory (excluding shared_enums.lua)
+		local modeFiles = VFS.DirList("sharing_modes/", "*.lua", VFS.ZIP)
+		
+		for _, modeFile in ipairs(modeFiles) do
+			-- Skip shared_enums.lua as it's not a sharing mode
+			if not modeFile:match("shared_enums%.lua$") then
+				local mode = VFS.Include(modeFile)
+				if mode and mode.key then
+					sharingModes[#sharingModes + 1] = mode
 				end
 			end
-			return nil
 		end
+		
+		if #sharingModes > 0 then
+			return { modes = sharingModes }
+		end
+		return nil
+	end
 	sharingModes = sharingModesByGame[gameName]
 	if not sharingModes then
 		sharingModes = VFS.UseArchive(gameName, LoadSharingOptions)
@@ -1486,8 +1410,25 @@ function ModoptionsPanel.LoadModoptions(gameName, newBattleLobby)
 		return
 	end
 
+	-- Populate sharing mode items dynamically
+	if sharingModes and sharingModes.modes then
+		for i = 1, #modoptions do
+			local data = modoptions[i]
+			if data.key == "sharing_mode" and data.type == "list" then
+				data.items = {}
+				for _, mode in ipairs(sharingModes.modes) do
+					data.items[#data.items + 1] = {
+						key = mode.key,
+						name = mode.name,
+						desc = mode.desc or ""
+					}
+				end
+				break
+			end
+		end
+	end
+	
 	local currentUnixTime = os.time()
-
 	-- Set modoptionDefaults
 	for i = 1, #modoptions do
 		local data = modoptions[i]
