@@ -106,9 +106,18 @@ end
 function Utf8PrevChar(s, startPos)
 	local pos    = math.max(startPos - 4, 1)
 	local oldPos = pos
-	while (pos < startPos) do
+
+	local iterations = 0
+	local maxIterations = 20  -- UTF-8 chars are max 4 bytes, so 20 iterations is plenty
+
+	while (pos < startPos) and (iterations < maxIterations) do
 		oldPos = pos
-		pos    = pos + Utf8GetCharByteLength(s, pos)
+		local byteLength = Utf8GetCharByteLength(s, pos)
+		if byteLength == 0 then
+			break
+		end
+		pos = pos + byteLength
+		iterations = iterations + 1
 	end
 	return oldPos
 end
