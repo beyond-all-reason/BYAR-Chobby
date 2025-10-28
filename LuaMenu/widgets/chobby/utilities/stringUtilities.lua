@@ -2,18 +2,26 @@
 StringUtilities = StringUtilities or {}
 
 function StringUtilities.GetTruncatedString(myString, myFont, maxLength)
-	if (not maxLength) then
-		return myString
-	end
-	local length = string.len(myString)
-	while myFont:GetTextWidth(myString) > maxLength do
-		length = length - 1
-		myString = string.sub(myString, 0, length)
-		if length < 1 then
-			return ""
-		end
-	end
-	return myString
+    if (not maxLength) then
+        return myString
+    end
+    local length = string.len(myString)
+    local iterations = 0
+    local maxIterations = length + 10
+
+    while myFont:GetTextWidth(myString) > maxLength and iterations < maxIterations do
+        length = length - 1
+        myString = string.sub(myString, 0, length)
+        iterations = iterations + 1
+        if length < 1 then
+            return ""
+        end
+    end
+    if iterations >= maxIterations then
+        return string.sub(myString, 0, math.max(1, length))
+    end
+
+    return myString
 end
 
 function StringUtilities.GetTruncatedStringWithDotDot(myString, myFont, maxLength)
