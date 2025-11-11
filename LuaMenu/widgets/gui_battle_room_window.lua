@@ -2970,6 +2970,7 @@ local function InitializeSetupPage(subPanel, screenHeight, pageConfig, nextPage,
 						end
 						ButtonUtilities.SetButtonSelected(obj)
 						selectedOptions[pageConfig.name] = i
+						Spring.SetConfigInt("skirmish_" .. pageConfig.name .. "_choice", i)
 						if pageConfig.name == "gameType" and selectedOptions.currentControl then
 							Spring.Echo("Simple Skirmish: Selected game type: " .. options[i])
 							local mapPage
@@ -3023,11 +3024,19 @@ local function InitializeSetupPage(subPanel, screenHeight, pageConfig, nextPage,
 					parent = buttons[i],
 				}
 			else
-				if i == 1  then
-					if pageConfig.name ~= "faction" then
-						ButtonUtilities.SetButtonSelected(buttons[i])
-						selectedOptions[pageConfig.name] = i
-					end
+				local selectedIndex = 1
+
+				if pageConfig.name == "faction" then
+					local lastFaction = WG.Chobby.Configuration.lastFactionChoice or 0
+					selectedIndex = lastFaction + 1
+				else
+					local storedChoice = Spring.GetConfigInt("skirmish_" .. pageConfig.name .. "_choice", 0)
+					selectedIndex = (storedChoice > 0 and storedChoice <= #options) and storedChoice or 1
+				end
+
+				if i == selectedIndex then
+					ButtonUtilities.SetButtonSelected(buttons[i])
+					selectedOptions[pageConfig.name] = i
 					nextButton:SetVisibility(true)
 				end
 			end

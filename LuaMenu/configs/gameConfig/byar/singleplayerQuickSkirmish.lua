@@ -129,7 +129,7 @@ function skirmishSetupData.ApplyFunction(battleLobby, pageChoices)
 	local difficulty = pageChoices.difficulty or 1
 	local gameType = pageChoices.gameType or 1
 	local map = pageChoices.map or 2
-	local faction = pageChoices.faction
+	local faction = pageChoices.faction or (WG.Chobby.Configuration.lastFactionChoice + 1) or 1
 	local pageConfig = skirmishSetupData.pages
 	local selectedGameType = pageConfig[1].options[gameType]
 	local mapOptions = skirmishSetupData.mapsByGameType[selectedGameType]
