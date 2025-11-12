@@ -545,6 +545,31 @@ local function ProcessSubHeader(data, index)
 	return label
 end
 
+local function ProcessLink(data, index)
+	local button = Button:New {
+		x = 5,
+		y = index * 32,
+		width = data.width or 150,
+		height = 30,
+		valign = "center",
+		align = "left",
+		caption = data.name,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(tonumber(data.font) or 2),
+		tooltip = data.desc,
+		OnMouseUp = {
+			function()
+				WG.Chobby.ConfirmationPopup(
+					function() WG.BrowserHandler.OpenUrl(data.link) end,
+						"\255\255\128\128".."You are about to open in browser: \n \n"
+						..	(data.linkdesc and data.linkdesc.."\n \n" or "")
+						..	data.link,
+					nil, nil, nil, "Open Link", "Cancel", nil)
+			end
+		}
+	}
+	return button
+end
+
 local function ProcessLineSeparator(data, index)
 	return Line:New {
 		x = 0,
@@ -596,7 +621,8 @@ local function PopulateTab(options)
 			elseif data.type == "separator" then
 				rowData = ProcessLineSeparator(data, row)
 				row = row - 0.5
-
+			elseif data.type == "link" then
+				rowData = ProcessLink(data, row)
 			end
 			if rowData then
 				column = math.abs(data.column or 1)
@@ -1052,6 +1078,8 @@ function ModoptionsPanel.LoadModoptions(gameName, newBattleLobby)
 		return
 	end
 
+	local unixDate = os.time()
+
 	-- Set modoptionDefaults
 	for i = 1, #modoptions do
 		local data = modoptions[i]
@@ -1064,6 +1092,9 @@ function ModoptionsPanel.LoadModoptions(gameName, newBattleLobby)
 			else
 				modoptionDefaults[data.key] = tostring(data.def)
 			end
+		end
+		if data.hidden and type(data.hidden) == "number" then
+			data.hidden = data.hidden < unixDate
 		end
 	end
 
