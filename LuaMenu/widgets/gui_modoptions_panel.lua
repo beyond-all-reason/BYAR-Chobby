@@ -556,16 +556,28 @@ local function ProcessLink(data, index)
 		caption = data.name,
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(tonumber(data.font) or 2),
 		tooltip = data.desc,
+		padding = {2, 2, 2, 2},
 		OnMouseUp = {
 			function()
 				WG.Chobby.ConfirmationPopup(
 					function() WG.BrowserHandler.OpenUrl(data.link) end,
-						"\255\255\128\128".."You are about to open in browser: \n \n"
-						..	(data.linkdesc and data.linkdesc.."\n \n" or "")
-						..	data.link,
+						"\255\255\128\128".."External Website\nOpen in your web browser?"
+						..	(data.linkdesc and "\n \n"..data.linkdesc or "")
+						..	(data.linkhide and "" or "\n \n"..data.link),
 					nil, nil, nil, "Open Link", "Cancel", nil)
 			end
 		}
+	}
+	local externalWebsite = Image:New {
+		name = 'externalWebsite',
+		x = button.width-25,
+		y = 0,
+		right = 0,
+		bottom = 0,
+		keepAspect = true,
+		file = LUA_DIRNAME .. "images/external-website.png",
+		parent = button,
+		tooltip = button.tooltip,
 	}
 	return button
 end
@@ -621,7 +633,7 @@ local function PopulateTab(options)
 			elseif data.type == "separator" then
 				rowData = ProcessLineSeparator(data, row)
 				row = row - 0.5
-			elseif data.type == "link" then
+			elseif data.type == "link" and data.link then
 				rowData = ProcessLink(data, row)
 			end
 			if rowData then
