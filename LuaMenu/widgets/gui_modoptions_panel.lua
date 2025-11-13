@@ -563,7 +563,7 @@ local function ProcessLink(data, index)
 					function() WG.BrowserHandler.OpenUrl(data.link) end,
 						"\255\255\128\128".."External Website\nOpen in your web browser?"
 						..	(data.linkdesc and "\n \n"..data.linkdesc or "")
-						..	(data.linkhide and "" or "\n \n"..data.link),
+						..	("\n \n"..data.link),
 					nil, nil, nil, "Open Link", "Cancel", nil)
 			end
 		}
