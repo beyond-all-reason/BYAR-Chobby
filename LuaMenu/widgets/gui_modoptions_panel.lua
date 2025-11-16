@@ -545,7 +545,7 @@ local function ProcessSubHeader(data, index)
 	return label
 end
 
-local function ProcessLink(data, index)
+local function ProcessLinkButton(data, index)
 	local button = Button:New {
 		x = 5,
 		y = index * 32,
@@ -555,14 +555,14 @@ local function ProcessLink(data, index)
 		align = "left",
 		caption = data.name,
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(tonumber(data.font) or 2),
-		tooltip = data.desc,
+		tooltip = data.link,
 		padding = {2, 2, 2, 2},
 		OnMouseUp = {
 			function()
 				WG.Chobby.ConfirmationPopup(
 					function() WG.BrowserHandler.OpenUrl(data.link) end,
 						"\255\255\128\128".."External Website\nOpen in your web browser?"
-						..	(data.linkdesc and "\n \n"..data.linkdesc or "")
+						..	(data.desc and "\n \n"..data.desc or "")
 						..	("\n \n"..data.link),
 					nil, nil, nil, "Open Link", "Cancel", nil)
 			end
@@ -634,7 +634,7 @@ local function PopulateTab(options)
 				rowData = ProcessLineSeparator(data, row)
 				row = row - 0.5
 			elseif data.type == "link" and data.link then
-				rowData = ProcessLink(data, row)
+				rowData = ProcessLinkButton(data, row)
 			end
 			if rowData then
 				column = math.abs(data.column or 1)
@@ -1090,7 +1090,7 @@ function ModoptionsPanel.LoadModoptions(gameName, newBattleLobby)
 		return
 	end
 
-	local unixDate = os.time()
+	local currentUnixTime = os.time()
 
 	-- Set modoptionDefaults
 	for i = 1, #modoptions do
@@ -1106,7 +1106,7 @@ function ModoptionsPanel.LoadModoptions(gameName, newBattleLobby)
 			end
 		end
 		if data.hidden and type(data.hidden) == "number" then
-			data.hidden = data.hidden < unixDate
+			data.hidden = currentUnixTime > data.hidden
 		end
 	end
 
