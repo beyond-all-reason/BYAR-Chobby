@@ -302,7 +302,7 @@ function Configuration:init()
 	self.onlyShowFeaturedMaps = true
 	self.simpleAiList = true
 	self.useSpringRestart = false
-	self.menuMusicVolume = 0.5
+	self.menuMusicVolume = 0.3
 	self.menuNotificationVolume = 0.8
 	self.menuBackgroundBrightness = 0.8
 	self.gameOverlayOpacity = 0.5
