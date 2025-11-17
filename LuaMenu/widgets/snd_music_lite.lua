@@ -48,6 +48,8 @@ local allowedExtensions = "{*.ogg,*.mp3}"
 local easterEggCountdown = Spring.GetConfigInt('ChobbyLaunchesCount', 0) + 1 -- Don't play easter egg intro song for first few launches to not make weird first impression
 Spring.SetConfigInt('ChobbyLaunchesCount', easterEggCountdown)
 
+if Spring.GetConfigInt('snd_volmaster', 30) > 80 then Spring.SetConfigInt('snd_volmaster', 30) end
+
 local function GetRandomTrack(previousTrack)
 	-- randomTrackList
 	-- introTrackList
