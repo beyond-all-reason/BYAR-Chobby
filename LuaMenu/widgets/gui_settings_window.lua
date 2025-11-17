@@ -708,7 +708,7 @@ local function GetLobbyTabControls()
 		width  = COMBO_WIDTH,
 		height = 30,
 		right = 18,
-		value  = Configuration.menuMusicVolume or 0.5,
+		value  = Configuration.menuMusicVolume or 0.3,
 		min    = 0,
 		max    = 1,
 		step   = 0.02,
