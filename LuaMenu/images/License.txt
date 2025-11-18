@@ -21,3 +21,5 @@ spectating.png
 startboxsplit*.png (all)
 unknown_sync.png
 unready.png
+
+The file external-website.png is "External Link Icon" by Raj Dev, sourced from FreeIcons (https://freeicons.io/icon/business-and-online-icons/external-link-icon-icon), and is licensed under Creative Commons Attribution 3.0 (https://creativecommons.org/licenses/by/3.0/). Modified from the original.
