@@ -473,10 +473,18 @@ local function GetRequiredDownloads()
 	if skirmishPages then
 		for i = 1, #skirmishPages do
 			local pageData = skirmishPages[i]
-			if pageData.name == "map" and pageData.options then
-				for j = 1, #pageData.options do
-					externalFunctions.MaybeDownloadArchive(pageData.options[j], "map", 2)
-				end
+			if pageData.name == "map" and pageData.getDynamicOptions then
+				local gameTypes = skirmishPages[1] and skirmishPages[1].options
+                if gameTypes then
+                    for gameTypeIndex = 1, #gameTypes do
+                        local dynamicOptions = pageData.getDynamicOptions({gameType = gameTypeIndex})
+                        if dynamicOptions then
+                            for j = 1, #dynamicOptions do
+                                externalFunctions.MaybeDownloadArchive(dynamicOptions[j], "map", 2)
+                            end
+                        end
+                    end
+                end
 			end
 		end
 	end
