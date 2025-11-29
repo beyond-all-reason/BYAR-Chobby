@@ -468,7 +468,26 @@ local function GetRequiredDownloads()
 		SaveVersionGZ(SaveLobbyVersionGZPath)
 		RestoreVersionGZ(SaveLobbyVersionGZPath .. "_cache.gz")
 	end
-
+	local scenarioFiles = VFS.DirList("LuaMenu/configs/gameConfig/byar/scenarios/")
+	if scenarioFiles then
+		local loadedScenarios = {}
+		for i = 1, #scenarioFiles do
+			if string.find(scenarioFiles[i], ".lua") and string.find(scenarioFiles[i], "scenario") then
+				local success, scenarioData = pcall(function()
+					return VFS.Include(scenarioFiles[i])
+				end)
+				if success and scenarioData and scenarioData.mapfilename and scenarioData.difficulty then
+					loadedScenarios[#loadedScenarios + 1] = scenarioData
+				end
+			end
+		end
+		table.sort(loadedScenarios, function(a, b)
+			return a.difficulty < b.difficulty
+		end)
+		for i = 1, #loadedScenarios do
+			externalFunctions.MaybeDownloadArchive(loadedScenarios[i].mapfilename, "map", 3)
+		end
+	end
 	local skirmishPages = Configuration.gameConfig and Configuration.gameConfig.skirmishSetupData and Configuration.gameConfig.skirmishSetupData.pages
 	if skirmishPages then
 		for i = 1, #skirmishPages do
