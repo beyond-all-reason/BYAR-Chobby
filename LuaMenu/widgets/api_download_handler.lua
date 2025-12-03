@@ -468,15 +468,42 @@ local function GetRequiredDownloads()
 		SaveVersionGZ(SaveLobbyVersionGZPath)
 		RestoreVersionGZ(SaveLobbyVersionGZPath .. "_cache.gz")
 	end
-
+	local scenarioFiles = VFS.DirList("LuaMenu/configs/gameConfig/byar/scenarios/")
+	if scenarioFiles then
+		local loadedScenarios = {}
+		for i = 1, #scenarioFiles do
+			if string.find(scenarioFiles[i], ".lua") and string.find(scenarioFiles[i], "scenario") then
+				local success, scenarioData = pcall(function()
+					return VFS.Include(scenarioFiles[i])
+				end)
+				if success and scenarioData and scenarioData.mapfilename and scenarioData.difficulty then
+					loadedScenarios[#loadedScenarios + 1] = scenarioData
+				end
+			end
+		end
+		table.sort(loadedScenarios, function(a, b)
+			return a.difficulty < b.difficulty
+		end)
+		for i = 1, #loadedScenarios do
+			externalFunctions.MaybeDownloadArchive(loadedScenarios[i].mapfilename, "map", 3)
+		end
+	end
 	local skirmishPages = Configuration.gameConfig and Configuration.gameConfig.skirmishSetupData and Configuration.gameConfig.skirmishSetupData.pages
 	if skirmishPages then
 		for i = 1, #skirmishPages do
 			local pageData = skirmishPages[i]
-			if pageData.name == "map" and pageData.options then
-				for j = 1, #pageData.options do
-					externalFunctions.MaybeDownloadArchive(pageData.options[j], "map", 2)
-				end
+			if pageData.name == "map" and pageData.getDynamicOptions then
+				local gameTypes = skirmishPages[1] and skirmishPages[1].options
+                if gameTypes then
+                    for gameTypeIndex = 1, #gameTypes do
+                        local dynamicOptions = pageData.getDynamicOptions({gameType = gameTypeIndex})
+                        if dynamicOptions then
+                            for j = 1, #dynamicOptions do
+                                externalFunctions.MaybeDownloadArchive(dynamicOptions[j], "map", 2)
+                            end
+                        end
+                    end
+                end
 			end
 		end
 	end
