@@ -564,7 +564,7 @@ local function ProcessLinkButton(data, index)
 						"\255\255\128\128".."External Website\nOpen in your web browser?"
 						..	(data.desc and "\n \n"..data.desc or "")
 						..	("\n \n"..data.link),
-					nil, nil, nil, "Open Link", "Cancel", nil)
+					nil, data.linkwidth, data.linkheight, "Open Link", "Cancel", nil)
 			end
 		}
 	}
