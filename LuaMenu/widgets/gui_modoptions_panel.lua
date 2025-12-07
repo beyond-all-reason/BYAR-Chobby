@@ -558,7 +558,6 @@ local function ProcessLinkButton(data, index)
 		tooltip = data.link,
 		padding = {2, 2, 2, 2},
 		backgroundColor	= {0.0, 0.0, 0.0, 0.0},
-		--focusColor		= {1.0, 1.0, 1.0, 1.0},
 		borderColor		= {0.0, 0.0, 0.0, 0.0},
 		OnMouseUp = {
 			function()
@@ -577,8 +576,6 @@ local function ProcessLinkButton(data, index)
 		y = 3,
 		width = 16,
 		height = 16,
-		--right = 0,
-		--bottom = 0,
 		keepAspect = true,
 		file = LUA_DIRNAME .. "images/external-website.png",
 		parent = button,
