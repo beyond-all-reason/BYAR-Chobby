@@ -553,10 +553,12 @@ local function ProcessLinkButton(data, index)
 		height = 30,
 		valign = "center",
 		align = "left",
-		caption = data.name,
+		caption = data.name and "\255\150\200\255"..data.name.."     ",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(tonumber(data.font) or 2),
 		tooltip = data.link,
 		padding = {2, 2, 2, 2},
+		backgroundColor	= {0.0, 0.0, 0.0, 0.0},
+		borderColor		= {0.0, 0.0, 0.0, 0.0},
 		OnMouseUp = {
 			function()
 				WG.Chobby.ConfirmationPopup(
@@ -570,10 +572,10 @@ local function ProcessLinkButton(data, index)
 	}
 	local externalWebsite = Image:New {
 		name = 'externalWebsite',
-		x = button.width-25,
-		y = 0,
-		right = 0,
-		bottom = 0,
+		x = button.width-35,
+		y = 3,
+		width = 16,
+		height = 16,
 		keepAspect = true,
 		file = LUA_DIRNAME .. "images/external-website.png",
 		parent = button,
