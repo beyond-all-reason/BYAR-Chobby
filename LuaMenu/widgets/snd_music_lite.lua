@@ -242,7 +242,7 @@ function playlistBuild()
 	if Spring.GetConfigInt('UseSoundtrackXmasPostEvent', 0) == 1 and (not (tonumber(os.date("%m")) == 12 and tonumber(os.date("%d")) >= 12)) then
 		randomTrackList = playlistMerge(randomTrackList, VFS.DirList(musicDirEventXmas, allowedExtensions))
 	end
-	if #VFS.DirList(musicDirEventXmas, allowedExtensions) >= 1 and Spring.GetConfigInt('UseSoundtrackXmas', 1) == 1 and (tonumber(os.date("%m")) == 12 and tonumber(os.date("%d")) >= 24 and tonumber(os.date("%d")) <= 26) then
+	if #VFS.DirList(musicDirEventXmas, allowedExtensions) >= 1 and Spring.GetConfigInt('UseSoundtrackXmas', 1) == 1 and (tonumber(os.date("%m")) == 12 and tonumber(os.date("%d")) >= 12 and tonumber(os.date("%d")) <= 26) then
 		customIntroTrack = VFS.DirList(musicDirEventXmas, allowedExtensions)[math.random(1,#VFS.DirList(musicDirEventXmas, allowedExtensions))]
 	end
 
