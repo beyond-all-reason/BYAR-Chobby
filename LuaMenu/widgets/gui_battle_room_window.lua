@@ -958,12 +958,14 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 			--or "Error: Could not retrieve modoptions, your game files may be corrupted or the lobby may be invalid"
 			or "Game Update may still be downloading"
 	local modoptionsLoaded = modoptions
-	local btnModoptions = Button:New {
+
+	local devMode = battleLobby.name == "singleplayer" and config.devMode
+	local btnModoptions, btnReloadModoptions = Button:New {
 		name = 'btnModoptions',
 		x = 5,
 		y = leftOffset,
 		height = 35,
-		right = 5,
+		right = devMode and "25%" or 5,
 		classname = "option_button",
 		caption = "Adv Options" .. "\b",
 		objectOverrideFont = config:GetFont(2),
@@ -979,6 +981,31 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		},
 		parent = leftInfo,
 	}
+	if devMode then
+		btnReloadModoptions = Button:New {
+			name = 'btnReloadModoptions',
+			x = "75%",
+			y = leftOffset,
+			height = 35,
+			right = 5,
+			classname = "option_button",
+			caption = "🔁",
+			objectOverrideFont = config:GetFont(2),
+			objectOverrideDisabledFont = config:GetFont(1),
+			hasDisabledFont = true,
+			tooltip = tooltip,
+			OnClick = {
+				function()
+					if modoptionsLoaded then
+						WG.ModoptionsPanel.LoadModoptions(battle.gameName, battleLobby, true)
+						WG.ModoptionsPanel.ShowModoptions()
+					end
+				end
+			},
+			parent = leftInfo,
+		}
+	end
+
 	leftOffset = leftOffset + 40
 
 
@@ -1164,6 +1191,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		btnPickMap:SetPos(nil, offset)
 		offset = offset + 38
 		btnModoptions:SetPos(nil, offset)
+		if btnReloadModoptions then btnReloadModoptions:SetPos(nil, offset) end
 		offset = offset + 40
 		btnOptionPresets:SetPos(nil, offset)
 		offset = offset + 40
