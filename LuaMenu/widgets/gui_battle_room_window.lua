@@ -3957,7 +3957,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 			return 
 		end
 		local myUserName = battleLobby:GetMyUserName()
-		local iAmMentioned = myUserName and userName ~= myUserName and string.find(message, myUserName)
+		local iAmMentioned = myUserName and userName ~= myUserName and string.find(message, myUserName, 1, true)
 		local chatColour = (iAmMentioned and CHAT_MENTION) or CHAT_ME
 		battleRoomConsole:AddMessage(message, userName, false, chatColour, true)
 	end
