@@ -748,7 +748,7 @@ function DelayedInitialize()
 				Configuration:SetConfigValue("lastStartedBattleID", myBattleID)
 			end
 		end
-		Analytics.SendRepeatEvent("game_start:multiplayer:connecting" , {title = myBattle.title, mapName = myBattle.mapName, users 	= # myBattle.users, battleID = myBattle.battleID})
+		Analytics.SendRepeatEvent("game_start:multiplayer:connecting" , {title = myBattle.title, mapName = myBattle.mapName, users = #(myBattle.users or {}), battleID = myBattle.battleID})
 	end
 
 	WG.LibLobby.localLobby:AddListener("OnBattleAboutToStart", OnBattleStartSingleplayer)
