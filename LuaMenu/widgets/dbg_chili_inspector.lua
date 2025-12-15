@@ -180,8 +180,8 @@ function widget:Initialize()
 					Chili.Button:New{
 						caption="visible objects",
 						classname = "option_button",
-						OnMouseUp = {function() tree0.root:Clear(); 
-							for child in tree0.root.children do
+						OnMouseUp = {function() tree0.root:Clear();
+							for i, child in pairs(tree0.root.children) do
 								child:Dispose()
 							end
 							
