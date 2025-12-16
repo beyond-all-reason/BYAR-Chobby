@@ -156,7 +156,15 @@ function widget:Initialize()
 				y=5, bottom=-25,
 				caption="gc",
 				classname = "button_small",
-				OnMouseUp = {function() collectgarbage("collect") end},
+				OnMouseUp = {function()
+					local memBefore = collectgarbage("count")
+					Spring.Echo(string.format("[ChiliInspector] Manual garbage collection requested. Lua memory before GC: %.2f MB", memBefore / 1024))
+					collectgarbage("collect")
+					local memAfter = collectgarbage("count")
+					Spring.Echo(string.format("[ChiliInspector] Manual garbage collection finished. Lua memory after GC: %.2f MB, collected %.2f MB",
+						memAfter / 1024, (memBefore - memAfter)/1024))
+				end},
+				tooltip = "Manual garbage collection"
 			},
 			Chili.ScrollPanel:New{
 				x=0, right=0,
