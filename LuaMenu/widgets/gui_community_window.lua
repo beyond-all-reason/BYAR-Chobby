@@ -84,7 +84,6 @@ local function LeaveIntentionallyBlank(scroll, caption)
 		height = 20,
 		align = "left",
 		valign = "top",
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
 		caption = caption,
 		parent = scroll
 	}
@@ -99,7 +98,6 @@ local function AddLinkButton(scroll, name, tooltip, link, x, right, y, bottom)
 		caption = name,
 		tooltip = tooltip,
 		classname = "link_button",
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		OnClick = {
 			function ()
 				WG.BrowserHandler.OpenUrl(link)
@@ -205,6 +203,7 @@ end
 
 local function GetDateTimeDisplay(parentControl, xPosition, yPosition, timeString)
 	local timeTextColor = WG.Chobby.Configuration.selectedColor
+	local timeTextFont = WG.Chobby.Configuration:GetFont(2)
 
 	local localTimeString = Spring.Utilities.ArchaicUtcToLocal(timeString, i18n)
 	if localTimeString then
@@ -221,8 +220,7 @@ local function GetDateTimeDisplay(parentControl, xPosition, yPosition, timeStrin
 		valign = "top",
 		text = timeTextColor .. localTimeString or utcTimeString, -- Fallback
 		tooltip = string.gsub(timeString, "T", " at ") .. " UTC",
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
-		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideFont = timeTextFont,
 		parent = parentControl,
 	}
 
@@ -234,8 +232,7 @@ local function GetDateTimeDisplay(parentControl, xPosition, yPosition, timeStrin
 		align = "left",
 		valign = "top",
 		tooltip = utcTimeString,
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
-		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideFont = timeTextFont,
 		parent = parentControl,
 	}
 
@@ -314,6 +311,9 @@ local function GetNewsEntry(parentHolder, index, headingSize, timeAsTooltip, top
 	local linkString
 	local controls = {}
 
+	local newsFont= WG.Chobby.Configuration:GetFont(2)
+	local headerFont = WG.Chobby.Configuration:GetFont(7)
+
 	local headFormat = headingFormats[headingSize]
 
 	local holder = Control:New{
@@ -345,7 +345,7 @@ local function GetNewsEntry(parentHolder, index, headingSize, timeAsTooltip, top
 					valign = "top",
 					height = 40,
 					classname = "link_button",
-					objectOverrideFont = WG.Chobby.Configuration:GetButtonFont(0),
+					objectOverrideFont = newsFont,
 					caption = entryData.urlText,
 					tooltip = "Opens a link to " .. entryData.link .. " in your browser.",
 					padding = {0, 0, 0, 0},
@@ -370,8 +370,7 @@ local function GetNewsEntry(parentHolder, index, headingSize, timeAsTooltip, top
 				align = "center", -- Fireball: What do we want to center here ? the heading is shown aligned to the left and it's good. is this working at all ?
 				valign = "top",
 				text = entryData.heading,
-				objectOverrideFont = WG.Chobby.Configuration:GetButtonFont(7),
-				objectOverrideHintFont = WG.Chobby.Configuration:GetFont(7),
+				objectOverrideFont = headerFont,
 				parent = holder,
 			}
 		else
@@ -427,8 +426,7 @@ local function GetNewsEntry(parentHolder, index, headingSize, timeAsTooltip, top
 					align = "left",
 					valign = "top",
 					text = entryData.text,
-					objectOverrideFont = WG.Chobby.Configuration:GetButtonFont(2),
-					objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
+					objectOverrideFont = newsFont,
 					parent = holder,
 				}
 			else
@@ -522,8 +520,6 @@ local function GetNewsHandler(parentControl, headingSize, timeAsTooltip, topHead
 		align = "left",
 		valign = "top",
 		text = topHeading,
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
-		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(3),
 		parent = holder,
 	}
 
