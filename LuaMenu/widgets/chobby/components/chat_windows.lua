@@ -8,6 +8,9 @@ function ChatWindows:init()
 	self.storedCurrentTab = false
 	self.totalNewMessages = 0
 
+	self.myFont1 = WG.Chobby.Configuration:GetFont(1)
+	self.myFont3 = WG.Chobby.Configuration:GetFont(3)
+
 	self.visible = false
 
 	-- setup debug console to listen to commands
@@ -178,7 +181,7 @@ function ChatWindows:init()
 		minTabWidth = 90,
 		tabs = {
 			[1] = (Configuration.debugMode and { name = "debug", caption = i18n("debug"), children = {
-					self.debugConsole.panel}, objectOverrideFont = WG.Chobby.Configuration:GetFont(1)}) or nil,
+					self.debugConsole.panel}, objectOverrideFont = self.myFont1}) or nil,
 			--{ name = "server", caption = i18n("server"), children = {self.serverPanel} },
 		},
 		OnTabChange = {
@@ -320,7 +323,7 @@ function ChatWindows:init()
 		height = "10%",
 		caption = i18n("login_to_chat"),
 		classname = "button_small",
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+		objectOverrideFont = self.myFont3,
 		parent = self.window,
 		OnClick = {function ()
 				Spring.Echo("Login")
@@ -337,7 +340,7 @@ function ChatWindows:init()
 					{
 						name = "debug",
 						caption = i18n("debug"),
-						objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
+						objectOverrideFont = self.myFont1,
 						children = {self.debugConsole.panel}
 					},
 					false
@@ -814,8 +817,8 @@ function ChatWindows:GetChannelConsole(chanName)
 		local closeChannelButton = Button:New {
 			width = 24, height = 24, y = 5, right = Configuration.userListWidth + 18,
 			caption = "x",
-			objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
-			classname = "button_small",
+			objectOverrideFont = self.myFont1,
+			classname = "negative_button",
 			OnClick = {
 				function()
 					self.channelConsoles[chanName] = nil
@@ -921,7 +924,7 @@ function ChatWindows:GetPrivateChatConsole(userName, switchTo)
 
 		local closeChannelButton = Button:New {
 			width = 24, height = 24, y = 5, right = 18,
-			objectOverrideFont = WG.Chobby.Configuration:GetFont(10),
+			objectOverrideFont = self.myFont1,
 			caption = "x",
 			OnClick = {
 				function()
@@ -983,7 +986,7 @@ function ChatWindows:CreateJoinChannelWindow()
 		y = 5,
 		height = 35,
 		caption = i18n("join_channel"),
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(5),
+		objectOverrideFont = self.myFont3,
 		parent = self.joinWindow,
 	}
 
@@ -993,8 +996,8 @@ function ChatWindows:CreateJoinChannelWindow()
 		y = 66,
 		height = 35,
 		text = "",
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
-		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(3),
+		objectOverrideFont = self.myFont3,
+		objectOverrideHintFont = self.myFont3,
 		parent = self.joinWindow,
 	}
 
@@ -1019,7 +1022,7 @@ function ChatWindows:CreateJoinChannelWindow()
 		bottom = 1,
 		height = 70,
 		caption = i18n("join"),
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+		objectOverrideFont = self.myFont3,
 		parent = self.joinWindow,
 		classname = "action_button",
 		OnClick = {
@@ -1035,7 +1038,7 @@ function ChatWindows:CreateJoinChannelWindow()
 		bottom = 1,
 		height = 70,
 		caption = i18n("cancel"),
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+		objectOverrideFont = self.myFont3,
 		parent = self.joinWindow,
 		classname = "negative_button",
 		OnClick = {
