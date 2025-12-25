@@ -15,16 +15,6 @@ local welcomePanelItems = {
         Text = "Welcome back Commander. We hope you are ready for epic Singleplayer and Multiplayer battles. Check out our Discord and join the community!\n",
     },
 
-
-    { -- Please don't delete this, just comment it out
-        Header = "Creative Call To Arms - Xmas Edition",
-        Text = "Are you a music producer yourself? Or maybe you have a friend who is and would like to get some recognition? " .. " \n" .. " \n" .. "Create a remix/cover of any BAR track, or even a mix of BAR themes in a single track, with a Christmas vibe, and it might end up featured in the game!\n\nAn unique opportunity for aspiring music artists to shine!",
-        Image = "LuaMenu/images/welcomepanel/BAR OST.png",
-        Url = "https://discord.com/channels/549281623154229250/697141979892416512/1438618852534648912",
-        UrlText = "Announcement On Discord",
-        Time = "2025-12-08T01:00:00"
-    },
-
     {
         Header = "New Map: Devil's Postpiles",
         Text = "Towering basalt-like structures carry crucial resources on their plateaus, while murky shallows on the low grounds prevent most construction. Army positioning and movement will be paramount." .. " \n" .. " \n" .. "Made for 1v1 by AidanNaut.",
