@@ -9,16 +9,24 @@
     }
 ]]
 
+
 local welcomePanelItems = {
+    
     {
         Header = "Welcome to Beyond All Reason",
         Text = "Welcome back Commander. We hope you are ready for epic Singleplayer and Multiplayer battles. Check out our Discord and join the community!\n",
     },
 
     {
-        Header = "New Map: Devil's Postpiles",
-        Text = "Towering basalt-like structures carry crucial resources on their plateaus, while murky shallows on the low grounds prevent most construction. Army positioning and movement will be paramount." .. " \n" .. " \n" .. "Made for 1v1 by AidanNaut.",
-        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/Devil's_Postpiles_1.0.png",
+        Header = "Merry Xmas Commanders!",
+        Text =  " \n" .. "Let this period fill your bases with love" .. " \n" .. " \n" .. "Your bellies with tasty wrecks" .. " \n" .." \n" .. "And your energy bars with good wind rng!",
+        Image = "LuaMenu/images/welcomepanel/BAR_News_XMAS_Asset_Commanders.png",
+    },
+
+    {
+        Header = "All That Glitters Remastered!",
+        Text = "By popular request, the one and only has just dropped a remastered version of a player-favorite map keeping the OG balance intact!" .. " \n" .. " \n" .. "All That Glitters 2.2.3 is live with more texture variety and a high-quality new skybox. Enjoy!",
+        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/All_That_Glitters_v2.2.3.png", 
     },
 
 --    {
