@@ -33,13 +33,13 @@ local mapsByGameType = {
 	["Scavengers"] = {
 		"Ancient Bastion Remake 0.5",
 		"Ancient Vault v1.4",
-		"All That Glitters v2.2",
+		"All That Glitters v2.2.3",
 		"Requiem Outpost 1.0.1",
 	},
 	["Raptors"] = {
 		"Ancient Bastion Remake 0.5",
 		"Ancient Vault v1.4",
-		"All That Glitters v2.2",
+		"All That Glitters v2.2.3",
 		"Requiem Outpost 1.0.1",
 	},
 }
