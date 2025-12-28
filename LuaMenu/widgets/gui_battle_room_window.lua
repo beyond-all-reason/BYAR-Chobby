@@ -3505,37 +3505,39 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		-- Spring.Echo("OnUpdateUserBattleStatus battleID, maxPlayers, playerCount, iAmPlayer, iAmQueued", battleID, maxPlayers, playerCount, iAmPlayer, iAmQueued)
 
 		-- somebody switched to player
-		if status.isSpectator ~= nil and status.isSpectator == false then
-			if not iAmPlayer then
-				if not iAmQueued then
-					if playerCount >= maxPlayers then
-						-- Spring.Echo("OnUpdateUserBattleStatus players full > SET play = join_queue")
-						infoHandler.SetBtnsPlaySpec(false, "join_queue", true, "spectating", false)
+		if battleLobby.name ~= "singleplayer" then
+			if status.isSpectator ~= nil and status.isSpectator == false then
+				if not iAmPlayer then
+					if not iAmQueued then
+						if playerCount >= maxPlayers then
+							-- Spring.Echo("OnUpdateUserBattleStatus players full > SET play = join_queue")
+							infoHandler.SetBtnsPlaySpec(false, "join_queue", true, "spectating", false)
+						else
+							-- Spring.Echo("OnUpdateUserBattleStatus players not full > SET play = play")
+							infoHandler.SetBtnsPlaySpec(false, "play", true, "spectating", false)
+						end
 					else
-						-- Spring.Echo("OnUpdateUserBattleStatus players not full > SET play = play")
-						infoHandler.SetBtnsPlaySpec(false, "play", true, "spectating", false)
+						-- Spring.Echo("OnUpdateUserBattleStatus SET play = queued; Spec = leave_queue")
+						infoHandler.SetBtnsPlaySpec(true, "queued", false, "Leave Queue", false)
 					end
-				else
-					-- Spring.Echo("OnUpdateUserBattleStatus SET play = queued; Spec = leave_queue")
-					infoHandler.SetBtnsPlaySpec(true, "queued", false, "Leave Queue", false)
 				end
 			end
-		end
 
-		if battleLobby.name ~= "singleplayer" and username == battleLobby.myUserName then
-			if status.isBoss ~= nil then
-				if status.isBoss == true then
-					for i = 0, 7 do
-						local locker = factionComboBoxes[i]
-						if locker then
-							locker:Show()
+			if username == battleLobby.myUserName then
+				if status.isBoss ~= nil then
+					if status.isBoss == true then
+						for i = 0, 7 do
+							local locker = factionComboBoxes[i]
+							if locker then
+								locker:Show()
+							end
 						end
-					end
-				else
-					for i = 0, 7 do
-						local locker = factionComboBoxes[i]
-						if locker then
-							locker:Hide()
+					else
+						for i = 0, 7 do
+							local locker = factionComboBoxes[i]
+							if locker then
+								locker:Hide()
+							end
 						end
 					end
 				end
