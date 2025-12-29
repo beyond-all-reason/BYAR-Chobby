@@ -310,7 +310,9 @@ local function InitializeControls(parentControl)
 
 			--lblBattle:SetPos(nil, 24)
 		end
-		battleInfoHolder.Resize(smallMode)
+		if battleInfoHolder then
+			battleInfoHolder.Resize(smallMode)
+		end
 	end
 
 	local unreadMessages = 0
