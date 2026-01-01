@@ -373,7 +373,9 @@ local function InitializeControls(parentControl)
 
 	local function onJoinBattle(listener, battleID)
 		parentControl.tooltip = "battle_tooltip_" .. battleID
-		battleInfoHolder.Update(battleID)
+		if battleInfoHolder then
+			battleInfoHolder.Update(battleID)
+		end
 	end
 	lobby:AddListener("OnJoinBattle", onJoinBattle)
 end
