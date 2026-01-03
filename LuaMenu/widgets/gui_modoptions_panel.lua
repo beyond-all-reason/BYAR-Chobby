@@ -108,6 +108,7 @@ local function SetControlLock(key, locked)
                     caption = tostring(displayValue),
                     tooltip = control.tooltip,
                     objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+                    greedyHitTest = true,
                 }
                 parentRow:AddChild(overlay)
                 lockedOverlaysByKey[key] = { overlay = overlay, oldX = control.x }
@@ -753,6 +754,8 @@ local function CreateModoptionWindow()
 
 	localModoptions = Spring.Utilities.CopyTable(battleLobby:GetMyBattleModoptions() or {})
 	modoptionControlNames = {}
+	lockedOverlaysByKey = {}
+	postLock = {}
 
 	local tabs = {}
 	lockedOptions = {}
@@ -782,10 +785,15 @@ local function CreateModoptionWindow()
 			}
 
 			-- Manually rebuild the sharing content
-			local row = 0
+			local column, row = 1, 0
 			for _, opt in ipairs(data.options or {}) do
 				-- Skip the sharing_mode option as it's handled by the special dropdown above
 				if opt.key ~= "sharing_mode" then
+					-- If this option is in a higher column than the previous, keep it on the same row
+					if (opt.column or -1) > column then
+						row = row - 1
+					end
+
 					local rowData = nil
 					if opt.type == "number" then
 						rowData = ProcessNumberOption(opt, row)
@@ -802,7 +810,7 @@ local function CreateModoptionWindow()
 						row = row - 0.5
 					end
 					if rowData then
-						local column = math.abs(opt.column or 1)
+						column = math.abs(opt.column or 1)
 						rowData.x = rowData.x + (column - 1) * 625
 						row = row + 1
 						rowData.rowOrginal = rowData.y
@@ -898,6 +906,10 @@ local function CreateModoptionWindow()
 								if child.parent and child.parent.name ~= "tabPanel" then
 									child = child.parent
 								end
+								-- Save the original x position before hiding so we can restore it later
+								if child.x and child.x >= 0 then
+									child.originalX = child.x
+								end
 								if child.SetPos then child:SetPos(child.x - 4095, child.y) end
 								if child.SetVisibility then child:SetVisibility(false) end
 							end
@@ -909,7 +921,8 @@ local function CreateModoptionWindow()
 									child = child.parent
 								end
 								if child.x and child.x < -1000 then
-									child:SetPos(0, child.y)
+									-- Restore to the original x position (column offset) instead of always 0
+									child:SetPos(child.originalX or 0, child.y)
 								end
 								if child.SetVisibility then child:SetVisibility(true) end
 							end
