@@ -1961,7 +1961,7 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 					end,
 					function (obj, x, y, button)
 						local quickAddAi
-						if button == 3 and WG.Chobby.Configuration.lastAddedAiName then
+						if button == 3 and WG.Chobby.Configuration.lastAddedAiName and battleLobby.name == "singleplayer" then
 							quickAddAi = WG.Chobby.Configuration.lastAddedAiName
 						end
 
