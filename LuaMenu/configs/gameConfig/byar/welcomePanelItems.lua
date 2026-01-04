@@ -18,12 +18,6 @@ local welcomePanelItems = {
     },
 
     {
-        Header = "Merry Xmas Commanders!",
-        Text =  " \n" .. "Let this period fill your bases with love" .. " \n" .. " \n" .. "Your bellies with tasty wrecks" .. " \n" .." \n" .. "And your energy bars with good wind rng!",
-        Image = "LuaMenu/images/welcomepanel/BAR_News_XMAS_Asset_Commanders.png",
-    },
-
-    {
         Header = "All That Glitters Remastered!",
         Text = "By popular request, the one and only has just dropped a remastered version of a player-favorite map keeping the OG balance intact!" .. " \n" .. " \n" .. "All That Glitters 2.2.3 is live with more texture variety and a high-quality new skybox. Enjoy!",
         Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/All_That_Glitters_v2.2.3.png", 
