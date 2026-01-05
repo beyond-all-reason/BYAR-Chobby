@@ -18,6 +18,13 @@ local welcomePanelItems = {
     },
 
     {
+        Header = "Update on the recent servers instability",
+        Text = "We prepared a detailed post about the recent server instability issues and the steps we are taking to resolve them. Thank you for your patience and continued support!" .. " \n" .. " \n",
+        Url = "https://www.beyondallreason.info/microblogs/169",
+        UrlText = "Read the full update",
+    },
+
+    {
         Header = "All That Glitters Remastered!",
         Text = "By popular request, the one and only has just dropped a remastered version of a player-favorite map keeping the OG balance intact!" .. " \n" .. " \n" .. "All That Glitters 2.2.3 is live with more texture variety and a high-quality new skybox. Enjoy!",
         Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/All_That_Glitters_v2.2.3.png", 
@@ -113,6 +120,7 @@ local welcomePanelItems = {
             " \n" ..
             " \b",
     },
+
 }
 
 return welcomePanelItems
