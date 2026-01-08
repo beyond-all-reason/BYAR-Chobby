@@ -25,9 +25,9 @@ local welcomePanelItems = {
     },
 
     {
-        Header = "All That Glitters Remastered!",
-        Text = "By popular request, the one and only has just dropped a remastered version of a player-favorite map keeping the OG balance intact!" .. " \n" .. " \n" .. "All That Glitters 2.2.3 is live with more texture variety and a high-quality new skybox. Enjoy!",
-        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/All_That_Glitters_v2.2.3.png", 
+        Header = "New Map: Proving Grounds",
+        Text = "Introducing Proving Grounds, a very big space asteroid map with no wind, suitable for 8v8 and more. " .. " \n" .. " \n" .. "Perfect for large-scale epic battles!" .. " \n" .. " \n" .. "By Nikuksis",
+        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/Proving_Grounds_v1.0.png",
     },
 
 --    {
