@@ -192,6 +192,10 @@ local function GetBattleInfoHolder(parent, battleID)
 			return
 		end
 
+		if not battle then
+			return
+		end
+
 		minimapImage.file, minimapImage.checkFileExists = Configuration:GetMinimapSmallImage(battle.mapName)
 		minimapImage:Invalidate()
 
