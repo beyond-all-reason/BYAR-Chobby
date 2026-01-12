@@ -2148,6 +2148,14 @@ function Lobby:Whois(userID)
 end
 
 function Lobby:_OnWhois(id, userData)
+	if not userData then
+		self:_CallListeners("OnWhois", id, userData)
+		return
+	end
+	if userData.error then
+		self:_CallListeners("OnWhois", id, userData)
+		return
+	end
 	local userInfo = self:GetUserByID(id)
 	if not userInfo and not userData.error then
 		userInfo = {
@@ -2158,6 +2166,11 @@ function Lobby:_OnWhois(id, userData)
 		self.usersByID[id] = userData.name
 	end
 	userInfo.userName = userData.name
+	for key, value in pairs(userData) do
+		if key ~= "name" then
+			userInfo[key] = value
+		end
+	end
 	self:_CallListeners("OnWhois", id, userData)
 end
 
@@ -2166,6 +2179,14 @@ function Lobby:WhoisName(userName)
 end
 
 function Lobby:_OnWhoisName(userName, userData)
+	if userData and not userData.error then
+		local userInfo = self:TryGetUser(userName, userData.id)
+		for key, value in pairs(userData) do
+			if key ~= "name" then
+				userInfo[key] = value
+			end
+		end
+	end
 	self:_CallListeners("OnWhoisName", userName, userData)
 end
 
