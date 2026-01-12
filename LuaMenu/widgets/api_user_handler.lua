@@ -550,7 +550,7 @@ local function UpdateUserActivitySingleList(userList, userName, status)
 		UpdateUserControlStatus(userName, userControls)
 
 		if status and (status["skill"] or status["skillUncertainty"]) and userControls.showSkill then
-			local displaySkill = (userControls.isPlaying or userControls.replayUserInfo) and WG.Chobby.Configuration.showSkillOpt > 1
+			local displaySkill = userControls.showSkillAlways or ((userControls.isPlaying or userControls.replayUserInfo) and WG.Chobby.Configuration.showSkillOpt > 1)
 			if displaySkill then
 				local skill, skillColorFont = GetUserSkillFont(userName, userControls)
 				userControls.tbSkill:SetText(skill)
@@ -767,7 +767,7 @@ local function UpdateUserBattleStatus(listener, userName, battleStatusDiff)
 
 					-- Skill: show only in battlelist (limited by spring lobby protocol, skill not available for users outside of own battle)
 					if userControls.showSkill then
-						local displaySkill = userControls.isPlaying and Configuration.showSkillOpt > 1
+						local displaySkill = userControls.showSkillAlways or (userControls.isPlaying and Configuration.showSkillOpt > 1)
 						userControls.tbSkill:SetVisibility(displaySkill)
 						if displaySkill then
 							offset = offset + 2
@@ -959,6 +959,7 @@ local function GetUserControls(userName, opts)
 	userControls.hideStatusAway     = opts.hideStatusAway
 	userControls.dropdownWhitelist  = opts.dropdownWhitelist
 	userControls.showSkill          = opts.showSkill or false
+	userControls.showSkillAlways    = opts.showSkillAlways or false
 	userControls.showRank           = opts.showRank or false
 	userControls.showCountry        = opts.showCountry or false
 	userControls.isSingleplayer     = opts.isSingleplayer or false -- is needed by UpdateUserBattleStatus
@@ -1472,7 +1473,7 @@ local function GetUserControls(userName, opts)
 				objectOverrideHintFont = skillColorFont,
 				text = skill,
 			}
-			local displaySkill = (userControls.isPlaying or userControls.replayUserInfo) and Configuration.showSkillOpt > 1
+			local displaySkill = userControls.showSkillAlways or ((userControls.isPlaying or userControls.replayUserInfo) and Configuration.showSkillOpt > 1)
 			userControls.tbSkill:SetVisibility(displaySkill)
 			if displaySkill then
 				offset = offset + 20
@@ -1791,6 +1792,8 @@ function userHandler.GetTooltipUser(userName)
 		showFounder        = true,
 		showCountry        = true,
 		showRank           = true,
+		showSkill          = true,
+		showSkillAlways    = true,
 		disableInteraction = true,
 		colorizeFriends    = true,
 	})
