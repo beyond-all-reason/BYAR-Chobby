@@ -2377,7 +2377,8 @@ function Interface:_OnBattleTeams(data)
 		if battleID then
 			self:super("_OnUpdateBattleInfo", battleID, {
 				teamSize = teamInfo.teamSize,
-				nbTeams = teamInfo.nbTeams
+				nbTeams = teamInfo.nbTeams,
+				ratingType = teamInfo.ratingType
 			})
 		end
 	end
