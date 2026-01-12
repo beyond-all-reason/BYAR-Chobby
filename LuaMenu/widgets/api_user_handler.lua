@@ -262,6 +262,38 @@ local function GetUserRankImageName(userName, userControl)
 	return image
 end
 
+local function GetUserBattleRatingType(userName, userControl)
+	local userInfo = userControl.replayUserInfo or userControl.lobby:GetUser(userName) or {}
+	if not userInfo.battleID then
+		return nil
+	end
+
+	local battle = userControl.lobby:GetBattle(userInfo.battleID)
+	return battle and battle.ratingType
+end
+
+local function MaybeRequestUserRatings(userName, userControl, userInfo, bs)
+	if userControl.replayUserInfo then
+		return
+	end
+	if userInfo.ratings ~= nil or userInfo.skill ~= nil then
+		return
+	end
+	if userInfo.ratingsRequested then
+		return
+	end
+	if bs and bs.aiLib then
+		return
+	end
+
+	userInfo.ratingsRequested = true
+	if userInfo.accountID then
+		userControl.lobby:Whois(userInfo.accountID)
+	else
+		userControl.lobby:WhoisName(userName)
+	end
+end
+
 -- returns skill, skillUncertaintyColorFont
 -- default to skill="  ", sigma = 0, if no skill is known for userName (skill wasn´t set yet in Interface:_OnSetScriptTags)
 -- skill format: "XX" or " X" (leading whitespace)
@@ -278,19 +310,26 @@ local function GetUserSkillFont(userName, userControl)
 	end
 
 	local userInfo = userControl.replayUserInfo or userControl.lobby:GetUser(userName) or {}
-	if userInfo.skill then
-		skill = math.floor(userInfo.skill + 0.5)
+	MaybeRequestUserRatings(userName, userControl, userInfo, bs)
+
+	local ratingType = GetUserBattleRatingType(userName, userControl)
+	local ratingData = ratingType and userInfo.ratings and userInfo.ratings[ratingType] or nil
+	local skillValue = ratingData and ratingData.skill or userInfo.skill
+	local uncertaintyValue = ratingData and ratingData.uncertainty or userInfo.skillUncertainty
+
+	if skillValue then
+		skill = math.floor(tonumber(skillValue) + 0.5)
 		if skill < 10 and skill > -10 then skill = " " .. skill end
 
 		skill = tostring(skill)
 
-		if userInfo.skillUncertainty and tonumber(userInfo.skillUncertainty) > 6.65 then
+		if uncertaintyValue and tonumber(uncertaintyValue) > 6.65 then
 			skill = "??"
 		end
 	end
 	
-	if config.showSkillOpt == 3 and userInfo.skillUncertainty then
-		sigma = tonumber(userInfo.skillUncertainty)
+	if config.showSkillOpt == 3 and uncertaintyValue then
+		sigma = tonumber(uncertaintyValue)
 		if sigma >= config.skillUncertaintyDistribution[3] then
 			uncertaintyColorIndex = 3
 		elseif sigma >= config.skillUncertaintyDistribution[2] then
@@ -767,7 +806,7 @@ local function UpdateUserBattleStatus(listener, userName, battleStatusDiff)
 
 					-- Skill: show only in battlelist (limited by spring lobby protocol, skill not available for users outside of own battle)
 					if userControls.showSkill then
-						local displaySkill = userControls.isPlaying and Configuration.showSkillOpt > 1
+						local displaySkill = (userControls.showSkillAlways or userControls.isPlaying) and Configuration.showSkillOpt > 1
 						userControls.tbSkill:SetVisibility(displaySkill)
 						if displaySkill then
 							offset = offset + 2
@@ -959,6 +998,7 @@ local function GetUserControls(userName, opts)
 	userControls.hideStatusAway     = opts.hideStatusAway
 	userControls.dropdownWhitelist  = opts.dropdownWhitelist
 	userControls.showSkill          = opts.showSkill or false
+	userControls.showSkillAlways    = opts.showSkillAlways or false
 	userControls.showRank           = opts.showRank or false
 	userControls.showCountry        = opts.showCountry or false
 	userControls.isSingleplayer     = opts.isSingleplayer or false -- is needed by UpdateUserBattleStatus
@@ -1472,8 +1512,8 @@ local function GetUserControls(userName, opts)
 				objectOverrideHintFont = skillColorFont,
 				text = skill,
 			}
-			local displaySkill = (userControls.isPlaying or userControls.replayUserInfo) and Configuration.showSkillOpt > 1
-			userControls.tbSkill:SetVisibility(displaySkill)
+		local displaySkill = (userControls.showSkillAlways or userControls.isPlaying or userControls.replayUserInfo) and Configuration.showSkillOpt > 1
+		userControls.tbSkill:SetVisibility(displaySkill)
 			if displaySkill then
 				offset = offset + 20
 			else
@@ -1791,6 +1831,8 @@ function userHandler.GetTooltipUser(userName)
 		showFounder        = true,
 		showCountry        = true,
 		showRank           = true,
+		showSkill          = true,
+		showSkillAlways    = true,
 		disableInteraction = true,
 		colorizeFriends    = true,
 	})
@@ -1962,6 +2004,14 @@ local function AddListeners()
 	lobby:AddListener("OnRemoveUser", function(listener, username)
 		UpdateUserActivity(listener, username)
 		OnPartyStatusUpdate(listener, nil, username)
+	end)
+	lobby:AddListener("OnWhois", function(listener, _id, userData)
+		if userData and userData.name then
+			UpdateUserActivity(listener, userData.name)
+		end
+	end)
+	lobby:AddListener("OnWhoisName", function(listener, userName, _userData)
+		UpdateUserActivity(listener, userName)
 	end)
 	lobby:AddListener("OnAddUser", UpdateUserCountry)
 	lobby:AddListener("OnUpdateUserBattleStatus", UpdateUserBattleStatus)
