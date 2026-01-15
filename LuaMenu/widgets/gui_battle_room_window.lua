@@ -1305,8 +1305,10 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 			return
 		end
 		if battleLobby:GetMyUserName() == userName then
-			mainWindow:Dispose()
-			mainWindow = nil
+			if mainWindow then
+				mainWindow:Dispose()
+				mainWindow = nil
+			end
 			if wrapperControl and wrapperControl.visible and wrapperControl.parent then
 				wrapperControl:Hide()
 			end
