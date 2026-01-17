@@ -3409,7 +3409,55 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	end
 	UpdateBattleTitle()
 
+	local function HandleTeamBonusCommand(message)
+		local teamToken, bonusToken = message:match("^!teambonus%s+team%s*(%d+)%s+([+-]?%d+)%s*$")
+		if not teamToken then
+			teamToken, bonusToken = message:match("^!teambonus%s+team(%d+)%s+([+-]?%d+)%s*$")
+		end
+		if not teamToken then
+			teamToken, bonusToken = message:match("^!teambonus%s+(%d+)%s+([+-]?%d+)%s*$")
+		end
+		local teamNumber = tonumber(teamToken)
+		local bonusAmount = tonumber(bonusToken)
+		if not teamNumber or not bonusAmount then
+			return false
+		end
+		if bonusAmount < 0 or bonusAmount > 100 then
+			return false
+		end
+
+		local allyNumber = teamNumber - 1
+		if allyNumber < 0 then
+			return false
+		end
+
+		local userBattleStatus = battleLobby.userBattleStatus or {}
+		if battleLobby.name == "singleplayer" then
+			local myUserName = battleLobby:GetMyUserName()
+			for userName, status in pairs(userBattleStatus) do
+				if not status.isSpectator and status.allyNumber == allyNumber then
+					if userName == myUserName then
+						battleLobby:SetBattleStatus({ handicap = bonusAmount })
+					elseif status.aiLib and status.owner == myUserName then
+						battleLobby:UpdateAi(userName, { handicap = bonusAmount })
+					end
+				end
+			end
+		else
+			for userName, status in pairs(userBattleStatus) do
+				if not status.isSpectator and status.allyNumber == allyNumber then
+					battleLobby:SayBattle("!force "..userName.." bonus ".. tostring(bonusAmount))
+				end
+			end
+		end
+
+		return true
+	end
+
 	local function MessageListener(message)
+		if HandleTeamBonusCommand(message) then
+			return
+		end
 		if message:starts("/me ") then
 			battleLobby:SayBattleEx(message:sub(5))
 		else
