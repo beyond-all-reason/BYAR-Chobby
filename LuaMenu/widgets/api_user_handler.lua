@@ -91,6 +91,16 @@ local IMAGE_BOSS           = IMAGE_DIR .. "boss-icon.png"
 local IMAGE_RUNNING_BATTLE = IMAGE_DIR .. "runningBattle.png"
 local IMAGE_MUTED          = IMAGE_DIR .. "mute.png"
 
+local DEFAULT_SNAPSHOT_PATH = "data-processing-main/data-processing-main/data_export/player_skill_snapshot.csv"
+
+local openSkillCache = nil
+local openSkillLoaded = false
+local openSkillLoadFailed = false
+-- Incremental snapshot loading state.
+local openSkillLoadCo = nil
+local openSkillLoading = false
+local OPEN_SKILL_LINES_PER_STEP = 500 -- Tune per-frame parse budget.
+local openSkillPendingUpdates = {}
 
 local IMAGE_CLAN_PATH    = "LuaUI/Configs/Clans/"
 local RANK_DIR           = LUA_DIRNAME .. "configs/gameConfig/zk/rankImages/"
@@ -143,6 +153,159 @@ local function GetClanImage(clanName)
 		end
 		return clanFile
 	end
+end
+local function SplitCsvLine(line)
+	local fields = {}
+	local field = ""
+	for i = 1, #line do
+		local ch = line:sub(i, i)
+		if ch == "," then
+			fields[#fields + 1] = field
+			field = ""
+		else
+			field = field .. ch
+		end
+	end
+	fields[#fields + 1] = field
+	return fields
+end
+
+local function LoadOpenSkillSnapshot()
+	if openSkillLoaded then
+		return
+	end
+	if openSkillLoading then
+		return
+	end
+	if openSkillLoadFailed then
+		local snapshotPath = (WG and WG.OpenSkillSnapshotPath) or DEFAULT_SNAPSHOT_PATH
+		if not VFS.FileExists(snapshotPath) then
+			return
+		end
+		openSkillLoadFailed = false
+	end
+
+	local snapshotPath = (WG and WG.OpenSkillSnapshotPath) or DEFAULT_SNAPSHOT_PATH
+	local raw = VFS.LoadFile(snapshotPath)
+	if not raw then
+		openSkillLoadFailed = true
+		return
+	end
+
+	openSkillCache = {}
+	openSkillLoading = true
+
+	-- Parse in steps to avoid stalling menu on startup
+	openSkillLoadCo = coroutine.create(function(lineBudget)
+		local processed = 0
+		local isHeader = true
+		for line in raw:gmatch("[^\r\n]+") do
+			if isHeader then
+				isHeader = false
+			else
+				local row = SplitCsvLine(line)
+				local id = tonumber(row[1])
+				if id then
+					openSkillCache[id] = {
+						id = id,
+						name = row[2],
+						duelSkill = tonumber(row[3]),
+						duelSkillUn = tonumber(row[4]),
+						ffaSkill = tonumber(row[5]),
+						ffaSkillUn = tonumber(row[6]),
+						teamSkill = tonumber(row[7]),
+						teamSkillUn = tonumber(row[8]),
+						lastDuel = row[9],
+						lastFFA = row[10],
+						lastTeam = row[11],
+						countryCode = row[12],
+						lastSmallTeam = row[13],
+						smallTeamSkill = tonumber(row[14]),
+						smallTeamSkillUn = tonumber(row[15]),
+					}
+				end
+			end
+
+			processed = processed + 1
+			if processed >= lineBudget then
+				processed = 0
+				lineBudget = coroutine.yield()
+				if not lineBudget then
+					lineBudget = OPEN_SKILL_LINES_PER_STEP
+				end
+			end
+		end
+
+	-- Apply any live updates received while loading
+	for id, update in pairs(openSkillPendingUpdates) do
+		openSkillCache[id] = openSkillCache[id] or { id = id }
+		local entry = openSkillCache[id]
+		if update.name then
+			entry.name = update.name
+		end
+		entry[update.skillKey] = update.skill
+		entry[update.unKey] = update.un
+	end
+	openSkillPendingUpdates = {}
+
+	openSkillLoaded = true
+	openSkillLoadFailed = false
+	openSkillLoading = false
+	WG.OpenSkillCache = openSkillCache
+	end)
+	local ok, err = coroutine.resume(openSkillLoadCo, OPEN_SKILL_LINES_PER_STEP)
+	if not ok then
+		openSkillLoadFailed = true
+		openSkillLoading = false
+		openSkillLoadCo = nil
+		Spring.Echo("OpenSkill snapshot load failed: " .. tostring(err))
+	end
+end
+
+local function ResolveSnapshotColumns(battle)
+	local ratingType = battle and battle.ratingType
+	if ratingType == "Duel" then
+		return "duelSkill", "duelSkillUn"
+	elseif ratingType == "FFA" then
+		return "ffaSkill", "ffaSkillUn"
+	elseif ratingType == "Small Team" then
+		return "smallTeamSkill", "smallTeamSkillUn"
+	elseif ratingType == "Large Team" then
+		return "teamSkill", "teamSkillUn"
+	end
+
+	if battle and battle.teamSize and battle.nbTeams then
+		local teamSize = tonumber(battle.teamSize)
+		local nbTeams = tonumber(battle.nbTeams)
+		if teamSize and nbTeams then
+			if teamSize == 1 and nbTeams == 2 then
+				return "duelSkill", "duelSkillUn"
+			elseif teamSize == 1 and nbTeams > 2 then
+				return "ffaSkill", "ffaSkillUn"
+			elseif teamSize <= 5 then
+				return "smallTeamSkill", "smallTeamSkillUn"
+			else
+				return "teamSkill", "teamSkillUn"
+			end
+		end
+	end
+
+	return "teamSkill", "teamSkillUn"
+end
+
+local function GetSnapshotSkill(userID, battle)
+	LoadOpenSkillSnapshot()
+	if not openSkillCache or not userID then
+		return
+	end
+
+	local entry = openSkillCache[userID]
+	if not entry then
+		return
+	end
+
+	local skillKey, unKey = ResolveSnapshotColumns(battle)
+	return entry[skillKey], entry[unKey]
 end
 
 --------------------------------------------------------------------------------
@@ -278,8 +441,37 @@ local function GetUserSkillFont(userName, userControl)
 	end
 
 	local userInfo = userControl.replayUserInfo or userControl.lobby:GetUser(userName) or {}
-	if userInfo.skill then
-		skill = math.floor(userInfo.skill + 0.5)
+	if userControl.useSnapshotSkill then
+		local battle = userControl.tooltipBattle or (userInfo.battleID and userControl.lobby:GetBattle(userInfo.battleID))
+		local snapSkill, snapUn = GetSnapshotSkill(userInfo.accountID, battle)
+		if snapSkill and snapSkill >= 0 then
+			local adjustedSkill = snapSkill - (snapUn or 0)
+			if adjustedSkill < 0 then
+				adjustedSkill = 0
+			end
+			skill = math.floor(adjustedSkill + 0.5)
+			if skill < 10 and skill > -10 then skill = " " .. skill end
+			skill = tostring(skill)
+			if snapUn and snapUn > 6.65 then
+				skill = "??"
+			end
+		else
+			local bs = userControl.replayUserInfo or userControl.lobby:GetUserBattleStatus(userName) or {}
+			local fallbackSkill = tonumber(userInfo.skill or bs.skill)
+			if fallbackSkill and fallbackSkill >= 0 then
+				skill = math.floor(fallbackSkill + 0.5)
+				if skill < 10 and skill > -10 then skill = " " .. skill end
+				skill = tostring(skill)
+			else
+				skill = "  "
+			end
+		end
+	elseif userInfo.skill then
+		local adjustedSkill = tonumber(userInfo.skill)
+		if adjustedSkill and adjustedSkill < 0 then
+			adjustedSkill = 0
+		end
+		skill = math.floor(adjustedSkill + 0.5)
 		if skill < 10 and skill > -10 then skill = " " .. skill end
 
 		skill = tostring(skill)
@@ -548,6 +740,37 @@ local function UpdateUserActivitySingleList(userList, userName, status)
 
 		UpdateUserStatusImage(userName, userControls)
 		UpdateUserControlStatus(userName, userControls)
+
+		if status and (status["skill"] or status["skillUncertainty"]) then
+			local userInfo = userControls.replayUserInfo or userControls.lobby:GetUser(userName) or {}
+			local userID = tonumber(userInfo.accountID)
+			local battle = userControls.tooltipBattle or (userInfo.battleID and userControls.lobby:GetBattle(userInfo.battleID))
+			local skillKey, unKey = ResolveSnapshotColumns(battle)
+			if userID and skillKey and unKey then
+				local liveSkill = tonumber(status["skill"] or userInfo.skill)
+				if liveSkill then
+					local update = {
+						name = userInfo.name,
+						skillKey = skillKey,
+						unKey = unKey,
+						skill = liveSkill,
+						-- Live lobby skill is already adjusted; don't subtract again.
+						un = 0,
+					}
+					if openSkillLoaded and openSkillCache then
+						openSkillCache[userID] = openSkillCache[userID] or { id = userID }
+						local entry = openSkillCache[userID]
+						if update.name then
+							entry.name = update.name
+						end
+						entry[update.skillKey] = update.skill
+						entry[update.unKey] = update.un
+					else
+						openSkillPendingUpdates[userID] = update
+					end
+				end
+			end
+		end
 
 		if status and (status["skill"] or status["skillUncertainty"]) and userControls.showSkill then
 			local displaySkill = userControls.showSkillAlways or ((userControls.isPlaying or userControls.replayUserInfo) and WG.Chobby.Configuration.showSkillOpt > 1)
@@ -967,6 +1190,8 @@ local function GetUserControls(userName, opts)
 	userControls.colorizeFriends    = opts.colorizeFriends or false
 	userControls.partyStatus        = opts.partyStatus
 	userControls.showPartyStatus    = opts.showPartyStatus
+	userControls.useSnapshotSkill   = opts.useSnapshotSkill or false
+	userControls.tooltipBattle      = opts.tooltipBattle
 
 	local userInfo = userControls.replayUserInfo or userControls.lobby:GetUser(userName) or {}
 	local bs = userControls.replayUserInfo or userControls.lobby:GetUserBattleStatus(userName) or {}
@@ -1753,6 +1978,26 @@ local userHandler = {
 	GetClanImage = GetClanImage
 }
 
+function userHandler.SetTooltipBattle(battle)
+	userHandler._tooltipBattle = battle
+end
+
+function userHandler.GetSnapshotSkillValue(userID, battle)
+	local numericUserID = tonumber(userID)
+	if not numericUserID then
+		return
+	end
+	local snapSkill, snapUn = GetSnapshotSkill(numericUserID, battle)
+	if not snapSkill or snapSkill < 0 then
+		return
+	end
+	local adjusted = snapSkill - (snapUn or 0)
+	if adjusted < 0 then
+		adjusted = 0
+	end
+	return adjusted
+end
+
 local function _GetUser(userList, userName, opts)
 	opts.reinitialize = userList[userName]
 	if not userList[userName] or userList[userName].needReinitialization then
@@ -1794,6 +2039,8 @@ function userHandler.GetTooltipUser(userName)
 		showRank           = true,
 		showSkill          = true,
 		showSkillAlways    = true,
+		useSnapshotSkill   = true,
+		tooltipBattle      = userHandler._tooltipBattle,
 		disableInteraction = true,
 		colorizeFriends    = true,
 	})
@@ -2017,8 +2264,29 @@ function widget:Initialize()
 	--Spring.LuaTracyPlotConfig("ChobbyMem","Number", true, true, 255)
 	AddListeners()
 	WG.Delay(DelayedInitialize, 0.1)
+	-- Warm the cache without blocking the first user-list update.
+	WG.Delay(LoadOpenSkillSnapshot, 0.2)
 
 	WG.UserHandler = userHandler
+end
+
+function widget:Update()
+	-- Continue incremental snapshot parsing.
+	if not openSkillLoadCo or not openSkillLoading then
+		return
+	end
+	if coroutine.status(openSkillLoadCo) ~= "suspended" then
+		return
+	end
+	local ok, err = coroutine.resume(openSkillLoadCo, OPEN_SKILL_LINES_PER_STEP)
+	if not ok then
+		openSkillLoadFailed = true
+		openSkillLoading = false
+		openSkillLoadCo = nil
+		Spring.Echo("OpenSkill snapshot load failed: " .. tostring(err))
+	elseif coroutine.status(openSkillLoadCo) == "dead" then
+		openSkillLoadCo = nil
+	end
 end
 
 --local oldTimer
