@@ -84,11 +84,14 @@ function Spring.Utilities.Base64Decode(data)
 	local result = {}
 	for dpos = 0, string.len(data) - 1, 4 do
 		for char = 1, 4 do
-			chars[char] = base64bytes[(string.sub(data, (dpos + char), (dpos + char)) or "=")]
+			local char_str = string.sub(data, (dpos + char), (dpos + char))
+			chars[char] = base64bytes[char_str] or 0
 		end
-		result[#result + 1] = string.char(lor(lsh(chars[1], 2), rsh(chars[2], 4))) ..
-			((chars[3] ~= nil) and string.char(lor(lsh(chars[2], 4), rsh(chars[3], 2))) or "") ..
-			((chars[4] ~= nil) and string.char(lor(lsh(chars[3], 6), (chars[4]))) or "")
+		if chars[1] ~= nil and chars[2] ~= nil then
+			result[#result + 1] = string.char(lor(lsh(chars[1], 2), rsh(chars[2], 4))) ..
+				((chars[3] ~= nil) and string.char(lor(lsh(chars[2], 4), rsh(chars[3], 2))) or "") ..
+				((chars[4] ~= nil) and string.char(lor(lsh(chars[3], 6), (chars[4]))) or "")
+		end
 	end
 	result = table.concat(result)
 	return result
