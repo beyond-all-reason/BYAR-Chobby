@@ -85,7 +85,7 @@ function Spring.Utilities.Base64Decode(data)
 	for dpos = 0, string.len(data) - 1, 4 do
 		for char = 1, 4 do
 			local char_str = string.sub(data, (dpos + char), (dpos + char))
-			chars[char] = base64bytes[char_str] or 0
+			chars[char] = base64bytes[char_str]
 		end
 		if chars[1] ~= nil and chars[2] ~= nil then
 			result[#result + 1] = string.char(lor(lsh(chars[1], 2), rsh(chars[2], 4))) ..
