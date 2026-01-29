@@ -353,8 +353,9 @@ local function GetBattleTooltip(battleID, battle, showMapName)
 		battleTooltip.playerCount.Hide()
 	end
 
-	-- Avg OpenSkill
-	if battle.users and WG.UserHandler and WG.UserHandler.GetSnapshotSkillValue then
+	-- Avg OpenSkill, disabled if showOS is turned off
+	local showOS = Configuration.showSkillOpt and Configuration.showSkillOpt > 1
+	if showOS and battle.users and WG.UserHandler and WG.UserHandler.GetSnapshotSkillValue then
 		local total = 0
 		local count = 0
 		for i = 1, #battle.users do

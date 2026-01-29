@@ -98,7 +98,7 @@ local openSkillLoaded = false
 local openSkillLoadFailed = false
 local openSkillLoadCo = nil
 local openSkillLoading = false
-local OPEN_SKILL_LINES_PER_STEP = 500 -- per frame parse
+local OPEN_SKILL_LINES_PER_STEP = 750 -- per frame parse
 local openSkillPendingUpdates = {}
 
 local IMAGE_CLAN_PATH    = "LuaUI/Configs/Clans/"
@@ -769,7 +769,7 @@ local function UpdateUserActivitySingleList(userList, userName, status)
 		end
 
 		if status and (status["skill"] or status["skillUncertainty"]) and userControls.showSkill then
-			local displaySkill = userControls.showSkillAlways or ((userControls.isPlaying or userControls.replayUserInfo) and WG.Chobby.Configuration.showSkillOpt > 1)
+			local displaySkill = userControls.showSkillAlways or ((userControls.isPlaying or userControls.replayUserInfo or userControls.useSnapshotSkill) and WG.Chobby.Configuration.showSkillOpt > 1)
 			if displaySkill then
 				local skill, skillColorFont = GetUserSkillFont(userName, userControls)
 				userControls.tbSkill:SetText(skill)
@@ -986,7 +986,7 @@ local function UpdateUserBattleStatus(listener, userName, battleStatusDiff)
 
 					-- Skill: show only in battlelist (limited by spring lobby protocol, skill not available for users outside of own battle)
 					if userControls.showSkill then
-						local displaySkill = userControls.showSkillAlways or (userControls.isPlaying and Configuration.showSkillOpt > 1)
+						local displaySkill = userControls.showSkillAlways or ((userControls.isPlaying or userControls.useSnapshotSkill) and Configuration.showSkillOpt > 1)
 						userControls.tbSkill:SetVisibility(displaySkill)
 						if displaySkill then
 							offset = offset + 2
@@ -2026,7 +2026,7 @@ function userHandler.GetBattleUser(userName, isSingleplayer)
 end
 
 function userHandler.GetTooltipUser(userName)
-	return _GetUser(tooltipUsers, userName, {
+	local control = _GetUser(tooltipUsers, userName, {
 		isInBattle         = true,
 		suppressSync       = true,
 		showModerator      = true,
@@ -2034,12 +2034,14 @@ function userHandler.GetTooltipUser(userName)
 		showCountry        = true,
 		showRank           = true,
 		showSkill          = true,
-		showSkillAlways    = true,
+		showSkillAlways    = false,
 		useSnapshotSkill   = true,
 		tooltipBattle      = userHandler._tooltipBattle,
 		disableInteraction = true,
 		colorizeFriends    = true,
 	})
+	UpdateUserBattleStatus(_, userName)
+	return control
 end
 
 function userHandler.GetReplayTooltipUser(replayUserInfo, maxNameLength)
