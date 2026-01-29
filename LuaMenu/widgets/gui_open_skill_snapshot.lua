@@ -9,8 +9,9 @@ function widget:GetInfo()
 		enabled = true,
 	}
 end
-
-local SNAPSHOT_URL = "https://example.com/player_skill_snapshot.csv" --place holder url until integrated with BAR datadump 
+--taken from the data processing repository in BAR. CSV format is used over parquet 
+-- if download fails, current local csv is used and if there is no local file then snapshot cache is empty. Does not block UI startup
+local SNAPSHOT_URL = "https://data-marts.beyondallreason.dev/player_skill_snapshot.csv"
 local SNAPSHOT_PATH = "data-processing-main/data-processing-main/data_export/player_skill_snapshot.csv"
 
 local function download_snapshot()

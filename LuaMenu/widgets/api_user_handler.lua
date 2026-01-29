@@ -96,10 +96,9 @@ local DEFAULT_SNAPSHOT_PATH = "data-processing-main/data-processing-main/data_ex
 local openSkillCache = nil
 local openSkillLoaded = false
 local openSkillLoadFailed = false
--- Incremental snapshot loading state.
 local openSkillLoadCo = nil
 local openSkillLoading = false
-local OPEN_SKILL_LINES_PER_STEP = 500 -- Tune per-frame parse budget.
+local OPEN_SKILL_LINES_PER_STEP = 500 -- per frame parse
 local openSkillPendingUpdates = {}
 
 local IMAGE_CLAN_PATH    = "LuaUI/Configs/Clans/"
@@ -195,7 +194,7 @@ local function LoadOpenSkillSnapshot()
 	openSkillCache = {}
 	openSkillLoading = true
 
-	-- Parse in steps to avoid stalling menu on startup
+	-- Parse in steps to avoid stalling menu on startup; OS preview hover can use data as it arrives
 	openSkillLoadCo = coroutine.create(function(lineBudget)
 		local processed = 0
 		local isHeader = true
@@ -209,19 +208,15 @@ local function LoadOpenSkillSnapshot()
 					openSkillCache[id] = {
 						id = id,
 						name = row[2],
-						duelSkill = tonumber(row[3]),
-						duelSkillUn = tonumber(row[4]),
-						ffaSkill = tonumber(row[5]),
-						ffaSkillUn = tonumber(row[6]),
-						teamSkill = tonumber(row[7]),
-						teamSkillUn = tonumber(row[8]),
-						lastDuel = row[9],
-						lastFFA = row[10],
-						lastTeam = row[11],
-						countryCode = row[12],
-						lastSmallTeam = row[13],
-						smallTeamSkill = tonumber(row[14]),
-						smallTeamSkillUn = tonumber(row[15]),
+						duel_skill = tonumber(row[3]),
+						duel_skill_un = tonumber(row[4]),
+						ffa_skill = tonumber(row[5]),
+						ffa_skill_un = tonumber(row[6]),
+						team_skill = tonumber(row[7]),
+						team_skill_un = tonumber(row[8]),
+						country_code = row[12],
+						small_team_skill = tonumber(row[14]),
+						small_team_skill_un = tonumber(row[15]),
 					}
 				end
 			end
@@ -265,13 +260,13 @@ end
 local function ResolveSnapshotColumns(battle)
 	local ratingType = battle and battle.ratingType
 	if ratingType == "Duel" then
-		return "duelSkill", "duelSkillUn"
+		return "duel_skill", "duel_skill_un"
 	elseif ratingType == "FFA" then
-		return "ffaSkill", "ffaSkillUn"
+		return "ffa_skill", "ffa_skill_un"
 	elseif ratingType == "Small Team" then
-		return "smallTeamSkill", "smallTeamSkillUn"
+		return "small_team_skill", "small_team_skill_un"
 	elseif ratingType == "Large Team" then
-		return "teamSkill", "teamSkillUn"
+		return "team_skill", "team_skill_un"
 	end
 
 	if battle and battle.teamSize and battle.nbTeams then
@@ -279,18 +274,18 @@ local function ResolveSnapshotColumns(battle)
 		local nbTeams = tonumber(battle.nbTeams)
 		if teamSize and nbTeams then
 			if teamSize == 1 and nbTeams == 2 then
-				return "duelSkill", "duelSkillUn"
+				return "duel_skill", "duel_skill_un"
 			elseif teamSize == 1 and nbTeams > 2 then
-				return "ffaSkill", "ffaSkillUn"
+				return "ffa_skill", "ffa_skill_un"
 			elseif teamSize <= 5 then
-				return "smallTeamSkill", "smallTeamSkillUn"
+				return "small_team_skill", "small_team_skill_un"
 			else
-				return "teamSkill", "teamSkillUn"
+				return "team_skill", "team_skill_un"
 			end
 		end
 	end
 
-	return "teamSkill", "teamSkillUn"
+	return "team_skill", "team_skill_un"
 end
 
 local function GetSnapshotSkill(userID, battle)
@@ -441,6 +436,7 @@ local function GetUserSkillFont(userName, userControl)
 	end
 
 	local userInfo = userControl.replayUserInfo or userControl.lobby:GetUser(userName) or {}
+	--  in-lobby display still uses live lobby skill
 	if userControl.useSnapshotSkill then
 		local battle = userControl.tooltipBattle or (userInfo.battleID and userControl.lobby:GetBattle(userInfo.battleID))
 		local snapSkill, snapUn = GetSnapshotSkill(userInfo.accountID, battle)
