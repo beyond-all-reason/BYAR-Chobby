@@ -353,6 +353,33 @@ local function GetBattleTooltip(battleID, battle, showMapName)
 		battleTooltip.playerCount.Hide()
 	end
 
+	-- Avg OpenSkill
+	if battle.users and WG.UserHandler and WG.UserHandler.GetSnapshotSkillValue then
+		local total = 0
+		local count = 0
+		for i = 1, #battle.users do
+			local userName = battle.users[i]
+			local userInfo = lobby:GetUser(userName) or {}
+			local value = WG.UserHandler.GetSnapshotSkillValue(userInfo.accountID, battle)
+			if value then
+				total = total + value
+				count = count + 1
+			end
+		end
+		if count > 0 then
+			if not battleTooltip.avgOpenSkill then
+				battleTooltip.avgOpenSkill = GetTooltipLine(battleTooltip.mainControl)
+			end
+			local avg = math.floor((total / count) + 0.5)
+			battleTooltip.avgOpenSkill.Update(offset, "Avg OpenSkill: " .. tostring(avg))
+			offset = offset + 21
+		elseif battleTooltip.avgOpenSkill then
+			battleTooltip.avgOpenSkill.Hide()
+		end
+	elseif battleTooltip.avgOpenSkill then
+		battleTooltip.avgOpenSkill.Hide()
+	end
+
 	-- Password
 	if battle.passworded then
 		if not battleTooltip.password then
@@ -450,6 +477,9 @@ local function GetBattleTooltip(battleID, battle, showMapName)
 		end
 		battleTooltip.userList:ClearChildren()
 		local playerOffset = 0
+		if WG.UserHandler and WG.UserHandler.SetTooltipBattle then
+			WG.UserHandler.SetTooltipBattle(battle)
+		end
 		for i = 1, #battle.users do
 			local userName = battle.users[i]
 			local playerControl = WG.UserHandler.GetTooltipUser(userName)
@@ -458,6 +488,9 @@ local function GetBattleTooltip(battleID, battle, showMapName)
 			playerControl._relativeBounds.right = 0
 			playerControl:UpdateClientArea()
 			playerOffset = playerOffset + 20
+		end
+		if WG.UserHandler and WG.UserHandler.SetTooltipBattle then
+			WG.UserHandler.SetTooltipBattle(nil)
 		end
 		offset = offset + playerOffset + 5
 	end
