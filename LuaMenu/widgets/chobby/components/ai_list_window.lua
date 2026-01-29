@@ -190,6 +190,8 @@ function AiListWindow:AddAi(displayName, shortName, version, options)
 		if profileName then
 			nameSuffix = " [" .. profileName .. "]"
 		end
+	elseif shortName == "BARb" then
+		nameSuffix = "[Hard-Balanced]" --BARb default difficulty
 	end
 
 	while found do
