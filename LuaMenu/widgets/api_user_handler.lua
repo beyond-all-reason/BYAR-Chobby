@@ -98,7 +98,7 @@ local openSkillLoaded = false
 local openSkillLoadFailed = false
 local openSkillLoadCo = nil
 local openSkillLoading = false
-local OPEN_SKILL_LINES_PER_STEP = 250 -- per frame parse
+local OPEN_SKILL_LINES_PER_STEP = 150 -- per frame parse
 local openSkillPendingUpdates = {}
 
 local IMAGE_CLAN_PATH    = "LuaUI/Configs/Clans/"
