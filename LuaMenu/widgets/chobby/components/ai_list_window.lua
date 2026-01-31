@@ -186,7 +186,7 @@ function AiListWindow:AddAi(displayName, shortName, version, options)
 
 	local nameSuffix = ""
 	if options and options.profile and Configuration.gameConfig.GetProfileDisplayName then
-		local profileName = Configuration.gameConfig.GetProfileDisplayName(shortName, options.profile):gsub("|", "-")
+		local profileName = (Configuration.gameConfig.GetProfileDisplayName(shortName, options.profile) or "Custom"):gsub("|", "-")
 		if profileName then
 			nameSuffix = " [" .. profileName .. "]"
 		end
