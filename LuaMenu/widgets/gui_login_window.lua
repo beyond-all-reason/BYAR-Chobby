@@ -26,7 +26,7 @@ local registerRecieved = false
 
 -- WG interface
 local LoginWindowHandler = {}
-
+local isWaitingInQueue = false
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 -- Initialization
@@ -143,6 +143,7 @@ local function InitializeListeners()
 	end
 
 	local function OnLoginAccepted()
+		isWaitingInQueue = false
 		Configuration.firstLoginEver = false
 		WG.Analytics.SendOnetimeEvent("lobby:logged_in")
 
@@ -165,6 +166,7 @@ local function InitializeListeners()
 	end
 
 	local function OnLoginDenied(listener, err)
+		isWaitingInQueue = false
 		WG.Analytics.SendErrorEvent(err or "unknown")
 		lobby:Disconnect()
 		if currentLoginWindow and not registerRecieved then
@@ -182,20 +184,38 @@ local function InitializeListeners()
 		end
 	end
 
-	local queueTime = 1
-	local function OnQueued(listener)
+	local queueTime = 0
+	-- This is invoked every time the server reply with QUEUED, which happen
+	-- as a response to c.auth.login_queue_heartbeat
+	local function OnQueued(_listener)
+		if isWaitingInQueue then
+			return
+		end
+		queueTime = 0
+		isWaitingInQueue = true
+		UpdateLoginQueueScreenLoop()
+	end
+
+	function UpdateLoginQueueScreenLoop()
+		if not isWaitingInQueue then
+			return
+		end
+
+		local status = lobby:GetConnectionStatus()
+		if status ~= "connecting" then
+			return
+		end
+
 		if currentLoginWindow then
 			currentLoginWindow.txtError:SetText("Waiting in Login Queue for "..tostring(queueTime) .. " seconds (~7)")
 		end
-		queueTime = queueTime + 1
-		if WG and WG.Delay then
-			local function login_queue_heartbeat()
-				if lobby then
-					lobby:SendCustomCommand("c.auth.login_queue_heartbeat")
-				end
-			end
-			WG.Delay(login_queue_heartbeat,1)
+
+		if queueTime > 0 and queueTime % 30 == 0 then
+			lobby:SendCustomCommand("c.auth.login_queue_heartbeat")
 		end
+
+		queueTime = queueTime + 1
+		WG.Delay(UpdateLoginQueueScreenLoop, 1)
 	end
 
 	function OnLoginInfoEnd()
