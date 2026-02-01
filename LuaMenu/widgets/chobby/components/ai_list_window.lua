@@ -183,20 +183,9 @@ function AiListWindow:AddAi(displayName, shortName, version, options)
 	local aiName
 	local counter = 1
 	local found = true
-
-	local nameSuffix = ""
-	if options and options.profile and Configuration.gameConfig.GetProfileDisplayName then
-		local profileName = (Configuration.gameConfig.GetProfileDisplayName(shortName, options.profile) or "Custom"):gsub("|", "-")
-		if profileName then
-			nameSuffix = " [" .. profileName .. "]"
-		end
-	elseif shortName == "BARb" then
-		nameSuffix = "[Hard-Balanced]" --BARb default difficulty
-	end
-
 	while found do
 		found = false
-		aiName = displayName .. " (" .. tostring(counter) .. ")" .. nameSuffix
+		aiName = displayName .. " (" .. tostring(counter) .. ")"
 		-- Ubserver AI names cannot include whitespace
 		if WG.Server.protocol == "spring" then
 			aiName = aiName:gsub(" ", "")
