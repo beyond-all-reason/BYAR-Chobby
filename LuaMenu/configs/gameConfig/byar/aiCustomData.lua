@@ -69,19 +69,6 @@ function CustomAiProfiles(name, items)
 	end
 end
 
-local function GetProfileDisplayName(aiShortName, profileKey)
-	local profiles = customProfiles[aiShortName]
-	if profiles then
-		for _, profile in ipairs(profiles) do
-			if profile.key == profileKey then
-				return profile.name
-			end
-		end
-	end
-	return nil
-end
-
 return {
-	CustomAiProfiles = CustomAiProfiles,
-	GetProfileDisplayName = GetProfileDisplayName,
+	CustomAiProfiles = CustomAiProfiles
 }

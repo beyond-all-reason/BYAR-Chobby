@@ -87,7 +87,6 @@ local externalFuncAndData = {
 	simpleAiOrder          = aiSimpleNames.simpleAiOrder,
 	aiTooltip              = aiSimpleNames.aiTooltip,
 	CustomAiProfiles       = aiCustomData.CustomAiProfiles,
-	GetProfileDisplayName  = aiCustomData.GetProfileDisplayName,
 	mapDetails             = mapDetails,
 	mapStartBoxes          = mapStartBoxes,
 	useDefaultStartBoxes   = useDefaultStartBoxes,
