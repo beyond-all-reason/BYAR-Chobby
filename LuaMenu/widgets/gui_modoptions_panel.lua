@@ -929,6 +929,39 @@ local function CreateModoptionWindow()
 						end
 					end
 				end
+
+				-- Hide optional modoptions that are not whitelisted by the current mode
+				if modoptions then
+					for i = 1, #modoptions do
+						local opt = modoptions[i]
+						if opt.key and opt.optional then
+							local rule = mode.modOptions and mode.modOptions[opt.key]
+							local isWhitelisted = rule ~= nil
+							local isHidden = rule and rule.ui == "hidden"
+							local child = modoptionControlNames[opt.key]
+							if child then
+								if child.parent and child.parent.name ~= "tabPanel" then
+									child = child.parent
+								end
+								if isWhitelisted and not isHidden then
+									-- Show: restore position
+									if child.x and child.x < -1000 then
+										child:SetPos(child.originalX or 0, child.y)
+									end
+									if child.SetVisibility then child:SetVisibility(true) end
+								else
+									-- Hide: move off-screen (not whitelisted or explicitly hidden)
+									if child.x and child.x >= 0 then
+										child.originalX = child.x
+									end
+									if child.SetPos then child:SetPos((child.x or 0) - 4095, child.y) end
+									if child.SetVisibility then child:SetVisibility(false) end
+								end
+							end
+						end
+					end
+				end
+
 				battleLobby:SetModOptions(localModoptions)
 			end
 
@@ -953,7 +986,10 @@ local function CreateModoptionWindow()
 				OnSelectName = {
 					function (obj, selectedName)
 						local key = itemNameToKey[selectedName]
-						applyMode(key)
+						-- Defer mode application to allow dropdown to close first
+						WG.Delay(function()
+							applyMode(key)
+						end, 0.05)
 					end
 				},
 			}
@@ -1389,16 +1425,16 @@ function ModoptionsPanel.LoadModoptions(gameName, newBattleLobby)
 
 	end
 
-		-- Load sharing modes from Lua files in sharing_modes/ directory
+		-- Load sharing modes from Lua files in modes/ directory
 	local function LoadSharingOptions()
 		local sharingModes = {}
 		
-		-- Get all .lua files in sharing_modes/ directory (excluding shared_enums.lua)
-		local modeFiles = VFS.DirList("sharing_modes/", "*.lua", VFS.ZIP)
+		-- Get all .lua files in modes/ directory (excluding global_enums.lua)
+		local modeFiles = VFS.DirList("modes/", "*.lua", VFS.ZIP)
 		
 		for _, modeFile in ipairs(modeFiles) do
-			-- Skip shared_enums.lua as it's not a sharing mode
-			if not modeFile:match("shared_enums%.lua$") then
+			-- Skip global_enums.lua as it's not a sharing mode
+			if not modeFile:match("global_enums%.lua$") then
 				local mode = VFS.Include(modeFile)
 				if mode and mode.key then
 					sharingModes[#sharingModes + 1] = mode
