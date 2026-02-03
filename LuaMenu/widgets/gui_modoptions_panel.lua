@@ -884,7 +884,8 @@ local function CreateModoptionWindow()
 
 				if mode.modOptions then
 					for optKey, rule in pairs(mode.modOptions) do
-						if rule.value ~= nil then
+						local shouldApplyValue = rule.locked or localModoptions[optKey] == nil
+						if rule.value ~= nil and shouldApplyValue then
 							local value = rule.value
 							if type(value) == "boolean" then value = tostring((value and 1) or 0) end
 							localModoptions[optKey] = tostring(value)
