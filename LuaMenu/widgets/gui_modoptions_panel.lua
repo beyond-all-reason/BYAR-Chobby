@@ -24,9 +24,18 @@ local lockedOverlaysByKey = {}
 -- Variables
 local battleLobby
 local localModoptions = {}
+local userModifiedOptions = {}
+local isProgrammaticUpdate = false
 local modoptionControlNames = {}
 local modoptions
 local modoptionsByGame = {}
+
+local function SetUserModifiedOption(key, value)
+	localModoptions[key] = value
+	if not isProgrammaticUpdate then
+		userModifiedOptions[key] = true
+	end
+end
 
 -- constants
 local MARKED_AS_CHANGED_COLOR = {0.99, 0.75, .3, 1} -- {0.07, 0.66, 0.92, 1.0}
@@ -295,7 +304,7 @@ local function ProcessListOption(data, index)
 						label.font = WG.Chobby.Configuration:GetFont(2, "Changed2", {color = MARKED_AS_CHANGED_COLOR})
 						list.font = WG.Chobby.Configuration:GetFont(2, "Changed2", {color = MARKED_AS_CHANGED_COLOR})
 				end
-				localModoptions[data.key] = itemNameToKey[selectedName]
+				SetUserModifiedOption(data.key, itemNameToKey[selectedName])
 			end
 		} or
 			{function (obj, selectedName)	
@@ -306,7 +315,7 @@ local function ProcessListOption(data, index)
 						label.font = WG.Chobby.Configuration:GetFont(2, "Changed2", {color = MARKED_AS_CHANGED_COLOR})
 						list.font = WG.Chobby.Configuration:GetFont(2, "Changed2", {color = MARKED_AS_CHANGED_COLOR})
 				end
-				localModoptions[data.key] = itemNameToKey[selectedName]
+				SetUserModifiedOption(data.key, itemNameToKey[selectedName])
 			end
 		},
 		itemKeyToName = itemKeyToName, -- Not a chili key
@@ -374,7 +383,7 @@ local function ProcessBoolOption(data, index)
 				else -- on disable
 					processChildrenLocks(data.lock, data.unlock, data.bitmask or 1)
 				end
-				localModoptions[data.key] = tostring((newState and 1) or 0)
+				SetUserModifiedOption(data.key, tostring((newState and 1) or 0))
 				if (newState and modoptionDefaults[data.key] == "1") or (not newState and modoptionDefaults[data.key] == "0") then
 					label.font = WG.Chobby.Configuration:GetFont(2)
 				else
@@ -388,7 +397,7 @@ local function ProcessBoolOption(data, index)
 				else
 					label.font = WG.Chobby.Configuration:GetFont(2, "Changed2", {color = MARKED_AS_CHANGED_COLOR})
 				end
-				localModoptions[data.key] = tostring((newState and 1) or 0)
+				SetUserModifiedOption(data.key, tostring((newState and 1) or 0))
 			end
 		},
 	}
@@ -466,7 +475,7 @@ local function ProcessNumberOption(data, index)
 				newValue = math.floor(newValue/data.step + 0.5)*data.step + 0.01*data.step
 
 				oldText = TextFromNum(newValue, data.step)
-				localModoptions[data.key] = oldText
+				SetUserModifiedOption(data.key, oldText)
 				obj:SetText(oldText)
 
 				if oldText == modoptionDefaults[data.key] then
@@ -498,7 +507,7 @@ local function ProcessNumberOption(data, index)
 				newValue = math.floor(newValue/data.step + 0.5)*data.step + 0.01*data.step
 
 				oldText = TextFromNum(newValue, data.step)
-				localModoptions[data.key] = oldText
+				SetUserModifiedOption(data.key, oldText)
 				obj:SetText(oldText)
 
 				if oldText == modoptionDefaults[data.key] then
@@ -576,14 +585,14 @@ local function ProcessStringOption(data, index)
 
 				if string.len(obj.text) <= 1 then
 					if not textHidden then
-						localModoptions[data.key] = 0
+						SetUserModifiedOption(data.key, 0)
 					end
 					obj.text = ""
 					textBox.font = WG.Chobby.Configuration:GetFont(2)
 					label.font = WG.Chobby.Configuration:GetFont(2)
 
 				else
-					localModoptions[data.key] = obj.text
+					SetUserModifiedOption(data.key, obj.text)
 					if obj.text == modoptionDefaults[data.key] then
 						textBox.font = WG.Chobby.Configuration:GetFont(2)
 						label.font = WG.Chobby.Configuration:GetFont(2)
@@ -868,6 +877,7 @@ local function CreateModoptionWindow()
 				rankedBadge:SetCaption(allowRanked and "" or "Not Ranked")
 				
 				-- Set the "Ranked Game" modoption when allowRanked is false
+				isProgrammaticUpdate = true
 				if not allowRanked then
 					localModoptions["ranked_game"] = "0"
 					UpdateControlValue("ranked_game", "0")
@@ -876,6 +886,7 @@ local function CreateModoptionWindow()
 				-- Pass the selected mode to the game so it can make its own decisions
 				localModoptions["sharing_mode"] = modeKey
 				UpdateControlValue("sharing_mode", modeKey)
+				isProgrammaticUpdate = false
 				
 				-- Inform the lobby (if it listens) that ranked should be disabled for this mode
 				if WG.BattleRoomWindow and WG.BattleRoomWindow.SetRankedModeAllowed then
@@ -884,12 +895,22 @@ local function CreateModoptionWindow()
 
 				if mode.modOptions then
 					for optKey, rule in pairs(mode.modOptions) do
-						local shouldApplyValue = rule.locked or localModoptions[optKey] == nil
-						if rule.value ~= nil and shouldApplyValue then
-							local value = rule.value
-							if type(value) == "boolean" then value = tostring((value and 1) or 0) end
-							localModoptions[optKey] = tostring(value)
-							UpdateControlValue(optKey, tostring(value))
+						if rule.value ~= nil then
+							local modeValue = rule.value
+							if type(modeValue) == "boolean" then modeValue = tostring((modeValue and 1) or 0) end
+							modeValue = tostring(modeValue)
+							
+							local isUserCustomized = userModifiedOptions[optKey] == true
+							local shouldApplyValue = rule.locked or not isUserCustomized
+							
+							Spring.Echo("[applyMode] " .. optKey .. ": value=" .. modeValue .. " locked=" .. tostring(rule.locked) .. " userMod=" .. tostring(isUserCustomized) .. " apply=" .. tostring(shouldApplyValue))
+							
+							if shouldApplyValue then
+								isProgrammaticUpdate = true
+								localModoptions[optKey] = modeValue
+								UpdateControlValue(optKey, modeValue)
+								isProgrammaticUpdate = false
+							end
 						end
 						if rule.locked then
 							lockedOptions[optKey] = 1
@@ -931,7 +952,7 @@ local function CreateModoptionWindow()
 					end
 				end
 
-				-- Hide optional modoptions that are not whitelisted by the current mode
+				-- Handle optional modoptions: reset non-whitelisted to defaults, hide as needed
 				if modoptions then
 					for i = 1, #modoptions do
 						local opt = modoptions[i]
@@ -939,6 +960,17 @@ local function CreateModoptionWindow()
 							local rule = mode.modOptions and mode.modOptions[opt.key]
 							local isWhitelisted = rule ~= nil
 							local isHidden = rule and rule.ui == "hidden"
+							
+							-- Reset non-whitelisted options to their default value
+							if not isWhitelisted and opt.def ~= nil then
+								local defaultValue = opt.def
+								if type(defaultValue) == "boolean" then defaultValue = tostring((defaultValue and 1) or 0) end
+								isProgrammaticUpdate = true
+								localModoptions[opt.key] = tostring(defaultValue)
+								UpdateControlValue(opt.key, tostring(defaultValue))
+								isProgrammaticUpdate = false
+							end
+							
 							local child = modoptionControlNames[opt.key]
 							if child then
 								if child.parent and child.parent.name ~= "tabPanel" then
