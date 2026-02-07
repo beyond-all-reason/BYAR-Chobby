@@ -11,10 +11,17 @@
 
 
 local welcomePanelItems = {
-    
+
     {
         Header = "Welcome to Beyond All Reason",
         Text = "Welcome back Commander. We hope you are ready for epic Singleplayer and Multiplayer battles. Check out our Discord and join the community!\n",
+    },
+
+    {
+        Header = "This Month in BAR - February 2026",
+        Text = "We've bundled several smaller updates into one bigger announcement! Check out recent UI/UX improvements, the experimental Easy-Tax game mode, an expanded mini-map widget with Picture-in-Picture support, and much more!" .. " \n" .. " \n",
+        Url = "https://server4.beyondallreason.info/microblog/show/172",
+        UrlText = "Read the Full Update",
     },
 
     {
