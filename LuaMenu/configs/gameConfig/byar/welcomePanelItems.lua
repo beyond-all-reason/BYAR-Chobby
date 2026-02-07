@@ -20,7 +20,7 @@ local welcomePanelItems = {
     {
         Header = "This Month in BAR - February 2026",
         Text = "We've bundled several smaller updates into one bigger announcement! Check out recent UI/UX improvements, the experimental Easy-Tax game mode, an expanded mini-map widget with Picture-in-Picture support, and much more!" .. " \n" .. " \n",
-        Url = "https://server4.beyondallreason.info/microblog/show/172",
+        Url = "https://www.beyondallreason.info/microblogs/172",
         UrlText = "Read the Full Update",
     },
 
@@ -28,7 +28,7 @@ local welcomePanelItems = {
         Header = "Update on the recent servers instability",
         Text = "We prepared a detailed post about the recent server instability issues and the steps we are taking to resolve them. Thank you for your patience and continued support!" .. " \n" .. " \n",
         Url = "https://www.beyondallreason.info/microblogs/169",
-        UrlText = "Read the full update",
+        UrlText = "Read the Full Update",
     },
 
     {
