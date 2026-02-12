@@ -18,6 +18,12 @@ local welcomePanelItems = {
     },
 
     {
+        Header = "New Map: Digsite",
+        Text =  " \n" .. "Fields of flowers and purple forests surround an abandoned excavation site. 5v5 NE vs SW." .. " \n" .. " \n" .. "Made by Moose and IceXuick.",
+        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/Digsite_2.0.png",
+    },
+
+    {
         Header = "This Month in BAR - February 2026",
         Text = "We've bundled several smaller updates into one bigger announcement! Check out recent UI/UX improvements, the experimental Easy-Tax game mode, an expanded mini-map widget with Picture-in-Picture support, and much more!" .. " \n" .. " \n",
         Url = "https://www.beyondallreason.info/microblogs/172",
@@ -50,26 +56,10 @@ local welcomePanelItems = {
     },
 
     {
-        Header = "The Lightbringer Update is Here!",
-        Text = "Commanders, after two weeks of a testing run for the Lightbringer Update, we are thrilled to announce the merge went without any major issues. This update represents the largest visual overhaul we have ever attempted. Enjoy BAR battles being more lit than ever!" .. " \n" .. " \n" .. "We have prepared a detailed post about the update and a Cinematic Highlights Video, check it out!",
-	    Image = "LuaMenu/images/welcomepanel/lightbringerbox.png",
-        Url = "https://www.beyondallreason.info/news/lightbringer-update",
-        UrlText = "Read the Full Changes",
-    },
-    
-    {
         Header = "Now Available: BAR Guides",
         Text = "New to Beyond All Reason? Check out these new Guides on Discord written by Zeteo!" .. " \n" .. " \n",
         Url = "https://discord.com/channels/549281623154229250/1303141562120929320/1303141562120929320",
         UrlText = "Read the new Guides",
-    },
-
-    {
-        Header = "BAR is accepting donations again! ",
-        Text = "Dear Commanders, we are delighted to announce the reopening of our donation platform after a longer-than-expected hiatus." .. " \n" .. " \n" .. "As we've been hard at work refining BAR to ensure maximum enjoyment for our ever-expanding community, we repeatedly placed donation efforts on hold to focus on other priorities." .. " \n" .. " \n" .. "Support BAR with our newly reopened donation platform!" .. " \n",
-        Image = "LuaMenu/images/welcomepanel/donate.png",
-        Url = "https://www.beyondallreason.info/news/support-bar-with-our-newly-reopened-donation-platform",
-        UrlText = "Read Announcement",
     },
 
     --{
