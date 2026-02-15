@@ -18,6 +18,14 @@ local welcomePanelItems = {
     },
 
     {
+        Header = "70,000 Discord Members - Lore Drop!",
+        Text = "We’ve hit 70 000 members on Discord! To celebrate, join epic 100+ player battles on March 8, see live faction logo reveals, the first exclusive BAR lore presentation, and a Devs vs Players showdown. " .. " \n" .. " \n" .. "Don’t miss this big community event!" .. " \n" .. " \n",
+        Image = "LuaMenu/images/welcomepanel/70k.png",
+        Url = "https://www.beyondallreason.info/news/70000-discord-members-lore-drop",
+        UrlText = "Read the Full Announcement",
+    },
+
+    {
         Header = "New Map: Digsite",
         Text =  " \n" .. "Fields of flowers and purple forests surround an abandoned excavation site. 5v5 NE vs SW." .. " \n" .. " \n" .. "Made by Moose and IceXuick.",
         Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/Digsite_2.0.png",
