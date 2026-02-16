@@ -26,6 +26,20 @@ local welcomePanelItems = {
     },
 
     {
+        Header = "February Balance Patch + Fixes (Release 2026.02.14-1)",
+        Text = "The first post-Season3 balance update is here! It focuses on tweaking over-tuned and under-tuned values, standardises the idle auto-heal/regeneration mechanic, and includes quality-of-life improvements." .. " \n" .. " \n",
+        Url = "https://www.beyondallreason.info/microblogs/174",
+        UrlText = "Read the Full Update",
+    },
+
+    {
+        Header = "Legion Balance Survey - Your Feedback Needed!",
+        Text = "With Legion's 3D models now complete, we're shifting focus to balance and design. Help us improve the faction by sharing your feedback in this quick survey (~10 minutes). Your input will directly shape Legion's future!" .. " \n" .. " \n",
+        Url = "https://docs.google.com/forms/d/e/1FAIpQLSeNvI79XKw49xQwQOVOEjF8cXnKhwYBwwRkvwUpLvp8Wzrldw/viewform",
+        UrlText = "Take the Survey",
+    },
+
+    {
         Header = "New Map: Digsite",
         Text =  " \n" .. "Fields of flowers and purple forests surround an abandoned excavation site. 5v5 NE vs SW." .. " \n" .. " \n" .. "Made by Moose and IceXuick.",
         Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/Digsite_2.0.png",
@@ -43,12 +57,6 @@ local welcomePanelItems = {
         Text = "We prepared a detailed post about the recent server instability issues and the steps we are taking to resolve them. Thank you for your patience and continued support!" .. " \n" .. " \n",
         Url = "https://www.beyondallreason.info/microblogs/169",
         UrlText = "Read the Full Update",
-    },
-
-    {
-        Header = "New Map: Proving Grounds",
-        Text = "Introducing Proving Grounds, a very big space asteroid map with no wind, suitable for 8v8 and more. " .. " \n" .. " \n" .. "Perfect for large-scale epic battles!" .. " \n" .. " \n" .. "By Nikuksis",
-        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/Proving_Grounds_v1.0.png",
     },
 
 --    {
