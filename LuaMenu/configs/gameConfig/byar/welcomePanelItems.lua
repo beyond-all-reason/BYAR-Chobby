@@ -26,6 +26,12 @@ local welcomePanelItems = {
     },
 
     {
+        Header = "New Map: Boreal Falls",
+        Text =  " \n" .. "1v1, 2v2 or 3v3 battle on ice and snow. NE vs SW." .. " \n" .. " \n" .. "Made by pk76 and Anka.",
+        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/Boreal_Falls_1.0.png",
+    },
+
+    {
         Header = "February Balance Patch + Fixes (Release 2026.02.14-1)",
         Text = "The first post-Season3 balance update is here! It focuses on tweaking over-tuned and under-tuned values, standardises the idle auto-heal/regeneration mechanic, and includes quality-of-life improvements." .. " \n" .. " \n",
         Url = "https://www.beyondallreason.info/microblogs/174",
@@ -49,13 +55,6 @@ local welcomePanelItems = {
         Header = "This Month in BAR - February 2026",
         Text = "We've bundled several smaller updates into one bigger announcement! Check out recent UI/UX improvements, the experimental Easy-Tax game mode, an expanded mini-map widget with Picture-in-Picture support, and much more!" .. " \n" .. " \n",
         Url = "https://www.beyondallreason.info/microblogs/172",
-        UrlText = "Read the Full Update",
-    },
-
-    {
-        Header = "Update on the recent servers instability",
-        Text = "We prepared a detailed post about the recent server instability issues and the steps we are taking to resolve them. Thank you for your patience and continued support!" .. " \n" .. " \n",
-        Url = "https://www.beyondallreason.info/microblogs/169",
         UrlText = "Read the Full Update",
     },
 
