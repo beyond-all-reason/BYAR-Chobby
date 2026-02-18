@@ -25,7 +25,6 @@ local battleLobby
 local wrapperControl
 local mainWindowFunctions
 
-local showDefaultStartCheckbox = false
 local currentStartRects = {}
 local startRectValues = {} -- for exporting the raw values
 
@@ -517,36 +516,6 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		tooltip = "Currently selected map. Green boxes show where each team will start"
 	}
 
-	if battleLobby.name == "singleplayer" and WG.Chobby.Configuration.simplifiedSkirmishSetup ~= true and config.devMode then
-		local comboboxstartpostype = ComboBox:New{
-			name = 'comboboxstartpostype',
-			x = "60%",
-			right = 98,
-			y = 15,
-			height = 30,
-			itemHeight = 22,
-			selectByName = true,
-			captionHorAlign = -12,
-			text = "",
-			objectOverrideFont = config:GetFont(2),
-			items = {"Fixed", "Random", "Choose In Game", "Choose Before Game"},
-			selected = "Choose In Game",
-			OnSelectName = {
-				function (obj, selectedName)
-					for k,v in ipairs  {"Fixed", "Random", "Choose In Game", "Choose Before Game"} do
-						if selectedName == v then
-							battle.startPosType = k - 1
-							--Spring.Echo("Selected startPosType", k,v, k-1,selectedName)
-							return
-						end
-					end
-					battle.startPosType = nil
-				end
-			},
-			parent = mainWindow,
-		}
-	end
-
 	local function RejoinBattleFunc()
 		--Spring.Echo("\LuaMenu\widgets\chobby\components\battle\battle_watch_list_window.lua","RejoinBattleFunc()","") -- Beherith Debug
 		battleLobby:RejoinBattle(battleID)
@@ -633,6 +602,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 								Configuration.gameConfig.mapStartBoxes.singleplayerboxes = currentStartRects
 							end
 						end
+						battle.startPosType = Configuration.singleplayerStartPosType ~= nil and Configuration.singleplayerStartPosType or 2
 						WG.Analytics.SendOnetimeEvent("lobby:singleplayer:skirmish:start")
 						WG.SteamCoopHandler.AttemptGameStart("skirmish", battle.gameName, battle.mapName)
 					else
@@ -3117,7 +3087,6 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	-- end
 
 	local isSingleplayer = (battleLobby.name == "singleplayer")
-	showDefaultStartCheckbox = isSingleplayer
 	local isHost = (not isSingleplayer) and (battleLobby:GetMyUserName() == battle.founder)
 
 	local EXTERNAL_PAD_VERT = 9
