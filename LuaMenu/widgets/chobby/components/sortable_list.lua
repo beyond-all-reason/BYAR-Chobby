@@ -216,24 +216,30 @@ function SortableList:RecalculateDisplay(resizeOnly)
 end
 
 function SortableList:UpdateOrder()
-	local function SortFunction(a, b)
-		local noNil = self.sortDataById[a] and self.sortDataById[b] and self.sortDataById[a][self.sortBy] and self.sortDataById[b][self.sortBy]
+	-- Cache fields into locals to avoid repeated table lookups in sort comparator
+	local sortDataById = self.sortDataById
+	local priorityList = self.priorityList
+	local sortBy = self.sortBy
+	local smallToLarge = self.smallToLarge
 
-		if self.priorityList[a] == nil and self.priorityList[b] ~= nil then
-			return noNil and false
-		elseif self.priorityList[a] ~= nil and self.priorityList[b] == nil then
-			return noNil and true
-		end
+	if sortBy then
+		table.sort(self.identifierList, function(a, b)
+			local sdA = sortDataById[a]
+			local sdB = sortDataById[b]
+			local noNil = sdA and sdB and sdA[sortBy] and sdB[sortBy]
 
-		if self.smallToLarge then
-			return noNil and self.sortDataById[a][self.sortBy] < self.sortDataById[b][self.sortBy]
-		else
-			return noNil and self.sortDataById[a][self.sortBy] > self.sortDataById[b][self.sortBy]
-		end
-	end
+			if priorityList[a] == nil and priorityList[b] ~= nil then
+				return noNil and false
+			elseif priorityList[a] ~= nil and priorityList[b] == nil then
+				return noNil and true
+			end
 
-	if self.sortBy then
-		table.sort(self.identifierList, SortFunction)
+			if smallToLarge then
+				return noNil and sdA[sortBy] < sdB[sortBy]
+			else
+				return noNil and sdA[sortBy] > sdB[sortBy]
+			end
+		end)
 	end
 
 	self:RecalculateDisplay()

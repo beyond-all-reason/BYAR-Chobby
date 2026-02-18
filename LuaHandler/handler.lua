@@ -66,8 +66,8 @@ local function SortAddonsFunc(ki1, ki2)
 		return (l1 < l2)
 	end
 
-	local o1 = handler.orderList[n1] or math.huge
-	local o2 = handler.orderList[n2] or math.huge
+	local o1 = handler.orderList[ki1.name] or math.huge
+	local o2 = handler.orderList[ki2.name] or math.huge
 	if (o1 ~= o2) then
 		return (o1 < o2)
 	end
@@ -132,8 +132,9 @@ setmetatable(handler, {
 		if type(key) ~= "string" then
 			return nil
 		end
-		local firstChar = key:sub(1,1)
-		if (firstChar == firstChar:upper() and self.knownCallIns[key]) then
+		-- Check if first char is uppercase (byte 65-90) without creating substrings
+		local b = key:byte(1)
+		if b and (b >= 65 and b <= 90) and self.knownCallIns[key] then
 			return function(_, ...)
 				if (self.callInHookFuncs[key]) then
 					return self.callInHookFuncs[key](...)
