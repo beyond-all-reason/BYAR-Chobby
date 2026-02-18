@@ -502,15 +502,15 @@ local function GetNewsEntry(parentHolder, index, headingSize, timeAsTooltip, top
 				parent = holder,
 				pulseAlpha = PULSE_MIN_ALPHA,
 				pulseComplete = false,
+				drawcontrolv2 = true,
 				DrawControl = function(self)
-					if self.pulseComplete then return end
-					
-					local x, y, w, h = self.x, self.y, self.width, self.height
+					if self.pulseComplete then
+						return
+					end
+					local x, y, w, h = 0, 0, self.width, self.height
 					local alpha = self.pulseAlpha
-					
 					gl.Color(PULSE_BG_COLOR[1], PULSE_BG_COLOR[2], PULSE_BG_COLOR[3], alpha)
 					gl.Rect(x, y, x + w, y + h)
-					
 					gl.Color(PULSE_BORDER_COLOR[1], PULSE_BORDER_COLOR[2], PULSE_BORDER_COLOR[3], alpha)
 					gl.LineWidth(2)
 					gl.Shape(GL.LINE_LOOP, {{v={x,y}}, {v={x+w,y}}, {v={x+w,y+h}}, {v={x,y+h}}})
