@@ -83,6 +83,7 @@ function Configuration:init()
 	self.steamLinkComplete = false
 	self.alreadySeenFactionPopup4 = false
 	self.firstBattleStarted = false
+	self.seenWelcomeItems = {}
 	self.lobbyTimeoutTime = 60 -- Seconds
 
 	self.battleFilterPassworded2 = true
@@ -676,6 +677,7 @@ function Configuration:GetConfigData()
 		steamLinkComplete = self.steamLinkComplete,
 		alreadySeenFactionPopup4 = self.alreadySeenFactionPopup4,
 		firstBattleStarted = self.firstBattleStarted,
+		seenWelcomeItems = self.seenWelcomeItems,
 		battleFilterPassworded2 = self.battleFilterPassworded2,
 		battleFilterNonFriend = self.battleFilterNonFriend,
 		battleFilterRunning = self.battleFilterRunning,

@@ -15,6 +15,7 @@ local welcomePanelItems = {
     {
         Header = "Welcome to Beyond All Reason",
         Text = "Welcome back Commander. We hope you are ready for epic Singleplayer and Multiplayer battles. Check out our Discord and join the community!\n",
+        NoPulse = true,
     },
 
     {
