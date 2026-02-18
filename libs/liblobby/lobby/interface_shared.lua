@@ -283,9 +283,14 @@ function Interface:_SocketUpdate()
 	if self.client == nil then
 		return
 	end
-	-- get sockets ready for read
-	local readable, writeable, err = socket.select({self.client}, {self.client}, 0)
-	local host, port = self.client:getpeername()
+	-- Reuse tables for socket.select instead of creating 2 new tables per frame
+	if not self._selectReadTable then
+		self._selectReadTable = {}
+		self._selectWriteTable = {}
+	end
+	self._selectReadTable[1] = self.client
+	self._selectWriteTable[1] = self.client
+	local readable, writeable, err = socket.select(self._selectReadTable, self._selectWriteTable, 0)
 --	if host == nil then
 --		self.client:shutdown()
 --		self.client = nil
@@ -350,6 +355,10 @@ function Interface:SafeUpdate()
 end
 
 function Interface:Update()
-	xpcall(function() self:SafeUpdate() end,
-		function(err) self:_PrintError(err) end )
+	-- Cache the wrapper closures once per Interface instance instead of creating 2 closures per frame
+	if not self._updateWrapper then
+		self._updateWrapper = function() self:SafeUpdate() end
+		self._updateErrHandler = function(err) self:_PrintError(err) end
+	end
+	xpcall(self._updateWrapper, self._updateErrHandler)
 end

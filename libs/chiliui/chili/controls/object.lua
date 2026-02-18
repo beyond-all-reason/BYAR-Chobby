@@ -390,21 +390,35 @@ end
 
 --- Removes all children
 function Object:ClearChildren()
-	--// make it faster
-	local old = self.preserveChildrenOrder
-	self.preserveChildrenOrder = false
+	--// show hidden children first (same as original)
+	for c in pairs(self.children_hidden) do
+		self:ShowChild(c)
+	end
 
-	--// remove all children
-		for c in pairs(self.children_hidden) do
-			self:ShowChild(c)
+	--// bulk clear: iterate once and detach parents, then wipe tables
+	--// this is O(n) instead of O(n²) from calling RemoveChild in a loop
+	local children = self.children
+	for i = 1, #children do
+		local c = children[i]
+		if c then
+			if CompareLinks(c.parent, self) then
+				c:SetParent(nil)
+			end
 		end
+	end
 
-		for i = #self.children, 1, -1 do
-			self:RemoveChild(self.children[i])
-		end
+	--// wipe all entries (both array indices and hash entries)
+	for k in pairs(children) do
+		children[k] = nil
+	end
 
-	--// restore old state
-	self.preserveChildrenOrder = old
+	--// clear name index
+	local cbn = self.childrenByName
+	for k in pairs(cbn) do
+		cbn[k] = nil
+	end
+
+	self:Invalidate()
 end
 
 --- Specifies whether the object has any visible children

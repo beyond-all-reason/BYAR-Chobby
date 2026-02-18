@@ -96,6 +96,7 @@ function TaskHandler.Update()
 				SafeCall(Update, obj)
 			end
 		end
+		objects2[i] = nil --// clear processed entries so weak refs can be collected
 	end
 
 	--// type2: endless loop until job is done
@@ -113,6 +114,7 @@ function TaskHandler.Update()
 					SafeCall(InstantUpdate, obj)
 				end
 			end
+			objectsInAnInstant2[i] = nil --// clear processed entries
 		end
 	end
 end

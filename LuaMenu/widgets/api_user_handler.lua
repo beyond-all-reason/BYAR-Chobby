@@ -153,19 +153,22 @@ local function GetClanImage(clanName)
 		return clanFile
 	end
 end
+-- Use string.find loop instead of char-by-char concatenation (O(n) vs O(n²))
+local string_find = string.find
+local string_sub = string.sub
 local function SplitCsvLine(line)
 	local fields = {}
-	local field = ""
-	for i = 1, #line do
-		local ch = line:sub(i, i)
-		if ch == "," then
-			fields[#fields + 1] = field
-			field = ""
-		else
-			field = field .. ch
-		end
+	local n = 0
+	local startPos = 1
+	local commaPos = string_find(line, ",", 1, true)
+	while commaPos do
+		n = n + 1
+		fields[n] = string_sub(line, startPos, commaPos - 1)
+		startPos = commaPos + 1
+		commaPos = string_find(line, ",", startPos, true)
 	end
-	fields[#fields + 1] = field
+	n = n + 1
+	fields[n] = string_sub(line, startPos)
 	return fields
 end
 

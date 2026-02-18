@@ -1244,16 +1244,23 @@ local function UpdateTooltip(inputText)
 end
 
 local currentTooltipText = false
+local _lastTooltipMouseX, _lastTooltipMouseY = 0, 0
 local function CheckTooltipUpdate(newText)
 	if newText then
 		if currentTooltipText ~= newText then
 			currentTooltipText = newText
 			UpdateTooltip(newText)
 			SetTooltipPos()
+			_lastTooltipMouseX, _lastTooltipMouseY = spGetMouseState()
 		else
 			-- Changed to dont update tooltip pos if not desired
 			if WG.Chobby.Configuration and WG.Chobby.Configuration.staticTooltipPositions ~= true then
-				SetTooltipPos()
+				-- Only update tooltip position when mouse has actually moved
+				local mx, my = spGetMouseState()
+				if mx ~= _lastTooltipMouseX or my ~= _lastTooltipMouseY then
+					_lastTooltipMouseX, _lastTooltipMouseY = mx, my
+					SetTooltipPos()
+				end
 			end
 		end
 	else
