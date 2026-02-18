@@ -1366,6 +1366,42 @@ local function GetVoidTabControls()
 	}
 	offset = offset + ITEM_OFFSET
 
+	children[#children + 1] = Label:New {
+		x = 20,
+		y = offset + TEXT_OFFSET,
+		width = 90,
+		height = 40,
+		valign = "top",
+		align = "left",
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		caption = "Start position type",
+		tooltip = "Default start position type for singleplayer skirmish.",
+	}
+	local startPosTypeOptions = {"Fixed", "Random", "Choose In Game", "Choose Before Game"}
+	local startPosTypeSelected = (Configuration.singleplayerStartPosType ~= nil and Configuration.singleplayerStartPosType + 1) or 3
+	children[#children + 1] = ComboBox:New {
+		x = COMBO_X,
+		y = offset,
+		width = COMBO_WIDTH,
+		height = 30,
+		right = 18,
+		items = startPosTypeOptions,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		selected = startPosTypeSelected,
+		OnSelect = {
+			function(obj)
+				if freezeSettings then
+					return
+				end
+				local idx = obj.selected
+				if idx and idx >= 1 and idx <= 4 then
+					Configuration:SetConfigValue("singleplayerStartPosType", idx - 1)
+				end
+			end
+		},
+	}
+	offset = offset + ITEM_OFFSET
+
 	children[#children + 1], offset = AddCheckboxSetting(offset, i18n("debugMode"), "debugMode", false)
 	children[#children + 1], offset = AddCheckboxSetting(offset, i18n("ShowhiddenModopions"), "ShowhiddenModopions", false, WG.ModoptionsPanel.RefreshModoptions, i18n("ShowhiddenTooltip"))
 	children[#children + 1], offset = AddCheckboxSetting(offset, "Debug Auto Win", "debugAutoWin", false)
