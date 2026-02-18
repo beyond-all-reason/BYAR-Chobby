@@ -958,6 +958,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 			--or "Error: Could not retrieve modoptions, your game files may be corrupted or the lobby may be invalid"
 			or "Game Update may still be downloading"
 	local modoptionsLoaded = modoptions
+
 	local btnModoptions = Button:New {
 		name = 'btnModoptions',
 		x = 5,

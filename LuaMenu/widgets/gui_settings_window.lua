@@ -1288,6 +1288,83 @@ local function GetVoidTabControls()
 		WG.Chobby.Configuration.showCampaignButton = newState
 	end
 
+	children[#children + 1] = Label:New {
+		x = 20,
+		y = offset + TEXT_OFFSET,
+		width = 90,
+		height = 30,
+		valign = "top",
+		align = "left",
+		parent = window,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		caption = "Singleplayer",
+	}
+
+	local singleplayerSelectedName = Configuration.gameConfigName
+	local singleplayerSelected = 1
+	for i = 1, #Configuration.gameConfigOptions do
+		if Configuration.gameConfigOptions[i] == singleplayerSelectedName then
+			singleplayerSelected = i
+			break
+		end
+	end
+
+	children[#children + 1] = ComboBox:New {
+		name = "gameSelection",
+		x = COMBO_X,
+		y = offset,
+		width = COMBO_WIDTH,
+		height = 30,
+		right = 18,
+		parent = window,
+		items = Configuration.gameConfigHumanNames,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		selected = singleplayerSelected,
+		OnSelect = {
+			function (obj)
+				if freezeSettings then
+					return
+				end
+				Configuration:SetConfigValue("gameConfigName", Configuration.gameConfigOptions[obj.selected])
+			end
+		},
+	}
+	offset = offset + ITEM_OFFSET
+
+	children[#children + 1] = Label:New {
+		x = 20,
+		y = offset + TEXT_OFFSET,
+		width = 90,
+		height = 40,
+		valign = "top",
+		align = "left",
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		caption = "Reload Modoptions",
+	}
+	children[#children + 1] = Button:New {
+		x = COMBO_X,
+		y = offset,
+		width = COMBO_WIDTH,
+		height = 30,
+		right = 18,
+		caption = "🔁 Reload",
+		classname = "option_button",
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		tooltip = "Reload modoptions from game archive and show the panel. Uses the game selected in Singleplayer above.",
+		OnClick = {
+			function()
+				if WG.ModoptionsPanel then
+					local gameName = Configuration.gameConfigName
+					local lobby = WG.LibLobby and WG.LibLobby.localLobby
+					if gameName and lobby then
+						WG.ModoptionsPanel.LoadModoptions(gameName, lobby, true)
+						WG.ModoptionsPanel.ShowModoptions()
+					end
+				end
+			end
+		}
+	}
+	offset = offset + ITEM_OFFSET
 
 	children[#children + 1], offset = AddCheckboxSetting(offset, i18n("debugMode"), "debugMode", false)
 	children[#children + 1], offset = AddCheckboxSetting(offset, i18n("ShowhiddenModopions"), "ShowhiddenModopions", false, WG.ModoptionsPanel.RefreshModoptions, i18n("ShowhiddenTooltip"))
@@ -1418,48 +1495,6 @@ local function GetVoidTabControls()
 	}
 	offset = offset + ITEM_OFFSET
 
-	children[#children + 1] = Label:New {
-		x = 20,
-		y = offset + TEXT_OFFSET,
-		width = 90,
-		height = 30,
-		valign = "top",
-		align = "left",
-		parent = window,
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
-		caption = "Singleplayer",
-	}
-
-	local singleplayerSelectedName = Configuration.gameConfigName
-	local singleplayerSelected = 1
-	for i = 1, #Configuration.gameConfigOptions do
-		if Configuration.gameConfigOptions[i] == singleplayerSelectedName then
-			singleplayerSelected = i
-			break
-		end
-	end
-
-	children[#children + 1] = ComboBox:New {
-		name = "gameSelection",
-		x = COMBO_X,
-		y = offset,
-		width = COMBO_WIDTH,
-		height = 30,
-		right = 18,
-		parent = window,
-		items = Configuration.gameConfigHumanNames,
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
-		selected = singleplayerSelected,
-		OnSelect = {
-			function (obj)
-				if freezeSettings then
-					return
-				end
-				Configuration:SetConfigValue("gameConfigName", Configuration.gameConfigOptions[obj.selected])
-			end
-		},
-	}
-	offset = offset + ITEM_OFFSET
 
 	--children[#children + 1] = Label:New {
 	--	x = 20,
@@ -1503,7 +1538,6 @@ local function GetVoidTabControls()
 	--	},
 	--}
 	--offset = offset + ITEM_OFFSET
-
 
 	children[#children + 1] = Label:New {
 		x = 20,

@@ -1053,7 +1053,7 @@ function ModoptionsPanel.RefreshModoptions()
 	end
 end
 
-function ModoptionsPanel.LoadModoptions(gameName, newBattleLobby)
+function ModoptionsPanel.LoadModoptions(gameName, newBattleLobby, forceReload)
 	battleLobby = newBattleLobby
 
 	if not (gameName and VFS.HasArchive(gameName)) then
@@ -1065,7 +1065,7 @@ function ModoptionsPanel.LoadModoptions(gameName, newBattleLobby)
 		return VFS.Include("modoptions.lua", nil, VFS.ZIP)
 	end
 
-	if modoptionsByGame[gameName] then
+	if modoptionsByGame[gameName] and not forceReload then
 		modoptions = modoptionsByGame[gameName]
 	else
 
