@@ -5,32 +5,32 @@ function StringUtilities.GetTruncatedString(myString, myFont, maxLength)
     if (not maxLength) then
         return myString
     end
-    local length = string.len(myString)
-    local iterations = 0
-    local maxIterations = length + 10
-
-    while myFont:GetTextWidth(myString) > maxLength and iterations < maxIterations do
-        length = length - 1
-        myString = string.sub(myString, 0, length)
-        iterations = iterations + 1
-        if length < 1 then
-            return ""
+    if myFont:GetTextWidth(myString) <= maxLength then
+        return myString
+    end
+    -- Binary search for the longest prefix that fits
+    local lo, hi = 0, string.len(myString)
+    local sub = string.sub
+    while lo < hi do
+        local mid = lo + math.floor((hi - lo + 1) / 2)
+        if myFont:GetTextWidth(sub(myString, 1, mid)) <= maxLength then
+            lo = mid
+        else
+            hi = mid - 1
         end
     end
-    if iterations >= maxIterations then
-        return string.sub(myString, 0, math.max(1, length))
+    if lo < 1 then
+        return ""
     end
-
-    return myString
+    return sub(myString, 1, lo)
 end
 
 function StringUtilities.GetTruncatedStringWithDotDot(myString, myFont, maxLength)
 	if (not maxLength) or (myFont:GetTextWidth(myString) <= maxLength) then
 		return myString
 	end
-	local truncation = StringUtilities.GetTruncatedString(myString, myFont, maxLength)
 	local dotDotWidth = myFont:GetTextWidth("..")
-	truncation = StringUtilities.GetTruncatedString(truncation, myFont, maxLength - dotDotWidth)
+	local truncation = StringUtilities.GetTruncatedString(myString, myFont, maxLength - dotDotWidth)
 	return truncation .. ".."
 end
 

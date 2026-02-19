@@ -1046,7 +1046,8 @@ function Control:_UpdateChildrenDList()
 	end
 
 	if self._isScrollPanel and not self._cantUseRTT then
-		local contentX, contentY, contentWidth, contentHeight = unpack4(self.contentArea)
+		local ca = self.contentArea
+		local contentWidth, contentHeight = ca[3], ca[4]
 		if (contentWidth <= 0) or (contentHeight <= 0) then
 			return
 		end
@@ -1125,8 +1126,10 @@ function Control:_SetupRTT(fnc, self_, drawInContentRect, ...)
 		gl.Scale(2/self.width, -2/self.height, 1)
 		gl.Translate(-self.x, -self.y, 0)
 	else
-		local clientX, clientY, clientWidth, clientHeight = unpack4(self.clientArea)
-		local contentX, contentY, contentWidth, contentHeight = unpack4(self.contentArea)
+		local ca1 = self.clientArea
+		local clientX, clientY, clientWidth, clientHeight = ca1[1], ca1[2], ca1[3], ca1[4]
+		local ca2 = self.contentArea
+		local contentX, contentY, contentWidth, contentHeight = ca2[1], ca2[2], ca2[3], ca2[4]
 		gl.Scale(2/contentWidth, -2/contentHeight, 1)
 		gl.Translate(-(clientX - self.scrollPosX), -(clientY - self.scrollPosY), 0)
 	end
@@ -1227,7 +1230,8 @@ end
 
 
 function Control:_DrawInClientArea(fnc, arg1, arg2, arg3, arg4)
-	local clientX, clientY, clientWidth, clientHeight = unpack4(self.clientArea)
+	local ca = self.clientArea
+	local clientX, clientY, clientWidth, clientHeight = ca[1], ca[2], ca[3], ca[4]
 
 	if WG.uiScale and WG.uiScale ~= 1 then
 		clientWidth, clientHeight = clientWidth*WG.uiScale, clientHeight*WG.uiScale
@@ -1401,7 +1405,8 @@ function Control:DrawForList()
 		end
 	end
 
-	local clientX, clientY, clientWidth, clientHeight = unpack4(self.clientArea)
+	local ca = self.clientArea
+	local clientX, clientY, clientWidth, clientHeight = ca[1], ca[2], ca[3], ca[4]
 	if WG.uiScale and WG.uiScale ~= 1 then
 		clientWidth, clientHeight = clientWidth*WG.uiScale, clientHeight*WG.uiScale
 	end
@@ -1411,7 +1416,8 @@ function Control:DrawForList()
 			gl.BlendFuncSeparate(GL.ONE, GL.SRC_ALPHA, GL.ZERO, GL.SRC_ALPHA)
 			gl.Color(1, 1, 1, 1)
 			gl.Texture(0, self._tex_children)
-			local contX, contY, contWidth, contHeight = unpack4(self.contentArea)
+			local ca2 = self.contentArea
+			local contX, contY, contWidth, contHeight = ca2[1], ca2[2], ca2[3], ca2[4]
 
 			local s = self.scrollPosX / contWidth
 			local t = 1 - self.scrollPosY / contHeight

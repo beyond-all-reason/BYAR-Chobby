@@ -171,7 +171,7 @@ local function PopScissor()
 	if (stackN == 1) then
 		gl.Scissor(false)
 	else
-		local x, y, right, bottom = unpack4(curScissor)
+		local x, y, right, bottom = curScissor[1], curScissor[2], curScissor[3], curScissor[4]
 		local w = right  - x
 		local h = bottom - y
 		if w >= 0 and h >= 0 then
@@ -196,8 +196,8 @@ local function PushStencilMask(obj, x, y, w, h)
 	if not obj.scrollPosY then
 		gl.Rect(0, 0, w, h)
 	else
-		local contentX, contentY, contentWidth, contentHeight = unpack4(obj.contentArea)
-		gl.Rect(0, 0, contentWidth, contentHeight)
+		local ca = obj.contentArea
+		gl.Rect(0, 0, ca[3], ca[4])
 	end
 
 	gl.ColorMask(true)
@@ -215,8 +215,8 @@ local function PopStencilMask(obj, x, y, w, h)
 	if not obj.scrollPosY then
 		gl.Rect(0, 0, w, h)
 	else
-		local contentX, contentY, contentWidth, contentHeight = unpack4(obj.contentArea)
-		gl.Rect(0, 0, contentWidth, contentHeight)
+		local ca = obj.contentArea
+		gl.Rect(0, 0, ca[3], ca[4])
 	end
 
 	gl.ColorMask(true)
@@ -243,19 +243,19 @@ function AreInRTT()
 end
 
 
-function PushLimitRenderRegion(...)
+function PushLimitRenderRegion(obj, x, y, w, h)
 	if inRTT then
-		return PushStencilMask(...)
+		return PushStencilMask(obj, x, y, w, h)
 	else
-		return PushScissor(...)
+		return PushScissor(obj, x, y, w, h)
 	end
 end
 
-function PopLimitRenderRegion(...)
+function PopLimitRenderRegion(obj, x, y, w, h)
 	if inRTT then
-		PopStencilMask(...)
+		PopStencilMask(obj, x, y, w, h)
 	else
-		PopScissor(...)
+		PopScissor(obj, x, y, w, h)
 	end
 end
 
