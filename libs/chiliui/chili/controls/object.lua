@@ -762,12 +762,9 @@ function Object:CallChildren(eventname, ...)
 	for i = 1, #children do
 		local child = children[i]
 		if (child) then
-			local fn = child[eventname]
-			if fn then
-				local obj = fn(child, ...)
-				if (obj) then
-					return obj
-				end
+			local obj = child[eventname](child, ...)
+			if (obj) then
+				return obj
 			end
 		end
 	end
@@ -779,12 +776,9 @@ function Object:CallChildrenInverse(eventname, ...)
 	for i = #children, 1, -1 do
 		local child = children[i]
 		if (child) then
-			local fn = child[eventname]
-			if fn then
-				local obj = fn(child, ...)
-				if (obj) then
-					return obj
-				end
+			local obj = child[eventname](child, ...)
+			if (obj) then
+				return obj
 			end
 		end
 	end
@@ -796,12 +790,9 @@ function Object:CallChildrenInverseCheckFunc(checkfunc, eventname, ...)
 	for i = #children, 1, -1 do
 		local child = children[i]
 		if (child) and (checkfunc(self, child)) then
-			local fn = child[eventname]
-			if fn then
-				local obj = fn(child, ...)
-				if (obj) then
-					return obj
-				end
+			local obj = child[eventname](child, ...)
+			if (obj) then
+				return obj
 			end
 		end
 	end

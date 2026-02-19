@@ -102,13 +102,7 @@ function widget:ViewResize(vsx, vsy)
 	screenHeight = vsy
 end
 
-local evilHaxCounter = 0
 local function EvilHax()
-	evilHaxCounter = evilHaxCounter + 1
-	if evilHaxCounter < 30 then
-		return
-	end
-	evilHaxCounter = 0
 	local screenWidth, screenHeight = Spring.GetWindowGeometry()
 	if screenWidth ~= oldSizeX or screenHeight ~= oldSizeY then
 		widget:ViewResize(screenWidth, screenHeight)
@@ -1141,7 +1135,6 @@ local function GetTooltip()
 	end
 end
 
-local _cachedTooltipText, _cachedTooltipWidth
 local function SetTooltipPos()
 	local tooltipChild = tipWindow.children[1]
 	if not tooltipChild then
@@ -1156,11 +1149,7 @@ local function SetTooltipPos()
 
 	if tooltipChild.name == TOOLTIP_TEXT_NAME then
 		local text = tipTextDisplay.text
-		if text ~= _cachedTooltipText then
-			_cachedTooltipText = text
-			_cachedTooltipWidth = tipTextDisplay.font:GetTextWidth(text) + 15
-		end
-		width  = _cachedTooltipWidth
+		width  = tipTextDisplay.font:GetTextWidth(text) + 15
 		height = tooltipChild.height + 14
 	else
 		-- Fudge numbers correspond to padding
