@@ -122,34 +122,29 @@ end
 
 --// =============================================================================
 
-local string_byte = string.byte
-local string_sub  = string.sub
 local function explode(div, str)
 	str = tostring(str)
 	local arr = {}
-	local n = 0
-	local start = 1
-	local len = #str
-	local divByte = string_byte(div)
-	local pos = 1
+	local i, j = 1, 1
+	local N = str:len()
 
-	while pos <= len do
-		local byte = string_byte(str, pos)
-		if byte == 255 then
-			pos = pos + 4 -- skip \255\R\G\B color code
-		elseif byte == divByte then
-			n = n + 1
-			arr[n] = string_sub(str, start, pos - 1)
-			start = pos + 1
-			pos = pos + 1
-		else
-			pos = pos + 1
+	while j <= N do
+		local c = str:sub(j, j)
+		if c == '\255' then
+			j = j + 3
+		elseif c == div then
+			arr[#arr + 1] = str:sub(i, j - 1)
+			i = j + 1
 		end
+		j = j + 1
 	end
-	n = n + 1
-	arr[n] = string_sub(str, start)
+
+	if i <= N then
+		arr[#arr + 1] = str:sub(i, N)
+	end
+
 	return arr
-end
+ end
 
 --- Sets the EditBox text
 -- @string newtext text to be set
