@@ -29,15 +29,20 @@ if WG and WG.Chili then
 	Progressbar = Chili.Progressbar
 end
 
-local includes = {
-	"utilities/buttons.lua",
-	"utilities/stringUtilities.lua",
-	"utilities/log.lua",
-	"utilities/package.lua",
-}
+-- Guard utility includes — they are idempotent and only need to load once.
+-- 33 widgets include exports.lua, saving ~128 VFS.Include calls on startup.
+if not _CHOBBY_UTILITIES_LOADED then
+	local includes = {
+		"utilities/buttons.lua",
+		"utilities/stringUtilities.lua",
+		"utilities/log.lua",
+		"utilities/package.lua",
+	}
 
-for _, file in ipairs(includes) do
-	VFS.Include(CHOBBY_DIR .. file, Chobby, VFS.RAW_FIRST)
+	for _, file in ipairs(includes) do
+		VFS.Include(CHOBBY_DIR .. file, Chobby, VFS.RAW_FIRST)
+	end
+	_CHOBBY_UTILITIES_LOADED = true
 end
 
 -- liblobby export

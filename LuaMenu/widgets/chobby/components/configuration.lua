@@ -40,17 +40,27 @@ function Configuration:init()
 	self.fontRaw[11] = {font = "fonts/n019003l.pfb", size = 17, shadow = true, outline = false, color = {0.5,0.5,0.5,0.9},}
 
 	self.fontSpecial = {}
-	self.font = {}
-	for i = 0, #self.fontRaw do
-		self.font[i] = Font:New {
-			size         = self.fontRaw[i].size,
-			font         = self.fontRaw[i].font or self.fontName,
-			outline      = self.fontRaw[i].outline,
-			shadow       = self.fontRaw[i].shadow,
-			outlineColor = self.fontRaw[i].outlineColor or {0.05,0.05,0.05,0.7},
-			color		 = self.fontRaw[i].color or {1,1,1,1},
-		}
-	end
+	-- Lazy font creation: Font:New involves font file I/O + glyph atlas.
+	-- Defer until first access via __index metamethod.
+	local fontRaw = self.fontRaw
+	local fontName = self.fontName
+	self.font = setmetatable({}, {
+		__index = function(t, i)
+			local raw = fontRaw[i]
+			if raw then
+				local f = Font:New {
+					size         = raw.size,
+					font         = raw.font or fontName,
+					outline      = raw.outline,
+					shadow       = raw.shadow,
+					outlineColor = raw.outlineColor or {0.05,0.05,0.05,0.7},
+					color        = raw.color or {1,1,1,1},
+				}
+				rawset(t, i, f)
+				return f
+			end
+		end
+	})
 
 	-- self.uiScale, WG.uiScale, and self.uiScalesForScreenSizes will be overridden in Configuration:SetConfigData;
 	-- We're setting default values here in case something tries to access it before we get there.
@@ -263,17 +273,26 @@ function Configuration:init()
 	self.gameConfigOptions = {}
 	self.gameConfigHumanNames = {}
 	for i = 1, #gameConfigOptions do
-		local fileName = gameConfPath .. gameConfigOptions[i] .. "/mainConfig.lua"
-		Spring.Log(LOG_SECTION, LOG.INFO, "Attempting to load game config: " .. fileName)
-		if VFS.FileExists(fileName) then
-			Spring.Log(LOG_SECTION, LOG.INFO, "Game config found:" .. fileName)
-			local gameConfig = VFS.Include(fileName, nil, VFS.RAW_FIRST)
-			if gameConfig.CheckAvailability() then
-				self.gameConfigHumanNames[#self.gameConfigHumanNames + 1] = gameConfig.name
+		-- Skip re-loading the active game config (already loaded above).
+		-- Each mainConfig.lua loads 14+ sub-files, so this saves significant I/O.
+		if gameConfigOptions[i] == self.gameConfigName then
+			if self.gameConfig.CheckAvailability() then
+				self.gameConfigHumanNames[#self.gameConfigHumanNames + 1] = self.gameConfig.name
 				self.gameConfigOptions[#self.gameConfigOptions + 1] = gameConfigOptions[i]
 			end
 		else
-			Spring.Log(LOG_SECTION, LOG.WARNING, "Game config not found: " .. fileName)
+			local fileName = gameConfPath .. gameConfigOptions[i] .. "/mainConfig.lua"
+			Spring.Log(LOG_SECTION, LOG.INFO, "Attempting to load game config: " .. fileName)
+			if VFS.FileExists(fileName) then
+				Spring.Log(LOG_SECTION, LOG.INFO, "Game config found:" .. fileName)
+				local gameConfig = VFS.Include(fileName, nil, VFS.RAW_FIRST)
+				if gameConfig.CheckAvailability() then
+					self.gameConfigHumanNames[#self.gameConfigHumanNames + 1] = gameConfig.name
+					self.gameConfigOptions[#self.gameConfigOptions + 1] = gameConfigOptions[i]
+				end
+			else
+				Spring.Log(LOG_SECTION, LOG.WARNING, "Game config not found: " .. fileName)
+			end
 		end
 	end
 
@@ -337,10 +356,19 @@ function Configuration:init()
 	self.lobby_fullscreen = 1
 	self.game_fullscreen = 1
 
-	self.configParamTypes = {}
-	for _, param in pairs(Spring.GetConfigParams()) do
-		self.configParamTypes[param.name] = param.type
-	end
+	-- Lazy-load config param types: Spring.GetConfigParams() returns a large
+	-- table but configParamTypes is only used for individual lookups (settings window).
+	-- Defer the iteration until first access.
+	self.configParamTypes = setmetatable({}, {
+		__index = function(t, name)
+			-- Populate all entries on first access, then remove metamethod
+			for _, param in pairs(Spring.GetConfigParams()) do
+				rawset(t, param.name, param.type)
+			end
+			setmetatable(t, nil)
+			return rawget(t, name)
+		end
+	})
 
 	self.AtiIntelSettingsOverride = {
 		Water = 1,
