@@ -15,13 +15,27 @@ end
 -- Structure
 local modoptionDefaults = {}
 local modoptionStructure = {}
+local sharingModesByGame = {}
+local sharingModes
+local selectedSharingModeKey
+local sharingUI = { modeList = nil, rankedBadge = nil }
+local lockedOverlaysByKey = {}
 
 -- Variables
 local battleLobby
 local localModoptions = {}
+local userModifiedOptions = {}
+local isProgrammaticUpdate = false
 local modoptionControlNames = {}
 local modoptions
 local modoptionsByGame = {}
+
+local function SetUserModifiedOption(key, value)
+	localModoptions[key] = value
+	if not isProgrammaticUpdate then
+		userModifiedOptions[key] = true
+	end
+end
 
 -- constants
 local MARKED_AS_CHANGED_COLOR = {0.99, 0.75, .3, 1} -- {0.07, 0.66, 0.92, 1.0}
@@ -45,6 +59,85 @@ local function UpdateControlValue(key, value)
 			control:SetToggle(value == true or value == 1 or value == "1")
 		end
 	end
+end
+
+-- Enable/disable the interactive control for a given modoption key
+local function SetControlLock(key, locked)
+    if not modoptionControlNames then return end
+    local control = modoptionControlNames[key]
+    if not control then return end
+    if control.SetEnabled then
+        control:SetEnabled(not locked)
+    end
+    -- If the control is embedded in a row control, try disabling that too
+    local parent = control.parent
+    if parent and parent.SetEnabled and parent.name ~= "tabPanel" then
+        parent:SetEnabled(not locked)
+    end
+    -- Fallback: disable input handlers if the widget lacks SetEnabled
+    if control.OnSelectName then
+        control._origOnSelectName = control._origOnSelectName or control.OnSelectName
+        control.OnSelectName = locked and {} or control._origOnSelectName
+    end
+    if control.OnChange then
+        control._origOnChange = control._origOnChange or control.OnChange
+        control.OnChange = locked and {} or control._origOnChange
+    end
+
+    -- Add/remove an input-blocking overlay for controls that don't visually disable
+    local parentRow = control.parent
+    if parentRow and parentRow.name ~= "tabPanel" then
+        local displayValue = localModoptions[key] or modoptionDefaults[key] or ""
+        if control.itemKeyToName then
+            displayValue = control.itemKeyToName[displayValue] or displayValue
+        elseif control.SetToggle then
+            if displayValue == "1" or displayValue == 1 or displayValue == true then
+                displayValue = "Enabled"
+            else
+                displayValue = "Disabled"
+            end
+        else
+            displayValue = tostring(displayValue)
+        end
+
+        if locked then
+            local info = lockedOverlaysByKey[key]
+            if not info then
+                -- Expand narrow areas (e.g. checkboxes) so text like "Disabled" fits
+                local ovX, ovW = control.x, control.width
+                if ovW < 100 then ovW = 300 end
+                local overlay = Label:New {
+                    name = "lockOverlay_" .. key,
+                    x = ovX,
+                    y = control.y,
+                    width = ovW,
+                    height = control.height,
+                    valign = "center",
+                    align = "left",
+                    caption = tostring(displayValue),
+                    tooltip = control.tooltip,
+                    objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+                    greedyHitTest = true,
+                }
+                parentRow:AddChild(overlay)
+                lockedOverlaysByKey[key] = { overlay = overlay, oldX = control.x }
+                if control.SetPos then control:SetPos(control.x + 4095, control.y) end
+            else
+                info.overlay:SetCaption(tostring(displayValue))
+            end
+        else
+            local info = lockedOverlaysByKey[key]
+            if info then
+                if control.SetPos then control:SetPos(info.oldX or control.x, control.y) end
+                if info.overlay and info.overlay.parent then
+                    info.overlay.parent:RemoveChild(info.overlay)
+                end
+            end
+            lockedOverlaysByKey[key] = nil
+        end
+    end
+
+    -- Simple visual state: if a control supports SetEnabled, that's sufficient.
 end
 
 local function TextFromNum(num, step)
@@ -211,7 +304,7 @@ local function ProcessListOption(data, index)
 						label.font = WG.Chobby.Configuration:GetFont(2, "Changed2", {color = MARKED_AS_CHANGED_COLOR})
 						list.font = WG.Chobby.Configuration:GetFont(2, "Changed2", {color = MARKED_AS_CHANGED_COLOR})
 				end
-				localModoptions[data.key] = itemNameToKey[selectedName]
+				SetUserModifiedOption(data.key, itemNameToKey[selectedName])
 			end
 		} or
 			{function (obj, selectedName)	
@@ -222,7 +315,7 @@ local function ProcessListOption(data, index)
 						label.font = WG.Chobby.Configuration:GetFont(2, "Changed2", {color = MARKED_AS_CHANGED_COLOR})
 						list.font = WG.Chobby.Configuration:GetFont(2, "Changed2", {color = MARKED_AS_CHANGED_COLOR})
 				end
-				localModoptions[data.key] = itemNameToKey[selectedName]
+				SetUserModifiedOption(data.key, itemNameToKey[selectedName])
 			end
 		},
 		itemKeyToName = itemKeyToName, -- Not a chili key
@@ -290,7 +383,7 @@ local function ProcessBoolOption(data, index)
 				else -- on disable
 					processChildrenLocks(data.lock, data.unlock, data.bitmask or 1)
 				end
-				localModoptions[data.key] = tostring((newState and 1) or 0)
+				SetUserModifiedOption(data.key, tostring((newState and 1) or 0))
 				if (newState and modoptionDefaults[data.key] == "1") or (not newState and modoptionDefaults[data.key] == "0") then
 					label.font = WG.Chobby.Configuration:GetFont(2)
 				else
@@ -304,7 +397,7 @@ local function ProcessBoolOption(data, index)
 				else
 					label.font = WG.Chobby.Configuration:GetFont(2, "Changed2", {color = MARKED_AS_CHANGED_COLOR})
 				end
-				localModoptions[data.key] = tostring((newState and 1) or 0)
+				SetUserModifiedOption(data.key, tostring((newState and 1) or 0))
 			end
 		},
 	}
@@ -322,7 +415,7 @@ local function ProcessBoolOption(data, index)
 	control = Control:New {
 		x = 0,
 		y = index*32,
-		width = 350,
+		width = 625,
 		height = 32,
 		padding = {0, 0, 0, 0},
 		tooltip = data.desc,
@@ -382,7 +475,7 @@ local function ProcessNumberOption(data, index)
 				newValue = math.floor(newValue/data.step + 0.5)*data.step + 0.01*data.step
 
 				oldText = TextFromNum(newValue, data.step)
-				localModoptions[data.key] = oldText
+				SetUserModifiedOption(data.key, oldText)
 				obj:SetText(oldText)
 
 				if oldText == modoptionDefaults[data.key] then
@@ -414,7 +507,7 @@ local function ProcessNumberOption(data, index)
 				newValue = math.floor(newValue/data.step + 0.5)*data.step + 0.01*data.step
 
 				oldText = TextFromNum(newValue, data.step)
-				localModoptions[data.key] = oldText
+				SetUserModifiedOption(data.key, oldText)
 				obj:SetText(oldText)
 
 				if oldText == modoptionDefaults[data.key] then
@@ -492,14 +585,14 @@ local function ProcessStringOption(data, index)
 
 				if string.len(obj.text) <= 1 then
 					if not textHidden then
-						localModoptions[data.key] = 0
+						SetUserModifiedOption(data.key, 0)
 					end
 					obj.text = ""
 					textBox.font = WG.Chobby.Configuration:GetFont(2)
 					label.font = WG.Chobby.Configuration:GetFont(2)
 
 				else
-					localModoptions[data.key] = obj.text
+					SetUserModifiedOption(data.key, obj.text)
 					if obj.text == modoptionDefaults[data.key] then
 						textBox.font = WG.Chobby.Configuration:GetFont(2)
 						label.font = WG.Chobby.Configuration:GetFont(2)
@@ -670,6 +763,8 @@ local function CreateModoptionWindow()
 
 	localModoptions = Spring.Utilities.CopyTable(battleLobby:GetMyBattleModoptions() or {})
 	modoptionControlNames = {}
+	lockedOverlaysByKey = {}
+	postLock = {}
 
 	local tabs = {}
 	lockedOptions = {}
@@ -686,12 +781,339 @@ local function CreateModoptionWindow()
 		if origCaption ~= caption then
 			tooltip = origCaption
 		end
+		local children = PopulateTab(data.options)
+		if key == "options_sharing" then
+			-- Create a fresh scroll panel instead of using the potentially corrupted one
+			local sharingScroll = ScrollPanel:New {
+				name = "sharingTabPanel_" .. (math.random(1000, 9999)),
+				x = 10,
+				right = 10,
+				y = 56,
+				bottom = 10,
+				horizontalScrollbar = false,
+			}
+
+			-- Manually rebuild the sharing content
+			local column, row = 1, 0
+			for _, opt in ipairs(data.options or {}) do
+				-- Skip the sharing_mode option as it's handled by the special dropdown above
+				if opt.key ~= "sharing_mode" then
+					-- If this option is in a higher column than the previous, keep it on the same row
+					if (opt.column or -1) > column then
+						row = row - 1
+					end
+
+					local rowData = nil
+					if opt.type == "number" then
+						rowData = ProcessNumberOption(opt, row)
+					elseif opt.type == "string" then
+						rowData = ProcessStringOption(opt, row)
+					elseif opt.type == "subheader" then
+						rowData = ProcessSubHeader(opt, row)
+					elseif opt.type == "bool" then
+						rowData = ProcessBoolOption(opt, row)
+					elseif opt.type == "list" then
+						rowData = ProcessListOption(opt, row)
+					elseif opt.type == "separator" then
+						rowData = ProcessLineSeparator(opt, row)
+						row = row - 0.5
+					end
+					if rowData then
+						column = math.abs(opt.column or 1)
+						rowData.x = rowData.x + (column - 1) * 625
+						row = row + 1
+						rowData.rowOrginal = rowData.y
+						rowData.isSeparator = (opt.type == "separator")
+						sharingScroll:AddChild(rowData)
+					end
+				end
+			end
+
+			-- Build Mode dropdown controls
+			local modeLabel = Label:New {
+				x = 15,
+				y = 10,
+				width = 200,
+				height = 30,
+				valign = "center",
+				align = "left",
+				caption = "Mode",
+				objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+			}
+
+			local items, itemKeyToName, itemNameToKey = {}, {}, {}
+			if sharingModes and sharingModes.modes then
+				for i, m in ipairs(sharingModes.modes) do
+					local name = m.name or m.key
+					items[i] = name
+					itemKeyToName[m.key] = name
+					itemNameToKey[name] = m.key
+				end
+			end
+
+			local rankedBadge = Label:New {
+				x = 650,
+				y = 10,
+				width = 220,
+				height = 30,
+				valign = "center",
+				align = "left",
+				caption = "",
+				objectOverrideFont = WG.Chobby.Configuration:GetFont(2, nil, {color = {1,0.3,0.3,1}}),
+			}
+
+			local function applyMode(modeKey)
+				if not (sharingModes and sharingModes.modes) then return end
+				selectedSharingModeKey = modeKey
+				local mode
+				for _, m in ipairs(sharingModes.modes) do
+					if m.key == modeKey then mode = m; break end
+				end
+				if not mode then return end
+
+				local allowRanked = (mode.allowRanked ~= false)
+				WG.SharingModePolicy = WG.SharingModePolicy or {}
+				WG.SharingModePolicy.allowRanked = allowRanked
+				WG.SharingModePolicy.modeLocked = {}
+				rankedBadge:SetCaption(allowRanked and "" or "Not Ranked")
+				
+				-- Set the "Ranked Game" modoption when allowRanked is false
+				isProgrammaticUpdate = true
+				if not allowRanked then
+					localModoptions["ranked_game"] = "0"
+					UpdateControlValue("ranked_game", "0")
+				end
+				
+				-- Pass the selected mode to the game so it can make its own decisions
+				localModoptions["sharing_mode"] = modeKey
+				UpdateControlValue("sharing_mode", modeKey)
+				isProgrammaticUpdate = false
+				
+				-- Inform the lobby (if it listens) that ranked should be disabled for this mode
+				if WG.BattleRoomWindow and WG.BattleRoomWindow.SetRankedModeAllowed then
+					WG.BattleRoomWindow.SetRankedModeAllowed(allowRanked)
+				end
+
+				-- Chili has no declarative rendering, so we reset all rows to baseline
+				-- then re-apply the new mode's visibility/locks/values on top.
+				local toShow = {}
+				for child, _ in pairs(sharingScroll.children_hidden) do
+					if child.rowOrginal then
+						toShow[#toShow + 1] = child
+					end
+				end
+				for _, child in ipairs(toShow) do
+					child:SetPos(child.originalX or 0, child.rowOrginal)
+					if child.SetVisibility then child:SetVisibility(true) end
+				end
+				for _, child in ipairs(sharingScroll.children) do
+					if child.rowOrginal then
+						child:SetPos(nil, child.rowOrginal)
+					end
+				end
+
+				if mode.modOptions then
+					for optKey, rule in pairs(mode.modOptions) do
+						if rule.value ~= nil then
+							local modeValue = rule.value
+							if type(modeValue) == "boolean" then modeValue = tostring((modeValue and 1) or 0) end
+							modeValue = tostring(modeValue)
+							
+							local isUserCustomized = userModifiedOptions[optKey] == true
+							local shouldApplyValue = rule.locked or not isUserCustomized
+							
+							Spring.Echo("[applyMode] " .. optKey .. ": value=" .. modeValue .. " locked=" .. tostring(rule.locked) .. " userMod=" .. tostring(isUserCustomized) .. " apply=" .. tostring(shouldApplyValue))
+							
+							if shouldApplyValue then
+								isProgrammaticUpdate = true
+								localModoptions[optKey] = modeValue
+								UpdateControlValue(optKey, modeValue)
+								isProgrammaticUpdate = false
+							end
+						end
+						if rule.locked then
+							lockedOptions[optKey] = 1
+							WG.SharingModePolicy.modeLocked[optKey] = true
+							SetControlLock(optKey, true)
+						else
+							lockedOptions[optKey] = nil
+							WG.SharingModePolicy.modeLocked[optKey] = nil
+							SetControlLock(optKey, false)
+						end
+						if rule.ui == "hidden" then
+							local child = modoptionControlNames[optKey]
+							if child then
+								-- Hide the row: move its row container off-screen and hide
+								if child.parent and child.parent.name ~= "tabPanel" then
+									child = child.parent
+								end
+								-- Save the original x position before hiding so we can restore it later
+								if child.x and child.x >= 0 then
+									child.originalX = child.x
+								end
+								if child.SetPos then child:SetPos(child.x - 4095, child.y) end
+								if child.SetVisibility then child:SetVisibility(false) end
+							end
+						else
+							-- Ensure the row is visible (override any engine disabled rules)
+							local child = modoptionControlNames[optKey]
+							if child then
+								if child.parent and child.parent.name ~= "tabPanel" then
+									child = child.parent
+								end
+								if child.x and child.x < -1000 then
+									-- Restore to the original x position (column offset) instead of always 0
+									child:SetPos(child.originalX or 0, child.y)
+								end
+								if child.SetVisibility then child:SetVisibility(true) end
+							end
+						end
+					end
+				end
+
+				-- Handle optional modoptions: reset non-whitelisted to defaults, hide as needed
+				if modoptions then
+					for i = 1, #modoptions do
+						local opt = modoptions[i]
+						if opt.key and opt.optional then
+							local rule = mode.modOptions and mode.modOptions[opt.key]
+							local isWhitelisted = rule ~= nil
+							local isHidden = rule and rule.ui == "hidden"
+							
+							-- Reset non-whitelisted options to their default value
+							if not isWhitelisted and opt.def ~= nil then
+								local defaultValue = opt.def
+								if type(defaultValue) == "boolean" then defaultValue = tostring((defaultValue and 1) or 0) end
+								isProgrammaticUpdate = true
+								localModoptions[opt.key] = tostring(defaultValue)
+								UpdateControlValue(opt.key, tostring(defaultValue))
+								isProgrammaticUpdate = false
+							end
+							
+							local child = modoptionControlNames[opt.key]
+							if child then
+								if child.parent and child.parent.name ~= "tabPanel" then
+									child = child.parent
+								end
+								if isWhitelisted and not isHidden then
+									-- Show: restore position
+									if child.x and child.x < -1000 then
+										child:SetPos(child.originalX or 0, child.y)
+									end
+									if child.SetVisibility then child:SetVisibility(true) end
+								else
+									-- Hide: move off-screen (not whitelisted or explicitly hidden)
+									if child.x and child.x >= 0 then
+										child.originalX = child.x
+									end
+									if child.SetPos then child:SetPos((child.x or 0) - 4095, child.y) end
+									if child.SetVisibility then child:SetVisibility(false) end
+								end
+							end
+						end
+					end
+				end
+
+				-- Compact remaining visible rows to remove gaps left by hidden options.
+				local visibleRows = {}
+				for _, child in ipairs(sharingScroll.children) do
+					if child.rowOrginal and not visibleRows[child.rowOrginal] then
+						visibleRows[child.rowOrginal] = child.isSeparator
+					end
+				end
+
+				local sortedRows = {}
+				for rowOrig, _ in pairs(visibleRows) do
+					sortedRows[#sortedRows + 1] = rowOrig
+				end
+				table.sort(sortedRows)
+
+				local newYMap = {}
+				local currentSlot = 0
+				for _, rowOrig in ipairs(sortedRows) do
+					if visibleRows[rowOrig] then
+						newYMap[rowOrig] = currentSlot * 32 + 3
+						currentSlot = currentSlot + 0.5
+					else
+						newYMap[rowOrig] = currentSlot * 32
+						currentSlot = currentSlot + 1
+					end
+				end
+
+				for _, child in ipairs(sharingScroll.children) do
+					if child.rowOrginal and newYMap[child.rowOrginal] then
+						child:SetPos(nil, newYMap[child.rowOrginal])
+					end
+				end
+
+				battleLobby:SetModOptions(localModoptions)
+			end
+
+			local defaultSelected = 1
+			if sharingModes and sharingModes.modes then
+				for i, m in ipairs(sharingModes.modes) do
+					if m.key == (selectedSharingModeKey or "enabled") then
+						defaultSelected = i; break
+					end
+				end
+			end
+
+			local modeList = ComboBox:New {
+				x = 340,
+				y = 11,
+				width = 300,
+				height = 30,
+				items = items,
+				selectByName = true,
+				selected = defaultSelected,
+				objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+				OnSelectName = {
+					function (obj, selectedName)
+						local key = itemNameToKey[selectedName]
+						-- Defer mode application to allow dropdown to close first
+						WG.Delay(function()
+							applyMode(key)
+						end, 0.05)
+					end
+				},
+			}
+
+			sharingUI.modeList = modeList
+			sharingUI.rankedBadge = rankedBadge
+
+			-- Create a parent panel that contains both header and content
+			local parentPanel = Control:New {
+				name = "sharingParentPanel_" .. (math.random(1000, 9999)),
+				x = 6,
+				right = 5,
+				y = 10,
+				bottom = 8,
+				padding = {0,0,0,0},
+			}
+
+			-- Add Mode controls to parent panel
+			parentPanel:AddChild(modeLabel)
+			parentPanel:AddChild(modeList)
+			parentPanel:AddChild(rankedBadge)
+			parentPanel:AddChild(Line:New { classname = "line_solid", x = 10, y = 48, right = 10, height = 2 })
+
+			-- Add the fresh scroll to the parent panel
+			parentPanel:AddChild(sharingScroll)
+			
+			children = { parentPanel }
+
+			-- Apply the selected mode immediately
+			if sharingModes and sharingModes.modes and sharingModes.modes[defaultSelected] then
+				applyMode(sharingModes.modes[defaultSelected].key)
+			end
+		end
+
 		tabs[#tabs + 1] = {
 			name = key,
 			caption = caption,
 			tooltip = tooltip,
 			objectOverrideFont = WG.Chobby.Configuration:GetFont(fontSize),
-			children = PopulateTab(data.options),
+			children = children,
 			weight = data.weight or weight,
 		}
 	end
@@ -1011,7 +1433,8 @@ function ModoptionsPanel.RefreshModoptions()
 		sections = {}
 	}
 
-	-- Populate the sections
+	-- Populate the sections; gather sharing_category into a dedicated Sharing tab
+	local sharingOptions = {}
 	for i = 1, #modoptions do
 		local data = modoptions[i]
 		if data.type == "section" then
@@ -1024,7 +1447,6 @@ function ModoptionsPanel.RefreshModoptions()
 						title = data.section,
 						options = {}
 					}
-
 					local options = modoptionStructure.sections[data.section].options
 					options[#options + 1] = data
 				elseif showHidden and devmode then
@@ -1036,6 +1458,7 @@ function ModoptionsPanel.RefreshModoptions()
 			end
 		end
 	end
+
 
 	if not devmode then
 		modoptionStructure.sections["dev"] = nil
@@ -1086,14 +1509,59 @@ function ModoptionsPanel.LoadModoptions(gameName, newBattleLobby, forceReload)
 
 	end
 
+		-- Load sharing modes from Lua files in modes/ directory
+	local function LoadSharingOptions()
+		local sharingModes = {}
+		
+		-- Get all .lua files in modes/ directory (excluding global_enums.lua)
+		local modeFiles = VFS.DirList("modes/", "*.lua", VFS.ZIP)
+		
+		for _, modeFile in ipairs(modeFiles) do
+			-- Skip global_enums.lua as it's not a sharing mode
+			if not modeFile:match("global_enums%.lua$") then
+				local mode = VFS.Include(modeFile)
+				if mode and mode.key then
+					sharingModes[#sharingModes + 1] = mode
+				end
+			end
+		end
+		
+		if #sharingModes > 0 then
+			return { modes = sharingModes }
+		end
+		return nil
+	end
+	sharingModes = sharingModesByGame[gameName]
+	if not sharingModes then
+		sharingModes = VFS.UseArchive(gameName, LoadSharingOptions)
+		sharingModesByGame[gameName] = sharingModes
+	end
+
 
 	modoptionDefaults = {}
 	if not modoptions then
 		return
 	end
 
+	-- Populate sharing mode items dynamically
+	if sharingModes and sharingModes.modes then
+		for i = 1, #modoptions do
+			local data = modoptions[i]
+			if data.key == "sharing_mode" and data.type == "list" then
+				data.items = {}
+				for _, mode in ipairs(sharingModes.modes) do
+					data.items[#data.items + 1] = {
+						key = mode.key,
+						name = mode.name,
+						desc = mode.desc or ""
+					}
+				end
+				break
+			end
+		end
+	end
+	
 	local currentUnixTime = os.time()
-
 	-- Set modoptionDefaults
 	for i = 1, #modoptions do
 		local data = modoptions[i]
@@ -1143,6 +1611,7 @@ end
 function widget:Initialize()
 	CHOBBY_DIR = LUA_DIRNAME .. "widgets/chobby/"
 	VFS.Include(LUA_DIRNAME .. "widgets/chobby/headers/exports.lua", nil, VFS.RAW_FIRST)
+	VFS.Include("libs/json.lua")
 
 	WG.ModoptionsPanel = ModoptionsPanel
 end
