@@ -823,6 +823,7 @@ local function CreateModoptionWindow()
 						rowData.x = rowData.x + (column - 1) * 625
 						row = row + 1
 						rowData.rowOrginal = rowData.y
+						rowData.isSeparator = (opt.type == "separator")
 						sharingScroll:AddChild(rowData)
 					end
 				end
@@ -891,6 +892,24 @@ local function CreateModoptionWindow()
 				-- Inform the lobby (if it listens) that ranked should be disabled for this mode
 				if WG.BattleRoomWindow and WG.BattleRoomWindow.SetRankedModeAllowed then
 					WG.BattleRoomWindow.SetRankedModeAllowed(allowRanked)
+				end
+
+				-- Chili has no declarative rendering, so we reset all rows to baseline
+				-- then re-apply the new mode's visibility/locks/values on top.
+				local toShow = {}
+				for child, _ in pairs(sharingScroll.children_hidden) do
+					if child.rowOrginal then
+						toShow[#toShow + 1] = child
+					end
+				end
+				for _, child in ipairs(toShow) do
+					child:SetPos(child.originalX or 0, child.rowOrginal)
+					if child.SetVisibility then child:SetVisibility(true) end
+				end
+				for _, child in ipairs(sharingScroll.children) do
+					if child.rowOrginal then
+						child:SetPos(nil, child.rowOrginal)
+					end
 				end
 
 				if mode.modOptions then
@@ -992,6 +1011,38 @@ local function CreateModoptionWindow()
 								end
 							end
 						end
+					end
+				end
+
+				-- Compact remaining visible rows to remove gaps left by hidden options.
+				local visibleRows = {}
+				for _, child in ipairs(sharingScroll.children) do
+					if child.rowOrginal and not visibleRows[child.rowOrginal] then
+						visibleRows[child.rowOrginal] = child.isSeparator
+					end
+				end
+
+				local sortedRows = {}
+				for rowOrig, _ in pairs(visibleRows) do
+					sortedRows[#sortedRows + 1] = rowOrig
+				end
+				table.sort(sortedRows)
+
+				local newYMap = {}
+				local currentSlot = 0
+				for _, rowOrig in ipairs(sortedRows) do
+					if visibleRows[rowOrig] then
+						newYMap[rowOrig] = currentSlot * 32 + 3
+						currentSlot = currentSlot + 0.5
+					else
+						newYMap[rowOrig] = currentSlot * 32
+						currentSlot = currentSlot + 1
+					end
+				end
+
+				for _, child in ipairs(sharingScroll.children) do
+					if child.rowOrginal and newYMap[child.rowOrginal] then
+						child:SetPos(nil, newYMap[child.rowOrginal])
 					end
 				end
 
