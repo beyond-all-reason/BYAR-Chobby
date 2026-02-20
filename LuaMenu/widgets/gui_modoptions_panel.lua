@@ -25,6 +25,7 @@ local lockedOverlaysByKey = {}
 local battleLobby
 local localModoptions = {}
 local userModifiedOptions = {}
+local savedUserValues = {}
 local isProgrammaticUpdate = false
 local modoptionControlNames = {}
 local modoptions
@@ -170,6 +171,55 @@ local function getModOptionByKey(key)
 		end
 	end
 	return retOption
+end
+
+local function getActiveSharingMode()
+	if not (sharingModes and sharingModes.modes and selectedSharingModeKey) then return nil end
+	for _, m in ipairs(sharingModes.modes) do
+		if m.key == selectedSharingModeKey then return m end
+	end
+	return nil
+end
+
+-- Applies the given mode's values to localModoptions, resets non-whitelisted
+-- optional options to their defaults, and sets the sharing_mode key.
+-- Preserves user-customised values across mode switches via savedUserValues.
+local function applySharingModeValues(mode)
+	if not mode then return end
+
+	if mode.modOptions then
+		for optKey, rule in pairs(mode.modOptions) do
+			if rule.value ~= nil then
+				local modeValue = rule.value
+				if type(modeValue) == "boolean" then modeValue = tostring((modeValue and 1) or 0) end
+				modeValue = tostring(modeValue)
+
+				local isUserCustomized = userModifiedOptions[optKey] == true
+				if rule.locked or not isUserCustomized then
+					localModoptions[optKey] = modeValue
+				elseif savedUserValues[optKey] ~= nil then
+					localModoptions[optKey] = savedUserValues[optKey]
+				end
+			end
+		end
+	end
+
+	if modoptions then
+		for i = 1, #modoptions do
+			local opt = modoptions[i]
+			if opt.key and opt.optional then
+				local isWhitelisted = mode.modOptions and mode.modOptions[opt.key] ~= nil
+				if not isWhitelisted and modoptionDefaults[opt.key] then
+					if userModifiedOptions[opt.key] then
+						savedUserValues[opt.key] = localModoptions[opt.key]
+					end
+					localModoptions[opt.key] = modoptionDefaults[opt.key]
+				end
+			end
+		end
+	end
+
+	localModoptions["sharing_mode"] = mode.key
 end
 
 --------------------------------------------------------------------------------
@@ -781,9 +831,8 @@ local function CreateModoptionWindow()
 		if origCaption ~= caption then
 			tooltip = origCaption
 		end
-		local children = PopulateTab(data.options)
+		local children = (key ~= "options_sharing") and PopulateTab(data.options) or {}
 		if key == "options_sharing" then
-			-- Create a fresh scroll panel instead of using the potentially corrupted one
 			local sharingScroll = ScrollPanel:New {
 				name = "sharingTabPanel_" .. (math.random(1000, 9999)),
 				x = 10,
@@ -793,41 +842,7 @@ local function CreateModoptionWindow()
 				horizontalScrollbar = false,
 			}
 
-			-- Manually rebuild the sharing content
-			local column, row = 1, 0
-			for _, opt in ipairs(data.options or {}) do
-				-- Skip the sharing_mode option as it's handled by the special dropdown above
-				if opt.key ~= "sharing_mode" then
-					-- If this option is in a higher column than the previous, keep it on the same row
-					if (opt.column or -1) > column then
-						row = row - 1
-					end
-
-					local rowData = nil
-					if opt.type == "number" then
-						rowData = ProcessNumberOption(opt, row)
-					elseif opt.type == "string" then
-						rowData = ProcessStringOption(opt, row)
-					elseif opt.type == "subheader" then
-						rowData = ProcessSubHeader(opt, row)
-					elseif opt.type == "bool" then
-						rowData = ProcessBoolOption(opt, row)
-					elseif opt.type == "list" then
-						rowData = ProcessListOption(opt, row)
-					elseif opt.type == "separator" then
-						rowData = ProcessLineSeparator(opt, row)
-						row = row - 0.5
-					end
-					if rowData then
-						column = math.abs(opt.column or 1)
-						rowData.x = rowData.x + (column - 1) * 625
-						row = row + 1
-						rowData.rowOrginal = rowData.y
-						rowData.isSeparator = (opt.type == "separator")
-						sharingScroll:AddChild(rowData)
-					end
-				end
-			end
+			local sharingOptions = data.options or {}
 
 			-- Build Mode dropdown controls
 			local modeLabel = Label:New {
@@ -877,60 +892,70 @@ local function CreateModoptionWindow()
 				WG.SharingModePolicy.modeLocked = {}
 				rankedBadge:SetCaption(allowRanked and "" or "Not Ranked")
 				
-				-- Set the "Ranked Game" modoption when allowRanked is false
 				isProgrammaticUpdate = true
 				if not allowRanked then
 					localModoptions["ranked_game"] = "0"
 					UpdateControlValue("ranked_game", "0")
 				end
-				
-				-- Pass the selected mode to the game so it can make its own decisions
-				localModoptions["sharing_mode"] = modeKey
-				UpdateControlValue("sharing_mode", modeKey)
 				isProgrammaticUpdate = false
-				
-				-- Inform the lobby (if it listens) that ranked should be disabled for this mode
+
 				if WG.BattleRoomWindow and WG.BattleRoomWindow.SetRankedModeAllowed then
 					WG.BattleRoomWindow.SetRankedModeAllowed(allowRanked)
 				end
 
-				-- Chili has no declarative rendering, so we reset all rows to baseline
-				-- then re-apply the new mode's visibility/locks/values on top.
-				local toShow = {}
-				for child, _ in pairs(sharingScroll.children_hidden) do
-					if child.rowOrginal then
-						toShow[#toShow + 1] = child
-					end
-				end
-				for _, child in ipairs(toShow) do
-					child:SetPos(child.originalX or 0, child.rowOrginal)
-					if child.SetVisibility then child:SetVisibility(true) end
-				end
-				for _, child in ipairs(sharingScroll.children) do
-					if child.rowOrginal then
-						child:SetPos(nil, child.rowOrginal)
+				applySharingModeValues(mode)
+
+				-- Clear stale control references for sharing options
+				for _, opt in ipairs(sharingOptions) do
+					if opt.key then
+						modoptionControlNames[opt.key] = nil
+						lockedOverlaysByKey[opt.key] = nil
 					end
 				end
 
+				-- Wipe all existing controls and rebuild from scratch
+				sharingScroll:ClearChildren()
+
+				local column, row = 1, 0
+				for _, opt in ipairs(sharingOptions) do
+					if opt.key == "sharing_mode" then
+						-- handled by the header dropdown
+					elseif opt.optional and not (mode.modOptions and mode.modOptions[opt.key]) then
+						-- not whitelisted for this mode
+					elseif mode.modOptions and mode.modOptions[opt.key] and mode.modOptions[opt.key].ui == "hidden" then
+						-- explicitly hidden by this mode
+					else
+						if (opt.column or -1) > column then
+							row = row - 1
+						end
+
+						local rowData = nil
+						if opt.type == "number" then
+							rowData = ProcessNumberOption(opt, row)
+						elseif opt.type == "string" then
+							rowData = ProcessStringOption(opt, row)
+						elseif opt.type == "subheader" then
+							rowData = ProcessSubHeader(opt, row)
+						elseif opt.type == "bool" then
+							rowData = ProcessBoolOption(opt, row)
+						elseif opt.type == "list" then
+							rowData = ProcessListOption(opt, row)
+						elseif opt.type == "separator" then
+							rowData = ProcessLineSeparator(opt, row)
+							row = row - 0.5
+						end
+						if rowData then
+							column = math.abs(opt.column or 1)
+							rowData.x = rowData.x + (column - 1) * 625
+							row = row + 1
+							sharingScroll:AddChild(rowData)
+						end
+					end
+				end
+
+				-- Apply locks and policy after controls exist
 				if mode.modOptions then
 					for optKey, rule in pairs(mode.modOptions) do
-						if rule.value ~= nil then
-							local modeValue = rule.value
-							if type(modeValue) == "boolean" then modeValue = tostring((modeValue and 1) or 0) end
-							modeValue = tostring(modeValue)
-							
-							local isUserCustomized = userModifiedOptions[optKey] == true
-							local shouldApplyValue = rule.locked or not isUserCustomized
-							
-							Spring.Echo("[applyMode] " .. optKey .. ": value=" .. modeValue .. " locked=" .. tostring(rule.locked) .. " userMod=" .. tostring(isUserCustomized) .. " apply=" .. tostring(shouldApplyValue))
-							
-							if shouldApplyValue then
-								isProgrammaticUpdate = true
-								localModoptions[optKey] = modeValue
-								UpdateControlValue(optKey, modeValue)
-								isProgrammaticUpdate = false
-							end
-						end
 						if rule.locked then
 							lockedOptions[optKey] = 1
 							WG.SharingModePolicy.modeLocked[optKey] = true
@@ -940,109 +965,6 @@ local function CreateModoptionWindow()
 							WG.SharingModePolicy.modeLocked[optKey] = nil
 							SetControlLock(optKey, false)
 						end
-						if rule.ui == "hidden" then
-							local child = modoptionControlNames[optKey]
-							if child then
-								-- Hide the row: move its row container off-screen and hide
-								if child.parent and child.parent.name ~= "tabPanel" then
-									child = child.parent
-								end
-								-- Save the original x position before hiding so we can restore it later
-								if child.x and child.x >= 0 then
-									child.originalX = child.x
-								end
-								if child.SetPos then child:SetPos(child.x - 4095, child.y) end
-								if child.SetVisibility then child:SetVisibility(false) end
-							end
-						else
-							-- Ensure the row is visible (override any engine disabled rules)
-							local child = modoptionControlNames[optKey]
-							if child then
-								if child.parent and child.parent.name ~= "tabPanel" then
-									child = child.parent
-								end
-								if child.x and child.x < -1000 then
-									-- Restore to the original x position (column offset) instead of always 0
-									child:SetPos(child.originalX or 0, child.y)
-								end
-								if child.SetVisibility then child:SetVisibility(true) end
-							end
-						end
-					end
-				end
-
-				-- Handle optional modoptions: reset non-whitelisted to defaults, hide as needed
-				if modoptions then
-					for i = 1, #modoptions do
-						local opt = modoptions[i]
-						if opt.key and opt.optional then
-							local rule = mode.modOptions and mode.modOptions[opt.key]
-							local isWhitelisted = rule ~= nil
-							local isHidden = rule and rule.ui == "hidden"
-							
-							-- Reset non-whitelisted options to their default value
-							if not isWhitelisted and opt.def ~= nil then
-								local defaultValue = opt.def
-								if type(defaultValue) == "boolean" then defaultValue = tostring((defaultValue and 1) or 0) end
-								isProgrammaticUpdate = true
-								localModoptions[opt.key] = tostring(defaultValue)
-								UpdateControlValue(opt.key, tostring(defaultValue))
-								isProgrammaticUpdate = false
-							end
-							
-							local child = modoptionControlNames[opt.key]
-							if child then
-								if child.parent and child.parent.name ~= "tabPanel" then
-									child = child.parent
-								end
-								if isWhitelisted and not isHidden then
-									-- Show: restore position
-									if child.x and child.x < -1000 then
-										child:SetPos(child.originalX or 0, child.y)
-									end
-									if child.SetVisibility then child:SetVisibility(true) end
-								else
-									-- Hide: move off-screen (not whitelisted or explicitly hidden)
-									if child.x and child.x >= 0 then
-										child.originalX = child.x
-									end
-									if child.SetPos then child:SetPos((child.x or 0) - 4095, child.y) end
-									if child.SetVisibility then child:SetVisibility(false) end
-								end
-							end
-						end
-					end
-				end
-
-				-- Compact remaining visible rows to remove gaps left by hidden options.
-				local visibleRows = {}
-				for _, child in ipairs(sharingScroll.children) do
-					if child.rowOrginal and not visibleRows[child.rowOrginal] then
-						visibleRows[child.rowOrginal] = child.isSeparator
-					end
-				end
-
-				local sortedRows = {}
-				for rowOrig, _ in pairs(visibleRows) do
-					sortedRows[#sortedRows + 1] = rowOrig
-				end
-				table.sort(sortedRows)
-
-				local newYMap = {}
-				local currentSlot = 0
-				for _, rowOrig in ipairs(sortedRows) do
-					if visibleRows[rowOrig] then
-						newYMap[rowOrig] = currentSlot * 32 + 3
-						currentSlot = currentSlot + 0.5
-					else
-						newYMap[rowOrig] = currentSlot * 32
-						currentSlot = currentSlot + 1
-					end
-				end
-
-				for _, child in ipairs(sharingScroll.children) do
-					if child.rowOrginal and newYMap[child.rowOrginal] then
-						child:SetPos(nil, newYMap[child.rowOrginal])
 					end
 				end
 
@@ -1167,10 +1089,17 @@ local function CreateModoptionWindow()
 
 	local function AcceptFunc()
 		screen0:FocusControl(buttonAccept) -- Defocus the text entry
+
+		local mode = getActiveSharingMode()
+		if mode then
+			applySharingModeValues(mode)
+		end
+
 		local isBoss = false
 		if not isBoss then
+			local sharingLocked = WG.SharingModePolicy and WG.SharingModePolicy.modeLocked
 			for k, v in pairs(localModoptions) do
-				if lockedOptions[k] then
+				if lockedOptions[k] and not (sharingLocked and sharingLocked[k]) then
 					localModoptions[k] = battleLobby.modoptions[k]
 				end
 			end
