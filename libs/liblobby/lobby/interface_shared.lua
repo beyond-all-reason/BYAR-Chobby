@@ -248,6 +248,7 @@ function Interface:_OnCommandReceived(cmdName, arguments, cmdId)
 	else
 		fullCmd = cmdName
 	end
+	arguments = arguments or ""
 
 	if commandFunction ~= nil then
 		local pattern = self:_GetCommandPattern(cmdName)
