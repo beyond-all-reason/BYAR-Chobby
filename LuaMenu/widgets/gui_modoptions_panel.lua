@@ -25,7 +25,6 @@ local lockedOverlaysByKey = {}
 local battleLobby
 local localModoptions = {}
 local userModifiedOptions = {}
-local savedUserValues = {}
 local isProgrammaticUpdate = false
 local modoptionControlNames = {}
 local modoptions
@@ -183,7 +182,6 @@ end
 
 -- Applies the given mode's values to localModoptions, resets non-whitelisted
 -- optional options to their defaults, and sets the sharing_mode key.
--- Preserves user-customised values across mode switches via savedUserValues.
 local function applySharingModeValues(mode)
 	if not mode then return end
 
@@ -194,11 +192,8 @@ local function applySharingModeValues(mode)
 				if type(modeValue) == "boolean" then modeValue = tostring((modeValue and 1) or 0) end
 				modeValue = tostring(modeValue)
 
-				local isUserCustomized = userModifiedOptions[optKey] == true
-				if rule.locked or not isUserCustomized then
+				if rule.locked or not userModifiedOptions[optKey] then
 					localModoptions[optKey] = modeValue
-				elseif savedUserValues[optKey] ~= nil then
-					localModoptions[optKey] = savedUserValues[optKey]
 				end
 			end
 		end
@@ -210,10 +205,8 @@ local function applySharingModeValues(mode)
 			if opt.key and opt.optional then
 				local isWhitelisted = mode.modOptions and mode.modOptions[opt.key] ~= nil
 				if not isWhitelisted and modoptionDefaults[opt.key] then
-					if userModifiedOptions[opt.key] then
-						savedUserValues[opt.key] = localModoptions[opt.key]
-					end
 					localModoptions[opt.key] = modoptionDefaults[opt.key]
+					userModifiedOptions[opt.key] = nil
 				end
 			end
 		end
@@ -967,8 +960,6 @@ local function CreateModoptionWindow()
 						end
 					end
 				end
-
-				battleLobby:SetModOptions(localModoptions)
 			end
 
 			local defaultSelected = 1
@@ -1104,7 +1095,31 @@ local function CreateModoptionWindow()
 				end
 			end
 		end
-		battleLobby:SetModOptions(localModoptions)
+
+		local modeKeys
+		if mode and mode.modOptions then
+			modeKeys = { sharing_mode = true }
+			for optKey, _ in pairs(mode.modOptions) do
+				modeKeys[optKey] = true
+			end
+
+			local modeChanged = false
+			local modeOptions = {}
+			for k, v in pairs(localModoptions) do
+				if modeKeys[k] then
+					modeOptions[k] = v
+					if battleLobby.modoptions[k] ~= v then
+						modeChanged = true
+					end
+				end
+			end
+
+			if modeChanged then
+				battleLobby:SetMode(mode.key, modeOptions)
+			end
+		end
+
+		battleLobby:SetModOptions(localModoptions, modeKeys)
 		modoptionsSelectionWindow:Dispose()
 	end
 
@@ -1465,7 +1480,8 @@ function ModoptionsPanel.LoadModoptions(gameName, newBattleLobby)
 		sharingModes = VFS.UseArchive(gameName, LoadSharingOptions)
 		sharingModesByGame[gameName] = sharingModes
 	end
-
+	WG.SharingModes = sharingModes
+	WG.ModoptionDefs = modoptions
 
 	modoptionDefaults = {}
 	if not modoptions then

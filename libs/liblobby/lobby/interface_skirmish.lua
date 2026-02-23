@@ -619,6 +619,23 @@ function InterfaceSkirmish:SetModOptions(data)
 	return self
 end
 
+function InterfaceSkirmish:SetMode(modeKey, modeOptions)
+	local merged = {}
+	if self.modoptions then
+		for k, v in pairs(self.modoptions) do merged[k] = v end
+	end
+	for k, v in pairs(modeOptions) do merged[k] = v end
+	self:_OnSetModOptions(merged)
+
+	local parts = { "mode", tostring(modeKey) }
+	for k, v in pairs(modeOptions) do
+		parts[#parts + 1] = tostring(k) .. "=" .. tostring(v)
+	end
+	-- local fakeVoteMsg = "* " .. self:GetMyUserName() .. ' called a vote for command "' .. table.concat(parts, " ") .. '" [!vote y, !vote n, !vote b]'
+	-- self:_OnSaidBattleEx(self:GetMyUserName(), fakeVoteMsg)
+	return self
+end
+
 -------------------------------------------------
 -- END Client commands
 -------------------------------------------------

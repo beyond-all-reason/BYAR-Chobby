@@ -57,6 +57,140 @@ local btnStartBattle = nil
 local vote_votingsPattern = "(%d+)/(%d+).-:(%d+)"
 local vote_whoCalledPattern = "%* (.*) called a vote for command"
 local vote_mapPattern = 'set map (.*)"'
+local vote_modePattern = "^[Mm]ode (%S+)(.*)"
+
+local COLOR_GREEN  = "\255\100\255\100"
+local COLOR_GREY   = "\255\150\150\150"
+local COLOR_WHITE  = "\255\255\255\255"
+local COLOR_GOLD   = "\255\255\220\100"
+
+local function GetModoptionName(key)
+	local defs = WG.ModoptionDefs
+	if not defs then return key end
+	for i = 1, #defs do
+		if defs[i].key == key then
+			return defs[i].name or key
+		end
+	end
+	return key
+end
+
+local function IsOptionalModoption(key)
+	local defs = WG.ModoptionDefs
+	if not defs then return false end
+	for i = 1, #defs do
+		if defs[i].key == key then
+			return defs[i].optional == true
+		end
+	end
+	return false
+end
+
+local function ParseModeVoteTitle(rawTitle)
+	local modeKey, rest = string.match(rawTitle, vote_modePattern)
+	if not modeKey then return nil end
+
+	local votedOptions = {}
+	if rest then
+		for k, v in string.gmatch(rest, "(%S+)=(%S+)") do
+			votedOptions[k] = v
+		end
+	end
+
+	return modeKey, votedOptions
+end
+
+local function FormatModeVoteTitle(rawTitle)
+	local modeKey, votedOptions = ParseModeVoteTitle(rawTitle)
+	if not modeKey then return rawTitle, nil end
+
+	local sharingModes = WG.SharingModes
+	if not (sharingModes and sharingModes.modes) then return rawTitle, nil end
+
+	local mode
+	for _, m in ipairs(sharingModes.modes) do
+		if m.key == modeKey then mode = m; break end
+	end
+	if not mode then return rawTitle, nil end
+
+	local modeName = mode.name or modeKey
+
+	local deviations = {}
+	local defaults = {}
+	local disabled = {}
+
+	if mode.modOptions then
+		for optKey, rule in pairs(mode.modOptions) do
+			if optKey == "sharing_mode" then
+				-- skip
+			else
+				local modeDefault = tostring(rule.value)
+				if type(rule.value) == "boolean" then
+					modeDefault = rule.value and "1" or "0"
+				end
+				local votedVal = votedOptions[optKey]
+				local name = GetModoptionName(optKey)
+				if votedVal and votedVal ~= modeDefault then
+					deviations[#deviations + 1] = { name = name, value = votedVal, default = modeDefault }
+				else
+					defaults[#defaults + 1] = { name = name, value = votedVal or modeDefault }
+				end
+			end
+		end
+	end
+
+	local defs = WG.ModoptionDefs
+	if defs then
+		for i = 1, #defs do
+			local opt = defs[i]
+			if opt.key and opt.optional and opt.key ~= "sharing_mode" then
+				local inMode = mode.modOptions and mode.modOptions[opt.key]
+				if not inMode then
+					disabled[#disabled + 1] = opt.name or opt.key
+				end
+			end
+		end
+	end
+
+	-- Build compact display (for label)
+	local lines = {}
+	lines[#lines + 1] = COLOR_GOLD .. "Mode: " .. modeName .. COLOR_WHITE
+	if #deviations > 0 then
+		local parts = {}
+		for _, d in ipairs(deviations) do
+			parts[#parts + 1] = d.name .. ": " .. d.value
+		end
+		lines[#lines + 1] = COLOR_GREEN .. "  Custom: " .. table.concat(parts, ", ") .. COLOR_WHITE
+	end
+
+	local displayText = table.concat(lines, "\n")
+
+	-- Build tooltip (full 4-section detail)
+	local tipLines = {}
+	tipLines[#tipLines + 1] = "MODE: " .. modeName
+	if #deviations > 0 then
+		tipLines[#tipLines + 1] = ""
+		tipLines[#tipLines + 1] = "CUSTOMIZED:"
+		for _, d in ipairs(deviations) do
+			tipLines[#tipLines + 1] = "  " .. d.name .. ": " .. d.value .. " (default: " .. d.default .. ")"
+		end
+	end
+	if #defaults > 0 then
+		tipLines[#tipLines + 1] = ""
+		tipLines[#tipLines + 1] = "MODE DEFAULTS:"
+		for _, d in ipairs(defaults) do
+			tipLines[#tipLines + 1] = "  " .. d.name .. ": " .. d.value
+		end
+	end
+	if #disabled > 0 then
+		tipLines[#tipLines + 1] = ""
+		tipLines[#tipLines + 1] = "NOT ACTIVE IN THIS MODE:"
+		tipLines[#tipLines + 1] = "  " .. table.concat(disabled, ", ")
+	end
+	local tooltipText = table.concat(tipLines, "\n")
+
+	return displayText, tooltipText
+end
 
 local playerHandler
 
@@ -2507,7 +2641,7 @@ local function SetupVotePanel(votePanel, battle, battleID)
 	local oldVoteInitiator = ""
 	local oldTitle = ""
 
-	function externalFunctions.VoteUpdate(voteMessage, pollType, mapPoll, candidates, votesNeeded, pollUrl, voteInitiator, resetButtons)
+	function externalFunctions.VoteUpdate(voteMessage, pollType, mapPoll, candidates, votesNeeded, pollUrl, voteInitiator, resetButtons, modeTooltip)
 		--Spring.Echo("externalFunctions.VoteUpdate(voteMessage, pollType, mapPoll, candidates, votesNeeded, pollUrl, voteInitiator)",voteMessage, pollType, mapPoll, candidates, votesNeeded, pollUrl, voteInitiator)
 		UpdatePollType(pollType, mapPoll, pollUrl)
 
@@ -2523,6 +2657,7 @@ local function SetupVotePanel(votePanel, battle, battleID)
 		oldTitle = oldVoteInitiator.. " called a vote for:\n"..voteMessage..timeleft
 
 		voteName:SetCaption(oldTitle)
+		voteName.tooltip = modeTooltip
 		if votesNeeded == -1 then 
 			voteCountLabel:SetCaption(tostring(candidates[1].votes))
 			voteProgressYes:SetValue(0)
@@ -3871,7 +4006,16 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 
 			local title = string.sub(message, string.find(message, ' "',nil,true) + 2, string.find(message, '" ', nil, true) - 1)
 			title = title:sub(1, 1):upper() .. title:sub(2)
-			votePanel.VoteUpdate(title,nil, ismapppoll, candidates, votesNeeded, mapname, userwhocalledvote, newlycalledvote)
+			local modeTooltip
+			local modeKey = ParseModeVoteTitle(title)
+			if modeKey then
+				title, modeTooltip = FormatModeVoteTitle(title)
+				Spring.Echo("[ModeVote] Display: " .. title)
+				if modeTooltip then
+					Spring.Echo("[ModeVote] Tooltip:\n" .. modeTooltip)
+				end
+			end
+			votePanel.VoteUpdate(title,nil, ismapppoll, candidates, votesNeeded, mapname, userwhocalledvote, newlycalledvote, modeTooltip)
 			return true
 
 		elseif string.match(message, "Vote for command.*passed" ) then	--[21:13:58] * [teh]host * Vote for command "bSet coop 1" passed. --voteend
