@@ -1272,6 +1272,13 @@ function LoginWindow:tryRegister()
 		return
 	end
 
+	local email = self.ebEmail.text
+	local isInvalidEmail = isInValidEmail(email)
+	if isInvalidEmail then
+		self.txtErrorRegister:SetText(Configuration:GetErrorColor() .. isInvalidEmail)
+		return
+	end
+
     if (not Configuration.firstLoginEver) and (VFS.CalculateHash(self.TextAcknowledgementBox.text, 1) ~= "a374635fe062d9b6694049d64b3f3c69527e7a0a63628b2374fed654da7388e549aa7a5294e3b05295b6a450edf22b5b4f289955c56e281085f65680fbdbe052") then
 		self.txtErrorRegister:SetText(Configuration:GetErrorColor() .. "Contact moderation first (#open-ticket on Discord).")
         return
@@ -1290,12 +1297,6 @@ function LoginWindow:tryRegister()
 
 	if email == '' then
 		self.txtErrorRegister:SetText(Configuration:GetErrorColor() .. "No email provided.")
-		return
-	end
-
-	local isInvalidEmail = isInValidEmail(email)
-	if isInvalidEmail then
-		self.txtErrorRegister:SetText(Configuration:GetErrorColor() .. isInvalidEmail)
 		return
 	end
 
