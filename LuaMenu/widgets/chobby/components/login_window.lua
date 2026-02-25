@@ -1236,7 +1236,11 @@ function isInValidEmail(email)
 		["web.de"] = {"webb.de", "weeb.de", "web.dee", "web.dde", "web.ed", "webde.de", "web-de.de", "wed.de"},
 		["gmx.de"] = {"gmmx.de", "ggmx.de", "gmxx.de", "gmx.ed", "gmx.dee", "gmx.dde", "gmx.ed", "gmz.de"},
 		["freenet.de"] = {"freeenet.de", "freenett.de", "ffreenet.de", "freenet.ed", "freenet.dee", "freenet.dde", "freenet.ed", "free-net.de", "freenet-mobilfunk.de", "frenet.de", "freenete.de"},
-		["t-online.de"] = {"t-onlin.de", "tt-online.de", "t-onlinee.de", "t-online.ed", "t-online.dee", "t-online.dde", "t-online.ed", "t-onnline.de", "t-oonline.de", "tonline.de", "t-onine.de", "tonline.de", "t-oneline.de", "t.online.de"}
+		["t-online.de"] = {"t-onlin.de", "tt-online.de", "t-onlinee.de", "t-online.ed", "t-online.dee", "t-online.dde", "t-online.ed", "t-onnline.de", "t-oonline.de", "tonline.de", "t-onine.de", "tonline.de", "t-oneline.de", "t.online.de"},
+		["protonmail.com"] = {"protonmail.co", "protonmail.cm", "protonmail.con", "protonmaill.com", "protonmai.com", "protomail.com", "protronmail.com", "prontonmail.com", "protonnmail.com", "protonmial.com"},
+		["proton.me"] = {"proton.me.com", "proton.ne", "proton.ms", "proton.mr", "protom.me", "protron.me", "protonm.me"},
+		["pm.me"] = {"pmme.com", "pm.me.com", "pn.me", "pm.ne", "pm.ms", "pm.mr", "pm-me.me"},
+		["protonmail.ch"] = {"protonmail.c", "protonmail.h", "protonmail.ch.", "protonmai.ch", "protonmial.ch", "protomail.ch", "protronmail.ch", "prontonmail.ch"}
 	}
 	
 	-- Check if the domain is a known typo
