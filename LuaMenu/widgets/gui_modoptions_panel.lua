@@ -15,10 +15,10 @@ end
 -- Structure
 local modoptionDefaults = {}
 local modoptionStructure = {}
-local sharingModesByGame = {}
-local sharingModes
-local selectedSharingModeKey
-local sharingUI = { modeList = nil, rankedBadge = nil }
+local modesByGame = {}
+local activeModes = {}
+local selectedModeKeys = {}
+local modeUI = {}
 local lockedOverlaysByKey = {}
 
 -- Variables
@@ -172,17 +172,19 @@ local function getModOptionByKey(key)
 	return retOption
 end
 
-local function getActiveSharingMode()
-	if not (sharingModes and sharingModes.modes and selectedSharingModeKey) then return nil end
-	for _, m in ipairs(sharingModes.modes) do
-		if m.key == selectedSharingModeKey then return m end
+local function getActiveMode(category)
+	local catModes = activeModes[category]
+	local selectedKey = selectedModeKeys[category]
+	if not (catModes and catModes.modes and selectedKey) then return nil end
+	for _, m in ipairs(catModes.modes) do
+		if m.key == selectedKey then return m end
 	end
 	return nil
 end
 
 -- Applies the given mode's values to localModoptions, resets non-whitelisted
--- optional options to their defaults, and sets the sharing_mode key.
-local function applySharingModeValues(mode)
+-- mode options to their defaults, and sets the category_mode key.
+local function applyModeValues(mode)
 	if not mode then return end
 
 	if mode.modOptions then
@@ -202,7 +204,7 @@ local function applySharingModeValues(mode)
 	if modoptions then
 		for i = 1, #modoptions do
 			local opt = modoptions[i]
-			if opt.key and opt.optional then
+			if opt.key and opt.section == mode.category then
 				local isWhitelisted = mode.modOptions and mode.modOptions[opt.key] ~= nil
 				if not isWhitelisted and modoptionDefaults[opt.key] then
 					localModoptions[opt.key] = modoptionDefaults[opt.key]
@@ -212,7 +214,7 @@ local function applySharingModeValues(mode)
 		end
 	end
 
-	localModoptions["sharing_mode"] = mode.key
+	localModoptions[mode.category .. "_mode"] = mode.key
 end
 
 --------------------------------------------------------------------------------
@@ -788,6 +790,206 @@ end
 
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
+-- Mode Panel
+
+local function CreateModePanel(category, sectionData)
+	local selectorKey = category .. "_mode"
+	local catModes = activeModes[category]
+
+	local modeScroll = ScrollPanel:New {
+		name = "modeTabPanel_" .. category .. "_" .. (math.random(1000, 9999)),
+		x = 10,
+		right = 10,
+		y = 56,
+		bottom = 10,
+		horizontalScrollbar = false,
+	}
+
+	local panelOptions = sectionData.options or {}
+
+	local selectorOpt = nil
+	for _, opt in ipairs(panelOptions) do
+		if opt.key == selectorKey then selectorOpt = opt; break end
+	end
+
+	local modeLabel = Label:New {
+		x = 15,
+		y = 10,
+		width = 200,
+		height = 30,
+		valign = "center",
+		align = "left",
+		caption = selectorOpt and selectorOpt.name or (category:sub(1,1):upper() .. category:sub(2) .. " Mode"),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+	}
+
+	local items, itemKeyToName, itemNameToKey = {}, {}, {}
+	if catModes and catModes.modes then
+		for i, m in ipairs(catModes.modes) do
+			local name = m.name or m.key
+			items[i] = name
+			itemKeyToName[m.key] = name
+			itemNameToKey[name] = m.key
+		end
+	end
+
+	local rankedBadge = Label:New {
+		x = 650,
+		y = 10,
+		width = 220,
+		height = 30,
+		valign = "center",
+		align = "left",
+		caption = "",
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2, nil, {color = {1,0.3,0.3,1}}),
+	}
+
+	local function applyMode(modeKey)
+		if not (catModes and catModes.modes) then return end
+		selectedModeKeys[category] = modeKey
+		local mode
+		for _, m in ipairs(catModes.modes) do
+			if m.key == modeKey then mode = m; break end
+		end
+		if not mode then return end
+
+		local allowRanked = (mode.allowRanked ~= false)
+		WG.ModePolicy = WG.ModePolicy or {}
+		WG.ModePolicy[category] = WG.ModePolicy[category] or {}
+		WG.ModePolicy[category].allowRanked = allowRanked
+		WG.ModePolicy[category].modeLocked = {}
+		rankedBadge:SetCaption(allowRanked and "" or "Not Ranked")
+
+		isProgrammaticUpdate = true
+		if not allowRanked then
+			localModoptions["ranked_game"] = "0"
+			UpdateControlValue("ranked_game", "0")
+		end
+		isProgrammaticUpdate = false
+
+		if WG.BattleRoomWindow and WG.BattleRoomWindow.SetRankedModeAllowed then
+			WG.BattleRoomWindow.SetRankedModeAllowed(allowRanked)
+		end
+
+		applyModeValues(mode)
+
+		for _, opt in ipairs(panelOptions) do
+			if opt.key then
+				modoptionControlNames[opt.key] = nil
+				lockedOverlaysByKey[opt.key] = nil
+			end
+		end
+
+		modeScroll:ClearChildren()
+
+		local column, row = 1, 0
+		for _, opt in ipairs(panelOptions) do
+			if opt.key == selectorKey then
+				-- handled by the header dropdown
+			elseif opt.type ~= "subheader" and opt.type ~= "separator"
+				and not (mode.modOptions and mode.modOptions[opt.key]) then
+				-- not whitelisted for this mode
+			elseif mode.modOptions and mode.modOptions[opt.key] and mode.modOptions[opt.key].ui == "hidden" then
+				-- explicitly hidden by this mode
+			else
+				if (opt.column or -1) > column then
+					row = row - 1
+				end
+
+				local rowData = nil
+				if opt.type == "number" then
+					rowData = ProcessNumberOption(opt, row)
+				elseif opt.type == "string" then
+					rowData = ProcessStringOption(opt, row)
+				elseif opt.type == "subheader" then
+					rowData = ProcessSubHeader(opt, row)
+				elseif opt.type == "bool" then
+					rowData = ProcessBoolOption(opt, row)
+				elseif opt.type == "list" then
+					rowData = ProcessListOption(opt, row)
+				elseif opt.type == "separator" then
+					rowData = ProcessLineSeparator(opt, row)
+					row = row - 0.5
+				end
+				if rowData then
+					column = math.abs(opt.column or 1)
+					rowData.x = rowData.x + (column - 1) * 625
+					row = row + 1
+					rowData.rowOrginal = rowData.y
+					modeScroll:AddChild(rowData)
+				end
+			end
+		end
+
+		if mode.modOptions then
+			for optKey, rule in pairs(mode.modOptions) do
+				if rule.locked then
+					lockedOptions[optKey] = 1
+					WG.ModePolicy[category].modeLocked[optKey] = true
+					SetControlLock(optKey, true)
+				else
+					lockedOptions[optKey] = nil
+					WG.ModePolicy[category].modeLocked[optKey] = nil
+					SetControlLock(optKey, false)
+				end
+			end
+		end
+	end
+
+	local defaultSelected = 1
+	if catModes and catModes.modes then
+		for i, m in ipairs(catModes.modes) do
+			if m.key == (selectedModeKeys[category] or "enabled") then
+				defaultSelected = i; break
+			end
+		end
+	end
+
+	local modeList = ComboBox:New {
+		x = 340,
+		y = 11,
+		width = 300,
+		height = 30,
+		items = items,
+		selectByName = true,
+		selected = defaultSelected,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		OnSelectName = {
+			function (obj, selectedName)
+				local k = itemNameToKey[selectedName]
+				WG.Delay(function()
+					applyMode(k)
+				end, 0.05)
+			end
+		},
+	}
+
+	modeUI[category] = { modeList = modeList, rankedBadge = rankedBadge }
+
+	local parentPanel = Control:New {
+		name = "modeParentPanel_" .. category .. "_" .. (math.random(1000, 9999)),
+		x = 6,
+		right = 5,
+		y = 10,
+		bottom = 8,
+		padding = {0,0,0,0},
+	}
+
+	parentPanel:AddChild(modeLabel)
+	parentPanel:AddChild(modeList)
+	parentPanel:AddChild(rankedBadge)
+	parentPanel:AddChild(Line:New { classname = "line_solid", x = 10, y = 48, right = 10, height = 2 })
+	parentPanel:AddChild(modeScroll)
+
+	if catModes and catModes.modes and catModes.modes[defaultSelected] then
+		applyMode(catModes.modes[defaultSelected].key)
+	end
+
+	return { parentPanel }
+end
+
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 -- Modoptions Window Handler
 
 local function CreateModoptionWindow()
@@ -824,201 +1026,10 @@ local function CreateModoptionWindow()
 		if origCaption ~= caption then
 			tooltip = origCaption
 		end
-		local children = (key ~= "options_sharing") and PopulateTab(data.options) or {}
-		if key == "options_sharing" then
-			local sharingScroll = ScrollPanel:New {
-				name = "sharingTabPanel_" .. (math.random(1000, 9999)),
-				x = 10,
-				right = 10,
-				y = 56,
-				bottom = 10,
-				horizontalScrollbar = false,
-			}
-
-			local sharingOptions = data.options or {}
-
-			-- Build Mode dropdown controls
-			local modeLabel = Label:New {
-				x = 15,
-				y = 10,
-				width = 200,
-				height = 30,
-				valign = "center",
-				align = "left",
-				caption = "Mode",
-				objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
-			}
-
-			local items, itemKeyToName, itemNameToKey = {}, {}, {}
-			if sharingModes and sharingModes.modes then
-				for i, m in ipairs(sharingModes.modes) do
-					local name = m.name or m.key
-					items[i] = name
-					itemKeyToName[m.key] = name
-					itemNameToKey[name] = m.key
-				end
-			end
-
-			local rankedBadge = Label:New {
-				x = 650,
-				y = 10,
-				width = 220,
-				height = 30,
-				valign = "center",
-				align = "left",
-				caption = "",
-				objectOverrideFont = WG.Chobby.Configuration:GetFont(2, nil, {color = {1,0.3,0.3,1}}),
-			}
-
-			local function applyMode(modeKey)
-				if not (sharingModes and sharingModes.modes) then return end
-				selectedSharingModeKey = modeKey
-				local mode
-				for _, m in ipairs(sharingModes.modes) do
-					if m.key == modeKey then mode = m; break end
-				end
-				if not mode then return end
-
-				local allowRanked = (mode.allowRanked ~= false)
-				WG.SharingModePolicy = WG.SharingModePolicy or {}
-				WG.SharingModePolicy.allowRanked = allowRanked
-				WG.SharingModePolicy.modeLocked = {}
-				rankedBadge:SetCaption(allowRanked and "" or "Not Ranked")
-				
-				isProgrammaticUpdate = true
-				if not allowRanked then
-					localModoptions["ranked_game"] = "0"
-					UpdateControlValue("ranked_game", "0")
-				end
-				isProgrammaticUpdate = false
-
-				if WG.BattleRoomWindow and WG.BattleRoomWindow.SetRankedModeAllowed then
-					WG.BattleRoomWindow.SetRankedModeAllowed(allowRanked)
-				end
-
-				applySharingModeValues(mode)
-
-				-- Clear stale control references for sharing options
-				for _, opt in ipairs(sharingOptions) do
-					if opt.key then
-						modoptionControlNames[opt.key] = nil
-						lockedOverlaysByKey[opt.key] = nil
-					end
-				end
-
-				-- Wipe all existing controls and rebuild from scratch
-				sharingScroll:ClearChildren()
-
-				local column, row = 1, 0
-				for _, opt in ipairs(sharingOptions) do
-					if opt.key == "sharing_mode" then
-						-- handled by the header dropdown
-					elseif opt.optional and not (mode.modOptions and mode.modOptions[opt.key]) then
-						-- not whitelisted for this mode
-					elseif mode.modOptions and mode.modOptions[opt.key] and mode.modOptions[opt.key].ui == "hidden" then
-						-- explicitly hidden by this mode
-					else
-						if (opt.column or -1) > column then
-							row = row - 1
-						end
-
-						local rowData = nil
-						if opt.type == "number" then
-							rowData = ProcessNumberOption(opt, row)
-						elseif opt.type == "string" then
-							rowData = ProcessStringOption(opt, row)
-						elseif opt.type == "subheader" then
-							rowData = ProcessSubHeader(opt, row)
-						elseif opt.type == "bool" then
-							rowData = ProcessBoolOption(opt, row)
-						elseif opt.type == "list" then
-							rowData = ProcessListOption(opt, row)
-						elseif opt.type == "separator" then
-							rowData = ProcessLineSeparator(opt, row)
-							row = row - 0.5
-						end
-						if rowData then
-							column = math.abs(opt.column or 1)
-							rowData.x = rowData.x + (column - 1) * 625
-							row = row + 1
-							sharingScroll:AddChild(rowData)
-						end
-					end
-				end
-
-				-- Apply locks and policy after controls exist
-				if mode.modOptions then
-					for optKey, rule in pairs(mode.modOptions) do
-						if rule.locked then
-							lockedOptions[optKey] = 1
-							WG.SharingModePolicy.modeLocked[optKey] = true
-							SetControlLock(optKey, true)
-						else
-							lockedOptions[optKey] = nil
-							WG.SharingModePolicy.modeLocked[optKey] = nil
-							SetControlLock(optKey, false)
-						end
-					end
-				end
-			end
-
-			local defaultSelected = 1
-			if sharingModes and sharingModes.modes then
-				for i, m in ipairs(sharingModes.modes) do
-					if m.key == (selectedSharingModeKey or "enabled") then
-						defaultSelected = i; break
-					end
-				end
-			end
-
-			local modeList = ComboBox:New {
-				x = 340,
-				y = 11,
-				width = 300,
-				height = 30,
-				items = items,
-				selectByName = true,
-				selected = defaultSelected,
-				objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
-				OnSelectName = {
-					function (obj, selectedName)
-						local key = itemNameToKey[selectedName]
-						-- Defer mode application to allow dropdown to close first
-						WG.Delay(function()
-							applyMode(key)
-						end, 0.05)
-					end
-				},
-			}
-
-			sharingUI.modeList = modeList
-			sharingUI.rankedBadge = rankedBadge
-
-			-- Create a parent panel that contains both header and content
-			local parentPanel = Control:New {
-				name = "sharingParentPanel_" .. (math.random(1000, 9999)),
-				x = 6,
-				right = 5,
-				y = 10,
-				bottom = 8,
-				padding = {0,0,0,0},
-			}
-
-			-- Add Mode controls to parent panel
-			parentPanel:AddChild(modeLabel)
-			parentPanel:AddChild(modeList)
-			parentPanel:AddChild(rankedBadge)
-			parentPanel:AddChild(Line:New { classname = "line_solid", x = 10, y = 48, right = 10, height = 2 })
-
-			-- Add the fresh scroll to the parent panel
-			parentPanel:AddChild(sharingScroll)
-			
-			children = { parentPanel }
-
-			-- Apply the selected mode immediately
-			if sharingModes and sharingModes.modes and sharingModes.modes[defaultSelected] then
-				applyMode(sharingModes.modes[defaultSelected].key)
-			end
+		local catModes = activeModes[key]
+		local children = (not catModes) and PopulateTab(data.options) or {}
+		if catModes then
+			children = CreateModePanel(key, data)
 		end
 
 		tabs[#tabs + 1] = {
@@ -1081,45 +1092,64 @@ local function CreateModoptionWindow()
 	local function AcceptFunc()
 		screen0:FocusControl(buttonAccept) -- Defocus the text entry
 
-		local mode = getActiveSharingMode()
-		if mode then
-			applySharingModeValues(mode)
+		local allModeKeys
+		for cat, _ in pairs(activeModes) do
+			local mode = getActiveMode(cat)
+			if mode then
+				applyModeValues(mode)
+
+				local selectorKey = cat .. "_mode"
+				allModeKeys = allModeKeys or {}
+				allModeKeys[selectorKey] = true
+				if mode.modOptions then
+					for optKey, _ in pairs(mode.modOptions) do
+						allModeKeys[optKey] = true
+					end
+				end
+			end
 		end
 
 		local isBoss = false
 		if not isBoss then
-			local sharingLocked = WG.SharingModePolicy and WG.SharingModePolicy.modeLocked
+			local policy = WG.ModePolicy or {}
 			for k, v in pairs(localModoptions) do
-				if lockedOptions[k] and not (sharingLocked and sharingLocked[k]) then
-					localModoptions[k] = battleLobby.modoptions[k]
-				end
-			end
-		end
-
-		local modeKeys
-		if mode and mode.modOptions then
-			modeKeys = { sharing_mode = true }
-			for optKey, _ in pairs(mode.modOptions) do
-				modeKeys[optKey] = true
-			end
-
-			local modeChanged = false
-			local modeOptions = {}
-			for k, v in pairs(localModoptions) do
-				if modeKeys[k] then
-					modeOptions[k] = v
-					if battleLobby.modoptions[k] ~= v then
-						modeChanged = true
+				if lockedOptions[k] then
+					local isModeLocked = false
+					for cat, catPolicy in pairs(policy) do
+						if catPolicy.modeLocked and catPolicy.modeLocked[k] then
+							isModeLocked = true
+							break
+						end
+					end
+					if not isModeLocked then
+						localModoptions[k] = battleLobby.modoptions[k]
 					end
 				end
 			end
+		end
 
-			if modeChanged then
-				battleLobby:SetMode(mode.key, modeOptions)
+		for cat, _ in pairs(activeModes) do
+			local mode = getActiveMode(cat)
+			if mode and mode.modOptions then
+				local selectorKey = cat .. "_mode"
+				local modeChanged = false
+				local modeOptions = {}
+				for k, v in pairs(localModoptions) do
+					if allModeKeys and allModeKeys[k] then
+						modeOptions[k] = v
+						if battleLobby.modoptions[k] ~= v then
+							modeChanged = true
+						end
+					end
+				end
+
+				if modeChanged then
+					battleLobby:SetMode(mode.category, mode.key, modeOptions)
+				end
 			end
 		end
 
-		battleLobby:SetModOptions(localModoptions, modeKeys)
+		battleLobby:SetModOptions(localModoptions, allModeKeys)
 		modoptionsSelectionWindow:Dispose()
 	end
 
@@ -1377,8 +1407,6 @@ function ModoptionsPanel.RefreshModoptions()
 		sections = {}
 	}
 
-	-- Populate the sections; gather sharing_category into a dedicated Sharing tab
-	local sharingOptions = {}
 	for i = 1, #modoptions do
 		local data = modoptions[i]
 		if data.type == "section" then
@@ -1453,34 +1481,33 @@ function ModoptionsPanel.LoadModoptions(gameName, newBattleLobby)
 
 	end
 
-		-- Load sharing modes from Lua files in modes/ directory
-	local function LoadSharingOptions()
-		local sharingModes = {}
-		
-		-- Get all .lua files in modes/ directory (excluding global_enums.lua)
-		local modeFiles = VFS.DirList("modes/", "*.lua", VFS.ZIP)
-		
-		for _, modeFile in ipairs(modeFiles) do
-			-- Skip global_enums.lua as it's not a sharing mode
-			if not modeFile:match("global_enums%.lua$") then
+	local function LoadModes()
+		local byCategory = {}
+
+		local modeDirs = VFS.SubDirs("modes/", "*", VFS.ZIP)
+		for _, dir in ipairs(modeDirs) do
+			local modeFiles = VFS.DirList(dir, "*.lua", VFS.ZIP)
+			for _, modeFile in ipairs(modeFiles) do
 				local mode = VFS.Include(modeFile)
-				if mode and mode.key then
-					sharingModes[#sharingModes + 1] = mode
+				if mode and mode.key and mode.category then
+					byCategory[mode.category] = byCategory[mode.category] or { modes = {} }
+					local modes = byCategory[mode.category].modes
+					modes[#modes + 1] = mode
 				end
 			end
 		end
-		
-		if #sharingModes > 0 then
-			return { modes = sharingModes }
+
+		if next(byCategory) then
+			return byCategory
 		end
 		return nil
 	end
-	sharingModes = sharingModesByGame[gameName]
-	if not sharingModes then
-		sharingModes = VFS.UseArchive(gameName, LoadSharingOptions)
-		sharingModesByGame[gameName] = sharingModes
+	activeModes = modesByGame[gameName]
+	if not activeModes then
+		activeModes = VFS.UseArchive(gameName, LoadModes) or {}
+		modesByGame[gameName] = activeModes
 	end
-	WG.SharingModes = sharingModes
+	WG.Modes = activeModes
 	WG.ModoptionDefs = modoptions
 
 	modoptionDefaults = {}
@@ -1488,13 +1515,14 @@ function ModoptionsPanel.LoadModoptions(gameName, newBattleLobby)
 		return
 	end
 
-	-- Populate sharing mode items dynamically
-	if sharingModes and sharingModes.modes then
+	-- Populate mode selector items dynamically for each category
+	for cat, catModes in pairs(activeModes) do
+		local selectorKey = cat .. "_mode"
 		for i = 1, #modoptions do
 			local data = modoptions[i]
-			if data.key == "sharing_mode" and data.type == "list" then
+			if data.key == selectorKey and data.type == "list" then
 				data.items = {}
-				for _, mode in ipairs(sharingModes.modes) do
+				for _, mode in ipairs(catModes.modes) do
 					data.items[#data.items + 1] = {
 						key = mode.key,
 						name = mode.name,

@@ -39,12 +39,13 @@ def hSpadsMode(source, user, params, checkOnly):
     for i in range(len(params)):
         params[i] = spads.fix_string(params[i])
 
-    if len(params) < 1:
+    if len(params) < 2:
         spads.invalidSyntax(user, 'mode')
         return 0
 
-    mode_key = params[0]
-    kv_params = params[1:]
+    category = params[0]
+    mode_key = params[1]
+    kv_params = params[2:]
 
     settings = []
     for param in kv_params:
@@ -63,8 +64,15 @@ def hSpadsMode(source, user, params, checkOnly):
         change_descs.append('%s=%s' % (key, val))
 
     changes_str = ', '.join(change_descs)
-    spads.sayBattleAndGame('Mode "%s" applied by %s (%s)' % (mode_key, user, changes_str))
+    mode_label = '%s %s' % (category, mode_key)
+    if changes_str:
+        spads.sayBattleAndGame('Mode "%s" applied by %s (%s)' % (mode_label, user, changes_str))
+    else:
+        spads.sayBattleAndGame('Mode "%s" applied by %s' % (mode_label, user))
     if source == 'pv':
-        spads.answer('Mode "%s" applied (%s)' % (mode_key, changes_str))
+        if changes_str:
+            spads.answer('Mode "%s" applied (%s)' % (mode_label, changes_str))
+        else:
+            spads.answer('Mode "%s" applied' % mode_label)
 
     return 1

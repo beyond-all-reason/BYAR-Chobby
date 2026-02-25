@@ -1,5 +1,4 @@
 [mode]
-!mode <modeName> [<key1>=<value1> ...] - Apply a gameplay mode with optional customizations
-  Ex: !mode easy_tax
-  Ex: !mode easy_tax unit_share_stun_seconds=45 tax_resource_sharing_amount=0.5
-  Ex: !mode enabled
+!mode <category> <modeName> [<key1>=<value1> ...] - Apply a gameplay mode with optional customizations
+  Ex: !mode sharing enabled
+  Ex: !mode sharing easy_tax unit_share_stun_seconds=45 tax_resource_sharing_amount=0.5

@@ -509,8 +509,8 @@ function Interface:SetModOptions(data, skipKeys)
 	return self
 end
 
-function Interface:SetMode(modeKey, modeOptions)
-	local parts = { "!mode", tostring(modeKey) }
+function Interface:SetMode(category, modeKey, modeOptions)
+	local parts = { "!mode", tostring(category), tostring(modeKey) }
 	for k, v in pairs(modeOptions) do
 		parts[#parts + 1] = tostring(k) .. "=" .. tostring(v)
 	end

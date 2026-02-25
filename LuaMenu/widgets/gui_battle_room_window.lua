@@ -57,7 +57,7 @@ local btnStartBattle = nil
 local vote_votingsPattern = "(%d+)/(%d+).-:(%d+)"
 local vote_whoCalledPattern = "%* (.*) called a vote for command"
 local vote_mapPattern = 'set map (.*)"'
-local vote_modePattern = "^[Mm]ode (%S+)(.*)"
+local vote_modePattern = "^[Mm]ode (%S+) (%S+)(.*)"
 
 local COLOR_GREEN  = "\255\100\255\100"
 local COLOR_GREY   = "\255\150\150\150"
@@ -87,7 +87,7 @@ local function IsOptionalModoption(key)
 end
 
 local function ParseModeVoteTitle(rawTitle)
-	local modeKey, rest = string.match(rawTitle, vote_modePattern)
+	local category, modeKey, rest = string.match(rawTitle, vote_modePattern)
 	if not modeKey then return nil end
 
 	local votedOptions = {}
@@ -97,18 +97,19 @@ local function ParseModeVoteTitle(rawTitle)
 		end
 	end
 
-	return modeKey, votedOptions
+	return category, modeKey, votedOptions
 end
 
 local function FormatModeVoteTitle(rawTitle)
-	local modeKey, votedOptions = ParseModeVoteTitle(rawTitle)
+	local category, modeKey, votedOptions = ParseModeVoteTitle(rawTitle)
 	if not modeKey then return rawTitle, nil end
 
-	local sharingModes = WG.SharingModes
-	if not (sharingModes and sharingModes.modes) then return rawTitle, nil end
+	local allModes = WG.Modes
+	local catModes = allModes and allModes[category]
+	if not (catModes and catModes.modes) then return rawTitle, nil end
 
 	local mode
-	for _, m in ipairs(sharingModes.modes) do
+	for _, m in ipairs(catModes.modes) do
 		if m.key == modeKey then mode = m; break end
 	end
 	if not mode then return rawTitle, nil end
@@ -121,7 +122,7 @@ local function FormatModeVoteTitle(rawTitle)
 
 	if mode.modOptions then
 		for optKey, rule in pairs(mode.modOptions) do
-			if optKey == "sharing_mode" then
+			if optKey == (category .. "_mode") then
 				-- skip
 			else
 				local modeDefault = tostring(rule.value)
@@ -143,7 +144,7 @@ local function FormatModeVoteTitle(rawTitle)
 	if defs then
 		for i = 1, #defs do
 			local opt = defs[i]
-			if opt.key and opt.optional and opt.key ~= "sharing_mode" then
+			if opt.key and opt.section == category and opt.key ~= (category .. "_mode") then
 				local inMode = mode.modOptions and mode.modOptions[opt.key]
 				if not inMode then
 					disabled[#disabled + 1] = opt.name or opt.key
@@ -4007,8 +4008,8 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 			local title = string.sub(message, string.find(message, ' "',nil,true) + 2, string.find(message, '" ', nil, true) - 1)
 			title = title:sub(1, 1):upper() .. title:sub(2)
 			local modeTooltip
-			local modeKey = ParseModeVoteTitle(title)
-			if modeKey then
+			local _, parsedModeKey = ParseModeVoteTitle(title)
+			if parsedModeKey then
 				title, modeTooltip = FormatModeVoteTitle(title)
 				Spring.Echo("[ModeVote] Display: " .. title)
 				if modeTooltip then
