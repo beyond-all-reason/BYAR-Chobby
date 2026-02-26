@@ -148,7 +148,9 @@ local function BuildRandomSkirmishSetup()
 		local teamCount = tonumber(details.TeamCount) or 2
 		local playerCount = tonumber(details.PlayerCount) or (teamCount * 2)
 
-		if (not details.IsFFA) and teamCount >= 2 and playerCount >= teamCount then
+		local isTeamMap = details.IsTeam
+		local isFFAMap = details.IsFFA
+		if ((isTeamMap or (not isFFAMap)) and teamCount >= 2 and playerCount >= teamCount) then
 			validMaps[#validMaps + 1] = {
 				mapName = mapName,
 				teamCount = teamCount,
