@@ -61,6 +61,7 @@ local playerHandler
 
 -- modoptions extra
 local factionComboBoxes = {}
+local randomSkirmishCooldownEnds = 0
 
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
@@ -139,7 +140,149 @@ local OpenNewTeam
 --------------------------------------------------------------------------------
 -- Chili/interface management
 
-local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUserName)
+local function BuildRandomSkirmishSetup()
+	local mapDetails = VFS.Include("luamenu/configs/gameconfig/byar/mapdetails.lua")
+	local validMaps = {}
+
+	for mapName, details in pairs(mapDetails or {}) do
+		local teamCount = tonumber(details.TeamCount) or 2
+		local playerCount = tonumber(details.PlayerCount) or (teamCount * 2)
+
+		if (not details.IsFFA) and teamCount >= 2 and playerCount >= teamCount then
+			validMaps[#validMaps + 1] = {
+				mapName = mapName,
+				teamCount = teamCount,
+				playerCount = playerCount,
+			}
+		end
+	end
+
+	if #validMaps == 0 then
+		return nil
+	end
+
+	local picked = validMaps[math.random(1, #validMaps)]
+	local teamCount = picked.teamCount
+	local playersPerTeam = math.max(1, math.floor((picked.playerCount / teamCount) + 0.5))
+
+	local setup = {
+		map = picked.mapName,
+		teamCount = teamCount,
+		playersPerTeam = playersPerTeam,
+		friendlyAI = {},
+		enemyAI = {},
+	}
+
+	for allyTeam = 0, teamCount - 1 do
+		local botCount = playersPerTeam
+		if allyTeam == 0 then
+			botCount = math.max(0, botCount - 1) -- counts local player for the first team
+		end
+
+		for _ = 1, botCount do
+			local shortName = "BARb" --uses only Barbarian AI
+			local aiDef = {
+				shortName = shortName,
+				allyTeam = allyTeam,
+			}
+			if allyTeam == 0 then
+				setup.friendlyAI[#setup.friendlyAI + 1] = aiDef
+			else
+				setup.enemyAI[#setup.enemyAI + 1] = aiDef
+			end
+		end
+	end
+
+	local mapStartBoxes = WG.Chobby.Configuration.gameConfig and WG.Chobby.Configuration.gameConfig.mapStartBoxes
+	if mapStartBoxes and mapStartBoxes.savedBoxes and mapStartBoxes.selectStartBoxesForAllyTeamCount then
+		local allBoxes = mapStartBoxes.savedBoxes[setup.map]
+		local selectedBoxes = mapStartBoxes.selectStartBoxesForAllyTeamCount(allBoxes, setup.teamCount)
+		if selectedBoxes then
+			setup.startboxes = {}
+			for i = 1, setup.teamCount do
+				if selectedBoxes[i] then
+					setup.startboxes[i - 1] = {
+						200 * selectedBoxes[i][1],
+						200 * selectedBoxes[i][2],
+						200 * selectedBoxes[i][3],
+						200 * selectedBoxes[i][4],
+					}
+				end
+			end
+		end
+	end
+
+	return setup
+end
+
+local function ApplySingleplayerSkirmishSetup(singleplayerDefault)
+	if not singleplayerDefault or not battleLobby then
+		return
+	end
+
+	local sideChoice = WG.Chobby.Configuration.lastFactionChoice or 0
+	battleLobby:SetBattleStatus({
+		allyNumber = 0,
+		isSpectator = false,
+		side = sideChoice,
+	})
+
+	local aiNames = {}
+	for _, aiName in pairs(battleLobby.battleAis or {}) do
+		aiNames[#aiNames + 1] = aiName
+	end
+	for i = 1, #aiNames do
+		battleLobby:RemoveAi(aiNames[i])
+	end
+
+	if singleplayerDefault.map then
+		battleLobby:SelectMap(singleplayerDefault.map)
+	end
+
+	local aiCounter = 1
+	local function AddAI(shortName, allyTeam, color)
+		if not shortName then
+			return
+		end
+		local aiDisplayName = shortName .. "(" .. aiCounter .. ")"
+		if WG.Server.protocol == "spring" then
+			aiDisplayName = aiDisplayName:gsub(" ", "")
+		end
+
+		battleLobby:AddAi(aiDisplayName, shortName, allyTeam, nil, nil, {
+			side = math.random(0, 1),
+			teamColor = color,
+		})
+		aiCounter = aiCounter + 1
+	end
+
+	for i, ai in ipairs(singleplayerDefault.friendlyAI or {}) do
+		AddAI(ai.shortName, ai.allyTeam or 0, GetStarterFriendlyAIColorAssignment(i))
+	end
+	for i, ai in ipairs(singleplayerDefault.enemyAI or {}) do
+		AddAI(ai.shortName, ai.allyTeam or 1, GetStarterEnemyAIColorAssignment(i))
+	end
+
+	WG.Delay(function()
+		if not mainWindowFunctions or not mainWindowFunctions.GetInfoHandler then
+			return
+		end
+		local infoHandler = mainWindowFunctions.GetInfoHandler()
+		if not infoHandler then
+			return
+		end
+		infoHandler.RemoveStartRect()
+		if singleplayerDefault.startboxes then
+			for allyNo, box in pairs(singleplayerDefault.startboxes) do
+				infoHandler.AddStartRect(allyNo, box[1], box[2], box[3], box[4])
+			end
+		end
+		infoHandler.rightInfo:Invalidate()
+		infoHandler.UpdateStartRectPositionsInMinimap()
+	end, 0.12)
+end
+
+local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUserName, showRandomSkirmishButton)
 	local config = WG.Chobby.Configuration
 	local minimapBottomClearance = 160
 
@@ -737,6 +880,56 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	-- Spring.Echo("debug_initialSetButtonStatePlayingbefore")
 	SetButtonStatePlaying()
 	-- Spring.Echo("debug_initialSetButtonStatePlayingafter")
+
+	if battleLobby.name == "singleplayer" and showRandomSkirmishButton then
+		local randomButtonCaption = "Generate Random Game"
+		local btnRandomSkirmish
+
+		local function UpdateRandomSkirmishButton()
+			if not btnRandomSkirmish or btnRandomSkirmish.disposed then
+				return
+			end
+			local remaining = math.ceil(randomSkirmishCooldownEnds - os.clock())
+			if remaining > 0 then
+				btnRandomSkirmish:SetEnabled(false)
+				ButtonUtilities.SetCaption(btnRandomSkirmish, randomButtonCaption .. " (" .. remaining .. "s)")
+				WG.Delay(UpdateRandomSkirmishButton, 0.2)
+			else
+				btnRandomSkirmish:SetEnabled(true)
+				ButtonUtilities.SetCaption(btnRandomSkirmish, randomButtonCaption)
+			end
+		end
+		-- UI button to generate random skirmish game, 2s cooldown to prevent spam
+		--cooldown might not be needed cause of single player?
+		btnRandomSkirmish = Button:New {
+			name = "btnRandomSkirmish",
+			x = 0,
+			right = 0,
+			bottom = 86,
+			height = 30,
+			classname = "option_button",
+			caption = randomButtonCaption,
+			objectOverrideFont = config:GetFont(2),
+			tooltip = "Picks a random map and fills teams with bots.",
+			OnClick = {
+				function()
+					if os.clock() < randomSkirmishCooldownEnds then
+						return
+					end
+					randomSkirmishCooldownEnds = os.clock() + 2
+					UpdateRandomSkirmishButton()
+
+					local generated = BuildRandomSkirmishSetup()
+					if not generated then
+						return
+					end
+					ApplySingleplayerSkirmishSetup(generated)
+				end
+			},
+			parent = rightInfo,
+		}
+		UpdateRandomSkirmishButton()
+	end
 
 	local function SetBtnPlayState(selected, caption)
 		local myBs = battleLobby:GetUserBattleStatus(battleLobby.myUserName) or {}
@@ -3213,7 +3406,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		parent = topPanel,
 	}
 
-	local infoHandler = SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, battleLobby:GetMyUserName())
+	local infoHandler = SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, battleLobby:GetMyUserName(), setupData ~= nil)
 
 	local btnQuitBattle = Button:New {
 		name = 'btnQuitBattle',
@@ -4263,7 +4456,7 @@ function BattleRoomWindow.GetSingleplayerControl(setupData)
 					for i, ai in ipairs(singleplayerDefault.friendlyAI or {}) do
 						totalAIcount = AddAI(totalAIcount, ai.shortName, ai.version, 0,
 							0, -- Default side for friendly AI is Armada
-							{.45,0,.68})
+							GetStarterFriendlyAIColorAssignment(i))
 					end
 
 					for i, ai in ipairs(singleplayerDefault.enemyAI or {}) do
@@ -4316,6 +4509,9 @@ function GetStarterEnemyAIColorAssignment(i)
 	if (i==1) then return red
 	elseif (i==2) then return orange
 	end
+end
+function GetStarterFriendlyAIColorAssignment(i)
+	return {.45,0,.68}
 end
 
 function BattleRoomWindow.SetSingleplayerGame(ToggleShowFunc, battleroomObj, tabData)
