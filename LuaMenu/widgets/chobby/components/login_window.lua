@@ -1208,6 +1208,53 @@ function isInValidUserName(username)
 	end
 end
 
+function isInValidEmail(email)
+	if not email or email == '' then
+		return false -- Let other validation handle empty email
+	end
+	
+	-- Extract domain from email
+	local domain = string.match(email, "@(.+)$")
+	if not domain then
+		return false -- Invalid email format, let other validation handle
+	end
+	
+	domain = string.lower(domain)
+	
+	-- Common email providers and their frequent typos
+	local commonProviders = {
+		["gmail.com"] = {"gmai.com", "gmail.co", "gmial.com", "gmail.cm", "gmail.om", "gmail.con", "gmal.com", "gamil.com"},
+		["hotmail.com"] = {"hotmai.com", "hotmail.co", "hotmil.com", "hotmail.cm", "hotmale.com", "hotmial.com"},
+		["yahoo.com"] = {"yaho.com", "yahoo.co", "yahho.com", "yahoo.cm", "yajoo.com", "yahooo.com"},
+		["outlook.com"] = {"outlook.co", "outlok.com", "outlook.cm", "outloook.com", "outlookk.com"},
+		["aol.com"] = {"aol.co", "aol.cm", "aol.om", "aol.con"},
+		["icloud.com"] = {"icloud.co", "icloud.cm", "iclud.com", "icloud.om", "icould.com"},
+		["live.com"] = {"live.co", "live.cm", "liv.com", "livee.com"},
+		["msn.com"] = {"msn.co", "msn.cm", "msnn.com"},
+		["comcast.net"] = {"comcast.com", "comast.net", "comcst.net"},
+		["verizon.net"] = {"verizon.com", "verison.net", "verizonn.net"},
+		["web.de"] = {"webb.de", "weeb.de", "web.dee", "web.dde", "web.ed", "webde.de", "web-de.de", "wed.de"},
+		["gmx.de"] = {"gmmx.de", "ggmx.de", "gmxx.de", "gmx.ed", "gmx.dee", "gmx.dde", "gmx.ed", "gmz.de"},
+		["freenet.de"] = {"freeenet.de", "freenett.de", "ffreenet.de", "freenet.ed", "freenet.dee", "freenet.dde", "freenet.ed", "free-net.de", "freenet-mobilfunk.de", "frenet.de", "freenete.de"},
+		["t-online.de"] = {"t-onlin.de", "tt-online.de", "t-onlinee.de", "t-online.ed", "t-online.dee", "t-online.dde", "t-online.ed", "t-onnline.de", "t-oonline.de", "tonline.de", "t-onine.de", "tonline.de", "t-oneline.de", "t.online.de"},
+		["protonmail.com"] = {"protonmail.co", "protonmail.cm", "protonmail.con", "protonmaill.com", "protonmai.com", "protomail.com", "protronmail.com", "prontonmail.com", "protonnmail.com", "protonmial.com"},
+		["proton.me"] = {"proton.me.com", "proton.ne", "proton.ms", "proton.mr", "protom.me", "protron.me", "protonm.me"},
+		["pm.me"] = {"pmme.com", "pm.me.com", "pn.me", "pm.ne", "pm.ms", "pm.mr", "pm-me.me"},
+		["protonmail.ch"] = {"protonmail.c", "protonmail.h", "protonmai.ch", "protonmial.ch", "protomail.ch", "protronmail.ch", "prontonmail.ch"}
+	}
+	
+	-- Check if the domain is a known typo
+	for correctDomain, typos in pairs(commonProviders) do
+		for _, typo in ipairs(typos) do
+			if domain == typo then
+				return "Did you mean " .. correctDomain .. "? (Common typo detected)"
+			end
+		end
+	end
+	
+	return false
+end
+
 
 function LoginWindow:tryRegister()
 	local username = self.ebUsernameRegister.text
@@ -1230,6 +1277,13 @@ function LoginWindow:tryRegister()
 
 	if self.ebEmail.text ~= self.ebConfirmEmail.text then
 		self.txtErrorRegister:SetText(Configuration:GetErrorColor() .. "Emails do not match.")
+		return
+	end
+
+	local email = self.ebEmail.text
+	local isInvalidEmail = isInValidEmail(email)
+	if isInvalidEmail then
+		self.txtErrorRegister:SetText(Configuration:GetErrorColor() .. isInvalidEmail)
 		return
 	end
 
@@ -1317,6 +1371,12 @@ function LoginWindow:tryChangeEmail()
 		Configuration:GetErrorColor() ..
 		"Enter a valid email address, not " .. newemail
 		)
+		return false
+	end
+
+	local isInvalidEmail = isInValidEmail(newemail)
+	if isInvalidEmail then
+		self.txtErrorChangeEmail:SetText(Configuration:GetErrorColor() .. isInvalidEmail)
 		return false
 	end
 
@@ -1433,6 +1493,12 @@ function LoginWindow:tryResetPasswordEmail()
 		Configuration:GetErrorColor() ..
 		"Enter a valid email address, not " .. emailaddress
 		)
+		return false
+	end
+
+	local isInvalidEmail = isInValidEmail(emailaddress)
+	if isInvalidEmail then
+		self.txtErrorResetPassword:SetText(Configuration:GetErrorColor() .. isInvalidEmail)
 		return false
 	end
 
