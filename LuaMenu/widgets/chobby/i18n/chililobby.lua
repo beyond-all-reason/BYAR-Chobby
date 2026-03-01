@@ -242,6 +242,8 @@ return {
 		autoLaunchAsSpectator = "Auto-launch when spectating",
 		randomSkirmishSetup = "Random Skirmish AI and Map",
 		randomSkirmishSetup_tooltip = "Randomizes AIs and Map in Singleplayer Skirmish mode. Requires Restart.",
+		randomSkirmishDifficulty = "Random Skirmish Difficulty",
+		randomSkirmishDifficulty_tooltip = "BARbarian AI difficulty profile used when generating a random game.",
 		queueExitConfirmPromptDoNotAskAgain = "No prompt when leaving queue",
 		queueExitConfirmPromptDoNotAskAgain_tooltip = "Disabled = Shows a prompt when leaving the queue or game.",
 		ingame_notifcations = "Notifications while ingame",
@@ -547,6 +549,8 @@ return {
 
 		-- Settings
 		ingame_notifcations = "Meldungen im Spiel",
+		randomSkirmishDifficulty = "Random Skirmish Difficulty",
+		randomSkirmishDifficulty_tooltip = "BARbarian-Profil fur Generate Random Game fur alle erzeugten BARb KIs.",
 		non_friend_notifications = "Spielanfragen nur von der Freundesliste erlauben",
 		notifyForAllChat = "Meldungen bei Namenserwähnung im öffentlichen Chat",
 		drawFullSpeed = "Full speed draw updates",

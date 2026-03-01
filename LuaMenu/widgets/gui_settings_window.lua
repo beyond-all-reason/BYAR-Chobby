@@ -972,6 +972,59 @@ local function GetLobbyTabControls()
 	children[#children + 1] = randomSkirmishSetup
 	offset = offset + ITEM_OFFSET
 
+	children[#children + 1] = Label:New {
+		x = 20,
+		y = offset + TEXT_OFFSET,
+		width = 180,
+		height = 40,
+		valign = "top",
+		align = "left",
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		caption = i18n("randomSkirmishDifficulty"),
+	}
+
+	local randomSkirmishDifficultyOptions = {
+		{label = "Hard | Aggressive", key = "hard_aggressive"},
+		{label = "Hard | Balanced", key = "hard"},
+		{label = "Medium | Lazy", key = "medium"},
+		{label = "Easy | Slow", key = "easy"},
+		{label = "Testing AI", key = "dev"},
+	}
+	-- Prepare dropdown text from the same options table.
+	local randomSkirmishDifficultyLabels = {}
+	-- Pick current config selection
+	local selectedRandomSkirmishDifficulty = 2
+	local selectedDifficultyKey = Configuration.randomSkirmishDifficulty or "hard"
+	for i = 1, #randomSkirmishDifficultyOptions do
+		local option = randomSkirmishDifficultyOptions[i]
+		randomSkirmishDifficultyLabels[i] = option.label
+		if option.key == selectedDifficultyKey then
+			selectedRandomSkirmishDifficulty = i
+		end
+	end
+
+	children[#children + 1] = ComboBox:New {
+		x = COMBO_X,
+		y = offset,
+		width = COMBO_WIDTH,
+		right = 18,
+		height = 30,
+		items = randomSkirmishDifficultyLabels,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		selected = selectedRandomSkirmishDifficulty,
+		tooltip = i18n("randomSkirmishDifficulty_tooltip"),
+		OnSelect = {
+			function (obj)
+				if freezeSettings then
+					return
+				end
+				local selectedOption = randomSkirmishDifficultyOptions[obj.selected]
+				Configuration:SetConfigValue("randomSkirmishDifficulty", (selectedOption and selectedOption.key) or "hard")
+			end
+		},
+	}
+	offset = offset + ITEM_OFFSET
+
 	local autoLogin = Checkbox:New {
 		x = 20,
 		width = CHECK_WIDTH,

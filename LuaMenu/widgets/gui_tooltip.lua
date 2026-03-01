@@ -58,6 +58,24 @@ local function sortfunc(t)
 	return st
  end
 
+local function GetReadableBarbProfile(profile)
+	if not profile or profile == "" then
+		return nil
+	end
+	local profileKey = string.lower(tostring(profile))
+	local profileNames = {
+		hard_aggressive = "Hard | Aggressive",
+		hard = "Hard | Balanced",
+		medium = "Medium | Lazy",
+		easy = "Easy | Slow",
+		dev = "Testing AI",
+	}
+	if profileNames[profileKey] then
+		return profileNames[profileKey]
+	end
+	return tostring(profile)
+end
+
 --------------------------------------------------------------------------
 --------------------------------------------------------------------------
 -- Initialization
@@ -756,6 +774,32 @@ local function GetUserTooltip(userName, userInfo, userBattleInfo, inBattleroom)
 		offset = offset + 20
 	elseif userTooltip.level then
 		userTooltip.level:Hide()
+	end
+
+	-- AI profile (BARbarian only)
+	local isBarbAi = userBattleInfo.aiLib and string.lower(userBattleInfo.aiLib) == "barb"
+	local aiProfile
+	if type(userBattleInfo.aiOptions) == "table" then
+		aiProfile = userBattleInfo.aiOptions.profile
+	elseif type(userBattleInfo.aiOptions) == "string" then
+		aiProfile = userBattleInfo.aiOptions:match('"profile"%s*:%s*"([^"]+)"')
+	end
+	if isBarbAi and (not aiProfile or aiProfile == "") then
+		-- Default difficulty when added without explicity choosing a profile
+		aiProfile = "hard"
+	end
+	local readableProfile = isBarbAi and GetReadableBarbProfile(aiProfile) or nil
+	if readableProfile then
+		if not userTooltip.aiProfile then
+			userTooltip.aiProfile = GetTooltipLine(userTooltip.mainControl, false)
+		end
+		userTooltip.aiProfile.Update(
+			offset,
+			"Profile: " .. readableProfile
+		)
+		offset = offset + 20
+	elseif userTooltip.aiProfile then
+		userTooltip.aiProfile:Hide()
 	end
 
 

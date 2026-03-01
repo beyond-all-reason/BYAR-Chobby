@@ -140,9 +140,26 @@ local OpenNewTeam
 --------------------------------------------------------------------------------
 -- Chili/interface management
 
+local function GetSavedSkirmishDifficultyProfile()
+	local config = WG.Chobby and WG.Chobby.Configuration
+	local selectedProfile = config and config.randomSkirmishDifficulty
+	local validProfiles = {
+		hard_aggressive = true,
+		hard = true,
+		medium = true,
+		easy = true,
+		dev = true,
+	}
+	if selectedProfile and validProfiles[selectedProfile] then
+		return selectedProfile
+	end
+	return "medium"
+end
+
 local function BuildRandomSkirmishSetup()
 	local mapDetails = VFS.Include("luamenu/configs/gameconfig/byar/mapdetails.lua")
 	local validMaps = {}
+	local difficultyProfile = GetSavedSkirmishDifficultyProfile()
 
 	for mapName, details in pairs(mapDetails or {}) do
 		local teamCount = tonumber(details.TeamCount) or 2
@@ -186,6 +203,7 @@ local function BuildRandomSkirmishSetup()
 			local aiDef = {
 				shortName = shortName,
 				allyTeam = allyTeam,
+				aiOptions = (shortName == "BARb" and {profile = difficultyProfile}) or nil,
 			}
 			if allyTeam == 0 then
 				setup.friendlyAI[#setup.friendlyAI + 1] = aiDef
@@ -242,7 +260,7 @@ local function ApplySingleplayerSkirmishSetup(singleplayerDefault)
 	end
 
 	local aiCounter = 1
-	local function AddAI(shortName, allyTeam, color)
+	local function AddAI(shortName, allyTeam, color, aiOptions)
 		if not shortName then
 			return
 		end
@@ -251,7 +269,7 @@ local function ApplySingleplayerSkirmishSetup(singleplayerDefault)
 			aiDisplayName = aiDisplayName:gsub(" ", "")
 		end
 
-		battleLobby:AddAi(aiDisplayName, shortName, allyTeam, nil, nil, {
+		battleLobby:AddAi(aiDisplayName, shortName, allyTeam, nil, aiOptions, {
 			side = math.random(0, 1),
 			teamColor = color,
 		})
@@ -259,10 +277,10 @@ local function ApplySingleplayerSkirmishSetup(singleplayerDefault)
 	end
 
 	for i, ai in ipairs(singleplayerDefault.friendlyAI or {}) do
-		AddAI(ai.shortName, ai.allyTeam or 0, GetStarterFriendlyAIColorAssignment(i))
+		AddAI(ai.shortName, ai.allyTeam or 0, GetStarterFriendlyAIColorAssignment(i), ai.aiOptions)
 	end
 	for i, ai in ipairs(singleplayerDefault.enemyAI or {}) do
-		AddAI(ai.shortName, ai.allyTeam or 1, GetStarterEnemyAIColorAssignment(i))
+		AddAI(ai.shortName, ai.allyTeam or 1, GetStarterEnemyAIColorAssignment(i), ai.aiOptions)
 	end
 
 	WG.Delay(function()
