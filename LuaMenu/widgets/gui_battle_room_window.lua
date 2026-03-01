@@ -304,7 +304,7 @@ end
 
 local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUserName, showRandomSkirmishButton)
 	local config = WG.Chobby.Configuration
-	local minimapBottomClearance = 160
+	local minimapBottomClearance = 172
 
 	local currentMapName
 	local oldSelectedBoxes = 1
