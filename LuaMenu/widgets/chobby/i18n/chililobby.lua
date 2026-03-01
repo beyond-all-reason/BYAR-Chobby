@@ -549,8 +549,6 @@ return {
 
 		-- Settings
 		ingame_notifcations = "Meldungen im Spiel",
-		randomSkirmishDifficulty = "Random Skirmish Difficulty",
-		randomSkirmishDifficulty_tooltip = "BARbarian-Profil fur Generate Random Game fur alle erzeugten BARb KIs.",
 		non_friend_notifications = "Spielanfragen nur von der Freundesliste erlauben",
 		notifyForAllChat = "Meldungen bei Namenserwähnung im öffentlichen Chat",
 		drawFullSpeed = "Full speed draw updates",
