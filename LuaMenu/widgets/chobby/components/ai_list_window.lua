@@ -200,6 +200,11 @@ function AiListWindow:AddAi(displayName, shortName, version, options)
 	end
 	
 	local battleStatusOptions = {side = math.random(0,1), teamColor = PickRandomColor(),}
+
+	-- If BARbarian is added without opening AI options, default to Medium profile.
+	if shortName == "BARb" and options == nil then
+		options = {profile = "medium"}
+	end
 	
 	self.lobby:AddAi(aiName, shortName, self.allyTeam, version, options, battleStatusOptions)
 	if self.lobby.name ~= "singleplayer" and type(options) == "table" then
