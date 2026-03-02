@@ -17,8 +17,6 @@ PartyWindow.HEADER_HEIGHT = 57
 PartyWindow.CONTENT_Y_OFFSET = 0
 
 function PartyWindow:init(parent)
-    -- Match FriendListWindow layout: header strip + scrollable content area.
-    -- Using Control (not Window) avoids drawing a full background over the right panel.
     self.window = Control:New{
         x = 0,
         right = 0,
