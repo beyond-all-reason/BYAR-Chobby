@@ -305,7 +305,7 @@ function Configuration:init()
 	self.doNotDisturb = false
 	self.addFriendWindowButton = true
 	self.simplifiedSkirmishSetup = true
-	self.randomSkirmishDifficulty = "medium"
+	self.randomSkirmishDifficulty = "easy"
 	self.debugMode = false
 	self.devMode = VFS.FileExists("devmode.txt") or VFS.FileExists("devmode.txt.txt") or VFS.FileExists("devmode.rtf.txt")
 	self.ShowhiddenModopions = false
