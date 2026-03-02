@@ -241,7 +241,9 @@ return {
 		-- Settings
 		autoLaunchAsSpectator = "Auto-launch when spectating",
 		randomSkirmishSetup = "Random Skirmish AI and Map",
-		randomSkirmishSetup_tooltip = "Randomizes AIs and Map in Singleplayer Skirmish mode. Requires Restart.",
+		randomSkirmishSetup_tooltip = "Randomizes AIs and Map in Singleplayer Skirmish mode on initial load. Requires Restart.",
+		randomSkirmishDifficulty = "Random Skirmish Difficulty",
+		randomSkirmishDifficulty_tooltip = "BARbarian AI difficulty profile used when generating a random game.",
 		queueExitConfirmPromptDoNotAskAgain = "No prompt when leaving queue",
 		queueExitConfirmPromptDoNotAskAgain_tooltip = "Disabled = Shows a prompt when leaving the queue or game.",
 		ingame_notifcations = "Notifications while ingame",
