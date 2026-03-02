@@ -264,7 +264,7 @@ local function ApplySingleplayerSkirmishSetup(singleplayerDefault)
 		if not shortName then
 			return
 		end
-		local aiDisplayName = shortName .. "(" .. aiCounter .. ")"
+		local aiDisplayName = "BARbarianAI" .. "(" .. aiCounter .. ")"
 		if WG.Server.protocol == "spring" then
 			aiDisplayName = aiDisplayName:gsub(" ", "")
 		end
