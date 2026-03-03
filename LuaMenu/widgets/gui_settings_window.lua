@@ -1392,41 +1392,6 @@ local function GetVoidTabControls()
 		valign = "top",
 		align = "left",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
-		caption = "Reload Modoptions",
-	}
-	children[#children + 1] = Button:New {
-		x = COMBO_X,
-		y = offset,
-		width = COMBO_WIDTH,
-		height = 30,
-		right = 18,
-		caption = "🔁 Reload",
-		classname = "option_button",
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
-		tooltip = "Reload modoptions from game archive and show the panel. Uses the game selected in Singleplayer above.",
-		OnClick = {
-			function()
-				if WG.ModoptionsPanel then
-					local gameName = Configuration.gameConfigName
-					local lobby = WG.LibLobby and WG.LibLobby.localLobby
-					if gameName and lobby then
-						WG.ModoptionsPanel.LoadModoptions(gameName, lobby, true)
-						WG.ModoptionsPanel.ShowModoptions()
-					end
-				end
-			end
-		}
-	}
-	offset = offset + ITEM_OFFSET
-
-	children[#children + 1] = Label:New {
-		x = 20,
-		y = offset + TEXT_OFFSET,
-		width = 90,
-		height = 40,
-		valign = "top",
-		align = "left",
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		caption = "Start position type",
 		tooltip = "Default start position type for singleplayer skirmish.",
 	}
