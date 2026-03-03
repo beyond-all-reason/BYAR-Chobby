@@ -1176,7 +1176,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 			objectOverrideFont = config:GetFont(2),
 			objectOverrideDisabledFont = config:GetFont(1),
 			hasDisabledFont = true,
-			tooltip = tooltip,
+			tooltip = "Reload modoptions from game archive and show the panel.",
 			OnClick = {
 				function()
 					if modoptionsLoaded then
