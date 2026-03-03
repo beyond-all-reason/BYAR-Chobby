@@ -201,9 +201,14 @@ function AiListWindow:AddAi(displayName, shortName, version, options)
 	
 	local battleStatusOptions = {side = math.random(0,1), teamColor = PickRandomColor(),}
 
-	-- If BARbarian is added without opening AI options, default to Medium profile.
-	if shortName == "BARb" and options == nil then
-		options = {profile = "medium"}
+	if shortName == "BARb" then
+		if type(options) == "table" and options.profile and options.profile ~= "" then
+			-- Remember latest choosen BARbarian profile selection from AI options
+			Configuration:SetConfigValue("lastBarbAiProfile", options.profile)
+		elseif options == nil then
+			-- Reuse remembered BARbarian profile when adding without selecting a new profile
+			options = {profile = Configuration.lastBarbAiProfile or "easy"}
+		end
 	end
 	
 	self.lobby:AddAi(aiName, shortName, self.allyTeam, version, options, battleStatusOptions)

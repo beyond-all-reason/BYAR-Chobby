@@ -192,6 +192,7 @@ function Configuration:init()
 	self.multiplayerLaunchNewSpring = false
 	self.myAccountID = false
 	self.lastAddedAiName = false
+	self.lastBarbAiProfile = "easy"
 	self.multiplayerDifferentEngine = true
 
 	self.noNaiveConfigOverride = {
@@ -781,6 +782,7 @@ function Configuration:GetConfigData()
 		chatFontSize = self.chatFontSize,
 		myAccountID = self.myAccountID,
 		lastAddedAiName = self.lastAddedAiName,
+		lastBarbAiProfile = self.lastBarbAiProfile,
 		window_WindowPosX = self.window_WindowPosX,
 		window_WindowPosY = self.window_WindowPosY,
 		window_XResolutionWindowed = self.window_XResolutionWindowed,
