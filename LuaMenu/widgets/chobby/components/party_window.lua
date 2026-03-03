@@ -13,15 +13,16 @@ PartyWindow.MAJOR_SPACING = 20
 
 PartyWindow.BUTTON_WIDTH = 100
 
-PartyWindow.CONTENT_Y_OFFSET = PartyWindow.TITLE_HEIGHT + PartyWindow.MINOR_SPACING
+PartyWindow.HEADER_HEIGHT = 57
+PartyWindow.CONTENT_Y_OFFSET = 0
 
 function PartyWindow:init(parent)
-    self.window = Window:New{
+    self.window = Control:New{
         x = 0,
         right = 0,
         y = 0,
         bottom = 0,
-        padding = { PartyWindow.LEFT_MARGIN, PartyWindow.TOP_MARGIN, PartyWindow.RIGHT_MARGIN, PartyWindow.BOTTOM_MARGIN },
+        padding = { 0, 0, 0, 0 },
         parent = parent,
         resizable = false,
         draggable = false,
@@ -29,23 +30,30 @@ function PartyWindow:init(parent)
     }
 
     Label:New {
+        x = PartyWindow.LEFT_MARGIN,
+        y = PartyWindow.TOP_MARGIN,
+        height = PartyWindow.TITLE_HEIGHT,
+        right = PartyWindow.RIGHT_MARGIN + PartyWindow.BUTTON_WIDTH + PartyWindow.MAJOR_SPACING,
         parent = self.window,
         objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
         caption = i18n("parties"),
     }
 
     self.requiresLoginLabel = Label:New {
-        y = PartyWindow.CONTENT_Y_OFFSET,
-        objectOverrideFont = WG.Chobby.Configuration:GetFont(1, "parties_require_login", { color = { 0.5, 0.5, 0.5, 1 } }),
+        x = PartyWindow.LEFT_MARGIN,
+        y = 42,
+        objectOverrideFont = WG.Chobby.Configuration:GetFont(1, "parties_require_login"),
         parent = self.window,
-        caption = i18n("parties_require_login")
+        caption = "\255\138\138\138" .. i18n("parties_require_login")
     }
 
     self.createPartyButton = Button:New {
         caption = i18n("create_new_party"),
         parent = self.window,
-        right = 0,
+        right = PartyWindow.RIGHT_MARGIN,
         width = PartyWindow.BUTTON_WIDTH,
+        y = 15,
+        height = 30,
         classname = "option_button",
         visible = false,
         OnClick = {
@@ -64,18 +72,29 @@ function PartyWindow:init(parent)
     }
     self.createPartyButton:Hide()
 
+    self.contentScrollPanel = ScrollPanel:New {
+        x = 12,
+        right = 12,
+        y = PartyWindow.HEADER_HEIGHT,
+        bottom = 16,
+        horizontalScrollbar = false,
+        padding = {4, 4, 4, 4},
+        borderColor = {0, 0, 0, 0},
+        parent = self.window,
+    }
+
     -- In a party
 
     self.yourPartyLabel = Label:New {
         y = PartyWindow.CONTENT_Y_OFFSET,
         caption = i18n("your_party_title"),
-        parent = self.window
+        parent = self.contentScrollPanel,
     }
     self.yourPartyLabel:Hide()
 
     self.invitesLabel = Label:New {
         caption = i18n("your_party_invites"),
-        parent = self.window
+        parent = self.contentScrollPanel,
     }
     self.invitesLabel:Hide()
 
@@ -169,7 +188,7 @@ function PartyWindow:LeftParty(partyID, username, partyDestroyed)
     self:UpdateLayout()
 end
 function PartyWindow:JoinedParty(partyID, username)
-    local partyWrapper = self.partyWrappers[partyID] or PartyWrapper(self.window, partyID)
+    local partyWrapper = self.partyWrappers[partyID] or PartyWrapper(self.contentScrollPanel, partyID)
 
     if username == lobby.myUserName then
         partyWrapper:ClearActionButtons()
@@ -188,7 +207,7 @@ function PartyWindow:JoinedParty(partyID, username)
 end
 function PartyWindow:InvitedToParty(partyID, username)
     if username == lobby.myUserName then
-        self.partyWrappers[partyID] = PartyWrapper(self.window, partyID)
+        self.partyWrappers[partyID] = PartyWrapper(self.contentScrollPanel, partyID)
         self.partyWrappers[partyID]:AddActionButton(i18n("accept_party_invite"), "positive_button", function() 
             if lobby.myPartyID then
                 self:LeaveMyCurrentParty()

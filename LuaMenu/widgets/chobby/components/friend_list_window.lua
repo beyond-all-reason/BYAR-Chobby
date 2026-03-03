@@ -211,8 +211,21 @@ end
 
 function FriendListWindow:OnAccepted()
 	self:Clear()
-	--lobby:FriendList()
-	--lobby:FriendRequestList()
+	if self.requiresLoginLabel then
+		self.requiresLoginLabel:Hide()
+	end
+	if self.btnSteamFriends then
+		self.btnSteamFriends:SetVisibility(Configuration.canAuthenticateWithSteam)
+	end
+	if self.addFriendEditBox then
+		self.addFriendEditBox:Show()
+	end
+	if self.addFriendButton then
+		self.addFriendButton:Show()
+	end
+	if self.checkOnlineOnly then
+		self.checkOnlineOnly:Show()
+	end
 end
 
 function FriendListWindow:OnNewFriendRequestByID(userID, userName)
@@ -292,7 +305,7 @@ function FriendListWindow:init(parent)
 	}
 
 	if WG.Chobby.Configuration.addFriendWindowButton then
-		local addFriendEditBox = EditBox:New {
+		self.addFriendEditBox = EditBox:New {
 			right = 295,
 			width = 130,
 			y = 15,
@@ -304,7 +317,7 @@ function FriendListWindow:init(parent)
 			tooltip = "Name of new friend",
 		}
 
-		local addFriendButton = Button:New {
+		self.addFriendButton = Button:New {
 			right = 165,
 			width = 120,
 			y = 15,
@@ -316,11 +329,21 @@ function FriendListWindow:init(parent)
 			parent = self.window,
 			OnClick = {
 				function()
-					lobby:FriendRequest(addFriendEditBox.text)
+					if lobby and lobby.status == "connected" then
+						lobby:FriendRequest(self.addFriendEditBox.text)
+					end
 				end
 			},
 		}
 	end
+
+	self.requiresLoginLabel = Label:New {
+		x = 20,
+		y = 42,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(1, "parties_require_login"),
+		parent = self.window,
+		caption = "\255\138\138\138" .. i18n("parties_require_login"),
+	}
 
 	self.checkOnlineOnly = Checkbox:New {
 		right = 20,
@@ -339,10 +362,46 @@ function FriendListWindow:init(parent)
 		tooltip = "Shows online friends only",
 	}
 
-	self.btnSteamFriends:SetVisibility(Configuration.canAuthenticateWithSteam)
+	local isConnected = (lobby and lobby.status == "connected")
+
+	if self.requiresLoginLabel then
+		if isConnected then
+			self.requiresLoginLabel:Hide()
+		else
+			self.requiresLoginLabel:Show()
+		end
+	end
+
+	if self.addFriendEditBox then
+		if isConnected then
+			self.addFriendEditBox:Show()
+		else
+			self.addFriendEditBox:Hide()
+		end
+	end
+
+	if self.addFriendButton then
+		if isConnected then
+			self.addFriendButton:Show()
+		else
+			self.addFriendButton:Hide()
+		end
+	end
+
+	if self.checkOnlineOnly then
+		if isConnected then
+			self.checkOnlineOnly:Show()
+		else
+			self.checkOnlineOnly:Hide()
+		end
+	end
+
+	if self.btnSteamFriends then
+		self.btnSteamFriends:SetVisibility(isConnected and Configuration.canAuthenticateWithSteam)
+	end
 	local function onConfigurationChange(listener, key, value)
 		if key == "canAuthenticateWithSteam" then
-			self.btnSteamFriends:SetVisibility(value)
+			self.btnSteamFriends:SetVisibility((lobby and lobby.status == "connected") and value)
 		elseif key == "friendsFilterOnline" then
 			-- user config is loaded after friend_list_window was initialized, so we toggle this checkbox accordingly when the config value arrives
 			if self.checkOnlineOnly.checked ~= value then
@@ -365,6 +424,7 @@ function FriendListWindow:init(parent)
 	lobby:AddListener("OnFriendRequest",                   function(listener, ...) self:OnFriendRequest(...) end)
 	lobby:AddListener("OnRemoveFriendRequestByID",         function(listener, ...) self:RemoveFriendRequestByID(...) end)
 	lobby:AddListener("OnAccepted",                        function(listener, ...) self:OnAccepted(...) end)
+	lobby:AddListener("OnDisconnected",                    function(listener, ...) self:OnDisconnected(...) end)
       
 	lobby:AddListener("OnNewFriendRequestByID",            function(listener, ...) self:OnNewFriendRequestByID(...) end)
 	lobby:AddListener("OnFriendRequestAcceptedByID",       function(listener, ...) self:OnFriendRequestAcceptedByID(...) end)
@@ -375,6 +435,25 @@ function FriendListWindow:init(parent)
 	-- following lead to duplicate updates
 	-- lobby:AddListener("OnFriendList",                function(listener, ...) self:OnFriendList(...) end)
 	-- lobby:AddListener("OnFriendRequestList",         function(listener, ...) self:OnFriendRequestList(...) end)
+end
+
+function FriendListWindow:OnDisconnected()
+	self:Clear()
+	if self.requiresLoginLabel then
+		self.requiresLoginLabel:Show()
+	end
+	if self.btnSteamFriends then
+		self.btnSteamFriends:SetVisibility(false)
+	end
+	if self.addFriendEditBox then
+		self.addFriendEditBox:Hide()
+	end
+	if self.addFriendButton then
+		self.addFriendButton:Hide()
+	end
+	if self.checkOnlineOnly then
+		self.checkOnlineOnly:Hide()
+	end
 end
 
 function FriendListWindow:RemoveListeners()
