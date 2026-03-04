@@ -19,6 +19,14 @@ local welcomePanelItems = {
     },
 
     {
+        Header = "Star BAR on GitHub!",
+        Text = "BAR is built by the community, for the community. One easy way to support us: star our GitHub repository! " .. " \n" .. " \n" .. "It signals the project is alive and helps us access developer programs that give us better tools to build with." .. " \n" .. " \n" .. "(Star button in top right corner of the linked page)" .. " \n" .. " \n",
+        Image = "LuaMenu/images/welcomepanel/github_star.png",
+        Url = "https://github.com/beyond-all-reason/Beyond-All-Reason",
+        UrlText = "Star us on GitHub",
+    },
+
+    {
         Header = "70,000 Discord Members - Lore Drop!",
         Text = "We’ve hit 70 000 members on Discord! To celebrate, join epic 100+ player battles on March 8, see live faction logo reveals, the first exclusive BAR lore presentation, and a Devs vs Players showdown. " .. " \n" .. " \n" .. "Don’t miss this big community event!" .. " \n" .. " \n",
         Image = "LuaMenu/images/welcomepanel/70k.png",
