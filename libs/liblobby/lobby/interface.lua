@@ -529,6 +529,10 @@ function Interface:AddAi(aiName, aiLib, allyNumber, version, aiOptions, battleSt
 	local battleStatus, updated = UpdateAndCreateMerge(userData, battleStatusOptions or {})
 
 	aiName = aiName:gsub(" ", "")
+	if aiOptions ~= nil then
+		self.pendingAiOptions = self.pendingAiOptions or {}
+		self.pendingAiOptions[aiName] = aiOptions
+	end
 	local battleStatusString = EncodeBattleStatus(battleStatus)
 
 	local teamColor = battleStatus.teamColor or { math.random(), math.random(), math.random(), 1}
@@ -1114,6 +1118,10 @@ function Interface:_OnAddBot(battleID, name, owner, battleStatus, teamColor, aiD
 	-- local ai, dll = unpack(explode("\t", aiDll)))
 	status.aiLib = aiDll
 	status.owner = owner
+	if self.pendingAiOptions and self.pendingAiOptions[name] ~= nil then
+		status.aiOptions = self.pendingAiOptions[name]
+		self.pendingAiOptions[name] = nil
+	end
 	self:_OnAddAi(battleID, name, status)
 end
 Interface.commands["ADDBOT"] = Interface._OnAddBot
