@@ -207,7 +207,7 @@ function AiListWindow:AddAi(displayName, shortName, version, options)
 			Configuration:SetConfigValue("lastBarbAiProfile", options.profile)
 		elseif options == nil then
 			-- Reuse remembered BARbarian profile when adding without selecting a new profile
-			options = {profile = Configuration.lastBarbAiProfile or "easy"}
+			options = {profile = Configuration.lastBarbAiProfile or "hard"}
 		end
 	end
 	
