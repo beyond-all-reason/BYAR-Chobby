@@ -200,6 +200,16 @@ function AiListWindow:AddAi(displayName, shortName, version, options)
 	end
 	
 	local battleStatusOptions = {side = math.random(0,1), teamColor = PickRandomColor(),}
+
+	if shortName == "BARb" then
+		if type(options) == "table" and options.profile and options.profile ~= "" then
+			-- Remember latest choosen BARbarian profile selection from AI options
+			Configuration:SetConfigValue("lastBarbAiProfile", options.profile)
+		elseif options == nil then
+			-- Reuse remembered BARbarian profile when adding without selecting a new profile
+			options = {profile = Configuration.lastBarbAiProfile or "hard"}
+		end
+	end
 	
 	self.lobby:AddAi(aiName, shortName, self.allyTeam, version, options, battleStatusOptions)
 	if self.lobby.name ~= "singleplayer" and type(options) == "table" then
