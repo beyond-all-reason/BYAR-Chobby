@@ -506,13 +506,21 @@ function Interface:SayBattleEx(message)
 	return self
 end
 
-function Interface:SetModOptions(data)
+function Interface:SetModOptions(data, skipKeys)
 	for k, v in pairs(data) do
-		if self.modoptions[k] ~= v then
+		if not (skipKeys and skipKeys[k]) and self.modoptions[k] ~= v then
 			self:SayBattle("!bSet " .. tostring(k) .. " " .. tostring(v))
 		end
-		-- self:_SendCommand("SETSCRIPTTAGS game/modoptions/" .. k .. '=' .. v)
 	end
+	return self
+end
+
+function Interface:SetMode(category, modeKey, modeOptions)
+	local parts = { "!mode", tostring(category), tostring(modeKey) }
+	for k, v in pairs(modeOptions) do
+		parts[#parts + 1] = tostring(k) .. "=" .. tostring(v)
+	end
+	self:SayBattle(table.concat(parts, " "))
 	return self
 end
 
