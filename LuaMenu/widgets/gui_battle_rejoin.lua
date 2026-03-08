@@ -15,10 +15,24 @@ end
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 local lobby, battleList
+local MAX_REJOIN_PROMPT_AGE = 4 * 60 * 60 -- 4 hours
 
 local function LoginRejoinOption(listener, battleID)
 	-- Check if a battle ID has been stored for rejoining.
 	if not WG.Chobby.Configuration.rejoinBattleID then
+		return
+	end
+
+	local rejoinBattleTimestamp = tonumber(WG.Chobby.Configuration.rejoinBattleTimestamp)
+	if not rejoinBattleTimestamp then
+		WG.Chobby.Configuration:SetConfigValue("rejoinBattleID", nil)
+		return
+	end
+
+	local now = os.time()
+	if not now or (now - rejoinBattleTimestamp) > MAX_REJOIN_PROMPT_AGE then
+		WG.Chobby.Configuration:SetConfigValue("rejoinBattleID", nil)
+		WG.Chobby.Configuration:SetConfigValue("rejoinBattleTimestamp", nil)
 		return
 	end
 	-- Spring.Echo("Saved BattleID: "..WG.Chobby.Configuration.rejoinID)
@@ -26,6 +40,7 @@ local function LoginRejoinOption(listener, battleID)
 	local battle = lobby:GetBattle(WG.Chobby.Configuration.rejoinBattleID) -- Battle Object
 	if battle == nil then
 		WG.Chobby.Configuration:SetConfigValue("rejoinBattleID", nil)
+		WG.Chobby.Configuration:SetConfigValue("rejoinBattleTimestamp", nil)
 		return
 	end
 	
@@ -43,6 +58,7 @@ local function OnJoinedBattle(listener, battleID, userName)
 
 	-- Spring.Echo('Saving Lobby ID: '..battleID)
 	WG.Chobby.Configuration:SetConfigValue("rejoinBattleID", battleID)
+	WG.Chobby.Configuration:SetConfigValue("rejoinBattleTimestamp", os.time())
 end
 
 local function OnLeftBattle(listener, battleID, userName)
@@ -52,6 +68,7 @@ local function OnLeftBattle(listener, battleID, userName)
 
 	-- Spring.Echo('Removing Lobby ID: ' .. battleID)
 	WG.Chobby.Configuration:SetConfigValue("rejoinBattleID", nil)
+	WG.Chobby.Configuration:SetConfigValue("rejoinBattleTimestamp", nil)
 end
 
 local function DelayedInitialize()
