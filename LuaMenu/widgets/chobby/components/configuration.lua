@@ -192,7 +192,7 @@ function Configuration:init()
 	self.multiplayerLaunchNewSpring = false
 	self.myAccountID = false
 	self.lastAddedAiName = false
-	self.lastBarbAiProfile = "easy"
+	self.lastBarbAiProfile = "hard"
 	self.multiplayerDifferentEngine = true
 
 	self.noNaiveConfigOverride = {
@@ -306,7 +306,7 @@ function Configuration:init()
 	self.doNotDisturb = false
 	self.addFriendWindowButton = true
 	self.simplifiedSkirmishSetup = true
-	self.randomSkirmishDifficulty = "hard"
+	self.randomSkirmishDifficulty = "easy"
 	self.debugMode = false
 	self.devMode = VFS.FileExists("devmode.txt") or VFS.FileExists("devmode.txt.txt") or VFS.FileExists("devmode.rtf.txt")
 	self.ShowhiddenModopions = false
