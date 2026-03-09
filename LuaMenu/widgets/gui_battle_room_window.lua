@@ -29,6 +29,8 @@ local showDefaultStartCheckbox = false
 local currentStartRects = {}
 local startRectValues = {} -- for exporting the raw values
 
+local hillArea
+
 local singleplayerWrapper
 local multiplayerWrapper
 
@@ -50,6 +52,7 @@ local MINIMAP_TOOLTIP_PREFIX = "minimap_tooltip_"
 local MINIMUM_QUICKPLAY_PLAYERS = 4 -- Hax until the server tells me a number.
 
 local lastUserToChangeStartBoxes = ''
+local lastUserToChangeHillArea = ''
 
 local readyButton
 local btnStartBattle = nil
@@ -428,7 +431,9 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 
 	local function UpdateStartRectPositionsInMinimap(width)
 
-		for i, rect in pairs(currentStartRects) do
+		local rectsArray = {unpack(currentStartRects)}
+		table.insert(rectsArray, hillArea)
+		for i, rect in pairs(rectsArray) do
 			-- FIXME: THIS IS IMPORTANt
 			--Spring.Log("Chobby",LOG.WARNING,"start rect resized",width, height,obj.x, obj.y) --this works!
 			--obj.x = math.max(0, math.min(obj.parent.width - obj.minWidth,	obj.x))
@@ -436,6 +441,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 
 			--obj.width = math.max(obj.minWidth ,math.min(obj.parent.width - obj.x, obj.width))
 			--obj.height= math.max(obj.minHeight,math.min(obj.parent.height- obj.y, obj.height))
+			--[[
 			if false then --could check width?
 				rect:SetPos(
 					math.floor(width*(rect.spadsSizes.left)/200),
@@ -444,13 +450,13 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 					math.floor(width*(rect.spadsSizes.bottom - rect.spadsSizes.top)/200)
 				) -- x,y,w,h
 			else
-				rect:SetPos(
-					math.floor(rect.parent.width*(rect.spadsSizes.left)/200),
-					math.floor(rect.parent.height*(rect.spadsSizes.top)/200),
-					math.floor(rect.parent.width*(rect.spadsSizes.right - rect.spadsSizes.left)/200),
-					math.floor(rect.parent.height*(rect.spadsSizes.bottom - rect.spadsSizes.top)/200)
-				) -- x,y,w,h
-			end
+			]]
+			rect:SetPos(
+				math.floor(rect.parent.width*(rect.spadsSizes.left)/200),
+				math.floor(rect.parent.height*(rect.spadsSizes.top)/200),
+				math.floor(rect.parent.width*(rect.spadsSizes.right - rect.spadsSizes.left)/200),
+				math.floor(rect.parent.height*(rect.spadsSizes.bottom - rect.spadsSizes.top)/200)
+			) -- x,y,w,h
 			rect:Invalidate()
 			rect:BringToFront()
 
@@ -1241,6 +1247,8 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 			local allyTeamCount = emptyTeamIndex
 			local startboxes = nil
 			local Configuration = WG.Chobby.Configuration
+			
+			externalFunctions.UpdateHillArea()
 
 			if isSingleplayer then
 				imMinimap.children = {}
@@ -1490,6 +1498,142 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 
 	function externalFunctions.GetStartRects()
 		return currentStartRects
+	end
+	
+	function externalFunctions.AddHillArea(left, top, right, bottom, type)
+
+		local isSquare = type == "circle"
+		if isSquare then--Make sure the area is square in map coords
+			local currentAreaWidth = right - left
+			local currentAreaHeight = bottom - top
+			local currentAreaAspectRatio = currentAreaWidth / currentAreaHeight
+			local mapIconTexInfo = gl.TextureInfo(imMinimap.file)
+			local targetAspectRatio =  mapIconTexInfo.ysize / mapIconTexInfo.xsize--Map is stretched to square, so a square in map coords has inverse aspect ratio of map after stretch
+			if targetAspectRatio >= currentAreaAspectRatio then--needs to be made more wide and less tall, so keep width same and reduce height
+				local newHeight = currentAreaWidth / targetAspectRatio
+				bottom = top + newHeight
+			else--needs to be made more tall and less wide, so keep height the same and reduce width
+				local newWidth = currentAreaHeight * targetAspectRatio
+				right = left + newWidth
+			end
+		end
+		
+		local minimapPanelMaxSize = math.max(minimapPanel.width,minimapPanel.height) -1
+		local ox = math.floor(left * minimapPanelMaxSize / 200)
+		local oy = math.floor(top * minimapPanelMaxSize / 200)
+		local ow = math.floor((right-left) * minimapPanelMaxSize / 200)
+		local oh = math.floor((bottom-top) * minimapPanelMaxSize / 200)
+		if hillArea then externalFunctions.RemoveHillArea() end
+		hillArea = Window:New {
+			name = 'hillArea',
+
+			spadsSizes = {left = left,top = top,right = right,bottom = bottom},
+			x = ox,
+			y = oy,
+			width = ow,
+			height = oh,
+			minWidth = 15,
+			minHeight = 15,
+			fixedRatio = isSquare,
+			objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+			caption = "Hill",
+			classname = "startbox_window",
+			parent = minimapPanel,
+			captionColor = {1.0, 1.0, 1.0, 1.0},
+			backgroundColor = {0.9, 0.1, 1.0, 1.0},
+			borderColor = {0.1, 0.9, 0.1,0.5},
+			focusColor = {0.0, 0.9, 0.1, 1.0},
+			padding = {0,0,0,0},
+			tooltip = "Drag box to move, drag corner to resize\nLast changed by "..lastUserToChangeHillArea,
+			oldSizes = {ox,oy,ow,oh}, -- this stores its previous state so we dont spam boxes on no change
+			OnClick = {
+				function(obj)
+					if math.abs(obj.oldSizes[1] - obj.x) < 1.0 and
+						math.abs(obj.oldSizes[2] - obj.y) < 1.0 and
+						math.abs(obj.oldSizes[3] - obj.width) < 1.0 and
+						math.abs(obj.oldSizes[4] - obj.height) < 1.0 then
+					else
+						local pw = obj.parent.width - 1
+						local ph = obj.parent.height - 1
+						obj.x = math.max(0, math.min(pw - obj.minWidth, obj.x))
+						obj.y = math.max(0, math.min(ph - obj.minHeight, obj.y))
+
+						obj.width = math.max(obj.minWidth ,math.min(pw - obj.x, obj.width))
+						obj.height= math.max(obj.minHeight,math.min(ph- obj.y, obj.height))
+
+						obj.oldSizes = {obj.x,obj.y, obj.width,obj.height}
+
+						local l = 200* obj.x / pw
+						local t = 200* obj.y / ph
+						local r = 200* obj.width / pw + l
+						local b = 200* obj.height / ph + t
+						--also do the fact that it should be red on change, and turn back black on successfull modification
+						--try to manage clicking on the startbox not changing it.
+						--TODO: problematic when resizing entire UI :/
+
+						obj:Invalidate() --doesnt do much
+						
+						local newModOptions = {
+							kingofthehillarealeft = l,
+							kingofthehillareatop = t,
+							kingofthehillarearight = r,
+							kingofthehillareabottom = b
+						}
+						if battleLobby.name == "singleplayer" then
+							local modOptions = battleLobby:GetMyBattleModoptions()
+							for name, value in pairs(newModOptions) do
+								modOptions[name] = value
+							end
+							battleLobby:SetModOptions(modOptions)
+						else
+							for name, value in pairs(newModOptions) do
+								battleLobby:SayBattle("!bSet " .. name .. " " .. value)
+							end
+						end
+					end
+				end
+			},
+			OnResize = {
+				-- FIXME: the big problem, is that if a start box is dragged outside of the minimap panel,
+				-- and then the mouse is released while it is outside, we get no callbacks
+				-- So then the box is pretty much stuck
+				function (obj, width, height)
+					obj.x = math.max(0, math.min(obj.parent.width - obj.minWidth, obj.x))
+					obj.y = math.max(0, math.min(obj.parent.height - obj.minHeight, obj.y))
+
+					obj.width = math.max(obj.minWidth ,math.min(obj.parent.width - obj.x -1, obj.width ))
+					obj.height= math.max(obj.minHeight,math.min(obj.parent.height- obj.y -1, obj.height))
+				end
+			},
+		}
+		
+		for i,rect in pairs(currentStartRects) do
+			rect:BringToFront()
+		end
+		hillArea:BringToFront()
+
+	end
+	
+	function externalFunctions.RemoveHillArea()
+		if hillArea then
+			hillArea:Dispose()
+			hillArea = nil
+		end
+	end
+	
+	function externalFunctions.UpdateHillArea(modOptions)
+		modOptions = modOptions or battleLobby:GetMyBattleModoptions()
+		if modOptions.kingofthehillenabled == "1" then
+			externalFunctions.AddHillArea(modOptions.kingofthehillarealeft or 75, modOptions.kingofthehillareatop or 75,
+				modOptions.kingofthehillarearight or 125, modOptions.kingofthehillareabottom or 125,
+				modOptions.kingofthehillareatype or "rect")
+		else
+			externalFunctions.RemoveHillArea()
+		end
+	end
+
+	function externalFunctions.GetHillArea()
+		return hillArea
 	end
 
 	MaybeDownloadGame(battle)
@@ -4062,6 +4206,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 				end
 			end
 		end
+		infoHandler.UpdateHillArea(modoptions)
 	end
 
 	battleLobby:AddListener("OnUpdateUserTeamStatus", OnUpdateUserTeamStatus)
