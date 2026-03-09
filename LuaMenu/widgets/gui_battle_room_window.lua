@@ -1773,10 +1773,10 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 
 						obj.oldSizes = {obj.x,obj.y, obj.width,obj.height}
 
-						local l = 200* obj.x / pw
-						local t = 200* obj.y / ph
-						local r = 200* obj.width / pw + l
-						local b = 200* obj.height / ph + t
+						local l = math.floor(200 * obj.x / pw + 0.5)
+						local t = math.floor(200 * obj.y / ph + 0.5)
+						local r = math.floor(200 * obj.width / pw + 0.5) + l
+						local b = math.floor(200 * obj.height / ph + 0.5) + t
 						--also do the fact that it should be red on change, and turn back black on successfull modification
 						--try to manage clicking on the startbox not changing it.
 						--TODO: problematic when resizing entire UI :/
