@@ -12,16 +12,22 @@ function explode(div,str)
 		return false
 	end
 
-	local pos, arr = 0, {}
+	local pos = 0
+	local arrN = 0
+	local arr = {}
+	local string_find = string.find
+	local string_sub = string.sub
 	-- for each divider found
-	for st, sp in function() return string.find(str, div, pos, true) end do
+	for st, sp in function() return string_find(str, div, pos, true) end do
 		 -- Attach chars left of current divider
-		table.insert(arr, string.sub(str, pos, st-1))
+		arrN = arrN + 1
+		arr[arrN] = string_sub(str, pos, st-1)
 		-- Jump past current divider
 		pos = sp + 1
 	end
 	-- Attach chars right of last divider
-	table.insert(arr, string.sub(str,pos))
+	arrN = arrN + 1
+	arr[arrN] = string_sub(str, pos)
 	return arr
 end
 
@@ -96,17 +102,22 @@ function getTag(tags, tagName, mandatory)
 	return value
 end
 
+-- Pre-computed powers of 2 for bit shift operations (avoids repeated exponentiation)
+local _pow2 = {}
+for _i = 0, 31 do _pow2[_i] = 2 ^ _i end
+
 function rshift(x, by)
-  return math.floor(x / 2 ^ by)
+  return math.floor(x / (_pow2[by] or 2 ^ by))
 end
 
 function lshift(x, by)
-  return x * 2 ^ by
+  return x * (_pow2[by] or 2 ^ by)
 end
 
 function startsWith(targetstring, pattern)
-	if string.len(pattern) <= string.len(targetstring) and pattern == string.sub(targetstring,1, string.len(pattern)) then
-		return true, string.sub(targetstring, string.len(pattern) + 1)
+	local patLen = #pattern
+	if patLen <= #targetstring and pattern == string.sub(targetstring, 1, patLen) then
+		return true, string.sub(targetstring, patLen + 1)
 	else
 		return false
 	end

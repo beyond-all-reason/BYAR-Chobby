@@ -47,6 +47,7 @@ function Lobby:_Clean()
 
 	self.battles = {}
 	self.battleCount = 0
+	self.founderToBattle = {}  -- reverse index: founder userName -> battleID
 	self.modoptions = {}
 
 	self.battleAis = {}
@@ -1211,6 +1212,7 @@ function Lobby:_OnBattleOpened(battleID, battle)
 		-- isMatchMaker = battle.isMatchMaker,
 	}
 	self.battleCount = self.battleCount + 1
+	self.founderToBattle[battle.founder] = battleID
 
 	self:_CallListeners("OnBattleOpened", battleID, self.battles[battleID])
 end
@@ -1227,6 +1229,7 @@ function Lobby:_OnBattleClosed(battleID)
 	for _, userName in pairs(battleusers) do
 		self:_OnLeftBattle(battleID, userName)
 	end
+	self.founderToBattle[battle.founder] = nil
 	self.battles[battleID] = nil
 	self.battleCount = self.battleCount - 1
 	self:_CallListeners("OnBattleClosed", battleID)
@@ -2300,13 +2303,7 @@ function Lobby:GetPlayerOccupancy(battleID)
 end
 
 function Lobby:GetBattleFoundedBy(userName)
-	-- TODO, improve data structures to make this search nice
-	for battleID, battleData in pairs(self.battles) do
-		if battleData.founder == userName then
-			return battleID
-		end
-	end
-	return false
+	return self.founderToBattle[userName] or false
 end
 
 -- returns battles table (not necessarily an array)

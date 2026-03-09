@@ -109,14 +109,20 @@ function Chobby:_ViewResize(sw, sh)
 	end)
 end
 
+-- Cache error handler to avoid creating a new closure on every WrapCall invocation.
+-- WrapCall is called ~30+ times during init (each component include + listener setup).
+local function _chobbyErrorHandler(err)
+	Spring.Log("Chobby", LOG.ERROR, err)
+	Spring.Log("Chobby", LOG.ERROR, debug.traceback(err))
+end
+
 function Chobby:WrapCall(func)
-	xpcall(function() func() end,
-		function(err) self:_PrintError(err) end )
+	-- func is already a function, no need to wrap it in another closure
+	xpcall(func, _chobbyErrorHandler)
 end
 
 function Chobby:_PrintError(err)
-	Spring.Log("Chobby", LOG.ERROR, err)
-	Spring.Log("Chobby", LOG.ERROR, debug.traceback(err))
+	_chobbyErrorHandler(err)
 end
 
 function Chobby:_GetConfigData()

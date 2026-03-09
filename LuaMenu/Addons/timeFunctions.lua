@@ -194,13 +194,14 @@ function Spring.Utilities.GetTimeToPast(pastTimeString, includeSeconds)
 		end
 	end
 
+	local utcNow = os.date("!*t")
 	local currentTime = {
-		tonumber(os.date("!%S")),
-		tonumber(os.date("!%M")),
-		tonumber(os.date("!%H")),
-		tonumber(os.date("!%d")),
-		--tonumber(os.date("!%m")),
-		--tonumber(os.date("!%Y")),
+		utcNow.sec,
+		utcNow.min,
+		utcNow.hour,
+		utcNow.day,
+		--utcNow.month,
+		--utcNow.year,
 	}
 
 	local pastSeconds = pastTime[1] + 60*(pastTime[2] + 60*pastTime[3])
@@ -217,14 +218,17 @@ function Spring.Utilities.GetTimeDifferenceTable(targetTime, currentTime)
 	if not targetTime then
 		return false
 	end
-	currentTime = currentTime or {
-		tonumber(os.date("!%S")), -- Second
-		tonumber(os.date("!%M")), -- Minute
-		tonumber(os.date("!%H")), -- Hour
-		tonumber(os.date("!%d")), -- Day
-		tonumber(os.date("!%m")), -- Month
-		tonumber(os.date("!%Y")), -- Year
-	}
+	if not currentTime then
+		local utcNow = os.date("!*t")
+		currentTime = {
+			utcNow.sec,  -- Second
+			utcNow.min,  -- Minute
+			utcNow.hour, -- Hour
+			utcNow.day,  -- Day
+			utcNow.month, -- Month
+			utcNow.year, -- Year
+		}
+	end
 
 	for i = 1, #targetTime do
 		if not (targetTime[i] and currentTime[i]) then
@@ -323,13 +327,14 @@ function Spring.Utilities.GetTimeDifference(targetTimeString, otherTime)
 end
 
 function Spring.Utilities.UtcToLocal(utcTimeString)
+	local localNow = os.date("*t")
 	local localTime = {
-		tonumber(os.date("%S")), -- Second
-		tonumber(os.date("%M")), -- Minute
-		tonumber(os.date("%H")), -- Hour
-		tonumber(os.date("%d")), -- Day
-		tonumber(os.date("%m")), -- Month
-		tonumber(os.date("%Y")), -- Year
+		localNow.sec,  -- Second
+		localNow.min,  -- Minute
+		localNow.hour, -- Hour
+		localNow.day,  -- Day
+		localNow.month, -- Month
+		localNow.year, -- Year
 	}
 
 	for i = 1, #localTime do
@@ -365,32 +370,12 @@ function Spring.Utilities.ArchaicUtcToLocal(utcTimeString, translator)
 	return Spring.Utilities.ArchaicFormatDate(Spring.Utilities.UtcToLocal(utcTimeString), translator)
 end
 
-function Spring.Utilities.ArchaicUtcToLocal(utcTimeString, translator)
-	return Spring.Utilities.ArchaicFormatDate(Spring.Utilities.UtcToLocal(utcTimeString), translator)
-end
-
 function Spring.Utilities.GetCurrentUtc()
-	local t = {
-		tonumber(os.date("!%S")),
-		tonumber(os.date("!%M")),
-		tonumber(os.date("!%H")),
-		tonumber(os.date("!%d")),
-		tonumber(os.date("!%m")),
-		tonumber(os.date("!%Y")),
-	}
-
-	return string.format("%04d-%02d-%02dT%02d:%02d:%02d", t[6], t[5], t[4], t[3], t[2], t[1])
+	local t = os.date("!*t")
+	return string.format("%04d-%02d-%02dT%02d:%02d:%02d", t.year, t.month, t.day, t.hour, t.min, t.sec)
 end
 
 function Spring.Utilities.GetCompactCurrentUtc()
-	local t = {
-		tonumber(os.date("!%S")),
-		tonumber(os.date("!%M")),
-		tonumber(os.date("!%H")),
-		tonumber(os.date("!%d")),
-		tonumber(os.date("!%m")),
-		tonumber(os.date("!%Y")),
-	}
-
-	return string.format("%04d%02d%02d_%02d%02d%02d", t[6], t[5], t[4], t[3], t[2], t[1])
+	local t = os.date("!*t")
+	return string.format("%04d%02d%02d_%02d%02d%02d", t.year, t.month, t.day, t.hour, t.min, t.sec)
 end

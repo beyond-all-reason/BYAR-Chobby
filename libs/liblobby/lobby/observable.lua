@@ -13,6 +13,10 @@ function Lobby:AddListener(event, listener)
 		self.listeners[event] = eventListeners
 	end
 	table.insert(eventListeners, listener)
+	-- Invalidate cached listener copy for this event
+	if self._listenerCache then
+		self._listenerCache[event] = nil
+	end
 end
 
 function Lobby:RemoveListener(event, listener)
@@ -22,6 +26,10 @@ function Lobby:RemoveListener(event, listener)
 				table.remove(self.listeners[event], k)
 				if #self.listeners[event] == 0 then
 					self.listeners[event] = nil
+				end
+				-- Invalidate cached listener copy for this event
+				if self._listenerCache then
+					self._listenerCache[event] = nil
 				end
 				break
 			end
@@ -36,54 +44,102 @@ Spring.Echo("Checking for Tracy profiler build:", tracy, tracy.stub, devmode)
 local functionaddresscache = {} -- This tables keys are listener functions, mapped to source lines
 
 -- Using solution in http://lua-users.org/lists/lua-l/2006-02/msg00537.html
+-- Performance: module-level error handler avoids creating a closure per listener per dispatch
+local function _errorHandler(err)
+	Spring.Log(LOG_SECTION, LOG.ERROR, err)
+	Spring.Log(LOG_SECTION, LOG.ERROR, debug.traceback(err))
+end
+
+-- Reusable dispatch slots for _CallListeners.
+-- Each recursion depth gets its own slot to avoid clobbering.
+-- Eliminates per-call closure creation and vararg table packing.
+local _callDepth = 0
+local _dispatchSlots = {}
+
+local function _makeSlot()
+	local slot = { args = {}, n = 0 }
+	slot.fn = function()
+		slot.listener(slot.listener, unpack(slot.args, 1, slot.n))
+	end
+	return slot
+end
+
 function Lobby:_CallListeners(event, ...)
 	if self.listeners[event] == nil then
 		return nil -- no event listeners
 	end
-	local eventListeners = ShallowCopy(self.listeners[event])
-	local args = {...}
+
+	-- Use cached listener copy when available (invalidated by AddListener/RemoveListener)
+	local lc = self._listenerCache
+	if not lc then
+		lc = {}
+		self._listenerCache = lc
+	end
+	local eventListeners = lc[event]
+	if not eventListeners then
+		eventListeners = ShallowCopy(self.listeners[event])
+		lc[event] = eventListeners
+	end
+
+	-- Get reusable dispatch slot for current recursion depth
+	_callDepth = _callDepth + 1
+	local depth = _callDepth
+	local slot = _dispatchSlots[depth]
+	if not slot then
+		slot = _makeSlot()
+		_dispatchSlots[depth] = slot
+	end
+
+	-- Pack args into reusable table (avoids {…} allocation)
+	local args = slot.args
 	local n = select("#", ...)
-	if devmode then 
+	for i = 1, n do
+		args[i] = select(i, ...)
+	end
+	slot.n = n
+
+	if devmode then
 		tracy.ZoneBeginN("Lobby:"..event)
 	end
 	for i = 1, #eventListeners do
-		local listener = eventListeners[i]
-		
-		local functionaddress = "unknown listener"
+		slot.listener = eventListeners[i]
+
 		if devmode then
-			if functionaddresscache[listener] == nil then
-				local finfo = debug.getinfo(listener)
-				--Spring.Utilities.TableEcho(finfo)
-				local src = finfo.source or functionaddress
+			local functionaddress = functionaddresscache[slot.listener]
+			if functionaddress == nil then
+				local finfo = debug.getinfo(slot.listener)
+				local src = finfo.source or "unknown listener"
 				local srcsplit = src:split('/')
-				src = srcsplit[#srcsplit]		
-				local linedefined = finfo.linedefined or "0"
-				functionaddress = src .. ":" .. tostring(linedefined)
-				--Spring.Echo(src, finfo.source, linedefined, functionaddress)
-				functionaddresscache[listener] = functionaddress
-			else
-				functionaddress = functionaddresscache[listener]
+				src = srcsplit[#srcsplit]
+				functionaddress = src .. ":" .. tostring(finfo.linedefined or "0")
+				functionaddresscache[slot.listener] = functionaddress
 			end
-			if functionaddress then 
-				tracy.ZoneBeginN(functionaddress)
-			end
+			tracy.ZoneBeginN(functionaddress)
 		end
-		xpcall(function() listener(listener, unpack(args, 1, n)) end,
-			function(err) self:_PrintError(err) end )
-		if devmode and functionaddress then 
+		xpcall(slot.fn, _errorHandler)
+		if devmode then
 			tracy.ZoneEnd()
 			if tracy and tracy.LuaTracyPlot then
 				tracy.LuaTracyPlot("LuaMenuMem", gcinfo() * 1000)
 			end
 		end
-			
+
 	end
+
+	-- Clear references to avoid preventing GC
+	slot.listener = nil
+	for i = 1, n do
+		args[i] = nil
+	end
+
 	if devmode then
 		tracy.ZoneEnd()
 		if tracy and tracy.LuaTracyPlot then
 			tracy.LuaTracyPlot("LuaMenuMem", gcinfo() * 1000)
 		end
 	end
+
+	_callDepth = _callDepth - 1
 	return true
 end
 

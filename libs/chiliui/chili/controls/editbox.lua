@@ -122,29 +122,34 @@ end
 
 --// =============================================================================
 
+local string_byte = string.byte
+local string_sub  = string.sub
 local function explode(div, str)
 	str = tostring(str)
 	local arr = {}
-	local i, j = 1, 1
-	local N = str:len()
+	local n = 0
+	local start = 1
+	local len = #str
+	local divByte = string_byte(div)
+	local pos = 1
 
-	while j <= N do
-		local c = str:sub(j, j)
-		if c == '\255' then
-			j = j + 3
-		elseif c == div then
-			arr[#arr + 1] = str:sub(i, j - 1)
-			i = j + 1
+	while pos <= len do
+		local byte = string_byte(str, pos)
+		if byte == 255 then
+			pos = pos + 4 -- skip \255\R\G\B color code
+		elseif byte == divByte then
+			n = n + 1
+			arr[n] = string_sub(str, start, pos - 1)
+			start = pos + 1
+			pos = pos + 1
+		else
+			pos = pos + 1
 		end
-		j = j + 1
 	end
-
-	if i <= N then
-		arr[#arr + 1] = str:sub(i, N)
-	end
-
+	n = n + 1
+	arr[n] = string_sub(str, start)
 	return arr
- end
+end
 
 --- Sets the EditBox text
 -- @string newtext text to be set
@@ -514,8 +519,9 @@ function EditBox:Update(...)
 
 	if self.state.focused and self.editable then
 		self:RequestUpdate()
-		if (os.clock() >= (self._nextCursorRedraw or -math.huge)) then
-			self._nextCursorRedraw = os.clock() + 0.1 --10FPS
+		local now = os.clock()
+		if (now >= (self._nextCursorRedraw or -math.huge)) then
+			self._nextCursorRedraw = now + 0.1 --10FPS
 			self:Invalidate()
 		end
 	end

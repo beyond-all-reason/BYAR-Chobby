@@ -972,6 +972,59 @@ local function GetLobbyTabControls()
 	children[#children + 1] = randomSkirmishSetup
 	offset = offset + ITEM_OFFSET
 
+	children[#children + 1] = Label:New {
+		x = 20,
+		y = offset + TEXT_OFFSET,
+		width = 180,
+		height = 40,
+		valign = "top",
+		align = "left",
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		caption = i18n("randomSkirmishDifficulty"),
+	}
+
+	local randomSkirmishDifficultyOptions = {
+		{label = "Hard | Aggressive", key = "hard_aggressive"},
+		{label = "Hard | Balanced", key = "hard"},
+		{label = "Medium | Lazy", key = "medium"},
+		{label = "Easy | Slow", key = "easy"},
+		{label = "Testing AI", key = "dev"},
+	}
+	-- Prepare dropdown text from the same options table.
+	local randomSkirmishDifficultyLabels = {}
+	-- Pick current config selection
+	local selectedRandomSkirmishDifficulty = 2
+	local selectedDifficultyKey = Configuration.randomSkirmishDifficulty or "hard"
+	for i = 1, #randomSkirmishDifficultyOptions do
+		local option = randomSkirmishDifficultyOptions[i]
+		randomSkirmishDifficultyLabels[i] = option.label
+		if option.key == selectedDifficultyKey then
+			selectedRandomSkirmishDifficulty = i
+		end
+	end
+
+	children[#children + 1] = ComboBox:New {
+		x = COMBO_X,
+		y = offset,
+		width = COMBO_WIDTH,
+		right = 18,
+		height = 30,
+		items = randomSkirmishDifficultyLabels,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		selected = selectedRandomSkirmishDifficulty,
+		tooltip = i18n("randomSkirmishDifficulty_tooltip"),
+		OnSelect = {
+			function (obj)
+				if freezeSettings then
+					return
+				end
+				local selectedOption = randomSkirmishDifficultyOptions[obj.selected]
+				Configuration:SetConfigValue("randomSkirmishDifficulty", (selectedOption and selectedOption.key) or "hard")
+			end
+		},
+	}
+	offset = offset + ITEM_OFFSET
+
 	local autoLogin = Checkbox:New {
 		x = 20,
 		width = CHECK_WIDTH,
@@ -1288,6 +1341,84 @@ local function GetVoidTabControls()
 		WG.Chobby.Configuration.showCampaignButton = newState
 	end
 
+	children[#children + 1] = Label:New {
+		x = 20,
+		y = offset + TEXT_OFFSET,
+		width = 90,
+		height = 30,
+		valign = "top",
+		align = "left",
+		parent = window,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		caption = "Singleplayer",
+	}
+
+	local singleplayerSelectedName = Configuration.gameConfigName
+	local singleplayerSelected = 1
+	for i = 1, #Configuration.gameConfigOptions do
+		if Configuration.gameConfigOptions[i] == singleplayerSelectedName then
+			singleplayerSelected = i
+			break
+		end
+	end
+
+	children[#children + 1] = ComboBox:New {
+		name = "gameSelection",
+		x = COMBO_X,
+		y = offset,
+		width = COMBO_WIDTH,
+		height = 30,
+		right = 18,
+		parent = window,
+		items = Configuration.gameConfigHumanNames,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		selected = singleplayerSelected,
+		OnSelect = {
+			function (obj)
+				if freezeSettings then
+					return
+				end
+				Configuration:SetConfigValue("gameConfigName", Configuration.gameConfigOptions[obj.selected])
+			end
+		},
+	}
+	offset = offset + ITEM_OFFSET
+
+	children[#children + 1] = Label:New {
+		x = 20,
+		y = offset + TEXT_OFFSET,
+		width = 90,
+		height = 40,
+		valign = "top",
+		align = "left",
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		caption = "Start position type",
+		tooltip = "Default start position type for singleplayer skirmish.",
+	}
+	local startPosTypeOptions = {"Fixed", "Random", "Choose In Game", "Choose Before Game"}
+	local startPosTypeSelected = (Configuration.singleplayerStartPosType ~= nil and Configuration.singleplayerStartPosType + 1) or 3
+	children[#children + 1] = ComboBox:New {
+		x = COMBO_X,
+		y = offset,
+		width = COMBO_WIDTH,
+		height = 30,
+		right = 18,
+		items = startPosTypeOptions,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		selected = startPosTypeSelected,
+		OnSelect = {
+			function(obj)
+				if freezeSettings then
+					return
+				end
+				local idx = obj.selected
+				if idx and idx >= 1 and idx <= 4 then
+					Configuration:SetConfigValue("singleplayerStartPosType", idx - 1)
+				end
+			end
+		},
+	}
+	offset = offset + ITEM_OFFSET
 
 	children[#children + 1], offset = AddCheckboxSetting(offset, i18n("debugMode"), "debugMode", false)
 	children[#children + 1], offset = AddCheckboxSetting(offset, i18n("ShowhiddenModopions"), "ShowhiddenModopions", false, WG.ModoptionsPanel.RefreshModoptions, i18n("ShowhiddenTooltip"))
@@ -1418,48 +1549,6 @@ local function GetVoidTabControls()
 	}
 	offset = offset + ITEM_OFFSET
 
-	children[#children + 1] = Label:New {
-		x = 20,
-		y = offset + TEXT_OFFSET,
-		width = 90,
-		height = 30,
-		valign = "top",
-		align = "left",
-		parent = window,
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
-		caption = "Singleplayer",
-	}
-
-	local singleplayerSelectedName = Configuration.gameConfigName
-	local singleplayerSelected = 1
-	for i = 1, #Configuration.gameConfigOptions do
-		if Configuration.gameConfigOptions[i] == singleplayerSelectedName then
-			singleplayerSelected = i
-			break
-		end
-	end
-
-	children[#children + 1] = ComboBox:New {
-		name = "gameSelection",
-		x = COMBO_X,
-		y = offset,
-		width = COMBO_WIDTH,
-		height = 30,
-		right = 18,
-		parent = window,
-		items = Configuration.gameConfigHumanNames,
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
-		selected = singleplayerSelected,
-		OnSelect = {
-			function (obj)
-				if freezeSettings then
-					return
-				end
-				Configuration:SetConfigValue("gameConfigName", Configuration.gameConfigOptions[obj.selected])
-			end
-		},
-	}
-	offset = offset + ITEM_OFFSET
 
 	--children[#children + 1] = Label:New {
 	--	x = 20,
@@ -1503,7 +1592,6 @@ local function GetVoidTabControls()
 	--	},
 	--}
 	--offset = offset + ITEM_OFFSET
-
 
 	children[#children + 1] = Label:New {
 		x = 20,

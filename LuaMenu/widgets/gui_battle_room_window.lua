@@ -25,7 +25,6 @@ local battleLobby
 local wrapperControl
 local mainWindowFunctions
 
-local showDefaultStartCheckbox = false
 local currentStartRects = {}
 local startRectValues = {} -- for exporting the raw values
 
@@ -65,6 +64,7 @@ local playerHandler
 
 -- modoptions extra
 local factionComboBoxes = {}
+local randomSkirmishCooldownEnds = 0
 
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
@@ -143,9 +143,171 @@ local OpenNewTeam
 --------------------------------------------------------------------------------
 -- Chili/interface management
 
-local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUserName)
+local function GetSavedSkirmishDifficultyProfile()
+	local config = WG.Chobby and WG.Chobby.Configuration
+	local selectedProfile = config and config.randomSkirmishDifficulty
+	local validProfiles = {
+		hard_aggressive = true,
+		hard = true,
+		medium = true,
+		easy = true,
+		dev = true,
+	}
+	if selectedProfile and validProfiles[selectedProfile] then
+		return selectedProfile
+	end
+	return "medium"
+end
+
+local function BuildRandomSkirmishSetup()
+	local mapDetails = VFS.Include("luamenu/configs/gameconfig/byar/mapdetails.lua")
+	local validMaps = {}
+	local difficultyProfile = GetSavedSkirmishDifficultyProfile()
+
+	for mapName, details in pairs(mapDetails or {}) do
+		local teamCount = tonumber(details.TeamCount) or 2
+		local playerCount = tonumber(details.PlayerCount) or (teamCount * 2)
+
+		local isTeamMap = details.IsTeam
+		local isFFAMap = details.IsFFA
+		if ((isTeamMap or (not isFFAMap)) and teamCount >= 2 and playerCount >= teamCount) then
+			validMaps[#validMaps + 1] = {
+				mapName = mapName,
+				teamCount = teamCount,
+				playerCount = playerCount,
+			}
+		end
+	end
+
+	if #validMaps == 0 then
+		return nil
+	end
+
+	local picked = validMaps[math.random(1, #validMaps)]
+	local teamCount = picked.teamCount
+	local playersPerTeam = math.max(1, math.floor((picked.playerCount / teamCount) + 0.5))
+
+	local setup = {
+		map = picked.mapName,
+		teamCount = teamCount,
+		playersPerTeam = playersPerTeam,
+		friendlyAI = {},
+		enemyAI = {},
+	}
+
+	for allyTeam = 0, teamCount - 1 do
+		local botCount = playersPerTeam
+		if allyTeam == 0 then
+			botCount = math.max(0, botCount - 1) -- counts local player for the first team
+		end
+
+		for _ = 1, botCount do
+			local shortName = "BARb" --uses only Barbarian AI
+			local aiDef = {
+				shortName = shortName,
+				allyTeam = allyTeam,
+				aiOptions = (shortName == "BARb" and {profile = difficultyProfile}) or nil,
+			}
+			if allyTeam == 0 then
+				setup.friendlyAI[#setup.friendlyAI + 1] = aiDef
+			else
+				setup.enemyAI[#setup.enemyAI + 1] = aiDef
+			end
+		end
+	end
+
+	local mapStartBoxes = WG.Chobby.Configuration.gameConfig and WG.Chobby.Configuration.gameConfig.mapStartBoxes
+	if mapStartBoxes and mapStartBoxes.savedBoxes and mapStartBoxes.selectStartBoxesForAllyTeamCount then
+		local allBoxes = mapStartBoxes.savedBoxes[setup.map]
+		local selectedBoxes = mapStartBoxes.selectStartBoxesForAllyTeamCount(allBoxes, setup.teamCount)
+		if selectedBoxes then
+			setup.startboxes = {}
+			for i = 1, setup.teamCount do
+				if selectedBoxes[i] then
+					setup.startboxes[i - 1] = {
+						200 * selectedBoxes[i][1],
+						200 * selectedBoxes[i][2],
+						200 * selectedBoxes[i][3],
+						200 * selectedBoxes[i][4],
+					}
+				end
+			end
+		end
+	end
+
+	return setup
+end
+
+local function ApplySingleplayerSkirmishSetup(singleplayerDefault)
+	if not singleplayerDefault or not battleLobby then
+		return
+	end
+
+	local sideChoice = WG.Chobby.Configuration.lastFactionChoice or 0
+	battleLobby:SetBattleStatus({
+		allyNumber = 0,
+		isSpectator = false,
+		side = sideChoice,
+	})
+
+	local aiNames = {}
+	for _, aiName in pairs(battleLobby.battleAis or {}) do
+		aiNames[#aiNames + 1] = aiName
+	end
+	for i = 1, #aiNames do
+		battleLobby:RemoveAi(aiNames[i])
+	end
+
+	if singleplayerDefault.map then
+		battleLobby:SelectMap(singleplayerDefault.map)
+	end
+
+	local aiCounter = 1
+	local function AddAI(shortName, allyTeam, color, aiOptions)
+		if not shortName then
+			return
+		end
+		local aiDisplayName = "BARbarianAI" .. "(" .. aiCounter .. ")"
+		if WG.Server.protocol == "spring" then
+			aiDisplayName = aiDisplayName:gsub(" ", "")
+		end
+
+		battleLobby:AddAi(aiDisplayName, shortName, allyTeam, nil, aiOptions, {
+			side = math.random(0, 1),
+			teamColor = color,
+		})
+		aiCounter = aiCounter + 1
+	end
+
+	for i, ai in ipairs(singleplayerDefault.friendlyAI or {}) do
+		AddAI(ai.shortName, ai.allyTeam or 0, GetStarterFriendlyAIColorAssignment(i), ai.aiOptions)
+	end
+	for i, ai in ipairs(singleplayerDefault.enemyAI or {}) do
+		AddAI(ai.shortName, ai.allyTeam or 1, GetStarterEnemyAIColorAssignment(i), ai.aiOptions)
+	end
+
+	WG.Delay(function()
+		if not mainWindowFunctions or not mainWindowFunctions.GetInfoHandler then
+			return
+		end
+		local infoHandler = mainWindowFunctions.GetInfoHandler()
+		if not infoHandler then
+			return
+		end
+		infoHandler.RemoveStartRect()
+		if singleplayerDefault.startboxes then
+			for allyNo, box in pairs(singleplayerDefault.startboxes) do
+				infoHandler.AddStartRect(allyNo, box[1], box[2], box[3], box[4])
+			end
+		end
+		infoHandler.rightInfo:Invalidate()
+		infoHandler.UpdateStartRectPositionsInMinimap()
+	end, 0.12)
+end
+
+local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUserName, showRandomSkirmishButton)
 	local config = WG.Chobby.Configuration
-	local minimapBottomClearance = 160
+	local minimapBottomClearance = 172
 
 	local currentMapName
 	local oldSelectedBoxes = 1
@@ -523,36 +685,6 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		tooltip = "Currently selected map. Green boxes show where each team will start"
 	}
 
-	if battleLobby.name == "singleplayer" and WG.Chobby.Configuration.simplifiedSkirmishSetup ~= true and config.devMode then
-		local comboboxstartpostype = ComboBox:New{
-			name = 'comboboxstartpostype',
-			x = "60%",
-			right = 98,
-			y = 15,
-			height = 30,
-			itemHeight = 22,
-			selectByName = true,
-			captionHorAlign = -12,
-			text = "",
-			objectOverrideFont = config:GetFont(2),
-			items = {"Fixed", "Random", "Choose In Game", "Choose Before Game"},
-			selected = "Choose In Game",
-			OnSelectName = {
-				function (obj, selectedName)
-					for k,v in ipairs  {"Fixed", "Random", "Choose In Game", "Choose Before Game"} do
-						if selectedName == v then
-							battle.startPosType = k - 1
-							--Spring.Echo("Selected startPosType", k,v, k-1,selectedName)
-							return
-						end
-					end
-					battle.startPosType = nil
-				end
-			},
-			parent = mainWindow,
-		}
-	end
-
 	local function RejoinBattleFunc()
 		--Spring.Echo("\LuaMenu\widgets\chobby\components\battle\battle_watch_list_window.lua","RejoinBattleFunc()","") -- Beherith Debug
 		battleLobby:RejoinBattle(battleID)
@@ -639,6 +771,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 								Configuration.gameConfig.mapStartBoxes.singleplayerboxes = currentStartRects
 							end
 						end
+						battle.startPosType = Configuration.singleplayerStartPosType ~= nil and Configuration.singleplayerStartPosType or 2
 						WG.Analytics.SendOnetimeEvent("lobby:singleplayer:skirmish:start")
 						WG.SteamCoopHandler.AttemptGameStart("skirmish", battle.gameName, battle.mapName)
 					else
@@ -773,6 +906,56 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	-- Spring.Echo("debug_initialSetButtonStatePlayingbefore")
 	SetButtonStatePlaying()
 	-- Spring.Echo("debug_initialSetButtonStatePlayingafter")
+
+	if battleLobby.name == "singleplayer" and showRandomSkirmishButton then
+		local randomButtonCaption = "Generate Random Game"
+		local btnRandomSkirmish
+
+		local function UpdateRandomSkirmishButton()
+			if not btnRandomSkirmish or btnRandomSkirmish.disposed then
+				return
+			end
+			local remaining = math.ceil(randomSkirmishCooldownEnds - os.clock())
+			if remaining > 0 then
+				btnRandomSkirmish:SetEnabled(false)
+				ButtonUtilities.SetCaption(btnRandomSkirmish, randomButtonCaption .. " (" .. remaining .. "s)")
+				WG.Delay(UpdateRandomSkirmishButton, 0.2)
+			else
+				btnRandomSkirmish:SetEnabled(true)
+				ButtonUtilities.SetCaption(btnRandomSkirmish, randomButtonCaption)
+			end
+		end
+		-- UI button to generate random skirmish game, 2s cooldown to prevent spam
+		--cooldown might not be needed cause of single player?
+		btnRandomSkirmish = Button:New {
+			name = "btnRandomSkirmish",
+			x = 0,
+			right = 0,
+			bottom = 86,
+			height = 30,
+			classname = "option_button",
+			caption = randomButtonCaption,
+			objectOverrideFont = config:GetFont(2),
+			tooltip = "Picks a random map and fills teams with bots.",
+			OnClick = {
+				function()
+					if os.clock() < randomSkirmishCooldownEnds then
+						return
+					end
+					randomSkirmishCooldownEnds = os.clock() + 2
+					UpdateRandomSkirmishButton()
+
+					local generated = BuildRandomSkirmishSetup()
+					if not generated then
+						return
+					end
+					ApplySingleplayerSkirmishSetup(generated)
+				end
+			},
+			parent = rightInfo,
+		}
+		UpdateRandomSkirmishButton()
+	end
 
 	local function SetBtnPlayState(selected, caption)
 		local myBs = battleLobby:GetUserBattleStatus(battleLobby.myUserName) or {}
@@ -964,12 +1147,14 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 			--or "Error: Could not retrieve modoptions, your game files may be corrupted or the lobby may be invalid"
 			or "Game Update may still be downloading"
 	local modoptionsLoaded = modoptions
-	local btnModoptions = Button:New {
+
+	local devMode = battleLobby.name == "singleplayer" and config.devMode
+	local btnModoptions, btnReloadModoptions = Button:New {
 		name = 'btnModoptions',
 		x = 5,
 		y = leftOffset,
 		height = 35,
-		right = 5,
+		right = devMode and "25%" or 5,
 		classname = "option_button",
 		caption = "Adv Options" .. "\b",
 		objectOverrideFont = config:GetFont(2),
@@ -985,6 +1170,30 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		},
 		parent = leftInfo,
 	}
+	if devMode then
+		btnReloadModoptions = Button:New {
+			name = 'btnReloadModoptions',
+			x = "75%",
+			y = leftOffset,
+			height = 35,
+			right = 5,
+			classname = "option_button",
+			caption = "🔁",
+			objectOverrideFont = config:GetFont(2),
+			objectOverrideDisabledFont = config:GetFont(1),
+			hasDisabledFont = true,
+			tooltip = "Reload modoptions from game archive and show the panel.",
+			OnClick = {
+				function()
+					if modoptionsLoaded then
+						WG.ModoptionsPanel.LoadModoptions(battle.gameName, battleLobby, true)
+						WG.ModoptionsPanel.ShowModoptions()
+					end
+				end
+			},
+			parent = leftInfo,
+		}
+	end
 	leftOffset = leftOffset + 40
 
 
@@ -1170,6 +1379,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		btnPickMap:SetPos(nil, offset)
 		offset = offset + 38
 		btnModoptions:SetPos(nil, offset)
+		if btnReloadModoptions then btnReloadModoptions:SetPos(nil, offset) end
 		offset = offset + 40
 		btnOptionPresets:SetPos(nil, offset)
 		offset = offset + 40
@@ -1838,22 +2048,29 @@ local function AddTeamButtons(parent, offX, joinFunc, aiFunc, unjoinable, disall
 			end
 			teamFactionsSet.caption = ""
 		end
+		local factionBaseSize = 24
+		local armScale = 0.90
+		local corScale = 0.85
+		local armSize = math.floor(factionBaseSize * armScale)
+		local corSize = math.floor(factionBaseSize * corScale)
+		local armOff = math.floor((factionBaseSize - armSize) / 2)
+		local corOff = math.floor((factionBaseSize - corSize) / 2)
 		factionArm = Image:New {
 			name = "factionArm",
-			x = offX+95+5,
-			y = 0,
-			height = 24,
-			width = 24,
+			x = offX+95+5 + armOff,
+			y = armOff,
+			height = armSize,
+			width = armSize,
 			parent = parent,
 			keepAspect = true,
 			file = LUA_DIRNAME .. "configs/gameConfig/byar/sidepics/" .. "armada.png",
 		}
 		factionCor = Image:New {
 			name = "factionCor",
-			x = offX+95+5+24,
-			y = 0,
-			height = 24,
-			width = 24,
+			x = offX+95+5+24 + corOff,
+			y = corOff,
+			height = corSize,
+			width = corSize,
 			parent = parent,
 			keepAspect = true,
 			file = LUA_DIRNAME .. "configs/gameConfig/byar/sidepics/" .. "cortex.png",
@@ -3260,7 +3477,6 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	-- end
 
 	local isSingleplayer = (battleLobby.name == "singleplayer")
-	showDefaultStartCheckbox = isSingleplayer
 	local isHost = (not isSingleplayer) and (battleLobby:GetMyUserName() == battle.founder)
 
 	local EXTERNAL_PAD_VERT = 9
@@ -3387,7 +3603,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		parent = topPanel,
 	}
 
-	local infoHandler = SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, battleLobby:GetMyUserName())
+	local infoHandler = SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, battleLobby:GetMyUserName(), setupData ~= nil)
 
 	local btnQuitBattle = Button:New {
 		name = 'btnQuitBattle',
@@ -4438,7 +4654,7 @@ function BattleRoomWindow.GetSingleplayerControl(setupData)
 					for i, ai in ipairs(singleplayerDefault.friendlyAI or {}) do
 						totalAIcount = AddAI(totalAIcount, ai.shortName, ai.version, 0,
 							0, -- Default side for friendly AI is Armada
-							{.45,0,.68})
+							GetStarterFriendlyAIColorAssignment(i))
 					end
 
 					for i, ai in ipairs(singleplayerDefault.enemyAI or {}) do
@@ -4491,6 +4707,9 @@ function GetStarterEnemyAIColorAssignment(i)
 	if (i==1) then return red
 	elseif (i==2) then return orange
 	end
+end
+function GetStarterFriendlyAIColorAssignment(i)
+	return {.45,0,.68}
 end
 
 function BattleRoomWindow.SetSingleplayerGame(ToggleShowFunc, battleroomObj, tabData)

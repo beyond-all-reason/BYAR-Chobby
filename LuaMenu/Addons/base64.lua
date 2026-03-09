@@ -9,31 +9,24 @@
 --  * Spring.Utilities.Base64Decode(string data) -> string
 
 -- bitshift functions (<<, >> equivalent)
--- shift left
+-- Using engine-provided math.bit_* for performance
 
 Spring.Utilities = Spring.Utilities or {}
 
+local bit_or = math.bit_or
+local bit_and = math.bit_and
+local math_floor = math.floor
+
 local function lsh(value, shift)
-	return (value * (2 ^ shift)) % 256
+	return bit_and(value * (2 ^ shift), 255)
 end
 
--- shift right
 local function rsh(value, shift)
-	return math.floor(value / 2 ^ shift) % 256
+	return bit_and(math_floor(value / (2 ^ shift)), 255)
 end
 
--- return single bit (for OR)
-local function bit(x, b)
-	return (x % 2 ^ b - x % 2 ^ (b - 1) > 0)
-end
-
--- logic OR for number values
 local function lor(x, y)
-	local result = 0
-	for p = 1, 8 do
-		result = result + (((bit(x, p) or bit(y, p)) == true) and 2 ^ (p - 1) or 0)
-	end
-	return result
+	return bit_or(x, y)
 end
 
 -- encoding table
@@ -52,9 +45,11 @@ local base64chars = {
 function Spring.Utilities.Base64Encode(data)
 	local bytes = {}
 	local result = {}
-	for spos = 0, string.len(data) - 1, 3 do
+	local dataLen = #data
+	local string_byte = string.byte
+	for spos = 0, dataLen - 1, 3 do
 		for byte = 1, 3 do
-			bytes[byte] = string.byte(string.sub(data, (spos + byte), (spos + byte))) or 0
+			bytes[byte] = string_byte(data, spos + byte) or 0
 		end
 		result[#result + 1] = base64chars[rsh(bytes[1], 2)] ..
 			(base64chars[lor(lsh((bytes[1] % 4), 4), rsh(bytes[2], 4))] or "=") ..
@@ -82,10 +77,11 @@ local base64bytes = {
 function Spring.Utilities.Base64Decode(data)
 	local chars = {}
 	local result = {}
-	for dpos = 0, string.len(data) - 1, 4 do
+	local dataLen = #data
+	local string_sub = string.sub
+	for dpos = 0, dataLen - 1, 4 do
 		for char = 1, 4 do
-			local char_str = string.sub(data, (dpos + char), (dpos + char))
-			chars[char] = base64bytes[char_str]
+			chars[char] = base64bytes[string_sub(data, dpos + char, dpos + char)]
 		end
 		if chars[1] ~= nil and chars[2] ~= nil then
 			result[#result + 1] = string.char(lor(lsh(chars[1], 2), rsh(chars[2], 4))) ..

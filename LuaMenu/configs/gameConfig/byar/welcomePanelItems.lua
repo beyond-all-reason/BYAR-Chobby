@@ -15,6 +15,15 @@ local welcomePanelItems = {
     {
         Header = "Welcome to Beyond All Reason",
         Text = "Welcome back Commander. We hope you are ready for epic Singleplayer and Multiplayer battles. Check out our Discord and join the community!\n",
+        NoPulse = true,
+    },
+
+    {
+        Header = "Star BAR on GitHub!",
+        Text = "BAR is built by the community, for the community. One easy way to support us: star our GitHub repository! " .. " \n" .. " \n" .. "It signals the project is alive and helps us access developer programs that give us better tools to build with." .. " \n" .. " \n" .. "(Star button in top right corner of the linked page)" .. " \n" .. " \n",
+        Image = "LuaMenu/images/welcomepanel/github_star.png",
+        Url = "https://github.com/beyond-all-reason/Beyond-All-Reason",
+        UrlText = "Star us on GitHub",
     },
 
     {

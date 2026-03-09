@@ -202,20 +202,20 @@ local function TraceFullEcho(maxdepth, maxwidth, maxtableelements, ...)
 	if infostr ~= "" then infostr = "Trace:[" .. infostr .. "]\n" end 
 	local functionstr = "" -- "Trace:["
 	for i = 2, maxdepth do
-		if debug.getinfo(i) then
-			local funcName = (debug and debug.getinfo(i) and debug.getinfo(i).name)
+		local info = debug.getinfo(i)
+		if info then
+			local funcName = info.name
 			if funcName then
 				functionstr = functionstr .. tostring(i-1) .. ": " .. tostring(funcName) .. " "
 				local arguments = ""
-				local funcName = (debug and debug.getinfo(i) and debug.getinfo(i).name) or "??"
 				if funcName ~= "??" then
-					if functionsource and debug.getinfo(i).source then 
-						local source = debug.getinfo(i).source 
+					if functionsource and info.source then 
+						local source = info.source 
 						if string.len(source) > 128 then source = "sourcetoolong" end
 						functionstr = functionstr .. " @" .. source
 					end 
-					if functionsource and debug.getinfo(i).linedefined then 
-						functionstr = functionstr .. ":" .. tostring(debug.getinfo(i).linedefined) 
+					if functionsource and info.linedefined then 
+						functionstr = functionstr .. ":" .. tostring(info.linedefined) 
 					end 
 					for j = 1, maxwidth do
 						local name, value = debug.getlocal(i, j)
@@ -227,7 +227,7 @@ local function TraceFullEcho(maxdepth, maxwidth, maxtableelements, ...)
 								(((type(value) == "table" and (value.name or value.classname))) or tostring("??"))
                         else
                             local newvalue
-                            if maxtableelements > 0 and type({}) == type(value) then newvalue = dbgt(value, maxtableelements) else newvalue = value end 
+                            if maxtableelements > 0 and type(value) == "table" then newvalue = dbgt(value, maxtableelements) else newvalue = value end 
     						arguments = arguments .. sep .. ((name and tostring(name)) or "name?") .. "=" .. tostring(newvalue)
                         end
 					end

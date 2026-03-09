@@ -337,15 +337,21 @@ local bin2decmillion16 = { -- the <1M and >1M parts of 2^nth powers where n > 16
 	{ 2147 , 483648 }, -- 31
 	}
 
+-- Pre-computed bit masks for 16-bit loop (avoids 2^(b-1) exponentiation per iteration)
+local _bitmask16 = {}
+for _i = 1, 16 do _bitmask16[_i] = 2^(_i-1) end
+local bit_and = math.bit_and
+local math_floor = math.floor
+
 -- Combine two 16 bit numbers into a string-formatted 32-bit integer
 local function lsbmsb16tostring(lsb,msb)
 	local aboveamillion = 0
 	local belowamillion = lsb
 	for b = 1, 16 do
-		if math.bit_and(msb, 2^(b-1)) > 0 then
+		if bit_and(msb, _bitmask16[b]) > 0 then
 			belowamillion = belowamillion + bin2decmillion16[b][2]
 			if belowamillion >= 1000000 then
-				aboveamillion = aboveamillion + math.floor(belowamillion/1000000)
+				aboveamillion = aboveamillion + math_floor(belowamillion/1000000)
 				belowamillion = belowamillion % 1000000
 			end
 			aboveamillion = aboveamillion + bin2decmillion16[b][1]
@@ -523,6 +529,10 @@ function Interface:AddAi(aiName, aiLib, allyNumber, version, aiOptions, battleSt
 	local battleStatus, updated = UpdateAndCreateMerge(userData, battleStatusOptions or {})
 
 	aiName = aiName:gsub(" ", "")
+	if aiOptions ~= nil then
+		self.pendingAiOptions = self.pendingAiOptions or {}
+		self.pendingAiOptions[aiName] = aiOptions
+	end
 	local battleStatusString = EncodeBattleStatus(battleStatus)
 
 	local teamColor = battleStatus.teamColor or { math.random(), math.random(), math.random(), 1}
@@ -1108,6 +1118,10 @@ function Interface:_OnAddBot(battleID, name, owner, battleStatus, teamColor, aiD
 	-- local ai, dll = unpack(explode("\t", aiDll)))
 	status.aiLib = aiDll
 	status.owner = owner
+	if self.pendingAiOptions and self.pendingAiOptions[name] ~= nil then
+		status.aiOptions = self.pendingAiOptions[name]
+		self.pendingAiOptions[name] = nil
+	end
 	self:_OnAddAi(battleID, name, status)
 end
 Interface.commands["ADDBOT"] = Interface._OnAddBot

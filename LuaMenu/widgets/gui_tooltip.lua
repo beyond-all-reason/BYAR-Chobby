@@ -58,6 +58,24 @@ local function sortfunc(t)
 	return st
  end
 
+local function GetReadableBarbProfile(profile)
+	if not profile or profile == "" then
+		return nil
+	end
+	local profileKey = string.lower(tostring(profile))
+	local profileNames = {
+		hard_aggressive = "Hard | Aggressive",
+		hard = "Hard | Balanced",
+		medium = "Medium | Lazy",
+		easy = "Easy | Slow",
+		dev = "Testing AI",
+	}
+	if profileNames[profileKey] then
+		return profileNames[profileKey]
+	end
+	return tostring(profile)
+end
+
 --------------------------------------------------------------------------
 --------------------------------------------------------------------------
 -- Initialization
@@ -102,7 +120,13 @@ function widget:ViewResize(vsx, vsy)
 	screenHeight = vsy
 end
 
+local evilHaxCounter = 0
 local function EvilHax()
+	evilHaxCounter = evilHaxCounter + 1
+	if evilHaxCounter < 30 then
+		return
+	end
+	evilHaxCounter = 0
 	local screenWidth, screenHeight = Spring.GetWindowGeometry()
 	if screenWidth ~= oldSizeX or screenHeight ~= oldSizeY then
 		widget:ViewResize(screenWidth, screenHeight)
@@ -752,6 +776,32 @@ local function GetUserTooltip(userName, userInfo, userBattleInfo, inBattleroom)
 		userTooltip.level:Hide()
 	end
 
+	-- AI profile (BARbarian only)
+	local isBarbAi = userBattleInfo.aiLib and string.lower(userBattleInfo.aiLib) == "barb"
+	local aiProfile
+	if type(userBattleInfo.aiOptions) == "table" then
+		aiProfile = userBattleInfo.aiOptions.profile
+	elseif type(userBattleInfo.aiOptions) == "string" then
+		aiProfile = userBattleInfo.aiOptions:match('"profile"%s*:%s*"([^"]+)"')
+	end
+	if isBarbAi and (not aiProfile or aiProfile == "") then
+		-- Default difficulty when added without explicity choosing a profile
+		aiProfile = "hard"
+	end
+	local readableProfile = isBarbAi and GetReadableBarbProfile(aiProfile) or nil
+	if readableProfile then
+		if not userTooltip.aiProfile then
+			userTooltip.aiProfile = GetTooltipLine(userTooltip.mainControl, false)
+		end
+		userTooltip.aiProfile.Update(
+			offset,
+			"Profile: " .. readableProfile
+		)
+		offset = offset + 20
+	elseif userTooltip.aiProfile then
+		userTooltip.aiProfile:Hide()
+	end
+
 
 	-- ZK specific
 	-- if userInfo.badges and Configuration.gameConfig.badges then
@@ -1135,6 +1185,7 @@ local function GetTooltip()
 	end
 end
 
+local _cachedTooltipText, _cachedTooltipWidth
 local function SetTooltipPos()
 	local tooltipChild = tipWindow.children[1]
 	if not tooltipChild then
@@ -1149,7 +1200,11 @@ local function SetTooltipPos()
 
 	if tooltipChild.name == TOOLTIP_TEXT_NAME then
 		local text = tipTextDisplay.text
-		width  = tipTextDisplay.font:GetTextWidth(text) + 15
+		if text ~= _cachedTooltipText then
+			_cachedTooltipText = text
+			_cachedTooltipWidth = tipTextDisplay.font:GetTextWidth(text) + 15
+		end
+		width  = _cachedTooltipWidth
 		height = tooltipChild.height + 14
 	else
 		-- Fudge numbers correspond to padding
@@ -1244,16 +1299,23 @@ local function UpdateTooltip(inputText)
 end
 
 local currentTooltipText = false
+local _lastTooltipMouseX, _lastTooltipMouseY = 0, 0
 local function CheckTooltipUpdate(newText)
 	if newText then
 		if currentTooltipText ~= newText then
 			currentTooltipText = newText
 			UpdateTooltip(newText)
 			SetTooltipPos()
+			_lastTooltipMouseX, _lastTooltipMouseY = spGetMouseState()
 		else
 			-- Changed to dont update tooltip pos if not desired
 			if WG.Chobby.Configuration and WG.Chobby.Configuration.staticTooltipPositions ~= true then
-				SetTooltipPos()
+				-- Only update tooltip position when mouse has actually moved
+				local mx, my = spGetMouseState()
+				if mx ~= _lastTooltipMouseX or my ~= _lastTooltipMouseY then
+					_lastTooltipMouseX, _lastTooltipMouseY = mx, my
+					SetTooltipPos()
+				end
 			end
 		end
 	else

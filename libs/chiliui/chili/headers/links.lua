@@ -96,9 +96,12 @@ end
 
 
 function UnlinkSafe(link)
-	local link = link
-	while (type(link) == "userdata") do
+	if (type(link) == "userdata") then
 		link = link()
+		-- defensive: handle (theoretically impossible) nested links
+		if (type(link) == "userdata") then
+			repeat link = link() until (type(link) ~= "userdata")
+		end
 	end
 	return link
 end
