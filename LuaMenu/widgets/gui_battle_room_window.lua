@@ -270,7 +270,7 @@ local function ApplySingleplayerSkirmishSetup(singleplayerDefault)
 		end
 
 		battleLobby:AddAi(aiDisplayName, shortName, allyTeam, nil, aiOptions, {
-			side = math.random(0, 1),
+			side = 2, -- random faction
 			teamColor = color,
 		})
 		aiCounter = aiCounter + 1
