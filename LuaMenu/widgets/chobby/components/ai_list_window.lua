@@ -198,9 +198,17 @@ function AiListWindow:AddAi(displayName, shortName, version, options)
 		end
 		counter = counter + 1
 	end
-	
+
 	local battleStatusOptions = {side = math.random(0,1), teamColor = PickRandomColor(),}
-	
+
+	if shortName == "BARb" then
+		if type(options) == "table" and options.profile and options.profile ~= "" then
+			Configuration:SetConfigValue("lastBarbAiProfile", options.profile)
+		elseif options == nil then
+			options = {profile = Configuration.lastBarbAiProfile or "hard"}
+		end
+	end
+
 	self.lobby:AddAi(aiName, shortName, self.allyTeam, version, options, battleStatusOptions)
 	if self.lobby.name ~= "singleplayer" and type(options) == "table" then
 		self.lobby:SayBattle("!aiProfile " .. aiName .. " ".. Json.encode(options))

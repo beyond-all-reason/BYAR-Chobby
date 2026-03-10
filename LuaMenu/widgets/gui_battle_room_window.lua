@@ -1904,22 +1904,29 @@ local function AddTeamButtons(parent, offX, joinFunc, aiFunc, unjoinable, disall
 			end
 			teamFactionsSet.caption = ""
 		end
+		local factionBaseSize = 24
+		local armScale = 0.90
+		local corScale = 0.85
+		local armSize = math.floor(factionBaseSize * armScale)
+		local corSize = math.floor(factionBaseSize * corScale)
+		local armOff = math.floor((factionBaseSize - armSize) / 2)
+		local corOff = math.floor((factionBaseSize - corSize) / 2)
 		factionArm = Image:New {
 			name = "factionArm",
-			x = offX+95+5,
-			y = 0,
-			height = 24,
-			width = 24,
+			x = offX+95+5 + armOff,
+			y = armOff,
+			height = armSize,
+			width = armSize,
 			parent = parent,
 			keepAspect = true,
 			file = LUA_DIRNAME .. "configs/gameConfig/byar/sidepics/" .. "armada.png",
 		}
 		factionCor = Image:New {
 			name = "factionCor",
-			x = offX+95+5+24,
-			y = 0,
-			height = 24,
-			width = 24,
+			x = offX+95+5+24 + corOff,
+			y = corOff,
+			height = corSize,
+			width = corSize,
 			parent = parent,
 			keepAspect = true,
 			file = LUA_DIRNAME .. "configs/gameConfig/byar/sidepics/" .. "cortex.png",

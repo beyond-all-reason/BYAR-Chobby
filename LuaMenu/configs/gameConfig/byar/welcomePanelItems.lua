@@ -19,57 +19,40 @@ local welcomePanelItems = {
     },
 
     {
+        Header = "The Lore is here!",
+        Text = " \n" .. " \n" .. "Time to dive in, Commanders. Step Beyond Human Reach, uncover the stories of Armada and Cortex, and navigate the vastness of BAR universe.",
+        Image = "LuaMenu/images/welcomepanel/lore.png",
+        Url = "https://www.beyondallreason.info/news/the-lore-is-here",
+        UrlText = "Read the Announcement",
+    },
+
+    {
+        Header = "",
+        Text =  "If you missed the live stream, you can watch the full event, including the lore presentations, below.",
+        Url = "https://youtu.be/qtfnmrEr27I?si=qNHr0XAZj6Lwtbjy",
+        UrlText = "Watch on Youtube",
+        NoPulse = true,
+    },
+
+    {
+        Header = "New Map: Argent Strata",
+        Text =  " \n" .. "A frozen island with icey plateaus and multiple pathways to the center. 1v1 SW vs NE." .. " \n" .. " \n" .. "Made by Moose and Beherith.",
+        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/Argent_Strata_1.0.png",
+    },
+
+    {
+        Header = "New Map: Houses of Tripolis",
+        Text =  " \n" .. "Did you build your house out of straw or metal?" .. " \n" .. " \n" .. "Made by RebelNode and TradeMark.",
+        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/Houses_of_Tripolis_1.2.png",
+    },
+
+    {
         Header = "Star BAR on GitHub!",
         Text = "BAR is built by the community, for the community. One easy way to support us: star our GitHub repository! " .. " \n" .. " \n" .. "It signals the project is alive and helps us access developer programs that give us better tools to build with." .. " \n" .. " \n" .. "(Star button in top right corner of the linked page)" .. " \n" .. " \n",
         Image = "LuaMenu/images/welcomepanel/github_star.png",
         Url = "https://github.com/beyond-all-reason/Beyond-All-Reason",
         UrlText = "Star us on GitHub",
     },
-
-    {
-        Header = "70,000 Discord Members - Lore Drop!",
-        Text = "We’ve hit 70 000 members on Discord! To celebrate, join epic 100+ player battles on March 8, see live faction logo reveals, the first exclusive BAR lore presentation, and a Devs vs Players showdown. " .. " \n" .. " \n" .. "Don’t miss this big community event!" .. " \n" .. " \n",
-        Image = "LuaMenu/images/welcomepanel/70k.png",
-        Url = "https://www.beyondallreason.info/news/70000-discord-members-lore-drop",
-        UrlText = "Read the Full Announcement",
-    },
-
-    {
-        Header = "New Map: Boreal Falls",
-        Text =  " \n" .. "1v1, 2v2 or 3v3 battle on ice and snow. NE vs SW." .. " \n" .. " \n" .. "Made by pk76 and Anka.",
-        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/Boreal_Falls_1.0.png",
-    },
-
-    {
-        Header = "February Balance Patch + Fixes (Release 2026.02.14-1)",
-        Text = "The first post-Season3 balance update is here! It focuses on tweaking over-tuned and under-tuned values, standardises the idle auto-heal/regeneration mechanic, and includes quality-of-life improvements." .. " \n" .. " \n",
-        Url = "https://www.beyondallreason.info/microblogs/174",
-        UrlText = "Read the Full Update",
-    },
-
-    {
-        Header = "Legion Balance Survey - Your Feedback Needed!",
-        Text = "With Legion's 3D models now complete, we're shifting focus to balance and design. Help us improve the faction by sharing your feedback in this quick survey (~10 minutes). Your input will directly shape Legion's future!" .. " \n" .. " \n",
-        Url = "https://docs.google.com/forms/d/e/1FAIpQLSeNvI79XKw49xQwQOVOEjF8cXnKhwYBwwRkvwUpLvp8Wzrldw/viewform",
-        UrlText = "Take the Survey",
-    },
-
-    {
-        Header = "New Map: Digsite",
-        Text =  " \n" .. "Fields of flowers and purple forests surround an abandoned excavation site. 5v5 NE vs SW." .. " \n" .. " \n" .. "Made by Moose and IceXuick.",
-        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/Digsite_2.0.png",
-    },
-
-    {
-        Header = "This Month in BAR - February 2026",
-        Text = "We've bundled several smaller updates into one bigger announcement! Check out recent UI/UX improvements, the experimental Easy-Tax game mode, an expanded mini-map widget with Picture-in-Picture support, and much more!" .. " \n" .. " \n",
-        Url = "https://www.beyondallreason.info/microblogs/172",
-        UrlText = "Read the Full Update",
-    },
-
---    {
---        Header = "Upcoming Events:",
---    },
 
     {
         Header = "Help Keep BAR Clean - Join the Overwatch Team!",
