@@ -4,6 +4,7 @@ function AiOptionsWindow:init(displayName, shortName, optionsPath, successFunc)
 	self:super('init', lobbyInterfaceHolder, displayName.." Options", false, "main_window", nil, {6, 7, 7, 4})
 	self.window:SetPos(nil, nil, 650, 700)
 	WG.Chobby.PriorityPopup(self.window, nil, nil, nil, true)
+	self.shortName = shortName
 
 	self.aioptions = {}
 
@@ -37,10 +38,23 @@ function AiOptionsWindow:AddEntry(data, index)
 		return
 	end
 
-	self.aioptions[data.key] = tostring(data.def)
+	local defaultValue = data.def
+	if self.shortName == "BARb" and data.type == "list" and data.key == "profile" then
+		local rememberedProfile = WG.Chobby.Configuration and WG.Chobby.Configuration.lastBarbAiProfile
+		if rememberedProfile then
+			for i = 1, #data.items do
+				if data.items[i].key == rememberedProfile then
+					defaultValue = rememberedProfile
+					break
+				end
+			end
+		end
+	end
+
+	self.aioptions[data.key] = tostring(defaultValue)
 
 	if data.type == "list" then
-		self:AddRow({self:MakeList(data)}, index)
+		self:AddRow({self:MakeList(data, defaultValue)}, index)
 	elseif data.type == "bool" then
 		self:AddRow({self:MakeBool(data)}, index)
 	elseif data.type == "number" then
@@ -50,7 +64,7 @@ function AiOptionsWindow:AddEntry(data, index)
 	end
 end
 
-function AiOptionsWindow:MakeList(data)
+function AiOptionsWindow:MakeList(data, defaultValue)
 	local label = Label:New {
 		x = 5,
 		y = 0,
@@ -69,7 +83,7 @@ function AiOptionsWindow:MakeList(data)
 		keyList[i] = itemData.key
 		nameList[i] = itemData.name
 
-		if itemData.key == data.def then
+		if itemData.key == defaultValue then
 			defaultItem = i
 		end
 	end
