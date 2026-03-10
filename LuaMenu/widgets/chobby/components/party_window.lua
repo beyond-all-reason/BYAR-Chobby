@@ -15,6 +15,7 @@ PartyWindow.BUTTON_WIDTH = 100
 
 PartyWindow.HEADER_HEIGHT = 57
 PartyWindow.CONTENT_Y_OFFSET = 0
+PartyWindow.NOTIFICATION_SOUND = "sounds/Alarm_light5_mixdown.wav" --same sfx as RING
 
 function PartyWindow:GetPendingInviteCount()
     if not lobby or not lobby.parties or not lobby.myUserName then
@@ -64,6 +65,8 @@ function PartyWindow:NotifyIncomingInvite(partyID)
         Chotify:Post({
             title = i18n("party"),
             body = body,
+            sound = PartyWindow.NOTIFICATION_SOUND,
+            soundVolume = WG.Chobby.Configuration.menuNotificationVolume or 1,
         })
     end
 
@@ -72,9 +75,9 @@ function PartyWindow:NotifyIncomingInvite(partyID)
     WG.Delay(function()
         local senderName = self:GetInviteSenderName(partyID)
         PostInviteNotification(senderName)
-    end, 0.2)
+    end, 0.3)
 end
---simple party join message, can be edited later if wanted
+
 function PartyWindow:NotifyInviteAccepted(userName)
     if not WG.Chobby.Configuration:AllowNotification() then
         return
@@ -82,7 +85,9 @@ function PartyWindow:NotifyInviteAccepted(userName)
 
     Chotify:Post({
         title = i18n("party"),
-        body = userName .. " has joined your party", 
+        body = userName .. " has joined your party",
+        sound = PartyWindow.NOTIFICATION_SOUND,
+        soundVolume = WG.Chobby.Configuration.menuNotificationVolume or 1,
     })
 end
 
