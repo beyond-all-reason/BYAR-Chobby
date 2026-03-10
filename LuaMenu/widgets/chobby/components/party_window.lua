@@ -15,6 +15,81 @@ PartyWindow.BUTTON_WIDTH = 100
 
 PartyWindow.HEADER_HEIGHT = 57
 PartyWindow.CONTENT_Y_OFFSET = 0
+PartyWindow.NOTIFICATION_SOUND = "sounds/Alarm_light5_mixdown.wav" --same sfx as RING
+
+function PartyWindow:GetPendingInviteCount()
+    if not lobby or not lobby.parties or not lobby.myUserName then
+        return 0
+    end
+
+    -- Count pending invites addressed to the user
+    local inviteCount = 0
+    for partyID, party in pairs(lobby.parties) do
+        if partyID ~= lobby.myPartyID and party.invites and party.invites[lobby.myUserName] then
+            inviteCount = inviteCount + 1
+        end
+    end
+    return inviteCount
+end
+
+function PartyWindow:UpdatePartyTabActivity()
+
+    if not interfaceRoot or not interfaceRoot.GetRightPanelHandler then
+        return
+    end
+    local inviteCount = self:GetPendingInviteCount()
+    interfaceRoot.GetRightPanelHandler().SetActivity("parties", inviteCount, (inviteCount > 0 and 2) or 1)
+end
+
+function PartyWindow:GetInviteSenderName(partyID)
+    local party = lobby and lobby.parties and lobby.parties[partyID]
+    if not party or not party.members then
+        return nil
+    end
+    for userName in pairs(party.members) do
+        if userName ~= lobby.myUserName then
+            return userName
+        end
+    end
+    return nil
+end
+
+function PartyWindow:NotifyIncomingInvite(partyID)
+    -- Fire a Chotify popup whenever a new party invite is received.
+    if not WG.Chobby.Configuration:AllowNotification() then
+        return
+    end
+
+    local function PostInviteNotification(senderName)
+        local body = senderName and (senderName .. " has invited you to their party") or i18n("party_invite")
+        Chotify:Post({
+            title = i18n("party"),
+            body = body,
+            sound = PartyWindow.NOTIFICATION_SOUND,
+            soundVolume = WG.Chobby.Configuration.menuNotificationVolume or 1,
+        })
+    end
+
+    -- Delay so party member data has time to populate and inviter name can be retrieved
+    -- if delay removed or player cannot be fetched it defaults to a generic "party invite" message
+    WG.Delay(function()
+        local senderName = self:GetInviteSenderName(partyID)
+        PostInviteNotification(senderName)
+    end, 0.3)
+end
+
+function PartyWindow:NotifyInviteAccepted(userName)
+    if not WG.Chobby.Configuration:AllowNotification() then
+        return
+    end
+
+    Chotify:Post({
+        title = i18n("party"),
+        body = userName .. " has joined your party",
+        sound = PartyWindow.NOTIFICATION_SOUND,
+        soundVolume = WG.Chobby.Configuration.menuNotificationVolume or 1,
+    })
+end
 
 function PartyWindow:init(parent)
     self.window = Control:New{
@@ -103,6 +178,7 @@ function PartyWindow:init(parent)
     lobby:AddListener("OnAccepted", function()
         self.requiresLoginLabel:Hide()
         self.createPartyButton:Show()
+        self:UpdatePartyTabActivity()
     end)
 
     lobby:AddListener("OnDisconnected", function()
@@ -115,6 +191,7 @@ function PartyWindow:init(parent)
             partyWrapper.wrapper:Dispose()
             self.partyWrappers[partyID] = nil
         end
+        self:UpdatePartyTabActivity()
     end)
 
     lobby:AddListener("OnRemoveUser", function(_, username)
@@ -123,6 +200,7 @@ function PartyWindow:init(parent)
                 partyWrapper:RemoveInvite(username)
             end
         end
+        self:UpdatePartyTabActivity()
     end)
 
     lobby:AddListener("OnJoinedParty", function(_, ...)
@@ -140,6 +218,8 @@ function PartyWindow:init(parent)
     lobby:AddListener("OnPartyInviteCancelled", function(_, ...)
         self:InviteToPartyCancelled(...)
     end)
+
+    self:UpdatePartyTabActivity()
 end
 
 function PartyWindow:UpdateLayout()
@@ -186,9 +266,11 @@ function PartyWindow:LeftParty(partyID, username, partyDestroyed)
     end
 
     self:UpdateLayout()
+    self:UpdatePartyTabActivity()
 end
 function PartyWindow:JoinedParty(partyID, username)
     local partyWrapper = self.partyWrappers[partyID] or PartyWrapper(self.contentScrollPanel, partyID)
+    local wasInvited = partyWrapper.inviteRows and partyWrapper.inviteRows[username]
 
     if username == lobby.myUserName then
         partyWrapper:ClearActionButtons()
@@ -203,10 +285,18 @@ function PartyWindow:JoinedParty(partyID, username)
     partyWrapper:AddMember(username)
     
     self.partyWrappers[partyID] = partyWrapper
+
+    if partyID == lobby.myPartyID and username ~= lobby.myUserName and wasInvited then
+        self:NotifyInviteAccepted(username)
+    end
+
     self:UpdateLayout()
+    self:UpdatePartyTabActivity()
 end
 function PartyWindow:InvitedToParty(partyID, username)
     if username == lobby.myUserName then
+        -- Invite targeted at us: show actions (accept/decline) and notification.
+        self:NotifyIncomingInvite(partyID)
         self.partyWrappers[partyID] = PartyWrapper(self.contentScrollPanel, partyID)
         self.partyWrappers[partyID]:AddActionButton(i18n("accept_party_invite"), "positive_button", function() 
             if lobby.myPartyID then
@@ -240,8 +330,13 @@ function PartyWindow:InvitedToParty(partyID, username)
     end
 
     self:UpdateLayout()
+    self:UpdatePartyTabActivity()
 end
 function PartyWindow:InviteToPartyCancelled(partyID, username)
+    if not self.partyWrappers[partyID] then
+        self:UpdatePartyTabActivity()
+        return
+    end
     self.partyWrappers[partyID]:RemoveInvite(username)
 
     if username == lobby.myUserName then
@@ -250,4 +345,5 @@ function PartyWindow:InviteToPartyCancelled(partyID, username)
     end
 
     self:UpdateLayout()
+    self:UpdatePartyTabActivity()
 end
