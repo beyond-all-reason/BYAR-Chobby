@@ -54,22 +54,35 @@ function PartyWindow:GetInviteSenderName(partyID)
 end
 
 function PartyWindow:NotifyIncomingInvite(partyID)
-    -- Fire a Chotify popup whenever we a new party invite is recieved.
+    -- Fire a Chotify popup whenever a new party invite is received.
     if not WG.Chobby.Configuration:AllowNotification() then
         return
     end
 
-    local senderName = self:GetInviteSenderName(partyID)
-    local body = i18n("party_invite")
-    if senderName then
-        local userControl = WG.UserHandler.GetNotificationUser(senderName)
-        userControl:SetPos(20, 40, 250, 80)
-        body = userControl
+    local function PostInviteNotification(senderName)
+        local body = senderName and (senderName .. " has invited you to their party") or i18n("party_invite")
+        Chotify:Post({
+            title = i18n("party"),
+            body = body,
+        })
+    end
+
+    -- Delay so party member data has time to populate and inviter name can be retrieved
+    -- if delay removed or player cannot be fetched it defaults to a generic "party invite" message
+    WG.Delay(function()
+        local senderName = self:GetInviteSenderName(partyID)
+        PostInviteNotification(senderName)
+    end, 0.2)
+end
+--simple party join message, can be edited later if wanted
+function PartyWindow:NotifyInviteAccepted(userName)
+    if not WG.Chobby.Configuration:AllowNotification() then
+        return
     end
 
     Chotify:Post({
-        title = i18n("party_invite"),
-        body = body,
+        title = i18n("party"),
+        body = userName .. " has joined your party", 
     })
 end
 
@@ -252,6 +265,7 @@ function PartyWindow:LeftParty(partyID, username, partyDestroyed)
 end
 function PartyWindow:JoinedParty(partyID, username)
     local partyWrapper = self.partyWrappers[partyID] or PartyWrapper(self.contentScrollPanel, partyID)
+    local wasInvited = partyWrapper.inviteRows and partyWrapper.inviteRows[username]
 
     if username == lobby.myUserName then
         partyWrapper:ClearActionButtons()
@@ -266,6 +280,11 @@ function PartyWindow:JoinedParty(partyID, username)
     partyWrapper:AddMember(username)
     
     self.partyWrappers[partyID] = partyWrapper
+
+    if partyID == lobby.myPartyID and username ~= lobby.myUserName and wasInvited then
+        self:NotifyInviteAccepted(username)
+    end
+
     self:UpdateLayout()
     self:UpdatePartyTabActivity()
 end
