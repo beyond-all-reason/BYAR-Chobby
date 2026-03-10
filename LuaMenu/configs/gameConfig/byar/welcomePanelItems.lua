@@ -27,14 +27,6 @@ local welcomePanelItems = {
     },
 
     {
-        Header = "",
-        Text =  "If you missed the live stream, you can watch the full event, including the lore presentations, below.",
-        Url = "https://youtu.be/qtfnmrEr27I?si=qNHr0XAZj6Lwtbjy",
-        UrlText = "Watch on Youtube",
-        NoPulse = true,
-    },
-
-    {
         Header = "New Map: Argent Strata",
         Text =  " \n" .. "A frozen island with icey plateaus and multiple pathways to the center. 1v1 SW vs NE." .. " \n" .. " \n" .. "Made by Moose and Beherith.",
         Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/Argent_Strata_1.0.png",
