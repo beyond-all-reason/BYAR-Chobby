@@ -18,6 +18,14 @@ local welcomePanelItems = {
         NoPulse = true,
     },
 
+    {
+        Header = "The Lore is here!",
+        Text = "Time to dive in, Commanders.  \n" .. " \n" .. "Step Beyond Human Reach, uncover the stories of Armada and Cortex, and navigate the vastness of BAR universe.",
+        Image = "LuaMenu/images/welcomepanel/lore.png",
+        Url = "https://www.beyondallreason.info/news/the-lore-is-here",
+        UrlText = "Read the Announcement",
+    },
+
     { -- Please don't delete this, just comment it out, it's getting reused.
         Header = "Creative Call To Arms - April Fools Edition",
         Text = "Are you a music producer? Or do you know someone who is and deserves a bit of recognition? " .. " \n" .. " \n" .. "Create a remix or cover of any Beyond All Reason track, or even combine multiple BAR themes into a single piece. The best entries may end up featured in the game, giving aspiring artists a chance to have their music heard by thousands of players!",
@@ -25,14 +33,6 @@ local welcomePanelItems = {
         Url = "https://discord.com/channels/549281623154229250/697141979892416512/1481301729252347995",
         UrlText = "Announcement On Discord",
         Time = "2026-03-29T23:00:00"
-    },
-
-    {
-        Header = "The Lore is here!",
-        Text = " \n" .. " \n" .. "Time to dive in, Commanders. Step Beyond Human Reach, uncover the stories of Armada and Cortex, and navigate the vastness of BAR universe.",
-        Image = "LuaMenu/images/welcomepanel/lore.png",
-        Url = "https://www.beyondallreason.info/news/the-lore-is-here",
-        UrlText = "Read the Announcement",
     },
 
     {
@@ -57,7 +57,7 @@ local welcomePanelItems = {
 
     {
         Header = "Help Keep BAR Clean - Join the Overwatch Team!",
-        Text = "As BAR grows, so does the need for solid community moderation. We're looking for reliable, level-headed players to join the Overwatch Team—a trusted group that helps review reports, flag issues, and keep things fair.".." \n".." \n".."If you’re active and care about a respectful game space, we’d love your help!".." \n".." \n".."Grab the development role from ⁠Channels & Roles to access the thread below:",
+        Text = "As BAR grows, so does the need for solid community moderation. We're looking for reliable, level-headed players to join the Overwatch Team—a trusted group that helps review reports, flag issues, and keep things fair.".." \n".." \n".."If you're active and care about a respectful game space, we'd love your help!".." \n".." \n",
         Image = "LuaMenu/images/welcomepanel/overwatch.png",
         Url = "https://discord.com/channels/549281623154229250/1097438343861649458",
         UrlText = "Sign Up for Overwatch",
