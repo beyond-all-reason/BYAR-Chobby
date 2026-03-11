@@ -18,6 +18,15 @@ local welcomePanelItems = {
         NoPulse = true,
     },
 
+    { -- Please don't delete this, just comment it out, it's getting reused.
+        Header = "Creative Call To Arms - April Fools Edition",
+        Text = "Are you a music producer? Or do you know someone who is and deserves a bit of recognition? " .. " \n" .. " \n" .. "Create a remix or cover of any Beyond All Reason track, or even combine multiple BAR themes into a single piece. The best entries may end up featured in the game, giving aspiring artists a chance to have their music heard by thousands of players!",
+        Image = "LuaMenu/images/welcomepanel/BAR OST.png",
+        Url = "https://discord.com/channels/549281623154229250/697141979892416512/1481301729252347995",
+        UrlText = "Announcement On Discord",
+        Time = "2026-03-29T23:00:00"
+    },
+
     {
         Header = "The Lore is here!",
         Text = " \n" .. " \n" .. "Time to dive in, Commanders. Step Beyond Human Reach, uncover the stories of Armada and Cortex, and navigate the vastness of BAR universe.",
