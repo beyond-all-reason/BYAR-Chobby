@@ -38,7 +38,7 @@ local onAccepted, onDisconnected, onPong, onAddUser
 
 local UserStatusPanel = {}
 
--- Shared updater for the top-right "online" label.
+--  updater for playercount
 local function UpdateOnlineCount()
 	if onlineCountText and onlineCountText.parent then
 		onlineCountText:SetText("\255\180\180\180" .. lobby:GetUserCount() .. " online\b")
@@ -275,7 +275,7 @@ function widget:Update()
 		oldStatus = newStatus
 	end
 
-	-- Keep this count lightweight and timer-driven.
+
 	local now = os.clock()
 	if now - onlineCountLastUpdate >= ONLINE_COUNT_UPDATE_INTERVAL then
 		UpdateOnlineCount()
