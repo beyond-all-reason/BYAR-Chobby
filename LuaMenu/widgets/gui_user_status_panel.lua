@@ -19,6 +19,7 @@ end
 local btnLogout
 local connectivityText
 local connectivityImage
+local onlineCountText
 
 local IMAGE_DIR          = LUA_DIRNAME .. "images/"
 local IMAGE_ONLINE       = IMAGE_DIR .. "online.png"
@@ -29,13 +30,20 @@ local IMAGE_OFFLINE      = IMAGE_DIR .. "offline.png"
 --------------------------------------------------------------------------------
 -- Lobby listeners
 
-local onAccepted, onDisconnected, onPong
+local onAccepted, onDisconnected, onPong, onAddUser
 
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 -- Initialization
 
 local UserStatusPanel = {}
+
+-- Shared updater for the top-right "online" label.
+local function UpdateOnlineCount()
+	if onlineCountText and onlineCountText.parent then
+		onlineCountText:SetText("\255\180\180\180" .. lobby:GetUserCount() .. " online\b")
+	end
+end
 
 local function Logout()
 	if lobby:GetConnectionStatus() ~= "offline" then
@@ -162,12 +170,29 @@ local function InitializeControls(window)
 		parent = window,
 	}
 
+	onlineCountText = TextBox:New {
+		name = "onlineCountText",
+		x = 205,
+		width = 120,
+		y = 53,
+		height = 20,
+		valign = "center",
+		align = "right",
+		text = "\255\180\180\180" .. lobby:GetUserCount() .. " online\b",
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
+		parent = window,
+	}
+
 	local userControl
 	onAccepted = function(listener)
 		userControl = WG.UserHandler.GetStatusUser(lobby:GetMyUserName())
 		userControl:SetPos(40, 51, 265)
 		window:AddChild(userControl)
 		window:RemoveChild(connectivityText)
+		-- Wait after login so lobby user count has time to populate
+		-- counts 0, if no delay
+		WG.Delay(UpdateOnlineCount, 2)
 		lobby:Ping()
 	end
 
@@ -176,13 +201,14 @@ local function InitializeControls(window)
 			window:RemoveChild(userControl)
 			window:AddChild(connectivityText)
 		end
+		UpdateOnlineCount()
 	end
 
 	onPong = function(listener)
 		--UpdateLatency()
 	end
 
-	local function onAddUser(listener, userName, status)
+	onAddUser = function(listener, userName, status)
 		if userName == lobby:GetMyUserName() and status.accountID then
 			WG.Chobby.Configuration:SetConfigValue("myAccountID", status.accountID)
 		end
@@ -217,6 +243,10 @@ end
 -- Widget Interface
 
 local oldStatus
+-- refresh on interval
+
+local onlineCountLastUpdate = 0
+local ONLINE_COUNT_UPDATE_INTERVAL = 30
 
 function widget:Update()
 	local newStatus = lobby:GetConnectionStatus()
@@ -244,6 +274,13 @@ function widget:Update()
 		end
 		oldStatus = newStatus
 	end
+
+	-- Keep this count lightweight and timer-driven.
+	local now = os.clock()
+	if now - onlineCountLastUpdate >= ONLINE_COUNT_UPDATE_INTERVAL then
+		UpdateOnlineCount()
+		onlineCountLastUpdate = now
+	end
 end
 
 function widget:Initialize()
@@ -255,8 +292,10 @@ end
 
 function widget:Shutdown()
 	if lobby then
+		lobby:RemoveListener("OnDisconnected", onDisconnected)
 		lobby:RemoveListener("OnAccepted", onAccepted)
 		lobby:RemoveListener("OnPong", onPong)
+		lobby:RemoveListener("OnAddUser", onAddUser)
 	end
 end
 
