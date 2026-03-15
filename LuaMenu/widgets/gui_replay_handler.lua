@@ -575,7 +575,7 @@ local function InitializeControls(parentControl)
 	local listHolder = Control:New {
 		x = 12,
 		right = 15,
-		y = 15,
+		y = ternary(Configuration.debugMode, 67, 15),
 		bottom = 15,
 		parent = parentControl,
 		resizable = false,
@@ -705,8 +705,8 @@ local function InitializeControls(parentControl)
 	if Configuration.debugMode then
 		local manualreplaypath = ''
 		local replaymanual = EditBox:New{
-			right = 15 + (130 * 5),
-			y= 7,
+			right = 15,
+			y = 7 + 45 + 7,
 			width = 200,
 			height = 45,
 			text = "/demos/",
@@ -725,8 +725,8 @@ local function InitializeControls(parentControl)
 		}
 
 		local manualbutton = Button:New{
-			right = 15 + (130 * 4),
-			y = 7,
+			right = 230,
+			y = 7 + 45 + 7,
 			width = 120,
 			height = 45,
 			caption = "force start replay",
