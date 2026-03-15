@@ -666,8 +666,25 @@ local function InitializeControls(parentControl)
 		OnClick = {AddReplays},
 	}
 
+	Button:New {
+		right = 15 + (130 * 1),
+		y = 7,
+		width = 120,
+		height = 45,
+		caption = i18n("open_replays"),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		classname = "option_button",
+		parent = parentControl,
+		tooltip = i18n("open_replays_tooltip"),
+		OnClick = {
+			function ()
+			WG.WrapperLoopback.OpenFolder(WG.Connector.writePath .. "/demos/")
+			end
+		},
+	}
+
 	moreButton = Button:New {
-		right = 15 + 260,
+		right = 15 + (130 * 3),
 		y = 7,
 		width = 120,
 		height = 45,
@@ -688,7 +705,7 @@ local function InitializeControls(parentControl)
 	if Configuration.debugMode then
 		local manualreplaypath = ''
 		local replaymanual = EditBox:New{
-			right = 15 + 520,
+			right = 15 + (130 * 5),
 			y= 7,
 			width = 200,
 			height = 45,
@@ -708,7 +725,7 @@ local function InitializeControls(parentControl)
 		}
 
 		local manualbutton = Button:New{
-			right = 15 + 390,
+			right = 15 + (130 * 4),
 			y = 7,
 			width = 120,
 			height = 45,
@@ -728,10 +745,9 @@ local function InitializeControls(parentControl)
 
 	end
 
-
 	if WG.BrowserHandler and Configuration.gameConfig.link_replays ~= nil then
 		Button:New {
-			right = 15 + 130,
+			right = 15 + (130 * 2),
 			y = 7,
 			width = 120,
 			height = 45,
@@ -747,6 +763,7 @@ local function InitializeControls(parentControl)
 			},
 		}
 	end
+
 
 	local externalFunctions = {}
 
