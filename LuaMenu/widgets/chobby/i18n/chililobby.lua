@@ -77,6 +77,8 @@ return {
 		download_maps = "Manual Download",
 		download_maps_tooltip = "Browse and Download Maps online",
 		download_replays = "Download Replays",
+		open_replays = "Open Folder",
+		open_replays_tooltip = "Open the replay folder in a file browser",
 		refresh = "Refresh",
 		rescan_files = "Rescan Files",
 		more = "More",
