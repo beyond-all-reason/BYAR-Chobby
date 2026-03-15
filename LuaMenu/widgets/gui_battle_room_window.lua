@@ -1256,17 +1256,18 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	end
 
 
+	local gameNameDisplay = (WG.Chobby.Configuration.gameConfig.ShortenNameString and WG.Chobby.Configuration.gameConfig.ShortenNameString(battle.gameName)) or battle.gameName
 	local lblGame = Label:New {
 		name = 'lblGame',
 		x = 8,
 		y = leftOffset,
 		right = 3,
-		caption = WG.Chobby.Configuration.gameConfig.ShortenNameString(battle.gameName),
+		caption = gameNameDisplay,
 		objectOverrideFont = config:GetFont(2),
 		parent = leftInfo,
 		OnResize = {
 			function (obj, xSize, ySize)
-				obj:SetCaption(StringUtilities.GetTruncatedStringWithDotDot(WG.Chobby.Configuration.gameConfig.ShortenNameString(battle.gameName), obj.font, xSize or obj.width))
+				obj:SetCaption(StringUtilities.GetTruncatedStringWithDotDot(gameNameDisplay, obj.font, xSize or obj.width))
 			end
 		}
 	}
