@@ -725,13 +725,13 @@ local function InitializeControls(parentControl)
 		}
 
 		local manualbutton = Button:New{
-			right = 230,
+			right = 225,
 			y = 7 + 45 + 7,
-			width = 120,
+			width = 170,
 			height = 45,
-			caption = "force start replay",
-			objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
-			classname = "option_button",
+			caption = "Force Start Replay",
+			objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+			classname = "positive_button",
 			parent = parentControl,
 			tooltip = "Force start a specific replay",
 			OnClick = {
