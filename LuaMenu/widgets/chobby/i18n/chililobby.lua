@@ -179,6 +179,7 @@ return {
 		hub = "Hub",
 		download = "Download",
 		downloads = "Downloads",
+		plugins = "Plugins",
 		friend_list = "Friend list",
 		online = "Online",
 		offline = "Offline",

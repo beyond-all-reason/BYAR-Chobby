@@ -482,6 +482,7 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 	rightPanelTabs[#rightPanelTabs + 1] = {name = "parties", control = WG.PartyWindow.GetControl()}
 	rightPanelTabs[#rightPanelTabs + 1] = {name = "settings", control = WG.SettingsWindow.GetControl()}
 	rightPanelTabs[#rightPanelTabs + 1] = {name = "downloads", control = WG.DownloadWindow.GetControl()}
+	rightPanelTabs[#rightPanelTabs + 1] = {name = "plugins", control = WG.PluginsWindow.GetControl()}
 
 	local battleListWindow, battleListWindowJoinBattle = WG.BattleListWindowHolder.GetControl()
 
