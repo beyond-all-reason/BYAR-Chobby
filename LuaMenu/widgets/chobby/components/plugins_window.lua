@@ -1149,6 +1149,7 @@ function PluginsWindow:init(parent)
     local btnLeft = 0
     Button:New {
         caption = "Widgets Folder",
+        tooltip = "Open the local folder where installed widgets are stored",
         x = btnLeft,
         y = btnY,
         width = btnW,
@@ -1159,6 +1160,7 @@ function PluginsWindow:init(parent)
     }
     Button:New {
         caption = "Contribute",
+        tooltip = "Learn how to submit your own widget to the community repository",
         x = btnLeft + btnW + btnGap,
         y = btnY,
         width = btnW - 10,
@@ -1169,6 +1171,7 @@ function PluginsWindow:init(parent)
     }
     Button:New {
         caption = "Refresh",
+        tooltip = "Re-download the widget list from the community repository",
         x = btnLeft + 2 * btnW - 10 + 2 * btnGap,
         y = btnY,
         width = btnW - 20,
