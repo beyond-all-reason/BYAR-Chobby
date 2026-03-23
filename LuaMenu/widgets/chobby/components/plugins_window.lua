@@ -73,6 +73,11 @@ local installingWidgets = {}      -- id -> true while install download is in pro
 local installedWidgets  = {}      -- id -> true after successful install
 local upgradeBackups    = {}      -- id -> backup path for in-progress upgrades
 
+-- Parallel download pipeline state
+local downloadToWidgetId = {}     -- download name -> widget id (O(1) lookup)
+local cardImageRefs      = {}     -- widget id -> Chili Image widget for in-place updates
+local refreshPending     = false  -- debounce flag for grid refresh
+
 --------------------------------------------------------------------------------
 -- Utility: Safe string match (case-insensitive, pattern-safe)
 --------------------------------------------------------------------------------
@@ -167,7 +172,6 @@ local function installWidget(widget)
 
     installingWidgets[widgetId] = true
     local installDir = getInstallPath(widgetId)
-    -- Spring.CreateDir(installDir)
 
     local downloadName = "install_" .. widgetId
     local url = getDistributionUrl(widgetId)
@@ -299,7 +303,10 @@ local function ensureDirectoryExists(filePath)
     if dir then Spring.CreateDir(dir) end
 end
 
-local function downloadAsset(downloadName, cdnPath, localPath)
+local ASSET_PRIORITY_CURRENT = 3   -- Priority for current-page asset downloads
+local ASSET_PRIORITY_PREFETCH = 1  -- Lower priority for next-page prefetches
+
+local function downloadAsset(downloadName, cdnPath, localPath, priority)
     if VFS.FileExists(localPath) then
         return localPath
     end
@@ -308,36 +315,37 @@ local function downloadAsset(downloadName, cdnPath, localPath)
 
     local url = CDN_BASE .. cdnPath
     if WG.DownloadHandler and WG.DownloadHandler.MaybeDownloadArchive then
-        WG.DownloadHandler.MaybeDownloadArchive(downloadName, "resource", -1, {
+        WG.DownloadHandler.MaybeDownloadArchive(downloadName, "resource", priority or ASSET_PRIORITY_CURRENT, {
             url = url,
             destination = localPath,
             extract = false,
+            hidden = true,  -- background asset; suppress from user-facing download UI
         })
     end
     return nil -- Not yet available
 end
 
-local function ensureThumbnail(widget)
+local function ensureThumbnail(widget, priority)
     local id = widget.id or "unknown"
     local localPath = getThumbnailPath(id)
     local cdnPath = "/sites/" .. id .. "/" .. id .. "_325x100.png"
-    local result = downloadAsset(id .. "_thumb", cdnPath, localPath)
+    local result = downloadAsset(id .. "_thumb", cdnPath, localPath, priority)
     return result or IMG_FALLBACK
 end
 
-local function ensureCover(widget)
+local function ensureCover(widget, priority)
     local id = widget.id or "unknown"
     local localPath = getCoverPath(id)
     local cdnPath = "/sites/" .. id .. "/" .. id .. "_460x300.png"
-    local result = downloadAsset(id .. "_cover", cdnPath, localPath)
+    local result = downloadAsset(id .. "_cover", cdnPath, localPath, priority)
     return result or IMG_FALLBACK
 end
 
-local function ensureReadme(widget)
+local function ensureReadme(widget, priority)
     local id = widget.id or "unknown"
     local localPath = getReadmePath(id)
     local cdnPath = "/sites/" .. id .. "/" .. id .. ".md"
-    downloadAsset(id .. "_readme", cdnPath, localPath)
+    downloadAsset(id .. "_readme", cdnPath, localPath, priority)
     return localPath
 end
 
@@ -592,6 +600,21 @@ local function createWidgetCard(widget, itemWidth)
 
     local thumbPath = ensureThumbnail(widget)
 
+    -- Create thumbnail image separately so we can store a reference for in-place updates
+    local thumbImage = Image:New {
+        file = thumbPath,
+        x = 0,
+        y = 0,
+        width = "100%",
+        height = 100,
+        keepAspect = true,
+        checkFileExists = true,
+        fallbackFile = IMG_FALLBACK,
+    }
+    if id then
+        cardImageRefs[id] = thumbImage
+    end
+
     -- Use a fixed item height to avoid variable sizing on the last page
     local cardHeight = ITEM_HEIGHT
     local card = Panel:New {
@@ -599,17 +622,8 @@ local function createWidgetCard(widget, itemWidth)
         height = cardHeight,
         padding = {4, 4, 4, 4},
         children = {
-            -- Thumbnail image at top
-            Image:New {
-                file = thumbPath,
-                x = 0,
-                y = 0,
-                width = "100%",
-                height = 100,
-                keepAspect = true,
-                checkFileExists = true,
-                fallbackFile = IMG_FALLBACK,
-            },
+            -- Thumbnail image at top (pre-created for in-place updates)
+            thumbImage,
             -- Widget name
             Label:New {
                 caption = widget.name or "Unnamed Widget",
@@ -771,6 +785,25 @@ local function refreshGrid()
     if pageLabel then
         pageLabel:SetCaption("Page " .. currentPage .. " of " .. totalPages .. "  (" .. #filtered .. " widgets)")
     end
+
+    -- Prefetch thumbnails for the next page at lower priority
+    local nextPage = currentPage + 1
+    if nextPage <= totalPages then
+        local nextSlice = getPageSlice(filtered, nextPage)
+        for _, w in ipairs(nextSlice) do
+            if w.id then ensureThumbnail(w, ASSET_PRIORITY_PREFETCH) end
+        end
+    end
+end
+
+-- Debounced grid refresh: coalesces rapid download completions into a single rebuild
+local function scheduleRefresh()
+    if refreshPending then return end
+    refreshPending = true
+    WG.Delay(function()
+        refreshPending = false
+        refreshGrid()
+    end, 0.15)
 end
 
 --------------------------------------------------------------------------------
@@ -793,6 +826,7 @@ local function parseManifest(rawJson)
     end
 
     widgetsList = {}
+    downloadToWidgetId = {} -- rebuild lookup map
     for _, entry in ipairs(data) do
         -- Normalize: use display_name as name if available
         if entry.display_name and (not entry.name or entry.name == "") then
@@ -803,6 +837,12 @@ local function parseManifest(rawJson)
             entry.tags = {}
         end
         widgetsList[#widgetsList + 1] = entry
+        -- Register asset download names for O(1) lookup on completion
+        if entry.id then
+            downloadToWidgetId[entry.id .. "_thumb"] = entry.id
+            downloadToWidgetId[entry.id .. "_cover"] = entry.id
+            downloadToWidgetId[entry.id .. "_readme"] = entry.id
+        end
     end
 
     Spring.Echo("[PluginsWindow] Loaded " .. #widgetsList .. " widgets from manifest")
@@ -860,45 +900,57 @@ local function onDownloadFinished(listener, downloadID, downloadName, downloadFi
         return
     end
 
-    -- For asset downloads (images, readmes), invalidate the relevant panel cache
-    -- so that the next grid refresh picks up the new image
-    for _, widget in ipairs(widgetsList) do
-        local wid = widget.id or ""
-        if string.find(downloadName, wid, 1, true) then
-            widgetPanelCache[wid] = nil
-        end
-    end
-    -- If the currently open detail modal is for the widget matching this download,
-    -- refresh its readme text and cover image in-place so the user sees updates
-    if detailWidgetId and string.find(downloadName, detailWidgetId, 1, true) then
-        -- Update README text if available
-        local readmePath = getReadmePath(detailWidgetId)
-        if VFS.FileExists(readmePath) and detailReadmeBox then
-            local content = VFS.LoadFile(readmePath) or ""
-            if type(detailReadmeBox.SetText) == "function" then
-                detailReadmeBox:SetText(content)
+    -- For asset downloads (images, readmes), use O(1) lookup and in-place updates
+    local widgetId = downloadToWidgetId[downloadName]
+    if widgetId then
+        -- Try in-place thumbnail update (avoids full grid rebuild)
+        if string.find(downloadName, "_thumb", 1, true) then
+            local imageRef = cardImageRefs[widgetId]
+            if imageRef then
+                local thumbPath = getThumbnailPath(widgetId)
+                if VFS.FileExists(thumbPath) then
+                    imageRef.file = thumbPath
+                    if type(imageRef.Invalidate) == "function" then
+                        imageRef:Invalidate()
+                    end
+                end
             else
-                detailReadmeBox.text = content
+                -- No cached image ref; invalidate panel so next refresh rebuilds it
+                widgetPanelCache[widgetId] = nil
             end
         end
 
-        -- Update cover image if available
-        if detailCoverImage then
-            local coverPath = getCoverPath(detailWidgetId)
-            if VFS.FileExists(coverPath) then
-                detailCoverImage.file = coverPath
+        -- If the detail modal is open for this widget, update it in-place
+        if detailWidgetId == widgetId then
+            if string.find(downloadName, "_readme", 1, true) then
+                local readmePath = getReadmePath(widgetId)
+                if VFS.FileExists(readmePath) and detailReadmeBox then
+                    local content = VFS.LoadFile(readmePath) or ""
+                    if type(detailReadmeBox.SetText) == "function" then
+                        detailReadmeBox:SetText(content)
+                    else
+                        detailReadmeBox.text = content
+                    end
+                end
             end
-            if type(detailCoverImage.UpdateLayout) == "function" then
-                detailCoverImage:UpdateLayout()
+            if string.find(downloadName, "_cover", 1, true) and detailCoverImage then
+                local coverPath = getCoverPath(widgetId)
+                if VFS.FileExists(coverPath) then
+                    detailCoverImage.file = coverPath
+                end
+                if type(detailCoverImage.Invalidate) == "function" then
+                    detailCoverImage:Invalidate()
+                end
             end
         end
 
-        if detailWindow and type(detailWindow.UpdateLayout) == "function" then
-            detailWindow:UpdateLayout()
-        end
+        -- Debounced refresh as safety net (handles edge cases like first-time cache miss)
+        scheduleRefresh()
+        return
     end
 
-    refreshGrid()
+    -- Unknown download name — debounced refresh
+    scheduleRefresh()
 end
 
 local function onDownloadFailed(listener, downloadID, errorID, downloadName, downloadFileType)
@@ -976,6 +1028,7 @@ local function onSearchChanged(newText)
     currentPage = 1
     -- Clear panel cache so filter results get fresh panels
     widgetPanelCache = {}
+    cardImageRefs = {}
     refreshGrid()
 end
 
@@ -990,6 +1043,7 @@ local function goToPage(page)
     if newPage ~= currentPage then
         currentPage = newPage
         widgetPanelCache = {}
+        cardImageRefs = {}
         refreshGrid()
         -- Reset scroll to top when changing pages
         if scrollPanel and type(scrollPanel.SetScrollPos) == "function" then
@@ -1087,14 +1141,12 @@ function PluginsWindow:init(parent)
     }
 
     -- Second row: all header buttons (left), search box (right)
-    -- Second row: all header buttons (left, relative), search box (right)
     local btnY = row2Y + 6
     local btnGap = 8
     local btnW = 110
     local btnH = 28
     local btnFont = 12
     local btnLeft = 0
-    -- Button positions shifted left after removing Install Guide.
     Button:New {
         caption = "Widgets Folder",
         x = btnLeft,
@@ -1122,7 +1174,7 @@ function PluginsWindow:init(parent)
         width = btnW - 20,
         height = btnH,
         fontSize = btnFont,
-        OnClick = { function() widgetPanelCache = {}; widgetsList = {}; currentPage = 1; fetchManifest(); refreshGrid() end },
+        OnClick = { function() widgetPanelCache = {}; cardImageRefs = {}; widgetsList = {}; downloadToWidgetId = {}; currentPage = 1; fetchManifest(); refreshGrid() end },
         parent = self.window,
     }
 
@@ -1294,5 +1346,8 @@ function PluginsWindow:cleanup()
     widgetPanelCache = {}
     installingWidgets = {}
     upgradeBackups = {}
+    downloadToWidgetId = {}
+    cardImageRefs = {}
+    refreshPending = false
     Spring.Echo("[PluginsWindow] Cleaned up")
 end
