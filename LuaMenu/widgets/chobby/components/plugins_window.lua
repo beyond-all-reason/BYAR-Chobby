@@ -35,7 +35,7 @@ local MANIFEST_NAME    = "plugin_manifest"
 local PLUGINS_DIR      = "plugins/"
 local IMG_FALLBACK     = "LuaMenu/images/load_img_32.png"
 
-local COLUMNS          = 2
+local ITEM_MIN_WIDTH   = 300  -- Minimum width for a widget card; actual width is dynamic based on container size
 local ITEM_HEIGHT      = 270
 local ITEMS_PER_PAGE   = 10    -- 5 rows * 2 columns
 local HEADER_HEIGHT    = 48
@@ -743,16 +743,17 @@ local function refreshGrid()
         WG.Delay(function() refreshGrid() end, 0.05)
         return
     end
-    local itemWidth = math.floor((containerWidth - margin * (COLUMNS + 1)) / COLUMNS)
-    local rows = math.ceil(#pageSlice / COLUMNS)
+    local columns = math.max(1, math.floor((containerWidth + margin) / (ITEM_MIN_WIDTH + margin)))
+    local itemWidth = math.floor((containerWidth - margin * (columns + 1)) / columns)
+    local rows = math.ceil(#pageSlice / columns)
 
     -- Manually position each card so size is always exactly ITEM_HEIGHT,
     -- regardless of how many items are on the page.
     local index = 0
     for _, widget in ipairs(pageSlice) do
         if widget.id then
-            local col = index % COLUMNS
-            local row = math.floor(index / COLUMNS)
+            local col = index % columns
+            local row = math.floor(index / columns)
             local x = margin + col * (itemWidth + margin)
             local y = row * ITEM_HEIGHT
             local card = createWidgetCard(widget, itemWidth)
@@ -1030,7 +1031,8 @@ function PluginsWindow:init(parent)
     -- Compute dynamic item width inside init based on parent width
     local parentWidth = (parent and parent.width) or 1300
     local usableWidth = parentWidth - 40  -- margins
-    local itemWidth = math.floor(usableWidth / COLUMNS)
+    local columns = math.max(1, math.floor((usableWidth + 8) / (ITEM_MIN_WIDTH + 8))) -- 8 is margin
+    local itemWidth = math.floor(usableWidth / columns)
 
     -- Main container (use Control to avoid nesting a full Window inside the main window)
     self.window = Control:New {
@@ -1182,11 +1184,12 @@ function PluginsWindow:init(parent)
 
     pageLabel = Label:New {
         caption = "Loading...",
-        x = "35%",
-        right = "35%",
+        x = (pagBtnW + pagBtnGap) * 2,
+        right = (pagBtnW + pagBtnGap) * 2,
         y = paginationY,
         height = pagBtnH,
         valign = "center",
+        autosize = false,
         fontSize = 14,
         align = "center",
         parent = self.window,
@@ -1226,6 +1229,7 @@ function PluginsWindow:init(parent)
         y = contentY + 40,
         right = 0,
         height = 40,
+        autosize = false,
         align = "center",
         objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
         parent = self.window,
@@ -1251,12 +1255,17 @@ function PluginsWindow:init(parent)
         x = 0,
         right = 0,
         y = contentY,
-        bottom = 0,
+        bottom = 15,
         horizontalScrollbar = false,
         borderColor = {0, 0, 0, 0},
         padding = {0, 0, 0, 0},
         parent = self.window,
         children = { mainGrid },
+        OnResize = {
+            function()
+                refreshGrid()
+            end
+        },
     }
 
     ----------------------------------------------------------------------

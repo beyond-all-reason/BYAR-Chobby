@@ -10,6 +10,7 @@ function widget:GetInfo()
 end
 
 local PluginsWindow = {}
+local pluginsWindow
 
 function PluginsWindow.GetControl()
 	pluginsWindow = pluginsWindow or WG.Chobby.PluginsWindow()
