@@ -1188,7 +1188,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 			parent = leftInfo,
 		}
 	end
-	leftOffset = leftOffset + 40
+	leftOffset = leftOffset + 38
 
 
 	local tooltip = modoptions
@@ -1375,7 +1375,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		offset = offset + 38
 		btnModoptions:SetPos(nil, offset)
 		if btnReloadModoptions then btnReloadModoptions:SetPos(nil, offset) end
-		offset = offset + 40
+		offset = offset + 38
 		btnOptionPresets:SetPos(nil, offset)
 		offset = offset + 40
 		lblGame:SetPos(nil, offset)
@@ -3446,7 +3446,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		y = 0,
 		right = "33%",
 		bottom = BOTTOM_SPACING,
-		padding = {INTERNAL_PAD, EXTERNAL_PAD_VERT, 1, INTERNAL_PAD},
+		padding = {INTERNAL_PAD, EXTERNAL_PAD_VERT, 1, 0},
 		parent = topPanel,
 	}
 
