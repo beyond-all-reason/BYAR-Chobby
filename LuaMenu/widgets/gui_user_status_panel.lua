@@ -65,11 +65,6 @@ local function ShowKeys()
 	WG.KeysPanel.Show()
 end
 
-local function ReloadApplication()
-	Spring.Echo("Reloading application...")
-	Spring.Restart("", "")
-end
-
 local function Quit()
 	Spring.Echo("Quitting...")
 	Spring.Quit()
@@ -143,21 +138,6 @@ local function InitializeControls(window)
 		OnClick = {ShowKeys}
 	}
 	menuX = menuX + 108
-
-	if WG.Chobby.Configuration and WG.Chobby.Configuration.devMode then
-		menuX = menuX + 3
-		Button:New {
-			y = 2,
-			right = menuX,
-			width = 60,
-			height = 38,
-			caption = "Reload",
-			tooltip = "Restart application",
-			parent = window,
-			objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
-			OnClick = {ReloadApplication}
-		}
-	end
 
 	connectivityText = TextBox:New {
 		name = "connectivityText",
