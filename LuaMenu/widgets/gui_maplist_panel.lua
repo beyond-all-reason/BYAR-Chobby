@@ -789,7 +789,8 @@ local function InitializeControls()
 			end
 		end
 		return total > 0 and selected < total
-    
+	end
+
 	local filterQuery -- full lowered query for fuzzy matching
 
 	-- Fuzzy subsequence scorer: returns a positive score if query is a subsequence of target, 0 otherwise.
@@ -859,8 +860,25 @@ local function InitializeControls()
 	local function ItemInFilter(sortData)
 		if filterTerms then
 			local textToSearch = sortData[10]
+
+			-- Tier 1: All terms must appear as exact substrings
+			local allFound = true
 			for i = 1, #filterTerms do
-				if not string.find(textToSearch, filterTerms[i]) then
+				if filterTerms[i] ~= "" and not string.find(textToSearch, filterTerms[i], 1, true) then
+					allFound = false
+					break
+				end
+			end
+
+			-- Tier 2: Fuzzy subsequence match against map name (min 4 chars)
+			if not allFound then
+				if filterQuery and #filterQuery >= 4 then
+					local mapName = sortData[1]
+					local score = fuzzyScore(filterQuery, mapName)
+					if score < #filterQuery * 3 then
+						return false
+					end
+				else
 					return false
 				end
 			end
@@ -898,28 +916,6 @@ local function InitializeControls()
 		end
 
 		return true
-		local textToSearch = sortData[9]
-
-		-- Tier 1: All terms must appear as exact substrings (original behavior)
-		local allFound = true
-		for i = 1, #filterTerms do
-			if filterTerms[i] ~= "" and not string.find(textToSearch, filterTerms[i], 1, true) then
-				allFound = false
-				break
-			end
-		end
-		if allFound then return true end
-
-		-- Tier 2: Fuzzy subsequence match against map name only (min 4 chars)
-		if filterQuery and #filterQuery >= 4 then
-			local mapName = sortData[1]
-			local score = fuzzyScore(filterQuery, mapName)
-			if score >= #filterQuery * 3 then
-				return true
-			end
-		end
-
-		return false
 	end
 
 	--local loadingPanel = Panel:New {
