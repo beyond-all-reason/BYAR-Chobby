@@ -368,9 +368,11 @@ local function GetUserComboBoxOptions(userName, isInBattle, control, showTeamCol
 
 	local inMyParty, invitedToMyParty
 	if control.lobby.myPartyID then
-		local myParty = control.lobby.parties[control.lobby.myPartyID]
-		inMyParty = myParty.members[userName] ~= nil
-		invitedToMyParty = myParty.invites[userName] ~= nil
+		local myParty = control.lobby.parties and control.lobby.parties[control.lobby.myPartyID]
+		if myParty then
+			inMyParty = myParty.members and myParty.members[userName] ~= nil
+			invitedToMyParty = myParty.invites and myParty.invites[userName] ~= nil
+		end
 	end
 
 	if not (itsme or bs.aiLib) then																					comboOptions[#comboOptions + 1] = "Message" end

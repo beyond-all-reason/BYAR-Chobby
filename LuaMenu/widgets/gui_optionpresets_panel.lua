@@ -498,6 +498,9 @@ local function PopulatePresetPanel(parentPanel)
 				end
 				writePreset(selectedPresetName)
 				window:Dispose()
+				if WG.BattleRoomChatInput then
+					screen0:FocusControl(WG.BattleRoomChatInput)
+				end
 				-- battleLobby:SetModOptions(localModoptions)
 			end
 		},
@@ -519,6 +522,9 @@ local function PopulatePresetPanel(parentPanel)
 				end
 				applyPreset(selectedPresetName)
 				window:Dispose()
+				if WG.BattleRoomChatInput then
+					screen0:FocusControl(WG.BattleRoomChatInput)
+				end
 			end
 		},
 	}
@@ -676,6 +682,9 @@ local function CreateOptionpresetWindow()
 			function()
 				-- CancelFunc()
 				window:Dispose()
+				if WG.BattleRoomChatInput then
+					screen0:FocusControl(WG.BattleRoomChatInput)
+				end
 			end
 		},
 	}
@@ -700,6 +709,9 @@ local function CreateOptionpresetWindow()
 
 	local function CancelFunc()
 		window:Dispose()
+		if WG.BattleRoomChatInput then
+			screen0:FocusControl(WG.BattleRoomChatInput)
+		end
 	end
 
 	local popupHolder = WG.Chobby.PriorityPopup(optionpresetWindow, CancelFunc, nil)

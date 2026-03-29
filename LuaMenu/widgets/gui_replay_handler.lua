@@ -575,7 +575,7 @@ local function InitializeControls(parentControl)
 	local listHolder = Control:New {
 		x = 12,
 		right = 15,
-		y = 15,
+		y = ternary(Configuration.debugMode, 67, 15),
 		bottom = 15,
 		parent = parentControl,
 		resizable = false,
@@ -666,8 +666,25 @@ local function InitializeControls(parentControl)
 		OnClick = {AddReplays},
 	}
 
+	Button:New {
+		right = 15 + (130 * 1),
+		y = 7,
+		width = 120,
+		height = 45,
+		caption = i18n("open_replays"),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		classname = "option_button",
+		parent = parentControl,
+		tooltip = i18n("open_replays_tooltip"),
+		OnClick = {
+			function ()
+			WG.WrapperLoopback.OpenFolder(WG.Connector.writePath .. "/demos/")
+			end
+		},
+	}
+
 	moreButton = Button:New {
-		right = 15 + 260,
+		right = 15 + (130 * 3),
 		y = 7,
 		width = 120,
 		height = 45,
@@ -688,8 +705,8 @@ local function InitializeControls(parentControl)
 	if Configuration.debugMode then
 		local manualreplaypath = ''
 		local replaymanual = EditBox:New{
-			right = 15 + 520,
-			y= 7,
+			right = 15,
+			y = 7 + 45 + 7,
 			width = 200,
 			height = 45,
 			text = "/demos/",
@@ -708,13 +725,13 @@ local function InitializeControls(parentControl)
 		}
 
 		local manualbutton = Button:New{
-			right = 15 + 390,
-			y = 7,
-			width = 120,
+			right = 225,
+			y = 7 + 45 + 7,
+			width = 170,
 			height = 45,
-			caption = "force start replay",
-			objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
-			classname = "option_button",
+			caption = "Force Start Replay",
+			objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+			classname = "positive_button",
 			parent = parentControl,
 			tooltip = "Force start a specific replay",
 			OnClick = {
@@ -728,10 +745,9 @@ local function InitializeControls(parentControl)
 
 	end
 
-
 	if WG.BrowserHandler and Configuration.gameConfig.link_replays ~= nil then
 		Button:New {
-			right = 15 + 130,
+			right = 15 + (130 * 2),
 			y = 7,
 			width = 120,
 			height = 45,
@@ -747,6 +763,7 @@ local function InitializeControls(parentControl)
 			},
 		}
 	end
+
 
 	local externalFunctions = {}
 

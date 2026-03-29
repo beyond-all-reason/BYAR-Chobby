@@ -643,6 +643,11 @@ local function PopulateTab(options)
 				rowData.x = rowData.x + (column - 1) * 625
 				row = row + 1
 				rowData.rowOrginal = rowData.y
+				rowData.rowOrginalX = rowData.x
+				rowData.filterText = string.lower(data.name or "")
+				rowData.filterType = data.type
+				rowData.optionKey = data.key
+				rowData.optionData = data
 				contentsPanel:AddChild(rowData)
 			end
 		end
@@ -686,13 +691,15 @@ local function CreateModoptionWindow()
 		if origCaption ~= caption then
 			tooltip = origCaption
 		end
+		local tabChildren = PopulateTab(data.options)
 		tabs[#tabs + 1] = {
 			name = key,
 			caption = caption,
 			tooltip = tooltip,
 			objectOverrideFont = WG.Chobby.Configuration:GetFont(fontSize),
-			children = PopulateTab(data.options),
+			children = tabChildren,
 			weight = data.weight or weight,
+			contentPanel = tabChildren[1],
 		}
 	end
 
@@ -739,6 +746,9 @@ local function CreateModoptionWindow()
 	}
 	local function CancelFunc()
 		modoptionsSelectionWindow:Dispose()
+		if WG.BattleRoomChatInput then
+			screen0:FocusControl(WG.BattleRoomChatInput)
+		end
 	end
 
 	local buttonAccept, buttonReset
@@ -755,6 +765,9 @@ local function CreateModoptionWindow()
 		end
 		battleLobby:SetModOptions(localModoptions)
 		modoptionsSelectionWindow:Dispose()
+		if WG.BattleRoomChatInput then
+			screen0:FocusControl(WG.BattleRoomChatInput)
+		end
 	end
 
 	local function ResetFunc()
@@ -812,7 +825,195 @@ local function CreateModoptionWindow()
 		},
 	}
 
+	local filterResultsPanel = ScrollPanel:New {
+		name = "filterResultsPanel",
+		x = 4,
+		right = 4,
+		y = 10,
+		bottom = 75,
+		horizontalScrollbar = false,
+		parent = modoptionsSelectionWindow,
+	}
+	filterResultsPanel:SetVisibility(false)
+
+	-- Save original control references before any filtering
+	local savedModoptionControlNames = {}
+	for k, v in pairs(modoptionControlNames) do
+		savedModoptionControlNames[k] = v
+	end
+
+	local function fuzzyScore(query, target)
+		local qlen = #query
+		local tlen = #target
+		if qlen == 0 or qlen > tlen then return 0 end
+
+		local score = 0
+		local qi = 1
+		local consecutive = 0
+		local lastMatchPos = 0
+
+		for ti = 1, tlen do
+			if qi <= qlen and string.byte(target, ti) == string.byte(query, qi) then
+				if lastMatchPos > 0 then
+					local gap = ti - lastMatchPos - 1
+					if gap > 0 then
+						score = score - gap * 1.0
+						consecutive = 0
+					end
+				end
+				score = score + 1
+				consecutive = consecutive + 1
+				if consecutive > 1 then
+					score = score + consecutive
+				end
+				if ti > 1 then
+					local prev = string.byte(target, ti - 1)
+					if prev == 32 or prev == 95 or prev == 45 then
+						score = score + 4
+					end
+				elseif ti == 1 then
+					score = score + 5
+				end
+				score = score + math.max(0, (20 - ti) * 0.1)
+				lastMatchPos = ti
+				qi = qi + 1
+			else
+				if qi <= qlen then
+					consecutive = 0
+				end
+			end
+		end
+		if qi <= qlen then return 0 end
+		score = score + math.max(0, 3 - (tlen - qlen) * 0.1)
+		return score
+	end
+
+	local function applyModoptionFilter(filterText)
+		local lowerFilter = string.lower(filterText)
+		local filterWords = {}
+		for word in lowerFilter:gmatch("%S+") do
+			filterWords[#filterWords + 1] = word
+		end
+		local filtering = #filterWords > 0
+
+		if filtering then
+			-- Hide tabs and tab bar, show the combined filter panel
+			tabBarHolder:SetVisibility(false)
+			tabPanel:SetVisibility(false)
+			filterResultsPanel:SetVisibility(true)
+
+			-- Clear old results
+			filterResultsPanel:ClearChildren()
+
+			local visibleRow = 0
+			for _, tab in ipairs(tabs) do
+				local tabTitle = tab.caption or tab.name
+				local panel = tab.contentPanel
+				if panel then
+					local tabHasResults = false
+
+					for _, child in ipairs(panel.children) do
+						if child.filterText ~= nil
+							and child.filterType ~= "separator"
+							and child.filterType ~= "subheader"
+							and not (child.optionKey and lockedOptions[child.optionKey])
+						then
+							-- Multi-word AND: all words must appear in the option name
+							local allFound = true
+							for _, word in ipairs(filterWords) do
+								if not string.find(child.filterText, word, 1, true) then
+									allFound = false
+									break
+								end
+							end
+
+							-- Tier 2: Fuzzy subsequence fallback (min 4 chars, strict threshold)
+							if not allFound then
+								local queryNoSpaces = lowerFilter:gsub("%s+", "")
+								if #queryNoSpaces >= 4 then
+									local threshold = #queryNoSpaces * 3
+									if fuzzyScore(queryNoSpaces, child.filterText) >= threshold then
+										allFound = true
+									end
+								end
+							end
+
+							if allFound then
+								-- First match in this tab: insert a section header
+								if not tabHasResults then
+									tabHasResults = true
+									if visibleRow > 0 then
+										visibleRow = visibleRow + 0.5
+									end
+									local header = Label:New {
+										x = 5,
+										y = visibleRow * 32,
+										width = 600,
+										height = 30,
+										valign = "center",
+										align = "left",
+										caption = "-- " .. tabTitle,
+										objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+									}
+									filterResultsPanel:AddChild(header)
+									visibleRow = visibleRow + 1
+								end
+
+								-- Clone the control into the filter results
+								local clone
+								if child.filterType == "bool" then
+									clone = ProcessBoolOption(child.optionData, 0)
+								elseif child.filterType == "number" then
+									clone = ProcessNumberOption(child.optionData, 0)
+								elseif child.filterType == "list" then
+									clone = ProcessListOption(child.optionData, 0)
+								elseif child.filterType == "string" then
+									clone = ProcessStringOption(child.optionData, 0)
+								elseif child.filterType == "link" and child.optionData and child.optionData.link then
+									clone = ProcessLinkButton(child.optionData, 0)
+								end
+
+								if clone then
+									clone:SetPos(nil, visibleRow * 32)
+									filterResultsPanel:AddChild(clone)
+									visibleRow = visibleRow + 1
+								end
+							end
+						end
+					end
+				end
+			end
+		else
+			-- Restore normal tab view and original control references
+			tabBarHolder:SetVisibility(true)
+			tabPanel:SetVisibility(true)
+			filterResultsPanel:SetVisibility(false)
+			filterResultsPanel:ClearChildren()
+			for k, v in pairs(savedModoptionControlNames) do
+				modoptionControlNames[k] = v
+			end
+		end
+	end
+
+	local filterSearchBox = EditBox:New {
+		x = 18,
+		width = 270,
+		bottom = 20,
+		height = 35,
+		hint = "Search...",
+		text = "",
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(11),
+		parent = modoptionsSelectionWindow,
+		OnTextModified = {
+			function(input)
+				applyModoptionFilter(input.text)
+			end
+		},
+	}
+
 	local popupHolder = WG.Chobby.PriorityPopup(modoptionsSelectionWindow, CancelFunc, AcceptFunc)
+	screen0:FocusControl(filterSearchBox)
 
 	WG.Chobby.lobbyInterfaceHolder.OnResize = WG.Chobby.lobbyInterfaceHolder.OnResize or {}
 	WG.Chobby.lobbyInterfaceHolder.OnResize[#WG.Chobby.lobbyInterfaceHolder.OnResize +1] = function()
@@ -864,25 +1065,25 @@ local function InitializeModoptionsDisplay()
 		return value
 	end
 
-local function tweakSummary(value)
-	value = tostring(value)
-	local hash = Spring.Utilities.Base64Encode(VFS.CalculateHash(value,1))
-	local tweakText = string.format("%d:%s", value:len(), hash:sub(1, 4))
-	if value:find("[^%w%-_=]") then -- Non-base64url character found
-		return tweakText
-	end
-	for line in Spring.Utilities.Base64Decode(value):gmatch("([^\r\n]*)[\r\n]?") do
-		if line:sub(1, 2) ~= "--" then -- Line doesn't start with a comment
+	local function tweakSummary(value)
+		value = tostring(value)
+		local hash = Spring.Utilities.Base64Encode(VFS.CalculateHash(value,1))
+		local tweakText = string.format("%d:%s", value:len(), hash:sub(1, 4))
+		if value:find("[^%w%-_=]") then -- Non-base64url character found
 			return tweakText
 		end
-		local comment = line:sub(3, 27)
-		if not comment:find("[^%w%p ]") then -- Only whitelisted characters found
-			return tweakText .. "\n[" .. comment .. "]"
+		for line in Spring.Utilities.Base64Decode(value):gmatch("([^\r\n]*)[\r\n]?") do
+			if line:sub(1, 2) ~= "--" then -- Line doesn't start with a comment
+				return tweakText
+			end
+			local comment = line:sub(3, 27)
+			if not comment:find("[^%w%p ]") then -- Only whitelisted characters found
+				return tweakText .. "\n[" .. comment .. "]"
+			end
 		end
-	end
 
-	return tweakText
-end
+		return tweakText
+	end
 
 	local panelModoptions
 

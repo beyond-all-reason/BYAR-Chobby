@@ -1254,7 +1254,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 			parent = leftInfo,
 		}
 	end
-	leftOffset = leftOffset + 40
+	leftOffset = leftOffset + 38
 
 
 	local tooltip = modoptions
@@ -1322,17 +1322,18 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	end
 
 
+	local gameNameDisplay = (WG.Chobby.Configuration.gameConfig.ShortenNameString and WG.Chobby.Configuration.gameConfig.ShortenNameString(battle.gameName)) or battle.gameName
 	local lblGame = Label:New {
 		name = 'lblGame',
 		x = 8,
 		y = leftOffset,
 		right = 3,
-		caption = WG.Chobby.Configuration.gameConfig.ShortenNameString(battle.gameName),
+		caption = gameNameDisplay,
 		objectOverrideFont = config:GetFont(2),
 		parent = leftInfo,
 		OnResize = {
 			function (obj, xSize, ySize)
-				obj:SetCaption(StringUtilities.GetTruncatedStringWithDotDot(WG.Chobby.Configuration.gameConfig.ShortenNameString(battle.gameName), obj.font, xSize or obj.width))
+				obj:SetCaption(StringUtilities.GetTruncatedStringWithDotDot(gameNameDisplay, obj.font, xSize or obj.width))
 			end
 		}
 	}
@@ -1440,7 +1441,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		offset = offset + 38
 		btnModoptions:SetPos(nil, offset)
 		if btnReloadModoptions then btnReloadModoptions:SetPos(nil, offset) end
-		offset = offset + 40
+		offset = offset + 38
 		btnOptionPresets:SetPos(nil, offset)
 		offset = offset + 40
 		lblGame:SetPos(nil, offset)
@@ -3511,7 +3512,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		y = 0,
 		right = "33%",
 		bottom = BOTTOM_SPACING,
-		padding = {INTERNAL_PAD, EXTERNAL_PAD_VERT, 1, INTERNAL_PAD},
+		padding = {INTERNAL_PAD, EXTERNAL_PAD_VERT, 1, 0},
 		parent = topPanel,
 	}
 
@@ -3729,6 +3730,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		end
 	end
 	local battleRoomConsole = WG.Chobby.Console("Battleroom Chat", MessageListener, true, nil, true)
+	WG.BattleRoomChatInput = battleRoomConsole.ebInputText
 
 	local chatPanel = Control:New {
 		name = 'chatPanel',
@@ -4397,6 +4399,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		oldLobby:RemoveListener("OnSetModOptions", OnSetModOptions)
 
 		WG.BattleStatusPanel.RemoveBattleTab()
+		WG.BattleRoomChatInput = nil
 	end
 
 	mainWindow.OnDispose = mainWindow.OnDispose or {}
@@ -4448,6 +4451,9 @@ function BattleRoomWindow.ShowMultiplayerBattleRoom(battleID)
 					mainWindowFunctions = functions
 					if battleWindow then
 						obj:AddChild(battleWindow)
+					end
+					if WG.BattleRoomChatInput then
+						screen0:FocusControl(WG.BattleRoomChatInput)
 					end
 				end
 				BattleRoomWindow.UpdateMinimapstartBoxes()
@@ -4526,6 +4532,10 @@ function BattleRoomWindow.GetSingleplayerControl(setupData)
 				end
 
 				obj:AddChild(battleWindow)
+
+				if WG.BattleRoomChatInput then
+					screen0:FocusControl(WG.BattleRoomChatInput)
+				end
 
 				UpdateArchiveStatus(true)
 

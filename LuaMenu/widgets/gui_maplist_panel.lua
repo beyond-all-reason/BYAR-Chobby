@@ -749,9 +749,13 @@ local function InitializeControls()
 			favMapsFile:write(mapName .. "\n");
 		end
 		io.close(favMapsFile);
+		if WG.BattleRoomChatInput then
+			screen0:FocusControl(WG.BattleRoomChatInput)
+		end
 	end
 
 	local filterTerms
+
 	local columnFilterState = {}
 	local sizeFilterThresholds = BuildSizeFilterThresholds(Configuration.gameConfig.mapDetails)
 
@@ -785,6 +789,71 @@ local function InitializeControls()
 			end
 		end
 		return total > 0 and selected < total
+    
+	local filterQuery -- full lowered query for fuzzy matching
+
+	-- Fuzzy subsequence scorer: returns a positive score if query is a subsequence of target, 0 otherwise.
+	-- Awards bonuses for consecutive matches, word boundaries, and start-of-string.
+	-- Penalizes gaps between matched characters.
+	local function fuzzyScore(query, target)
+		local qlen = #query
+		local tlen = #target
+		if qlen == 0 then return 0 end
+		if qlen > tlen then return 0 end
+
+		local score = 0
+		local qi = 1
+		local consecutive = 0
+		local lastMatchPos = 0
+
+		for ti = 1, tlen do
+			if qi <= qlen and string.byte(target, ti) == string.byte(query, qi) then
+				-- Gap penalty
+				if lastMatchPos > 0 then
+					local gap = ti - lastMatchPos - 1
+					if gap > 0 then
+						score = score - gap * 1.0
+						consecutive = 0
+					end
+				end
+
+				-- Base match point
+				score = score + 1
+
+				-- Consecutive bonus
+				consecutive = consecutive + 1
+				if consecutive > 1 then
+					score = score + consecutive
+				end
+
+				-- Word boundary bonus (after space, underscore, dash)
+				if ti > 1 then
+					local prev = string.byte(target, ti - 1)
+					if prev == 32 or prev == 95 or prev == 45 then -- space, _, -
+						score = score + 4
+					end
+				elseif ti == 1 then
+					score = score + 5 -- start of string
+				end
+
+				-- Position bonus (earlier = better)
+				score = score + math.max(0, (20 - ti) * 0.1)
+
+				lastMatchPos = ti
+				qi = qi + 1
+			else
+				if qi <= qlen then
+					consecutive = 0
+				end
+			end
+		end
+
+		if qi <= qlen then return 0 end -- didn't match all query chars
+
+		-- Normalize: prefer shorter targets
+		score = score + math.max(0, 3 - (tlen - qlen) * 0.1)
+
+		return score
 	end
 
 	local function ItemInFilter(sortData)
@@ -829,6 +898,28 @@ local function InitializeControls()
 		end
 
 		return true
+		local textToSearch = sortData[9]
+
+		-- Tier 1: All terms must appear as exact substrings (original behavior)
+		local allFound = true
+		for i = 1, #filterTerms do
+			if filterTerms[i] ~= "" and not string.find(textToSearch, filterTerms[i], 1, true) then
+				allFound = false
+				break
+			end
+		end
+		if allFound then return true end
+
+		-- Tier 2: Fuzzy subsequence match against map name only (min 4 chars)
+		if filterQuery and #filterQuery >= 4 then
+			local mapName = sortData[1]
+			local score = fuzzyScore(filterQuery, mapName)
+			if score >= #filterQuery * 3 then
+				return true
+			end
+		end
+
+		return false
 	end
 
 	--local loadingPanel = Panel:New {
@@ -1588,7 +1679,9 @@ local function InitializeControls()
 		},
 		OnTextModified = {
 			function (self)
-				filterTerms = string.lower(self.text):split(" ")
+				local lower = string.lower(self.text)
+				filterTerms = lower:split(" ")
+				filterQuery = lower:gsub("%s+", "")
 				CloseAllFilterDropdowns()
 				mapList:RecalculateDisplay()
 			end
@@ -1611,6 +1704,7 @@ local function InitializeControls()
 		if not mapListWindow.visible then
 			mapListWindow:Show()
 		end
+      
 		WG.Chobby.PriorityPopup(mapListWindow, CloseFunc)
 		if zoomToMap then
 			mapList:ScrollToItem(zoomToMap)

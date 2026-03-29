@@ -87,25 +87,21 @@ local function ToggleFullscreenOn()
 	Spring.SetConfigInt("Fullscreen", 1, false)
 end
 
-local function SaveWindowPos(width, height, x, y)
+local function SaveWindowPos()
 	local Configuration = WG.Chobby.Configuration
 
-	if not width then
-		width, height, x, y = Spring.GetWindowGeometry()
-	end
-	local screenX, screenY = Spring.GetScreenGeometry()
-	y = screenY - height - y
+	-- Read from GetConfigInt (physical pixels, engine-internal space)
+	-- instead of GetWindowGeometry (DPI/UI-scaled) to avoid shrinkage
+	-- on high-DPI displays or non-1.0 UI scale.
+	local width  = Spring.GetConfigInt("XResolutionWindowed", 0)
+	local height = Spring.GetConfigInt("YResolutionWindowed", 0)
+	local x      = Spring.GetConfigInt("WindowPosX", 0)
+	local y      = Spring.GetConfigInt("WindowPosY", 0)
 
-	if x then
+	if width > 0 and height > 0 then
 		Configuration:SetConfigValue("window_WindowPosX", x)
-	end
-	if y then
 		Configuration:SetConfigValue("window_WindowPosY", y)
-	end
-	if width then
 		Configuration:SetConfigValue("window_XResolutionWindowed", width)
-	end
-	if height then
 		Configuration:SetConfigValue("window_YResolutionWindowed", height)
 	end
 
@@ -138,9 +134,12 @@ local function SetLobbyFullscreenMode(mode, borderOverride)
 	end
 
 	local Configuration = WG.Chobby.Configuration
-	local needAgressiveSetting = (mode ~= 2) and (currentMode ~= 2)
+	local prevMode = currentMode
+	-- All non-trivial mode transitions need a delayed retry because
+	-- SetConfigInt bounces may not fully apply within a single frame.
+	local needAgressiveSetting = prevMode and (prevMode ~= mode)
 
-	if (currentMode == 2 or not currentMode) and lobbyFullscreen == 2 then
+	if currentMode == 2 and lobbyFullscreen == 2 then
 		SaveWindowPos()
 	end
 	currentMode = mode
@@ -168,33 +167,30 @@ local function SetLobbyFullscreenMode(mode, borderOverride)
 		Spring.SetConfigInt("WindowBorderless", 1, false)
 		Spring.SetConfigInt("Fullscreen", 0, false)
 	elseif mode == 2 then -- Windowed
-		local winSizeX, winSizeY, winPosX, winPosY = Spring.GetWindowGeometry()
-		winPosX = Configuration.window_WindowPosX or winPosX
-		winSizeX = Configuration.window_XResolutionWindowed or winSizeX
-		winSizeY = Configuration.window_YResolutionWindowed or winSizeY
-		Spring.SetConfigInt("WindowBorderless", 0, false)
-		Spring.SetConfigInt("Fullscreen", 0)
+		if prevMode then
+			-- Switching from another mode at runtime: bounce through fullscreen
+			-- to force the engine to re-process windowed geometry.
+			-- Values are in engine-internal (physical pixel) space from SaveWindowPos.
+			local winSizeX = Configuration.window_XResolutionWindowed
+			local winSizeY = Configuration.window_YResolutionWindowed
+			local winPosX  = Configuration.window_WindowPosX
+			local winPosY  = Configuration.window_WindowPosY
 
-		if Configuration.window_WindowPosY then
-			winPosY = Configuration.window_WindowPosY
-		else
-			winPosY = screenY - winPosY - winSizeY
+			if winSizeX and winSizeY then
+				Spring.SetConfigInt("Fullscreen", 1)
+
+				Spring.SetConfigInt("WindowBorderless", 0, false)
+				Spring.SetConfigInt("WindowPosX", winPosX or 0, false)
+				Spring.SetConfigInt("WindowPosY", winPosY or 0, false)
+				Spring.SetConfigInt("XResolutionWindowed", winSizeX, false)
+				Spring.SetConfigInt("YResolutionWindowed", winSizeY, false)
+				Spring.SetConfigInt("Fullscreen", 0, false)
+			end
 		end
 
-		if winPosY > 10 then
-			-- Window is not stuck at the top of the screen
-			Spring.SetConfigInt("WindowPosX", math.min(winPosX, screenX - 50), false)
-			Spring.SetConfigInt("WindowPosY", math.min(winPosY, screenY - 50), false)
-			Spring.SetConfigInt("XResolutionWindowed",  math.min(winSizeX, screenX), false)
-			Spring.SetConfigInt("YResolutionWindowed",  math.min(winSizeY, screenY - 50), false)
-		else
-			-- Reset window to screen centre
-			Spring.SetConfigInt("WindowPosX", screenX/4, false)
-			Spring.SetConfigInt("WindowPosY", screenY/8, false)
-			Spring.SetConfigInt("XResolutionWindowed", screenX/2, false)
-			Spring.SetConfigInt("YResolutionWindowed", screenY*3/4, false)
-		end
-		Spring.SetConfigInt("WindowBorderless", 0, false)
+		-- Persist windowed state so engine starts windowed on next launch.
+		-- Do NOT persist WindowBorderless — other modes set it non-persist,
+		-- and persisting 0 here would override the game's borderless setting.
 		Spring.SetConfigInt("Fullscreen", 0)
 	elseif mode == 3 then -- Fullscreen
 		Spring.SetConfigInt("XResolution", screenX, false)
@@ -232,13 +228,16 @@ local function SetLobbyFullscreenMode(mode, borderOverride)
 		Spring.SetConfigInt("Fullscreen", 1, false)
 	end
 
-	if delayedModeSet == mode and delayedBorderOverride then
+	if delayedModeSet == mode then
 		delayedModeSet = nil
 		delayedBorderOverride = nil
 	elseif needAgressiveSetting then
 		delayedModeSet = mode
 		delayedBorderOverride = borderOverride
-		currentMode = 2
+		-- Use -1 sentinel: not equal to any real mode (passes early-return check),
+		-- not 2 (prevents SaveWindowPos from capturing wrong geometry), and
+		-- truthy (so the retry's prevMode takes the runtime path, not startup no-op).
+		currentMode = -1
 
 		-- not sure why this is needed, disabled the switching cause else borderless is like windowed, without the border, but not fullscreen
 		--Spring.SetConfigInt("WindowBorderless", 0, false)
@@ -250,7 +249,7 @@ end
 
 local function SaveLobbyDisplayMode()
 	local Configuration = WG.Chobby.Configuration
-	if (currentMode == 2 or not currentMode) and lobbyFullscreen == 2 then
+	if currentMode == 2 and lobbyFullscreen == 2 then
 		SaveWindowPos()
 	end
 	inLobby = true
