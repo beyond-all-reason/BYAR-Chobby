@@ -6,6 +6,14 @@ local customProfiles = {
 			desc = 'Difficulty: Hard | Playstyle: Aggressive | Made by Flaka, tweaked by Corosus',
 		},
 		{
+			key = 'metal',
+			name = 'Metal Map',
+			desc = 'Optimized for high-metal maps: scales economy aggressively, faster T2, more constructors/nanos, earlier fighters, prefers high-cost units',
+			options = {
+				profile = 'metal',
+			},
+		},
+		{
 			key  = 'hard',
 			name = 'Hard | Balanced',
 			desc = 'Difficulty: Hard |Playstyle: Balanced |Made by Flaka',

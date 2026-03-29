@@ -301,7 +301,7 @@ return {
 
 		-- gui_maplist_panel.lua
 
-		mapsearch_hint = "Search for a map",
+		mapsearch_hint = "Search by name, size (tiny/small/medium/large/huge), type (1v1/team/ffa), terrain (flat/hills/water/metal/lava/grassland/snow/desert/island…)",
 		maincaption_multiplayer = "Select a Map. Only Certified or Classic in Online.",
 		maincaption_singleplayer = "Select a Map. Certified maps are recommended.",
 		click_to_pick_map = "Click to choose this map.",

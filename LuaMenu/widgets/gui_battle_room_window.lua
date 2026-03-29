@@ -52,6 +52,9 @@ local lastUserToChangeStartBoxes = ''
 
 local readyButton
 local btnStartBattle = nil
+local btnDownloadMap = nil
+local mapDownloadProgressBar = nil
+local isMapDownloading = false
 
 local vote_votingsPattern = "(%d+)/(%d+).-:(%d+)"
 local vote_whoCalledPattern = "%* (.*) called a vote for command"
@@ -110,11 +113,30 @@ local function UpdateArchiveStatus(updateSync)
 				btnStartBattle.tooltip = i18n("startbtn_votestart_tooltip")
 			end
 			btnStartBattle.suppressButtonReaction = false
+			-- hide download UI, restore start button
+			if battleLobby.name == "singleplayer" then
+				isMapDownloading = false
+				btnStartBattle:SetVisibility(true)
+				if btnDownloadMap then btnDownloadMap:SetVisibility(false) end
+				if mapDownloadProgressBar then mapDownloadProgressBar:SetVisibility(false) end
+			end
 		else
-			btnStartBattle.tooltip = i18n("startbtn_gettingcontent_tooltip")
-			btnStartBattle:StyleOff()
-			btnStartBattle:SetEnabled(false)
-			btnStartBattle.suppressButtonReaction = true
+			if battleLobby.name == "singleplayer" then
+				-- show download button instead of a disabled start button
+				btnStartBattle:SetVisibility(false)
+				if btnDownloadMap then
+					btnDownloadMap:SetVisibility(true)
+					if not isMapDownloading then
+						btnDownloadMap:SetCaption("Download")
+						btnDownloadMap:SetEnabled(true)
+					end
+				end
+			else
+				btnStartBattle.tooltip = i18n("startbtn_gettingcontent_tooltip")
+				btnStartBattle:StyleOff()
+				btnStartBattle:SetEnabled(false)
+				btnStartBattle.suppressButtonReaction = true
+			end
 		end
 
 	end
@@ -778,6 +800,50 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		parent = rightInfo,
 	}
 	ButtonUtilities.SetButtonDeselected(btnStartBattle)
+
+	-- Download button and progress bar (shown when map/game not yet downloaded, singleplayer only)
+	if battleLobby.name == "singleplayer" then
+		local DOWNLOAD_BTN_WIDTH = 140
+		isMapDownloading = false
+
+		btnDownloadMap = Button:New {
+			name = 'btnDownloadMap',
+			right = 0,
+			bottom = 0,
+			height = 48,
+			width = DOWNLOAD_BTN_WIDTH,
+			caption = "Download",
+			classname = "ready_button",
+			objectOverrideFont = config:GetFont(3),
+			tooltip = "Download the map to be able to start this game.",
+			OnClick = {
+				function()
+					if isMapDownloading then return end
+					isMapDownloading = true
+					btnDownloadMap:SetCaption("Downloading...")
+					btnDownloadMap:SetEnabled(false)
+					mapDownloadProgressBar:SetVisibility(true)
+					mapDownloadProgressBar:SetValue(0)
+					MaybeDownloadGame(battle)
+					MaybeDownloadMap(battle)
+				end
+			},
+			parent = rightInfo,
+		}
+		btnDownloadMap:SetVisibility(false)
+
+		mapDownloadProgressBar = Progressbar:New {
+			name = 'mapDownloadProgressBar',
+			x = 0,
+			right = DOWNLOAD_BTN_WIDTH,
+			bottom = 0,
+			height = 48,
+			value = 0,
+			objectOverrideFont = config:GetButtonFont(2),
+			parent = rightInfo,
+		}
+		mapDownloadProgressBar:SetVisibility(false)
+	end
 
 	local btnPlay
 	local btnSpectate
@@ -4681,6 +4747,49 @@ function widget:Initialize()
 		UpdateArchiveStatus(true)
 	end
 	WG.DownloadHandler.AddListener("DownloadFinished", downloadFinished)
+
+	local function downloadStarted(_, id, name, fileType)
+		if not haveMapAndGame then
+			isMapDownloading = true
+			if btnDownloadMap then
+				btnDownloadMap:SetCaption("Downloading...")
+				btnDownloadMap:SetEnabled(false)
+			end
+			if mapDownloadProgressBar then
+				mapDownloadProgressBar:SetVisibility(true)
+				mapDownloadProgressBar:SetValue(0)
+			end
+		end
+	end
+	WG.DownloadHandler.AddListener("DownloadStarted", downloadStarted)
+
+	local function downloadProgress(_, downloadID, downloaded, total)
+		if not haveMapAndGame and mapDownloadProgressBar and total > 0 then
+			isMapDownloading = true
+			mapDownloadProgressBar:SetVisibility(true)
+			mapDownloadProgressBar:SetValue(100 * downloaded / total)
+			mapDownloadProgressBar:SetCaption(
+				string.format("%.1f", downloaded) .. " / " .. string.format("%.1f", total) .. " MB"
+			)
+			if btnDownloadMap then
+				btnDownloadMap:SetCaption("Downloading...")
+				btnDownloadMap:SetEnabled(false)
+			end
+		end
+	end
+	WG.DownloadHandler.AddListener("DownloadProgress", downloadProgress)
+
+	local function downloadFailed()
+		isMapDownloading = false
+		if btnDownloadMap then
+			btnDownloadMap:SetCaption("Download")
+			btnDownloadMap:SetEnabled(true)
+		end
+		if mapDownloadProgressBar then
+			mapDownloadProgressBar:SetVisibility(false)
+		end
+	end
+	WG.DownloadHandler.AddListener("DownloadFailed", downloadFailed)
 
 	WG.BattleRoomWindow = BattleRoomWindow
 	WG.Delay(DelayedInitialize, 0.5)
