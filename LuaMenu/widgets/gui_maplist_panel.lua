@@ -1626,6 +1626,8 @@ local function InitializeControls()
 		end
 	end
 
+	local pendingZoomToMap
+
 	local function AddTheNextBatchOfMaps()
 		local mapItems = {}
 		local control, sortData
@@ -1692,6 +1694,15 @@ local function InitializeControls()
 		mapList:UpdateOrder()
 		if not previewMapName and mapItems[1] then
 			SetPreviewMap(mapItems[1][1])
+		end
+
+		-- Resolve deferred scroll if maps were still loading when Show() was called
+		if pendingZoomToMap and mapFuncs[pendingZoomToMap] then
+			mapList:ScrollToItem(pendingZoomToMap)
+			if mapFuncs[pendingZoomToMap].ShowPreview then
+				mapFuncs[pendingZoomToMap].ShowPreview()
+			end
+			pendingZoomToMap = nil
 		end
 	end
 
@@ -1814,9 +1825,14 @@ local function InitializeControls()
       
 		WG.Chobby.PriorityPopup(mapListWindow, CloseFunc)
 		if zoomToMap then
-			mapList:ScrollToItem(zoomToMap)
-			if mapFuncs[zoomToMap] and mapFuncs[zoomToMap].ShowPreview then
-				mapFuncs[zoomToMap].ShowPreview()
+			if mapFuncs[zoomToMap] then
+				mapList:ScrollToItem(zoomToMap)
+				if mapFuncs[zoomToMap].ShowPreview then
+					mapFuncs[zoomToMap].ShowPreview()
+				end
+			else
+				-- Maps may still be loading; defer scroll until ready
+				pendingZoomToMap = zoomToMap
 			end
 		elseif not previewMapName then
 			local visibleItemIds = mapList:GetVisibleItemIds()
