@@ -1066,6 +1066,44 @@ function Configuration:GetMinimapImage(mapName)
 	return filePath, not VFS.FileExists(filePath)
 end
 
+local metalMapImageCache = {}
+function Configuration:GetMetalMapImage(mapName)
+	if metalMapImageCache[mapName] then
+		return metalMapImageCache[mapName], false
+	end
+	mapName = string.gsub(mapName, " ", "_")
+	local filePath = "LuaMenu/Images/MetalMaps/" .. mapName .. ".jpg"
+	if VFS.FileExists(filePath) then
+		metalMapImageCache[mapName] = filePath
+		return filePath, false
+	end
+	filePath = "LuaMenu/Images/MetalMaps/" .. mapName .. ".png"
+	if VFS.FileExists(filePath) then
+		metalMapImageCache[mapName] = filePath
+		return filePath, false
+	end
+	return nil, true
+end
+
+local heightMapImageCache = {}
+function Configuration:GetHeightMapImage(mapName)
+	if heightMapImageCache[mapName] then
+		return heightMapImageCache[mapName], false
+	end
+	mapName = string.gsub(mapName, " ", "_")
+	local filePath = "LuaMenu/Images/HeightMaps/" .. mapName .. ".jpg"
+	if VFS.FileExists(filePath) then
+		heightMapImageCache[mapName] = filePath
+		return filePath, false
+	end
+	filePath = "LuaMenu/Images/HeightMaps/" .. mapName .. ".png"
+	if VFS.FileExists(filePath) then
+		heightMapImageCache[mapName] = filePath
+		return filePath, false
+	end
+	return nil, true
+end
+
 function Configuration:GetLoadingImage(size)
 	if size == 1 then
 		return LUA_DIRNAME .. "images/load_img_32.png"

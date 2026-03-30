@@ -680,6 +680,8 @@ end
 local function InitializeControls()
 	local Configuration = WG.Chobby.Configuration
 
+	local expandedPreviewWindow -- forward declaration for cleanup in CloseFunc
+
     local ww, wh = Spring.GetWindowGeometry()
 	nameShift = math.max(0, math.min(1200, ww - 60) - 28 - 14 - 1046)
 	local mapListWindow = Window:New {
@@ -740,6 +742,10 @@ local function InitializeControls()
 
 	local function CloseFunc()
 		CloseAllFilterDropdowns()
+		if expandedPreviewWindow then
+			expandedPreviewWindow:Dispose()
+			expandedPreviewWindow = nil
+		end
 		mapListWindow:Hide()
 
 		--Save "favourite maps" data to file
@@ -1178,6 +1184,109 @@ local function InitializeControls()
 	}
 	selectMapButton:StyleReady()
 
+	--------------------------------------------------------------
+	-- Expanded Map Preview Window
+	--------------------------------------------------------------
+	-- expandedPreviewWindow forward-declared at top of InitializeControls
+
+	local function OpenExpandedPreview(mapName)
+		if not mapName then
+			return
+		end
+
+		if expandedPreviewWindow then
+			expandedPreviewWindow:Dispose()
+			expandedPreviewWindow = nil
+		end
+
+		local screenWidth, screenHeight = Spring.GetWindowGeometry()
+		local winW = math.min(960, screenWidth - 60)
+		local winH = math.min(910, screenHeight - 60)
+
+		expandedPreviewWindow = Window:New {
+			caption = "",
+			name = "expandedMapPreview",
+			parent = screen0,
+			width = winW,
+			height = winH,
+			x = math.floor((screenWidth - winW) / 2),
+			y = math.floor((screenHeight - winH) / 2),
+			resizable = false,
+			draggable = false,
+			classname = "main_window",
+			padding = {0, 0, 0, 0},
+		}
+
+		local function CloseExpandedPreview()
+			if expandedPreviewWindow then
+				expandedPreviewWindow:Dispose()
+				expandedPreviewWindow = nil
+			end
+		end
+
+		-- Image area fills most of the window
+		local imageHolder = Panel:New {
+			x = 18,
+			right = 18,
+			y = 18,
+			bottom = 58,
+			padding = {12, 12, 12, 12},
+			parent = expandedPreviewWindow,
+			noFont = true,
+		}
+
+		-- Close button at bottom-right, below the image
+		local btnClose = Button:New {
+			right = 12,
+			bottom = 10,
+			width = 80,
+			height = 35,
+			caption = i18n("close"),
+			objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+			classname = "negative_button",
+			parent = expandedPreviewWindow,
+			OnClick = {
+				function()
+					CloseExpandedPreview()
+				end
+			},
+		}
+
+		local mapImageFile, needDownload = Configuration:GetMinimapImage(mapName)
+		Image:New {
+			x = 0,
+			y = 0,
+			right = 0,
+			bottom = 0,
+			keepAspect = true,
+			file = mapImageFile,
+			fallbackFile = Configuration:GetLoadingImage(3),
+			checkFileExists = needDownload,
+			parent = imageHolder,
+			noFont = true,
+		}
+	end
+
+	local expandPreviewButton = Button:New {
+		width = 100,
+		right = 180,
+		bottom = 10,
+		height = 44,
+		caption = "Preview",
+		isHidden = true,
+		classname = "option_button",
+		parent = previewPanel,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+		tooltip = "Open large map preview",
+		OnClick = {
+			function()
+				if previewMapName then
+					OpenExpandedPreview(previewMapName)
+				end
+			end
+		},
+	}
+
 	local function SetPreviewMap(mapName)
 		if not mapName then
 			return
@@ -1206,6 +1315,7 @@ local function InitializeControls()
 		SetPreviewMap(mapName)
 		lockedPreviewMapName = mapName
 		selectMapButton:Show()
+		expandPreviewButton:Show()
 	end
 
 	local listHolder = Control:New {
@@ -1696,6 +1806,7 @@ local function InitializeControls()
 		mapList:RecalculateDisplay()
 		lockedPreviewMapName = nil
 		selectMapButton:Hide()
+		expandPreviewButton:Hide()
 
 		if not mapListWindow.visible then
 			mapListWindow:Show()

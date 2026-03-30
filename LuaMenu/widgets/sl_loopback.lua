@@ -53,6 +53,22 @@ function WrapperLoopback.ParseMiniMap(mapPath, destination, miniMapSize)
 	})
 end
 
+function WrapperLoopback.ParseMetalMap(mapPath, destination, miniMapSize)
+	WG.Connector.Send("ParseMetalMap", {
+		mapPath = mapPath,
+		destination = destination,
+		miniMapSize = miniMapSize
+	})
+end
+
+function WrapperLoopback.ParseHeightMap(mapPath, destination, miniMapSize)
+	WG.Connector.Send("ParseHeightMap", {
+		mapPath = mapPath,
+		destination = destination,
+		miniMapSize = miniMapSize
+	})
+end
+
 local downloads = {} -- index table
 
 -- FB 2023-05-14 downloads a file, type can be any of game, map, resource
@@ -167,6 +183,18 @@ local function ParseMiniMapFinished(command)
 	WG.MapHandler.ParseMiniMapFinished(command.mapPath, command.destinationPath)
 end
 
+local function ParseMetalMapFinished(command)
+	if WG.MapHandler.ParseMetalMapFinished then
+		WG.MapHandler.ParseMetalMapFinished(command.mapPath, command.destinationPath)
+	end
+end
+
+local function ParseHeightMapFinished(command)
+	if WG.MapHandler.ParseHeightMapFinished then
+		WG.MapHandler.ParseHeightMapFinished(command.mapPath, command.destinationPath)
+	end
+end
+
 -- Discord Rich Presence
 function WrapperLoopback.DiscordSetActivity(command)
 	WG.Connector.Send("DiscordSetActivity", command)
@@ -236,6 +264,8 @@ function widget:Initialize()
 
 	WG.Connector.Register('ReplayInfo', ReplayInfo)
 	WG.Connector.Register('ParseMiniMapFinished', ParseMiniMapFinished)
+	WG.Connector.Register('ParseMetalMapFinished', ParseMetalMapFinished)
+	WG.Connector.Register('ParseHeightMapFinished', ParseHeightMapFinished)
 	WG.Connector.Register('DownloadProgress', DownloadProgress)
 	WG.Connector.Register('DownloadFinished', DownloadFinished)
 end
