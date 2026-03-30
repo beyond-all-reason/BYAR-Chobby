@@ -801,15 +801,14 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 
 	-- Download button and progress bar (shown when map/game not yet downloaded, singleplayer only)
 	if battleLobby.name == "singleplayer" then
-		local DOWNLOAD_BTN_WIDTH = 140
 		isMapDownloading = false
 
 		btnDownloadMap = Button:New {
 			name = 'btnDownloadMap',
+			x = 0,
 			right = 0,
 			bottom = 0,
 			height = 48,
-			width = DOWNLOAD_BTN_WIDTH,
 			caption = "Download",
 			classname = "ready_button",
 			objectOverrideFont = config:GetFont(3),

@@ -447,6 +447,14 @@ local function CreateMapEntry(mapName, mapData, CloseFunc, OnFilterDataChanged, 
 				end
 			end
 		},
+		OnDblClick = {
+			function()
+				if (lobby.name == "singleplayer") or (mapData and mapData.IsInPool) then
+					lobby:SelectMap(mapName)
+					CloseFunc()
+				end
+			end
+		},
 	}
 
 	local minimap = Panel:New {
@@ -1237,8 +1245,8 @@ local function InitializeControls()
 
 		-- Close button at bottom-right, below the image
 		local btnClose = Button:New {
-			right = 12,
-			bottom = 10,
+			right = 22,
+			bottom = 16,
 			width = 80,
 			height = 35,
 			caption = i18n("close"),
@@ -1320,7 +1328,7 @@ local function InitializeControls()
 
 	local listHolder = Control:New {
 		x = 20,
-		right = 8,
+		right = 18,
 		y = 293,
 		bottom = 15,
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
