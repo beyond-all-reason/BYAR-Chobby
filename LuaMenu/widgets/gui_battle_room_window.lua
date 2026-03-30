@@ -53,7 +53,6 @@ local lastUserToChangeStartBoxes = ''
 local readyButton
 local btnStartBattle = nil
 local btnDownloadMap = nil
-local mapDownloadProgressBar = nil
 local isMapDownloading = false
 
 local vote_votingsPattern = "(%d+)/(%d+).-:(%d+)"
@@ -118,7 +117,6 @@ local function UpdateArchiveStatus(updateSync)
 				isMapDownloading = false
 				btnStartBattle:SetVisibility(true)
 				if btnDownloadMap then btnDownloadMap:SetVisibility(false) end
-				if mapDownloadProgressBar then mapDownloadProgressBar:SetVisibility(false) end
 			end
 		else
 			if battleLobby.name == "singleplayer" then
@@ -822,8 +820,6 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 					isMapDownloading = true
 					btnDownloadMap:SetCaption("Downloading...")
 					btnDownloadMap:SetEnabled(false)
-					mapDownloadProgressBar:SetVisibility(true)
-					mapDownloadProgressBar:SetValue(0)
 					MaybeDownloadGame(battle)
 					MaybeDownloadMap(battle)
 				end
@@ -832,17 +828,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		}
 		btnDownloadMap:SetVisibility(false)
 
-		mapDownloadProgressBar = Progressbar:New {
-			name = 'mapDownloadProgressBar',
-			x = 0,
-			right = DOWNLOAD_BTN_WIDTH,
-			bottom = 0,
-			height = 48,
-			value = 0,
-			objectOverrideFont = config:GetButtonFont(2),
-			parent = rightInfo,
-		}
-		mapDownloadProgressBar:SetVisibility(false)
+
 	end
 
 	local btnPlay
@@ -4765,22 +4751,14 @@ function widget:Initialize()
 				btnDownloadMap:SetCaption("Downloading...")
 				btnDownloadMap:SetEnabled(false)
 			end
-			if mapDownloadProgressBar then
-				mapDownloadProgressBar:SetVisibility(true)
-				mapDownloadProgressBar:SetValue(0)
-			end
+
 		end
 	end
 	WG.DownloadHandler.AddListener("DownloadStarted", downloadStarted)
 
 	local function downloadProgress(_, downloadID, downloaded, total)
-		if not haveMapAndGame and mapDownloadProgressBar and total > 0 then
+		if not haveMapAndGame and total > 0 then
 			isMapDownloading = true
-			mapDownloadProgressBar:SetVisibility(true)
-			mapDownloadProgressBar:SetValue(100 * downloaded / total)
-			mapDownloadProgressBar:SetCaption(
-				string.format("%.1f", downloaded) .. " / " .. string.format("%.1f", total) .. " MB"
-			)
 			if btnDownloadMap then
 				btnDownloadMap:SetCaption("Downloading...")
 				btnDownloadMap:SetEnabled(false)
@@ -4795,9 +4773,7 @@ function widget:Initialize()
 			btnDownloadMap:SetCaption("Download")
 			btnDownloadMap:SetEnabled(true)
 		end
-		if mapDownloadProgressBar then
-			mapDownloadProgressBar:SetVisibility(false)
-		end
+
 	end
 	WG.DownloadHandler.AddListener("DownloadFailed", downloadFailed)
 
