@@ -172,7 +172,7 @@ local function CreateMapEntry(mapName, mapData, CloseFunc)--{"ResourceID":7098,"
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		OnClick = {
 			function()
-				if (lobby.name == "singleplayer") or (mapData and mapData.IsInPool) then
+				if Configuration.allowUnofficialMaps or (lobby.name == "singleplayer") or (mapData and mapData.IsInPool) then
 					lobby:SelectMap(mapName)
 					CloseFunc()
 				end
@@ -578,7 +578,7 @@ local function InitializeControls()
 				local mapName = featuredMapList[featuredMapIndex].Name
 				control, sortData, mapFuncs[mapName] = CreateMapEntry(mapName, featuredMapList[featuredMapIndex], CloseFunc)
 				local certification = sortData[7]
-				if lobby.name == "singleplayer" or certification ~= "Unofficial" then
+				if lobby.name == "singleplayer" or certification ~= "Unofficial" or Configuration.allowUnofficialMaps then
 					mapItems[#mapItems + 1] = {mapName, control, sortData}
 				end
 				featuredMapIndex = featuredMapIndex + 1
@@ -595,7 +595,7 @@ local function InitializeControls()
 					addedmaps[info.name] = true
 					control, sortData, mapFuncs[info.name] = CreateMapEntry(info.name, Configuration.gameConfig.mapDetails[info.name] , CloseFunc)
 					local certification = sortData[7]
-					if lobby.name == "singleplayer" or certification ~= "Unofficial" then
+					if lobby.name == "singleplayer" or certification ~= "Unofficial" or Configuration.allowUnofficialMaps then
 						mapItems[#mapItems + 1] = {info.name, control, sortData}
 					end
 				end
@@ -606,7 +606,7 @@ local function InitializeControls()
 			if addedmaps[mapname] == nil then
 				control, sortData, mapFuncs[mapname] = CreateMapEntry(mapname, mapdetails , CloseFunc)
 				local certification = sortData[7]
-				if lobby.name == "singleplayer" or certification ~= "Unofficial" then
+				if lobby.name == "singleplayer" or certification ~= "Unofficial" or Configuration.allowUnofficialMaps then
 					mapList:AddItem(mapname, control, sortData)
 				end
 			end
