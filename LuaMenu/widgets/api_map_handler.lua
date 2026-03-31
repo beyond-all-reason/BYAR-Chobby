@@ -30,17 +30,7 @@ function MapHandler.ParseMiniMapFinished(mapPath, destinationPath)
 	Spring.Echo("Minimap parsed:", mapPath, destinationPath)
 end
 
-function MapHandler.ParseMetalMapFinished(mapPath, destinationPath)
-	Spring.Echo("Metal map parsed:", mapPath, destinationPath)
-end
-
-function MapHandler.ParseHeightMapFinished(mapPath, destinationPath)
-	Spring.Echo("Height map parsed:", mapPath, destinationPath)
-end
-
 local MINI_MAPS_DIR = "LuaMenu/Images/Minimaps"
-local METAL_MAPS_DIR = "LuaMenu/Images/MetalMaps"
-local HEIGHT_MAPS_DIR = "LuaMenu/Images/HeightMaps"
 
 local function ParseAllMinimaps()
 	if not WG.WrapperLoopback or not WG.WrapperLoopback.ParseMiniMap then
@@ -58,44 +48,6 @@ local function ParseAllMinimaps()
 		if needsDownload then
 			WG.WrapperLoopback.ParseMiniMap(archivePath, mapPath, 4)
 		end
-	end
-end
-
-function MapHandler.RequestMetalMap(mapName)
-	if not WG.WrapperLoopback or not WG.WrapperLoopback.ParseMetalMap then
-		return
-	end
-	if not VFS.FileExists(METAL_MAPS_DIR) then
-		Spring.CreateDir(METAL_MAPS_DIR)
-	end
-	local existing = WG.Chobby.Configuration:GetMetalMapImage(mapName)
-	if existing then
-		return
-	end
-	local archivePath = VFS.GetArchivePath(mapName)
-	if archivePath then
-		local safeName = string.gsub(mapName, " ", "_")
-		local destination = METAL_MAPS_DIR .. "/" .. safeName .. ".jpg"
-		WG.WrapperLoopback.ParseMetalMap(archivePath, destination, 4)
-	end
-end
-
-function MapHandler.RequestHeightMap(mapName)
-	if not WG.WrapperLoopback or not WG.WrapperLoopback.ParseHeightMap then
-		return
-	end
-	if not VFS.FileExists(HEIGHT_MAPS_DIR) then
-		Spring.CreateDir(HEIGHT_MAPS_DIR)
-	end
-	local existing = WG.Chobby.Configuration:GetHeightMapImage(mapName)
-	if existing then
-		return
-	end
-	local archivePath = VFS.GetArchivePath(mapName)
-	if archivePath then
-		local safeName = string.gsub(mapName, " ", "_")
-		local destination = HEIGHT_MAPS_DIR .. "/" .. safeName .. ".jpg"
-		WG.WrapperLoopback.ParseHeightMap(archivePath, destination, 4)
 	end
 end
 
