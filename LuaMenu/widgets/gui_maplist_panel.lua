@@ -749,11 +749,12 @@ local function InitializeControls()
 	local CloseAllFilterDropdowns
 
 	local function CloseFunc()
-		CloseAllFilterDropdowns()
 		if expandedPreviewWindow then
 			expandedPreviewWindow:Dispose()
 			expandedPreviewWindow = nil
+			return
 		end
+		CloseAllFilterDropdowns()
 		mapListWindow:Hide()
 
 		--Save "favourite maps" data to file
