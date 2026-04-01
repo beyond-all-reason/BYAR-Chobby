@@ -2,6 +2,10 @@ UserListPanel = LCS.class {}
 
 LOG_SECTION = "UserListPanel"
 
+local function ChobbyReady()
+	return WG.Chobby ~= nil and WG.Chobby.Configuration ~= nil
+end
+
 function UserListPanel:init(userUpdateFunction, spacing, showCount, getUserFunction, channelName)
 	self.userUpdateFunction = userUpdateFunction
 	self.spacing = spacing
@@ -53,10 +57,16 @@ function UserListPanel:init(userUpdateFunction, spacing, showCount, getUserFunct
 end
 
 function UserListPanel:OnJoined(userName)
+	if not ChobbyReady() then
+		return
+	end
 	self:AddUser(userName, true)
 end
 
 function UserListPanel:OnLeft(userName)
+	if not ChobbyReady() then
+		return
+	end
 	self:RemoveUser(userName, true)
 end
 
@@ -96,6 +106,9 @@ local function CompareUsers(userName, otherName)
 end
 
 function UserListPanel:Update()
+	if not ChobbyReady() then
+		return
+	end
 	if lobby.commandBuffer then
 		if not self.checkingUpdate then
 			local CheckUpdate
@@ -195,7 +208,7 @@ function UserListPanel:RemoveUser(userName, alignComponents)
 		end
 	end
 	if index == nil then
-		if WG.Chobby.Configuration and WG.Chobby.Configuration.devMode then
+		if WG.Chobby and WG.Chobby.Configuration and WG.Chobby.Configuration.devMode then
 			--Spring.Log(LOG_SECTION, LOG.ERROR, self.channelName ,"Cannot find user to remove: " .. tostring(userName)) -- only show to devs for now
 		end
 		return
