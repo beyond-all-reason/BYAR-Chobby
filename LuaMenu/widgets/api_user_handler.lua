@@ -68,6 +68,10 @@ local userListList = {
 
 local clanDownloadBegun = {}
 
+local function ChobbyReady()
+	return WG.Chobby ~= nil and WG.Chobby.Configuration ~= nil
+end
+
 local IMAGE_DIR            = LUA_DIRNAME .. "images/"
   
 local IMAGE_AFK            = IMAGE_DIR .. "away.png"
@@ -786,6 +790,9 @@ local function UpdateUserActivitySingleList(userList, userName, status)
 end
 
 local function UpdateUserActivity(listener, userName, status)
+	if not ChobbyReady() then
+		return
+	end
 	for i = 1, #userListList do
 		local userList = userListList[i]
 		if userList ~= namedUserList["replayTooltipUsers"] then
@@ -802,6 +809,9 @@ end
 
 -- only reacts to map changes
 local function UpdateBattleInfo(listener, battleID, battleInfo)
+	if not ChobbyReady() then
+		return
+	end
 	local Configuration  = WG.Chobby.Configuration
 
 	if battleInfo.mapName ~= nil then
@@ -822,6 +832,9 @@ local function UpdateBattleInfo(listener, battleID, battleInfo)
 end
 
 local function UpdateUserBattle(listener, battleID, userName)
+	if not ChobbyReady() then
+		return
+	end
 	if not friendUsers[userName] then
 		return
 	end
@@ -871,6 +884,9 @@ end
 
 
 local function OnPartyStatusUpdate(listener, partyID, username)
+	if not ChobbyReady() then
+		return
+	end
 	if lobby.myUserName == username then
 		for name, list in pairs(namedUserList) do
 			for _username, userControls in pairs(list) do
@@ -896,6 +912,9 @@ local function OnPartyStatusUpdate(listener, partyID, username)
 end
 
 local function UpdateUserBattleStatus(listener, userName, battleStatusDiff)
+	if not ChobbyReady() then
+		return
+	end
 	local Configuration = WG.Chobby.Configuration
 	UpdateUserComboboxOptions(_, userName)
 	for i = 1, #userListList do
@@ -1085,7 +1104,10 @@ local function OnUserVoted(listener, userName, voteOption)
 	if voteOption ~= "yes" and voteOption ~= "no" and voteOption ~= "blank" and voteOption ~= "default" and voteOption ~= "initVote" then
 		return
 	end
-	
+	if not ChobbyReady() then
+		return
+	end
+
 	if not userName then
 		
 		if voteOption == "default" then -- revert all changed username colors to default after vote
@@ -2246,8 +2268,12 @@ end
 -- Widget Interface
 
 local function DelayedInitialize()
+	if not ChobbyReady() then
+		WG.Delay(DelayedInitialize, 0.1)
+		return
+	end
 	local Configuration = WG.Chobby.Configuration
-	
+
 	UserLevelToImageConfFunction = Configuration.gameConfig.rankFunction
 
 	local function onConfigurationChange(listener, key, value)
