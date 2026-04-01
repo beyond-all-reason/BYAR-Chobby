@@ -345,7 +345,7 @@ function ListWindow:UpdateFilters()
 end
 
 function ListWindow:SwapPlaces(panel1, panel2)
-	tmp = panel1.index
+	local tmp = panel1.index
 
 	local x1,y1,w1,h1 = panel1._relativeBounds.left, panel1.y, panel1._relativeBounds.width, panel1.height
 	local x2,y2,w2,h2 = panel2._relativeBounds.left, panel2.y, panel2._relativeBounds.width, panel2.height
@@ -362,10 +362,20 @@ function ListWindow:SwapPlaces(panel1, panel2)
 
 	-- Swap positions in table
 	panel1.index = panel2.index
-	self.orderPanelMapping[panel1.index] = panel1
+	if self.orderPanelMapping and type(self.orderPanelMapping) == "table" then
+		self.orderPanelMapping[panel1.index] = panel1
+	else
+		Spring.Echo("Error: orderPanelMapping is not a valid table")
+		return
+	end
 
 	panel2.index = tmp
-	self.orderPanelMapping[panel2.index] = panel2
+	if self.orderPanelMapping and type(self.orderPanelMapping) == "table" then
+		self.orderPanelMapping[panel2.index] = panel2
+	else
+		Spring.Echo("Error: orderPanelMapping is not a valid table")
+		return
+	end
 end
 
 function ListWindow:RecalculateOrder(id)
