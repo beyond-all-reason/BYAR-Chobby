@@ -386,6 +386,7 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 	local function ExitSpring()
 		Spring.Echo("Quitting...")
 		WG.Chobby.Configuration:SetConfigValue("rejoinBattleID", nil)
+		WG.Chobby.Configuration:SetConfigValue("rejoinBattleTimestamp", nil)
 		Spring.Quit()
 	end
 

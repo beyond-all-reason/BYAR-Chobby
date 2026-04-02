@@ -447,6 +447,7 @@ function Configuration:init()
 	self.supperAnnouncementKey = "nil"
 
 	self.rejoinID = "nil"
+	self.rejoinBattleTimestamp = nil
 end
 
 
@@ -799,7 +800,8 @@ function Configuration:GetConfigData()
 		friendsFilterOnline = self.friendsFilterOnline,
 		queueExitConfirmPromptDoNotAskAgain = self.queueExitConfirmPromptDoNotAskAgain,
 		supperAnnouncementKey = self.supperAnnouncementKey,
-		rejoinBattleID = self.rejoinBattleID
+		rejoinBattleID = self.rejoinBattleID,
+		rejoinBattleTimestamp = self.rejoinBattleTimestamp
 	}
 end
 
