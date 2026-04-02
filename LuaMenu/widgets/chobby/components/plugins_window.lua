@@ -266,29 +266,28 @@ local function checkForUpgrades()
                 local ok, backupPath = backupDirectory(installDir)
                 if not ok then
                     Spring.Echo("[PluginsWindow] Cannot upgrade " .. widgetId .. ": failed to backup existing install")
-                    return
-                end
-
-                installingWidgets[widgetId] = true
-                upgradeBackups[widgetId] = backupPath
-
-                -- Download and extract to the original install path (same as fresh install)
-                local downloadName = "upgrade_" .. widgetId
-                local url = getDistributionUrl(widgetId) .. "?t=" .. os.time()
-
-                if WG.DownloadHandler and WG.DownloadHandler.QueueDownload then
-                    WG.DownloadHandler.QueueDownload(downloadName, "resource", -1, 0, {
-                        url = url,
-                        destination = installDir,
-                        extract = true,
-                    })
-                    Spring.Echo("[PluginsWindow] Queued upgrade download to: " .. installDir)
                 else
-                    -- Restore backup since we can't proceed
-                    os.rename(backupPath, installDir)
-                    installingWidgets[widgetId] = nil
-                    upgradeBackups[widgetId] = nil
-                    Spring.Echo("[PluginsWindow] Cannot upgrade: DownloadHandler not available")
+                    installingWidgets[widgetId] = true
+                    upgradeBackups[widgetId] = backupPath
+
+                    -- Download and extract to the original install path (same as fresh install)
+                    local downloadName = "upgrade_" .. widgetId
+                    local url = getDistributionUrl(widgetId) .. "?t=" .. os.time()
+
+                    if WG.DownloadHandler and WG.DownloadHandler.QueueDownload then
+                        WG.DownloadHandler.QueueDownload(downloadName, "resource", -1, 0, {
+                            url = url,
+                            destination = installDir,
+                            extract = true,
+                        })
+                        Spring.Echo("[PluginsWindow] Queued upgrade download to: " .. installDir)
+                    else
+                        -- Restore backup since we can't proceed
+                        os.rename(backupPath, installDir)
+                        installingWidgets[widgetId] = nil
+                        upgradeBackups[widgetId] = nil
+                        Spring.Echo("[PluginsWindow] Cannot upgrade: DownloadHandler not available")
+                    end
                 end
             end
         end
@@ -593,6 +592,8 @@ end
 -- Widget Card Panel (for grid items)
 --------------------------------------------------------------------------------
 
+local scheduleRefresh
+
 local function createWidgetCard(widget, itemWidth)
     local id = widget.id
     if id and widgetPanelCache[id] then
@@ -671,7 +672,7 @@ local function createWidgetCard(widget, itemWidth)
                         if not isWidgetInstalled(id) and not installingWidgets[id] then
                             installWidget(widget)
                             widgetPanelCache[id] = nil
-                            refreshGrid()
+                            scheduleRefresh()
                         end
                     end
                 },
@@ -798,7 +799,7 @@ local function refreshGrid()
 end
 
 -- Debounced grid refresh: coalesces rapid download completions into a single rebuild
-local function scheduleRefresh()
+scheduleRefresh = function()
     if refreshPending then return end
     refreshPending = true
     WG.Delay(function()
