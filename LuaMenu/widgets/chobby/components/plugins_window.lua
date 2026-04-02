@@ -37,7 +37,7 @@ local IMG_FALLBACK_LARGE  = "LuaMenu/images/load_img_512.png"
 local IMG_FALLBACK_MEDIUM = "LuaMenu/images/load_img_128.png"
 
 local ITEM_MIN_WIDTH   = 300  -- Minimum width for a widget card; actual width is dynamic based on container size
-local ITEM_HEIGHT      = 270
+local ITEM_HEIGHT      = 240
 local ITEMS_PER_PAGE   = 10    -- 5 rows * 2 columns
 local HEADER_HEIGHT    = 48
 local HEADER_ROW_GAP   = 4
@@ -465,7 +465,7 @@ local function openDetail(widget)
     }
 
     -- Metadata bar
-    local metaY = 45
+    local metaY = 40
     Label:New {
         caption = "by " .. (widget.author or "Unknown"),
         x = 15,
@@ -641,20 +641,20 @@ local function createWidgetCard(widget, itemWidth)
             Label:New {
                 caption = "by " .. (widget.author or "Unknown"),
                 x = 8,
-                y = 145,
+                y = 135,
                 right = 8,
-                height = 18,
-                fontSize = 11,
+                height = 20,
+                fontSize = 12,
                 autosize = false,
             },
             -- Short description
             Label:New {
                 caption = widget.description or "",
                 x = 8,
-                y = 163,
+                y = 150,
                 right = 8,
-                height = 50,
-                fontSize = 12,
+                height = 40,
+                fontSize = 14,
                 autosize = false,
                 wordwrap = true,
             },
