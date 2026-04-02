@@ -32,8 +32,9 @@ local MANIFEST_URL     = CDN_BASE .. "/manifests.json"
 local MANIFEST_DEST    = "LuaUI/Widgets/manifests.json"
 local MANIFEST_NAME    = "plugin_manifest"
 
-local PLUGINS_DIR      = "plugins/"
-local IMG_FALLBACK     = "LuaMenu/images/load_img_32.png"
+local PLUGINS_DIR         = "plugins/"
+local IMG_FALLBACK_LARGE  = "LuaMenu/images/load_img_512.png"
+local IMG_FALLBACK_MEDIUM = "LuaMenu/images/load_img_128.png"
 
 local ITEM_MIN_WIDTH   = 300  -- Minimum width for a widget card; actual width is dynamic based on container size
 local ITEM_HEIGHT      = 270
@@ -330,7 +331,7 @@ local function ensureThumbnail(widget, priority)
     local localPath = getThumbnailPath(id)
     local cdnPath = "/sites/" .. id .. "/" .. id .. "_325x100.png"
     local result = downloadAsset(id .. "_thumb", cdnPath, localPath, priority)
-    return result or IMG_FALLBACK
+    return result or IMG_FALLBACK_MEDIUM
 end
 
 local function ensureCover(widget, priority)
@@ -338,7 +339,7 @@ local function ensureCover(widget, priority)
     local localPath = getCoverPath(id)
     local cdnPath = "/sites/" .. id .. "/" .. id .. "_460x300.png"
     local result = downloadAsset(id .. "_cover", cdnPath, localPath, priority)
-    return result or IMG_FALLBACK
+    return result or IMG_FALLBACK_LARGE
 end
 
 local function ensureReadme(widget, priority)
