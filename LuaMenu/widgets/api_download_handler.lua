@@ -356,7 +356,7 @@ function externalFunctions.RetryDownload(name, fileType)
 		return false
 	end
 
-	externalFunctions.QueueDownload(name, fileType, removedDownloads[index].priority,removedDownloads[index].retryCount)
+	externalFunctions.QueueDownload(name, fileType, removedDownloads[index].priority,removedDownloads[index].retryCount, removedDownloads[index].resource)
 	removedDownloads[index] = removedDownloads[#removedDownloads]
 	removedDownloads[#removedDownloads] = nil
 	requestUpdate = true
