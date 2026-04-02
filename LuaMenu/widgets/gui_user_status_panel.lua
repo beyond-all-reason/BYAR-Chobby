@@ -137,6 +137,7 @@ local function InitializeControls(window)
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		OnClick = {ShowKeys}
 	}
+	menuX = menuX + 108
 
 	connectivityText = TextBox:New {
 		name = "connectivityText",

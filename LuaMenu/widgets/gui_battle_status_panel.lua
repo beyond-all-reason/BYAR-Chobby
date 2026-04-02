@@ -35,7 +35,10 @@ local function GetBattleInfoHolder(parent, battleID)
 		return nil
 	end
 
-	local Configuration = WG.Chobby.Configuration
+	local Configuration = WG.Chobby and WG.Chobby.Configuration
+	if not Configuration then
+		return nil
+	end
 
 	local mainControl = Control:New {
 		x = 0,
@@ -53,7 +56,7 @@ local function GetBattleInfoHolder(parent, battleID)
 		width = 225,
 		height = 20,
 		valign = 'top',
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideFont = Configuration:GetFont(2),
 		parent = mainControl,
 	}
 	local text = StringUtilities.GetTruncatedStringWithDotDot(battle.title, lblTitle.font, lblTitle.width)
@@ -68,7 +71,7 @@ local function GetBattleInfoHolder(parent, battleID)
 		valign = 'top',
 		caption = "Spectator",
 		parent = mainControl,
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideFont = Configuration:GetFont(2),
 	}
 	local imPlayerStatus = Image:New {
 		name = "imPlayerStatus",
@@ -87,7 +90,7 @@ local function GetBattleInfoHolder(parent, battleID)
 		y = 54,
 		height = 20,
 		valign = 'top',
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideFont = Configuration:GetFont(2),
 		caption = playersPrefix .. lobby:GetPlayerOccupancy(battleID),
 		parent = mainControl,
 	}
@@ -130,35 +133,38 @@ local function GetBattleInfoHolder(parent, battleID)
 	local currentSmallMode = false
 
 	function externalFunctions.Resize(smallMode)
+		if not Configuration then
+			return
+		end
 		currentSmallMode = smallMode
 
 		if smallMode then
 			minimap:SetPos(nil, nil, 30, 30)
 
-			lblTitle.font = WG.Chobby.Configuration:GetFont(1)
+			lblTitle.font = Configuration:GetFont(1)
 			lblTitle:SetPos(36, 1, 150)
 
-			lblPlayerStatus.font = WG.Chobby.Configuration:GetFont(1)
+			lblPlayerStatus.font = Configuration:GetFont(1)
 			lblPlayerStatus:SetPos(58, 18)
 
 			imPlayerStatus:SetPos(43, 18, 12, 12)
 
-			lblPlayers.font = WG.Chobby.Configuration:GetFont(1)
+			lblPlayers.font = Configuration:GetFont(1)
 			lblPlayers:SetPos(165, 18)
 
 			playersPrefix = PLAYER_PREFIX_SMALL
 		else
 			minimap:SetPos(nil, nil, 68, 68)
 
-			lblTitle.font = WG.Chobby.Configuration:GetFont(2)
+			lblTitle.font = Configuration:GetFont(2)
 			lblTitle:SetPos(76, 2, 225)
 
-			lblPlayerStatus.font = WG.Chobby.Configuration:GetFont(2)
+			lblPlayerStatus.font = Configuration:GetFont(2)
 			lblPlayerStatus:SetPos(103, 26)
 
 			imPlayerStatus:SetPos(82, 26, 18, 18)
 
-			lblPlayers.font = WG.Chobby.Configuration:GetFont(2)
+			lblPlayers.font = Configuration:GetFont(2)
 			lblPlayers:SetPos(80, 48)
 
 			playersPrefix = PLAYER_PREFIX_BIG
@@ -397,7 +403,7 @@ function BattleStatusPanel.GetControl(fontSizeScale)
 		width = 290,
 		bottom = 0,
 		padding = {0,0,0,0},
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(fontSizeScale),
+		objectOverrideFont = WG.Chobby and WG.Chobby.Configuration and WG.Chobby.Configuration:GetFont(fontSizeScale),
 		caption = "",
 		OnParent = {
 			function(obj)

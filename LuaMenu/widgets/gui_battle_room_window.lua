@@ -52,6 +52,8 @@ local lastUserToChangeStartBoxes = ''
 
 local readyButton
 local btnStartBattle = nil
+local btnDownloadMap = nil
+local isMapDownloading = false
 
 local vote_votingsPattern = "(%d+)/(%d+).-:(%d+)"
 local vote_whoCalledPattern = "%* (.*) called a vote for command"
@@ -110,11 +112,29 @@ local function UpdateArchiveStatus(updateSync)
 				btnStartBattle.tooltip = i18n("startbtn_votestart_tooltip")
 			end
 			btnStartBattle.suppressButtonReaction = false
+			-- hide download UI, restore start button
+			if battleLobby.name == "singleplayer" then
+				isMapDownloading = false
+				btnStartBattle:SetVisibility(true)
+				if btnDownloadMap then btnDownloadMap:SetVisibility(false) end
+			end
 		else
-			btnStartBattle.tooltip = i18n("startbtn_gettingcontent_tooltip")
-			btnStartBattle:StyleOff()
-			btnStartBattle:SetEnabled(false)
-			btnStartBattle.suppressButtonReaction = true
+			if battleLobby.name == "singleplayer" then
+				-- show download button instead of a disabled start button
+				btnStartBattle:SetVisibility(false)
+				if btnDownloadMap then
+					btnDownloadMap:SetVisibility(true)
+					if not isMapDownloading then
+						btnDownloadMap:SetCaption("Download")
+						btnDownloadMap:SetEnabled(true)
+					end
+				end
+			else
+				btnStartBattle.tooltip = i18n("startbtn_gettingcontent_tooltip")
+				btnStartBattle:StyleOff()
+				btnStartBattle:SetEnabled(false)
+				btnStartBattle.suppressButtonReaction = true
+			end
 		end
 
 	end
@@ -779,6 +799,37 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	}
 	ButtonUtilities.SetButtonDeselected(btnStartBattle)
 
+	-- Download button and progress bar (shown when map/game not yet downloaded, singleplayer only)
+	if battleLobby.name == "singleplayer" then
+		isMapDownloading = false
+
+		btnDownloadMap = Button:New {
+			name = 'btnDownloadMap',
+			x = 0,
+			right = 0,
+			bottom = 0,
+			height = 48,
+			caption = "Download",
+			classname = "ready_button",
+			objectOverrideFont = config:GetFont(3),
+			tooltip = "Download the map to be able to start this game.",
+			OnClick = {
+				function()
+					if isMapDownloading then return end
+					isMapDownloading = true
+					btnDownloadMap:SetCaption("Downloading...")
+					btnDownloadMap:SetEnabled(false)
+					MaybeDownloadGame(battle)
+					MaybeDownloadMap(battle)
+				end
+			},
+			parent = rightInfo,
+		}
+		btnDownloadMap:SetVisibility(false)
+
+
+	end
+
 	local btnPlay
 	local btnSpectate
 
@@ -1188,7 +1239,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 			parent = leftInfo,
 		}
 	end
-	leftOffset = leftOffset + 40
+	leftOffset = leftOffset + 38
 
 
 	local tooltip = modoptions
@@ -1375,7 +1426,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		offset = offset + 38
 		btnModoptions:SetPos(nil, offset)
 		if btnReloadModoptions then btnReloadModoptions:SetPos(nil, offset) end
-		offset = offset + 40
+		offset = offset + 38
 		btnOptionPresets:SetPos(nil, offset)
 		offset = offset + 40
 		lblGame:SetPos(nil, offset)
@@ -3446,7 +3497,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		y = 0,
 		right = "33%",
 		bottom = BOTTOM_SPACING,
-		padding = {INTERNAL_PAD, EXTERNAL_PAD_VERT, 1, INTERNAL_PAD},
+		padding = {INTERNAL_PAD, EXTERNAL_PAD_VERT, 1, 0},
 		parent = topPanel,
 	}
 
@@ -3664,6 +3715,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		end
 	end
 	local battleRoomConsole = WG.Chobby.Console("Battleroom Chat", MessageListener, true, nil, true)
+	WG.BattleRoomChatInput = battleRoomConsole.ebInputText
 
 	local chatPanel = Control:New {
 		name = 'chatPanel',
@@ -4332,6 +4384,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		oldLobby:RemoveListener("OnSetModOptions", OnSetModOptions)
 
 		WG.BattleStatusPanel.RemoveBattleTab()
+		WG.BattleRoomChatInput = nil
 	end
 
 	mainWindow.OnDispose = mainWindow.OnDispose or {}
@@ -4383,6 +4436,9 @@ function BattleRoomWindow.ShowMultiplayerBattleRoom(battleID)
 					mainWindowFunctions = functions
 					if battleWindow then
 						obj:AddChild(battleWindow)
+					end
+					if WG.BattleRoomChatInput then
+						screen0:FocusControl(WG.BattleRoomChatInput)
 					end
 				end
 				BattleRoomWindow.UpdateMinimapstartBoxes()
@@ -4461,6 +4517,10 @@ function BattleRoomWindow.GetSingleplayerControl(setupData)
 				end
 
 				obj:AddChild(battleWindow)
+
+				if WG.BattleRoomChatInput then
+					screen0:FocusControl(WG.BattleRoomChatInput)
+				end
 
 				UpdateArchiveStatus(true)
 
@@ -4682,6 +4742,39 @@ function widget:Initialize()
 		UpdateArchiveStatus(true)
 	end
 	WG.DownloadHandler.AddListener("DownloadFinished", downloadFinished)
+
+	local function downloadStarted(_, id, name, fileType)
+		if not haveMapAndGame then
+			isMapDownloading = true
+			if btnDownloadMap then
+				btnDownloadMap:SetCaption("Downloading...")
+				btnDownloadMap:SetEnabled(false)
+			end
+
+		end
+	end
+	WG.DownloadHandler.AddListener("DownloadStarted", downloadStarted)
+
+	local function downloadProgress(_, downloadID, downloaded, total)
+		if not haveMapAndGame and total > 0 then
+			isMapDownloading = true
+			if btnDownloadMap then
+				btnDownloadMap:SetCaption("Downloading...")
+				btnDownloadMap:SetEnabled(false)
+			end
+		end
+	end
+	WG.DownloadHandler.AddListener("DownloadProgress", downloadProgress)
+
+	local function downloadFailed()
+		isMapDownloading = false
+		if btnDownloadMap then
+			btnDownloadMap:SetCaption("Download")
+			btnDownloadMap:SetEnabled(true)
+		end
+
+	end
+	WG.DownloadHandler.AddListener("DownloadFailed", downloadFailed)
 
 	WG.BattleRoomWindow = BattleRoomWindow
 	WG.Delay(DelayedInitialize, 0.5)

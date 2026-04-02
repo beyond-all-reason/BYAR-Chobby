@@ -1,5 +1,9 @@
 FriendListWindow = ListWindow:extends{}
 
+local function ChobbyReady()
+	return WG.Chobby ~= nil and WG.Chobby.Configuration ~= nil
+end
+
 -----------------------------
 -- FriendListWindow functions
 -----------------------------
@@ -97,6 +101,9 @@ end
 ---------------------
 
 function FriendListWindow:OnAddUser(userName)
+	if not ChobbyReady() then
+		return
+	end
 	local userInfo = lobby:TryGetUser(userName)
 	if userInfo.isFriend then
 		if WG.Chobby.Configuration.friendsFilterOnline then
@@ -118,6 +125,9 @@ function FriendListWindow:OnAddUser(userName)
 end
 
 function FriendListWindow:OnRemoveUser(userName)
+	if not ChobbyReady() then
+		return
+	end
 	if lobby.status ~= "connected" then
 		return
 	end
@@ -139,6 +149,9 @@ function FriendListWindow:OnRemoveUser(userName)
 end
 
 function FriendListWindow:OnFriend(userName)
+	if not ChobbyReady() then
+		return
+	end
 	if WG.Chobby.Configuration.friendActivityNotification then
 		interfaceRoot.GetRightPanelHandler().SetActivity("friends", lobby:GetFriendRequestCount())
 	end
@@ -158,6 +171,9 @@ function FriendListWindow:OnUnfriendByID(userID, userName)
 end
 
 function FriendListWindow:OnFriendList(friends)
+	if not ChobbyReady() then
+		return
+	end
 	if WG.Chobby.Configuration.friendActivityNotification then
 		interfaceRoot.GetRightPanelHandler().SetActivity("friends", lobby:GetFriendRequestCount())
 	end
@@ -167,6 +183,9 @@ function FriendListWindow:OnFriendList(friends)
 end
 
 function FriendListWindow:OnFriendRequest(userName)
+	if not ChobbyReady() then
+		return
+	end
 	if WG.Chobby.Configuration.friendActivityNotification then
 		interfaceRoot.GetRightPanelHandler().SetActivity("friends", lobby:GetFriendRequestCount())
 	end
@@ -180,6 +199,9 @@ function FriendListWindow:OnFriendRequest(userName)
 end
 
 function FriendListWindow:OnOutgoingFriendRequest(userName)
+	if not ChobbyReady() then
+		return
+	end
 
 	local userInfo = lobby:GetUser(userName)
 	if not userInfo then
@@ -190,6 +212,9 @@ function FriendListWindow:OnOutgoingFriendRequest(userName)
 end
 
 function FriendListWindow:RemoveFriendRequestByID(userID, userName)
+	if not ChobbyReady() then
+		return
+	end
 	if WG.Chobby.Configuration.friendActivityNotification then
 		interfaceRoot.GetRightPanelHandler().SetActivity("friends", lobby:GetFriendRequestCount())
 	end
@@ -201,6 +226,9 @@ function FriendListWindow:OnRemoveOutgoingFriendRequestByID(userID, userName)
 end
 
 function FriendListWindow:OnFriendRequestList(friendRequests)
+	if not ChobbyReady() then
+		return
+	end
 	if WG.Chobby.Configuration.friendActivityNotification then
 		interfaceRoot.GetRightPanelHandler().SetActivity("friends", lobby:GetFriendRequestCount())
 	end
@@ -210,6 +238,9 @@ function FriendListWindow:OnFriendRequestList(friendRequests)
 end
 
 function FriendListWindow:OnAccepted()
+	if not ChobbyReady() then
+		return
+	end
 	self:Clear()
 	if self.requiresLoginLabel then
 		self.requiresLoginLabel:Hide()
@@ -229,6 +260,9 @@ function FriendListWindow:OnAccepted()
 end
 
 function FriendListWindow:OnNewFriendRequestByID(userID, userName)
+	if not ChobbyReady() then
+		return
+	end
 	if WG.Chobby.Configuration:AllowNotification() then
 		local userControl = WG.UserHandler.GetNotificationUser(userName)
 		userControl:SetPos(20, 40, 250, 80)
@@ -240,6 +274,9 @@ function FriendListWindow:OnNewFriendRequestByID(userID, userName)
 end
 
 function FriendListWindow:OnFriendRequestAcceptedByID(userID, userName)
+	if not ChobbyReady() then
+		return
+	end
 	if WG.Chobby.Configuration:AllowNotification() then
 		local userControl = WG.UserHandler.GetNotificationUser(userName)
 		userControl:SetPos(20, 40, 250, 80)
@@ -261,6 +298,9 @@ function FriendListWindow:HideOfflineFriends()
 end
 
 function FriendListWindow:ShowAllFriends()
+	if not ChobbyReady() then
+		return
+	end
 	self:Clear()
 
 	local outFriendRequests = lobby:GetOutgoingFriendRequestsByID()
@@ -407,10 +447,10 @@ function FriendListWindow:init(parent)
 			if self.checkOnlineOnly.checked ~= value then
 				self.checkOnlineOnly:SetToggle(value)
 			end
-			
+
 			if value then
 				self:HideOfflineFriends()
-			else
+			elseif ChobbyReady() then
 				self:ShowAllFriends()
 			end
 		end

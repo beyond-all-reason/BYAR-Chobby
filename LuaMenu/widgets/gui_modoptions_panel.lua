@@ -746,6 +746,9 @@ local function CreateModoptionWindow()
 	}
 	local function CancelFunc()
 		modoptionsSelectionWindow:Dispose()
+		if WG.BattleRoomChatInput then
+			screen0:FocusControl(WG.BattleRoomChatInput)
+		end
 	end
 
 	local buttonAccept, buttonReset
@@ -762,6 +765,9 @@ local function CreateModoptionWindow()
 		end
 		battleLobby:SetModOptions(localModoptions)
 		modoptionsSelectionWindow:Dispose()
+		if WG.BattleRoomChatInput then
+			screen0:FocusControl(WG.BattleRoomChatInput)
+		end
 	end
 
 	local function ResetFunc()
@@ -1007,6 +1013,7 @@ local function CreateModoptionWindow()
 	}
 
 	local popupHolder = WG.Chobby.PriorityPopup(modoptionsSelectionWindow, CancelFunc, AcceptFunc)
+	screen0:FocusControl(filterSearchBox)
 
 	WG.Chobby.lobbyInterfaceHolder.OnResize = WG.Chobby.lobbyInterfaceHolder.OnResize or {}
 	WG.Chobby.lobbyInterfaceHolder.OnResize[#WG.Chobby.lobbyInterfaceHolder.OnResize +1] = function()
@@ -1058,25 +1065,25 @@ local function InitializeModoptionsDisplay()
 		return value
 	end
 
-local function tweakSummary(value)
-	value = tostring(value)
-	local hash = Spring.Utilities.Base64Encode(VFS.CalculateHash(value,1))
-	local tweakText = string.format("%d:%s", value:len(), hash:sub(1, 4))
-	if value:find("[^%w%-_=]") then -- Non-base64url character found
-		return tweakText
-	end
-	for line in Spring.Utilities.Base64Decode(value):gmatch("([^\r\n]*)[\r\n]?") do
-		if line:sub(1, 2) ~= "--" then -- Line doesn't start with a comment
+	local function tweakSummary(value)
+		value = tostring(value)
+		local hash = Spring.Utilities.Base64Encode(VFS.CalculateHash(value,1))
+		local tweakText = string.format("%d:%s", value:len(), hash:sub(1, 4))
+		if value:find("[^%w%-_=]") then -- Non-base64url character found
 			return tweakText
 		end
-		local comment = line:sub(3, 27)
-		if not comment:find("[^%w%p ]") then -- Only whitelisted characters found
-			return tweakText .. "\n[" .. comment .. "]"
+		for line in Spring.Utilities.Base64Decode(value):gmatch("([^\r\n]*)[\r\n]?") do
+			if line:sub(1, 2) ~= "--" then -- Line doesn't start with a comment
+				return tweakText
+			end
+			local comment = line:sub(3, 27)
+			if not comment:find("[^%w%p ]") then -- Only whitelisted characters found
+				return tweakText .. "\n[" .. comment .. "]"
+			end
 		end
-	end
 
-	return tweakText
-end
+		return tweakText
+	end
 
 	local panelModoptions
 

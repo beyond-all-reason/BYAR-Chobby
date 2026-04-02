@@ -28,7 +28,7 @@ function SortableList:init(holder, headings, itemHeight, defaultSort, sortDirect
 				y = 0,
 				right = heading.right,
 				width = heading.width,
-				height = 38,
+				height = heading.height or 38,
 				caption = heading.name,
 				objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 				tooltip = heading.tooltip,
@@ -47,15 +47,31 @@ function SortableList:init(holder, headings, itemHeight, defaultSort, sortDirect
 				},
 			}
 			if heading.image then
-				Image:New {
-					x = 0,
-					y = 0,
-					right = 0,
-					bottom = 0,
-					keepAspect = true,
-					file = heading.image,
-					parent = self.headingButtons[i],
-				}
+				if heading.imageSize then
+					local sz = heading.imageSize
+					local btnW = heading.width or 38
+					local btnH = heading.height or 38
+					local clientW = btnW - 20  -- button_small padding is 10 on each side
+					Image:New {
+						x = math.floor((clientW - sz) / 2),
+						y = math.floor((math.min(btnH, 38) - sz) / 2),
+						width = sz,
+						height = sz,
+						keepAspect = true,
+						file = heading.image,
+						parent = self.headingButtons[i],
+					}
+				else
+					Image:New {
+						x = 0,
+						y = 0,
+						right = 0,
+						bottom = 0,
+						keepAspect = true,
+						file = heading.image,
+						parent = self.headingButtons[i],
+					}
+				end
 			end
 		end
 	end
