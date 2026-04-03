@@ -17,15 +17,19 @@ end
 local lobby, battleList
 
 local function LoginRejoinOption(listener, battleID)
-	-- Check if a battle ID has been stored for rejoining.
-	if not WG.Chobby.Configuration.rejoinBattleID then
+	local Configuration = WG.Chobby and WG.Chobby.Configuration
+	if not Configuration then
 		return
 	end
-	-- Spring.Echo("Saved BattleID: "..WG.Chobby.Configuration.rejoinID)
+	-- Check if a battle ID has been stored for rejoining.
+	if not Configuration.rejoinBattleID then
+		return
+	end
+	-- Spring.Echo("Saved BattleID: "..Configuration.rejoinID)
 
-	local battle = lobby:GetBattle(WG.Chobby.Configuration.rejoinBattleID) -- Battle Object
+	local battle = lobby:GetBattle(Configuration.rejoinBattleID) -- Battle Object
 	if battle == nil then
-		WG.Chobby.Configuration:SetConfigValue("rejoinBattleID", nil)
+		Configuration:SetConfigValue("rejoinBattleID", nil)
 		return
 	end
 	
@@ -33,7 +37,9 @@ local function LoginRejoinOption(listener, battleID)
 		battleList:JoinBattle(battle)
 	end
 	
-	WG.Chobby.ConfirmationPopup(doJoinBattle, i18n("rejoinBattlePopup"), nil, 315, 200, i18n("rejoin"), i18n("abandon"))
+	if WG.Chobby and WG.Chobby.ConfirmationPopup then
+		WG.Chobby.ConfirmationPopup(doJoinBattle, i18n("rejoinBattlePopup"), nil, 315, 200, i18n("rejoin"), i18n("abandon"))
+	end
 end
 
 local function OnJoinedBattle(listener, battleID, userName)
@@ -42,7 +48,10 @@ local function OnJoinedBattle(listener, battleID, userName)
 	end
 
 	-- Spring.Echo('Saving Lobby ID: '..battleID)
-	WG.Chobby.Configuration:SetConfigValue("rejoinBattleID", battleID)
+	local Configuration = WG.Chobby and WG.Chobby.Configuration
+	if Configuration then
+		Configuration:SetConfigValue("rejoinBattleID", battleID)
+	end
 end
 
 local function OnLeftBattle(listener, battleID, userName)
@@ -51,16 +60,21 @@ local function OnLeftBattle(listener, battleID, userName)
 	end
 
 	-- Spring.Echo('Removing Lobby ID: ' .. battleID)
-	WG.Chobby.Configuration:SetConfigValue("rejoinBattleID", nil)
+	local Configuration = WG.Chobby and WG.Chobby.Configuration
+	if Configuration then
+		Configuration:SetConfigValue("rejoinBattleID", nil)
+	end
 end
 
 local function DelayedInitialize()
-	lobby = WG.LibLobby.lobby
-	battleList = WG.Chobby.BattleListWindow()
+	lobby = WG.LibLobby and WG.LibLobby.lobby
+	battleList = WG.Chobby and WG.Chobby.BattleListWindow and WG.Chobby.BattleListWindow()
 
-	lobby:AddListener("OnLoginInfoEnd", LoginRejoinOption)
-	lobby:AddListener("OnJoinedBattle", OnJoinedBattle)
-	lobby:AddListener("OnLeftBattle", OnLeftBattle)
+	if lobby then
+		lobby:AddListener("OnLoginInfoEnd", LoginRejoinOption)
+		lobby:AddListener("OnJoinedBattle", OnJoinedBattle)
+		lobby:AddListener("OnLeftBattle", OnLeftBattle)
+	end
 end
 
 function widget:Initialize()

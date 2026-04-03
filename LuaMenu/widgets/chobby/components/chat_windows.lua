@@ -8,8 +8,11 @@ function ChatWindows:init()
 	self.storedCurrentTab = false
 	self.totalNewMessages = 0
 
-	self.myFont1 = WG.Chobby.Configuration:GetFont(1)
-	self.myFont3 = WG.Chobby.Configuration:GetFont(3)
+	local Configuration = WG.Chobby and WG.Chobby.Configuration
+	if Configuration then
+		self.myFont1 = Configuration:GetFont(1)
+		self.myFont3 = Configuration:GetFont(3)
+	end
 
 	self.visible = false
 
@@ -578,7 +581,7 @@ function ChatWindows:SetTabBadge(tabName, text)
 			width = 14,
 			height = 12,
 			caption = text,
-			objectOverrideFont = WG.Chobby.Configuration:GetFont(1, "chat_badge_black", {
+			objectOverrideFont = WG.Chobby and WG.Chobby.Configuration and WG.Chobby.Configuration:GetFont(1, "chat_badge_black", {
 				outline = true,
 				autoOutlineColor = false,
 				outlineColor = { 0, 0, 0, 0.6 },
@@ -593,7 +596,7 @@ end
 function ChatWindows:_NotifyTab(tabName, userName, chanName, nameMentioned, message, sound, popupDuration)
 	if tabName ~= self.currentTab then
 		-- TODO: Fix naming of self.tabbars (these are consoles)
-		if (nameMentioned or chanName == "Private") and WG.Chobby.Configuration.gameConfig.sayPrivateSelectAndActivateChatTab and not WG.Chobby.Configuration.doNotDisturb then
+		if (nameMentioned or chanName == "Private") and WG.Chobby and WG.Chobby.Configuration and WG.Chobby.Configuration.gameConfig and WG.Chobby.Configuration.gameConfig.sayPrivateSelectAndActivateChatTab and not WG.Chobby.Configuration.doNotDisturb then
 			WG.Chobby.interfaceRoot.OpenRightPanelTab("chat")
 			self.tabPanel.tabBar:Select(tabName)
 		end
@@ -609,12 +612,12 @@ function ChatWindows:_NotifyTab(tabName, userName, chanName, nameMentioned, mess
 			interfaceRoot.GetRightPanelHandler().SetActivity("chat", self.totalNewMessages, 2 - mentionNumber)
 		end
 
-		if nameMentioned and WG.Chobby.Configuration:AllowNotification(userName) then
+		if nameMentioned and WG.Chobby and WG.Chobby.Configuration and WG.Chobby.Configuration:AllowNotification(userName) then
 			Chotify:Post({
 				title = userName .. " in " .. chanName .. ":",
 				body = message,
 				sound = sound,
-				soundVolume = (WG.Chobby.Configuration.menuNotificationVolume or 1)*0.5,
+				soundVolume = (WG.Chobby and WG.Chobby.Configuration and (WG.Chobby.Configuration.menuNotificationVolume or 1) or 1)*0.5,
 				time = popupDuration,
 			})
 		end
@@ -836,7 +839,7 @@ function ChatWindows:GetChannelConsole(chanName)
 				{
 					name = chanName,
 					caption = caption,
-					objectOverrideFont = WG.Chobby.Configuration:GetFont(fontSize),
+					objectOverrideFont = WG.Chobby and WG.Chobby.Configuration and WG.Chobby.Configuration:GetFont(fontSize),
 					tooltip = tooltip,
 					children = {
 						Control:New {
@@ -854,7 +857,7 @@ function ChatWindows:GetChannelConsole(chanName)
 				{
 					name = chanName,
 					caption = caption,
-					objectOverrideFont = WG.Chobby.Configuration:GetFont(fontSize),
+					objectOverrideFont = WG.Chobby and WG.Chobby.Configuration and WG.Chobby.Configuration:GetFont(fontSize),
 					tooltip = tooltip,
 					children = {
 						Control:New {
@@ -941,7 +944,7 @@ function ChatWindows:GetPrivateChatConsole(userName, switchTo)
 				name = chanName,
 				caption = caption,
 				tooltip = tooltip,
-				objectOverrideFont = WG.Chobby.Configuration:GetFont(fontSize),
+				objectOverrideFont = WG.Chobby and WG.Chobby.Configuration and WG.Chobby.Configuration:GetFont(fontSize),
 				children = {
 					privateChatConsole.panel,
 					closeChannelButton
@@ -971,7 +974,7 @@ function ChatWindows:CreateJoinChannelWindow()
 	self.joinWindow = Window:New {
 		caption = "",
 		name = "hostBattle",
-		parent = WG.Chobby.lobbyInterfaceHolder,
+		parent = WG.Chobby and WG.Chobby.lobbyInterfaceHolder,
 		width = 318,
 		height = 216,
 		resizable = false,
