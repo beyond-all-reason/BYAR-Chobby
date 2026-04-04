@@ -17,12 +17,15 @@ PartyWindow.HEADER_HEIGHT = 57
 PartyWindow.CONTENT_Y_OFFSET = 0
 PartyWindow.NOTIFICATION_SOUND = "sounds/Alarm_light5_mixdown.wav" --same sfx as RING
 
+local function ChobbyReady()
+	return WG.Chobby ~= nil and WG.Chobby.Configuration ~= nil
+end
+
 function PartyWindow:GetPendingInviteCount()
     if not lobby or not lobby.parties or not lobby.myUserName then
         return 0
     end
 
-    -- Count pending invites addressed to the user
     local inviteCount = 0
     for partyID, party in pairs(lobby.parties) do
         if partyID ~= lobby.myPartyID and party.invites and party.invites[lobby.myUserName] then
@@ -55,12 +58,14 @@ function PartyWindow:GetInviteSenderName(partyID)
 end
 
 function PartyWindow:NotifyIncomingInvite(partyID)
-    -- Fire a Chotify popup whenever a new party invite is received.
-    if not WG.Chobby.Configuration:AllowNotification() then
+    if not ChobbyReady() or not WG.Chobby.Configuration:AllowNotification() then
         return
     end
 
     local function PostInviteNotification(senderName)
+        if not ChobbyReady() then
+            return
+        end
         local body = senderName and (senderName .. " has invited you to their party") or i18n("party_invite")
         Chotify:Post({
             title = i18n("party"),
@@ -73,13 +78,16 @@ function PartyWindow:NotifyIncomingInvite(partyID)
     -- Delay so party member data has time to populate and inviter name can be retrieved
     -- if delay removed or player cannot be fetched it defaults to a generic "party invite" message
     WG.Delay(function()
+        if not ChobbyReady() then
+            return
+        end
         local senderName = self:GetInviteSenderName(partyID)
         PostInviteNotification(senderName)
     end, 0.3)
 end
 
 function PartyWindow:NotifyInviteAccepted(userName)
-    if not WG.Chobby.Configuration:AllowNotification() then
+    if not ChobbyReady() or not WG.Chobby.Configuration:AllowNotification() then
         return
     end
 
