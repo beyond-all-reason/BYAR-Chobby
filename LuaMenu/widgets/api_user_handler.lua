@@ -1167,6 +1167,9 @@ end
 -- Control Handling
 
 local function GetUserControls(userName, opts)
+	if not ChobbyReady() then
+		return nil
+	end
 	local autoResize         = opts.autoResize
 	local maxNameLength      = opts.maxNameLength
 	local isInBattle         = opts.isInBattle
@@ -1969,6 +1972,9 @@ local function _GetUserDropdownMenu(userName, isInBattle)
 		comboBoxOnly = true
 	}
 	local userControls = GetUserControls(userName, opts)
+	if not userControls then
+		return
+	end
 	local parentControl = WG.Chobby.interfaceRoot.GetLobbyInterfaceHolder()
 
 	parentControl:AddChild(userControls.mainControl)
@@ -2024,7 +2030,11 @@ end
 local function _GetUser(userList, userName, opts)
 	opts.reinitialize = userList[userName]
 	if not userList[userName] or userList[userName].needReinitialization then
-		userList[userName] = GetUserControls(userName, opts)
+		local userControls = GetUserControls(userName, opts)
+		if not userControls then
+			return nil
+		end
+		userList[userName] = userControls
 	end
 	return userList[userName].mainControl
 end
@@ -2032,6 +2042,9 @@ end
 function userHandler.GetBattleUser(userName, isSingleplayer)
 	if isSingleplayer then
 		return userHandler.GetSingleplayerUser(userName)
+	end
+	if not ChobbyReady() then
+		return nil
 	end
 
 	return _GetUser(battleUsers, userName, {
@@ -2067,6 +2080,9 @@ function userHandler.GetTooltipUser(userName)
 		disableInteraction = true,
 		colorizeFriends    = true,
 	})
+	if not control then
+		return nil
+	end
 	UpdateUserBattleStatus(_, userName)
 	return control
 end
@@ -2096,6 +2112,9 @@ function userHandler.GetReplayTooltipUser(replayUserInfo, maxNameLength)
 end
 
 function userHandler.GetSingleplayerUser(userName)
+	if not ChobbyReady() then
+		return nil
+	end
 	return _GetUser(singleplayerUsers, userName, {
 		autoResize     = true,
 		isInBattle     = true,
@@ -2107,6 +2126,9 @@ function userHandler.GetSingleplayerUser(userName)
 end
 
 function userHandler.GetChannelUser(userName)
+	if not ChobbyReady() then
+		return nil
+	end
 	return _GetUser(channelUsers, userName, {
 		maxNameLength  = WG.Chobby.Configuration.chatMaxNameLength,
 		showModerator  = true,
@@ -2116,6 +2138,9 @@ function userHandler.GetChannelUser(userName)
 end
 
 function userHandler.GetDebriefingUser(userName)
+	if not ChobbyReady() then
+		return nil
+	end
 	return _GetUser(debriefingUsers, userName, {
 		maxNameLength  = WG.Chobby.Configuration.chatMaxNameLength,
 		showModerator  = true,
@@ -2123,6 +2148,9 @@ function userHandler.GetDebriefingUser(userName)
 end
 
 function userHandler.GetPartyUser(userName, partyID, partyStatus)
+	if not ChobbyReady() then
+		return nil
+	end
 	local partyUsers = namedUserList[partyID]
 	if not partyUsers then
 		partyUsers = {}
@@ -2146,6 +2174,9 @@ function userHandler.GetPopupUser(userName)
 end
 
 function userHandler.GetStatusUser(userName)
+	if not ChobbyReady() then
+		return nil
+	end
 	return _GetUser(statusUsers, userName, {
 		maxNameLength       = WG.Chobby.Configuration.statusMaxNameLength,
 		disableInteraction  = true,
@@ -2153,6 +2184,9 @@ function userHandler.GetStatusUser(userName)
 end
 
 function userHandler.GetCommunityProfileUser(userName)
+	if not ChobbyReady() then
+		return nil
+	end
 	return _GetUser(profileUsers, userName, {
 		maxNameLength       = WG.Chobby.Configuration.statusMaxNameLength,
 		disableInteraction  = true,
@@ -2169,6 +2203,9 @@ function userHandler.GetLadderUser(userName)
 end
 
 function userHandler.GetFriendUser(userName)
+	if not ChobbyReady() then
+		return nil
+	end
 	return _GetUser(friendUsers, userName, {
 		large            = true,
 		hideStatusAway   = true,
@@ -2183,6 +2220,9 @@ function userHandler.GetFriendUser(userName)
 end
 
 function userHandler.GetFriendRequestUser(userName)
+	if not ChobbyReady() then
+		return nil
+	end
 	return _GetUser(friendRequestUsers, userName, {
 		large          = true,
 		hideStatus     = true,
@@ -2192,6 +2232,9 @@ function userHandler.GetFriendRequestUser(userName)
 end
 
 function userHandler.GetNotificationUser(userName)
+	if not ChobbyReady() then
+		return nil
+	end
 	return _GetUser(notificationUsers, userName, {
 		maxNameLength  = WG.Chobby.Configuration.notificationMaxNameLength,
 	})
