@@ -3821,7 +3821,6 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 			else
 				infoHandler.SetBtnsPlaySpec(false, "play", true, "spectating", true)
 			end
-			playerHandler.SyncJoinTeamButtonsForLocalUser()
 		end
 
 		if username ~= battleLobby.myUserName or battleLobby.name == "singleplayer" or (status.isSpectator == nil and status.isReady == nil and status.queuePos == nil) then
