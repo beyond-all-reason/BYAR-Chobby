@@ -42,27 +42,6 @@ local welcomePanelItems = {
         UrlText = "Read the Announcement",
     },
 
-    { -- Please don't delete this, just comment it out, it's getting reused.
-        Header = "Creative Call To Arms - April Fools Edition",
-        Text = "Are you a music producer? Or do you know someone who is and deserves a bit of recognition? " .. " \n" .. " \n" .. "Create a remix or cover of any Beyond All Reason track, or even combine multiple BAR themes into a single piece. The best entries may end up featured in the game, giving aspiring artists a chance to have their music heard by thousands of players!",
-        Image = "LuaMenu/images/welcomepanel/BAR OST.png",
-        Url = "https://discord.com/channels/549281623154229250/697141979892416512/1481301729252347995",
-        UrlText = "Announcement On Discord",
-        Time = "2026-03-29T23:00:00"
-    },
-
-    {
-        Header = "New Map: Argent Strata",
-        Text =  " \n" .. "A frozen island with icey plateaus and multiple pathways to the center. 1v1 SW vs NE." .. " \n" .. " \n" .. "Made by Moose and Beherith.",
-        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/Argent_Strata_1.0.png",
-    },
-
-    {
-        Header = "New Map: Houses of Tripolis",
-        Text =  " \n" .. "Did you build your house out of straw or metal?" .. " \n" .. " \n" .. "Made by RebelNode and TradeMark.",
-        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/Houses_of_Tripolis_1.2.png",
-    },
-
     {
         Header = "Star BAR on GitHub!",
         Text = "BAR is built by the community, for the community. One easy way to support us: star our GitHub repository! " .. " \n" .. " \n" .. "It signals the project is alive and helps us access developer programs that give us better tools to build with." .. " \n" .. " \n" .. "(Star button in top right corner of the linked page)" .. " \n" .. " \n",
