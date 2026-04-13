@@ -19,6 +19,14 @@ local welcomePanelItems = {
     },
 
     {
+        Header = "Nation Wars 2026 – Registration Open",
+        Text = "The 2026 edition of our friendly competition to find out which nation is the best at BAR is coming in hot this May!\nWill Germany defend its title, or will YOU claim it and bolster your flag's pride?".." \n".." \n".."Join the Nation Wars Discord, rally your fellows, and represent your nation!".." \n".." \n".."You have until April 26 to sign up, before battling it out in 4v4 against the other nations on the weekends of May 16/17 and May 23/24.\nFull rules available on the Nation Wars Discord.",
+        Image = "LuaMenu/images/nation_wars.png",
+        Url = "https://discord.gg/qurXWcjmNN",
+        UrlText = "Nation Wars Discord",
+    },
+
+    {
         Header = "Unit Stats 2.0 is Live!",
         Text = "The Website Unit Library just got a massive upgrade! All weapons per unit are now listed with individual stats across all factions including Legion. Fire every weapon directly in the browser with accurate range, speed, duration and firing sounds." .. " \n" .. " \n" .. "New features include DOT tracking, paralyzer PPS, target category indicators, fixed animations, new 3D unit renders, and mobile-optimised performance. Use 1-9 to fire weapons and 0 to pause the scene!" .. " \n" .. " \n",
         Image = "LuaMenu/images/welcomepanel/unit_stats_2.png",
