@@ -20,7 +20,7 @@ local welcomePanelItems = {
 
     {
         Header = "Nation Wars 2026 – Registration Open",
-        Text = "The 2026 edition of our friendly competition to find out which nation is the best at BAR is coming in hot this May!\nWill Germany defend its title, or will YOU claim it and bolster your flag's pride?".." \n".." \n".."Join the Nation Wars Discord, rally your fellows, and represent your nation!".." \n".." \n".."You have until April 26 to sign up, before battling it out in 4v4 against the other nations on the weekends of May 16/17 and May 23/24.\nFull rules available on the Nation Wars Discord.",
+        Text = "The 2026 edition of our friendly competition to find out which nation is the best at BAR is coming in hot this May!\nWill Germany defend its title, or will YOU claim it and bolster your flag's pride?".." \n".." \n".."Join the Nation Wars Discord, rally your fellows, and represent your nation!\nImportant: this year, players register individually and teams will be formed afterwards. You don't need to find teammates and have a team before signing up, so do not hesitate: you have until April 26 to register yourself!".." \n".." \n".."The tournament itself will be held on the weekends of May 16/17 and May 23/24.\nFull rules available on the Nation Wars Discord.",
         Image = "LuaMenu/images/nation_wars.png",
         Url = "https://discord.gg/qurXWcjmNN",
         UrlText = "Nation Wars Discord",
