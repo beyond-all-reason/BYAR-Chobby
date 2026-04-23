@@ -264,9 +264,22 @@ local function loadPolygonStartboxes(mapName, gameName)
 
       -- Load mapside polygon startbox config
       if VFS.FileExists("mapconfig/map_startboxes.lua") then
+        -- Some map configs reference Spring.Utilities.Gametype which doesn't exist
+        -- in the lobby. Provide stubs that return false so configs fall through
+        -- to their default (typically 2-team) branch.
+        local savedGametype = Spring.Utilities and Spring.Utilities.Gametype
+        if Spring.Utilities then
+          Spring.Utilities.Gametype = setmetatable({}, {
+            __index = function() return function() return false end end,
+          })
+        end
         local ok, cfg = pcall(function()
           return VFS.Include("mapconfig/map_startboxes.lua")
         end)
+        -- Restore original Gametype (or remove stub)
+        if Spring.Utilities then
+          Spring.Utilities.Gametype = savedGametype
+        end
         if ok and cfg then
           result.config = cfg
         elseif not ok then
@@ -355,7 +368,10 @@ local function loadPolygonStartboxes(mapName, gameName)
     return nil
   end
 
-  -- Convert the raw config (0-based keys, world elmo coords) to lobby format (1-based, 0-200 space)
+  -- Convert the raw config to lobby format (1-based, 0-200 space).
+  -- Modside configs use 0-based keys ([0]={...},[1]={...}), mapside configs
+  -- use 1-based array keys ({entry1, entry2}). Detect which format and normalize.
+  local has0Key = rawConfig[0] ~= nil
   local lobbyConfig = {}
   for allyTeamID, entry in pairs(rawConfig) do
     local lobbyEntry = {
@@ -403,8 +419,9 @@ local function loadPolygonStartboxes(mapName, gameName)
     end
     lobbyEntry.boundingBox = { left = xmin, top = zmin, right = xmax, bottom = zmax }
 
-    -- Use 1-based indexing for consistency with rest of lobby code
-    lobbyConfig[allyTeamID + 1] = lobbyEntry
+    -- Normalize to 1-based indexing for consistency with rest of lobby code
+    local lobbyIdx = has0Key and (allyTeamID + 1) or allyTeamID
+    lobbyConfig[lobbyIdx] = lobbyEntry
   end
 
   Spring.Log("mapStartBoxes", LOG.INFO, "Loaded polygon startboxes for ", mapName)
