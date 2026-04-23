@@ -148,6 +148,286 @@ local function makeAllyTeamBox(startboxes, allyteamindex)
     return allyteamtable
 end
 
+-- Polygon startbox loading from map archives
+local polygonCache = {} -- cache keyed by "mapName|gameName"
+
+local function getPolygonCacheKey(mapName, gameName)
+  return tostring(mapName) .. "|" .. tostring(gameName)
+end
+
+local function clearPolygonCache()
+  polygonCache = {}
+end
+
+local function getMapDimensionsFromMapDetails(mapName)
+  -- mapDetails has Width/Height in spring map units (multiply by 512 for elmos)
+  local mapDetails = nil
+  if WG and WG.Chobby and WG.Chobby.Configuration and WG.Chobby.Configuration.gameConfig then
+    mapDetails = WG.Chobby.Configuration.gameConfig.mapDetails
+  end
+  if not mapDetails then
+    local ok, details = pcall(function()
+      return VFS.Include(LUA_DIRNAME .. "configs/gameConfig/byar/mapDetails.lua")
+    end)
+    if ok and details then
+      mapDetails = details
+    end
+  end
+  if mapDetails and mapDetails[mapName] then
+    local data = mapDetails[mapName]
+    if data.Width and data.Height then
+      return data.Width * 512, data.Height * 512
+    end
+  end
+  return nil, nil
+end
+
+local function readInt32LE(data, offset)
+  -- Read a 4-byte little-endian int32 from a string at 1-based offset
+  local b1, b2, b3, b4 = string.byte(data, offset, offset + 3)
+  if not b1 or not b4 then return nil end
+  return b1 + b2 * 256 + b3 * 65536 + b4 * 16777216
+end
+
+local function loadPolygonStartboxes(mapName, gameName)
+  if mapName == nil then return nil end
+
+  -- Resolve game name if not provided
+  if not gameName then
+    if WG and WG.Chobby and WG.Chobby.Configuration then
+      gameName = WG.Chobby.Configuration:GetDefaultGameName()
+    end
+  end
+
+  -- Return cached result (keyed by map+game)
+  local cacheKey = getPolygonCacheKey(mapName, gameName)
+  if polygonCache[cacheKey] ~= nil then
+    if polygonCache[cacheKey] == false then
+      return nil
+    end
+    return polygonCache[cacheKey]
+  end
+
+  -- Track whether archives were available for cache decisions
+  local gameArchiveAvailable = gameName and VFS.HasArchive(gameName)
+  local mapArchiveAvailable = VFS.HasArchive(mapName)
+
+  -- Step 1: Check game archive for modside startbox config
+  -- This mirrors the game-side priority: modside > mapside
+  local modsideConfig = nil
+  local modsidePath = "LuaRules/Configs/StartBoxes/" .. mapName .. ".lua"
+  if gameArchiveAvailable then
+    local gameAlreadyLoaded = false
+    for _, archive in pairs(VFS.GetLoadedArchives()) do
+      if archive == gameName then
+        gameAlreadyLoaded = true
+        break
+      end
+    end
+
+    local loadModside = function()
+      if VFS.FileExists(modsidePath) then
+        local ok, cfg = pcall(function()
+          return VFS.Include(modsidePath)
+        end)
+        if ok and cfg then
+          return cfg
+        elseif not ok then
+          Spring.Log("mapStartBoxes", LOG.WARNING, "Modside include error: ", tostring(cfg))
+        end
+      end
+      return nil
+    end
+
+    if gameAlreadyLoaded then
+      modsideConfig = loadModside()
+    else
+      modsideConfig = VFS.UseArchive(gameName, loadModside)
+    end
+  end
+
+  -- Step 2: Check map archive for mapside config + SMF dimensions
+  local mapsideConfig = nil
+  local smfDimsX, smfDimsZ = nil, nil
+
+  if mapArchiveAvailable then
+    local mapAlreadyLoaded = false
+    for _, archive in pairs(VFS.GetLoadedArchives()) do
+      if archive == mapName then
+        mapAlreadyLoaded = true
+        break
+      end
+    end
+
+    local loadFromMap = function()
+      local result = { config = nil, smfDimsX = nil, smfDimsZ = nil }
+
+      -- Load mapside polygon startbox config
+      if VFS.FileExists("mapconfig/map_startboxes.lua") then
+        local ok, cfg = pcall(function()
+          return VFS.Include("mapconfig/map_startboxes.lua")
+        end)
+        if ok and cfg then
+          result.config = cfg
+        elseif not ok then
+          Spring.Log("mapStartBoxes", LOG.WARNING, "Mapside include error: ", tostring(cfg))
+        end
+      end
+
+      -- Try to read SMF header for map dimensions (fallback for maps not in mapDetails)
+      -- SMF header: magic(16) + version(4) + mapid(4) + mapx(4) + mapy(4)
+      local ok2, smfResult = pcall(function()
+        local smfFiles = VFS.DirList("maps/", "*.smf")
+        if smfFiles and #smfFiles > 0 then
+          local data = VFS.LoadFile(smfFiles[1])
+          if data and #data >= 32 then
+            local magic = string.sub(data, 1, 15)
+            if magic == "spring map file" then
+              local mapx = readInt32LE(data, 25)
+              local mapy = readInt32LE(data, 29)
+              if mapx and mapy and mapx > 0 and mapy > 0 then
+                return { x = mapx * 8, z = mapy * 8 }
+              end
+            end
+          end
+        end
+        return nil
+      end)
+      if ok2 and smfResult then
+        result.smfDimsX = smfResult.x
+        result.smfDimsZ = smfResult.z
+      end
+
+      return result
+    end
+
+    local mapData
+    if mapAlreadyLoaded then
+      mapData = loadFromMap()
+    else
+      mapData = VFS.UseArchive(mapName, loadFromMap)
+    end
+
+    if mapData then
+      mapsideConfig = mapData.config
+      smfDimsX = mapData.smfDimsX
+      smfDimsZ = mapData.smfDimsZ
+    end
+  end
+
+  -- Use modside config (priority) or mapside config
+  local rawConfig = modsideConfig or mapsideConfig
+  if not rawConfig or not next(rawConfig) then
+    -- Only negative-cache if both archives were actually available
+    if gameArchiveAvailable and mapArchiveAvailable then
+      polygonCache[cacheKey] = false
+    end
+    return nil
+  end
+
+  -- Get map dimensions: try mapDetails first, then SMF header, then infer from polygon coords
+  local mapSizeX, mapSizeZ = getMapDimensionsFromMapDetails(mapName)
+  if not mapSizeX or not mapSizeZ then
+    mapSizeX = smfDimsX
+    mapSizeZ = smfDimsZ
+  end
+  if not mapSizeX or not mapSizeZ then
+    -- Last resort: infer from polygon coordinates (round up to nearest multiple of 512)
+    local maxX, maxZ = 0, 0
+    for _, entry in pairs(rawConfig) do
+      if entry.boxes then
+        for _, polygon in ipairs(entry.boxes) do
+          for _, vertex in ipairs(polygon) do
+            if vertex[1] > maxX then maxX = vertex[1] end
+            if vertex[2] > maxZ then maxZ = vertex[2] end
+          end
+        end
+      end
+    end
+    if maxX > 0 and maxZ > 0 then
+      mapSizeX = math.ceil(maxX / 512) * 512
+      mapSizeZ = math.ceil(maxZ / 512) * 512
+    end
+  end
+  if not mapSizeX or not mapSizeZ then
+    Spring.Log("mapStartBoxes", LOG.WARNING, "Cannot get map dimensions for polygon startboxes: ", mapName)
+    polygonCache[cacheKey] = false
+    return nil
+  end
+
+  -- Convert the raw config (0-based keys, world elmo coords) to lobby format (1-based, 0-200 space)
+  local lobbyConfig = {}
+  for allyTeamID, entry in pairs(rawConfig) do
+    local lobbyEntry = {
+      nameLong = entry.nameLong,
+      nameShort = entry.nameShort,
+      isPolygon = true,
+      boxes = {},
+      startpoints = {},
+    }
+
+    -- Convert polygon vertices from world coords to 0-200 normalized space
+    if entry.boxes then
+      for i, polygon in ipairs(entry.boxes) do
+        local lobbyPolygon = {}
+        for j, vertex in ipairs(polygon) do
+          lobbyPolygon[j] = {
+            200 * vertex[1] / mapSizeX,
+            200 * vertex[2] / mapSizeZ,
+          }
+        end
+        lobbyEntry.boxes[i] = lobbyPolygon
+      end
+    end
+
+    -- Convert startpoints
+    if entry.startpoints then
+      for i, sp in ipairs(entry.startpoints) do
+        lobbyEntry.startpoints[i] = {
+          200 * sp[1] / mapSizeX,
+          200 * sp[2] / mapSizeZ,
+        }
+      end
+    end
+
+    -- Compute bounding box in 0-200 space for engine startrects
+    local xmin, zmin = 200, 200
+    local xmax, zmax = 0, 0
+    for _, polygon in ipairs(lobbyEntry.boxes) do
+      for _, vertex in ipairs(polygon) do
+        if vertex[1] < xmin then xmin = vertex[1] end
+        if vertex[1] > xmax then xmax = vertex[1] end
+        if vertex[2] < zmin then zmin = vertex[2] end
+        if vertex[2] > zmax then zmax = vertex[2] end
+      end
+    end
+    lobbyEntry.boundingBox = { left = xmin, top = zmin, right = xmax, bottom = zmax }
+
+    -- Use 1-based indexing for consistency with rest of lobby code
+    lobbyConfig[allyTeamID + 1] = lobbyEntry
+  end
+
+  Spring.Log("mapStartBoxes", LOG.INFO, "Loaded polygon startboxes for ", mapName)
+  polygonCache[cacheKey] = lobbyConfig
+  return lobbyConfig
+end
+
+local function makeAllyTeamBoxPolygon(polygonConfig, allyteamindex)
+  -- For polygon maps, send the bounding box as engine startrects
+  -- The game's startbox_utilities.lua loads polygon config directly from the map archive
+  -- and game_startbox_config.lua expands the engine AABB to cover polygon bounds
+  local allyteamtable = { numallies = 0 }
+  local entry = polygonConfig[allyteamindex + 1]
+  if entry and entry.boundingBox then
+    local bb = entry.boundingBox
+    allyteamtable.startrectleft   = bb.left / 200
+    allyteamtable.startrecttop    = bb.top / 200
+    allyteamtable.startrectright  = bb.right / 200
+    allyteamtable.startrectbottom = bb.bottom / 200
+  end
+  return allyteamtable
+end
+
 -- how about some more helpers?
 local function initCustomBox(mapName)
     singleplayerboxes = {}
@@ -190,6 +470,9 @@ return {
   savedBoxes = savedBoxes,
   selectStartBoxesForAllyTeamCount = selectStartBoxesForAllyTeamCount,
   makeAllyTeamBox = makeAllyTeamBox,
+  loadPolygonStartboxes = loadPolygonStartboxes,
+  makeAllyTeamBoxPolygon = makeAllyTeamBoxPolygon,
+  clearPolygonCache = clearPolygonCache,
   getBox = getBox,
   clearBoxes = clearBoxes,
   removeBox = removeBox,

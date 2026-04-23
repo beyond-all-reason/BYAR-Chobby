@@ -27,6 +27,8 @@ local mainWindowFunctions
 
 local currentStartRects = {}
 local startRectValues = {} -- for exporting the raw values
+local polygonStartboxesActive = false -- flag for active polygon startboxes
+local activePolygonConfig = nil -- cached polygon config for current map
 
 local singleplayerWrapper
 local multiplayerWrapper
@@ -637,6 +639,8 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 			rect:BringToFront()
 
 		end
+
+		-- DrawControlPostChildren is cleared in RemovePolygonOverlays; no separate overlay invalidation needed
 
 	end
 
@@ -1655,34 +1659,44 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 
 			if isSingleplayer then
 				imMinimap.children = {}
+				-- Always clean up previous state on map change
+				externalFunctions.RemoveStartRect()
+				externalFunctions.RemovePolygonOverlays()
+				if startBoxPanel then startBoxPanel:SetVisibility(true) end
+
 				if Configuration.gameConfig and
 						Configuration.gameConfig.useDefaultStartBoxes and
 						Configuration.gameConfig.mapStartBoxes and
 						Configuration.gameConfig.mapStartBoxes.savedBoxes then
 
 					local mapStartBoxes = Configuration.gameConfig.mapStartBoxes
-					-- remove the old one
-					externalFunctions.RemoveStartRect()
 					mapStartBoxes.clearBoxes()
 
-					-- then the next step is if the boxes get changed, add them to custom?
-					startBoxes = mapStartBoxes.savedBoxes[mapName]
-					-- todo on add team then add a box too
+					-- Check for polygon startboxes from map archive first
+					local polygonConfig = nil
+					if mapStartBoxes.loadPolygonStartboxes then
+						polygonConfig = mapStartBoxes.loadPolygonStartboxes(mapName, battle.gameName)
+					end
 
-					startBoxes = Configuration.gameConfig.mapStartBoxes.savedBoxes[mapName]
-					--Spring.Echo("Skirmish: Using default startboxes for",mapName, startBoxes)
-					startBoxes = Configuration.gameConfig.mapStartBoxes.selectStartBoxesForAllyTeamCount(startBoxes,allyTeamCount)
-					if startBoxes then
-						--externalFunctions.RemoveStartRect()
-						for i = 1, allyTeamCount do
-							if startBoxes[i] then
-								externalFunctions.AddStartRect(i-1,200*startBoxes[i][1],200*startBoxes[i][2],200*startBoxes[i][3],200*startBoxes[i][4])
-							end
-						end
+					if polygonConfig then
+						-- Use polygon startboxes as the default for this map
+						externalFunctions.AddPolygonStartboxes(polygonConfig, allyTeamCount)
 					else
-						-- !split v 20
-						externalFunctions.AddStartRect(0,0,0,40,200)
-						externalFunctions.AddStartRect(1,160,0,200,200)
+						-- Fall back to existing rectangular startboxes
+						externalFunctions.RemovePolygonOverlays()
+						startBoxes = Configuration.gameConfig.mapStartBoxes.savedBoxes[mapName]
+						startBoxes = Configuration.gameConfig.mapStartBoxes.selectStartBoxesForAllyTeamCount(startBoxes,allyTeamCount)
+						if startBoxes then
+							for i = 1, allyTeamCount do
+								if startBoxes[i] then
+									externalFunctions.AddStartRect(i-1,200*startBoxes[i][1],200*startBoxes[i][2],200*startBoxes[i][3],200*startBoxes[i][4])
+								end
+							end
+						else
+							-- !split v 20
+							externalFunctions.AddStartRect(0,0,0,40,200)
+							externalFunctions.AddStartRect(1,160,0,200,200)
+						end
 					end
 
 					StartBoxComboBoxSelectDefault()
@@ -1782,6 +1796,11 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		-- FIXME: minimap.width is sometimes only 10 at this point :/
 		-- it doesnt even know how big it is right nowhere
 		-- Spring.Utilities.TraceFullEcho()
+
+		-- Clear polygon overlays when switching to rectangular startboxes
+		if polygonStartboxesActive then
+			externalFunctions.RemovePolygonOverlays()
+		end
 
 		-- adding the raw values
 		startRectValues[allyNo+1]={["left"]=left, ["top"]=top, ["right"]=right, ["bottom"]=bottom}
@@ -1886,6 +1905,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 				rect:Dispose()
 			end
 			currentStartRects = {}
+			startRectValues = {}
 		else
 			if currentStartRects[allyNo+1] then
 				currentStartRects[allyNo+1]:Dispose()
@@ -1901,6 +1921,119 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 
 	function externalFunctions.GetStartRects()
 		return currentStartRects
+	end
+
+	-- Polygon startbox visual style matching the existing startbox_window appearance:
+	-- white border (from TileImage), dark semi-transparent fill
+	local polygonFillColor = {0.1, 0.1, 0.1, 0.7}
+	local polygonBorderColor = {1, 1, 1, 0.7}
+
+	function externalFunctions.RemovePolygonOverlays()
+		polygonStartboxesActive = false
+		activePolygonConfig = nil
+		if minimapPanel then
+			minimapPanel.DrawControlPostChildren = nil
+			minimapPanel:Invalidate()
+		end
+	end
+
+	function externalFunctions.AddPolygonStartboxes(polygonConfig, allyTeamCount)
+		externalFunctions.RemovePolygonOverlays()
+		externalFunctions.RemoveStartRect()
+		polygonStartboxesActive = true
+		activePolygonConfig = polygonConfig
+
+		local labelFont = WG.Chobby.Configuration:GetFont(2)
+		local teamCount = allyTeamCount -- capture for closure
+
+		-- Set DrawControlPostChildren on the minimap panel to render polygon overlays.
+		-- This draws AFTER all children (minimap image, etc.) in the panel's local coords.
+		minimapPanel.DrawControlPostChildren = function(self)
+			if not polygonStartboxesActive or not activePolygonConfig then return end
+
+			local w = self.width
+			local h = self.height
+			if w <= 0 or h <= 0 then return end
+
+			-- Clear texture state left by prior Chili rendering (minimap image, etc.)
+			gl.Texture(0, false)
+			gl.Texture(false)
+
+			for allyIdx = 1, teamCount do
+				local entry = activePolygonConfig[allyIdx]
+				if entry and entry.boxes then
+
+					for _, polygon in ipairs(entry.boxes) do
+						if #polygon >= 3 then
+							-- Centroid-based fill; may have artifacts on highly concave polygons.
+							-- The outline below is always correct regardless of polygon shape.
+							local cx, cy = 0, 0
+							for _, v in ipairs(polygon) do
+								cx = cx + (w * v[1] / 200)
+								cy = cy + (h * v[2] / 200)
+							end
+							cx = cx / #polygon
+							cy = cy / #polygon
+
+							-- Semi-transparent fill matching startbox_window appearance
+							gl.Color(polygonFillColor[1], polygonFillColor[2], polygonFillColor[3], polygonFillColor[4])
+							gl.BeginEnd(GL.TRIANGLES, function()
+								for i = 1, #polygon do
+									local j = (i % #polygon) + 1
+									gl.Vertex(cx, cy)
+									gl.Vertex(w * polygon[i][1] / 200, h * polygon[i][2] / 200)
+									gl.Vertex(w * polygon[j][1] / 200, h * polygon[j][2] / 200)
+								end
+							end)
+
+							-- Polygon outline matching startbox_window white border
+							gl.Color(polygonBorderColor[1], polygonBorderColor[2], polygonBorderColor[3], polygonBorderColor[4])
+							gl.LineWidth(2)
+							gl.BeginEnd(GL.LINE_LOOP, function()
+								for _, v in ipairs(polygon) do
+									gl.Vertex(w * v[1] / 200, h * v[2] / 200)
+								end
+							end)
+							gl.LineWidth(1)
+
+							-- Draw team label at centroid of each polygon
+							if labelFont then
+								gl.Color(1, 1, 1, 0.9)
+								labelFont:Print(tostring(allyIdx), cx, cy, "center", "center")
+								gl.Texture(0, false)
+								gl.Texture(false)
+							end
+						end
+					end
+				end
+			end
+
+			-- Reset GL state for subsequent Chili rendering
+			gl.Texture(0, false)
+			gl.Color(1, 1, 1, 1)
+			gl.LineWidth(1)
+		end
+
+		-- Trigger panel redraw to pick up the new DrawControlPostChildren
+		minimapPanel:Invalidate()
+
+		-- Also set engine startrect values from bounding boxes (for script generation)
+		for allyIdx = 1, allyTeamCount do
+			local entry = polygonConfig[allyIdx]
+			if entry and entry.boundingBox then
+				local bb = entry.boundingBox
+				startRectValues[allyIdx] = {
+					["left"] = bb.left,
+					["top"] = bb.top,
+					["right"] = bb.right,
+					["bottom"] = bb.bottom,
+				}
+			end
+		end
+	end
+
+	function externalFunctions.IsPolygonActive()
+		return polygonStartboxesActive
 	end
 
 	MaybeDownloadGame(battle)
@@ -4014,6 +4147,9 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 
 	function externalFunctions.OnBattleClosed(listener, closedBattleID)
 		if battleID == closedBattleID and mainWindow then
+			-- Clean up polygon state before disposing
+			polygonStartboxesActive = false
+			activePolygonConfig = nil
 			mainWindow:Dispose()
 			mainWindow = nil
 			if wrapperControl and wrapperControl.visible and wrapperControl.parent then
