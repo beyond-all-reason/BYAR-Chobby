@@ -1675,7 +1675,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 					-- Check for polygon startboxes from map archive first
 					local polygonConfig = nil
 					if mapStartBoxes.loadPolygonStartboxes then
-						polygonConfig = mapStartBoxes.loadPolygonStartboxes(mapName, battle.gameName)
+						polygonConfig = mapStartBoxes.loadPolygonStartboxes(mapName)
 					end
 
 					if polygonConfig then

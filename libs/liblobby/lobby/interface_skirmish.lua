@@ -253,7 +253,7 @@ function InterfaceSkirmish:_StartScript(gameName, mapName, playerName, friendLis
 
 		-- Check for polygon startboxes from map archive first
 		if Configuration.gameConfig.mapStartBoxes.loadPolygonStartboxes then
-			polygonConfig = Configuration.gameConfig.mapStartBoxes.loadPolygonStartboxes(mapName, gameName)
+			polygonConfig = Configuration.gameConfig.mapStartBoxes.loadPolygonStartboxes(mapName)
 		end
 
 		if polygonConfig then

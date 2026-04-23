@@ -149,11 +149,7 @@ local function makeAllyTeamBox(startboxes, allyteamindex)
 end
 
 -- Polygon startbox loading from map archives
-local polygonCache = {} -- cache keyed by "mapName|gameName"
-
-local function getPolygonCacheKey(mapName, gameName)
-  return tostring(mapName) .. "|" .. tostring(gameName)
-end
+local polygonCache = {} -- cache keyed by mapName
 
 local function clearPolygonCache()
   polygonCache = {}
@@ -189,18 +185,11 @@ local function readInt32LE(data, offset)
   return b1 + b2 * 256 + b3 * 65536 + b4 * 16777216
 end
 
-local function loadPolygonStartboxes(mapName, gameName)
+local function loadPolygonStartboxes(mapName)
   if mapName == nil then return nil end
 
-  -- Resolve game name if not provided
-  if not gameName then
-    if WG and WG.Chobby and WG.Chobby.Configuration then
-      gameName = WG.Chobby.Configuration:GetDefaultGameName()
-    end
-  end
-
-  -- Return cached result (keyed by map+game)
-  local cacheKey = getPolygonCacheKey(mapName, gameName)
+  -- Return cached result
+  local cacheKey = tostring(mapName)
   if polygonCache[cacheKey] ~= nil then
     if polygonCache[cacheKey] == false then
       return nil
@@ -208,47 +197,10 @@ local function loadPolygonStartboxes(mapName, gameName)
     return polygonCache[cacheKey]
   end
 
-  -- Track whether archives were available for cache decisions
-  local gameArchiveAvailable = gameName and VFS.HasArchive(gameName)
-  local mapArchiveAvailable = VFS.HasArchive(mapName)
-
-  -- Step 1: Check game archive for modside startbox config
-  -- This mirrors the game-side priority: modside > mapside
-  local modsideConfig = nil
-  local modsidePath = "LuaRules/Configs/StartBoxes/" .. mapName .. ".lua"
-  if gameArchiveAvailable then
-    local gameAlreadyLoaded = false
-    for _, archive in pairs(VFS.GetLoadedArchives()) do
-      if archive == gameName then
-        gameAlreadyLoaded = true
-        break
-      end
-    end
-
-    local loadModside = function()
-      if VFS.FileExists(modsidePath) then
-        local ok, cfg = pcall(function()
-          return VFS.Include(modsidePath)
-        end)
-        if ok and cfg then
-          return cfg
-        elseif not ok then
-          Spring.Log("mapStartBoxes", LOG.WARNING, "Modside include error: ", tostring(cfg))
-        end
-      end
-      return nil
-    end
-
-    if gameAlreadyLoaded then
-      modsideConfig = loadModside()
-    else
-      modsideConfig = VFS.UseArchive(gameName, loadModside)
-    end
-  end
-
-  -- Step 2: Check map archive for mapside config + SMF dimensions
-  local mapsideConfig = nil
+  -- Check map archive for mapside config + SMF dimensions
+  local rawConfig = nil
   local smfDimsX, smfDimsZ = nil, nil
+  local mapArchiveAvailable = VFS.HasArchive(mapName)
 
   if mapArchiveAvailable then
     local mapAlreadyLoaded = false
@@ -322,17 +274,14 @@ local function loadPolygonStartboxes(mapName, gameName)
     end
 
     if mapData then
-      mapsideConfig = mapData.config
+      rawConfig = mapData.config
       smfDimsX = mapData.smfDimsX
       smfDimsZ = mapData.smfDimsZ
     end
   end
 
-  -- Use modside config (priority) or mapside config
-  local rawConfig = modsideConfig or mapsideConfig
   if not rawConfig or not next(rawConfig) then
-    -- Only negative-cache if both archives were actually available
-    if gameArchiveAvailable and mapArchiveAvailable then
+    if mapArchiveAvailable then
       polygonCache[cacheKey] = false
     end
     return nil
