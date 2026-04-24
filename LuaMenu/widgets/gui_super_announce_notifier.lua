@@ -21,7 +21,7 @@ end
 local IMG_SUPERANNOUNCE = LUA_DIRNAME .. "images/welcomepanel/BAR AlphaCup Series VI - XXS.png"
 local doNotAskAgainValue = "acvi" -- change this for new announcement
 
-local enableAnnouncement = true -- this is the actual enable/disable switch
+local enableAnnouncement = false -- this is the actual enable/disable switch
 -- The date from whichforth this announcement is meant to be visbile
 -- So that you may make once ahead of time
 local announceDate = {0, 0, 0, 20, 4, 2026} -- second, minute, hour, day, month, year (UTC)
