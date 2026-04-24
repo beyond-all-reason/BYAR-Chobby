@@ -709,7 +709,7 @@ local function InitializeControls(parentControl)
 			y = 7 + 45 + 7,
 			width = 200,
 			height = 45,
-			text = "/demos/",
+			text = "demos/",
 			objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
 			objectOverrideHintFont = WG.Chobby.Configuration:GetFont(1),
 			parent = parentControl,
