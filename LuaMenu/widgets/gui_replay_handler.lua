@@ -707,13 +707,13 @@ local function InitializeControls(parentControl)
 		local replaymanual = EditBox:New{
 			right = 15,
 			y = 7 + 45 + 7,
-			width = 200,
+			width = 330,
 			height = 45,
 			text = "demos/",
 			objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
 			objectOverrideHintFont = WG.Chobby.Configuration:GetFont(1),
 			parent = parentControl,
-			tooltip = "Enter the path to the replay",
+			tooltip = "Enter full replay filename including extension (.sdfz)",
 			OnFocusUpdate = {
 				function (obj)
 					manualreplaypath = obj.text
@@ -725,7 +725,7 @@ local function InitializeControls(parentControl)
 		}
 
 		local manualbutton = Button:New{
-			right = 225,
+			right = 355,
 			y = 7 + 45 + 7,
 			width = 170,
 			height = 45,
@@ -737,7 +737,7 @@ local function InitializeControls(parentControl)
 			OnClick = {
 				function ()
 					Spring.Echo("Attempting to start a manual replay from", manualreplaypath)
-					WG.Chobby.localLobby:StartReplay(manualreplaypath, "BeherithDebugMode")
+					WG.Chobby.localLobby:StartReplay(manualreplaypath, "ReplayDebugMode")
 				end
 			},
 
