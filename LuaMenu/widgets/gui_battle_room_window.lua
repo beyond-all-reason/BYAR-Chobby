@@ -1502,7 +1502,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 			local mapName = battleInfo.mapName
 			local allyTeamCount = emptyTeamIndex
 			local startboxes = nil
-			local Configuration = WG.Chobby.Configuration
+			local Configuration = WG.Chobby and WG.Chobby.Configuration
 
 			if isSingleplayer then
 				imMinimap.children = {}
