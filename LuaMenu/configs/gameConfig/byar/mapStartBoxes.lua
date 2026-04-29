@@ -317,10 +317,7 @@ local function loadPolygonStartboxes(mapName)
     return nil
   end
 
-  -- Convert the raw config to lobby format (1-based, 0-200 space).
-  -- Modside configs use 0-based keys ([0]={...},[1]={...}), mapside configs
-  -- use 1-based array keys ({entry1, entry2}). Detect which format and normalize.
-  local has0Key = rawConfig[0] ~= nil
+  -- Convert the raw config to lobby format (1-based, 0-200 space)
   local lobbyConfig = {}
   for allyTeamID, entry in pairs(rawConfig) do
     local lobbyEntry = {
@@ -368,9 +365,7 @@ local function loadPolygonStartboxes(mapName)
     end
     lobbyEntry.boundingBox = { left = xmin, top = zmin, right = xmax, bottom = zmax }
 
-    -- Normalize to 1-based indexing for consistency with rest of lobby code
-    local lobbyIdx = has0Key and (allyTeamID + 1) or allyTeamID
-    lobbyConfig[lobbyIdx] = lobbyEntry
+    lobbyConfig[allyTeamID] = lobbyEntry
   end
 
   Spring.Log("mapStartBoxes", LOG.INFO, "Loaded polygon startboxes for ", mapName)
