@@ -1336,17 +1336,17 @@ local function GetUserControls(userName, opts)
 					--]]
 					elseif selectedName == "Invite to Party" then
 						if lobby.myPartyID then
-							lobby:InvitePlayerToMyParty(userName, nil, function(errorMessage) WG.Chobby.ErrorPopup(i18n("error_party_invite_player_failed", { error_message = errorMessage })) end)
+							lobby:InvitePlayerToMyParty(userName, nil, function(errorMessage) if WG.Chobby and WG.Chobby.ErrorPopup then WG.Chobby.ErrorPopup(i18n("error_party_invite_player_failed", { error_message = errorMessage })) end end)
 						else
 							lobby:CreateParty(function()
-								lobby:InvitePlayerToMyParty(userName, nil, function(errorMessage) WG.Chobby.ErrorPopup(i18n("error_party_invite_player_failed", { error_message = errorMessage })) end)
+							lobby:InvitePlayerToMyParty(userName, nil, function(errorMessage) if WG.Chobby and WG.Chobby.ErrorPopup then WG.Chobby.ErrorPopup(i18n("error_party_invite_player_failed", { error_message = errorMessage })) end end)
 							end,
 							function(errorMessage)
-								WG.Chobby.ErrorPopup(i18n("error_party_invite_player_failed", { error_message = errorMessage }))
+								if WG.Chobby and WG.Chobby.ErrorPopup then WG.Chobby.ErrorPopup(i18n("error_party_invite_player_failed", { error_message = errorMessage })) end
 							end)
 						end
 					elseif selectedName == "Cancel Party Invite" then
-						lobby:CancelInviteToMyParty(userName, nil, function(errorMessage) WG.Chobby.ErrorPopup(i18n("error_party_cancel_invite_failed", { error_message = errorMessage })) end)
+						lobby:CancelInviteToMyParty(userName, nil, function(errorMessage) if WG.Chobby and WG.Chobby.ErrorPopup then WG.Chobby.ErrorPopup(i18n("error_party_cancel_invite_failed", { error_message = errorMessage })) end end)
 					elseif selectedName == "Change Color" then
 						local battleStatus = userControls.lobby:GetUserBattleStatus(userName) or {}
 						if battleStatus.isSpectator then

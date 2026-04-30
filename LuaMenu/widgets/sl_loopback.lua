@@ -40,6 +40,10 @@ function WrapperLoopback.UploadLog()
 end
 
 function WrapperLoopback.ReadReplayInfo(relativePath)
+	local Configuration = WG.Chobby.Configuration
+	if Configuration and Configuration.debugMode then
+		Spring.Echo("WrapperLoopback: ReadReplayInfo called for", relativePath)
+	end
 	WG.Connector.Send("ReadReplayInfo", {
 		relativePath = relativePath
 	})

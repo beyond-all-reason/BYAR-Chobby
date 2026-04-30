@@ -278,7 +278,10 @@ local function InitializeControls(parentControl)
 	if not ChobbyReady() then
 		return
 	end
-	local statusWindowHandler = WG.Chobby.interfaceRoot.GetBattleStatusWindowHandler()
+	local statusWindowHandler = WG.Chobby and WG.Chobby.interfaceRoot and WG.Chobby.interfaceRoot.GetBattleStatusWindowHandler()
+	if not statusWindowHandler then
+		return
+	end
 
 	local infoHolder = Panel:New {
 		x = 68,
@@ -427,7 +430,10 @@ function BattleStatusPanel.AddBattleTab(control)
 	if not ChobbyReady() then
 		return
 	end
-	local interfaceRoot = WG.Chobby.interfaceRoot
+	local interfaceRoot = WG.Chobby and WG.Chobby.interfaceRoot
+	if not interfaceRoot then
+		return
+	end
 	local tabPanel = interfaceRoot.GetBattleStatusWindowHandler()
 	tabPanel.AddTab("myBattle", "My Battle", control, false, 3, true)
 	interfaceRoot.SetBattleTabHolderVisible(true, 10)
@@ -437,7 +443,10 @@ function BattleStatusPanel.RemoveBattleTab()
 	if not ChobbyReady() then
 		return
 	end
-	local interfaceRoot = WG.Chobby.interfaceRoot
+	local interfaceRoot = WG.Chobby and WG.Chobby.interfaceRoot
+	if not interfaceRoot then
+		return
+	end
 	local tabPanel = interfaceRoot.GetBattleStatusWindowHandler()
 	interfaceRoot.SetBattleTabHolderVisible(false)
 	tabPanel.RemoveTab("myBattle", true)

@@ -154,7 +154,7 @@ local function GetTooltipLine(parent, hasImage, fontSize, xOffset, imageWidth)
 			parent = parent,
 			keepAspect = true,
 			file = nil,
-			fallbackFile = WG.Chobby.Configuration:GetLoadingImage(1),
+			fallbackFile = (WG.Chobby and WG.Chobby.Configuration) and WG.Chobby.Configuration:GetLoadingImage(1) or nil,
 		}
 	end
 
@@ -165,8 +165,8 @@ local function GetTooltipLine(parent, hasImage, fontSize, xOffset, imageWidth)
 		height = 20,
 		align = "left",
 		parent = parent,
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(fontSize, "Nimbus" .. fontSize, {font = "fonts/n019003l.pfb"}),
-		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(fontSize, "Nimbus" .. fontSize),
+		objectOverrideFont = (WG.Chobby and WG.Chobby.Configuration) and WG.Chobby.Configuration:GetFont(fontSize, "Nimbus" .. fontSize, {font = "fonts/n019003l.pfb"}) or nil,
+		objectOverrideHintFont = (WG.Chobby and WG.Chobby.Configuration) and WG.Chobby.Configuration:GetFont(fontSize, "Nimbus" .. fontSize) or nil,
 		text = "",
 	}
 
@@ -177,11 +177,13 @@ local function GetTooltipLine(parent, hasImage, fontSize, xOffset, imageWidth)
 		textDisplay:SetText(newText)
 		textDisplay:SetPos(nil, newPosition)
 
-		if newColor then
-			textDisplay.font = WG.Chobby.Configuration:GetFont(fontSize, colorName, {font="fonts/n019003l.pfb", color = newColor})
-			textDisplay:Invalidate()
-		else
-			textDisplay.font = WG.Chobby.Configuration:GetFont(fontSize, "Nimbus" .. fontSize, {font = "fonts/n019003l.pfb"})
+		if WG.Chobby and WG.Chobby.Configuration then
+			if newColor then
+				textDisplay.font = WG.Chobby.Configuration:GetFont(fontSize, colorName, {font="fonts/n019003l.pfb", color = newColor})
+				textDisplay:Invalidate()
+			else
+				textDisplay.font = WG.Chobby.Configuration:GetFont(fontSize, "Nimbus" .. fontSize, {font = "fonts/n019003l.pfb"})
+			end
 		end
 
 		if hasImage then
@@ -313,7 +315,10 @@ local function QueueSpadsStatusRequest(battleID, offset)
 end
 
 local function GetBattleTooltip(battleID, battle, showMapName)
-	local Configuration = WG.Chobby.Configuration
+	local Configuration = WG.Chobby and WG.Chobby.Configuration
+	if not Configuration then
+		return nil
+	end
 
 	local width = 320
 	if not battleTooltip.mainControl then
@@ -508,11 +513,13 @@ local function GetBattleTooltip(battleID, battle, showMapName)
 		for i = 1, #battle.users do
 			local userName = battle.users[i]
 			local playerControl = WG.UserHandler.GetTooltipUser(userName)
-			battleTooltip.userList:AddChild(playerControl)
-			playerControl:SetPos(6, playerOffset)
-			playerControl._relativeBounds.right = 0
-			playerControl:UpdateClientArea()
-			playerOffset = playerOffset + 20
+			if playerControl then
+				battleTooltip.userList:AddChild(playerControl)
+				playerControl:SetPos(6, playerOffset)
+				playerControl._relativeBounds.right = 0
+				playerControl:UpdateClientArea()
+				playerOffset = playerOffset + 20
+			end
 		end
 		if WG.UserHandler and WG.UserHandler.SetTooltipBattle then
 			WG.UserHandler.SetTooltipBattle(nil)
@@ -580,7 +587,10 @@ end
 local minimapTooltip = {}
 
 local function GetMinimapTooltip(mapName, title)
-		local Configuration = WG.Chobby.Configuration
+		local Configuration = WG.Chobby and WG.Chobby.Configuration
+		if not Configuration then
+			return nil
+		end
 	
 		local width = MAX_WINDOW_WIDTH
 		local height = width
@@ -634,7 +644,10 @@ end
 local userTooltip = {}
 
 local function GetUserTooltip(userName, userInfo, userBattleInfo, inBattleroom)
-	local Configuration = WG.Chobby.Configuration
+	local Configuration = WG.Chobby and WG.Chobby.Configuration
+	if not Configuration then
+		return nil
+	end
 
 	local width = 240
 	if not userTooltip.mainControl then
@@ -965,14 +978,16 @@ local function GetUserTooltip(userName, userInfo, userBattleInfo, inBattleroom)
 		end
 
 		local battleTooltipControl = GetBattleTooltip(userInfo.battleID, battle, true)
-		userTooltip.battleTooltipHolder:AddChild(battleTooltipControl)
-		local battleHeight = battleTooltipControl.clientHeight
-		local battleWidth = battleTooltipControl.clientWidth
-		userTooltip.battleTooltipHolder:SetPos(nil, nil, battleWidth, battleHeight)
+		if battleTooltipControl then
+			userTooltip.battleTooltipHolder:AddChild(battleTooltipControl)
+			local battleHeight = battleTooltipControl.clientHeight
+			local battleWidth = battleTooltipControl.clientWidth
+			userTooltip.battleTooltipHolder:SetPos(nil, nil, battleWidth, battleHeight)
 
-		offset = offset + battleHeight
-		battleOffset = battleOffset + battleHeight
-		width = math.max(width, battleWidth)
+			offset = offset + battleHeight
+			battleOffset = battleOffset + battleHeight
+			width = math.max(width, battleWidth)
+		end
 		userTooltip.battleInfoHolder:SetPos(nil, nil, width, battleOffset)
 	elseif userTooltip.battleInfoHolder then
 		userTooltip.battleInfoHolder:Hide()
@@ -1242,7 +1257,10 @@ local function SetTooltipPos()
 end
 
 local function UpdateTooltip(inputText)
-	local Configuration = WG.Chobby.Configuration
+	local Configuration = WG.Chobby and WG.Chobby.Configuration
+	if not Configuration then
+		return
+	end
 	if inputText:starts(Configuration.USER_TOOLTIP_PREFIX) then
 		local userName = string.sub(inputText, 13)
 		local myLobby, inBattleroom
