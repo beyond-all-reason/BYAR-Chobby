@@ -19,15 +19,6 @@ local welcomePanelItems = {
     },
 
     {
-        Header = "Sign up to Alpha Cup VI!",
-        Text = "Prize pool of $1500 and the exclusive Crown of the 1v1 King Commander cosmetic on the line.".." \n".." \n".."Open bracket qualifier kicks off at the time shown above. Round of 4 to Grand Finals 24 hours later.".." \n".." \n".."Sign up before April 24th.",
-        Image = "LuaMenu/images/welcomepanel/BAR AlphaCup Series VI - XXS.png",
-        Url = "https://www.beyondallreason.info/news/alpha-cup-vi",
-        UrlText = "Details and Signup",
-        Time = "2026-04-25T16:00:00",
-    },
-
-    {
         Header = "Nation Wars 2026 – Registration Open",
         Text = "The 2026 edition of our friendly competition to find out which nation is the best at BAR is coming in hot this May!\nWill Germany defend its title, or will YOU claim it and bolster your flag's pride?".." \n".." \n".."Join the Nation Wars Discord, rally your fellows, and represent your nation!\nImportant: this year, players register individually and teams will be formed afterwards. You don't need to find teammates and have a team before signing up, so do not hesitate: you have until April 26 to register yourself!".." \n".." \n".."The tournament itself will be held on the weekends of May 16/17 and May 23/24.\nFull rules available on the Nation Wars Discord.",
         Image = "LuaMenu/images/nation_wars.png",
