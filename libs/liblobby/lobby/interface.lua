@@ -516,6 +516,89 @@ function Interface:SetModOptions(data)
 	return self
 end
 
+-- Throttled version for large preset loading - prevents rate limit kicks
+-- maxCharsPerBatch: maximum characters to batch before delay (default 20000)
+-- intervalSeconds: delay between batches in seconds (default 5)
+-- progressCallback: optional function(current, total, cancelled) called for each batch sent
+-- cancelToken: optional table with a `cancelled` field; set it to true to stop remaining batches
+function Interface:SetModOptionsThrottled(data, maxCharsPerBatch, intervalSeconds, progressCallback, cancelToken)
+	maxCharsPerBatch = maxCharsPerBatch or 20000
+	intervalSeconds = intervalSeconds or 5
+	cancelToken = cancelToken or {}
+	
+	-- Build list of commands to send
+	local commands = {}
+	for k, v in pairs(data) do
+		if self.modoptions[k] ~= v then
+			table.insert(commands, "!bSet " .. tostring(k) .. " " .. tostring(v))
+		end
+	end
+	
+	if #commands == 0 then
+		if progressCallback then
+			progressCallback(0, 0)
+		end
+		return self
+	end
+	
+	-- Batch commands by character size
+	local batches = {}
+	local currentBatch = {}
+	local currentSize = 0
+	
+	for _, cmd in ipairs(commands) do
+		local cmdSize = #cmd + 1 -- +1 for newline
+		if currentSize + cmdSize > maxCharsPerBatch and #currentBatch > 0 then
+			table.insert(batches, currentBatch)
+			currentBatch = {}
+			currentSize = 0
+		end
+		table.insert(currentBatch, cmd)
+		currentSize = currentSize + cmdSize
+	end
+	if #currentBatch > 0 then
+		table.insert(batches, currentBatch)
+	end
+	
+	-- Send batches with throttling
+	local totalBatches = #batches
+	local batchIndex = 0
+	local sendNextBatch
+	
+	sendNextBatch = function()
+		if cancelToken.cancelled then
+			if progressCallback then
+				progressCallback(batchIndex, totalBatches, true)
+			end
+			return
+		end
+
+		batchIndex = batchIndex + 1
+		if batchIndex > totalBatches then
+			if progressCallback then
+				progressCallback(totalBatches, totalBatches)
+			end
+			return
+		end
+		
+		local batch = batches[batchIndex]
+		for _, cmd in ipairs(batch) do
+			self:SayBattle(cmd)
+		end
+		
+		if progressCallback then
+			progressCallback(batchIndex, totalBatches)
+		end
+		
+		if batchIndex < totalBatches then
+			WG.Delay(sendNextBatch, intervalSeconds)
+		end
+	end
+	
+	sendNextBatch()
+	return self
+end
+
 function Interface:AddAi(aiName, aiLib, allyNumber, version, aiOptions, battleStatusOptions)
 	local userData = {
 		isReady = true,

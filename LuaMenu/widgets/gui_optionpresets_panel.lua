@@ -51,6 +51,9 @@ local selectedPresetName = placeHolder;
 -- preset that is currently applied
 local appliedPresetName  = placeHolder;
 
+-- active throttled preset load, used to cancel delayed batches when closing UI
+local activeLoadToken
+
 -- defining function to later overwrite
 local refreshPresetMenu  = function()
 end
@@ -117,7 +120,7 @@ local function saveJSONData()
 end
 
 -- apply specific preset to the current Lobby
-local function applyPreset(presetName)
+local function applyPreset(presetName, progressCallback, cancelToken)
 	appliedPresetName = presetName
 
 	local presetObj = jsondata[presetName]
@@ -209,8 +212,130 @@ local function applyPreset(presetName)
 					return
 				end
 			end
-			battleLobby:SetModOptions(currentModoptions)
+			-- Use throttled loading with optional progress callback
+			if progressCallback then
+				battleLobby:SetModOptionsThrottled(currentModoptions, 20000, 5, progressCallback, cancelToken)
+			else
+				battleLobby:SetModOptionsThrottled(currentModoptions, 20000, 5, nil, cancelToken)
+			end
 		end
+	end
+end
+
+-- create a progress dialog for throttled loading
+local function createProgressDialog(parentWindow, title, onCancel)
+	local dialogWindow = Window:New {
+		caption = title or "Loading",
+		name = "presetLoadProgressDialog",
+		parent = parentWindow,
+		align = "center",
+		width = 450,
+		height = 180,
+		resizable = false,
+		draggable = false,
+		classname = "main_window",
+	}
+
+	-- Progress label
+	local progressLabel = Label:New {
+		x = 15,
+		y = 15,
+		right = 15,
+		height = 30,
+		align = "left",
+		caption = "Loading settings...",
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+	}
+
+	-- Progress bar
+	local progressBar = Progressbar:New {
+		x = 15,
+		y = 50,
+		right = 15,
+		height = 25,
+		value = 0,
+		max = 1,
+	}
+
+	-- Status text
+	local statusLabel = Label:New {
+		x = 15,
+		y = 80,
+		right = 15,
+		height = 30,
+		align = "center",
+		caption = "0 / 0 batches",
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+	}
+
+	local cancelButton = Button:New {
+		right = 15,
+		width = 135,
+		bottom = 12,
+		height = 45,
+		caption = i18n("cancel"),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		classname = "negative_button",
+		OnClick = {
+			function()
+				if onCancel then
+					onCancel()
+				end
+				if dialogWindow and dialogWindow.parent then
+					dialogWindow:Dispose()
+				end
+			end
+		},
+	}
+
+	dialogWindow:AddChild(progressLabel)
+	dialogWindow:AddChild(progressBar)
+	dialogWindow:AddChild(statusLabel)
+	dialogWindow:AddChild(cancelButton)
+	dialogWindow:BringToFront()
+
+	local updateProgress = function(current, total)
+		if not (dialogWindow and dialogWindow.parent) then
+			return
+		end
+
+		if total > 0 then
+			progressBar:SetMinMax(0, total)
+			progressBar:SetValue(current)
+			statusLabel:SetCaption(current .. " / " .. total .. " batches")
+		else
+			progressLabel:SetCaption("No changes needed")
+			progressBar:SetValue(0)
+			statusLabel:SetCaption("0 / 0 batches")
+		end
+	end
+
+	local closeDialog = function()
+		if dialogWindow and dialogWindow.parent then
+			dialogWindow:Dispose()
+		end
+	end
+
+	return dialogWindow, updateProgress, closeDialog
+end
+
+-- apply modoptions with throttling and progress feedback
+local function applyPresetThrottled(modoptions, progressCallback, cancelToken)
+	if not battleLobby then
+		return false, "No battle lobby available"
+	end
+	
+	-- Check if throttled method exists
+	if battleLobby.SetModOptionsThrottled then
+		battleLobby:SetModOptionsThrottled(modoptions, 20000, 5, progressCallback, cancelToken)
+		return true
+	else
+		-- Fallback to regular method
+		battleLobby:SetModOptions(modoptions)
+		if progressCallback then
+			progressCallback(1, 1)
+		end
+		return true
 	end
 end
 
@@ -520,11 +645,46 @@ local function PopulatePresetPanel(parentPanel)
 				if (selectedPresetName == nil or selectedPresetName == placeHolder or selectedPresetName == "<new>") then
 					return
 				end
-				applyPreset(selectedPresetName)
-				window:Dispose()
-				if WG.BattleRoomChatInput then
-					screen0:FocusControl(WG.BattleRoomChatInput)
+				
+				local cancelToken = { cancelled = false }
+				activeLoadToken = cancelToken
+				local progressDialog, updateProgress, closeDialog = createProgressDialog(window, "Loading Preset", function()
+					cancelToken.cancelled = true
+					activeLoadToken = nil
+				end)
+				
+				-- Apply preset with progress tracking
+				local updateWrapper = function(current, total, cancelled)
+					updateProgress(current, total)
+					if cancelled then
+						activeLoadToken = nil
+						return
+					end
+
+					if total == 0 then
+						activeLoadToken = nil
+						WG.Delay(function()
+							closeDialog()
+							if WG.BattleRoomChatInput then
+								screen0:FocusControl(WG.BattleRoomChatInput)
+							end
+						end, 0.5)
+						return
+					end
+
+					-- Auto-close after a short delay when complete
+					if current == total and total > 0 then
+						activeLoadToken = nil
+						WG.Delay(function()
+							closeDialog()
+							if WG.BattleRoomChatInput then
+								screen0:FocusControl(WG.BattleRoomChatInput)
+							end
+						end, 0.5)
+					end
 				end
+				
+				applyPreset(selectedPresetName, updateWrapper, cancelToken)
 			end
 		},
 	}
@@ -566,7 +726,7 @@ local function PopulatePresetPanel(parentPanel)
 
 	-- overload the writeError function
 	writeError = function(errorM)
-		errorLabel.caption = errorM
+		errorLabel:SetCaption(errorM)
 	end
 
 	refreshPresetMenu()
@@ -681,6 +841,10 @@ local function CreateOptionpresetWindow()
 		OnClick = {
 			function()
 				-- CancelFunc()
+				if activeLoadToken then
+					activeLoadToken.cancelled = true
+					activeLoadToken = nil
+				end
 				window:Dispose()
 				if WG.BattleRoomChatInput then
 					screen0:FocusControl(WG.BattleRoomChatInput)
@@ -708,6 +872,10 @@ local function CreateOptionpresetWindow()
 	end
 
 	local function CancelFunc()
+		if activeLoadToken then
+			activeLoadToken.cancelled = true
+			activeLoadToken = nil
+		end
 		window:Dispose()
 		if WG.BattleRoomChatInput then
 			screen0:FocusControl(WG.BattleRoomChatInput)
