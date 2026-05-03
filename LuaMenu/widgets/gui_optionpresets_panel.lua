@@ -43,13 +43,13 @@ local currentMPBattleSettings
 local multiplayerModoptions
 
 -- now we need to store the object in this class
-local jsondata;
+local jsondata
 
 -- preset that is selected in the dropdown menu
-local selectedPresetName = placeHolder;
+local selectedPresetName = placeHolder
 
 -- preset that is currently applied
-local appliedPresetName  = placeHolder;
+local appliedPresetName  = placeHolder
 
 -- active throttled preset load, used to cancel delayed batches when closing UI
 local activeLoadToken
@@ -212,68 +212,49 @@ local function applyPreset(presetName, progressCallback, cancelToken)
 					return
 				end
 			end
-			-- Use throttled loading with optional progress callback
-			if progressCallback then
-				battleLobby:SetModOptionsThrottled(currentModoptions, 20000, 5, progressCallback, cancelToken)
-			else
-				battleLobby:SetModOptionsThrottled(currentModoptions, 20000, 5, nil, cancelToken)
-			end
+			-- Use throttled loading; batch size and interval defaults live in interface.lua
+			battleLobby:SetModOptionsThrottled(currentModoptions, nil, nil, progressCallback, cancelToken)
 		end
 	end
 end
 
 -- create a progress dialog for throttled loading
-local function createProgressDialog(parentWindow, title, onCancel)
-	local dialogWindow = Window:New {
-		caption = title or "Loading",
+local function createProgressDialog(parentWindow, onCancel)
+	local dialogWindow = Window:New({
 		name = "presetLoadProgressDialog",
 		parent = parentWindow,
 		align = "center",
 		width = 450,
-		height = 180,
+		height = 190,
 		resizable = false,
 		draggable = false,
 		classname = "main_window",
-	}
+	})
 
-	-- Progress label
-	local progressLabel = Label:New {
+	local progressLabel = Label:New({
 		x = 15,
-		y = 15,
+		y = 20,
 		right = 15,
 		height = 30,
 		align = "left",
 		autosize = false,
 		caption = "Loading settings...",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
-	}
+	})
 
-	-- Progress bar
-	local progressBar = Progressbar:New {
+	local progressBar = Progressbar:New({
 		x = 15,
-		y = 50,
+		y = 60,
 		right = 15,
 		height = 25,
 		value = 0,
 		max = 1,
-	}
+	})
 
-	-- Status text
-	local statusLabel = Label:New {
-		x = 15,
-		y = 80,
-		right = 15,
-		height = 30,
-		align = "center",
-		autosize = false,
-		caption = "0 / 0 batches",
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
-	}
-
-	local cancelButton = Button:New {
+	local cancelButton = Button:New({
 		right = 15,
 		width = 135,
-		bottom = 12,
+		bottom = 20,
 		height = 45,
 		caption = i18n("cancel"),
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
@@ -286,13 +267,12 @@ local function createProgressDialog(parentWindow, title, onCancel)
 				if dialogWindow and dialogWindow.parent then
 					dialogWindow:Dispose()
 				end
-			end
+			end,
 		},
-	}
+	})
 
 	dialogWindow:AddChild(progressLabel)
 	dialogWindow:AddChild(progressBar)
-	dialogWindow:AddChild(statusLabel)
 	dialogWindow:AddChild(cancelButton)
 	dialogWindow:BringToFront()
 
@@ -300,16 +280,9 @@ local function createProgressDialog(parentWindow, title, onCancel)
 		if not (dialogWindow and dialogWindow.parent) then
 			return
 		end
-
-		if total > 0 then
-			progressBar:SetMinMax(0, total)
-			progressBar:SetValue(current)
-			statusLabel:SetCaption(current .. " / " .. total .. " batches")
-		else
-			progressLabel:SetCaption("No changes needed")
-			progressBar:SetValue(0)
-			statusLabel:SetCaption("0 / 0 batches")
-		end
+		progressBar:SetMinMax(0, total)
+		progressBar:SetValue(current)
+		progressLabel:SetCaption("Loading settings... " .. current .. " / " .. total .. " batches")
 	end
 
 	local closeDialog = function()
@@ -329,7 +302,7 @@ local function applyPresetThrottled(modoptions, progressCallback, cancelToken)
 	
 	-- Check if throttled method exists
 	if battleLobby.SetModOptionsThrottled then
-		battleLobby:SetModOptionsThrottled(modoptions, 20000, 5, progressCallback, cancelToken)
+		battleLobby:SetModOptionsThrottled(modoptions, nil, nil, progressCallback, cancelToken)
 		return true
 	else
 		-- Fallback to regular method
@@ -650,32 +623,37 @@ local function PopulatePresetPanel(parentPanel)
 				
 				local cancelToken = { cancelled = false }
 				activeLoadToken = cancelToken
-				local progressDialog, updateProgress, closeDialog = createProgressDialog(window, "Loading Preset", function()
-					cancelToken.cancelled = true
-					activeLoadToken = nil
-				end)
-				
-				-- Apply preset with progress tracking
+				local progressDialog, updateProgress, closeDialog
+
 				local updateWrapper = function(current, total, cancelled)
-					updateProgress(current, total)
 					if cancelled then
 						activeLoadToken = nil
 						return
 					end
 
-					if total == 0 then
-						activeLoadToken = nil
-						WG.Delay(function()
-							closeDialog()
+					-- Single- or zero-batch loads finish instantly; skip the dialog
+					-- and just close the preset window like the non-throttled path did.
+					if total <= 1 then
+						if current == total then
+							activeLoadToken = nil
+							window:Dispose()
 							if WG.BattleRoomChatInput then
 								screen0:FocusControl(WG.BattleRoomChatInput)
 							end
-						end, 0.5)
+						end
 						return
 					end
 
-					-- Auto-close after a short delay when complete
-					if current == total and total > 0 then
+					if not progressDialog then
+						progressDialog, updateProgress, closeDialog = createProgressDialog(window, function()
+							cancelToken.cancelled = true
+							activeLoadToken = nil
+						end)
+					end
+
+					updateProgress(current, total)
+
+					if current == total then
 						activeLoadToken = nil
 						WG.Delay(function()
 							closeDialog()
@@ -685,7 +663,7 @@ local function PopulatePresetPanel(parentPanel)
 						end, 0.5)
 					end
 				end
-				
+
 				applyPreset(selectedPresetName, updateWrapper, cancelToken)
 			end
 		},
