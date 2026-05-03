@@ -243,6 +243,7 @@ local function createProgressDialog(parentWindow, title, onCancel)
 		right = 15,
 		height = 30,
 		align = "left",
+		autosize = false,
 		caption = "Loading settings...",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 	}
@@ -264,6 +265,7 @@ local function createProgressDialog(parentWindow, title, onCancel)
 		right = 15,
 		height = 30,
 		align = "center",
+		autosize = false,
 		caption = "0 / 0 batches",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 	}
