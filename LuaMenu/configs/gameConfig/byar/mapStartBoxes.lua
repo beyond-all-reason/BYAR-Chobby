@@ -149,6 +149,8 @@ local function makeAllyTeamBox(startboxes, allyteamindex)
 end
 
 -- Polygon startbox loading from map archives
+local SplineLib = VFS.Include(LUA_DIRNAME .. "configs/gameConfig/byar/lib_spline.lua")
+
 local polygonCache = {} -- cache keyed by mapName
 
 local function clearPolygonCache()
@@ -315,6 +317,19 @@ local function loadPolygonStartboxes(mapName)
     Spring.Log("mapStartBoxes", LOG.WARNING, "Cannot get map dimensions for polygon startboxes: ", mapName)
     polygonCache[cacheKey] = false
     return nil
+  end
+
+  -- Run every polygon through the spline tessellator before the 0-200
+  -- conversion. Anchors without a per-anchor strength are treated as sharp
+  -- corners (strength 0), so plain polygons emerge with vertex-identical
+  -- output. The renderer always sees plain polygons regardless of whether
+  -- the source config was a polygon or a spline anchor ring.
+  for _, entry in pairs(rawConfig) do
+    if entry.boxes then
+      for i = 1, #entry.boxes do
+        entry.boxes[i] = SplineLib.TessellateRing(entry.boxes[i])
+      end
+    end
   end
 
   -- Convert the raw config to lobby format (1-based, 0-200 space)
