@@ -48,6 +48,21 @@ function StringUtilities.TruncateStringIfRequiredAndDotDot(myString, myFont, max
 	return StringUtilities.GetTruncatedStringWithDotDot(myString, myFont, maxLength)
 end
 
+-- Pure character-based middle truncation: keeps the first headLength and last
+-- tailLength characters joined by "..." when value exceeds threshold.
+-- Useful for display-side rendering of long values in chat / logs where font
+-- metrics are not relevant.
+function StringUtilities.TruncateMiddle(value, threshold, headLength, tailLength)
+	threshold = threshold or 20
+	headLength = headLength or 8
+	tailLength = tailLength or 8
+	local s = tostring(value or "")
+	if #s <= threshold then
+		return s
+	end
+	return s:sub(1, headLength) .. "..." .. s:sub(-tailLength)
+end
+
 function string.starts(String,Start)
 	return string.sub(String,1,string.len(Start))==Start
 end

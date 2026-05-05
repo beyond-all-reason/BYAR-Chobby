@@ -201,10 +201,15 @@ local function applyPreset(presetName, progressCallback, cancelToken)
 			if (multiplayer) then
 				local isBoss = battle.bossed
 				if isBoss and isBoss == true then
-					-- now apply the modoptions as the baseline
-					local combinedModoptions = multiplayerModoptions
+					-- Fresh-clone the initial snapshot each load, otherwise
+					-- successive preset loads would accumulate previous
+					-- presets' keys into multiplayerModoptions. After a
+					-- cancelled load that effectively re-queues the prior
+					-- preset's leftover keys on top of the new one, which
+					-- the user perceives as "the old batching continues".
+					local combinedModoptions = Spring.Utilities.CopyTable(multiplayerModoptions)
 					for key, value in pairs(currentModoptions) do
-						multiplayerModoptions[key] = value
+						combinedModoptions[key] = value
 					end
 					currentModoptions = combinedModoptions
 				else
@@ -218,37 +223,58 @@ local function applyPreset(presetName, progressCallback, cancelToken)
 	end
 end
 
+-- Center a Chili window inside the screen-sized lobbyInterfaceHolder. Done by
+-- explicit x/y (align="center" on Window:New only affects child layout, not
+-- the window's own position). Recomputes against current holder size so it
+-- stays centered after a window resize.
+local function CenterInHolder(child)
+	if not child then return end
+	local holder = WG.Chobby and WG.Chobby.lobbyInterfaceHolder
+	local hw = (holder and holder.width) or 0
+	local hh = (holder and holder.height) or 0
+	if hw <= 0 or hh <= 0 then
+		local ww, wh = Spring.GetWindowGeometry()
+		hw, hh = ww or 0, wh or 0
+	end
+	local cw = child.width or 0
+	local ch = child.height or 0
+	child:SetPos(
+		math.floor((hw - cw) / 2),
+		math.floor((hh - ch) / 2)
+	)
+end
+
 -- create a progress dialog for throttled loading
+--
+-- Parented to lobbyInterfaceHolder (matching ConfirmationPopup) rather than
+-- the preset window — that container is screen-sized so centering math is
+-- straightforward and unaffected by the preset window's chrome/padding.
 local function createProgressDialog(parentWindow, onCancel)
+	local dlgW, dlgH = 450, 190
+	local holder = (WG.Chobby and WG.Chobby.lobbyInterfaceHolder) or parentWindow
+
 	local dialogWindow = Window:New({
 		name = "presetLoadProgressDialog",
-		parent = parentWindow,
-		align = "center",
-		width = 450,
-		height = 190,
+		parent = holder,
+		width = dlgW,
+		height = dlgH,
 		resizable = false,
 		draggable = false,
 		classname = "main_window",
 	})
+	CenterInHolder(dialogWindow)
 
-	local progressLabel = Label:New({
-		x = 15,
-		y = 20,
-		right = 15,
-		height = 30,
-		align = "left",
-		autosize = false,
-		caption = "Loading settings...",
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
-	})
-
+	-- Progressbar carries its own caption (matching WG.Chobby.Downloader and
+	-- gui_download_window.lua), so we avoid a separate label widget.
 	local progressBar = Progressbar:New({
 		x = 15,
-		y = 60,
+		y = 30,
 		right = 15,
-		height = 25,
+		height = 40,
 		value = 0,
 		max = 1,
+		caption = "Loading settings...",
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 	})
 
 	local cancelButton = Button:New({
@@ -271,10 +297,31 @@ local function createProgressDialog(parentWindow, onCancel)
 		},
 	})
 
-	dialogWindow:AddChild(progressLabel)
 	dialogWindow:AddChild(progressBar)
 	dialogWindow:AddChild(cancelButton)
 	dialogWindow:BringToFront()
+
+	-- Re-center if the holder resizes (covers window resizes that reshape
+	-- the lobby container).
+	local recenter = function()
+		CenterInHolder(dialogWindow)
+	end
+	if holder then
+		holder.OnResize = holder.OnResize or {}
+		holder.OnResize[#holder.OnResize + 1] = recenter
+	end
+
+	-- The preset window owns the load lifecycle. If it disposes (user hits
+	-- the outer Cancel / closes the panel) make sure we don't leave the
+	-- progress dialog orphaned over the lobby UI.
+	if parentWindow then
+		parentWindow.OnDispose = parentWindow.OnDispose or {}
+		parentWindow.OnDispose[#parentWindow.OnDispose + 1] = function()
+			if dialogWindow and dialogWindow.parent then
+				dialogWindow:Dispose()
+			end
+		end
+	end
 
 	local updateProgress = function(current, total)
 		if not (dialogWindow and dialogWindow.parent) then
@@ -282,7 +329,7 @@ local function createProgressDialog(parentWindow, onCancel)
 		end
 		progressBar:SetMinMax(0, total)
 		progressBar:SetValue(current)
-		progressLabel:SetCaption("Loading settings... " .. current .. " / " .. total .. " batches")
+		progressBar:SetCaption("Loading settings... " .. current .. " / " .. total .. " batches")
 	end
 
 	local closeDialog = function()
@@ -292,6 +339,127 @@ local function createProgressDialog(parentWindow, onCancel)
 	end
 
 	return dialogWindow, updateProgress, closeDialog
+end
+
+-- Renderer adapters for throttled progress.
+--
+-- Both adapters return { cancelToken, progressCallback } and own all UI work
+-- (creation/teardown). They share the "≤1 batch silent" short-circuit so
+-- normal paste loads stay invisible.
+--
+-- onComplete fires once after the final batch (or immediately for 0/1-batch).
+-- onCancel  fires when the user cancels (via UI or cancelToken.cancelled).
+
+-- Popup adapter — lazily creates a centered dialog over parentWindow on the
+-- first multi-batch update and closes it 0.5s after the last batch.
+local function createPopupThrottleProgress(parentWindow, opts)
+	opts = opts or {}
+	local cancelToken = { cancelled = false }
+	local progressDialog, updateProgress, closeDialog
+
+	local progressCallback = function(current, total, cancelled)
+		if cancelled then
+			if opts.onCancel then opts.onCancel() end
+			return
+		end
+
+		if total <= 1 then
+			if current == total and opts.onComplete then
+				opts.onComplete()
+			end
+			return
+		end
+
+		if not progressDialog then
+			progressDialog, updateProgress, closeDialog = createProgressDialog(parentWindow, function()
+				cancelToken.cancelled = true
+				if opts.onCancel then opts.onCancel() end
+			end)
+		end
+
+		updateProgress(current, total)
+
+		if current == total then
+			WG.Delay(function()
+				if closeDialog then closeDialog() end
+				if opts.onComplete then opts.onComplete() end
+			end, 0.5)
+		end
+	end
+
+	return cancelToken, progressCallback
+end
+
+-- Inline adapter — drives WG.BattleRoomInlineProgress's slot in the battle
+-- room's leftInfo column. Falls back to silent execution if the inline
+-- progress API is not available (e.g. outside a battle room).
+local function createInlineThrottleProgress(opts)
+	opts = opts or {}
+	local cancelToken = { cancelled = false }
+	local shown = false
+
+	local progressCallback = function(current, total, cancelled)
+		if cancelled then
+			if shown and WG.BattleRoomInlineProgress then
+				WG.BattleRoomInlineProgress.Hide()
+			end
+			shown = false
+			if opts.onCancel then opts.onCancel() end
+			return
+		end
+
+		if total <= 1 then
+			if current == total and opts.onComplete then
+				opts.onComplete()
+			end
+			return
+		end
+
+		if not WG.BattleRoomInlineProgress then
+			-- No inline slot available (not in a battleroom). Stay silent.
+			if current == total and opts.onComplete then
+				opts.onComplete()
+			end
+			return
+		end
+
+		if not shown then
+			WG.BattleRoomInlineProgress.Show({
+				onCancel = function()
+					cancelToken.cancelled = true
+					if shown and WG.BattleRoomInlineProgress then
+						WG.BattleRoomInlineProgress.Hide()
+					end
+					shown = false
+					if opts.onCancel then opts.onCancel() end
+				end,
+			})
+			shown = true
+		end
+
+		WG.BattleRoomInlineProgress.Update(current, total)
+
+		if current == total then
+			WG.Delay(function()
+				if shown and WG.BattleRoomInlineProgress then
+					WG.BattleRoomInlineProgress.Hide()
+				end
+				shown = false
+				if opts.onComplete then opts.onComplete() end
+			end, 0.5)
+		end
+	end
+
+	return cancelToken, progressCallback
+end
+
+-- Backwards-compatible wrapper retained as an internal alias for the popup
+-- adapter; callers in this file still use this name.
+local function buildThrottledProgressCallback(parentWindow, onComplete, onCancel)
+	return createPopupThrottleProgress(parentWindow, {
+		onComplete = onComplete,
+		onCancel = onCancel,
+	})
 end
 
 -- apply modoptions with throttling and progress feedback
@@ -620,51 +788,25 @@ local function PopulatePresetPanel(parentPanel)
 				if (selectedPresetName == nil or selectedPresetName == placeHolder or selectedPresetName == "<new>") then
 					return
 				end
-				
-				local cancelToken = { cancelled = false }
-				activeLoadToken = cancelToken
-				local progressDialog, updateProgress, closeDialog
 
-				local updateWrapper = function(current, total, cancelled)
-					if cancelled then
-						activeLoadToken = nil
-						return
+				local finishAndClose = function()
+					activeLoadToken = nil
+					if window and window.parent then
+						window:Dispose()
 					end
-
-					-- Single- or zero-batch loads finish instantly; skip the dialog
-					-- and just close the preset window like the non-throttled path did.
-					if total <= 1 then
-						if current == total then
-							activeLoadToken = nil
-							window:Dispose()
-							if WG.BattleRoomChatInput then
-								screen0:FocusControl(WG.BattleRoomChatInput)
-							end
-						end
-						return
-					end
-
-					if not progressDialog then
-						progressDialog, updateProgress, closeDialog = createProgressDialog(window, function()
-							cancelToken.cancelled = true
-							activeLoadToken = nil
-						end)
-					end
-
-					updateProgress(current, total)
-
-					if current == total then
-						activeLoadToken = nil
-						WG.Delay(function()
-							closeDialog()
-							if WG.BattleRoomChatInput then
-								screen0:FocusControl(WG.BattleRoomChatInput)
-							end
-						end, 0.5)
+					if WG.BattleRoomChatInput then
+						screen0:FocusControl(WG.BattleRoomChatInput)
 					end
 				end
 
-				applyPreset(selectedPresetName, updateWrapper, cancelToken)
+				local cancelToken, progressCallback = buildThrottledProgressCallback(
+					window,
+					finishAndClose,
+					function() activeLoadToken = nil end
+				)
+				activeLoadToken = cancelToken
+
+				applyPreset(selectedPresetName, progressCallback, cancelToken)
 			end
 		},
 	}
@@ -958,11 +1100,53 @@ function OptionpresetsPanel.ShowPresetPanel()
 	CreateOptionpresetWindow()
 end
 
+-- Send an ordered list of battleroom chat lines through the throttled queue
+-- with renderer-driven progress feedback. Skips any UI entirely if the
+-- payload fits in one batch (typical normal use).
+--
+-- lines:        array of strings (each a SayBattle line, e.g. "!preset foo" or "!bSet x y")
+-- parentWindow: parent for the popup dialog when renderer == "popup" (ignored for "inline")
+-- opts (optional):
+--   renderer    = "popup" (default) | "inline"
+--   onComplete  = func, onCancel = func
+-- Returns: cancelToken (callers can imperatively flip cancelToken.cancelled)
+local function runThrottledBattleSend(lines, parentWindow, opts)
+	opts = opts or {}
+	local lobby = WG.LibLobby and (WG.LibLobby.lobby or WG.LibLobby.localLobby)
+	if not lobby or not lobby.SayBattleThrottled then
+		return nil
+	end
+
+	local cancelToken, progressCallback
+	if opts.renderer == "inline" then
+		cancelToken, progressCallback = createInlineThrottleProgress({
+			onComplete = opts.onComplete,
+			onCancel = opts.onCancel,
+		})
+	else
+		cancelToken, progressCallback = createPopupThrottleProgress(parentWindow, {
+			onComplete = opts.onComplete,
+			onCancel = opts.onCancel,
+		})
+	end
+
+	lobby:SayBattleThrottled(lines, nil, nil, progressCallback, cancelToken)
+	return cancelToken
+end
+
 -- make the widget accessible from the preset Panel
 function widget:Initialize()
 	CHOBBY_DIR = LUA_DIRNAME .. "widgets/chobby/"
 	VFS.Include(LUA_DIRNAME .. "widgets/chobby/headers/exports.lua", nil, VFS.RAW_FIRST)
 
-	-- clone multiplayer options, if they are defined
+	-- Compatibility alias on the presets panel for callers that already wired
+	-- against it; the canonical entry point is WG.ThrottledBattleSend.Run.
+	OptionpresetsPanel.RunThrottledBattleSend = runThrottledBattleSend
 	WG.OptionpresetsPanel = OptionpresetsPanel
+
+	-- Neutral namespace for chat-paste / generic callers — the throttled
+	-- sender is no longer semantically tied to presets.
+	WG.ThrottledBattleSend = {
+		Run = runThrottledBattleSend,
+	}
 end

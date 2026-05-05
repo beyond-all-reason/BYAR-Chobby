@@ -1268,6 +1268,60 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	}
 	leftOffset = leftOffset + 40
 
+	-- Inline progress slot for throttled chat-paste sends. Hidden by default;
+	-- pushes lblGame / Have-Game / Have-Map / modoptionsHolder down by
+	-- INLINE_PROGRESS_REFLOW px while visible. The bar's own caption carries
+	-- "Option N/M" (same pattern as WG.Chobby.Downloader).
+	local INLINE_PROGRESS_HEIGHT = 30
+	local INLINE_PROGRESS_REFLOW = INLINE_PROGRESS_HEIGHT + 5
+	local inlineProgressOnCancel
+	local inlineProgressBar = Progressbar:New {
+		name = 'inlineProgressBar',
+		x = 5,
+		y = 0,
+		right = 95,
+		bottom = 0,
+		value = 0,
+		max = 1,
+		caption = "",
+		objectOverrideFont = config:GetFont(2),
+	}
+	local inlineProgressCancel = Button:New {
+		name = 'inlineProgressCancel',
+		right = 5,
+		width = 80,
+		y = 0,
+		bottom = 0,
+		caption = i18n("cancel"),
+		classname = "negative_button",
+		objectOverrideFont = config:GetFont(1),
+		OnClick = {
+			function()
+				if inlineProgressOnCancel then
+					inlineProgressOnCancel()
+				end
+			end
+		},
+	}
+	local inlineProgressPanel = Control:New {
+		name = 'inlineProgressPanel',
+		x = 0,
+		y = leftOffset,
+		right = 0,
+		height = INLINE_PROGRESS_HEIGHT,
+		padding = {0, 0, 0, 0},
+		itemPadding = {0, 0, 0, 0},
+		itemMargin = {0, 0, 0, 0},
+		resizable = false,
+		draggable = false,
+		children = {
+			inlineProgressBar,
+			inlineProgressCancel,
+		},
+		parent = leftInfo,
+	}
+	inlineProgressPanel:Hide()
+
 	-- gray out the button if we don't have a modoptions panel to show
 	if not modoptions then
 		-- cosmetics when disabled
@@ -1414,9 +1468,13 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	--MaybeDownloadArchive("Titan-v2", "map")
 	--MaybeDownloadArchive("tinyskirmishredux1.1", "map")
 
+	local lastDisallowCustomTeams = battle.disallowCustomTeams
 	function externalFunctions.UpdateBattleMode(disallowCustomTeams)
+		if disallowCustomTeams ~= nil then
+			lastDisallowCustomTeams = disallowCustomTeams
+		end
 		local offset = 0
-		if disallowCustomTeams then
+		if lastDisallowCustomTeams then
 			btnNewTeam:SetVisibility(false)
 		else
 			btnNewTeam:SetVisibility(true)
@@ -1429,6 +1487,10 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		offset = offset + 38
 		btnOptionPresets:SetPos(nil, offset)
 		offset = offset + 40
+		if inlineProgressPanel.visible then
+			inlineProgressPanel:SetPos(nil, offset)
+			offset = offset + INLINE_PROGRESS_REFLOW
+		end
 		lblGame:SetPos(nil, offset)
 		offset = offset + 26
 		imHaveGame:SetPos(nil, offset)
@@ -1436,8 +1498,44 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		offset = offset + 25
 		imHaveMap:SetPos(nil, offset)
 		lblHaveMap:SetPos(nil, offset)
+		offset = offset + 30
+		modoptionTopPosition = offset
+		modoptionBottomPosition = offset + 120
+		OnDownloaderVisibility()
 	end
 	externalFunctions.UpdateBattleMode(battle.disallowCustomTeams)
+
+	-- Inline throttled-send progress API. Show/Update/Hide are called by the
+	-- chat-paste interceptor (and any other caller that wants to render a
+	-- throttled send progress bar in the battleroom). The bar lives in the
+	-- inlineProgressPanel slot; toggling visibility reflows leftInfo.
+	WG.BattleRoomInlineProgress = {
+		Show = function(opts)
+			opts = opts or {}
+			inlineProgressOnCancel = opts.onCancel
+			inlineProgressBar:SetMinMax(0, 1)
+			inlineProgressBar:SetValue(0)
+			inlineProgressBar:SetCaption("")
+			if not inlineProgressPanel.visible then
+				inlineProgressPanel:Show()
+				externalFunctions.UpdateBattleMode()
+			end
+		end,
+		Update = function(current, total)
+			if total and total > 0 then
+				inlineProgressBar:SetMinMax(0, total)
+			end
+			inlineProgressBar:SetValue(current or 0)
+			inlineProgressBar:SetCaption("Loading... " .. tostring(current or 0) .. "/" .. tostring(total or 0))
+		end,
+		Hide = function()
+			inlineProgressOnCancel = nil
+			if inlineProgressPanel.visible then
+				inlineProgressPanel:Hide()
+				externalFunctions.UpdateBattleMode()
+			end
+		end,
+	}
 
 	function externalFunctions.SetHaveGame(newHaveGame)
 		if newHaveGame then
@@ -3717,6 +3815,45 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	local battleRoomConsole = WG.Chobby.Console("Battleroom Chat", MessageListener, true, nil, true)
 	WG.BattleRoomChatInput = battleRoomConsole.ebInputText
 
+	-- Large-paste interceptor. External configurators have users paste 50k+ char
+	-- blobs of !preset / !bSet commands into chat. Pasted directly into the
+	-- editbox this freezes the UI on render and (in MP) floods SPADS, getting
+	-- the user kicked. Anything bigger than a single throttle batch is routed
+	-- through the throttled queue (MP) or applied locally via the singleplayer
+	-- bset parser (SP). The editbox itself never receives the blob.
+	do
+		local chatInput = battleRoomConsole.ebInputText
+		local origTextInput = chatInput.TextInput
+		local pasteThreshold = battleLobby.THROTTLED_SAY_MAX_CHARS_PER_BATCH or 20000
+
+		chatInput.TextInput = function(self, utf8char, ...)
+			if utf8char and #utf8char > pasteThreshold then
+				if battleLobby.name == "singleplayer" then
+					-- SP: feed the full blob into MessageListener; its !bset
+					-- parser iterates lines and applies SetModOptions locally.
+					MessageListener(utf8char)
+				else
+					-- MP: keep only !-prefixed and $-prefixed commands (matches
+					-- the prefix set ParseMultiCommandMessage recognises) and
+					-- preserve order so !preset lines fire first.
+					local lines = {}
+					for line in utf8char:gmatch("[^\n]+") do
+						local trimmed = line:match("^%s*(.-)%s*$")
+						local first = trimmed:sub(1, 1)
+						if trimmed ~= "" and (first == "!" or first == "$") then
+							lines[#lines + 1] = trimmed
+						end
+					end
+					if #lines > 0 and WG.ThrottledBattleSend and WG.ThrottledBattleSend.Run then
+						WG.ThrottledBattleSend.Run(lines, nil, { renderer = "inline" })
+					end
+				end
+				return self
+			end
+			return origTextInput(self, utf8char, ...)
+		end
+	end
+
 	local chatPanel = Control:New {
 		name = 'chatPanel',
 		x = 0,
@@ -4030,6 +4167,72 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	local function dontshowvote()
 	end
 
+	-- Display-only cache of the most recent old/new for each modoption key,
+	-- fed by OnSetModOptions's `changes` arg. Keys are lowercased to match
+	-- how SPADS broadcasts battle settings. Used to rewrite SPADS' bSet
+	-- confirmations with both previous and new values without mutating any
+	-- stored state.
+	local recentModoptionDiff = {}
+	local inBSetFragment = false
+
+	local function FormatBSetRewrite(user, key, diff)
+		local oldT = StringUtilities.TruncateMiddle(diff.old)
+		local newT = StringUtilities.TruncateMiddle(diff.new)
+		-- Match SPADS' "* " action prefix so the rewritten line renders the
+		-- same way as the original broadcast (third-person/action style).
+		return "* Battle setting changed by " .. user
+			.. " (from " .. key .. "=" .. oldT
+			.. " to " .. key .. "=" .. newT .. ")"
+	end
+
+	-- SPADS' sayBattle prefixes every chunk with "* " before queuing
+	-- SAYBATTLEEX, so the message text we receive starts with "* ". Match
+	-- with an optional leading "* " (and no leading "^") so single-line and
+	-- fragmented broadcasts both hit.
+	local BSET_HEAD_PARTIAL = "%*?%s*Battle setting changed by (%S+) %(([%w_]+)="
+	local BSET_HEAD_FULL    = "%*?%s*Battle setting changed by (%S+) %(([%w_]+)=.*%)%s*$"
+
+	-- Returns nil (not a bSet broadcast — leave alone),
+	--         { rewritten = "..." } (full or fragmented head match — emit this),
+	--         { suppress = true }   (continuation of a fragmented broadcast).
+	local function RewriteBSetSpadsMessage(message)
+		-- Fragmented continuation: keep swallowing until a line ends with ')'.
+		if inBSetFragment then
+			-- A new bSet head while still in a fragment means the previous
+			-- continuation lines are done; let the head be matched below.
+			if not string.match(message, BSET_HEAD_PARTIAL) then
+				if string.match(message, "%)%s*$") then
+					inBSetFragment = false
+				end
+				return { suppress = true }
+			end
+			inBSetFragment = false
+		end
+
+		-- Full single-line broadcast.
+		local user, key = string.match(message, BSET_HEAD_FULL)
+		if user and key then
+			local diff = recentModoptionDiff[string.lower(key)]
+			if diff then
+				return { rewritten = FormatBSetRewrite(user, key, diff) }
+			end
+			return nil
+		end
+
+		-- Fragmented head (no closing paren on this line).
+		user, key = string.match(message, BSET_HEAD_PARTIAL)
+		if user and key then
+			inBSetFragment = true
+			local diff = recentModoptionDiff[string.lower(key)]
+			if diff then
+				return { rewritten = FormatBSetRewrite(user, key, diff) }
+			end
+			return { suppress = true }
+		end
+
+		return nil
+	end
+
 	local function ParseSpadsMessage(userName, message) -- return hidemessage bool
 		-- should only be called on messages from founder (host)
 		local myUserName = battleLobby:GetMyUserName()
@@ -4221,6 +4424,16 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		local hidemessage = false
 
 		if userName == battle.founder then -- todo dont do this for self-hosted
+			local rewrite = RewriteBSetSpadsMessage(message)
+			if rewrite then
+				if rewrite.suppress then
+					return
+				end
+				if rewrite.rewritten then
+					message = rewrite.rewritten
+				end
+			end
+
 			local hidespads = ParseSpadsMessage(userName,message)
 			local hidevote = ParseForVotingSaidBattle(userName,message)
 			local hidebarmanager = ParseBarManagerSaidBattleEx(userName, message)
@@ -4325,9 +4538,14 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		end
 	end
 
-	local function OnSetModOptions(listener, modoptions)
+	local function OnSetModOptions(listener, modoptions, changes)
 		if not modoptions then
 			return
+		end
+		if changes then
+			for k, change in pairs(changes) do
+				recentModoptionDiff[string.lower(k)] = change
+			end
 		end
 		local factionlimiter = modoptions.factionlimiter
 		if factionlimiter then
@@ -4393,6 +4611,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 
 		WG.BattleStatusPanel.RemoveBattleTab()
 		WG.BattleRoomChatInput = nil
+		WG.BattleRoomInlineProgress = nil
 	end
 
 	mainWindow.OnDispose = mainWindow.OnDispose or {}

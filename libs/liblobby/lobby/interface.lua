@@ -516,57 +516,74 @@ function Interface:SetModOptions(data)
 	return self
 end
 
--- Throttled version for large preset loading - prevents rate limit kicks
--- maxCharsPerBatch: maximum characters to batch before delay (default 20000)
--- intervalSeconds: delay between batches in seconds (default 4)
--- progressCallback: optional function(current, total, cancelled) called for each batch sent
--- cancelToken: optional table with a `cancelled` field; set it to true to stop remaining batches
-function Interface:SetModOptionsThrottled(data, maxCharsPerBatch, intervalSeconds, progressCallback, cancelToken)
-	maxCharsPerBatch = maxCharsPerBatch or 20000
-	intervalSeconds = intervalSeconds or 4
+-- Throttling defaults shared by SayBattleThrottled / SetModOptionsThrottled.
+-- Tuned to stay under SPADS' chat rate limit so large preset/tweak loads don't
+-- get the user kicked. Public on the class so UI code can read the threshold
+-- (e.g. to decide whether a paste is large enough to intercept).
+Interface.THROTTLED_SAY_MAX_CHARS_PER_BATCH = 20000
+Interface.THROTTLED_SAY_INTERVAL_SECONDS = 4
+
+-- Send an ordered list of battleroom chat lines, batched by character size,
+-- with a delay between batches. Each line is sent via self:SayBattle.
+-- lines:           array of strings (preserved in order)
+-- maxCharsPerBatch: optional, defaults to THROTTLED_SAY_MAX_CHARS_PER_BATCH
+-- intervalSeconds:  optional, defaults to THROTTLED_SAY_INTERVAL_SECONDS
+-- progressCallback: optional function(current, total, cancelled) called per batch
+-- cancelToken:      optional table; set its `cancelled` field to stop further batches
+function Interface:SayBattleThrottled(lines, maxCharsPerBatch, intervalSeconds, progressCallback, cancelToken)
+	maxCharsPerBatch = maxCharsPerBatch or Interface.THROTTLED_SAY_MAX_CHARS_PER_BATCH
+	intervalSeconds = intervalSeconds or Interface.THROTTLED_SAY_INTERVAL_SECONDS
 	cancelToken = cancelToken or {}
 
-	-- Build list of commands to send
-	local commands = {}
-	for k, v in pairs(data) do
-		if self.modoptions[k] ~= v then
-			table.insert(commands, "!bSet " .. tostring(k) .. " " .. tostring(v))
-		end
+	-- Defensive: if a previous throttled queue is still running, force-cancel
+	-- it before scheduling a new one. Without this, a freshly-started load
+	-- would race against the prior load's still-pending WG.Delay tick (the
+	-- old queue's user-driven cancellation may not yet have fired).
+	if self._activeThrottleToken and self._activeThrottleToken ~= cancelToken then
+		self._activeThrottleToken.cancelled = true
 	end
+	self._activeThrottleToken = cancelToken
 
-	if #commands == 0 then
+	if not lines or #lines == 0 then
 		if progressCallback then
 			progressCallback(0, 0)
 		end
 		return self
 	end
 
-	-- Batch commands by character size
+	-- Batch by total character size (lines preserved in input order)
 	local batches = {}
 	local currentBatch = {}
 	local currentSize = 0
 
-	for _, cmd in ipairs(commands) do
-		local cmdSize = #cmd + 1 -- +1 for newline
-		if currentSize + cmdSize > maxCharsPerBatch and #currentBatch > 0 then
+	for _, line in ipairs(lines) do
+		local lineSize = #line + 1 -- +1 for newline
+		if currentSize + lineSize > maxCharsPerBatch and #currentBatch > 0 then
 			table.insert(batches, currentBatch)
 			currentBatch = {}
 			currentSize = 0
 		end
-		table.insert(currentBatch, cmd)
-		currentSize = currentSize + cmdSize
+		table.insert(currentBatch, line)
+		currentSize = currentSize + lineSize
 	end
 	if #currentBatch > 0 then
 		table.insert(batches, currentBatch)
 	end
 
-	-- Send batches with throttling
 	local totalBatches = #batches
 	local batchIndex = 0
 	local sendNextBatch
 
 	sendNextBatch = function()
 		if cancelToken.cancelled then
+			-- Drop any remaining batches and clear the active-throttle ref
+			-- if it still points at us. Subsequent stale ticks (if any)
+			-- will exit on the cancelled check above.
+			batches = {}
+			batchIndex = totalBatches
+			if self._activeThrottleToken == cancelToken then
+				self._activeThrottleToken = nil
+			end
 			if progressCallback then
 				progressCallback(batchIndex, totalBatches, true)
 			end
@@ -575,6 +592,9 @@ function Interface:SetModOptionsThrottled(data, maxCharsPerBatch, intervalSecond
 
 		batchIndex = batchIndex + 1
 		if batchIndex > totalBatches then
+			if self._activeThrottleToken == cancelToken then
+				self._activeThrottleToken = nil
+			end
 			if progressCallback then
 				progressCallback(totalBatches, totalBatches)
 			end
@@ -582,8 +602,10 @@ function Interface:SetModOptionsThrottled(data, maxCharsPerBatch, intervalSecond
 		end
 
 		local batch = batches[batchIndex]
-		for _, cmd in ipairs(batch) do
-			self:SayBattle(cmd)
+		Spring.Echo("[SayBattleThrottled] sending batch " .. batchIndex .. "/" .. totalBatches ..
+			" (" .. #batch .. " lines)")
+		for _, line in ipairs(batch) do
+			self:SayBattle(line)
 		end
 
 		if progressCallback then
@@ -592,11 +614,25 @@ function Interface:SetModOptionsThrottled(data, maxCharsPerBatch, intervalSecond
 
 		if batchIndex < totalBatches then
 			WG.Delay(sendNextBatch, intervalSeconds)
+		elseif self._activeThrottleToken == cancelToken then
+			self._activeThrottleToken = nil
 		end
 	end
 
 	sendNextBatch()
 	return self
+end
+
+-- Throttled SetModOptions for large preset loads. Diffs against the current
+-- modoptions, builds !bSet lines, and routes them through SayBattleThrottled.
+function Interface:SetModOptionsThrottled(data, maxCharsPerBatch, intervalSeconds, progressCallback, cancelToken)
+	local lines = {}
+	for k, v in pairs(data) do
+		if self.modoptions[k] ~= v then
+			table.insert(lines, "!bSet " .. tostring(k) .. " " .. tostring(v))
+		end
+	end
+	return self:SayBattleThrottled(lines, maxCharsPerBatch, intervalSeconds, progressCallback, cancelToken)
 end
 
 function Interface:AddAi(aiName, aiLib, allyNumber, version, aiOptions, battleStatusOptions)
@@ -2204,12 +2240,28 @@ function Interface:_OnSetScriptTags(tagsTxt)
 	if self.modoptions == nil then
 		self.modoptions = {}
 	end
+	local changes = {}
 	for _, tag in pairs(tags) do
 		if string_starts(tag, mod_opts_pre) then
 			local kv = tag:sub(mod_opts_pre_indx)
-			local kvTable = explode("=", kv)
-			local k = kvTable[1]
-			local v = kvTable[2]
+			-- Split on the FIRST '=' only. Using explode("=", ...) here
+			-- silently truncated values that themselves contain '=' (e.g.
+			-- base64-padded tweakdefs blobs, or any Lua expression with
+			-- assignment operators), which made the local modoptions cache
+			-- diverge from SPADS' authoritative state.
+			local eqPos = kv:find("=", 1, true)
+			local k, v
+			if eqPos then
+				k = kv:sub(1, eqPos - 1)
+				v = kv:sub(eqPos + 1)
+			else
+				k = kv
+				v = ""
+			end
+			local oldV = self.modoptions[k]
+			if oldV ~= v then
+				changes[k] = { old = oldV, new = v }
+			end
 			self.modoptions[k] = v
 		elseif string_starts(tag, scriptTagPlayers) then
 			local userNameLC, status = self:GetSkillFromScriptTag(tag:sub(scriptTagPlayersIndx))
@@ -2221,7 +2273,7 @@ function Interface:_OnSetScriptTags(tagsTxt)
 			end
 		end
 	end
-	self:_OnSetModOptions(self.modoptions)
+	self:_OnSetModOptions(self.modoptions, changes)
 end
 Interface.commands["SETSCRIPTTAGS"] = Interface._OnSetScriptTags
 Interface.commandPattern["SETSCRIPTTAGS"] = "(.*)"
