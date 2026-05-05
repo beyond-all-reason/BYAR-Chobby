@@ -19,6 +19,13 @@ local welcomePanelItems = {
     },
 
     {
+        Header = "Quality of Life Balance Patch is Live!",
+        Text = "We have made some minor changes aimed at improving the unit control experience across the roster. Read the full details in our microblog!",
+        Url = "https://www.beyondallreason.info/microblogs/182",
+        UrlText = "See the changes",
+    },
+
+    {
         Header = "Unit Stats 2.0 is Live!",
         Text = "The Website Unit Library just got a massive upgrade! All weapons per unit are now listed with individual stats across all factions including Legion. Fire every weapon directly in the browser with accurate range, speed, duration and firing sounds." .. " \n" .. " \n" .. "New features include DOT tracking, paralyzer PPS, target category indicators, fixed animations, new 3D unit renders, and mobile-optimised performance. Use 1-9 to fire weapons and 0 to pause the scene!" .. " \n" .. " \n",
         Image = "LuaMenu/images/welcomepanel/unit_stats_2.png",
