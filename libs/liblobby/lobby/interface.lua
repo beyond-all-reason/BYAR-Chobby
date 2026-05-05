@@ -2244,11 +2244,7 @@ function Interface:_OnSetScriptTags(tagsTxt)
 	for _, tag in pairs(tags) do
 		if string_starts(tag, mod_opts_pre) then
 			local kv = tag:sub(mod_opts_pre_indx)
-			-- Split on the FIRST '=' only. Using explode("=", ...) here
-			-- silently truncated values that themselves contain '=' (e.g.
-			-- base64-padded tweakdefs blobs, or any Lua expression with
-			-- assignment operators), which made the local modoptions cache
-			-- diverge from SPADS' authoritative state.
+			-- Should only split on the FIRST '='. Base64url encoded tweak values may contain '=' as padding
 			local eqPos = kv:find("=", 1, true)
 			local k, v
 			if eqPos then
