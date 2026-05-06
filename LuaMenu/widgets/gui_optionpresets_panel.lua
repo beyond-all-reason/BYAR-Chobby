@@ -119,6 +119,22 @@ local function saveJSONData()
 	modfile:close()
 end
 
+local function applyPresetThrottled(modoptions, progressCallback, cancelToken)
+	if not battleLobby then
+		return false, "No battle lobby available"
+	end
+	-- Skirmish: SetModOptions only. Online: SetModOptionsThrottled (don't gate on lobby.SetModOptionsThrottled — LCS dot lookup can miss methods).
+	if battleLobby.name == "singleplayer" then
+		battleLobby:SetModOptions(modoptions)
+		if progressCallback then
+			progressCallback(1, 1)
+		end
+		return true
+	end
+	battleLobby:SetModOptionsThrottled(modoptions, nil, nil, progressCallback, cancelToken)
+	return true
+end
+
 -- apply specific preset to the current Lobby
 local function applyPreset(presetName, progressCallback, cancelToken)
 	appliedPresetName = presetName
@@ -212,7 +228,7 @@ local function applyPreset(presetName, progressCallback, cancelToken)
 					return
 				end
 			end
-			battleLobby:SetModOptionsThrottled(currentModoptions, nil, nil, progressCallback, cancelToken)
+			applyPresetThrottled(currentModoptions, progressCallback, cancelToken)
 		end
 	end
 end
@@ -424,26 +440,6 @@ local function buildThrottledProgressCallback(parentWindow, onComplete, onCancel
 		onComplete = onComplete,
 		onCancel = onCancel,
 	})
-end
-
--- apply modoptions with throttling and progress feedback
-local function applyPresetThrottled(modoptions, progressCallback, cancelToken)
-	if not battleLobby then
-		return false, "No battle lobby available"
-	end
-	
-	-- Check if throttled method exists
-	if battleLobby.SetModOptionsThrottled then
-		battleLobby:SetModOptionsThrottled(modoptions, nil, nil, progressCallback, cancelToken)
-		return true
-	else
-		-- Fallback to regular method
-		battleLobby:SetModOptions(modoptions)
-		if progressCallback then
-			progressCallback(1, 1)
-		end
-		return true
-	end
 end
 
 -- deletes a preset by name
@@ -1002,22 +998,24 @@ end
 -- clones the multiplayer modoptions to have a reset point that can be used when applying reset value
 function OptionpresetsPanel.cloneMPModoptions(force)
 	if multiplayerModoptions == nil or force then
-		battleLobby = WG.LibLobby.localLobby
 		multiplayerModoptions = Spring.Utilities.CopyTable(battleLobby:GetMyBattleModoptions() or {})
 	end
 end
 
 -- external function to open the preset Panel
 function OptionpresetsPanel.ShowPresetPanel()
-	battleLobby = WG.LibLobby.localLobby
-	battle = battleLobby:GetBattle(battleLobby:GetMyBattleID())
+	local mpLobby = WG.LibLobby and WG.LibLobby.lobby
+	local spLobby = WG.LibLobby and WG.LibLobby.localLobby
+	local mpBattle = mpLobby and mpLobby:GetBattle(mpLobby:GetMyBattleID())
+	local spBattle = spLobby and spLobby:GetBattle(spLobby:GetMyBattleID())
 
-	-- multiplayer case, battle/ lobby are the WG.LibLobby.lobby
-	if not battle then
-		battleLobby = WG.LibLobby.lobby
-		battle = battleLobby:GetBattle(battleLobby:GetMyBattleID())
+	if mpBattle then
+		battleLobby = mpLobby
+		battle = mpBattle
 		multiplayer = true
 	else
+		battleLobby = spLobby
+		battle = spBattle
 		multiplayer = false
 	end
 
@@ -1067,8 +1065,9 @@ end
 -- SayBattleThrottled wrapper; opts.renderer "popup"|"inline"; returns cancelToken.
 local function runThrottledBattleSend(lines, parentWindow, opts)
 	opts = opts or {}
-	local lobby = WG.LibLobby and (WG.LibLobby.lobby or WG.LibLobby.localLobby)
-	if not lobby or not lobby.SayBattleThrottled then
+	local mpLobby = WG.LibLobby and WG.LibLobby.lobby
+	local lobby = mpLobby and mpLobby:GetBattle(mpLobby:GetMyBattleID()) and mpLobby or nil
+	if not lobby then
 		return nil
 	end
 
