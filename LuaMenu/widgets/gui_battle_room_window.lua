@@ -3807,7 +3807,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	local battleRoomConsole = WG.Chobby.Console("Battleroom Chat", MessageListener, true, nil, true)
 	WG.BattleRoomChatInput = battleRoomConsole.ebInputText
 
-	-- Oversized paste: throttle singleplayer or apply via singleplayer MessageListener (SPADS / UI).
+	-- Oversized paste: throttle multiplayer or apply via singleplayer MessageListener (SPADS / UI).
 	do
 		local chatInput = battleRoomConsole.ebInputText
 		local origTextInput = chatInput.TextInput
