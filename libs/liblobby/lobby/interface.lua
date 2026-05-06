@@ -516,29 +516,16 @@ function Interface:SetModOptions(data)
 	return self
 end
 
--- Throttling defaults shared by SayBattleThrottled / SetModOptionsThrottled.
--- Tuned to stay under SPADS' chat rate limit so large preset/tweak loads don't
--- get the user kicked. Public on the class so UI code can read the threshold
--- (e.g. to decide whether a paste is large enough to intercept).
+-- SPADS chat throttle; THROTTLED_SAY_MAX_CHARS_PER_BATCH also gates oversized paste.
 Interface.THROTTLED_SAY_MAX_CHARS_PER_BATCH = 20000
 Interface.THROTTLED_SAY_INTERVAL_SECONDS = 4
 
--- Send an ordered list of battleroom chat lines, batched by character size,
--- with a delay between batches. Each line is sent via self:SayBattle.
--- lines:           array of strings (preserved in order)
--- maxCharsPerBatch: optional, defaults to THROTTLED_SAY_MAX_CHARS_PER_BATCH
--- intervalSeconds:  optional, defaults to THROTTLED_SAY_INTERVAL_SECONDS
--- progressCallback: optional function(current, total, cancelled) called per batch
--- cancelToken:      optional table; set its `cancelled` field to stop further batches
+-- Batch SayBattle lines by size; delay between batches; cancelToken.cancelled stops pending sends.
 function Interface:SayBattleThrottled(lines, maxCharsPerBatch, intervalSeconds, progressCallback, cancelToken)
 	maxCharsPerBatch = maxCharsPerBatch or Interface.THROTTLED_SAY_MAX_CHARS_PER_BATCH
 	intervalSeconds = intervalSeconds or Interface.THROTTLED_SAY_INTERVAL_SECONDS
 	cancelToken = cancelToken or {}
 
-	-- Defensive: if a previous throttled queue is still running, force-cancel
-	-- it before scheduling a new one. Without this, a freshly-started load
-	-- would race against the prior load's still-pending WG.Delay tick (the
-	-- old queue's user-driven cancellation may not yet have fired).
 	if self._activeThrottleToken and self._activeThrottleToken ~= cancelToken then
 		self._activeThrottleToken.cancelled = true
 	end
@@ -551,7 +538,6 @@ function Interface:SayBattleThrottled(lines, maxCharsPerBatch, intervalSeconds, 
 		return self
 	end
 
-	-- Batch by total character size (lines preserved in input order)
 	local batches = {}
 	local currentBatch = {}
 	local currentSize = 0
@@ -576,9 +562,6 @@ function Interface:SayBattleThrottled(lines, maxCharsPerBatch, intervalSeconds, 
 
 	sendNextBatch = function()
 		if cancelToken.cancelled then
-			-- Drop any remaining batches and clear the active-throttle ref
-			-- if it still points at us. Subsequent stale ticks (if any)
-			-- will exit on the cancelled check above.
 			batches = {}
 			batchIndex = totalBatches
 			if self._activeThrottleToken == cancelToken then
@@ -623,8 +606,6 @@ function Interface:SayBattleThrottled(lines, maxCharsPerBatch, intervalSeconds, 
 	return self
 end
 
--- Throttled SetModOptions for large preset loads. Diffs against the current
--- modoptions, builds !bSet lines, and routes them through SayBattleThrottled.
 function Interface:SetModOptionsThrottled(data, maxCharsPerBatch, intervalSeconds, progressCallback, cancelToken)
 	local lines = {}
 	for k, v in pairs(data) do
@@ -2244,7 +2225,7 @@ function Interface:_OnSetScriptTags(tagsTxt)
 	for _, tag in pairs(tags) do
 		if string_starts(tag, mod_opts_pre) then
 			local kv = tag:sub(mod_opts_pre_indx)
-			-- Should only split on the FIRST '='. Base64url encoded tweak values may contain '=' as padding
+			-- Split on first '=' only; values may contain '=' (e.g. base64 padding).
 			local eqPos = kv:find("=", 1, true)
 			local k, v
 			if eqPos then

@@ -1621,10 +1621,7 @@ function Lobby:_OnUserVoted(userName, voteOption)
 	self:_CallListeners("OnUserVoted", userName, voteOption)
 end
 
--- changes: optional {[key] = {old = ..., new = ...}, ...}. If absent, derived
--- by diffing data against the previous self.modoptions before it is replaced.
--- Forwarded as the second listener arg so widgets can rewrite SPADS bSet
--- broadcasts with both old and new values.
+-- Optional changes {[key]={old,new}}; else diff vs previous modoptions. Second listener arg.
 function Lobby:_OnSetModOptions(data, changes)
 	if not changes then
 		changes = {}

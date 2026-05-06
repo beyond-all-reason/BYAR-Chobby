@@ -1268,10 +1268,6 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	}
 	leftOffset = leftOffset + 40
 
-	-- Inline progress slot for throttled chat-paste sends. Hidden by default;
-	-- pushes lblGame / Have-Game / Have-Map / modoptionsHolder down by
-	-- INLINE_PROGRESS_REFLOW px while visible. The bar's own caption carries
-	-- "Option N/M" (same pattern as WG.Chobby.Downloader).
 	local INLINE_PROGRESS_HEIGHT = 30
 	local INLINE_PROGRESS_REFLOW = INLINE_PROGRESS_HEIGHT + 5
 	local inlineProgressOnCancel
@@ -1505,10 +1501,6 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	end
 	externalFunctions.UpdateBattleMode(battle.disallowCustomTeams)
 
-	-- Inline throttled-send progress API. Show/Update/Hide are called by the
-	-- chat-paste interceptor (and any other caller that wants to render a
-	-- throttled send progress bar in the battleroom). The bar lives in the
-	-- inlineProgressPanel slot; toggling visibility reflows leftInfo.
 	WG.BattleRoomInlineProgress = {
 		Show = function(opts)
 			opts = opts or {}
@@ -3815,12 +3807,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	local battleRoomConsole = WG.Chobby.Console("Battleroom Chat", MessageListener, true, nil, true)
 	WG.BattleRoomChatInput = battleRoomConsole.ebInputText
 
-	-- Large-paste interceptor. External configurators have users paste 50k+ char
-	-- blobs of !preset / !bSet commands into chat. Pasted directly into the
-	-- editbox this freezes the UI on render and (in MP) floods SPADS, getting
-	-- the user kicked. Anything bigger than a single throttle batch is routed
-	-- through the throttled queue (MP) or applied locally via the singleplayer
-	-- bset parser (SP). The editbox itself never receives the blob.
+	-- Oversized paste: throttle singleplayer or apply via singleplayer MessageListener (SPADS / UI).
 	do
 		local chatInput = battleRoomConsole.ebInputText
 		local origTextInput = chatInput.TextInput
@@ -3829,13 +3816,9 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		chatInput.TextInput = function(self, utf8char, ...)
 			if utf8char and #utf8char > pasteThreshold then
 				if battleLobby.name == "singleplayer" then
-					-- SP: feed the full blob into MessageListener; its !bset
-					-- parser iterates lines and applies SetModOptions locally.
 					MessageListener(utf8char)
 				else
-					-- MP: keep only !-prefixed and $-prefixed commands (matches
-					-- the prefix set ParseMultiCommandMessage recognises) and
-					-- preserve order so !preset lines fire first.
+					-- MP: ! and $ lines only; order preserved
 					local lines = {}
 					for line in utf8char:gmatch("[^\n]+") do
 						local trimmed = line:match("^%s*(.-)%s*$")
@@ -4167,39 +4150,24 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	local function dontshowvote()
 	end
 
-	-- Display-only cache of the most recent old/new for each modoption key,
-	-- fed by OnSetModOptions's `changes` arg. Keys are lowercased to match
-	-- how SPADS broadcasts battle settings. Used to rewrite SPADS' bSet
-	-- confirmations with both previous and new values without mutating any
-	-- stored state.
+	-- Per-key old/new from OnSetModOptions(changes); lowercased keys for SPADS SAYBATTLEEX rewrite.
 	local recentModoptionDiff = {}
 	local inBSetFragment = false
 
 	local function FormatBSetRewrite(user, key, diff)
 		local oldT = StringUtilities.TruncateMiddle(diff.old)
 		local newT = StringUtilities.TruncateMiddle(diff.new)
-		-- Match SPADS' "* " action prefix so the rewritten line renders the
-		-- same way as the original broadcast (third-person/action style).
 		return "* Battle setting changed by " .. user
 			.. " (from " .. key .. "=" .. oldT
 			.. " to " .. key .. "=" .. newT .. ")"
 	end
 
-	-- SPADS' sayBattle prefixes every chunk with "* " before queuing
-	-- SAYBATTLEEX, so the message text we receive starts with "* ". Match
-	-- with an optional leading "* " (and no leading "^") so single-line and
-	-- fragmented broadcasts both hit.
 	local BSET_HEAD_PARTIAL = "%*?%s*Battle setting changed by (%S+) %(([%w_]+)="
 	local BSET_HEAD_FULL    = "%*?%s*Battle setting changed by (%S+) %(([%w_]+)=.*%)%s*$"
 
-	-- Returns nil (not a bSet broadcast — leave alone),
-	--         { rewritten = "..." } (full or fragmented head match — emit this),
-	--         { suppress = true }   (continuation of a fragmented broadcast).
+	-- Returns; nil | { rewritten = "..." } | { suppress = true }
 	local function RewriteBSetSpadsMessage(message)
-		-- Fragmented continuation: keep swallowing until a line ends with ')'.
 		if inBSetFragment then
-			-- A new bSet head while still in a fragment means the previous
-			-- continuation lines are done; let the head be matched below.
 			if not string.match(message, BSET_HEAD_PARTIAL) then
 				if string.match(message, "%)%s*$") then
 					inBSetFragment = false
@@ -4209,7 +4177,6 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 			inBSetFragment = false
 		end
 
-		-- Full single-line broadcast.
 		local user, key = string.match(message, BSET_HEAD_FULL)
 		if user and key then
 			local diff = recentModoptionDiff[string.lower(key)]
@@ -4219,7 +4186,6 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 			return nil
 		end
 
-		-- Fragmented head (no closing paren on this line).
 		user, key = string.match(message, BSET_HEAD_PARTIAL)
 		if user and key then
 			inBSetFragment = true
