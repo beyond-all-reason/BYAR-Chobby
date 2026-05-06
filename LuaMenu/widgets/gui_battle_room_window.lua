@@ -4154,12 +4154,18 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	local recentModoptionDiff = {}
 	local inBSetFragment = false
 
+	local function FormatBSetValueForChat(raw)
+		if raw == nil or tostring(raw) == "" then
+			return '""'
+		end
+		return StringUtilities.TruncateMiddle(raw)
+	end
+
 	local function FormatBSetRewrite(user, key, diff)
-		local oldT = StringUtilities.TruncateMiddle(diff.old)
-		local newT = StringUtilities.TruncateMiddle(diff.new)
+		local oldDisp = FormatBSetValueForChat(diff.old)
+		local newDisp = FormatBSetValueForChat(diff.new)
 		return "* Battle setting changed by " .. user
-			.. " (from " .. key .. "=" .. oldT
-			.. " to " .. key .. "=" .. newT .. ")"
+			.. " (" .. key .. " from " .. oldDisp .. " to " .. newDisp .. ")"
 	end
 
 	local BSET_HEAD_PARTIAL = "%*?%s*Battle setting changed by (%S+) %(([%w_]+)="
