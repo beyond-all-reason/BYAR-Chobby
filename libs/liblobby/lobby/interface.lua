@@ -516,7 +516,7 @@ function Interface:SetModOptions(data)
 	return self
 end
 
--- SPADS chat throttle; THROTTLED_SAY_MAX_CHARS_PER_BATCH also gates oversized paste.
+-- multiplayer chat throttling for presets and large battle settings pastes
 Interface.THROTTLED_SAY_MAX_CHARS_PER_BATCH = 20000
 Interface.THROTTLED_SAY_INTERVAL_SECONDS = 4
 
