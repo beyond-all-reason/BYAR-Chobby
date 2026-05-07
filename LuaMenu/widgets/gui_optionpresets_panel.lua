@@ -256,6 +256,33 @@ local function createProgressDialog(parentWindow, onCancel)
 	local dlgW, dlgH = 450, 190
 	local holder = (WG.Chobby and WG.Chobby.lobbyInterfaceHolder) or parentWindow
 
+	local progressCaptionFull = "Loading settings..."
+
+	local function applyProgressCaption()
+		if not (progressBar and progressBar.parent) then
+			return
+		end
+		local dw = dialogWindow.width or 0
+		local barInner = math.max(0, (progressBar.width or 0) - 16)
+		local Configuration = WG.Chobby.Configuration
+		local font
+		if dw >= 420 then
+			font = Configuration:GetFont(2)
+		elseif dw >= 340 then
+			font = Configuration:GetFont(13, "preset_prog_m", {outline = false, shadow = true}, true)
+		else
+			font = Configuration:GetFont(11, "preset_prog_s", {outline = false, shadow = true}, true)
+		end
+		if progressBar.font ~= font then
+			progressBar.font = font
+		end
+		local cap = progressCaptionFull
+		if barInner > 0 then
+			cap = StringUtilities.GetTruncatedStringWithDotDot(cap, progressBar.font, barInner)
+		end
+		progressBar:SetCaption(cap)
+	end
+
 	local dialogWindow = Window:New({
 		name = "presetLoadProgressDialog",
 		parent = holder,
@@ -302,6 +329,14 @@ local function createProgressDialog(parentWindow, onCancel)
 	dialogWindow:AddChild(cancelButton)
 	dialogWindow:BringToFront()
 
+	dialogWindow.OnResize = dialogWindow.OnResize or {}
+	dialogWindow.OnResize[#dialogWindow.OnResize + 1] = function()
+		applyProgressCaption()
+		WG.Delay(applyProgressCaption, 0.02)
+	end
+	applyProgressCaption()
+	WG.Delay(applyProgressCaption, 0.02)
+
 	local recenter = function()
 		CenterInHolder(dialogWindow)
 	end
@@ -325,7 +360,9 @@ local function createProgressDialog(parentWindow, onCancel)
 		end
 		progressBar:SetMinMax(0, total)
 		progressBar:SetValue(current)
-		progressBar:SetCaption("Loading settings... " .. current .. " / " .. total .. " batches")
+		progressCaptionFull = "Loading settings... " .. current .. " / " .. total .. " batches"
+		applyProgressCaption()
+		WG.Delay(applyProgressCaption, 0.02)
 	end
 
 	local closeDialog = function()

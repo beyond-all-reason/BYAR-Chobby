@@ -1316,6 +1316,51 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		},
 		parent = leftInfo,
 	}
+	local inlineProgressFullCaption = ""
+
+	local function SyncInlineProgressCaption()
+		if not (inlineProgressPanel and inlineProgressPanel.visible) then
+			return
+		end
+		local panelW = inlineProgressPanel.width or 0
+		local barInner = math.max(0, (inlineProgressBar.width or 0) - 10)
+		local font
+		-- Split-pane (~19% of 1440p ≈ 260–290px) should match single-pane caption size; truncation handles overflow on smaller windows.
+		if panelW >= 300 then
+			font = config:GetFont(2)
+		elseif panelW >= 220 then
+			font = config:GetFont(15, "battle_inline_prog_m", {outline = false, shadow = true}, true)
+		else
+			font = config:GetFont(12, "battle_inline_prog_s", {outline = false, shadow = true}, true)
+		end
+		if inlineProgressBar.font ~= font then
+			inlineProgressBar.font = font
+		end
+		local cap = inlineProgressFullCaption
+		if barInner > 0 and cap ~= "" then
+			cap = StringUtilities.GetTruncatedStringWithDotDot(cap, inlineProgressBar.font, barInner)
+		end
+		inlineProgressBar:SetCaption(cap)
+	end
+
+	local inlineSyncGen = 0
+	local function ScheduleInlineProgressSync()
+		inlineSyncGen = inlineSyncGen + 1
+		local gen = inlineSyncGen
+		WG.Delay(function()
+			if gen ~= inlineSyncGen then
+				return
+			end
+			SyncInlineProgressCaption()
+		end, 0.02)
+	end
+
+	inlineProgressPanel.OnResize = inlineProgressPanel.OnResize or {}
+	inlineProgressPanel.OnResize[#inlineProgressPanel.OnResize + 1] = function()
+		SyncInlineProgressCaption()
+		ScheduleInlineProgressSync()
+	end
+
 	inlineProgressPanel:Hide()
 
 	-- gray out the button if we don't have a modoptions panel to show
@@ -1446,6 +1491,9 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	leftInfo.OnResize = leftInfo.OnResize or {}
 	leftInfo.OnResize[#leftInfo.OnResize + 1] = function ()
 		OnDownloaderVisibility()
+		if WG.ModoptionsPanel and WG.ModoptionsPanel.ScheduleBattleSummaryReflow then
+			WG.ModoptionsPanel.ScheduleBattleSummaryReflow()
+		end
 	end
 
 	local downloaderPos = {
@@ -1498,6 +1546,12 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		modoptionTopPosition = offset
 		modoptionBottomPosition = offset + 120
 		OnDownloaderVisibility()
+		if inlineProgressPanel.visible then
+			ScheduleInlineProgressSync()
+		end
+		if WG.ModoptionsPanel and WG.ModoptionsPanel.ScheduleBattleSummaryReflow then
+			WG.ModoptionsPanel.ScheduleBattleSummaryReflow()
+		end
 	end
 	externalFunctions.UpdateBattleMode(battle.disallowCustomTeams)
 
@@ -1505,12 +1559,15 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		Show = function(opts)
 			opts = opts or {}
 			inlineProgressOnCancel = opts.onCancel
+			inlineProgressFullCaption = ""
 			inlineProgressBar:SetMinMax(0, 1)
 			inlineProgressBar:SetValue(0)
 			inlineProgressBar:SetCaption("")
 			if not inlineProgressPanel.visible then
 				inlineProgressPanel:Show()
 				externalFunctions.UpdateBattleMode()
+				SyncInlineProgressCaption()
+				ScheduleInlineProgressSync()
 			end
 		end,
 		Update = function(current, total)
@@ -1518,7 +1575,9 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 				inlineProgressBar:SetMinMax(0, total)
 			end
 			inlineProgressBar:SetValue(current or 0)
-			inlineProgressBar:SetCaption("Loading... " .. tostring(current or 0) .. "/" .. tostring(total or 0))
+			inlineProgressFullCaption = "Loading... " .. tostring(current or 0) .. "/" .. tostring(total or 0)
+			SyncInlineProgressCaption()
+			ScheduleInlineProgressSync()
 		end,
 		Hide = function()
 			inlineProgressOnCancel = nil
