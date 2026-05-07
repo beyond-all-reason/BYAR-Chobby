@@ -1621,9 +1621,19 @@ function Lobby:_OnUserVoted(userName, voteOption)
 	self:_CallListeners("OnUserVoted", userName, voteOption)
 end
 
-function Lobby:_OnSetModOptions(data)
+-- Optional changes {[key]={old,new}}; else diff vs previous modoptions. Second listener arg.
+function Lobby:_OnSetModOptions(data, changes)
+	if not changes then
+		changes = {}
+		local oldM = self.modoptions or {}
+		for k, v in pairs(data) do
+			if oldM[k] ~= v then
+				changes[k] = { old = oldM[k], new = v }
+			end
+		end
+	end
 	self.modoptions = data
-	self:_CallListeners("OnSetModOptions", data)
+	self:_CallListeners("OnSetModOptions", data, changes)
 end
 
 function Lobby:_OnResetModOptions()

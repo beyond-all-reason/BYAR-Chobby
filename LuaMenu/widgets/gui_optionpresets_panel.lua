@@ -43,13 +43,16 @@ local currentMPBattleSettings
 local multiplayerModoptions
 
 -- now we need to store the object in this class
-local jsondata;
+local jsondata
 
 -- preset that is selected in the dropdown menu
-local selectedPresetName = placeHolder;
+local selectedPresetName = placeHolder
 
 -- preset that is currently applied
-local appliedPresetName  = placeHolder;
+local appliedPresetName  = placeHolder
+
+-- active throttled preset load, used to cancel delayed batches when closing UI
+local activeLoadToken
 
 -- defining function to later overwrite
 local refreshPresetMenu  = function()
@@ -116,8 +119,24 @@ local function saveJSONData()
 	modfile:close()
 end
 
+local function applyPresetThrottled(modoptions, progressCallback, cancelToken)
+	if not battleLobby then
+		return false, "No battle lobby available"
+	end
+	-- Skirmish: SetModOptions only. Online: SetModOptionsThrottled (don't gate on lobby.SetModOptionsThrottled — LCS dot lookup can miss methods).
+	if battleLobby.name == "singleplayer" then
+		battleLobby:SetModOptions(modoptions)
+		if progressCallback then
+			progressCallback(1, 1)
+		end
+		return true
+	end
+	battleLobby:SetModOptionsThrottled(modoptions, nil, nil, progressCallback, cancelToken)
+	return true
+end
+
 -- apply specific preset to the current Lobby
-local function applyPreset(presetName)
+local function applyPreset(presetName, progressCallback, cancelToken)
 	appliedPresetName = presetName
 
 	local presetObj = jsondata[presetName]
@@ -198,10 +217,10 @@ local function applyPreset(presetName)
 			if (multiplayer) then
 				local isBoss = battle.bossed
 				if isBoss and isBoss == true then
-					-- now apply the modoptions as the baseline
-					local combinedModoptions = multiplayerModoptions
+					-- Clone baseline each load (don't mutate multiplayerModoptions in place).
+					local combinedModoptions = Spring.Utilities.CopyTable(multiplayerModoptions)
 					for key, value in pairs(currentModoptions) do
-						multiplayerModoptions[key] = value
+						combinedModoptions[key] = value
 					end
 					currentModoptions = combinedModoptions
 				else
@@ -209,9 +228,255 @@ local function applyPreset(presetName)
 					return
 				end
 			end
-			battleLobby:SetModOptions(currentModoptions)
+			applyPresetThrottled(currentModoptions, progressCallback, cancelToken)
 		end
 	end
+end
+
+-- Center in lobbyInterfaceHolder (explicit x/y; Window.align is not window position).
+local function CenterInHolder(child)
+	if not child then return end
+	local holder = WG.Chobby and WG.Chobby.lobbyInterfaceHolder
+	local hw = (holder and holder.width) or 0
+	local hh = (holder and holder.height) or 0
+	if hw <= 0 or hh <= 0 then
+		local ww, wh = Spring.GetWindowGeometry()
+		hw, hh = ww or 0, wh or 0
+	end
+	local cw = child.width or 0
+	local ch = child.height or 0
+	child:SetPos(
+		math.floor((hw - cw) / 2),
+		math.floor((hh - ch) / 2)
+	)
+end
+
+-- Throttle progress dialog; parent lobbyInterfaceHolder (cf. ConfirmationPopup).
+local function createProgressDialog(parentWindow, onCancel)
+	local dlgW, dlgH = 450, 190
+	local holder = (WG.Chobby and WG.Chobby.lobbyInterfaceHolder) or parentWindow
+
+	local progressCaptionFull = "Loading settings..."
+
+	local function applyProgressCaption()
+		if not (progressBar and progressBar.parent) then
+			return
+		end
+		local dw = dialogWindow.width or 0
+		local barInner = math.max(0, (progressBar.width or 0) - 16)
+		local Configuration = WG.Chobby.Configuration
+		local font
+		if dw >= 420 then
+			font = Configuration:GetFont(2)
+		elseif dw >= 340 then
+			font = Configuration:GetFont(13, "preset_prog_m", {outline = false, shadow = true}, true)
+		else
+			font = Configuration:GetFont(11, "preset_prog_s", {outline = false, shadow = true}, true)
+		end
+		if progressBar.font ~= font then
+			progressBar.font = font
+		end
+		local cap = progressCaptionFull
+		if barInner > 0 then
+			cap = StringUtilities.GetTruncatedStringWithDotDot(cap, progressBar.font, barInner)
+		end
+		progressBar:SetCaption(cap)
+	end
+
+	local dialogWindow = Window:New({
+		name = "presetLoadProgressDialog",
+		parent = holder,
+		width = dlgW,
+		height = dlgH,
+		resizable = false,
+		draggable = false,
+		classname = "main_window",
+	})
+	CenterInHolder(dialogWindow)
+
+	local progressBar = Progressbar:New({
+		x = 15,
+		y = 30,
+		right = 15,
+		height = 40,
+		value = 0,
+		max = 1,
+		caption = "Loading settings...",
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+	})
+
+	local cancelButton = Button:New({
+		right = 15,
+		width = 135,
+		bottom = 20,
+		height = 45,
+		caption = i18n("cancel"),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		classname = "negative_button",
+		OnClick = {
+			function()
+				if onCancel then
+					onCancel()
+				end
+				if dialogWindow and dialogWindow.parent then
+					dialogWindow:Dispose()
+				end
+			end,
+		},
+	})
+
+	dialogWindow:AddChild(progressBar)
+	dialogWindow:AddChild(cancelButton)
+	dialogWindow:BringToFront()
+
+	dialogWindow.OnResize = dialogWindow.OnResize or {}
+	dialogWindow.OnResize[#dialogWindow.OnResize + 1] = function()
+		applyProgressCaption()
+		WG.Delay(applyProgressCaption, 0.02)
+	end
+	applyProgressCaption()
+	WG.Delay(applyProgressCaption, 0.02)
+
+	local recenter = function()
+		CenterInHolder(dialogWindow)
+	end
+	if holder then
+		holder.OnResize = holder.OnResize or {}
+		holder.OnResize[#holder.OnResize + 1] = recenter
+	end
+
+	if parentWindow then
+		parentWindow.OnDispose = parentWindow.OnDispose or {}
+		parentWindow.OnDispose[#parentWindow.OnDispose + 1] = function()
+			if dialogWindow and dialogWindow.parent then
+				dialogWindow:Dispose()
+			end
+		end
+	end
+
+	local updateProgress = function(current, total)
+		if not (dialogWindow and dialogWindow.parent) then
+			return
+		end
+		progressBar:SetMinMax(0, total)
+		progressBar:SetValue(current)
+		progressCaptionFull = "Loading settings... " .. current .. " / " .. total .. " batches"
+		applyProgressCaption()
+		WG.Delay(applyProgressCaption, 0.02)
+	end
+
+	local closeDialog = function()
+		if dialogWindow and dialogWindow.parent then
+			dialogWindow:Dispose()
+		end
+	end
+
+	return dialogWindow, updateProgress, closeDialog
+end
+
+-- Throttle progress: popup vs inline; no UI when total<=1. Popup opens on first multi-batch.
+local function createPopupThrottleProgress(parentWindow, opts)
+	opts = opts or {}
+	local cancelToken = { cancelled = false }
+	local progressDialog, updateProgress, closeDialog
+
+	local progressCallback = function(current, total, cancelled)
+		if cancelled then
+			if opts.onCancel then opts.onCancel() end
+			return
+		end
+
+		if total <= 1 then
+			if current == total and opts.onComplete then
+				opts.onComplete()
+			end
+			return
+		end
+
+		if not progressDialog then
+			progressDialog, updateProgress, closeDialog = createProgressDialog(parentWindow, function()
+				cancelToken.cancelled = true
+				if opts.onCancel then opts.onCancel() end
+			end)
+		end
+
+		updateProgress(current, total)
+
+		if current == total then
+			WG.Delay(function()
+				if closeDialog then closeDialog() end
+				if opts.onComplete then opts.onComplete() end
+			end, 0.5)
+		end
+	end
+
+	return cancelToken, progressCallback
+end
+
+local function createInlineThrottleProgress(opts)
+	opts = opts or {}
+	local cancelToken = { cancelled = false }
+	local shown = false
+
+	local progressCallback = function(current, total, cancelled)
+		if cancelled then
+			if shown and WG.BattleRoomInlineProgress then
+				WG.BattleRoomInlineProgress.Hide()
+			end
+			shown = false
+			if opts.onCancel then opts.onCancel() end
+			return
+		end
+
+		if total <= 1 then
+			if current == total and opts.onComplete then
+				opts.onComplete()
+			end
+			return
+		end
+
+		if not WG.BattleRoomInlineProgress then
+			if current == total and opts.onComplete then
+				opts.onComplete()
+			end
+			return
+		end
+
+		if not shown then
+			WG.BattleRoomInlineProgress.Show({
+				onCancel = function()
+					cancelToken.cancelled = true
+					if shown and WG.BattleRoomInlineProgress then
+						WG.BattleRoomInlineProgress.Hide()
+					end
+					shown = false
+					if opts.onCancel then opts.onCancel() end
+				end,
+			})
+			shown = true
+		end
+
+		WG.BattleRoomInlineProgress.Update(current, total)
+
+		if current == total then
+			WG.Delay(function()
+				if shown and WG.BattleRoomInlineProgress then
+					WG.BattleRoomInlineProgress.Hide()
+				end
+				shown = false
+				if opts.onComplete then opts.onComplete() end
+			end, 0.5)
+		end
+	end
+
+	return cancelToken, progressCallback
+end
+
+local function buildThrottledProgressCallback(parentWindow, onComplete, onCancel)
+	return createPopupThrottleProgress(parentWindow, {
+		onComplete = onComplete,
+		onCancel = onCancel,
+	})
 end
 
 -- deletes a preset by name
@@ -520,11 +785,25 @@ local function PopulatePresetPanel(parentPanel)
 				if (selectedPresetName == nil or selectedPresetName == placeHolder or selectedPresetName == "<new>") then
 					return
 				end
-				applyPreset(selectedPresetName)
-				window:Dispose()
-				if WG.BattleRoomChatInput then
-					screen0:FocusControl(WG.BattleRoomChatInput)
+
+				local finishAndClose = function()
+					activeLoadToken = nil
+					if window and window.parent then
+						window:Dispose()
+					end
+					if WG.BattleRoomChatInput then
+						screen0:FocusControl(WG.BattleRoomChatInput)
+					end
 				end
+
+				local cancelToken, progressCallback = buildThrottledProgressCallback(
+					window,
+					finishAndClose,
+					function() activeLoadToken = nil end
+				)
+				activeLoadToken = cancelToken
+
+				applyPreset(selectedPresetName, progressCallback, cancelToken)
 			end
 		},
 	}
@@ -566,7 +845,7 @@ local function PopulatePresetPanel(parentPanel)
 
 	-- overload the writeError function
 	writeError = function(errorM)
-		errorLabel.caption = errorM
+		errorLabel:SetCaption(errorM)
 	end
 
 	refreshPresetMenu()
@@ -681,6 +960,10 @@ local function CreateOptionpresetWindow()
 		OnClick = {
 			function()
 				-- CancelFunc()
+				if activeLoadToken then
+					activeLoadToken.cancelled = true
+					activeLoadToken = nil
+				end
 				window:Dispose()
 				if WG.BattleRoomChatInput then
 					screen0:FocusControl(WG.BattleRoomChatInput)
@@ -708,6 +991,10 @@ local function CreateOptionpresetWindow()
 	end
 
 	local function CancelFunc()
+		if activeLoadToken then
+			activeLoadToken.cancelled = true
+			activeLoadToken = nil
+		end
 		window:Dispose()
 		if WG.BattleRoomChatInput then
 			screen0:FocusControl(WG.BattleRoomChatInput)
@@ -748,22 +1035,24 @@ end
 -- clones the multiplayer modoptions to have a reset point that can be used when applying reset value
 function OptionpresetsPanel.cloneMPModoptions(force)
 	if multiplayerModoptions == nil or force then
-		battleLobby = WG.LibLobby.localLobby
 		multiplayerModoptions = Spring.Utilities.CopyTable(battleLobby:GetMyBattleModoptions() or {})
 	end
 end
 
 -- external function to open the preset Panel
 function OptionpresetsPanel.ShowPresetPanel()
-	battleLobby = WG.LibLobby.localLobby
-	battle = battleLobby:GetBattle(battleLobby:GetMyBattleID())
+	local mpLobby = WG.LibLobby and WG.LibLobby.lobby
+	local spLobby = WG.LibLobby and WG.LibLobby.localLobby
+	local mpBattle = mpLobby and mpLobby:GetBattle(mpLobby:GetMyBattleID())
+	local spBattle = spLobby and spLobby:GetBattle(spLobby:GetMyBattleID())
 
-	-- multiplayer case, battle/ lobby are the WG.LibLobby.lobby
-	if not battle then
-		battleLobby = WG.LibLobby.lobby
-		battle = battleLobby:GetBattle(battleLobby:GetMyBattleID())
+	if mpBattle then
+		battleLobby = mpLobby
+		battle = mpBattle
 		multiplayer = true
 	else
+		battleLobby = spLobby
+		battle = spBattle
 		multiplayer = false
 	end
 
@@ -810,11 +1099,40 @@ function OptionpresetsPanel.ShowPresetPanel()
 	CreateOptionpresetWindow()
 end
 
+-- SayBattleThrottled wrapper; opts.renderer "popup"|"inline"; returns cancelToken.
+local function runThrottledBattleSend(lines, parentWindow, opts)
+	opts = opts or {}
+	local mpLobby = WG.LibLobby and WG.LibLobby.lobby
+	local lobby = mpLobby and mpLobby:GetBattle(mpLobby:GetMyBattleID()) and mpLobby or nil
+	if not lobby then
+		return nil
+	end
+
+	local cancelToken, progressCallback
+	if opts.renderer == "inline" then
+		cancelToken, progressCallback = createInlineThrottleProgress({
+			onComplete = opts.onComplete,
+			onCancel = opts.onCancel,
+		})
+	else
+		cancelToken, progressCallback = createPopupThrottleProgress(parentWindow, {
+			onComplete = opts.onComplete,
+			onCancel = opts.onCancel,
+		})
+	end
+
+	lobby:SayBattleThrottled(lines, nil, nil, progressCallback, cancelToken)
+	return cancelToken
+end
+
 -- make the widget accessible from the preset Panel
 function widget:Initialize()
 	CHOBBY_DIR = LUA_DIRNAME .. "widgets/chobby/"
 	VFS.Include(LUA_DIRNAME .. "widgets/chobby/headers/exports.lua", nil, VFS.RAW_FIRST)
 
-	-- clone multiplayer options, if they are defined
 	WG.OptionpresetsPanel = OptionpresetsPanel
+
+	WG.ThrottledBattleSend = {
+		Run = runThrottledBattleSend,
+	}
 end

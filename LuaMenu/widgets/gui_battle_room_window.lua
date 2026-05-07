@@ -1268,6 +1268,101 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	}
 	leftOffset = leftOffset + 40
 
+	local INLINE_PROGRESS_HEIGHT = 30
+	local INLINE_PROGRESS_REFLOW = INLINE_PROGRESS_HEIGHT + 5
+	local inlineProgressOnCancel
+	local inlineProgressBar = Progressbar:New {
+		name = 'inlineProgressBar',
+		x = 5,
+		y = 0,
+		right = 95,
+		bottom = 0,
+		value = 0,
+		max = 1,
+		caption = "",
+		objectOverrideFont = config:GetFont(2),
+	}
+	local inlineProgressCancel = Button:New {
+		name = 'inlineProgressCancel',
+		right = 5,
+		width = 80,
+		y = 0,
+		bottom = 0,
+		caption = i18n("cancel"),
+		classname = "negative_button",
+		objectOverrideFont = config:GetFont(1),
+		OnClick = {
+			function()
+				if inlineProgressOnCancel then
+					inlineProgressOnCancel()
+				end
+			end
+		},
+	}
+	local inlineProgressPanel = Control:New {
+		name = 'inlineProgressPanel',
+		x = 0,
+		y = leftOffset,
+		right = 0,
+		height = INLINE_PROGRESS_HEIGHT,
+		padding = {0, 0, 0, 0},
+		itemPadding = {0, 0, 0, 0},
+		itemMargin = {0, 0, 0, 0},
+		resizable = false,
+		draggable = false,
+		children = {
+			inlineProgressBar,
+			inlineProgressCancel,
+		},
+		parent = leftInfo,
+	}
+	local inlineProgressFullCaption = ""
+
+	local function SyncInlineProgressCaption()
+		if not (inlineProgressPanel and inlineProgressPanel.visible) then
+			return
+		end
+		local panelW = inlineProgressPanel.width or 0
+		local barInner = math.max(0, (inlineProgressBar.width or 0) - 10)
+		local font
+		-- Split-pane (~19% of 1440p ≈ 260–290px) should match single-pane caption size; truncation handles overflow on smaller windows.
+		if panelW >= 300 then
+			font = config:GetFont(2)
+		elseif panelW >= 220 then
+			font = config:GetFont(15, "battle_inline_prog_m", {outline = false, shadow = true}, true)
+		else
+			font = config:GetFont(12, "battle_inline_prog_s", {outline = false, shadow = true}, true)
+		end
+		if inlineProgressBar.font ~= font then
+			inlineProgressBar.font = font
+		end
+		local cap = inlineProgressFullCaption
+		if barInner > 0 and cap ~= "" then
+			cap = StringUtilities.GetTruncatedStringWithDotDot(cap, inlineProgressBar.font, barInner)
+		end
+		inlineProgressBar:SetCaption(cap)
+	end
+
+	local inlineSyncGen = 0
+	local function ScheduleInlineProgressSync()
+		inlineSyncGen = inlineSyncGen + 1
+		local gen = inlineSyncGen
+		WG.Delay(function()
+			if gen ~= inlineSyncGen then
+				return
+			end
+			SyncInlineProgressCaption()
+		end, 0.02)
+	end
+
+	inlineProgressPanel.OnResize = inlineProgressPanel.OnResize or {}
+	inlineProgressPanel.OnResize[#inlineProgressPanel.OnResize + 1] = function()
+		SyncInlineProgressCaption()
+		ScheduleInlineProgressSync()
+	end
+
+	inlineProgressPanel:Hide()
+
 	-- gray out the button if we don't have a modoptions panel to show
 	if not modoptions then
 		-- cosmetics when disabled
@@ -1396,6 +1491,9 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	leftInfo.OnResize = leftInfo.OnResize or {}
 	leftInfo.OnResize[#leftInfo.OnResize + 1] = function ()
 		OnDownloaderVisibility()
+		if WG.ModoptionsPanel and WG.ModoptionsPanel.ScheduleBattleSummaryReflow then
+			WG.ModoptionsPanel.ScheduleBattleSummaryReflow()
+		end
 	end
 
 	local downloaderPos = {
@@ -1414,9 +1512,13 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	--MaybeDownloadArchive("Titan-v2", "map")
 	--MaybeDownloadArchive("tinyskirmishredux1.1", "map")
 
+	local lastDisallowCustomTeams = battle.disallowCustomTeams
 	function externalFunctions.UpdateBattleMode(disallowCustomTeams)
+		if disallowCustomTeams ~= nil then
+			lastDisallowCustomTeams = disallowCustomTeams
+		end
 		local offset = 0
-		if disallowCustomTeams then
+		if lastDisallowCustomTeams then
 			btnNewTeam:SetVisibility(false)
 		else
 			btnNewTeam:SetVisibility(true)
@@ -1429,6 +1531,10 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		offset = offset + 38
 		btnOptionPresets:SetPos(nil, offset)
 		offset = offset + 40
+		if inlineProgressPanel.visible then
+			inlineProgressPanel:SetPos(nil, offset)
+			offset = offset + INLINE_PROGRESS_REFLOW
+		end
 		lblGame:SetPos(nil, offset)
 		offset = offset + 26
 		imHaveGame:SetPos(nil, offset)
@@ -1436,8 +1542,51 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		offset = offset + 25
 		imHaveMap:SetPos(nil, offset)
 		lblHaveMap:SetPos(nil, offset)
+		offset = offset + 30
+		modoptionTopPosition = offset
+		modoptionBottomPosition = offset + 120
+		OnDownloaderVisibility()
+		if inlineProgressPanel.visible then
+			ScheduleInlineProgressSync()
+		end
+		if WG.ModoptionsPanel and WG.ModoptionsPanel.ScheduleBattleSummaryReflow then
+			WG.ModoptionsPanel.ScheduleBattleSummaryReflow()
+		end
 	end
 	externalFunctions.UpdateBattleMode(battle.disallowCustomTeams)
+
+	WG.BattleRoomInlineProgress = {
+		Show = function(opts)
+			opts = opts or {}
+			inlineProgressOnCancel = opts.onCancel
+			inlineProgressFullCaption = ""
+			inlineProgressBar:SetMinMax(0, 1)
+			inlineProgressBar:SetValue(0)
+			inlineProgressBar:SetCaption("")
+			if not inlineProgressPanel.visible then
+				inlineProgressPanel:Show()
+				externalFunctions.UpdateBattleMode()
+				SyncInlineProgressCaption()
+				ScheduleInlineProgressSync()
+			end
+		end,
+		Update = function(current, total)
+			if total and total > 0 then
+				inlineProgressBar:SetMinMax(0, total)
+			end
+			inlineProgressBar:SetValue(current or 0)
+			inlineProgressFullCaption = "Loading... " .. tostring(current or 0) .. "/" .. tostring(total or 0)
+			SyncInlineProgressCaption()
+			ScheduleInlineProgressSync()
+		end,
+		Hide = function()
+			inlineProgressOnCancel = nil
+			if inlineProgressPanel.visible then
+				inlineProgressPanel:Hide()
+				externalFunctions.UpdateBattleMode()
+			end
+		end,
+	}
 
 	function externalFunctions.SetHaveGame(newHaveGame)
 		if newHaveGame then
@@ -3717,6 +3866,36 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	local battleRoomConsole = WG.Chobby.Console("Battleroom Chat", MessageListener, true, nil, true)
 	WG.BattleRoomChatInput = battleRoomConsole.ebInputText
 
+	-- Oversized paste: throttle multiplayer or apply via singleplayer MessageListener (SPADS / UI).
+	do
+		local chatInput = battleRoomConsole.ebInputText
+		local origTextInput = chatInput.TextInput
+		local pasteThreshold = battleLobby.THROTTLED_SAY_MAX_CHARS_PER_BATCH or 20000
+
+		chatInput.TextInput = function(self, utf8char, ...)
+			if utf8char and #utf8char > pasteThreshold then
+				if battleLobby.name == "singleplayer" then
+					MessageListener(utf8char)
+				else
+					-- MP: ! and $ lines only; order preserved
+					local lines = {}
+					for line in utf8char:gmatch("[^\n]+") do
+						local trimmed = line:match("^%s*(.-)%s*$")
+						local first = trimmed:sub(1, 1)
+						if trimmed ~= "" and (first == "!" or first == "$") then
+							lines[#lines + 1] = trimmed
+						end
+					end
+					if #lines > 0 and WG.ThrottledBattleSend and WG.ThrottledBattleSend.Run then
+						WG.ThrottledBattleSend.Run(lines, nil, { renderer = "inline" })
+					end
+				end
+				return self
+			end
+			return origTextInput(self, utf8char, ...)
+		end
+	end
+
 	local chatPanel = Control:New {
 		name = 'chatPanel',
 		x = 0,
@@ -4030,6 +4209,61 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	local function dontshowvote()
 	end
 
+	-- Per-key old/new from OnSetModOptions(changes); lowercased keys for SPADS SAYBATTLEEX rewrite.
+	local recentModoptionDiff = {}
+	local inBSetFragment = false
+
+	local function FormatBSetValueForChat(raw)
+		if raw == nil or tostring(raw) == "" then
+			return '""'
+		end
+		return StringUtilities.TruncateMiddle(raw)
+	end
+
+	local function FormatBSetRewrite(user, key, diff)
+		local oldDisp = FormatBSetValueForChat(diff.old)
+		local newDisp = FormatBSetValueForChat(diff.new)
+		return "* Battle setting changed by " .. user
+			.. " (" .. key .. " from " .. oldDisp .. " to " .. newDisp .. ")"
+	end
+
+	local BSET_HEAD_PARTIAL = "%*?%s*Battle setting changed by (%S+) %(([%w_]+)="
+	local BSET_HEAD_FULL    = "%*?%s*Battle setting changed by (%S+) %(([%w_]+)=.*%)%s*$"
+
+	-- Returns; nil | { rewritten = "..." } | { suppress = true }
+	local function RewriteBSetSpadsMessage(message)
+		if inBSetFragment then
+			if not string.match(message, BSET_HEAD_PARTIAL) then
+				if string.match(message, "%)%s*$") then
+					inBSetFragment = false
+				end
+				return { suppress = true }
+			end
+			inBSetFragment = false
+		end
+
+		local user, key = string.match(message, BSET_HEAD_FULL)
+		if user and key then
+			local diff = recentModoptionDiff[string.lower(key)]
+			if diff then
+				return { rewritten = FormatBSetRewrite(user, key, diff) }
+			end
+			return nil
+		end
+
+		user, key = string.match(message, BSET_HEAD_PARTIAL)
+		if user and key then
+			inBSetFragment = true
+			local diff = recentModoptionDiff[string.lower(key)]
+			if diff then
+				return { rewritten = FormatBSetRewrite(user, key, diff) }
+			end
+			return { suppress = true }
+		end
+
+		return nil
+	end
+
 	local function ParseSpadsMessage(userName, message) -- return hidemessage bool
 		-- should only be called on messages from founder (host)
 		local myUserName = battleLobby:GetMyUserName()
@@ -4221,6 +4455,16 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		local hidemessage = false
 
 		if userName == battle.founder then -- todo dont do this for self-hosted
+			local rewrite = RewriteBSetSpadsMessage(message)
+			if rewrite then
+				if rewrite.suppress then
+					return
+				end
+				if rewrite.rewritten then
+					message = rewrite.rewritten
+				end
+			end
+
 			local hidespads = ParseSpadsMessage(userName,message)
 			local hidevote = ParseForVotingSaidBattle(userName,message)
 			local hidebarmanager = ParseBarManagerSaidBattleEx(userName, message)
@@ -4325,9 +4569,14 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		end
 	end
 
-	local function OnSetModOptions(listener, modoptions)
+	local function OnSetModOptions(listener, modoptions, changes)
 		if not modoptions then
 			return
+		end
+		if changes then
+			for k, change in pairs(changes) do
+				recentModoptionDiff[string.lower(k)] = change
+			end
 		end
 		local factionlimiter = modoptions.factionlimiter
 		if factionlimiter then
@@ -4393,6 +4642,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 
 		WG.BattleStatusPanel.RemoveBattleTab()
 		WG.BattleRoomChatInput = nil
+		WG.BattleRoomInlineProgress = nil
 	end
 
 	mainWindow.OnDispose = mainWindow.OnDispose or {}
