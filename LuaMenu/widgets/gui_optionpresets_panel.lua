@@ -1035,7 +1035,11 @@ end
 -- clones the multiplayer modoptions to have a reset point that can be used when applying reset value
 function OptionpresetsPanel.cloneMPModoptions(force)
 	if multiplayerModoptions == nil or force then
-		multiplayerModoptions = Spring.Utilities.CopyTable(battleLobby:GetMyBattleModoptions() or {})
+		if battleLobby then
+			multiplayerModoptions = Spring.Utilities.CopyTable(battleLobby:GetMyBattleModoptions() or {})
+		else
+			multiplayerModoptions = {}
+		end
 	end
 end
 
