@@ -19,6 +19,14 @@ local welcomePanelItems = {
     },
 
     {
+        Header = "The BAR Documentary is Here!",
+        Text = "From community roots to modern RTS ambition, this is the story of Beyond All Reason, featuring the one and only Chris Taylor." .. " \n" .. " \n" .. "Hear from BAR devs as they look back at the project's history, share where it stands today, and talk about where it's heading next. Go behind the scenes, with the journey put into context by the man who started it all." .. " \n" .. " \n" .. "Huge thanks to Fortress Sydney and the Source Code crew for making this possible!" .. " \n" .. " \n",
+        Image = "LuaMenu/images/welcomepanel/sourcecode_documentary.png",
+        Url = "https://www.youtube.com/watch?v=5F36yViPz7w",
+        UrlText = "Watch the Documentary",
+    },
+
+    {
         Header = "Quality of Life Balance Patch is Live!",
         Text = "We have made some minor changes aimed at improving the unit control experience across the roster. Read the full details in our microblog!",
         Url = "https://www.beyondallreason.info/microblogs/182",
