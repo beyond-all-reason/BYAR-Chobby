@@ -218,22 +218,9 @@ local function loadPolygonStartboxes(mapName)
 
       -- Load mapside polygon startbox config
       if VFS.FileExists("mapconfig/map_startboxes.lua") then
-        -- Some map configs reference Spring.Utilities.Gametype which doesn't exist
-        -- in the lobby. Provide stubs that return false so configs fall through
-        -- to their default (typically 2-team) branch.
-        local savedGametype = Spring.Utilities and Spring.Utilities.Gametype
-        if Spring.Utilities then
-          Spring.Utilities.Gametype = setmetatable({}, {
-            __index = function() return function() return false end end,
-          })
-        end
         local ok, cfg = pcall(function()
           return VFS.Include("mapconfig/map_startboxes.lua")
         end)
-        -- Restore original Gametype (or remove stub)
-        if Spring.Utilities then
-          Spring.Utilities.Gametype = savedGametype
-        end
         if ok and cfg then
           result.config = cfg
         elseif not ok then
