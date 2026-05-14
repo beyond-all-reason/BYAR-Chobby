@@ -19,42 +19,18 @@ local welcomePanelItems = {
     },
 
     {
+        Header = "This Month in BAR – April/May 2026",
+        Text = "New visual effects, gameplay changes, and balance updates are here! GL4 visual overhaul brings build particles, death fire, beam lasers, plasma projectiles, missile trails, shield effects, bloom and more!" .. " \n" .. " \n" .. "EasyTax 2.0 overhauls resource sharing. New UI widgets, PiP improvements, ETA timers for reclaim/resurrect, and 4 new music tracks round out the update." .. " \n" .. " \n",
+        Url = "https://www.beyondallreason.info/microblogs/184",
+        UrlText = "Read the devlog",
+    },
+
+    {
         Header = "The BAR Documentary is Here!",
         Text = "From community roots to modern RTS ambition, this is the story of Beyond All Reason, featuring the one and only Chris Taylor." .. " \n" .. " \n" .. "Hear from BAR devs as they look back at the project's history, share where it stands today, and talk about where it's heading next. Go behind the scenes, with the journey put into context by the man who started it all." .. " \n" .. " \n" .. "Huge thanks to Fortress Sydney and the Source Code crew for making this possible!" .. " \n" .. " \n",
         Image = "LuaMenu/images/welcomepanel/sourcecode_documentary.png",
         Url = "https://www.youtube.com/watch?v=5F36yViPz7w",
         UrlText = "Watch the Documentary",
-    },
-
-    {
-        Header = "Quality of Life Balance Patch is Live!",
-        Text = "We have made some minor changes aimed at improving the unit control experience across the roster. Read the full details in our microblog!",
-        Url = "https://www.beyondallreason.info/microblogs/182",
-        UrlText = "See the changes",
-    },
-
-    {
-        Header = "Unit Stats 2.0 is Live!",
-        Text = "The Website Unit Library just got a massive upgrade! All weapons per unit are now listed with individual stats across all factions including Legion. Fire every weapon directly in the browser with accurate range, speed, duration and firing sounds." .. " \n" .. " \n" .. "New features include DOT tracking, paralyzer PPS, target category indicators, fixed animations, new 3D unit renders, and mobile-optimised performance. Use 1-9 to fire weapons and 0 to pause the scene!" .. " \n" .. " \n",
-        Image = "LuaMenu/images/welcomepanel/unit_stats_2.png",
-        Url = "https://www.beyondallreason.info/units/armada-bots",
-        UrlText = "Browse the Unit Library",
-    },
-
-    {
-        Header = "The Lore is here!",
-        Text = "Time to dive in, Commanders.  \n" .. " \n" .. "Step Beyond Human Reach, uncover the stories of Armada and Cortex, and navigate the vastness of BAR universe.",
-        Image = "LuaMenu/images/welcomepanel/lore.png",
-        Url = "https://www.beyondallreason.info/news/the-lore-is-here",
-        UrlText = "Read the Announcement",
-    },
-
-    {
-        Header = "Star BAR on GitHub!",
-        Text = "BAR is built by the community, for the community. One easy way to support us: star our GitHub repository! " .. " \n" .. " \n" .. "It signals the project is alive and helps us access developer programs that give us better tools to build with." .. " \n" .. " \n" .. "(Star button in top right corner of the linked page)" .. " \n" .. " \n",
-        Image = "LuaMenu/images/welcomepanel/github_star.png",
-        Url = "https://github.com/beyond-all-reason/Beyond-All-Reason",
-        UrlText = "Star us on GitHub",
     },
 
     {
@@ -65,27 +41,13 @@ local welcomePanelItems = {
         UrlText = "Sign Up for Overwatch",
     },
 
-    {
-        Header = "Now Available: BAR Guides",
-        Text = "New to Beyond All Reason? Check out these new Guides on Discord written by Zeteo!" .. " \n" .. " \n",
-        Url = "https://discord.com/channels/549281623154229250/1303141562120929320/1303141562120929320",
-        UrlText = "Read the new Guides",
-    },
-
     --{
     --    Header = "Please help us test new engines!",
     --    Text = "Just select [Engine Test] in the launcher dropdown, and then play Skirmish and Multiplayer games. AMD testers especially needed. Report anything out of the ordinary to Discord!\n",
     --    UrlText = "BAR #engine channel on Discord"
     --},
 
-    {
-        Header = "Steam release roadmap",
-        Url = "https://www.beyondallreason.info/development/steam-release",
-        Text = "We've published our Steam Release roadmap, check it out on the website!",
-        UrlText = "Roadmap Link"
-    },
-
-    --[[
+     --[[
     {
         Header = "New engine release",
         Text = "We've just released a new engine update. Be sure to report any issues to #bugreports on the discord and thank you for bearing with us through any teething problems with it.."
