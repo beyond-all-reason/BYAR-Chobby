@@ -629,8 +629,9 @@ end
 local function GetErrorLog()
 	local infolog = VFS.LoadFile("infolog.txt") or table.concat(VFS.DirList('.') or {},',') or "Unable to find infolog.txt"
 	local compressedlog = Spring.Utilities.Base64Encode(VFS.ZlibCompress(infolog))
+	local _errortype, _errorkey, _fullinfolog, versionData = ParseInfolog(filename)
 	--Spring.Echo("GetErrorLog", string.len(infolog),string.len(compressedlog))
-	Analytics.SendCrashReportOneTimeEvent("infolog.txt", "Errorlog", "Errorlog", compressedlog, true)
+	Analytics.SendCrashReportOneTimeEvent("infolog.txt", "Errorlog", "Errorlog", compressedlog, true, versionData)
 end
 
 --------------------------------------------------------------------------------
