@@ -1,8 +1,5 @@
--- Spline tessellation for startbox anchor rings.
--- Used by mapStartBoxes.lua to convert spline-flagged polygons (loaded from
--- a map's mapconfig/map_startboxes.lua) into dense polygon vertex lists before
--- the lobby renderer consumes them. Mirrors bar-game/common/lib_spline.lua so
--- both the game and the lobby produce visually-identical tessellations.
+-- Mirrors bar-game/common/lib_spline.lua so the lobby and game produce
+-- vertex-identical tessellations of the same anchor ring.
 
 local SplineLib = {}
 
@@ -14,12 +11,8 @@ local function clamp01(v)
 	return v
 end
 
---- Sample a Catmull-Rom curve segment between p1 and p2 (with neighbours p0, p3),
---- blended toward the linear interpolation by `tension` in [0, 1].
---- tension == 0 returns the exact linear interpolation between p1 and p2.
---- tension == 1 returns the full uniform Catmull-Rom sample.
---- Anchor points lie on the curve regardless of tension because at t=0 and t=1
---- both linear and Catmull-Rom outputs coincide with p1 and p2.
+-- tension=0 collapses to linear; tension=1 is full Catmull-Rom. Anchor points
+-- lie on the curve at any tension because t=0/t=1 coincide for both.
 local function sampleSegment(p0, p1, p2, p3, t, tension)
 	local lx = p1[1] + (p2[1] - p1[1]) * t
 	local lz = p1[2] + (p2[2] - p1[2]) * t
@@ -44,16 +37,8 @@ local function sampleSegment(p0, p1, p2, p3, t, tension)
 	return lx + (crX - lx) * tension, lz + (crZ - lz) * tension
 end
 
---- Tessellate a closed ring of anchor points into a polygon.
---- Every polygon goes through this function — plain polygons are a degenerate
---- case where all anchor strengths are zero, producing vertex-identical output
---- to the input. An anchor with a missing 3rd element is treated as strength 0
---- (sharp corner): if the caller didn't ask for curvature, they don't get it.
---- @param anchors table array of {x, z} or {x, z, strength} anchors (closed implicitly).
---- @param opts table|nil { segments = number }
----   segments: subdivisions per curved edge (default 12). Test-time hook;
----   production callers omit this and accept the default.
---- @return table polygon as {{x, z}, ...} suitable for the existing polygon consumers.
+-- Plain polygons (no strength on any anchor) emerge vertex-identical, so
+-- callers can tessellate unconditionally without a branch.
 function SplineLib.TessellateRing(anchors, opts)
 	local n = #anchors
 	if n < 2 then
