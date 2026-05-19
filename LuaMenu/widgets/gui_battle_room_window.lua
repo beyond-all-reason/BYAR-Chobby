@@ -28,8 +28,11 @@ local mainWindowFunctions
 local showDefaultStartCheckbox = false
 local currentStartRects = {}
 local startRectValues = {} -- for exporting the raw values
-local polygonStartboxesActive = false -- flag for active polygon startboxes
-local activePolygonConfig = nil -- cached polygon config for current map
+local polygonStartboxesActive = false
+local activePolygonConfig = nil
+-- false while a custom preset is applied; true once defaults reload. Drives whether
+-- AddStartRect renders SPADS-sent AABBs or defers to the polygon overlay.
+local defaultStartboxMode = true
 
 local singleplayerWrapper
 local multiplayerWrapper
@@ -244,6 +247,8 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 						keepAspect = true,
 						labelCaption = startBoxSelect.Caption,
 						OnAccepted = function(integervalue)
+							defaultStartboxMode = false
+							externalFunctions.RemovePolygonOverlays()
 							if battleLobby.name == "singleplayer" then
 								externalFunctions.RemoveStartRect()
 								startBoxSelect.AcceptFuncSingleplayer(integervalue)
@@ -369,6 +374,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		tooltip = "Add a new start box in the center",
 		OnClick = {
 			function ()
+				externalFunctions.ExitPolygonMode()
 				if battleLobby.name == "singleplayer" then
 					externalFunctions.AddStartRect(#currentStartRects,66, 66, 133, 133)
 				else
@@ -405,6 +411,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		tooltip = "Remove last start box",
 		OnClick = {
 			function ()
+				externalFunctions.ExitPolygonMode()
 				if battleLobby.name == "singleplayer" then
 					if #currentStartRects > 0 then
 						externalFunctions.RemoveStartRect(#currentStartRects -1)
@@ -457,8 +464,6 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 			rect:BringToFront()
 
 		end
-
-		-- DrawControlPostChildren is cleared in RemovePolygonOverlays; no separate overlay invalidation needed
 
 	end
 
@@ -1242,17 +1247,28 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 
 			local isSingleplayer = (battleLobby.name == "singleplayer")
 			local mapName = battleInfo.mapName
-			local allyTeamCount = emptyTeamIndex
+			local allyTeamCount = isSingleplayer and emptyTeamIndex or (tonumber(battle.nbTeams) or emptyTeamIndex or 2)
 			local startboxes = nil
 			local Configuration = WG.Chobby.Configuration
 
+			externalFunctions.RemoveStartRect()
+			externalFunctions.RemovePolygonOverlays()
+			defaultStartboxMode = true
+
 			if isSingleplayer then
 				imMinimap.children = {}
-				-- Always clean up previous state on map change
-				externalFunctions.RemoveStartRect()
-				externalFunctions.RemovePolygonOverlays()
 				if startBoxPanel then startBoxPanel:SetVisibility(true) end
+			end
 
+			local polygonConfig = nil
+			if Configuration.gameConfig and
+					Configuration.gameConfig.useDefaultStartBoxes and
+					Configuration.gameConfig.mapStartBoxes and
+					Configuration.gameConfig.mapStartBoxes.loadPolygonStartboxes then
+				polygonConfig = Configuration.gameConfig.mapStartBoxes.loadPolygonStartboxes(mapName)
+			end
+
+			if isSingleplayer then
 				if Configuration.gameConfig and
 						Configuration.gameConfig.useDefaultStartBoxes and
 						Configuration.gameConfig.mapStartBoxes and
@@ -1261,18 +1277,9 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 					local mapStartBoxes = Configuration.gameConfig.mapStartBoxes
 					mapStartBoxes.clearBoxes()
 
-					-- Check for polygon startboxes from map archive first
-					local polygonConfig = nil
-					if mapStartBoxes.loadPolygonStartboxes then
-						polygonConfig = mapStartBoxes.loadPolygonStartboxes(mapName)
-					end
-
 					if polygonConfig then
-						-- Use polygon startboxes as the default for this map
 						externalFunctions.AddPolygonStartboxes(polygonConfig, allyTeamCount)
 					else
-						-- Fall back to existing rectangular startboxes
-						externalFunctions.RemovePolygonOverlays()
 						startBoxes = Configuration.gameConfig.mapStartBoxes.savedBoxes[mapName]
 						startBoxes = Configuration.gameConfig.mapStartBoxes.selectStartBoxesForAllyTeamCount(startBoxes,allyTeamCount)
 						if startBoxes then
@@ -1292,6 +1299,8 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 				else
 					Spring.Echo("No map startBoxes found or disabled for map",mapName,"teamcount:",allyTeamCount)
 				end
+			elseif polygonConfig then
+				externalFunctions.AddPolygonStartboxes(polygonConfig, allyTeamCount)
 			end
 
 			-- TODO: Bit lazy here, seeing as we only need to update the map
@@ -1386,13 +1395,17 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		-- it doesnt even know how big it is right nowhere
 		-- Spring.Utilities.TraceFullEcho()
 
-		-- Clear polygon overlays when switching to rectangular startboxes
+		-- Capture happens before the early return so script export works in either mode.
+		startRectValues[allyNo+1]={["left"]=left, ["top"]=top, ["right"]=right, ["bottom"]=bottom}
+
+		-- SPADS-sent AABBs in default mode are bounding boxes of the polygons we're already drawing.
+		if polygonStartboxesActive and defaultStartboxMode then
+			return
+		end
+
 		if polygonStartboxesActive then
 			externalFunctions.RemovePolygonOverlays()
 		end
-
-		-- adding the raw values
-		startRectValues[allyNo+1]={["left"]=left, ["top"]=top, ["right"]=right, ["bottom"]=bottom}
 
 		local minimapPanelMaxSize = math.max(minimapPanel.width,minimapPanel.height) -1
 		local ox = math.floor(left * minimapPanelMaxSize / 200)
@@ -1512,8 +1525,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		return currentStartRects
 	end
 
-	-- Polygon startbox visual style matching the existing startbox_window appearance:
-	-- white border (from TileImage), dark semi-transparent fill
+	-- Chosen to match the rectangular startbox_window's TileImage skin.
 	local polygonFillColor = {0.1, 0.1, 0.1, 0.7}
 	local polygonBorderColor = {1, 1, 1, 0.7}
 
@@ -1526,6 +1538,20 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		end
 	end
 
+	-- Tear down the polygon overlay and materialize the AABBs we'd been suppressing,
+	-- so the user's subsequent manual edits operate on visible, real rects.
+	function externalFunctions.ExitPolygonMode()
+		if not polygonStartboxesActive then return end
+		local snapshot = {}
+		for i, v in pairs(startRectValues) do snapshot[i] = v end
+		defaultStartboxMode = false
+		externalFunctions.RemovePolygonOverlays()
+		startRectValues = {}
+		for i, v in pairs(snapshot) do
+			if v then externalFunctions.AddStartRect(i - 1, v.left, v.top, v.right, v.bottom) end
+		end
+	end
+
 	function externalFunctions.AddPolygonStartboxes(polygonConfig, allyTeamCount)
 		externalFunctions.RemovePolygonOverlays()
 		externalFunctions.RemoveStartRect()
@@ -1533,10 +1559,9 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		activePolygonConfig = polygonConfig
 
 		local labelFont = WG.Chobby.Configuration:GetFont(2)
-		local teamCount = allyTeamCount -- capture for closure
+		local teamCount = allyTeamCount
 
-		-- Set DrawControlPostChildren on the minimap panel to render polygon overlays.
-		-- This draws AFTER all children (minimap image, etc.) in the panel's local coords.
+		-- PostChildren: draws after the minimap image so the overlay is on top.
 		minimapPanel.DrawControlPostChildren = function(self)
 			if not polygonStartboxesActive or not activePolygonConfig then return end
 
@@ -1544,7 +1569,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 			local h = self.height
 			if w <= 0 or h <= 0 then return end
 
-			-- Clear texture state left by prior Chili rendering (minimap image, etc.)
+			-- Chili leaves a texture bound from drawing the minimap image.
 			gl.Texture(0, false)
 			gl.Texture(false)
 
@@ -1554,8 +1579,8 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 
 					for _, polygon in ipairs(entry.boxes) do
 						if #polygon >= 3 then
-							-- Centroid-based fill; may have artifacts on highly concave polygons.
-							-- The outline below is always correct regardless of polygon shape.
+							-- Centroid-fan fill; may artifact on highly concave polygons.
+							-- The outline below is always correct regardless of shape.
 							local cx, cy = 0, 0
 							for _, v in ipairs(polygon) do
 								cx = cx + (w * v[1] / 200)
@@ -1564,7 +1589,6 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 							cx = cx / #polygon
 							cy = cy / #polygon
 
-							-- Semi-transparent fill matching startbox_window appearance
 							gl.Color(polygonFillColor[1], polygonFillColor[2], polygonFillColor[3], polygonFillColor[4])
 							gl.BeginEnd(GL.TRIANGLES, function()
 								for i = 1, #polygon do
@@ -1575,7 +1599,6 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 								end
 							end)
 
-							-- Polygon outline matching startbox_window white border
 							gl.Color(polygonBorderColor[1], polygonBorderColor[2], polygonBorderColor[3], polygonBorderColor[4])
 							gl.LineWidth(2)
 							gl.BeginEnd(GL.LINE_LOOP, function()
@@ -1585,7 +1608,6 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 							end)
 							gl.LineWidth(1)
 
-							-- Draw team label at centroid of each polygon
 							if labelFont then
 								gl.Color(1, 1, 1, 0.9)
 								labelFont:Print(tostring(allyIdx), cx, cy, "center", "center")
@@ -1597,16 +1619,14 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 				end
 			end
 
-			-- Reset GL state for subsequent Chili rendering
+			-- Restore GL state so subsequent Chili drawing isn't poisoned.
 			gl.Texture(0, false)
 			gl.Color(1, 1, 1, 1)
 			gl.LineWidth(1)
 		end
 
-		-- Trigger panel redraw to pick up the new DrawControlPostChildren
 		minimapPanel:Invalidate()
 
-		-- Also set engine startrect values from bounding boxes (for script generation)
 		for allyIdx = 1, allyTeamCount do
 			local entry = polygonConfig[allyIdx]
 			if entry and entry.boundingBox then
@@ -1619,10 +1639,6 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 				}
 			end
 		end
-	end
-
-	function externalFunctions.IsPolygonActive()
-		return polygonStartboxesActive
 	end
 
 	MaybeDownloadGame(battle)
@@ -3608,7 +3624,6 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 
 	function externalFunctions.OnBattleClosed(listener, closedBattleID)
 		if battleID == closedBattleID and mainWindow then
-			-- Clean up polygon state before disposing
 			polygonStartboxesActive = false
 			activePolygonConfig = nil
 			mainWindow:Dispose()
@@ -3894,9 +3909,27 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		local myUserName = battleLobby:GetMyUserName()
 		local iAmMentioned = (string.find(message,myUserName,nil,true) ~= nil)
 
+		-- SPADS' confirmation that defaults were reloaded; reactivate the polygon overlay
+		-- so the rectangle draws arriving next get suppressed by AddStartRect.
+		if string.match(message, "Loaded boxes of map .%w+. ") then
+			defaultStartboxMode = true
+			local Configuration = WG.Chobby.Configuration
+			if Configuration.gameConfig and
+					Configuration.gameConfig.useDefaultStartBoxes and
+					Configuration.gameConfig.mapStartBoxes and
+					Configuration.gameConfig.mapStartBoxes.loadPolygonStartboxes then
+				local polygonConfig = Configuration.gameConfig.mapStartBoxes.loadPolygonStartboxes(battle.mapName)
+				if polygonConfig then
+					infoHandler.RemoveStartRect()
+					infoHandler.AddPolygonStartboxes(polygonConfig, tonumber(battle.nbTeams) or 2)
+				end
+			end
+			StartBoxComboBoxSelectDefault()
+			return false
+		end
+
 		-- Restore default position on startbox selector when map, preset or teamcount changes
 		if string.match(message, "Global setting changed by .- %((nbTeams=%d+)%)$")
-		or string.match(message, "Loaded boxes of map .%w+. ")
 		or string.match(message, "Map changed by .-%: .+$")
 		or string.match(message, "Preset .%w+. %(.-%) applied by .+$")
 		then
