@@ -148,32 +148,19 @@ local function makeAllyTeamBox(startboxes, allyteamindex)
     return allyteamtable
 end
 
--- Polygon startbox loading from map archives
 local SplineLib = VFS.Include(LUA_DIRNAME .. "configs/gameConfig/byar/lib_spline.lua")
 
-local polygonCache = {} -- cache keyed by mapName
-
-local function clearPolygonCache()
-  polygonCache = {}
-end
+local polygonCache = {}
 
 local function getMapDimensionsFromMapDetails(mapName)
-  -- mapDetails has Width/Height in spring map units (multiply by 512 for elmos)
   local mapDetails = nil
   if WG and WG.Chobby and WG.Chobby.Configuration and WG.Chobby.Configuration.gameConfig then
     mapDetails = WG.Chobby.Configuration.gameConfig.mapDetails
   end
-  if not mapDetails then
-    local ok, details = pcall(function()
-      return VFS.Include(LUA_DIRNAME .. "configs/gameConfig/byar/mapDetails.lua")
-    end)
-    if ok and details then
-      mapDetails = details
-    end
-  end
   if mapDetails and mapDetails[mapName] then
     local data = mapDetails[mapName]
     if data.Width and data.Height then
+      -- spring map units to elmos
       return data.Width * 512, data.Height * 512
     end
   end
@@ -181,7 +168,6 @@ local function getMapDimensionsFromMapDetails(mapName)
 end
 
 local function readInt32LE(data, offset)
-  -- Read a 4-byte little-endian int32 from a string at 1-based offset
   local b1, b2, b3, b4 = string.byte(data, offset, offset + 3)
   if not b1 or not b4 then return nil end
   return b1 + b2 * 256 + b3 * 65536 + b4 * 16777216
@@ -190,7 +176,6 @@ end
 local function loadPolygonStartboxes(mapName)
   if mapName == nil then return nil end
 
-  -- Return cached result
   local cacheKey = tostring(mapName)
   if polygonCache[cacheKey] ~= nil then
     if polygonCache[cacheKey] == false then
@@ -199,7 +184,6 @@ local function loadPolygonStartboxes(mapName)
     return polygonCache[cacheKey]
   end
 
-  -- Check map archive for mapside config + SMF dimensions
   local rawConfig = nil
   local smfDimsX, smfDimsZ = nil, nil
   local mapArchiveAvailable = VFS.HasArchive(mapName)
@@ -216,7 +200,6 @@ local function loadPolygonStartboxes(mapName)
     local loadFromMap = function()
       local result = { config = nil, smfDimsX = nil, smfDimsZ = nil }
 
-      -- Load mapside polygon startbox config
       if VFS.FileExists("mapconfig/map_startboxes.lua") then
         local ok, cfg = pcall(function()
           return VFS.Include("mapconfig/map_startboxes.lua")
@@ -228,7 +211,6 @@ local function loadPolygonStartboxes(mapName)
         end
       end
 
-      -- Try to read SMF header for map dimensions (fallback for maps not in mapDetails)
       -- SMF header: magic(16) + version(4) + mapid(4) + mapx(4) + mapy(4)
       local ok2, smfResult = pcall(function()
         local smfFiles = VFS.DirList("maps/", "*.smf")
@@ -276,14 +258,22 @@ local function loadPolygonStartboxes(mapName)
     return nil
   end
 
-  -- Get map dimensions: try mapDetails first, then SMF header, then infer from polygon coords
+  -- Real-world mapside configs (e.g. Cirolata, Onyx Cauldron) use 0-based allyTeam
+  -- keys to match the game-side gadget; chobby's renderer and script generation are 1-based.
+  if rawConfig[0] ~= nil then
+    local shifted = {}
+    for k, v in pairs(rawConfig) do
+      shifted[k + 1] = v
+    end
+    rawConfig = shifted
+  end
+
   local mapSizeX, mapSizeZ = getMapDimensionsFromMapDetails(mapName)
   if not mapSizeX or not mapSizeZ then
     mapSizeX = smfDimsX
     mapSizeZ = smfDimsZ
   end
   if not mapSizeX or not mapSizeZ then
-    -- Last resort: infer from polygon coordinates (round up to nearest multiple of 512)
     local maxX, maxZ = 0, 0
     for _, entry in pairs(rawConfig) do
       if entry.boxes then
@@ -306,11 +296,8 @@ local function loadPolygonStartboxes(mapName)
     return nil
   end
 
-  -- Run every polygon through the spline tessellator before the 0-200
-  -- conversion. Anchors without a per-anchor strength are treated as sharp
-  -- corners (strength 0), so plain polygons emerge with vertex-identical
-  -- output. The renderer always sees plain polygons regardless of whether
-  -- the source config was a polygon or a spline anchor ring.
+  -- Tessellate unconditionally: anchors without strength are sharp corners,
+  -- so plain polygons emerge vertex-identical.
   for _, entry in pairs(rawConfig) do
     if entry.boxes then
       for i = 1, #entry.boxes do
@@ -319,7 +306,7 @@ local function loadPolygonStartboxes(mapName)
     end
   end
 
-  -- Convert the raw config to lobby format (1-based, 0-200 space)
+  -- Lobby format: 1-based, 0-200 normalized space.
   local lobbyConfig = {}
   for allyTeamID, entry in pairs(rawConfig) do
     local lobbyEntry = {
@@ -330,7 +317,6 @@ local function loadPolygonStartboxes(mapName)
       startpoints = {},
     }
 
-    -- Convert polygon vertices from world coords to 0-200 normalized space
     if entry.boxes then
       for i, polygon in ipairs(entry.boxes) do
         local lobbyPolygon = {}
@@ -344,7 +330,6 @@ local function loadPolygonStartboxes(mapName)
       end
     end
 
-    -- Convert startpoints
     if entry.startpoints then
       for i, sp in ipairs(entry.startpoints) do
         lobbyEntry.startpoints[i] = {
@@ -354,7 +339,7 @@ local function loadPolygonStartboxes(mapName)
       end
     end
 
-    -- Compute bounding box in 0-200 space for engine startrects
+    -- Bounding box drives engine startrects when launching the game.
     local xmin, zmin = 200, 200
     local xmax, zmax = 0, 0
     for _, polygon in ipairs(lobbyEntry.boxes) do
@@ -375,10 +360,9 @@ local function loadPolygonStartboxes(mapName)
   return lobbyConfig
 end
 
-local function makeAllyTeamBoxPolygon(polygonConfig, allyteamindex)
-  -- For polygon maps, send the bounding box as engine startrects
-  -- The game's startbox_utilities.lua loads polygon config directly from the map archive
-  -- and game_startbox_config.lua expands the engine AABB to cover polygon bounds
+local function makeAllyTeamBoxFromPolygon(polygonConfig, allyteamindex)
+  -- The game-side gadget re-reads the polygon config from the map archive and does
+  -- containment; the bounding box here is only the engine's coarse AABB.
   local allyteamtable = { numallies = 0 }
   local entry = polygonConfig[allyteamindex + 1]
   if entry and entry.boundingBox then
@@ -434,8 +418,7 @@ return {
   selectStartBoxesForAllyTeamCount = selectStartBoxesForAllyTeamCount,
   makeAllyTeamBox = makeAllyTeamBox,
   loadPolygonStartboxes = loadPolygonStartboxes,
-  makeAllyTeamBoxPolygon = makeAllyTeamBoxPolygon,
-  clearPolygonCache = clearPolygonCache,
+  makeAllyTeamBoxFromPolygon = makeAllyTeamBoxFromPolygon,
   getBox = getBox,
   clearBoxes = clearBoxes,
   removeBox = removeBox,

@@ -251,7 +251,6 @@ function InterfaceSkirmish:_StartScript(gameName, mapName, playerName, friendLis
 		Configuration.gameConfig.useDefaultStartBoxes and
 		Configuration.gameConfig.mapStartBoxes then
 
-		-- Check for polygon startboxes from map archive first
 		if Configuration.gameConfig.mapStartBoxes.loadPolygonStartboxes then
 			polygonConfig = Configuration.gameConfig.mapStartBoxes.loadPolygonStartboxes(mapName)
 		end
@@ -275,7 +274,7 @@ function InterfaceSkirmish:_StartScript(gameName, mapName, playerName, friendLis
 	for i, teamData in pairs(teams) do
 		if not allyTeams[teamData.AllyTeam] then
 			if polygonConfig then
-				allyTeams[teamData.AllyTeam] = Configuration.gameConfig.mapStartBoxes.makeAllyTeamBoxPolygon(polygonConfig, teamData.AllyTeam)
+				allyTeams[teamData.AllyTeam] = Configuration.gameConfig.mapStartBoxes.makeAllyTeamBoxFromPolygon(polygonConfig, teamData.AllyTeam)
 		    elseif startBoxes then
 				allyTeams[teamData.AllyTeam] = Configuration.gameConfig.mapStartBoxes.makeAllyTeamBox(startBoxes,teamData.AllyTeam)
 		    else
