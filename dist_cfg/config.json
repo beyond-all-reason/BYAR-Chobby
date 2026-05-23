@@ -104,8 +104,8 @@
                         "optional": true
                     },
                     {
-                        "url": "https://github.com/beyond-all-reason/RecoilEngine/releases/download/2025.06.22/recoil_2025.06.22_amd64-linux.7z",
-                        "destination": "engine/recoil_2025.06.22",
+                        "url": "https://github.com/beyond-all-reason/RecoilEngine/releases/download/2025.06.23/recoil_2025.06.23_amd64-linux.7z",
+                        "destination": "engine/recoil_2025.06.23",
                         "extract": true
                     }
                 ]
@@ -114,7 +114,7 @@
             "logs_s3_bucket": "bar-infologs",
             "launch": {
                 "start_args": ["--menu", "rapid://byar-chobby:test"],
-                "engine": "recoil_2025.06.22",
+                "engine": "recoil_2025.06.23",
                 "springsettings": {
                     "RapidTagResolutionOrder": "repos-cdn.beyondallreason.dev;repos.beyondallreason.dev"
                 }
@@ -143,8 +143,8 @@
                         "optional": true
                     },
                     {           
-                        "url": "https://github.com/beyond-all-reason/RecoilEngine/releases/download/2025.06.22/recoil_2025.06.22_amd64-windows.7z",
-                        "destination": "engine/recoil_2025.06.22",
+                        "url": "https://github.com/beyond-all-reason/RecoilEngine/releases/download/2025.06.23/recoil_2025.06.23_amd64-windows.7z",
+                        "destination": "engine/recoil_2025.06.23",
                         "extract": true
                     }
                 ]
@@ -153,7 +153,7 @@
             "logs_s3_bucket": "bar-infologs",
             "launch": {
                 "start_args": ["--menu", "rapid://byar-chobby:test"],
-                "engine": "recoil_2025.06.22",
+                "engine": "recoil_2025.06.23",
                 "springsettings": {
                     "RapidTagResolutionOrder": "repos-cdn.beyondallreason.dev;repos.beyondallreason.dev"
                 }
