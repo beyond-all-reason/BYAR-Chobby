@@ -1687,12 +1687,12 @@ function LoginWindow:createAgreementWindow()
 		height = 60,
 		right = "2%",
 		bottom = 204,
-		caption = "Terms of service",
+		caption = "Privacy policy",
 		classname = "link_button",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		OnClick = {
 			function ()
-				WG.BrowserHandler.OpenUrl("https://server4.beyondallreason.info/privacy_policy")
+				WG.BrowserHandler.OpenUrl("https://www.beyondallreason.info/privacy")
 			end
 		},
 		parent = self.agreementWindow,
