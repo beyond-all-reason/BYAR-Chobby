@@ -25,7 +25,6 @@ local battleLobby
 local wrapperControl
 local mainWindowFunctions
 
-local showDefaultStartCheckbox = false
 local currentStartRects = {}
 local startRectValues = {} -- for exporting the raw values
 
@@ -45,18 +44,27 @@ local IMG_LINK     = LUA_DIRNAME .. "images/link.png"
 local IMG_CHECKBOX		= LUA_DIRNAME .. "images/checkbox.png"
 local IMG_CHECKARROW		= LUA_DIRNAME .. "images/checkbox_arrow.png"
 
+local MINIMAP_TOOLTIP_PREFIX = "minimap_tooltip_"
+
 local MINIMUM_QUICKPLAY_PLAYERS = 4 -- Hax until the server tells me a number.
 
 local lastUserToChangeStartBoxes = ''
 
 local readyButton
 local btnStartBattle = nil
+local btnDownloadMap = nil
+local isMapDownloading = false
 
 local vote_votingsPattern = "(%d+)/(%d+).-:(%d+)"
 local vote_whoCalledPattern = "%* (.*) called a vote for command"
 local vote_mapPattern = 'set map (.*)"'
 
 local playerHandler
+
+-- modoptions extra
+local factionComboBoxes = {}
+local randomSkirmishCooldownEnds = 0
+
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 -- Download management
@@ -104,11 +112,29 @@ local function UpdateArchiveStatus(updateSync)
 				btnStartBattle.tooltip = i18n("startbtn_votestart_tooltip")
 			end
 			btnStartBattle.suppressButtonReaction = false
+			-- hide download UI, restore start button
+			if battleLobby.name == "singleplayer" then
+				isMapDownloading = false
+				btnStartBattle:SetVisibility(true)
+				if btnDownloadMap then btnDownloadMap:SetVisibility(false) end
+			end
 		else
-			btnStartBattle.tooltip = i18n("startbtn_gettingcontent_tooltip")
-			btnStartBattle:StyleOff()
-			btnStartBattle:SetEnabled(false)
-			btnStartBattle.suppressButtonReaction = true
+			if battleLobby.name == "singleplayer" then
+				-- show download button instead of a disabled start button
+				btnStartBattle:SetVisibility(false)
+				if btnDownloadMap then
+					btnDownloadMap:SetVisibility(true)
+					if not isMapDownloading then
+						btnDownloadMap:SetCaption("Download")
+						btnDownloadMap:SetEnabled(true)
+					end
+				end
+			else
+				btnStartBattle.tooltip = i18n("startbtn_gettingcontent_tooltip")
+				btnStartBattle:StyleOff()
+				btnStartBattle:SetEnabled(false)
+				btnStartBattle.suppressButtonReaction = true
+			end
 		end
 
 	end
@@ -134,9 +160,171 @@ local OpenNewTeam
 --------------------------------------------------------------------------------
 -- Chili/interface management
 
-local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUserName)
+local function GetSavedSkirmishDifficultyProfile()
+	local config = WG.Chobby and WG.Chobby.Configuration
+	local selectedProfile = config and config.randomSkirmishDifficulty
+	local validProfiles = {
+		hard_aggressive = true,
+		hard = true,
+		medium = true,
+		easy = true,
+		dev = true,
+	}
+	if selectedProfile and validProfiles[selectedProfile] then
+		return selectedProfile
+	end
+	return "medium"
+end
+
+local function BuildRandomSkirmishSetup()
+	local mapDetails = VFS.Include("luamenu/configs/gameconfig/byar/mapdetails.lua")
+	local validMaps = {}
+	local difficultyProfile = GetSavedSkirmishDifficultyProfile()
+
+	for mapName, details in pairs(mapDetails or {}) do
+		local teamCount = tonumber(details.TeamCount) or 2
+		local playerCount = tonumber(details.PlayerCount) or (teamCount * 2)
+
+		local isTeamMap = details.IsTeam
+		local isFFAMap = details.IsFFA
+		if ((isTeamMap or (not isFFAMap)) and teamCount >= 2 and playerCount >= teamCount) then
+			validMaps[#validMaps + 1] = {
+				mapName = mapName,
+				teamCount = teamCount,
+				playerCount = playerCount,
+			}
+		end
+	end
+
+	if #validMaps == 0 then
+		return nil
+	end
+
+	local picked = validMaps[math.random(1, #validMaps)]
+	local teamCount = picked.teamCount
+	local playersPerTeam = math.max(1, math.floor((picked.playerCount / teamCount) + 0.5))
+
+	local setup = {
+		map = picked.mapName,
+		teamCount = teamCount,
+		playersPerTeam = playersPerTeam,
+		friendlyAI = {},
+		enemyAI = {},
+	}
+
+	for allyTeam = 0, teamCount - 1 do
+		local botCount = playersPerTeam
+		if allyTeam == 0 then
+			botCount = math.max(0, botCount - 1) -- counts local player for the first team
+		end
+
+		for _ = 1, botCount do
+			local shortName = "BARb" --uses only Barbarian AI
+			local aiDef = {
+				shortName = shortName,
+				allyTeam = allyTeam,
+				aiOptions = (shortName == "BARb" and {profile = difficultyProfile}) or nil,
+			}
+			if allyTeam == 0 then
+				setup.friendlyAI[#setup.friendlyAI + 1] = aiDef
+			else
+				setup.enemyAI[#setup.enemyAI + 1] = aiDef
+			end
+		end
+	end
+
+	local mapStartBoxes = WG.Chobby.Configuration.gameConfig and WG.Chobby.Configuration.gameConfig.mapStartBoxes
+	if mapStartBoxes and mapStartBoxes.savedBoxes and mapStartBoxes.selectStartBoxesForAllyTeamCount then
+		local allBoxes = mapStartBoxes.savedBoxes[setup.map]
+		local selectedBoxes = mapStartBoxes.selectStartBoxesForAllyTeamCount(allBoxes, setup.teamCount)
+		if selectedBoxes then
+			setup.startboxes = {}
+			for i = 1, setup.teamCount do
+				if selectedBoxes[i] then
+					setup.startboxes[i - 1] = {
+						200 * selectedBoxes[i][1],
+						200 * selectedBoxes[i][2],
+						200 * selectedBoxes[i][3],
+						200 * selectedBoxes[i][4],
+					}
+				end
+			end
+		end
+	end
+
+	return setup
+end
+
+local function ApplySingleplayerSkirmishSetup(singleplayerDefault)
+	if not singleplayerDefault or not battleLobby then
+		return
+	end
+
+	local sideChoice = WG.Chobby.Configuration.lastFactionChoice or 0
+	battleLobby:SetBattleStatus({
+		allyNumber = 0,
+		isSpectator = false,
+		side = sideChoice,
+	})
+
+	local aiNames = {}
+	for _, aiName in pairs(battleLobby.battleAis or {}) do
+		aiNames[#aiNames + 1] = aiName
+	end
+	for i = 1, #aiNames do
+		battleLobby:RemoveAi(aiNames[i])
+	end
+
+	if singleplayerDefault.map then
+		battleLobby:SelectMap(singleplayerDefault.map)
+	end
+
+	local aiCounter = 1
+	local function AddAI(shortName, allyTeam, color, aiOptions)
+		if not shortName then
+			return
+		end
+		local aiDisplayName = "BARbarianAI" .. "(" .. aiCounter .. ")"
+		if WG.Server.protocol == "spring" then
+			aiDisplayName = aiDisplayName:gsub(" ", "")
+		end
+
+		battleLobby:AddAi(aiDisplayName, shortName, allyTeam, nil, aiOptions, {
+			side = 2, -- random faction
+			teamColor = color,
+		})
+		aiCounter = aiCounter + 1
+	end
+
+	for i, ai in ipairs(singleplayerDefault.friendlyAI or {}) do
+		AddAI(ai.shortName, ai.allyTeam or 0, GetStarterFriendlyAIColorAssignment(i), ai.aiOptions)
+	end
+	for i, ai in ipairs(singleplayerDefault.enemyAI or {}) do
+		AddAI(ai.shortName, ai.allyTeam or 1, GetStarterEnemyAIColorAssignment(i), ai.aiOptions)
+	end
+
+	WG.Delay(function()
+		if not mainWindowFunctions or not mainWindowFunctions.GetInfoHandler then
+			return
+		end
+		local infoHandler = mainWindowFunctions.GetInfoHandler()
+		if not infoHandler then
+			return
+		end
+		infoHandler.RemoveStartRect()
+		if singleplayerDefault.startboxes then
+			for allyNo, box in pairs(singleplayerDefault.startboxes) do
+				infoHandler.AddStartRect(allyNo, box[1], box[2], box[3], box[4])
+			end
+		end
+		infoHandler.rightInfo:Invalidate()
+		infoHandler.UpdateStartRectPositionsInMinimap()
+	end, 0.12)
+end
+
+local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUserName, showRandomSkirmishButton)
 	local config = WG.Chobby.Configuration
-	local minimapBottomClearance = 160
+	local minimapBottomClearance = 172
 
 	local currentMapName
 	local oldSelectedBoxes = 1
@@ -477,7 +665,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 			return
 		end
 		mapName = battle.mapName:gsub("_", " ")
-		mapName = StringUtilities.GetTruncatedStringWithDotDot(mapName, lblMapName.font, width - 22)
+		mapName = StringUtilities.GetTruncatedStringWithDotDot(mapName, lblMapName.font, width)
 		lblMapName:SetCaption(mapName)
 	end
 	SetMapName(battle.mapName, mapLinkWidth)
@@ -510,36 +698,6 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		parent = minimapPanel,
 		tooltip = "Currently selected map. Green boxes show where each team will start"
 	}
-
-	if battleLobby.name == "singleplayer" and config.devMode then 
-		local comboboxstartpostype = ComboBox:New{
-			name = 'comboboxstartpostype',
-			x = "67.15%",
-			right = 13,
-			y = 15,
-			height = 30,
-			itemHeight = 22,
-			selectByName = true,
-			captionHorAlign = -12,
-			text = "",
-			objectOverrideFont = config:GetFont(2),
-			items = {"Fixed", "Random", "Choose In Game", "Choose Before Game"},
-			selected = "Choose In Game",
-			OnSelectName = {
-				function (obj, selectedName)
-					for k,v in ipairs  {"Fixed", "Random", "Choose In Game", "Choose Before Game"} do
-						if selectedName == v then
-							battle.startPosType = k - 1
-							--Spring.Echo("Selected startPosType", k,v, k-1,selectedName)
-							return
-						end
-					end
-					battle.startPosType = nil
-				end
-			},
-			parent = mainWindow,
-		}
-	end
 
 	local function RejoinBattleFunc()
 		--Spring.Echo("\LuaMenu\widgets\chobby\components\battle\battle_watch_list_window.lua","RejoinBattleFunc()","") -- Beherith Debug
@@ -627,6 +785,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 								Configuration.gameConfig.mapStartBoxes.singleplayerboxes = currentStartRects
 							end
 						end
+						battle.startPosType = Configuration.singleplayerStartPosType ~= nil and Configuration.singleplayerStartPosType or 2
 						WG.Analytics.SendOnetimeEvent("lobby:singleplayer:skirmish:start")
 						WG.SteamCoopHandler.AttemptGameStart("skirmish", battle.gameName, battle.mapName)
 					else
@@ -639,6 +798,37 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		parent = rightInfo,
 	}
 	ButtonUtilities.SetButtonDeselected(btnStartBattle)
+
+	-- Download button and progress bar (shown when map/game not yet downloaded, singleplayer only)
+	if battleLobby.name == "singleplayer" then
+		isMapDownloading = false
+
+		btnDownloadMap = Button:New {
+			name = 'btnDownloadMap',
+			x = 0,
+			right = 0,
+			bottom = 0,
+			height = 48,
+			caption = "Download",
+			classname = "ready_button",
+			objectOverrideFont = config:GetFont(3),
+			tooltip = "Download the map to be able to start this game.",
+			OnClick = {
+				function()
+					if isMapDownloading then return end
+					isMapDownloading = true
+					btnDownloadMap:SetCaption("Downloading...")
+					btnDownloadMap:SetEnabled(false)
+					MaybeDownloadGame(battle)
+					MaybeDownloadMap(battle)
+				end
+			},
+			parent = rightInfo,
+		}
+		btnDownloadMap:SetVisibility(false)
+
+
+	end
 
 	local btnPlay
 	local btnSpectate
@@ -761,6 +951,56 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	-- Spring.Echo("debug_initialSetButtonStatePlayingbefore")
 	SetButtonStatePlaying()
 	-- Spring.Echo("debug_initialSetButtonStatePlayingafter")
+
+	if battleLobby.name == "singleplayer" and showRandomSkirmishButton then
+		local randomButtonCaption = "Generate Random Game"
+		local btnRandomSkirmish
+
+		local function UpdateRandomSkirmishButton()
+			if not btnRandomSkirmish or btnRandomSkirmish.disposed then
+				return
+			end
+			local remaining = math.ceil(randomSkirmishCooldownEnds - os.clock())
+			if remaining > 0 then
+				btnRandomSkirmish:SetEnabled(false)
+				ButtonUtilities.SetCaption(btnRandomSkirmish, randomButtonCaption .. " (" .. remaining .. "s)")
+				WG.Delay(UpdateRandomSkirmishButton, 0.2)
+			else
+				btnRandomSkirmish:SetEnabled(true)
+				ButtonUtilities.SetCaption(btnRandomSkirmish, randomButtonCaption)
+			end
+		end
+		-- UI button to generate random skirmish game, 2s cooldown to prevent spam
+		--cooldown might not be needed cause of single player?
+		btnRandomSkirmish = Button:New {
+			name = "btnRandomSkirmish",
+			x = 0,
+			right = 0,
+			bottom = 86,
+			height = 30,
+			classname = "option_button",
+			caption = randomButtonCaption,
+			objectOverrideFont = config:GetFont(2),
+			tooltip = "Picks a random map and fills teams with bots.",
+			OnClick = {
+				function()
+					if os.clock() < randomSkirmishCooldownEnds then
+						return
+					end
+					randomSkirmishCooldownEnds = os.clock() + 2
+					UpdateRandomSkirmishButton()
+
+					local generated = BuildRandomSkirmishSetup()
+					if not generated then
+						return
+					end
+					ApplySingleplayerSkirmishSetup(generated)
+				end
+			},
+			parent = rightInfo,
+		}
+		UpdateRandomSkirmishButton()
+	end
 
 	local function SetBtnPlayState(selected, caption)
 		local myBs = battleLobby:GetUserBattleStatus(battleLobby.myUserName) or {}
@@ -952,12 +1192,14 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 			--or "Error: Could not retrieve modoptions, your game files may be corrupted or the lobby may be invalid"
 			or "Game Update may still be downloading"
 	local modoptionsLoaded = modoptions
-	local btnModoptions = Button:New {
+
+	local devMode = battleLobby.name == "singleplayer" and config.devMode
+	local btnModoptions, btnReloadModoptions = Button:New {
 		name = 'btnModoptions',
 		x = 5,
 		y = leftOffset,
 		height = 35,
-		right = 5,
+		right = devMode and "25%" or 5,
 		classname = "option_button",
 		caption = "Adv Options" .. "\b",
 		objectOverrideFont = config:GetFont(2),
@@ -973,7 +1215,31 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		},
 		parent = leftInfo,
 	}
-	leftOffset = leftOffset + 40
+	if devMode then
+		btnReloadModoptions = Button:New {
+			name = 'btnReloadModoptions',
+			x = "75%",
+			y = leftOffset,
+			height = 35,
+			right = 5,
+			classname = "option_button",
+			caption = "🔁",
+			objectOverrideFont = config:GetFont(2),
+			objectOverrideDisabledFont = config:GetFont(1),
+			hasDisabledFont = true,
+			tooltip = "Reload modoptions from game archive and show the panel.",
+			OnClick = {
+				function()
+					if modoptionsLoaded then
+						WG.ModoptionsPanel.LoadModoptions(battle.gameName, battleLobby, true)
+						WG.ModoptionsPanel.ShowModoptions()
+					end
+				end
+			},
+			parent = leftInfo,
+		}
+	end
+	leftOffset = leftOffset + 38
 
 
 	local tooltip = modoptions
@@ -1001,6 +1267,101 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		parent = leftInfo,
 	}
 	leftOffset = leftOffset + 40
+
+	local INLINE_PROGRESS_HEIGHT = 30
+	local INLINE_PROGRESS_REFLOW = INLINE_PROGRESS_HEIGHT + 5
+	local inlineProgressOnCancel
+	local inlineProgressBar = Progressbar:New {
+		name = 'inlineProgressBar',
+		x = 5,
+		y = 0,
+		right = 95,
+		bottom = 0,
+		value = 0,
+		max = 1,
+		caption = "",
+		objectOverrideFont = config:GetFont(2),
+	}
+	local inlineProgressCancel = Button:New {
+		name = 'inlineProgressCancel',
+		right = 5,
+		width = 80,
+		y = 0,
+		bottom = 0,
+		caption = i18n("cancel"),
+		classname = "negative_button",
+		objectOverrideFont = config:GetFont(1),
+		OnClick = {
+			function()
+				if inlineProgressOnCancel then
+					inlineProgressOnCancel()
+				end
+			end
+		},
+	}
+	local inlineProgressPanel = Control:New {
+		name = 'inlineProgressPanel',
+		x = 0,
+		y = leftOffset,
+		right = 0,
+		height = INLINE_PROGRESS_HEIGHT,
+		padding = {0, 0, 0, 0},
+		itemPadding = {0, 0, 0, 0},
+		itemMargin = {0, 0, 0, 0},
+		resizable = false,
+		draggable = false,
+		children = {
+			inlineProgressBar,
+			inlineProgressCancel,
+		},
+		parent = leftInfo,
+	}
+	local inlineProgressFullCaption = ""
+
+	local function SyncInlineProgressCaption()
+		if not (inlineProgressPanel and inlineProgressPanel.visible) then
+			return
+		end
+		local panelW = inlineProgressPanel.width or 0
+		local barInner = math.max(0, (inlineProgressBar.width or 0) - 10)
+		local font
+		-- Split-pane (~19% of 1440p ≈ 260–290px) should match single-pane caption size; truncation handles overflow on smaller windows.
+		if panelW >= 300 then
+			font = config:GetFont(2)
+		elseif panelW >= 220 then
+			font = config:GetFont(15, "battle_inline_prog_m", {outline = false, shadow = true}, true)
+		else
+			font = config:GetFont(12, "battle_inline_prog_s", {outline = false, shadow = true}, true)
+		end
+		if inlineProgressBar.font ~= font then
+			inlineProgressBar.font = font
+		end
+		local cap = inlineProgressFullCaption
+		if barInner > 0 and cap ~= "" then
+			cap = StringUtilities.GetTruncatedStringWithDotDot(cap, inlineProgressBar.font, barInner)
+		end
+		inlineProgressBar:SetCaption(cap)
+	end
+
+	local inlineSyncGen = 0
+	local function ScheduleInlineProgressSync()
+		inlineSyncGen = inlineSyncGen + 1
+		local gen = inlineSyncGen
+		WG.Delay(function()
+			if gen ~= inlineSyncGen then
+				return
+			end
+			SyncInlineProgressCaption()
+		end, 0.02)
+	end
+
+	inlineProgressPanel.OnResize = inlineProgressPanel.OnResize or {}
+	inlineProgressPanel.OnResize[#inlineProgressPanel.OnResize + 1] = function()
+		SyncInlineProgressCaption()
+		ScheduleInlineProgressSync()
+	end
+
+	inlineProgressPanel:Hide()
 
 	-- gray out the button if we don't have a modoptions panel to show
 	if not modoptions then
@@ -1041,17 +1402,18 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	end
 
 
+	local gameNameDisplay = (WG.Chobby.Configuration.gameConfig.ShortenNameString and WG.Chobby.Configuration.gameConfig.ShortenNameString(battle.gameName)) or battle.gameName
 	local lblGame = Label:New {
 		name = 'lblGame',
 		x = 8,
 		y = leftOffset,
 		right = 3,
-		caption = WG.Chobby.Configuration.gameConfig.ShortenNameString(battle.gameName),
+		caption = gameNameDisplay,
 		objectOverrideFont = config:GetFont(2),
 		parent = leftInfo,
 		OnResize = {
 			function (obj, xSize, ySize)
-				obj:SetCaption(StringUtilities.GetTruncatedStringWithDotDot(WG.Chobby.Configuration.gameConfig.ShortenNameString(battle.gameName), obj.font, xSize or obj.width))
+				obj:SetCaption(StringUtilities.GetTruncatedStringWithDotDot(gameNameDisplay, obj.font, xSize or obj.width))
 			end
 		}
 	}
@@ -1129,6 +1491,9 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	leftInfo.OnResize = leftInfo.OnResize or {}
 	leftInfo.OnResize[#leftInfo.OnResize + 1] = function ()
 		OnDownloaderVisibility()
+		if WG.ModoptionsPanel and WG.ModoptionsPanel.ScheduleBattleSummaryReflow then
+			WG.ModoptionsPanel.ScheduleBattleSummaryReflow()
+		end
 	end
 
 	local downloaderPos = {
@@ -1147,9 +1512,13 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	--MaybeDownloadArchive("Titan-v2", "map")
 	--MaybeDownloadArchive("tinyskirmishredux1.1", "map")
 
+	local lastDisallowCustomTeams = battle.disallowCustomTeams
 	function externalFunctions.UpdateBattleMode(disallowCustomTeams)
+		if disallowCustomTeams ~= nil then
+			lastDisallowCustomTeams = disallowCustomTeams
+		end
 		local offset = 0
-		if disallowCustomTeams then
+		if lastDisallowCustomTeams then
 			btnNewTeam:SetVisibility(false)
 		else
 			btnNewTeam:SetVisibility(true)
@@ -1158,9 +1527,14 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		btnPickMap:SetPos(nil, offset)
 		offset = offset + 38
 		btnModoptions:SetPos(nil, offset)
-		offset = offset + 40
+		if btnReloadModoptions then btnReloadModoptions:SetPos(nil, offset) end
+		offset = offset + 38
 		btnOptionPresets:SetPos(nil, offset)
 		offset = offset + 40
+		if inlineProgressPanel.visible then
+			inlineProgressPanel:SetPos(nil, offset)
+			offset = offset + INLINE_PROGRESS_REFLOW
+		end
 		lblGame:SetPos(nil, offset)
 		offset = offset + 26
 		imHaveGame:SetPos(nil, offset)
@@ -1168,8 +1542,51 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		offset = offset + 25
 		imHaveMap:SetPos(nil, offset)
 		lblHaveMap:SetPos(nil, offset)
+		offset = offset + 30
+		modoptionTopPosition = offset
+		modoptionBottomPosition = offset + 120
+		OnDownloaderVisibility()
+		if inlineProgressPanel.visible then
+			ScheduleInlineProgressSync()
+		end
+		if WG.ModoptionsPanel and WG.ModoptionsPanel.ScheduleBattleSummaryReflow then
+			WG.ModoptionsPanel.ScheduleBattleSummaryReflow()
+		end
 	end
 	externalFunctions.UpdateBattleMode(battle.disallowCustomTeams)
+
+	WG.BattleRoomInlineProgress = {
+		Show = function(opts)
+			opts = opts or {}
+			inlineProgressOnCancel = opts.onCancel
+			inlineProgressFullCaption = ""
+			inlineProgressBar:SetMinMax(0, 1)
+			inlineProgressBar:SetValue(0)
+			inlineProgressBar:SetCaption("")
+			if not inlineProgressPanel.visible then
+				inlineProgressPanel:Show()
+				externalFunctions.UpdateBattleMode()
+				SyncInlineProgressCaption()
+				ScheduleInlineProgressSync()
+			end
+		end,
+		Update = function(current, total)
+			if total and total > 0 then
+				inlineProgressBar:SetMinMax(0, total)
+			end
+			inlineProgressBar:SetValue(current or 0)
+			inlineProgressFullCaption = "Loading... " .. tostring(current or 0) .. "/" .. tostring(total or 0)
+			SyncInlineProgressCaption()
+			ScheduleInlineProgressSync()
+		end,
+		Hide = function()
+			inlineProgressOnCancel = nil
+			if inlineProgressPanel.visible then
+				inlineProgressPanel:Hide()
+				externalFunctions.UpdateBattleMode()
+			end
+		end,
+	}
 
 	function externalFunctions.SetHaveGame(newHaveGame)
 		if newHaveGame then
@@ -1234,7 +1651,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 			local mapName = battleInfo.mapName
 			local allyTeamCount = emptyTeamIndex
 			local startboxes = nil
-			local Configuration = WG.Chobby.Configuration
+			local Configuration = WG.Chobby and WG.Chobby.Configuration
 
 			if isSingleplayer then
 				imMinimap.children = {}
@@ -1299,8 +1716,10 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 			return
 		end
 		if battleLobby:GetMyUserName() == userName then
-			mainWindow:Dispose()
-			mainWindow = nil
+			if mainWindow then
+				mainWindow:Dispose()
+				mainWindow = nil
+			end
 			if wrapperControl and wrapperControl.visible and wrapperControl.parent then
 				wrapperControl:Hide()
 			end
@@ -1493,7 +1912,11 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	return externalFunctions
 end
 
-local function AddTeamButtons(parent, offX, joinFunc, aiFunc, unjoinable, disallowBots)
+local ARM_MASK = 2^0
+local COR_MASK = 2^1
+local LEG_MASK = 2^2
+local FULL_BITMASK = math.bit_or(ARM_MASK, COR_MASK, LEG_MASK)
+local function AddTeamButtons(parent, offX, joinFunc, aiFunc, unjoinable, disallowBots, allyTeam)
 	if not disallowBots then
 		local addAiButton = Button:New {
 			name = "addAiButton",
@@ -1525,6 +1948,220 @@ local function AddTeamButtons(parent, offX, joinFunc, aiFunc, unjoinable, disall
 			tooltip = "Change your team to this one",
 		}
 	end
+
+	-- the faction limiter is limited to only 8 teams, this is due to the 24 bit limit:
+	-- 3*8 = 24
+	if allyTeam <= 7 then
+		local firstTime = true
+		local myAllyTeam = allyTeam
+
+
+		-- isolate our 3 bits
+		local ourBitmask = FULL_BITMASK
+		for i = 1, myAllyTeam do
+			ourBitmask = ourBitmask * 8
+		end
+		local currentBitmask, currentOurBitmask = 0, 0
+
+		local teamFactionsSigns = {"ALL","✔  ","✔  ","✔  ","RESET"}
+		local teamFactionsNames = {"ALL", "Armada", "Cortex", "Legion", "RESET"}
+		local teamFactionsTooltips = {
+			nil,
+			"Toggle Armada Playability for this team",
+			"Toggle Cortex Playability for this team",
+			"Toggle Legion Playability for this team",
+			"Re-Enable All Factions for All Teams",
+		}
+		local teamFactionsImages = {
+			nil,
+			LUA_DIRNAME .. "configs/gameConfig/byar/sidepics/" .. "armada.png",
+			LUA_DIRNAME .. "configs/gameConfig/byar/sidepics/" .. "cortex.png",
+			LUA_DIRNAME .. "configs/gameConfig/byar/sidepics/" .. "legion.png",
+			nil,
+		}
+		local setCaption
+		local teamFactionsSet, factionFlagHolder, factionArm, factionCor, factionLeg
+		local factionWraper = {
+			Hide=function()
+				teamFactionsSet:Hide()
+				setCaption()
+			end,
+			Show=function()
+				teamFactionsSet:Show()
+				setCaption()
+			end,
+			updateBitmaskReading=function(bitmask)
+				teamFactionsSet.updateBitmaskReading(bitmask)
+			end,
+		}
+		teamFactionsSet = ComboBox:New{
+			name = "teamFactionsSet",
+			x = offX+95,
+			y = 0, --5
+			height = 24,
+			width = 72+15,
+			objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+			parent = parent,
+			showSelection = true, -- we have custom behaviour
+			tooltip = "Limit Which Factions this team may start as.",
+			items = teamFactionsSigns,
+			itemsTooltips = teamFactionsTooltips,
+			itemImages = teamFactionsImages,
+			itemKeyToName = teamFactionsNames,
+			selected = 5,
+			OnDispose = {function()
+					if factionComboBoxes[allyTeam] == factionWraper then
+						factionComboBoxes[allyTeam] = nil
+					end
+				end},
+			OnSelect = {
+				function (obj, selected, item)
+					if firstTime then
+						firstTime = false
+						return
+					end
+					local newbitmask = 0
+					if selected == 5 then
+						battleLobby:SetModOptions({
+							factionlimiter="0"
+						})
+						setCaption()
+						return
+					elseif selected == 1 then
+						newbitmask = 0
+						newbitmask = math.bit_and(currentBitmask, math.bit_inv(ourBitmask))
+					else
+						-- Shift 2,3 and 4 into 1,2, and 4 to match the faction bit value
+						local bit = selected == 4 and 4 or selected - 1
+						if currentOurBitmask == bit then
+							newbitmask = math.bit_xor(FULL_BITMASK, bit)
+						else
+							newbitmask = math.bit_xor(currentOurBitmask, bit)
+						end
+
+						if newbitmask == FULL_BITMASK then
+							newbitmask = 0
+						end
+						newbitmask = math.bit_or(
+							math.bit_and(currentBitmask, math.bit_inv(ourBitmask)),
+							newbitmask*(2^(myAllyTeam*3))
+						)
+					end
+					battleLobby:SetModOptions({
+						factionlimiter=tostring(newbitmask)
+					})
+					setCaption()
+				end
+			},
+			updateBitmaskReading = function(bitmask)
+				if bitmask == currentBitmask then
+					return
+				end
+
+				local newbitmask = math.bit_and(bitmask or 0, ourBitmask)
+				newbitmask = math.floor(newbitmask/2^(myAllyTeam*3))
+
+				if newbitmask == 0 then
+					teamFactionsSigns[2] = "✔  "
+					teamFactionsSigns[3] = "✔  "
+					teamFactionsSigns[4] = "✔  "
+				else
+					teamFactionsSigns[2] = math.bit_and(newbitmask, ARM_MASK) ~= 0 and "✔  " or "🔒  "
+					teamFactionsSigns[3] = math.bit_and(newbitmask, COR_MASK) ~= 0 and "✔  " or "🔒  "
+					teamFactionsSigns[4] = math.bit_and(newbitmask, LEG_MASK) ~= 0 and "✔  " or "🔒  "
+				end
+				currentBitmask = bitmask
+				currentOurBitmask = newbitmask
+				setCaption()
+			end,
+		}
+		factionComboBoxes[allyTeam] = factionWraper
+		setCaption = function()
+			teamFactionsSet.selected = 5
+			if currentBitmask == 0 then
+				factionArm:Hide()
+				factionCor:Hide()
+				factionLeg:Hide()
+			elseif currentOurBitmask == 0 then
+				factionArm:Show()
+				factionCor:Show()
+				factionLeg:Show()
+			else
+				if math.bit_and(currentOurBitmask, ARM_MASK) ~= 0 then
+					factionArm:Show()
+				else
+					factionArm:Hide()
+				end
+				if math.bit_and(currentOurBitmask, COR_MASK) ~= 0 then
+					factionCor:Show()
+				else
+					factionCor:Hide()
+				end
+				if math.bit_and(currentOurBitmask, LEG_MASK) ~= 0 then
+					factionLeg:Show()
+				else
+					factionLeg:Hide()
+				end
+			end
+			teamFactionsSet.caption = ""
+		end
+		local factionBaseSize = 24
+		local armScale = 0.90
+		local corScale = 0.85
+		local armSize = math.floor(factionBaseSize * armScale)
+		local corSize = math.floor(factionBaseSize * corScale)
+		local armOff = math.floor((factionBaseSize - armSize) / 2)
+		local corOff = math.floor((factionBaseSize - corSize) / 2)
+		factionArm = Image:New {
+			name = "factionArm",
+			x = offX+95+5 + armOff,
+			y = armOff,
+			height = armSize,
+			width = armSize,
+			parent = parent,
+			keepAspect = true,
+			file = LUA_DIRNAME .. "configs/gameConfig/byar/sidepics/" .. "armada.png",
+		}
+		factionCor = Image:New {
+			name = "factionCor",
+			x = offX+95+5+24 + corOff,
+			y = corOff,
+			height = corSize,
+			width = corSize,
+			parent = parent,
+			keepAspect = true,
+			file = LUA_DIRNAME .. "configs/gameConfig/byar/sidepics/" .. "cortex.png",
+		}
+		factionLeg = Image:New {
+			name = "factionLeg",
+			x = offX+95+5+48,
+			y = 0,
+			height = 24,
+			width = 24,
+			parent = parent,
+			keepAspect = true,
+			file = LUA_DIRNAME .. "configs/gameConfig/byar/sidepics/" .. "legion.png",
+		}
+		local modoptions = battleLobby:GetMyBattleModoptions()
+		if modoptions and modoptions.factionlimiter then
+			teamFactionsSet.updateBitmaskReading(tonumber(modoptions.factionlimiter))
+			setCaption()
+		end
+		modoptions = nil
+
+		if battleLobby.name == "singleplayer" then
+			if not WG.Chobby.Configuration.ShowhiddenModopions then
+				factionWraper:Hide()
+			end
+		else
+			local a = battleLobby:GetBattle(battleLobby:GetMyBattleID())
+			local myBs = battleLobby:GetUserBattleStatus(battleLobby.myUserName) or {}
+			if not myBs.isBoss then
+				factionWraper:Hide()
+			end
+		end
+	end
+
 end
 
 local function SortPlayersBySkill(a, b)
@@ -1532,6 +2169,12 @@ local function SortPlayersBySkill(a, b)
 	local sB = battleLobby:GetUser(b.name)
 	local joinA = tonumber((sA and sA.skill) or 0)
 	local joinB = tonumber((sB and sB.skill) or 0)
+	if tonumber((sA and sA.skillUncertainty) or 0) > 6.65 then
+		joinA = 0
+	end
+	if tonumber((sB and sB.skillUncertainty) or 0) > 6.65 then
+		joinB = 0
+	end
 	return joinA > joinB
 end
 
@@ -1738,14 +2381,15 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 					end,
 					function (obj, x, y, button)
 						local quickAddAi
-						if button == 3 and WG.Chobby.Configuration.lastAddedAiName then
+						if button == 3 and WG.Chobby.Configuration.lastAddedAiName and battleLobby.name == "singleplayer" then
 							quickAddAi = WG.Chobby.Configuration.lastAddedAiName
 						end
 
 						WG.PopupPreloader.ShowAiListWindow(battleLobby, battle.gameName, teamIndex, quickAddAi)
 					end,
 					disallowCustomTeams and teamIndex ~= 0,
-					(disallowBots or disallowCustomTeams) and teamIndex ~= 1
+					(disallowBots or disallowCustomTeams) and teamIndex ~= 1,
+					teamIndex
 				)
 			end
 			local teamStack = Control:New {
@@ -1830,7 +2474,8 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 							WG.PopupPreloader.ShowAiListWindow(battleLobby, battle.gameName, teamIndex)
 						end,
 						disallowCustomTeams and teamIndex ~= 0,
-						(disallowBots or disallowCustomTeams) and teamIndex ~= 1
+						(disallowBots or disallowCustomTeams) and teamIndex ~= 1,
+						teamIndex
 					)
 
 					if disallowCustomTeams then
@@ -2576,30 +3221,50 @@ end
 local function InitializeSetupPage(subPanel, screenHeight, pageConfig, nextPage, prevPage, selectedOptions, ApplyFunction)
 	local Configuration = WG.Chobby.Configuration
 
-	local buttonScale, buttonHeight, buttonFont = 70, 64, 4
+	local buttonScale, buttonHeight, buttonFont = 80, 70, 3
 	if screenHeight < 900 then
-		buttonScale = 60
+		buttonScale = 57
 		buttonHeight = 56
-		buttonFont = 4
+		buttonFont = 3
 	end
 
 	subPanel:SetVisibility(not prevPage)
 
-	local buttons = {}
+	local titleLabel = Label:New {
+		name = 'titleLabel',
+		x = "36%",
+		right = "36%",
+		y = 20,
+		height = 30,
+		align = "center",
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+		caption = pageConfig.humanName,
+		parent = subPanel,
+	}
+
+	local options = pageConfig.options
+	if pageConfig.getDynamicOptions then
+		options = pageConfig.getDynamicOptions(selectedOptions)
+	end
+	if not options then
+		Spring.Echo("No options available for page", pageConfig.name)
+		options = {}
+	end
+	local numOptions = #options
 
 	local nextButton = Button:New {
 		name = 'nextButton',
 		x = "36%",
 		right = "36%",
-		y = 2*buttonScale + 5 + (#pageConfig.options)*buttonScale,
+		bottom = "4%",
 		height = buttonHeight,
-		classname = "action_button",
+		classname = (nextPage and "action_button") or "ready_button",
 		caption = (nextPage and "Next") or i18n("start"),
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(buttonFont),
 		OnClick = {
 			function(obj)
-				subPanel:SetVisibility(false)
 				if nextPage then
+					subPanel:SetVisibility(false)
 					WG.Analytics.SendOnetimeEvent("lobby:singleplayer:skirmish:" .. pageConfig.name, selectedOptions[pageConfig.name])
 					nextPage:SetVisibility(true)
 				else
@@ -2611,20 +3276,23 @@ local function InitializeSetupPage(subPanel, screenHeight, pageConfig, nextPage,
 		},
 		parent = subPanel,
 	}
+	if not nextPage then
+		nextButton:StyleReady()
+	end
 	nextButton:Hide()
 
 	local tipTextBox
 	if pageConfig.tipText then
-		tipTextBox = TextBox:New {
+		tipTextBox = Label:New {
 			name = 'tipTextBox',
-			x = "26%",
-			y = 3*buttonScale + 20 + (#pageConfig.options)*buttonScale,
-			right = "26%",
+			x = "6%",
+			y = 3*buttonScale + 20 + numOptions*buttonScale,
+			right = "5%",
 			height = 200,
-			align = "left",
+			align = "center",
 			objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 			objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
-			text = pageConfig.tipText,
+			caption = pageConfig.tipText,
 			parent = subPanel,
 		}
 		tipTextBox:Hide()
@@ -2670,87 +3338,162 @@ local function InitializeSetupPage(subPanel, screenHeight, pageConfig, nextPage,
 		}
 	end
 
-	for i = 1, #pageConfig.options do
-		local x, y, right, height, caption, tooltip
-		if pageConfig.minimap then
-			if i%2 == 1 then
-				x, y, right, height = "25%", (i + 1)*buttonScale - 10, "51%", 2*buttonHeight
-			else
-				x, y, right, height = "51%", i*buttonScale - 10, "25%", 2*buttonHeight
-			end
-			tooltip = pageConfig.options[i]
-			caption = ""
-		else
-			x, y, right, height = "36%", buttonHeight - 4 + i*buttonScale, "36%", buttonHeight
-			caption = pageConfig.options[i]
+	local function GenerateSimpleSkirmishButtons(pageConfig, selectedOptions, nextButton)
+		local buttons = {}
+		local options = pageConfig.options
+		local tipTextBox = selectedOptions.currentControl:GetChildByName('tipTextBox')
+		if pageConfig.getDynamicOptions then
+			options = pageConfig.getDynamicOptions(selectedOptions)
 		end
-		buttons[i] = Button:New {
-			name = 'pageConfig.options'..tostring(i),
-			x = x,
-			y = y,
-			right = right,
-			height = height,
-			classname = "option_button",
-			caption = caption,
-			tooltip = tooltip,
-			objectOverrideFont = WG.Chobby.Configuration:GetFont(buttonFont),
-			tooltip = pageConfig.optionTooltip and pageConfig.optionTooltip[i],
-			OnClick = {
-				function(obj)
-					for j = 1, #buttons do
-						if j ~= i then
-							ButtonUtilities.SetButtonDeselected(buttons[j])
+		if not options then
+			Spring.Echo("Simple Skirmish: No options available for page ", pageConfig.name)
+			return {}
+		end
+
+		for i = 1, #options do
+			local x, y, right, height, caption, tooltip
+			local mapImageFile, needDownload = Configuration:GetMinimapImage(options[i])
+			local haveMap = VFS.HasArchive(options[i])
+			local mapButtonCaption = nil
+			if pageConfig.minimap then
+				WG.DownloadHandler.MaybeDownloadArchive(options[i], "map", -1)
+				if i%2 == 1 then
+					x, y, right, height = "25%", (i + 1)*buttonScale - 10, "51%", 2*buttonHeight
+				else
+					x, y, right, height = "51%", i*buttonScale - 10, "25%", 2*buttonHeight
+				end
+				caption = ""
+			else
+				x, y, right, height = "36%", buttonHeight - 4 + i*buttonScale, "36%", buttonHeight
+				caption = options[i]
+			end
+			if not haveMap then
+				mapButtonCaption = i18n("click_to_download_map")
+			else
+				mapButtonCaption = i18n("click_to_pick_map")
+			end
+			buttons[i] = Button:New {
+				x = x,
+				y = y,
+				right = right,
+				height = height,
+				classname = "button_simple",
+				caption = caption,
+				objectOverrideFont = WG.Chobby.Configuration:GetFont(buttonFont),
+				tooltip = (pageConfig.optionTooltip and pageConfig.optionTooltip[i]) or (pageConfig.minimap and MINIMAP_TOOLTIP_PREFIX .. options[i] .. "|" .. mapButtonCaption),
+				OnClick = {
+					function(obj)
+						for j = 1, #buttons do
+							if j ~= i then
+								ButtonUtilities.SetButtonDeselected(buttons[j])
+							end
+						end
+						ButtonUtilities.SetButtonSelected(obj)
+						selectedOptions[pageConfig.name] = i
+						Spring.SetConfigInt("skirmish_" .. pageConfig.name .. "_choice", i)
+						if pageConfig.name == "gameType" and selectedOptions.currentControl then
+							Spring.Echo("Simple Skirmish: Selected game type: " .. options[i])
+							local mapPage
+							for _, page in ipairs(selectedOptions.pages) do
+								if page.name == "map" then
+									mapPage = page
+									break
+								end
+							end
+							if mapPage and mapPage.getDynamicOptions then
+								local nextButton = selectedOptions.currentControl:GetChildByName('nextButton')
+								selectedOptions.gameType = i
+								local children = selectedOptions.currentControl.children
+								for j = #children, 1, -1 do
+									local child = children[j]
+									if child.name:find("nextButton") or child.name:find("tipTextBox") or child.name:find("advButton") or child.name:find("prevPage") or child.name:find("titleLabel") then
+										-- Leave these buttons alone
+									else
+										selectedOptions.currentControl:RemoveChild(child)
+									end
+								end
+								local newButtons = GenerateSimpleSkirmishButtons(mapPage, selectedOptions, nextButton)
+								for _, button in ipairs(newButtons) do
+									selectedOptions.currentControl:AddChild(button)
+								end
+							end
+						elseif pageConfig.name == "difficulty" then
+							Spring.Echo("Simple Skirmish: Selected difficulty: " .. options[i])
+						elseif pageConfig.name == "map" then
+							Spring.Echo("Simple Skirmish: Selected map: " .. options[i])
+							WG.DownloadHandler.MaybeDownloadArchive(options[i], "map", -1)
+						end
+						nextButton:SetVisibility(true)
+						if tipTextBox then
+							tipTextBox:SetVisibility(true)
 						end
 					end
-					ButtonUtilities.SetButtonSelected(obj)
+				},
+				parent = subPanel,
+			}
+			if pageConfig.minimap then
+				local imMinimap = Image:New {
+					x = 0,
+					y = 0,
+					right = 0,
+					bottom = 0,
+					keepAspect = true,
+					file = mapImageFile,
+					fallbackFile = Configuration:GetLoadingImage(2),
+					checkFileExists = needDownload,
+					parent = buttons[i],
+				}
+			else
+				local selectedIndex = 1
+
+				if pageConfig.name == "faction" then
+					local lastFaction = WG.Chobby.Configuration.lastFactionChoice or 0
+					selectedIndex = lastFaction + 1
+				else
+					local storedChoice = Spring.GetConfigInt("skirmish_" .. pageConfig.name .. "_choice", 0)
+					selectedIndex = (storedChoice > 0 and storedChoice <= #options) and storedChoice or 1
+				end
+
+				if i == selectedIndex then
+					ButtonUtilities.SetButtonSelected(buttons[i])
 					selectedOptions[pageConfig.name] = i
 					nextButton:SetVisibility(true)
-					if tipTextBox then
-						tipTextBox:SetVisibility(true)
-					end
-					if advButton then
-						advButton:SetVisibility(true)
-					end
 				end
-			},
-			parent = subPanel,
-		}
-		if pageConfig.minimap then
-			local mapImageFile, needDownload = Configuration:GetMinimapImage(pageConfig.options[i])
-			local imMinimap = Image:New {
-				name = 'pageConfig.minimap'..tostring(i),
-				x = 0,
-				y = 0,
-				right = 0,
-				bottom = 0,
-				keepAspect = true,
-				file = mapImageFile,
-				fallbackFile = Configuration:GetLoadingImage(2),
-				checkFileExists = needDownload,
-				parent = buttons[i],
-			}
+			end
 		end
-		ButtonUtilities.SetButtonSelected(buttons[i])
+		return buttons
 	end
-
+	GenerateSimpleSkirmishButtons(pageConfig, selectedOptions, nextButton)
 	return subPanel
 end
 
 local function SetupEasySetupPanel(mainWindow, standardSubPanel, setupData)
 	local pageConfigs = setupData.pages
-	local selectedOptions = {} -- Passed and modified by reference
+	local selectedOptions = {
+		pages = pageConfigs,
+		currentControl = nil
+	}
 
 	local function ApplyFunction(startGame)
 		local battle = battleLobby:GetBattle(battleLobby:GetMyBattleID())
 		setupData.ApplyFunction(battleLobby, selectedOptions)
 		if startGame then
 			if haveMapAndGame then
+				local Configuration = WG.Chobby.Configuration
+					if Configuration.gameConfig.mapStartBoxes.singleplayerboxes then
+						if currentStartRects ~= {} then
+							Configuration.gameConfig.mapStartBoxes.singleplayerboxes = currentStartRects
+						end
+					end
 				WG.SteamCoopHandler.AttemptGameStart("skirmish", battle.gameName, battle.mapName, nil, true)
 			else
-				Spring.Echo("Do something if map or game is missing")
+				MaybeDownloadMap(battle)
+				WG.Chobby.InformationPopup("You do not have the map for this skirmish, check your downloads tab to see the download progress.", {caption = "OK"})
+				return
 			end
+		else
+			standardSubPanel:SetVisibility(true)
 		end
-		standardSubPanel:SetVisibility(true)
 	end
 
 	local _, screenHeight = Spring.GetWindowGeometry()
@@ -2767,6 +3510,9 @@ local function SetupEasySetupPanel(mainWindow, standardSubPanel, setupData)
 			padding = {0, 0, 0, 0},
 			parent = mainWindow,
 		}
+		if pageConfigs[i].name == "map" then
+			selectedOptions.currentControl = pages[i]
+		end
 	end
 
 	for i = 1, #pages do
@@ -2788,7 +3534,6 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	-- end
 
 	local isSingleplayer = (battleLobby.name == "singleplayer")
-	showDefaultStartCheckbox = isSingleplayer
 	local isHost = (not isSingleplayer) and (battleLobby:GetMyUserName() == battle.founder)
 
 	local EXTERNAL_PAD_VERT = 9
@@ -2901,7 +3646,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		y = 0,
 		right = "33%",
 		bottom = BOTTOM_SPACING,
-		padding = {INTERNAL_PAD, EXTERNAL_PAD_VERT, 1, INTERNAL_PAD},
+		padding = {INTERNAL_PAD, EXTERNAL_PAD_VERT, 1, 0},
 		parent = topPanel,
 	}
 
@@ -2915,33 +3660,28 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		parent = topPanel,
 	}
 
-	local infoHandler = SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, battleLobby:GetMyUserName())
+	local infoHandler = SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, battleLobby:GetMyUserName(), setupData ~= nil)
 
-	if not isSingleplayer then
-		local btnQuitBattle = Button:New {
-			name = 'btnQuitBattle',
-			right = 12,
-			y = 7,
-			width = 160,
-			height = 45,
-			objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
-			caption = "Leave Lobby",
-			classname = "negative_button",
-			tooltip = "Leave the multiplayer battleroom",
+	local btnQuitBattle = Button:New {
+		name = 'btnQuitBattle',
+		right = 12,
+		y = 7,
+		width = (isSingleplayer and 80) or 160,
+		height = 45,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+		caption = (isSingleplayer and i18n("close")) or i18n("leave_lobby"),
+		classname = "negative_button",
+		tooltip = (isSingleplayer and "Close the battleroom") or "Leave the multiplayer battleroom",
 			OnClick = {
 				function()
 					battleLobby:LeaveBattle()
-					if WG and WG.Chobby and 
-						WG.Chobby.interfaceRoot and 
-						WG.Chobby.interfaceRoot.OpenMultiplayerTabByName then
-
+					if WG and WG.Chobby and WG.Chobby.interfaceRoot and WG.Chobby.interfaceRoot.OpenMultiplayerTabByName and not isSingleplayer then
 						WG.Chobby.interfaceRoot.OpenMultiplayerTabByName("multiplayer")
 					end
 				end
 			},
 			parent = mainWindow,
-		}
-	end
+	}
 
 	local btnInviteFriends = Button:New {
 		name = 'btnInviteFriends',
@@ -2995,15 +3735,18 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 				if battleLobby.name ~= "singleplayer" then
 					if WG.TextEntryWindow then
 						WG.TextEntryWindow.CreateTextEntryWindow({
-							defaultValue = "",
+							defaultValue = battleTitle:gsub("(.*)|.*$", "%1"):gsub("%s*$", ""),
 							caption = i18n("rename_battle"),
 							labelCaption = i18n("rename_caption"),
 							hint = i18n("rename_hint"),
 							height = 280,
-							width = 480,
+							width = 550,
 							oklabel = i18n("rename"),
 							OnAccepted = function(newname)
 								lobby:SayBattle("!rename " .. newname)
+							end,
+							OnOpen = function(editBox)
+								editBox:SelectAll()
 							end
 						})
 					end
@@ -3090,7 +3833,68 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 			battleLobby:SayBattle(message)
 		end
 	end
+
+	if battleLobby.name == "singleplayer" then
+		local realMessageListener = MessageListener
+		MessageListener = function(message)
+			if message:find("!bset ") then
+				local cmdCounter = 0
+				local modoptions = battleLobby:GetMyBattleModoptions()
+				for line in message:gmatch("[^\n]+") do
+					if line:starts("!bset ") then
+						local key, value = line:match("^!bset%s+([%a_][%w_]*)%s+(.*%S)%s*$")
+						if key and value then
+							modoptions[key] = value
+							cmdCounter = cmdCounter + 1
+						else
+							battleLobby:SayBattleEx("\255\128\128\255Malformed bset:  \255\255\128\128" .. line)
+						end
+					end
+				end
+				if cmdCounter > 0 then
+					battleLobby:SetModOptions(modoptions)
+					battleLobby:SayBattleEx(
+						"\255\128\128\255"..-- My Cool Blue™ (it purple)
+						"Applied: "..cmdCounter.." \"bset\" commands"
+					)
+				end
+			else
+				realMessageListener(message)
+			end
+		end
+	end
 	local battleRoomConsole = WG.Chobby.Console("Battleroom Chat", MessageListener, true, nil, true)
+	WG.BattleRoomChatInput = battleRoomConsole.ebInputText
+
+	-- Oversized paste: throttle multiplayer or apply via singleplayer MessageListener (SPADS / UI).
+	do
+		local chatInput = battleRoomConsole.ebInputText
+		local origTextInput = chatInput.TextInput
+		local pasteThreshold = battleLobby.THROTTLED_SAY_MAX_CHARS_PER_BATCH or 20000
+
+		chatInput.TextInput = function(self, utf8char, ...)
+			if utf8char and #utf8char > pasteThreshold then
+				if battleLobby.name == "singleplayer" then
+					MessageListener(utf8char)
+				else
+					-- MP: ! and $ lines only; order preserved
+					local lines = {}
+					for line in utf8char:gmatch("[^\n]+") do
+						local trimmed = line:match("^%s*(.-)%s*$")
+						local first = trimmed:sub(1, 1)
+						if trimmed ~= "" and (first == "!" or first == "$") then
+							lines[#lines + 1] = trimmed
+						end
+					end
+					if #lines > 0 and WG.ThrottledBattleSend and WG.ThrottledBattleSend.Run then
+						WG.ThrottledBattleSend.Run(lines, nil, { renderer = "inline" })
+					end
+				end
+				return self
+			end
+			return origTextInput(self, utf8char, ...)
+		end
+	end
 
 	local chatPanel = Control:New {
 		name = 'chatPanel',
@@ -3143,28 +3947,58 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		-- Buttons Play and Spec
 
 		local battleID = battleLobby:GetMyBattleID()
-		local maxPlayers = battleLobby.battles[battleID].maxPlayers or 0
-		local playerCount = battleLobby:GetBattlePlayerCount(battleID)
+		local maxPlayers = (battleLobby and battleLobby.battles and battleLobby.battles[battleID] and battleLobby.battles[battleID].maxPlayers) or 0
+		local playerCount = (battleLobby and battleLobby:GetBattlePlayerCount(battleID)) or 0
 		local myBs = battleLobby:GetUserBattleStatus(battleLobby.myUserName) or {}
 		local iAmPlayer = myBs.isSpectator ~= nil and myBs.isSpectator == false
 		local iAmQueued = myBs.queuePos and myBs.queuePos > 0
 		-- Spring.Echo("OnUpdateUserBattleStatus battleID, maxPlayers, playerCount, iAmPlayer, iAmQueued", battleID, maxPlayers, playerCount, iAmPlayer, iAmQueued)
 
 		-- somebody switched to player
-		if status.isSpectator ~= nil and status.isSpectator == false then
-			if not iAmPlayer then
-				if not iAmQueued then
-					if playerCount >= maxPlayers then
-						-- Spring.Echo("OnUpdateUserBattleStatus players full > SET play = join_queue")
-						infoHandler.SetBtnsPlaySpec(false, "join_queue", true, "spectating", false)
+		if battleLobby.name ~= "singleplayer" then
+			if status.isSpectator ~= nil and status.isSpectator == false then
+				if not iAmPlayer then
+					if not iAmQueued then
+						if playerCount >= maxPlayers then
+							-- Spring.Echo("OnUpdateUserBattleStatus players full > SET play = join_queue")
+							infoHandler.SetBtnsPlaySpec(false, "join_queue", true, "spectating", false)
+						else
+							-- Spring.Echo("OnUpdateUserBattleStatus players not full > SET play = play")
+							infoHandler.SetBtnsPlaySpec(false, "play", true, "spectating", false)
+						end
 					else
-						-- Spring.Echo("OnUpdateUserBattleStatus players not full > SET play = play")
-						infoHandler.SetBtnsPlaySpec(false, "play", true, "spectating", false)
+						-- Spring.Echo("OnUpdateUserBattleStatus SET play = queued; Spec = leave_queue")
+						infoHandler.SetBtnsPlaySpec(true, "queued", false, "Leave Queue", false)
 					end
-				else
-					-- Spring.Echo("OnUpdateUserBattleStatus SET play = queued; Spec = leave_queue")
-					infoHandler.SetBtnsPlaySpec(true, "queued", false, "Leave Queue", false)
 				end
+			end
+
+			if username == battleLobby.myUserName then
+				if status.isBoss ~= nil then
+					if status.isBoss == true then
+						for i = 0, 7 do
+							local locker = factionComboBoxes[i]
+							if locker then
+								locker:Show()
+							end
+						end
+					else
+						for i = 0, 7 do
+							local locker = factionComboBoxes[i]
+							if locker then
+								locker:Hide()
+							end
+						end
+					end
+				end
+			end
+		end
+
+		if battleLobby.name == "singleplayer" and username == battleLobby.myUserName and status.isSpectator ~= nil then
+			if status.isSpectator == false then
+				infoHandler.SetBtnsPlaySpec(true, "playing", false, "spectate", true)
+			else
+				infoHandler.SetBtnsPlaySpec(false, "play", true, "spectating", true)
 			end
 		end
 
@@ -3255,6 +4089,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		if not battle.isRunning then
 			readyButton.tooltip = tooltipCandidate
 		end
+
 	end
 
 	local function OnUpdateUserTeamStatus(listener, userName, allyNumber, isSpectator, queuePos)
@@ -3372,6 +4207,61 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	-- whoever wrote lua string parser needs to get rammed by a horse
 
 	local function dontshowvote()
+	end
+
+	-- Per-key old/new from OnSetModOptions(changes); lowercased keys for SPADS SAYBATTLEEX rewrite.
+	local recentModoptionDiff = {}
+	local inBSetFragment = false
+
+	local function FormatBSetValueForChat(raw)
+		if raw == nil or tostring(raw) == "" then
+			return '""'
+		end
+		return StringUtilities.TruncateMiddle(raw)
+	end
+
+	local function FormatBSetRewrite(user, key, diff)
+		local oldDisp = FormatBSetValueForChat(diff.old)
+		local newDisp = FormatBSetValueForChat(diff.new)
+		return "* Battle setting changed by " .. user
+			.. " (" .. key .. " from " .. oldDisp .. " to " .. newDisp .. ")"
+	end
+
+	local BSET_HEAD_PARTIAL = "%*?%s*Battle setting changed by (%S+) %(([%w_]+)="
+	local BSET_HEAD_FULL    = "%*?%s*Battle setting changed by (%S+) %(([%w_]+)=.*%)%s*$"
+
+	-- Returns; nil | { rewritten = "..." } | { suppress = true }
+	local function RewriteBSetSpadsMessage(message)
+		if inBSetFragment then
+			if not string.match(message, BSET_HEAD_PARTIAL) then
+				if string.match(message, "%)%s*$") then
+					inBSetFragment = false
+				end
+				return { suppress = true }
+			end
+			inBSetFragment = false
+		end
+
+		local user, key = string.match(message, BSET_HEAD_FULL)
+		if user and key then
+			local diff = recentModoptionDiff[string.lower(key)]
+			if diff then
+				return { rewritten = FormatBSetRewrite(user, key, diff) }
+			end
+			return nil
+		end
+
+		user, key = string.match(message, BSET_HEAD_PARTIAL)
+		if user and key then
+			inBSetFragment = true
+			local diff = recentModoptionDiff[string.lower(key)]
+			if diff then
+				return { rewritten = FormatBSetRewrite(user, key, diff) }
+			end
+			return { suppress = true }
+		end
+
+		return nil
 	end
 
 	local function ParseSpadsMessage(userName, message) -- return hidemessage bool
@@ -3530,7 +4420,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 				barManagerPresent = true
 			end
 
-			barManagerTable = Spring.Utilities.json.decode( barManagerMessage)
+			barManagerTable = Json.decode(barManagerMessage)
 			if barManagerTable['BattleStateChanged'] then
 				for settingKey, settingValue in pairs(barManagerTable['BattleStateChanged']) do
 					local settingCB = spadsStatusPanel:GetChildByName(settingKey)
@@ -3565,6 +4455,16 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		local hidemessage = false
 
 		if userName == battle.founder then -- todo dont do this for self-hosted
+			local rewrite = RewriteBSetSpadsMessage(message)
+			if rewrite then
+				if rewrite.suppress then
+					return
+				end
+				if rewrite.rewritten then
+					message = rewrite.rewritten
+				end
+			end
+
 			local hidespads = ParseSpadsMessage(userName,message)
 			local hidevote = ParseForVotingSaidBattle(userName,message)
 			local hidebarmanager = ParseBarManagerSaidBattleEx(userName, message)
@@ -3582,7 +4482,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 			return 
 		end
 		local myUserName = battleLobby:GetMyUserName()
-		local iAmMentioned = myUserName and userName ~= myUserName and string.find(message, myUserName)
+		local iAmMentioned = myUserName and userName ~= myUserName and string.find(message, myUserName, 1, true)
 		local chatColour = (iAmMentioned and CHAT_MENTION) or CHAT_ME
 		battleRoomConsole:AddMessage(message, userName, false, chatColour, true)
 	end
@@ -3669,6 +4569,27 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		end
 	end
 
+	local function OnSetModOptions(listener, modoptions, changes)
+		if not modoptions then
+			return
+		end
+		if changes then
+			for k, change in pairs(changes) do
+				recentModoptionDiff[string.lower(k)] = change
+			end
+		end
+		local factionlimiter = modoptions.factionlimiter
+		if factionlimiter then
+			factionlimiter = tonumber(factionlimiter)
+			for i = 0, 7 do
+				local locker = factionComboBoxes[i]
+				if locker then
+					locker.updateBitmaskReading(factionlimiter)
+				end
+			end
+		end
+	end
+
 	battleLobby:AddListener("OnUpdateUserTeamStatus", OnUpdateUserTeamStatus)
 	battleLobby:AddListener("OnUpdateUserBattleStatus", OnUpdateUserBattleStatus)
 	battleLobby:AddListener("OnBattleIngameUpdate", OnBattleIngameUpdate)
@@ -3691,6 +4612,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	battleLobby:AddListener("OnDisableUnits", OnDisableUnits)
 	battleLobby:AddListener("OnRequestBattleStatus", OnRequestBattleStatus)
 	battleLobby:AddListener("OnUpdateBattleTitle", OnUpdateBattleTitle)
+	battleLobby:AddListener("OnSetModOptions", OnSetModOptions)
 
 	local function OnDisposeFunction()
 		emptyTeamIndex = 0
@@ -3716,8 +4638,11 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		oldLobby:RemoveListener("OnEnableAllUnits", OnEnableAllUnits)
 		oldLobby:RemoveListener("OnDisableUnits", OnDisableUnits)
 		oldLobby:RemoveListener("OnRequestBattleStatus", OnRequestBattleStatus)
+		oldLobby:RemoveListener("OnSetModOptions", OnSetModOptions)
 
 		WG.BattleStatusPanel.RemoveBattleTab()
+		WG.BattleRoomChatInput = nil
+		WG.BattleRoomInlineProgress = nil
 	end
 
 	mainWindow.OnDispose = mainWindow.OnDispose or {}
@@ -3769,6 +4694,9 @@ function BattleRoomWindow.ShowMultiplayerBattleRoom(battleID)
 					mainWindowFunctions = functions
 					if battleWindow then
 						obj:AddChild(battleWindow)
+					end
+					if WG.BattleRoomChatInput then
+						screen0:FocusControl(WG.BattleRoomChatInput)
 					end
 				end
 				BattleRoomWindow.UpdateMinimapstartBoxes()
@@ -3848,6 +4776,10 @@ function BattleRoomWindow.GetSingleplayerControl(setupData)
 
 				obj:AddChild(battleWindow)
 
+				if WG.BattleRoomChatInput then
+					screen0:FocusControl(WG.BattleRoomChatInput)
+				end
+
 				UpdateArchiveStatus(true)
 
 				battleLobby:SetBattleStatus({
@@ -3855,7 +4787,7 @@ function BattleRoomWindow.GetSingleplayerControl(setupData)
 					isSpectator = false,
 					sync = (haveMapAndGame and 1) or 2, -- 0 = unknown, 1 = synced, 2 = unsynced
 
-					side = 0, -- Our default side is Armada
+					side = WG.Chobby.Configuration.lastFactionChoice or 0, -- Our default side is Armada
 					teamColor = {0,.32,1},
 				})
 
@@ -3896,7 +4828,7 @@ function BattleRoomWindow.GetSingleplayerControl(setupData)
 					for i, ai in ipairs(singleplayerDefault.friendlyAI or {}) do
 						totalAIcount = AddAI(totalAIcount, ai.shortName, ai.version, 0,
 							0, -- Default side for friendly AI is Armada
-							{.45,0,.68})
+							GetStarterFriendlyAIColorAssignment(i))
 					end
 
 					for i, ai in ipairs(singleplayerDefault.enemyAI or {}) do
@@ -3949,6 +4881,9 @@ function GetStarterEnemyAIColorAssignment(i)
 	if (i==1) then return red
 	elseif (i==2) then return orange
 	end
+end
+function GetStarterFriendlyAIColorAssignment(i)
+	return {.45,0,.68}
 end
 
 function BattleRoomWindow.SetSingleplayerGame(ToggleShowFunc, battleroomObj, tabData)
@@ -4065,6 +5000,39 @@ function widget:Initialize()
 		UpdateArchiveStatus(true)
 	end
 	WG.DownloadHandler.AddListener("DownloadFinished", downloadFinished)
+
+	local function downloadStarted(_, id, name, fileType)
+		if not haveMapAndGame then
+			isMapDownloading = true
+			if btnDownloadMap then
+				btnDownloadMap:SetCaption("Downloading...")
+				btnDownloadMap:SetEnabled(false)
+			end
+
+		end
+	end
+	WG.DownloadHandler.AddListener("DownloadStarted", downloadStarted)
+
+	local function downloadProgress(_, downloadID, downloaded, total)
+		if not haveMapAndGame and total > 0 then
+			isMapDownloading = true
+			if btnDownloadMap then
+				btnDownloadMap:SetCaption("Downloading...")
+				btnDownloadMap:SetEnabled(false)
+			end
+		end
+	end
+	WG.DownloadHandler.AddListener("DownloadProgress", downloadProgress)
+
+	local function downloadFailed()
+		isMapDownloading = false
+		if btnDownloadMap then
+			btnDownloadMap:SetCaption("Download")
+			btnDownloadMap:SetEnabled(true)
+		end
+
+	end
+	WG.DownloadHandler.AddListener("DownloadFailed", downloadFailed)
 
 	WG.BattleRoomWindow = BattleRoomWindow
 	WG.Delay(DelayedInitialize, 0.5)

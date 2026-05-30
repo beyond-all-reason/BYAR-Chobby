@@ -1,8 +1,10 @@
 -- Official SpringRTS Lobby protocol implementation
 -- http://springrts.com/dl/LobbyProtocol/
 
-VFS.Include(LIB_LOBBY_DIRNAME .. "json.lua")
 VFS.Include(LIB_LOBBY_DIRNAME .. "interface_shared.lua")
+
+local spGetTimer = Spring.GetTimer
+local spDiffTimers = Spring.DiffTimers
 
 -- map lobby commands by name
 Interface.commands = {}
@@ -335,15 +337,21 @@ local bin2decmillion16 = { -- the <1M and >1M parts of 2^nth powers where n > 16
 	{ 2147 , 483648 }, -- 31
 	}
 
+-- Pre-computed bit masks for 16-bit loop (avoids 2^(b-1) exponentiation per iteration)
+local _bitmask16 = {}
+for _i = 1, 16 do _bitmask16[_i] = 2^(_i-1) end
+local bit_and = math.bit_and
+local math_floor = math.floor
+
 -- Combine two 16 bit numbers into a string-formatted 32-bit integer
 local function lsbmsb16tostring(lsb,msb)
 	local aboveamillion = 0
 	local belowamillion = lsb
 	for b = 1, 16 do
-		if math.bit_and(msb, 2^(b-1)) > 0 then
+		if bit_and(msb, _bitmask16[b]) > 0 then
 			belowamillion = belowamillion + bin2decmillion16[b][2]
 			if belowamillion >= 1000000 then
-				aboveamillion = aboveamillion + math.floor(belowamillion/1000000)
+				aboveamillion = aboveamillion + math_floor(belowamillion/1000000)
 				belowamillion = belowamillion % 1000000
 			end
 			aboveamillion = aboveamillion + bin2decmillion16[b][1]
@@ -402,7 +410,7 @@ end
 function Interface:RejoinBattle(battleID)
 	local battle = self:GetBattle(battleID)
 	if battle then
-		self:ConnectToBattle(self.useSpringRestart, battle.ip, battle.port, nil, self:GetScriptPassword())
+		self:ConnectToBattle(self.useSpringRestart, battle.ip, battle.port, nil, self:GetScriptPassword(), nil, nil, nil, nil, nil, battle.founder)
 	end
 
 	return self
@@ -410,8 +418,15 @@ end
 
 -- 2023/04/04 Fireball: Added joinAsPlayer to bypass lastGameSpectatorState
 function Interface:JoinBattle(battleID, password, scriptPassword, joinAsPlayer)
-	forcePlayer = joinAsPlayer and true or false -- used by Interfac:_OnRequestBattleStatus
+	if self.lastJoinTime then -- this is for safety on this lower level - ideally callers should take care of
+		local timeDiff = spDiffTimers(spGetTimer(), self.lastJoinTime)
+		if timeDiff < 1 then -- avoid more than 1 JOINBATTLE per second, e.g. double-clicking a battle (otherwise answers from teiserver can be confusing)
+			return self
+		end
+	end
+	self.lastJoinTime = spGetTimer()
 
+	forcePlayer = joinAsPlayer and true or false -- used by Interfac:_OnRequestBattleStatus
 	scriptPassword = scriptPassword or (tostring(math.floor(math.random() * 65536)) .. tostring(math.floor(math.random() * 65536)))
 	password = password or "empty"
 	self.changedTeamIDOnceAfterJoin = false
@@ -501,6 +516,106 @@ function Interface:SetModOptions(data)
 	return self
 end
 
+-- multiplayer chat throttling for presets and large battle settings pastes
+Interface.THROTTLED_SAY_MAX_CHARS_PER_BATCH = 20000
+Interface.THROTTLED_SAY_INTERVAL_SECONDS = 4
+
+-- Batch SayBattle lines by size; delay between batches; cancelToken.cancelled stops pending sends.
+function Interface:SayBattleThrottled(lines, maxCharsPerBatch, intervalSeconds, progressCallback, cancelToken)
+	maxCharsPerBatch = maxCharsPerBatch or Interface.THROTTLED_SAY_MAX_CHARS_PER_BATCH
+	intervalSeconds = intervalSeconds or Interface.THROTTLED_SAY_INTERVAL_SECONDS
+	cancelToken = cancelToken or {}
+
+	if self._activeThrottleToken and self._activeThrottleToken ~= cancelToken then
+		self._activeThrottleToken.cancelled = true
+	end
+	self._activeThrottleToken = cancelToken
+
+	if not lines or #lines == 0 then
+		if progressCallback then
+			progressCallback(0, 0)
+		end
+		return self
+	end
+
+	local batches = {}
+	local currentBatch = {}
+	local currentSize = 0
+
+	for _, line in ipairs(lines) do
+		local lineSize = #line + 1 -- +1 for newline
+		if currentSize + lineSize > maxCharsPerBatch and #currentBatch > 0 then
+			table.insert(batches, currentBatch)
+			currentBatch = {}
+			currentSize = 0
+		end
+		table.insert(currentBatch, line)
+		currentSize = currentSize + lineSize
+	end
+	if #currentBatch > 0 then
+		table.insert(batches, currentBatch)
+	end
+
+	local totalBatches = #batches
+	local batchIndex = 0
+	local sendNextBatch
+
+	sendNextBatch = function()
+		if cancelToken.cancelled then
+			batches = {}
+			batchIndex = totalBatches
+			if self._activeThrottleToken == cancelToken then
+				self._activeThrottleToken = nil
+			end
+			if progressCallback then
+				progressCallback(batchIndex, totalBatches, true)
+			end
+			return
+		end
+
+		batchIndex = batchIndex + 1
+		if batchIndex > totalBatches then
+			if self._activeThrottleToken == cancelToken then
+				self._activeThrottleToken = nil
+			end
+			if progressCallback then
+				progressCallback(totalBatches, totalBatches)
+			end
+			return
+		end
+
+		local batch = batches[batchIndex]
+		Spring.Echo("[SayBattleThrottled] sending batch " .. batchIndex .. "/" .. totalBatches ..
+			" (" .. #batch .. " lines)")
+		for _, line in ipairs(batch) do
+			self:SayBattle(line)
+		end
+
+		if progressCallback then
+			progressCallback(batchIndex, totalBatches)
+		end
+
+		if batchIndex < totalBatches then
+			WG.Delay(sendNextBatch, intervalSeconds)
+		elseif self._activeThrottleToken == cancelToken then
+			self._activeThrottleToken = nil
+		end
+	end
+
+	sendNextBatch()
+	return self
+end
+
+function Interface:SetModOptionsThrottled(data, maxCharsPerBatch, intervalSeconds, progressCallback, cancelToken)
+	local lines = {}
+	for k, v in pairs(data) do
+		if self.modoptions[k] ~= v then
+			table.insert(lines, "!bSet " .. tostring(k) .. " " .. tostring(v))
+		end
+	end
+	return self:SayBattleThrottled(lines, maxCharsPerBatch, intervalSeconds, progressCallback, cancelToken)
+end
+
 function Interface:AddAi(aiName, aiLib, allyNumber, version, aiOptions, battleStatusOptions)
 	local userData = {
 		isReady = true,
@@ -514,6 +629,10 @@ function Interface:AddAi(aiName, aiLib, allyNumber, version, aiOptions, battleSt
 	local battleStatus, updated = UpdateAndCreateMerge(userData, battleStatusOptions or {})
 
 	aiName = aiName:gsub(" ", "")
+	if aiOptions ~= nil then
+		self.pendingAiOptions = self.pendingAiOptions or {}
+		self.pendingAiOptions[aiName] = aiOptions
+	end
 	local battleStatusString = EncodeBattleStatus(battleStatus)
 
 	local teamColor = battleStatus.teamColor or { math.random(), math.random(), math.random(), 1}
@@ -720,7 +839,7 @@ Interface.commands["QUEUED"] = Interface._OnQueued
 
 function Interface:_OnWhois(id, data)
 	id = tonumber(id)
-	local userData = Spring.Utilities.json.decode(Spring.Utilities.Base64Decode(data))
+	local userData = Json.decode(Spring.Utilities.Base64Decode(data))
 	if userData and userData.error then
 		Spring.Log(LOG_SECTION, LOG.ERROR, "_OnWhois error: " .. tostring(userData.error))
 		return self
@@ -731,7 +850,7 @@ Interface.commands["s.user.whois"] = Interface._OnWhois
 Interface.commandPattern["s.user.whois"] = "(%d+)%s+(%S+)"
 
 function Interface:_OnWhoisName(userName, data)
-	local userData = Spring.Utilities.json.decode(Spring.Utilities.Base64Decode(data))
+	local userData = Json.decode(Spring.Utilities.Base64Decode(data))
 	self:super("_OnWhoisName", userName, userData)
 end
 Interface.commands["s.user.whoisName"] = Interface._OnWhoisName
@@ -784,7 +903,7 @@ function Interface:_OnClientStatus(userName, status)
 			local myBattleStatus = self.userBattleStatus[self.myUserName]
 			if myBattle and myBattle.founder == userName and not (Spring.GetGameName() ~= "" and myBattleStatus.isSpectator) and not self.commandBuffer and (not myBattleStatus.isSpectator or WG.Chobby.Configuration.autoLaunchAsSpectator) then
 				local battle = self:GetBattle(self.myBattleID)
-				self:ConnectToBattle(self.useSpringRestart, battle.ip, battle.port, nil, self:GetScriptPassword())
+				self:ConnectToBattle(self.useSpringRestart, battle.ip, battle.port, nil, self:GetScriptPassword(), nil, nil, nil, nil, nil, battle.founder)
 			end
 		end
 	end
@@ -1010,6 +1129,7 @@ function Interface:_OnJoinBattle(battleID, hashCode)
 	self._requestedBattleStatus = nil
 	battleID = tonumber(battleID)
 	self:super("_OnJoinBattle", battleID, hashCode)
+	self.lastJoinTime = nil
 end
 Interface.commands["JOINBATTLE"] = Interface._OnJoinBattle
 Interface.commandPattern["JOINBATTLE"] = "(%d+)%s+(%S+)"
@@ -1098,6 +1218,10 @@ function Interface:_OnAddBot(battleID, name, owner, battleStatus, teamColor, aiD
 	-- local ai, dll = unpack(explode("\t", aiDll)))
 	status.aiLib = aiDll
 	status.owner = owner
+	if self.pendingAiOptions and self.pendingAiOptions[name] ~= nil then
+		status.aiOptions = self.pendingAiOptions[name]
+		self.pendingAiOptions[name] = nil
+	end
 	self:_OnAddAi(battleID, name, status)
 end
 Interface.commands["ADDBOT"] = Interface._OnAddBot
@@ -1316,28 +1440,28 @@ Interface.commandPattern["SAYPRIVATE"] = "(%S+)%s+(.*)"
 
 --[[
 function Interface:CloseQueue(name)
-	self:_SendCommand(concat("CLOSEQUEUE", json.encode(name)))
+	self:_SendCommand(concat("CLOSEQUEUE", Json.encode(name)))
 	return self
 end
 --]]
 
 function Interface:ConnectUser(userName, ip, port, engine, scriptPassword)
-	self:_SendCommand(concat("CONNECTUSER", json.encode({userName=userName, ip=ip, port=port, engine=engine, scriptPassword=scriptPassword})))
+	self:_SendCommand(concat("CONNECTUSER", Json.encode({userName=userName, ip=ip, port=port, engine=engine, scriptPassword=scriptPassword})))
 	return self
 end
 
 function Interface:InviteTeam(userName)
-	self:_SendCommand(concat("INVITETEAM", json.encode({userName=userName})))
+	self:_SendCommand(concat("INVITETEAM", Json.encode({userName=userName})))
 	return self
 end
 
 function Interface:InviteTeamAccept(userName)
-	self:_SendCommand(concat("INVITETEAMACCEPT", json.encode({userName=userName})))
+	self:_SendCommand(concat("INVITETEAMACCEPT", Json.encode({userName=userName})))
 	return self
 end
 
 function Interface:InviteTeamDecline(userName)
-	self:_SendCommand(concat("INVITETEAMDECLINE", json.encode({userName=userName})))
+	self:_SendCommand(concat("INVITETEAMDECLINE", Json.encode({userName=userName})))
 	return self
 end
 
@@ -1346,22 +1470,22 @@ function Interface:JoinQueue(name, params)
 	if params ~= nil then
 		tbl["params"] = params
 	end
-	self:_SendCommand(concat("JOINQUEUE", json.encode(tbl)))
+	self:_SendCommand(concat("JOINQUEUE", Json.encode(tbl)))
 	return self
 end
 
 function Interface:JoinQueueAccept(name, userNames)
-	self:_SendCommand(concat("JOINQUEUEACCEPT", json.encode({name=name,userNames=userNames})))
+	self:_SendCommand(concat("JOINQUEUEACCEPT", Json.encode({name=name,userNames=userNames})))
 	return self
 end
 
 function Interface:JoinQueueDeny(name, userNames, reason)
-	self:_SendCommand(concat("JOINQUEUEDENY", json.encode({name=name,userNames=userNames,reason=reason})))
+	self:_SendCommand(concat("JOINQUEUEDENY", Json.encode({name=name,userNames=userNames,reason=reason})))
 	return self
 end
 
 function Interface:KickFromTeam(userName)
-	self:_SendCommand(concat("KICKFROMTEAM", json.encode({userName=userName})))
+	self:_SendCommand(concat("KICKFROMTEAM", Json.encode({userName=userName})))
 	return self
 end
 
@@ -1371,7 +1495,7 @@ function Interface:LeaveTeam()
 end
 
 function Interface:LeaveQueue(name)
-	self:_SendCommand(concat("LEAVEQUEUE", json.encode({name=name})))
+	self:_SendCommand(concat("LEAVEQUEUE", Json.encode({name=name})))
 	return self
 end
 
@@ -1381,7 +1505,7 @@ function Interface:ListQueues()
 end
 
 function Interface:ReadyCheck(name, userNames, responseTime)
-	self:_SendCommand(concat("READYCHECK", json.encode({name=name, userNames=userNames, responseTime=responseTime})))
+	self:_SendCommand(concat("READYCHECK", Json.encode({name=name, userNames=userNames, responseTime=responseTime})))
 	return self
 end
 
@@ -1390,7 +1514,7 @@ function Interface:ReadyCheckResponse(name, response, responseTime)
 	if responseTime ~= nil then
 		response.responseTime = responseTime
 	end
-	self:_SendCommand(concat("READYCHECKRESPONSE", json.encode(response)))
+	self:_SendCommand(concat("READYCHECKRESPONSE", Json.encode(response)))
 	return self
 end
 
@@ -1597,7 +1721,7 @@ function Interface:OpenBattle(type, natType, password, port, maxPlayers, gameHas
 end
 
 function Interface:OpenQueue(queue)
-	self:_SendCommand(concat("OPENQUEUE", json.encode({queue=queue})))
+	self:_SendCommand(concat("OPENQUEUE", Json.encode({queue=queue})))
 	return self
 end
 
@@ -1642,12 +1766,12 @@ end
 -- end
 
 function Interface:SayTeam(msg)
-	self:_SendCommand(concat("SAYTEAM", json.encode({msg=msg})))
+	self:_SendCommand(concat("SAYTEAM", Json.encode({msg=msg})))
 	return self
 end
 
 function Interface:SayTeamEx(msg)
-	self:_SendCommand(concat("SAYTEAMEX", json.encode({msg=msg})))
+	self:_SendCommand(concat("SAYTEAMEX", Json.encode({msg=msg})))
 	return self
 end
 
@@ -1672,7 +1796,7 @@ function Interface:SetScriptTags(...)
 end
 
 function Interface:SetTeamLeader(userName)
-	self:_SendCommand(concat("SETTEAMLEADER", json.encode({userName=userName})))
+	self:_SendCommand(concat("SETTEAMLEADER", Json.encode({userName=userName})))
 	return self
 end
 
@@ -1779,6 +1903,7 @@ Interface.commandPattern["HOSTPORT"] = "(%d+)"
 
 function Interface:_OnJoinBattleFailed(reason)
 	self:_CallListeners("OnJoinBattleFailed", reason)
+	self.lastJoinTime = nil
 end
 Interface.commands["JOINBATTLEFAILED"] = Interface._OnJoinBattleFailed
 Interface.commandPattern["JOINBATTLEFAILED"] = "([^\t]+)"
@@ -2096,12 +2221,24 @@ function Interface:_OnSetScriptTags(tagsTxt)
 	if self.modoptions == nil then
 		self.modoptions = {}
 	end
+	local changes = {}
 	for _, tag in pairs(tags) do
 		if string_starts(tag, mod_opts_pre) then
 			local kv = tag:sub(mod_opts_pre_indx)
-			local kvTable = explode("=", kv)
-			local k = kvTable[1]
-			local v = kvTable[2]
+			-- Split on first '=' only; values may contain '=' (e.g. base64 padding).
+			local eqPos = kv:find("=", 1, true)
+			local k, v
+			if eqPos then
+				k = kv:sub(1, eqPos - 1)
+				v = kv:sub(eqPos + 1)
+			else
+				k = kv
+				v = ""
+			end
+			local oldV = self.modoptions[k]
+			if oldV ~= v then
+				changes[k] = { old = oldV, new = v }
+			end
 			self.modoptions[k] = v
 		elseif string_starts(tag, scriptTagPlayers) then
 			local userNameLC, status = self:GetSkillFromScriptTag(tag:sub(scriptTagPlayersIndx))
@@ -2113,7 +2250,7 @@ function Interface:_OnSetScriptTags(tagsTxt)
 			end
 		end
 	end
-	self:_OnSetModOptions(self.modoptions)
+	self:_OnSetModOptions(self.modoptions, changes)
 end
 Interface.commands["SETSCRIPTTAGS"] = Interface._OnSetScriptTags
 Interface.commandPattern["SETSCRIPTTAGS"] = "(.*)"
@@ -2164,7 +2301,7 @@ local function buildDisregardListID(ignores, avoids, blocks)
 end
 
 function Interface:_On_s_user_list_relationships(data)
-	local relationships = Spring.Utilities.json.decode(Spring.Utilities.Base64Decode(data))
+	local relationships = Json.decode(Spring.Utilities.Base64Decode(data))
 
 	if not (relationships and relationships.friends and
 							  relationships.follows and
@@ -2193,10 +2330,24 @@ function Interface:_OnOK(tags)
 	local Configuration = WG.Chobby.Configuration
 	local tags = parseTags(tags)
 	local cmd = getTag(tags, "cmd", false)
-	local userName = getTag(tags, "userName", false)
-	if not (cmd and userName) then
+
+	if not cmd then
 		Spring.Log(LOG_SECTION, LOG.WARNING, "Received OK command with wrong format.")
-		return
+	end
+
+	for index, commandInfo in ipairs(self.commandsAwaitingResponse) do
+		if commandInfo.cmd == cmd then
+			if commandInfo.successCallback then
+				commandInfo.successCallback(tags)
+			end
+			table.remove(self.commandsAwaitingResponse, index)
+			return
+		end
+	end
+
+	local userName = getTag(tags, "userName", false)
+	if not userName then
+		Spring.Log(LOG_SECTION, LOG.WARNING, "Received OK command with wrong format.")
 	end
 
 	if cmd == 'c.user.ignore' then
@@ -2218,6 +2369,17 @@ Interface.commandPattern["OK"] = "(.+)"
 function Interface:_OnNo(tags)
 	local tags = parseTags(tags)
 	local cmd = getTag(tags, "cmd", false) or "unknown"
+
+	for index, commandInfo in ipairs(self.commandsAwaitingResponse) do
+		if commandInfo.cmd == cmd then
+			if commandInfo.errorCallback then
+				commandInfo.errorCallback(tags)
+			end
+			table.remove(self.commandsAwaitingResponse, index)
+			return
+		end
+	end
+
 	local userName = getTag(tags, "userName", false) or "unknown"
 	Spring.Log(LOG_SECTION, LOG.ERROR, string.format("Server answered NO to command=%s and userName=%s", cmd, userName))
 end
@@ -2326,6 +2488,28 @@ function Interface:_OnBattleExtraData(battleID, data)
 end
 Interface.commands["s.battle.extra_data"] = Interface._OnBattleExtraData
 Interface.commandPattern["s.battle.extra_data"] = "(%S+)%s+(.*)"
+
+-- Handle s.battle.teams messages
+function Interface:_OnBattleTeams(data)
+	local teamsData = Json.decode(Spring.Utilities.Base64Decode(data))
+	if not teamsData then
+		Spring.Log(LOG_SECTION, LOG.ERROR, "Failed to parse s.battle.teams data: " .. tostring(data))
+		return
+	end
+	
+	-- Update each battle with its team data
+	for battleID, teamInfo in pairs(teamsData) do
+		battleID = tonumber(battleID)
+		if battleID then
+			self:super("_OnUpdateBattleInfo", battleID, {
+				teamSize = teamInfo.teamSize,
+				nbTeams = teamInfo.nbTeams
+			})
+		end
+	end
+end
+Interface.commands["s.battle.teams"] = Interface._OnBattleTeams
+Interface.commandPattern["s.battle.teams"] = "(.+)"
 
 function Interface:_OnS_Client_Errorlog()
 	self:_CallListeners("OnS_Client_Errorlog")

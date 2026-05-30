@@ -1,4 +1,6 @@
-PriorityPopup = Component:extends{}
+PriorityPopup = LCS.class{}
+
+PriorityPopup.registeredPopups = {}
 
 function PriorityPopup:init(mainWindow, cancelFunction, acceptFunction, parentControlOverride, hideWindow, disableAcceptHotkey)
 	local sentTime
@@ -27,7 +29,7 @@ function PriorityPopup:init(mainWindow, cancelFunction, acceptFunction, parentCo
 		bottom = 0,
 		padding = {0,0,0,0},
 		margin = {0,0,0,0},
-		parent = parentControlOverride or WG.Chobby.lobbyInterfaceHolder,
+		parent = parentControlOverride or (WG.Chobby and WG.Chobby.lobbyInterfaceHolder) or screen0,
 		greedyHitTest = true,
 		Draw = function()
 			if not startTime then
@@ -117,7 +119,7 @@ function PriorityPopup:init(mainWindow, cancelFunction, acceptFunction, parentCo
 	local sw, sh = Spring.GetWindowGeometry()
 	self:ViewResize(sw, sh)
 
-	self:super('init')
+	table.insert(PriorityPopup.registeredPopups, self)
 end
 
 function PriorityPopup:ViewResize(screenWidth, screenHeight)
@@ -139,5 +141,13 @@ function PriorityPopup:ClosePopup()
 		self.mainWindow:Hide()
 	else
 		self.mainWindow:Dispose()
+	end
+end
+
+function PriorityPopup:unregister()
+	for i, comp in pairs(PriorityPopup.registeredPopups) do
+		if comp == self then
+			table.remove(PriorityPopup.registeredPopups, i)
+		end
 	end
 end

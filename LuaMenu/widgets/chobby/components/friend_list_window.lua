@@ -1,5 +1,9 @@
 FriendListWindow = ListWindow:extends{}
 
+local function ChobbyReady()
+	return WG.Chobby ~= nil and WG.Chobby.Configuration ~= nil
+end
+
 -----------------------------
 -- FriendListWindow functions
 -----------------------------
@@ -97,6 +101,9 @@ end
 ---------------------
 
 function FriendListWindow:OnAddUser(userName)
+	if not ChobbyReady() then
+		return
+	end
 	local userInfo = lobby:TryGetUser(userName)
 	if userInfo.isFriend then
 		if WG.Chobby.Configuration.friendsFilterOnline then
@@ -118,6 +125,9 @@ function FriendListWindow:OnAddUser(userName)
 end
 
 function FriendListWindow:OnRemoveUser(userName)
+	if not ChobbyReady() then
+		return
+	end
 	if lobby.status ~= "connected" then
 		return
 	end
@@ -139,6 +149,9 @@ function FriendListWindow:OnRemoveUser(userName)
 end
 
 function FriendListWindow:OnFriend(userName)
+	if not ChobbyReady() then
+		return
+	end
 	if WG.Chobby.Configuration.friendActivityNotification then
 		interfaceRoot.GetRightPanelHandler().SetActivity("friends", lobby:GetFriendRequestCount())
 	end
@@ -158,6 +171,9 @@ function FriendListWindow:OnUnfriendByID(userID, userName)
 end
 
 function FriendListWindow:OnFriendList(friends)
+	if not ChobbyReady() then
+		return
+	end
 	if WG.Chobby.Configuration.friendActivityNotification then
 		interfaceRoot.GetRightPanelHandler().SetActivity("friends", lobby:GetFriendRequestCount())
 	end
@@ -167,6 +183,9 @@ function FriendListWindow:OnFriendList(friends)
 end
 
 function FriendListWindow:OnFriendRequest(userName)
+	if not ChobbyReady() then
+		return
+	end
 	if WG.Chobby.Configuration.friendActivityNotification then
 		interfaceRoot.GetRightPanelHandler().SetActivity("friends", lobby:GetFriendRequestCount())
 	end
@@ -180,6 +199,9 @@ function FriendListWindow:OnFriendRequest(userName)
 end
 
 function FriendListWindow:OnOutgoingFriendRequest(userName)
+	if not ChobbyReady() then
+		return
+	end
 
 	local userInfo = lobby:GetUser(userName)
 	if not userInfo then
@@ -190,6 +212,9 @@ function FriendListWindow:OnOutgoingFriendRequest(userName)
 end
 
 function FriendListWindow:RemoveFriendRequestByID(userID, userName)
+	if not ChobbyReady() then
+		return
+	end
 	if WG.Chobby.Configuration.friendActivityNotification then
 		interfaceRoot.GetRightPanelHandler().SetActivity("friends", lobby:GetFriendRequestCount())
 	end
@@ -201,6 +226,9 @@ function FriendListWindow:OnRemoveOutgoingFriendRequestByID(userID, userName)
 end
 
 function FriendListWindow:OnFriendRequestList(friendRequests)
+	if not ChobbyReady() then
+		return
+	end
 	if WG.Chobby.Configuration.friendActivityNotification then
 		interfaceRoot.GetRightPanelHandler().SetActivity("friends", lobby:GetFriendRequestCount())
 	end
@@ -210,12 +238,31 @@ function FriendListWindow:OnFriendRequestList(friendRequests)
 end
 
 function FriendListWindow:OnAccepted()
+	if not ChobbyReady() then
+		return
+	end
 	self:Clear()
-	--lobby:FriendList()
-	--lobby:FriendRequestList()
+	if self.requiresLoginLabel then
+		self.requiresLoginLabel:Hide()
+	end
+	if self.btnSteamFriends then
+		self.btnSteamFriends:SetVisibility(Configuration.canAuthenticateWithSteam)
+	end
+	if self.addFriendEditBox then
+		self.addFriendEditBox:Show()
+	end
+	if self.addFriendButton then
+		self.addFriendButton:Show()
+	end
+	if self.checkOnlineOnly then
+		self.checkOnlineOnly:Show()
+	end
 end
 
 function FriendListWindow:OnNewFriendRequestByID(userID, userName)
+	if not ChobbyReady() then
+		return
+	end
 	if WG.Chobby.Configuration:AllowNotification() then
 		local userControl = WG.UserHandler.GetNotificationUser(userName)
 		userControl:SetPos(20, 40, 250, 80)
@@ -227,6 +274,9 @@ function FriendListWindow:OnNewFriendRequestByID(userID, userName)
 end
 
 function FriendListWindow:OnFriendRequestAcceptedByID(userID, userName)
+	if not ChobbyReady() then
+		return
+	end
 	if WG.Chobby.Configuration:AllowNotification() then
 		local userControl = WG.UserHandler.GetNotificationUser(userName)
 		userControl:SetPos(20, 40, 250, 80)
@@ -248,6 +298,9 @@ function FriendListWindow:HideOfflineFriends()
 end
 
 function FriendListWindow:ShowAllFriends()
+	if not ChobbyReady() then
+		return
+	end
 	self:Clear()
 
 	local outFriendRequests = lobby:GetOutgoingFriendRequestsByID()
@@ -292,21 +345,20 @@ function FriendListWindow:init(parent)
 	}
 
 	if WG.Chobby.Configuration.addFriendWindowButton then
-		local addFriendEditBox = EditBox:New {
-			right = 440,
+		self.addFriendEditBox = EditBox:New {
+			right = 295,
 			width = 130,
 			y = 15,
 			height = 30,
 			text = "",
 			objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
 			objectOverrideHintFont = WG.Chobby.Configuration:GetFont(1),
-			useIME = false,
 			parent = self.window,
 			tooltip = "Name of new friend",
 		}
 
-		local addFriendButton = Button:New {
-			right = 310,
+		self.addFriendButton = Button:New {
+			right = 165,
 			width = 120,
 			y = 15,
 			height = 30,
@@ -317,14 +369,24 @@ function FriendListWindow:init(parent)
 			parent = self.window,
 			OnClick = {
 				function()
-					lobby:FriendRequest(addFriendEditBox.text)
+					if lobby and lobby.status == "connected" then
+						lobby:FriendRequest(self.addFriendEditBox.text)
+					end
 				end
 			},
 		}
 	end
 
+	self.requiresLoginLabel = Label:New {
+		x = 20,
+		y = 42,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(1, "parties_require_login"),
+		parent = self.window,
+		caption = "\255\138\138\138" .. i18n("parties_require_login"),
+	}
+
 	self.checkOnlineOnly = Checkbox:New {
-		right = 165,
+		right = 20,
 		width = 120,
 		y = 15,
 		height = 30,
@@ -340,36 +402,55 @@ function FriendListWindow:init(parent)
 		tooltip = "Shows online friends only",
 	}
 
-	self.makePartyButton = Button:New {
-		right = 20,
-		width = 120,
-		y = 15,
-		height = 30,
-		caption = "Make Party",
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
-		classname = "option_button",
-		parent = self.window,
-		tooltip = "Opens the party manager on BAR server website in your browser",
-		OnClick = {
-			function()
-				WG.BrowserHandler.OpenUrl("https://server4.beyondallreason.info/teiserver/account/parties")
-			end
-		},
-	}
+	local isConnected = (lobby and lobby.status == "connected")
 
-	self.btnSteamFriends:SetVisibility(Configuration.canAuthenticateWithSteam)
+	if self.requiresLoginLabel then
+		if isConnected then
+			self.requiresLoginLabel:Hide()
+		else
+			self.requiresLoginLabel:Show()
+		end
+	end
+
+	if self.addFriendEditBox then
+		if isConnected then
+			self.addFriendEditBox:Show()
+		else
+			self.addFriendEditBox:Hide()
+		end
+	end
+
+	if self.addFriendButton then
+		if isConnected then
+			self.addFriendButton:Show()
+		else
+			self.addFriendButton:Hide()
+		end
+	end
+
+	if self.checkOnlineOnly then
+		if isConnected then
+			self.checkOnlineOnly:Show()
+		else
+			self.checkOnlineOnly:Hide()
+		end
+	end
+
+	if self.btnSteamFriends then
+		self.btnSteamFriends:SetVisibility(isConnected and Configuration.canAuthenticateWithSteam)
+	end
 	local function onConfigurationChange(listener, key, value)
 		if key == "canAuthenticateWithSteam" then
-			self.btnSteamFriends:SetVisibility(value)
+			self.btnSteamFriends:SetVisibility((lobby and lobby.status == "connected") and value)
 		elseif key == "friendsFilterOnline" then
 			-- user config is loaded after friend_list_window was initialized, so we toggle this checkbox accordingly when the config value arrives
 			if self.checkOnlineOnly.checked ~= value then
 				self.checkOnlineOnly:SetToggle(value)
 			end
-			
+
 			if value then
 				self:HideOfflineFriends()
-			else
+			elseif ChobbyReady() then
 				self:ShowAllFriends()
 			end
 		end
@@ -383,6 +464,7 @@ function FriendListWindow:init(parent)
 	lobby:AddListener("OnFriendRequest",                   function(listener, ...) self:OnFriendRequest(...) end)
 	lobby:AddListener("OnRemoveFriendRequestByID",         function(listener, ...) self:RemoveFriendRequestByID(...) end)
 	lobby:AddListener("OnAccepted",                        function(listener, ...) self:OnAccepted(...) end)
+	lobby:AddListener("OnDisconnected",                    function(listener, ...) self:OnDisconnected(...) end)
       
 	lobby:AddListener("OnNewFriendRequestByID",            function(listener, ...) self:OnNewFriendRequestByID(...) end)
 	lobby:AddListener("OnFriendRequestAcceptedByID",       function(listener, ...) self:OnFriendRequestAcceptedByID(...) end)
@@ -393,6 +475,25 @@ function FriendListWindow:init(parent)
 	-- following lead to duplicate updates
 	-- lobby:AddListener("OnFriendList",                function(listener, ...) self:OnFriendList(...) end)
 	-- lobby:AddListener("OnFriendRequestList",         function(listener, ...) self:OnFriendRequestList(...) end)
+end
+
+function FriendListWindow:OnDisconnected()
+	self:Clear()
+	if self.requiresLoginLabel then
+		self.requiresLoginLabel:Show()
+	end
+	if self.btnSteamFriends then
+		self.btnSteamFriends:SetVisibility(false)
+	end
+	if self.addFriendEditBox then
+		self.addFriendEditBox:Hide()
+	end
+	if self.addFriendButton then
+		self.addFriendButton:Hide()
+	end
+	if self.checkOnlineOnly then
+		self.checkOnlineOnly:Hide()
+	end
 end
 
 function FriendListWindow:RemoveListeners()

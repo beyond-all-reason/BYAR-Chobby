@@ -1,7 +1,7 @@
 local scenariodata = {
 	index			= 1, --  integer, sort order, MUST BE EQUAL TO FILENAME NUMBER
 	scenarioid		= "supcrossingvsbarbs001", -- no spaces, lowercase, this will be used to save the score
-    version         = "1", -- increment this to keep the score when changing a mission
+    version         = "2", -- increment this to keep the score when changing a mission
 	title			= "Outsmart the Barbarians", -- can be anything
 	author			= "Beherith", -- your name here
 	imagepath		= "scenario001.jpg", -- placed next to lua file, should be 3:1 ratio banner style
@@ -17,7 +17,7 @@ Tips:
     1. The map contains many rocks, reclaim them for metal to quickly progress.
     ]],
 
-	mapfilename		= "Supreme_Crossing_V1", -- the name of the map to be displayed here, and which to play on, no .smf ending needed
+	mapfilename		= "Supreme_Crossing 2.2.1", -- the name of the map to be displayed here, and which to play on, no .smf ending needed
 	playerstartx	= "25%", -- X position of where player comm icon should be drawn, from top left of the map
 	playerstarty	= "75%", -- Y position of where player comm icon should be drawn, from top left of the map
 	partime 		= 3000, -- par time in seconds

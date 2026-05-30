@@ -13,6 +13,17 @@ function widget:GetInfo()
 	}
 end
 
+Spring.CreateDir("music/custom/loading")
+Spring.CreateDir("music/custom/peace")
+Spring.CreateDir("music/custom/warlow")
+Spring.CreateDir("music/custom/warhigh")
+Spring.CreateDir("music/custom/interludes")
+Spring.CreateDir("music/custom/bossfight")
+Spring.CreateDir("music/custom/victory")
+Spring.CreateDir("music/custom/defeat")
+Spring.CreateDir("music/custom/gameover")
+Spring.CreateDir("music/custom/menu")
+
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 
@@ -22,15 +33,22 @@ local previousTrackType = "intro" -- intro or peace
 local loopTrack	-- string trackPath
 local randomTrackList
 local openTrack
-local playedTracks = {}
 local introTracksIndex = 0
 local peaceTracksIndex = 0
 
-local eventType = "none"
-local eventTrackPlayed = false
+local musicDirOriginal 			= 'luamenu/configs/gameconfig/byar/lobbyMusic/original'
+local musicDirEventAprilFools 	= 'luamenu/configs/gameconfig/byar/lobbyMusic/event/aprilfools'
+local musicDirEventSpooktober 	= 'luamenu/configs/gameconfig/byar/lobbyMusic/event/spooktober'
+local musicDirEventXmas 		= 'luamenu/configs/gameconfig/byar/lobbyMusic/event/xmas'
+local musicDirCustom 			= 'music/custom/menu'
+local musicDirCustom2 			= 'music/custom/peace'
+
+local allowedExtensions = "{*.ogg,*.mp3}"
 
 local easterEggCountdown = Spring.GetConfigInt('ChobbyLaunchesCount', 0) + 1 -- Don't play easter egg intro song for first few launches to not make weird first impression
 Spring.SetConfigInt('ChobbyLaunchesCount', easterEggCountdown)
+
+if Spring.GetConfigInt('snd_volmaster', 30) > 80 then Spring.SetConfigInt('snd_volmaster', 30) end
 
 local function GetRandomTrack(previousTrack)
 	-- randomTrackList
@@ -47,20 +65,12 @@ local function GetRandomTrack(previousTrack)
 			end
 			nextTrack = peaceTrackList[peaceTracksIndex]
 		elseif (previousTrackType == "peace" or (not peaceTrackList[1])) and introTrackList[1] then -- we're checking if there are any intro tracks
-			if math.random() <= 0.1 and (tonumber(os.date("%m")) == 4 and tonumber(os.date("%d")) == 1 and math.random() <= 0.25) then
-				nextTrack = aprilfoolsTrackList[math.random(#aprilfoolsTrackList)]
-				trackType = "intro"
-			elseif math.random() <= 0.1 and (tonumber(os.date("%m")) == 12 and tonumber(os.date("%d")) >= 12) then
-				nextTrack = xmasTrackList[math.random(#xmasTrackList)]
-				trackType = "intro"
-			else
-				trackType = "intro"
-				introTracksIndex = introTracksIndex + 1
-				if not introTrackList[introTracksIndex] then
-					introTracksIndex = 1
-				end
-				nextTrack = introTrackList[introTracksIndex]
+			trackType = "intro"
+			introTracksIndex = introTracksIndex + 1
+			if not introTrackList[introTracksIndex] then
+				introTracksIndex = 1
 			end
+			nextTrack = introTrackList[introTracksIndex]
 		end
 
 		if nextTrack and trackType then
@@ -168,6 +178,7 @@ function widget:ActivateMenu()
 		return
 	end
 	-- start playing music again
+	playlistBuild()
 	local newTrack = GetRandomTrack(previousTrack)
 	StartTrack(newTrack)
 	previousTrack = newTrack
@@ -189,36 +200,55 @@ function tableshuffle(sequence, firstIndex) -- doesn't seem like Chobby has comm
 	end
 end
 
-function widget:Initialize()
-
+function playlistBuild()
 	math.randomseed( math.ceil(os.clock()*1000000) )
 	math.random(); math.random(); math.random()
 	Spring.Echo("RANDOMSEED", math.ceil(os.clock()*1000000))
 
 	randomTrackList = {}
-	aprilfoolsTrackList = {}
-	local originalSoundtrackEnabled = Spring.GetConfigInt('UseSoundtrackNew', 1)
-	local customSoundtrackEnabled	= Spring.GetConfigInt('UseSoundtrackCustom', 1)
-	local allowedExtensions = "{*.ogg,*.mp3}"
 
 	-- Original Soundtrack List
-	if originalSoundtrackEnabled == 1 then
-		local musicDirOriginal 		= 'luamenu/configs/gameconfig/byar/lobbyMusic/original'
+	if Spring.GetConfigInt('UseSoundtrackNew', 1) == 1 then
+		customIntroTrack = "luamenu/configs/gameConfig/byar/lobbyMusic/original/matteo dell'acqua - foobar (intro).ogg"
 		randomTrackList = playlistMerge(randomTrackList, VFS.DirList(musicDirOriginal, allowedExtensions))
 	end
-	if true then
-		local musicDirEventAprilFools = 'luamenu/configs/gameconfig/byar/lobbyMusic/event/aprilfools'
-		aprilfoolsTrackList = VFS.DirList(musicDirEventAprilFools, allowedExtensions)
 
-		local musicDirEventXmas = 'luamenu/configs/gameconfig/byar/lobbyMusic/event/xmas'
-		xmasTrackList = VFS.DirList(musicDirEventXmas, allowedExtensions)
+	-- April Fools
+	if Spring.GetConfigInt('UseSoundtrackAprilFools', 1) == 1 and (tonumber(os.date("%m")) == 4 and tonumber(os.date("%d")) <= 7) then
+		randomTrackList = playlistMerge(randomTrackList, VFS.DirList(musicDirEventAprilFools, allowedExtensions))
+	end
+	if Spring.GetConfigInt('UseSoundtrackAprilFoolsPostEvent', 0) == 1 and (not (tonumber(os.date("%m")) == 4 and tonumber(os.date("%d")) <= 7)) then
+		randomTrackList = playlistMerge(randomTrackList, VFS.DirList(musicDirEventAprilFools, allowedExtensions))
+	end
+	if #VFS.DirList(musicDirEventAprilFools, allowedExtensions) >= 1 and Spring.GetConfigInt('UseSoundtrackAprilFools', 1) == 1 and (tonumber(os.date("%m")) == 4 and tonumber(os.date("%d")) <= 3) then
+		customIntroTrack = VFS.DirList(musicDirEventAprilFools, allowedExtensions)[math.random(1,#VFS.DirList(musicDirEventAprilFools, allowedExtensions))]
+	end
+
+	-- Spooktober
+	if Spring.GetConfigInt('UseSoundtrackSpooktober', 1) == 1 and (tonumber(os.date("%m")) == 10 and tonumber(os.date("%d")) >= 17) then
+		randomTrackList = playlistMerge(randomTrackList, VFS.DirList(musicDirEventSpooktober, allowedExtensions))
+	end
+	if Spring.GetConfigInt('UseSoundtrackSpooktoberPostEvent', 0) == 1 and (not (tonumber(os.date("%m")) == 10 and tonumber(os.date("%d")) >= 17)) then
+		randomTrackList = playlistMerge(randomTrackList, VFS.DirList(musicDirEventSpooktober, allowedExtensions))
+	end
+	if #VFS.DirList(musicDirEventSpooktober, allowedExtensions) >= 1 and Spring.GetConfigInt('UseSoundtrackSpooktober', 1) == 1 and (tonumber(os.date("%m")) == 10 and tonumber(os.date("%d")) >= 17) then
+		customIntroTrack = VFS.DirList(musicDirEventSpooktober, allowedExtensions)[math.random(1,#VFS.DirList(musicDirEventSpooktober, allowedExtensions))]
+	end
+
+	-- Xmas
+	if Spring.GetConfigInt('UseSoundtrackXmas', 1) == 1 and (tonumber(os.date("%m")) == 12 and tonumber(os.date("%d")) >= 12) then
+		randomTrackList = playlistMerge(randomTrackList, VFS.DirList(musicDirEventXmas, allowedExtensions))
+	end
+	if Spring.GetConfigInt('UseSoundtrackXmasPostEvent', 0) == 1 and (not (tonumber(os.date("%m")) == 12 and tonumber(os.date("%d")) >= 12)) then
+		randomTrackList = playlistMerge(randomTrackList, VFS.DirList(musicDirEventXmas, allowedExtensions))
+	end
+	if #VFS.DirList(musicDirEventXmas, allowedExtensions) >= 1 and Spring.GetConfigInt('UseSoundtrackXmas', 1) == 1 and (tonumber(os.date("%m")) == 12 and tonumber(os.date("%d")) >= 12 and tonumber(os.date("%d")) <= 26) then
+		customIntroTrack = VFS.DirList(musicDirEventXmas, allowedExtensions)[math.random(1,#VFS.DirList(musicDirEventXmas, allowedExtensions))]
 	end
 
 	-- Custom Soundtrack List
-	if customSoundtrackEnabled == 1 then
-		local musicDirCustom 		= 'music/custom/menu'
+	if Spring.GetConfigInt('UseSoundtrackCustom', 1) == 1 then
 		randomTrackList = playlistMerge(randomTrackList, VFS.DirList(musicDirCustom, allowedExtensions))
-		local musicDirCustom2 		= 'music/custom/peace'
 		randomTrackList = playlistMerge(randomTrackList, VFS.DirList(musicDirCustom2, allowedExtensions))
 	end
 
@@ -242,7 +272,8 @@ function widget:Initialize()
 
 	tableshuffle(introTrackList)
 	tableshuffle(peaceTrackList)
-
+	
+	--[[
 	Spring.Echo("Intro Tracks")
 	for _, file in pairs(introTrackList) do
 		Spring.Echo(file)
@@ -252,13 +283,12 @@ function widget:Initialize()
 	for _, file in pairs(peaceTrackList) do
 		Spring.Echo(file)
 	end
+	]]
 
 	for i = 1,1000 do
-		if Spring.GetConfigInt("boomboxcaptured", 0) == 1 or (tonumber(os.date("%m")) == 4 and tonumber(os.date("%d")) == 1 and math.random() <= 0.25) then -- Play Beyond All Rhythm once on next launch after capturing a boombox
-			openTrack = aprilfoolsTrackList[math.random(1,#aprilfoolsTrackList)]
-			Spring.SetConfigInt("boomboxcaptured", 0)
-		elseif tonumber(os.date("%m")) == 12 and tonumber(os.date("%d")) >= 12 then -- Xmas event
-			openTrack = xmasTrackList[math.random(1,#xmasTrackList)]
+		if customIntroTrack then
+			openTrack = customIntroTrack
+			break
 		end
 		if openTrack then
 			break
@@ -272,7 +302,14 @@ function widget:Initialize()
 			openTrack = peaceTrackList[1]
 			peaceTracksIndex = 1
 		end
+		if openTrack then
+			break
+		end
 	end
+end
+
+function widget:Initialize()
+	playlistBuild()
 
 	local Configuration = WG.Chobby.Configuration
 

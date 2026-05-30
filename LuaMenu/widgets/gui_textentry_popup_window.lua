@@ -122,7 +122,6 @@ local function CreateTextEntryWindow(opts)
 		hint = opts.hint or "",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(11),
-		useIME = false,
 		parent = TextEntryWindow,
 		--multiline = true,
 		OnFocusUpdate = {
@@ -143,6 +142,9 @@ local function CreateTextEntryWindow(opts)
 		},
 	}
 
+	if opts.OnOpen then
+		opts.OnOpen(eb)
+	end
 
 	WG.Chobby.PriorityPopup(TextEntryWindow, CloseFunction, CloseFunction, screen0, nil, opts.disableAcceptHotkey)
 

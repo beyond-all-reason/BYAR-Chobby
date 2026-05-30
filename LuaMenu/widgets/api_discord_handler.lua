@@ -63,6 +63,9 @@ local function OnJoinOrUpdateBattle(listener, newBattleID)
 
 	if newBattleID then
 		local battle = lobby:GetBattle(newBattleID)
+		if battle == nil then
+			return
+		end
 		local newPlayerCount = lobby:GetBattlePlayerCount(newBattleID)
 		local newMaxPlayerCount = battle.maxPlayers
 		local mapName = battle.mapName

@@ -2,27 +2,35 @@
 StringUtilities = StringUtilities or {}
 
 function StringUtilities.GetTruncatedString(myString, myFont, maxLength)
-	if (not maxLength) then
-		return myString
-	end
-	local length = string.len(myString)
-	while myFont:GetTextWidth(myString) > maxLength do
-		length = length - 1
-		myString = string.sub(myString, 0, length)
-		if length < 1 then
-			return ""
-		end
-	end
-	return myString
+    if (not maxLength) then
+        return myString
+    end
+    if myFont:GetTextWidth(myString) <= maxLength then
+        return myString
+    end
+    -- Binary search for the longest prefix that fits
+    local lo, hi = 0, string.len(myString)
+    local sub = string.sub
+    while lo < hi do
+        local mid = lo + math.floor((hi - lo + 1) / 2)
+        if myFont:GetTextWidth(sub(myString, 1, mid)) <= maxLength then
+            lo = mid
+        else
+            hi = mid - 1
+        end
+    end
+    if lo < 1 then
+        return ""
+    end
+    return sub(myString, 1, lo)
 end
 
 function StringUtilities.GetTruncatedStringWithDotDot(myString, myFont, maxLength)
 	if (not maxLength) or (myFont:GetTextWidth(myString) <= maxLength) then
 		return myString
 	end
-	local truncation = StringUtilities.GetTruncatedString(myString, myFont, maxLength)
 	local dotDotWidth = myFont:GetTextWidth("..")
-	truncation = StringUtilities.GetTruncatedString(truncation, myFont, maxLength - dotDotWidth)
+	local truncation = StringUtilities.GetTruncatedString(myString, myFont, maxLength - dotDotWidth)
 	return truncation .. ".."
 end
 
@@ -38,6 +46,17 @@ function StringUtilities.TruncateStringIfRequiredAndDotDot(myString, myFont, max
 		return false
 	end
 	return StringUtilities.GetTruncatedStringWithDotDot(myString, myFont, maxLength)
+end
+
+function StringUtilities.TruncateMiddle(value, threshold, headLength, tailLength)
+	threshold = threshold or 20
+	headLength = headLength or 8
+	tailLength = tailLength or 8
+	local s = tostring(value or "")
+	if #s <= threshold then
+		return s
+	end
+	return s:sub(1, headLength) .. "..." .. s:sub(-tailLength)
 end
 
 function string.starts(String,Start)

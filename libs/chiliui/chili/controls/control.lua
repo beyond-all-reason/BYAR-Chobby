@@ -419,7 +419,7 @@ end
 
 --// =============================================================================
 
-function Control:UpdateClientArea(dontRedraw)
+function Control:UpdateClientArea(dontRedraw, dontRealignParent)
 	local padding = self.padding
 
 	self.clientWidth  = self.width  - padding[1] - padding[3]
@@ -438,7 +438,7 @@ function Control:UpdateClientArea(dontRedraw)
 			}
 	end
 
-	if (self.parent) and (self.parent:InheritsFrom('control')) then
+	if (not dontRealignParent) and (self.parent) and (self.parent:InheritsFrom('control')) then
 		--FIXME sometimes this makes self:RequestRealign() redundant! try to reduce the Align() calls somehow
 		self.parent:RequestRealign()
 	end
@@ -551,7 +551,7 @@ end
 -- @int h height
 -- @param clientArea TODO
 -- @bool dontUpdateRelative TODO
-function Control:SetPos(x, y, w, h, clientArea, dontUpdateRelative)
+function Control:SetPos(x, y, w, h, clientArea, dontUpdateRelative, dontRealignParent)
 	local changed = false
 	local redraw  = false
 
@@ -628,7 +628,7 @@ function Control:SetPos(x, y, w, h, clientArea, dontUpdateRelative)
 	end
 
 	if (changed) or (not self.clientArea) then
-		self:UpdateClientArea(not redraw)
+		self:UpdateClientArea(not redraw, dontRealignParent)
 	end
 end
 
@@ -997,7 +997,12 @@ function Control:_CheckIfRTTisAppreciated()
 		return false
 	end
 
-	if self:InheritsFrom("window") then
+	-- Cache InheritsFrom("window") result to avoid recursive class hierarchy traversal per draw
+	if self._isWindow == nil then
+		self._isWindow = self:InheritsFrom("window")
+	end
+
+	if self._isWindow then
 		if self._usingRTT then
 			return (((self._redrawSelfCounter or 1) / (self._redrawCounter or 1)) < 0.2)
 		else
@@ -1036,12 +1041,17 @@ function Control:_UpdateChildrenDList()
 		return
 	end
 
-	if self:InheritsFrom("scrollpanel") and not self._cantUseRTT then
-		local contentX, contentY, contentWidth, contentHeight = unpack4(self.contentArea)
+	if self._isScrollPanel == nil then
+		self._isScrollPanel = self:InheritsFrom("scrollpanel")
+	end
+
+	if self._isScrollPanel and not self._cantUseRTT then
+		local ca = self.contentArea
+		local contentWidth, contentHeight = ca[3], ca[4]
 		if (contentWidth <= 0) or (contentHeight <= 0) then
 			return
 		end
-		self:CreateViewTexture("children", contentWidth, contentHeight, self.DrawChildrenForList, self, true)
+		return
 	end
 
 	--FIXME
@@ -1050,6 +1060,18 @@ function Control:_UpdateChildrenDList()
 	--end
 end
 
+
+-- Pre-computed suffix key tables to avoid per-call string concatenation
+local _suffixKeys = {}
+for _, suf in ipairs({"all", "children"}) do
+	_suffixKeys[suf] = {
+		tex = "_tex_" .. suf,
+		stencil = "_stencil_" .. suf,
+		fbo = "_fbo_" .. suf,
+		texw = "_texw_" .. suf,
+		texh = "_texh_" .. suf,
+	}
+end
 
 function Control:_UpdateAllDList()
 	if not self.parent or not UnlinkSafe(self.parent) then
@@ -1067,22 +1089,17 @@ function Control:_UpdateAllDList()
 		self._usingRTT = true
 		self:CreateViewTexture("all", self.width, self.height, self.DrawForList, self)
 	else
-		local suffix_name = "all"
-		local texname = "_tex_" .. suffix_name
-		local texStencilName = "_stencil_" .. suffix_name
-		local fboName = "_fbo_" .. suffix_name
-		local texw = "_texw_" .. suffix_name
-		local texh = "_texh_" .. suffix_name
+		local keys = _suffixKeys["all"]
 		if gl.DeleteFBO then
-			gl.DeleteFBO(self[fboName])
-			gl.DeleteTexture(self[texname])
-			gl.DeleteRBO(self[texStencilName])
+			gl.DeleteFBO(self[keys.fbo])
+			gl.DeleteTexture(self[keys.tex])
+			gl.DeleteRBO(self[keys.stencil])
 		end
-		self[texStencilName] = nil
-		self[texname] = nil
-		self[fboName] = nil
-		self[texw] = nil
-		self[texh] = nil
+		self[keys.stencil] = nil
+		self[keys.tex] = nil
+		self[keys.fbo] = nil
+		self[keys.texw] = nil
+		self[keys.texh] = nil
 		self._usingRTT = false
 
 		--FIXME
@@ -1109,8 +1126,10 @@ function Control:_SetupRTT(fnc, self_, drawInContentRect, ...)
 		gl.Scale(2/self.width, -2/self.height, 1)
 		gl.Translate(-self.x, -self.y, 0)
 	else
-		local clientX, clientY, clientWidth, clientHeight = unpack4(self.clientArea)
-		local contentX, contentY, contentWidth, contentHeight = unpack4(self.contentArea)
+		local ca1 = self.clientArea
+		local clientX, clientY, clientWidth, clientHeight = ca1[1], ca1[2], ca1[3], ca1[4]
+		local ca2 = self.contentArea
+		local contentX, contentY, contentWidth, contentHeight = ca2[1], ca2[2], ca2[3], ca2[4]
 		gl.Scale(2/contentWidth, -2/contentHeight, 1)
 		gl.Translate(-(clientX - self.scrollPosX), -(clientY - self.scrollPosY), 0)
 	end
@@ -1156,11 +1175,12 @@ function Control:CreateViewTexture(suffix_name, width, height, fnc, ...)
 		return
 	end
 
-	local texname = "_tex_" .. suffix_name
-	local texw = "_texw_" .. suffix_name
-	local texh = "_texh_" .. suffix_name
-	local texStencilName = "_stencil_" .. suffix_name
-	local fboName = "_fbo_" .. suffix_name
+	local keys = _suffixKeys[suffix_name]
+	local texname = keys.tex
+	local texw = keys.texw
+	local texh = keys.texh
+	local texStencilName = keys.stencil
+	local fboName = keys.fbo
 
 	local fbo = self[fboName] or gl.CreateFBO()
 	local texColor = self[texname]
@@ -1210,7 +1230,8 @@ end
 
 
 function Control:_DrawInClientArea(fnc, arg1, arg2, arg3, arg4)
-	local clientX, clientY, clientWidth, clientHeight = unpack4(self.clientArea)
+	local ca = self.clientArea
+	local clientX, clientY, clientWidth, clientHeight = ca[1], ca[2], ca[3], ca[4]
 
 	if WG.uiScale and WG.uiScale ~= 1 then
 		clientWidth, clientHeight = clientWidth*WG.uiScale, clientHeight*WG.uiScale
@@ -1384,7 +1405,8 @@ function Control:DrawForList()
 		end
 	end
 
-	local clientX, clientY, clientWidth, clientHeight = unpack4(self.clientArea)
+	local ca = self.clientArea
+	local clientX, clientY, clientWidth, clientHeight = ca[1], ca[2], ca[3], ca[4]
 	if WG.uiScale and WG.uiScale ~= 1 then
 		clientWidth, clientHeight = clientWidth*WG.uiScale, clientHeight*WG.uiScale
 	end
@@ -1394,7 +1416,8 @@ function Control:DrawForList()
 			gl.BlendFuncSeparate(GL.ONE, GL.SRC_ALPHA, GL.ZERO, GL.SRC_ALPHA)
 			gl.Color(1, 1, 1, 1)
 			gl.Texture(0, self._tex_children)
-			local contX, contY, contWidth, contHeight = unpack4(self.contentArea)
+			local ca2 = self.contentArea
+			local contX, contY, contWidth, contHeight = ca2[1], ca2[2], ca2[3], ca2[4]
 
 			local s = self.scrollPosX / contWidth
 			local t = 1 - self.scrollPosY / contHeight

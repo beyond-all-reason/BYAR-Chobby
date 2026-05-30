@@ -15,6 +15,10 @@ end
 
 local friendWindow
 
+local function ChobbyReady()
+	return WG.Chobby ~= nil and WG.Chobby.Configuration ~= nil
+end
+
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 -- Initialization
@@ -22,6 +26,9 @@ local friendWindow
 local initialized = false
 
 local function InitializeControls(window)
+	if not ChobbyReady() then
+		return
+	end
 	Label:New {
 		x = 40,
 		y = 40,
@@ -41,7 +48,6 @@ local function InitializeControls(window)
 			text = "",
 			objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 			objectOverrideHintFont = WG.Chobby.Configuration:GetFont(3),
-			useIME = false,
 			parent = window,
 			tooltip = "Name of new friend",
 		}
@@ -74,6 +80,9 @@ end
 local FriendWindow = {}
 
 function FriendWindow.GetControl()
+	if not ChobbyReady() then
+		return nil
+	end
 	friendWindow = WG.Chobby.FriendListWindow()
 	return friendWindow.window
 end

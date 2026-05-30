@@ -39,13 +39,17 @@ local UserStatusPanel = {}
 
 local function Logout()
 	if lobby:GetConnectionStatus() ~= "offline" then
-		WG.Chobby.Configuration:SetConfigValue("autoLogin", false)
-		if WG.Chobby.Configuration and WG.Chobby.Configuration.gameConfig and WG.Chobby.Configuration.gameConfig.logoutOpensLoginPanel then
+		if WG.Chobby and WG.Chobby.Configuration then
+			WG.Chobby.Configuration:SetConfigValue("autoLogin", false)
+		end
+		if WG.Chobby and WG.Chobby.Configuration and WG.Chobby.Configuration.gameConfig and WG.Chobby.Configuration.gameConfig.logoutOpensLoginPanel then
 			WG.LoginWindowHandler.TryLogin()
 			--WG.LoginWindowHandler.tabPanel.tabBar:Select("reset")
 		else
 			Spring.Echo("Logout")
-			WG.Chobby.interfaceRoot.CleanMultiplayerState()
+			if WG.Chobby and WG.Chobby.interfaceRoot then
+				WG.Chobby.interfaceRoot.CleanMultiplayerState()
+			end
 			lobby:Disconnect()
 		end
 	else
@@ -55,9 +59,11 @@ local function Logout()
 end
 
 local function GoToProfilePage()
-	local Configuration = WG.Chobby.Configuration
-	if Configuration.gameConfig.link_homePage ~= nil then
-		WG.BrowserHandler.OpenUrl(Configuration.gameConfig.link_homePage())
+	if WG.Chobby and WG.Chobby.Configuration then
+		local Configuration = WG.Chobby.Configuration
+		if Configuration.gameConfig.link_homePage ~= nil then
+			WG.BrowserHandler.OpenUrl(Configuration.gameConfig.link_homePage())
+		end
 	end
 end
 
@@ -106,12 +112,12 @@ local function InitializeControls(window)
 		height = 38,
 		caption = i18n("login"),
 		parent = window,
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideFont = (WG.Chobby and WG.Chobby.Configuration and WG.Chobby.Configuration:GetFont(2)) or nil,
 		OnClick = {Logout}
 	}
 	menuX = menuX + 108
 
-	if WG.Chobby.Configuration.gameConfig.link_homePage ~= nil then
+	if WG.Chobby and WG.Chobby.Configuration and WG.Chobby.Configuration.gameConfig and WG.Chobby.Configuration.gameConfig.link_homePage ~= nil then
 		menuX = menuX + 3
 		btnProfile = Button:New {
 			y = 2,
@@ -120,7 +126,7 @@ local function InitializeControls(window)
 			height = 38,
 			caption = i18n("home"),
 			parent = window,
-			objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+			objectOverrideFont = (WG.Chobby and WG.Chobby.Configuration and WG.Chobby.Configuration:GetFont(2)) or nil,
 			OnClick = {GoToProfilePage}
 		}
 		menuX = menuX + 108
@@ -134,9 +140,10 @@ local function InitializeControls(window)
 		height = 38,
 		caption = i18n("keys"),
 		parent = window,
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideFont = (WG.Chobby and WG.Chobby.Configuration and WG.Chobby.Configuration:GetFont(2)) or nil,
 		OnClick = {ShowKeys}
 	}
+	menuX = menuX + 108
 
 	connectivityText = TextBox:New {
 		name = "connectivityText",
@@ -146,8 +153,8 @@ local function InitializeControls(window)
 		height = 20,
 		valign = "center",
 		text = "\255\180\180\180" .. i18n("offline") .. "\b",
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
-		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideFont = (WG.Chobby and WG.Chobby.Configuration and WG.Chobby.Configuration:GetFont(2)) or nil,
+		objectOverrideHintFont = (WG.Chobby and WG.Chobby.Configuration and WG.Chobby.Configuration:GetFont(2)) or nil,
 		parent = window,
 	}
 
@@ -165,9 +172,11 @@ local function InitializeControls(window)
 	local userControl
 	onAccepted = function(listener)
 		userControl = WG.UserHandler.GetStatusUser(lobby:GetMyUserName())
-		userControl:SetPos(40, 51, 265)
-		window:AddChild(userControl)
-		window:RemoveChild(connectivityText)
+		if userControl then
+			userControl:SetPos(40, 51, 265)
+			window:AddChild(userControl)
+			window:RemoveChild(connectivityText)
+		end
 		lobby:Ping()
 	end
 
@@ -184,7 +193,9 @@ local function InitializeControls(window)
 
 	local function onAddUser(listener, userName, status)
 		if userName == lobby:GetMyUserName() and status.accountID then
-			WG.Chobby.Configuration:SetConfigValue("myAccountID", status.accountID)
+			if WG.Chobby and WG.Chobby.Configuration then
+				WG.Chobby.Configuration:SetConfigValue("myAccountID", status.accountID)
+			end
 		end
 	end
 
@@ -227,18 +238,18 @@ function widget:Update()
 			connectivityImage.file = IMAGE_OFFLINE
 			connectivityImage:Invalidate()
 		else
-			if WG.Chobby.Configuration and WG.Chobby.Configuration.gameConfig and WG.Chobby.Configuration.gameConfig.logoutOpensLoginPanel then
+			if WG.Chobby and WG.Chobby.Configuration and WG.Chobby.Configuration.gameConfig and WG.Chobby.Configuration.gameConfig.logoutOpensLoginPanel then
 				btnLogout:SetCaption(i18n("account"))
 			else
 				btnLogout:SetCaption(i18n("logout"))
 			end
 		end
 		if newStatus == "connecting" then
-			connectivityText:SetText(WG.Chobby.Configuration:GetPartialColor() .. i18n("connecting") .. "\b")
+			connectivityText:SetText((WG.Chobby and WG.Chobby.Configuration and WG.Chobby.Configuration:GetPartialColor()) or ("\255\255\255\255" .. i18n("connecting") .. "\b"))
 			connectivityImage.file = IMAGE_CONNECTING
 			connectivityImage:Invalidate()
 		elseif newStatus == "connected" then
-			connectivityText:SetText(WG.Chobby.Configuration:GetSuccessColor() .. i18n("online") .. "\b")
+			connectivityText:SetText((WG.Chobby and WG.Chobby.Configuration and WG.Chobby.Configuration:GetSuccessColor()) or ("\255\255\255\255" .. i18n("online") .. "\b"))
 			connectivityImage.file = IMAGE_ONLINE
 			connectivityImage:Invalidate()
 		end

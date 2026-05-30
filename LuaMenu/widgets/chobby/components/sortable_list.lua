@@ -1,8 +1,7 @@
-SortableList = Component:extends{}
+SortableList = LCS.class{}
 
 function SortableList:init(holder, headings, itemHeight, defaultSort, sortDirection, scrollPanelOverride, ItemInFilter)
-	self:DoInit() -- Lack of inheritance strikes again.
-
+	
 	self.sortBy = false
 	self.smallToLarge = sortDirection
 	if self.smallToLarge == nil then
@@ -29,7 +28,7 @@ function SortableList:init(holder, headings, itemHeight, defaultSort, sortDirect
 				y = 0,
 				right = heading.right,
 				width = heading.width,
-				height = 38,
+				height = heading.height or 38,
 				caption = heading.name,
 				objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 				tooltip = heading.tooltip,
@@ -48,15 +47,31 @@ function SortableList:init(holder, headings, itemHeight, defaultSort, sortDirect
 				},
 			}
 			if heading.image then
-				Image:New {
-					x = 0,
-					y = 0,
-					right = 0,
-					bottom = 0,
-					keepAspect = true,
-					file = heading.image,
-					parent = self.headingButtons[i],
-				}
+				if heading.imageSize then
+					local sz = heading.imageSize
+					local btnW = heading.width or 38
+					local btnH = heading.height or 38
+					local clientW = btnW - 20  -- button_small padding is 10 on each side
+					Image:New {
+						x = math.floor((clientW - sz) / 2),
+						y = math.floor((math.min(btnH, 38) - sz) / 2),
+						width = sz,
+						height = sz,
+						keepAspect = true,
+						file = heading.image,
+						parent = self.headingButtons[i],
+					}
+				else
+					Image:New {
+						x = 0,
+						y = 0,
+						right = 0,
+						bottom = 0,
+						keepAspect = true,
+						file = heading.image,
+						parent = self.headingButtons[i],
+					}
+				end
 			end
 		end
 	end
@@ -217,24 +232,30 @@ function SortableList:RecalculateDisplay(resizeOnly)
 end
 
 function SortableList:UpdateOrder()
-	local function SortFunction(a, b)
-		local noNil = self.sortDataById[a] and self.sortDataById[b] and self.sortDataById[a][self.sortBy] and self.sortDataById[b][self.sortBy]
+	-- Cache fields into locals to avoid repeated table lookups in sort comparator
+	local sortDataById = self.sortDataById
+	local priorityList = self.priorityList
+	local sortBy = self.sortBy
+	local smallToLarge = self.smallToLarge
 
-		if self.priorityList[a] == nil and self.priorityList[b] ~= nil then
-			return noNil and false
-		elseif self.priorityList[a] ~= nil and self.priorityList[b] == nil then
-			return noNil and true
-		end
+	if sortBy then
+		table.sort(self.identifierList, function(a, b)
+			local sdA = sortDataById[a]
+			local sdB = sortDataById[b]
+			local noNil = sdA and sdB and sdA[sortBy] and sdB[sortBy]
 
-		if self.smallToLarge then
-			return noNil and self.sortDataById[a][self.sortBy] < self.sortDataById[b][self.sortBy]
-		else
-			return noNil and self.sortDataById[a][self.sortBy] > self.sortDataById[b][self.sortBy]
-		end
-	end
+			if priorityList[a] == nil and priorityList[b] ~= nil then
+				return noNil and false
+			elseif priorityList[a] ~= nil and priorityList[b] == nil then
+				return noNil and true
+			end
 
-	if self.sortBy then
-		table.sort(self.identifierList, SortFunction)
+			if smallToLarge then
+				return noNil and sdA[sortBy] < sdB[sortBy]
+			else
+				return noNil and sdA[sortBy] > sdB[sortBy]
+			end
+		end)
 	end
 
 	self:RecalculateDisplay()

@@ -88,6 +88,11 @@ function InterfaceSkirmish:_StartScript(gameName, mapName, playerName, friendLis
 
 	for userName, data in pairs(self.userBattleStatus) do
 		if data.allyNumber and not data.aiLib then --every player must have an allynumber!
+			local sideData = WG.Chobby.Configuration:GetSideById(data.side)
+			if sideData and sideData.requiresModoption and
+			   (not self.modoptions or self.modoptions[sideData.requiresModoption] ~= "1") then
+				data.side = 0 -- Our default side is Armada
+			end
 			players[playerCount] = {
 				Name = userName,
 				Team = teamCount,
@@ -153,6 +158,11 @@ function InterfaceSkirmish:_StartScript(gameName, mapName, playerName, friendLis
 	local chickenAdded = false
 	for userName, data in pairs(self.userBattleStatus) do
 		if data.allyNumber and data.aiLib then
+			local sideData = WG.Chobby.Configuration:GetSideById(data.side)
+			if sideData and sideData.requiresModoption and
+			   (not self.modoptions or self.modoptions[sideData.requiresModoption] ~= "1") then
+				data.side = 2 -- Random faction
+			end
 			if friendAllyTeam == data.allyNumber and aiReplaceCount > 0 and not string.find(data.aiLib, "Raptor") then
 				aiReplaceCount = aiReplaceCount - 1
 			else
@@ -312,8 +322,12 @@ function InterfaceSkirmish:_StartScript(gameName, mapName, playerName, friendLis
 		numusers = playerCount + aiCount,
 		startpostype = startPosType or 2,
 		modoptions = self.modoptions,
-		GameStartDelay = 5,
+		GameStartDelay = WG.Chobby.Configuration.devMode and 0 or 5,
 	}
+	script.modoptions["date_day"] = os.date("%d")
+	script.modoptions["date_month"] = os.date("%m")
+	script.modoptions["date_year"] = os.date("%Y")
+	script.modoptions["date_hour"] = os.date("%H")
 
 	for i, ai in pairs(ais) do
 		script["ai" .. i] = ai
@@ -558,6 +572,7 @@ function InterfaceSkirmish:AddAi(aiName, aiLib, allyNumber, version, aiOptions, 
 		aiOptions = aiOptions,
 		teamColor = battleStatusOptions and battleStatusOptions.teamColor,
 		side = battleStatusOptions and battleStatusOptions.side,
+		handicap = battleStatusOptions and battleStatusOptions.handicap,
 	})
 end
 

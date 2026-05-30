@@ -25,7 +25,8 @@ local STATUS_PRIORITY = {
 	pending = 2,
 	cancelled = 3,
 	failed = 4,
-	success = 5,
+	unsupported = 5,
+	success = 6,
 }
 
 local NAME_MAP = {
@@ -34,6 +35,7 @@ local NAME_MAP = {
 	pending = "Queued",
 	cancel = "\255\255\255\0Cancelled",
 	fail = "\255\255\0\0Failed",
+	unsupported = "\255\255\0\0Require spring-launcher",
 	success = "\255\0\255\0Complete",
 }
 

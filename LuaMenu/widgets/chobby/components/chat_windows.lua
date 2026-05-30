@@ -8,6 +8,12 @@ function ChatWindows:init()
 	self.storedCurrentTab = false
 	self.totalNewMessages = 0
 
+	local Configuration = WG.Chobby and WG.Chobby.Configuration
+	if Configuration then
+		self.myFont1 = Configuration:GetFont(1)
+		self.myFont3 = Configuration:GetFont(3)
+	end
+
 	self.visible = false
 
 	-- setup debug console to listen to commands
@@ -178,7 +184,7 @@ function ChatWindows:init()
 		minTabWidth = 90,
 		tabs = {
 			[1] = (Configuration.debugMode and { name = "debug", caption = i18n("debug"), children = {
-					self.debugConsole.panel}, objectOverrideFont = WG.Chobby.Configuration:GetFont(1)}) or nil,
+					self.debugConsole.panel}, objectOverrideFont = self.myFont1}) or nil,
 			--{ name = "server", caption = i18n("server"), children = {self.serverPanel} },
 		},
 		OnTabChange = {
@@ -320,7 +326,7 @@ function ChatWindows:init()
 		height = "10%",
 		caption = i18n("login_to_chat"),
 		classname = "button_small",
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+		objectOverrideFont = self.myFont3,
 		parent = self.window,
 		OnClick = {function ()
 				Spring.Echo("Login")
@@ -337,7 +343,7 @@ function ChatWindows:init()
 					{
 						name = "debug",
 						caption = i18n("debug"),
-						objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
+						objectOverrideFont = self.myFont1,
 						children = {self.debugConsole.panel}
 					},
 					false
@@ -459,7 +465,7 @@ function ChatWindows:ProcessChat(chanName, userName, message, msgDate, notifyCol
 	if not lobbyUserName then 
 		lobbyUserName = userName
 	end
-	local iAmMentioned = (string.find(message, lobbyUserName, 1, true) and userName ~= lobbyUserName) -- needs 1, true or brackets will screw it up
+	local iAmMentioned = (message and lobbyUserName and string.find(message, lobbyUserName, 1, true) and userName ~= lobbyUserName) -- needs 1, true or brackets will screw it up
 	local chatColour = (iAmMentioned and notifyColor) or chatColor
 	if self:IsChannelSelected(chanName) and self.activeUnreadMessages and self.activeUnreadMessages ~= 0 then
 		self.activeUnreadMessages = self.activeUnreadMessages + 1
@@ -575,7 +581,7 @@ function ChatWindows:SetTabBadge(tabName, text)
 			width = 14,
 			height = 12,
 			caption = text,
-			objectOverrideFont = WG.Chobby.Configuration:GetFont(1, "chat_badge_black", {
+			objectOverrideFont = WG.Chobby and WG.Chobby.Configuration and WG.Chobby.Configuration:GetFont(1, "chat_badge_black", {
 				outline = true,
 				autoOutlineColor = false,
 				outlineColor = { 0, 0, 0, 0.6 },
@@ -590,7 +596,7 @@ end
 function ChatWindows:_NotifyTab(tabName, userName, chanName, nameMentioned, message, sound, popupDuration)
 	if tabName ~= self.currentTab then
 		-- TODO: Fix naming of self.tabbars (these are consoles)
-		if (nameMentioned or chanName == "Private") and WG.Chobby.Configuration.gameConfig.sayPrivateSelectAndActivateChatTab then
+		if (nameMentioned or chanName == "Private") and WG.Chobby and WG.Chobby.Configuration and WG.Chobby.Configuration.gameConfig and WG.Chobby.Configuration.gameConfig.sayPrivateSelectAndActivateChatTab and not WG.Chobby.Configuration.doNotDisturb then
 			WG.Chobby.interfaceRoot.OpenRightPanelTab("chat")
 			self.tabPanel.tabBar:Select(tabName)
 		end
@@ -606,12 +612,12 @@ function ChatWindows:_NotifyTab(tabName, userName, chanName, nameMentioned, mess
 			interfaceRoot.GetRightPanelHandler().SetActivity("chat", self.totalNewMessages, 2 - mentionNumber)
 		end
 
-		if nameMentioned and WG.Chobby.Configuration:AllowNotification(userName) then
+		if nameMentioned and WG.Chobby and WG.Chobby.Configuration and WG.Chobby.Configuration:AllowNotification(userName) then
 			Chotify:Post({
 				title = userName .. " in " .. chanName .. ":",
 				body = message,
 				sound = sound,
-				soundVolume = (WG.Chobby.Configuration.menuNotificationVolume or 1)*0.5,
+				soundVolume = (WG.Chobby and WG.Chobby.Configuration and (WG.Chobby.Configuration.menuNotificationVolume or 1) or 1)*0.5,
 				time = popupDuration,
 			})
 		end
@@ -814,8 +820,8 @@ function ChatWindows:GetChannelConsole(chanName)
 		local closeChannelButton = Button:New {
 			width = 24, height = 24, y = 5, right = Configuration.userListWidth + 18,
 			caption = "x",
-			objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
-			classname = "button_small",
+			objectOverrideFont = self.myFont1,
+			classname = "negative_button",
 			OnClick = {
 				function()
 					self.channelConsoles[chanName] = nil
@@ -833,7 +839,7 @@ function ChatWindows:GetChannelConsole(chanName)
 				{
 					name = chanName,
 					caption = caption,
-					objectOverrideFont = WG.Chobby.Configuration:GetFont(fontSize),
+					objectOverrideFont = WG.Chobby and WG.Chobby.Configuration and WG.Chobby.Configuration:GetFont(fontSize),
 					tooltip = tooltip,
 					children = {
 						Control:New {
@@ -851,7 +857,7 @@ function ChatWindows:GetChannelConsole(chanName)
 				{
 					name = chanName,
 					caption = caption,
-					objectOverrideFont = WG.Chobby.Configuration:GetFont(fontSize),
+					objectOverrideFont = WG.Chobby and WG.Chobby.Configuration and WG.Chobby.Configuration:GetFont(fontSize),
 					tooltip = tooltip,
 					children = {
 						Control:New {
@@ -921,7 +927,7 @@ function ChatWindows:GetPrivateChatConsole(userName, switchTo)
 
 		local closeChannelButton = Button:New {
 			width = 24, height = 24, y = 5, right = 18,
-			objectOverrideFont = WG.Chobby.Configuration:GetFont(10),
+			objectOverrideFont = self.myFont1,
 			caption = "x",
 			OnClick = {
 				function()
@@ -938,7 +944,7 @@ function ChatWindows:GetPrivateChatConsole(userName, switchTo)
 				name = chanName,
 				caption = caption,
 				tooltip = tooltip,
-				objectOverrideFont = WG.Chobby.Configuration:GetFont(fontSize),
+				objectOverrideFont = WG.Chobby and WG.Chobby.Configuration and WG.Chobby.Configuration:GetFont(fontSize),
 				children = {
 					privateChatConsole.panel,
 					closeChannelButton
@@ -968,7 +974,7 @@ function ChatWindows:CreateJoinChannelWindow()
 	self.joinWindow = Window:New {
 		caption = "",
 		name = "hostBattle",
-		parent = WG.Chobby.lobbyInterfaceHolder,
+		parent = WG.Chobby and WG.Chobby.lobbyInterfaceHolder,
 		width = 318,
 		height = 216,
 		resizable = false,
@@ -983,7 +989,7 @@ function ChatWindows:CreateJoinChannelWindow()
 		y = 5,
 		height = 35,
 		caption = i18n("join_channel"),
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(5),
+		objectOverrideFont = self.myFont3,
 		parent = self.joinWindow,
 	}
 
@@ -993,8 +999,8 @@ function ChatWindows:CreateJoinChannelWindow()
 		y = 66,
 		height = 35,
 		text = "",
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
-		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(3),
+		objectOverrideFont = self.myFont3,
+		objectOverrideHintFont = self.myFont3,
 		parent = self.joinWindow,
 	}
 
@@ -1019,7 +1025,7 @@ function ChatWindows:CreateJoinChannelWindow()
 		bottom = 1,
 		height = 70,
 		caption = i18n("join"),
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+		objectOverrideFont = self.myFont3,
 		parent = self.joinWindow,
 		classname = "action_button",
 		OnClick = {
@@ -1035,7 +1041,7 @@ function ChatWindows:CreateJoinChannelWindow()
 		bottom = 1,
 		height = 70,
 		caption = i18n("cancel"),
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+		objectOverrideFont = self.myFont3,
 		parent = self.joinWindow,
 		classname = "negative_button",
 		OnClick = {

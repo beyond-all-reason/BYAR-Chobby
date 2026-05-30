@@ -1,5 +1,4 @@
 LIB_LOBBY_DIRNAME = "libs/liblobby/lobby/" -- why is this needed? why doesnt api load first?
-VFS.Include(LIB_LOBBY_DIRNAME .. "json.lua")
 
 function widget:GetInfo()
 return {
@@ -41,6 +40,10 @@ function WrapperLoopback.UploadLog()
 end
 
 function WrapperLoopback.ReadReplayInfo(relativePath)
+	local Configuration = WG.Chobby.Configuration
+	if Configuration and Configuration.debugMode then
+		Spring.Echo("WrapperLoopback: ReadReplayInfo called for", relativePath)
+	end
 	WG.Connector.Send("ReadReplayInfo", {
 		relativePath = relativePath
 	})

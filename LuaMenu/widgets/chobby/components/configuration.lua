@@ -1,7 +1,5 @@
 Configuration = LCS.class{}
 
-VFS.Include("libs/liblobby/lobby/json.lua")
-
 LIB_LOBBY_DIRNAME = "libs/liblobby/lobby/"
 
 
@@ -42,17 +40,27 @@ function Configuration:init()
 	self.fontRaw[11] = {font = "fonts/n019003l.pfb", size = 17, shadow = true, outline = false, color = {0.5,0.5,0.5,0.9},}
 
 	self.fontSpecial = {}
-	self.font = {}
-	for i = 0, #self.fontRaw do
-		self.font[i] = Font:New {
-			size         = self.fontRaw[i].size,
-			font         = self.fontRaw[i].font or self.fontName,
-			outline      = self.fontRaw[i].outline,
-			shadow       = self.fontRaw[i].shadow,
-			outlineColor = self.fontRaw[i].outlineColor or {0.05,0.05,0.05,0.7},
-			color		 = self.fontRaw[i].color or {1,1,1,1},
-		}
-	end
+	-- Lazy font creation: Font:New involves font file I/O + glyph atlas.
+	-- Defer until first access via __index metamethod.
+	local fontRaw = self.fontRaw
+	local fontName = self.fontName
+	self.font = setmetatable({}, {
+		__index = function(t, i)
+			local raw = fontRaw[i]
+			if raw then
+				local f = Font:New {
+					size         = raw.size,
+					font         = raw.font or fontName,
+					outline      = raw.outline,
+					shadow       = raw.shadow,
+					outlineColor = raw.outlineColor or {0.05,0.05,0.05,0.7},
+					color        = raw.color or {1,1,1,1},
+				}
+				rawset(t, i, f)
+				return f
+			end
+		end
+	})
 
 	-- self.uiScale, WG.uiScale, and self.uiScalesForScreenSizes will be overridden in Configuration:SetConfigData;
 	-- We're setting default values here in case something tries to access it before we get there.
@@ -85,12 +93,14 @@ function Configuration:init()
 	self.steamLinkComplete = false
 	self.alreadySeenFactionPopup4 = false
 	self.firstBattleStarted = false
+	self.seenWelcomeItems = {}
 	self.lobbyTimeoutTime = 60 -- Seconds
 
 	self.battleFilterPassworded2 = true
 	self.battleFilterNonFriend = false
 	self.battleFilterRunning = false
 	self.battleFilterLocked = false
+	-- self.battleFilterVsAI = nil
 	self.battleFilterRedundant = true
 	self.battleFilterRedundantRegions = {"EU - ", "USA - ", "AUS - ","EU - ENGINE TESTING ","US - ","AU - ", "UK - "}
 	self.hostRegions = {"DE","EU","EU2","US","US2","AU"}
@@ -182,10 +192,12 @@ function Configuration:init()
 	self.multiplayerLaunchNewSpring = false
 	self.myAccountID = false
 	self.lastAddedAiName = false
+	self.lastBarbAiProfile = "hard"
 	self.multiplayerDifferentEngine = true
 
 	self.noNaiveConfigOverride = {
 		settingsMenuValues = true,
+		battleFilterVsAI = true,
 	}
 
 	self.battleTypeToName = {
@@ -262,17 +274,26 @@ function Configuration:init()
 	self.gameConfigOptions = {}
 	self.gameConfigHumanNames = {}
 	for i = 1, #gameConfigOptions do
-		local fileName = gameConfPath .. gameConfigOptions[i] .. "/mainConfig.lua"
-		Spring.Log(LOG_SECTION, LOG.INFO, "Attempting to load game config: " .. fileName)
-		if VFS.FileExists(fileName) then
-			Spring.Log(LOG_SECTION, LOG.INFO, "Game config found:" .. fileName)
-			local gameConfig = VFS.Include(fileName, nil, VFS.RAW_FIRST)
-			if gameConfig.CheckAvailability() then
-				self.gameConfigHumanNames[#self.gameConfigHumanNames + 1] = gameConfig.name
+		-- Skip re-loading the active game config (already loaded above).
+		-- Each mainConfig.lua loads 14+ sub-files, so this saves significant I/O.
+		if gameConfigOptions[i] == self.gameConfigName then
+			if self.gameConfig.CheckAvailability() then
+				self.gameConfigHumanNames[#self.gameConfigHumanNames + 1] = self.gameConfig.name
 				self.gameConfigOptions[#self.gameConfigOptions + 1] = gameConfigOptions[i]
 			end
 		else
-			Spring.Log(LOG_SECTION, LOG.WARNING, "Game config not found: " .. fileName)
+			local fileName = gameConfPath .. gameConfigOptions[i] .. "/mainConfig.lua"
+			Spring.Log(LOG_SECTION, LOG.INFO, "Attempting to load game config: " .. fileName)
+			if VFS.FileExists(fileName) then
+				Spring.Log(LOG_SECTION, LOG.INFO, "Game config found:" .. fileName)
+				local gameConfig = VFS.Include(fileName, nil, VFS.RAW_FIRST)
+				if gameConfig.CheckAvailability() then
+					self.gameConfigHumanNames[#self.gameConfigHumanNames + 1] = gameConfig.name
+					self.gameConfigOptions[#self.gameConfigOptions + 1] = gameConfigOptions[i]
+				end
+			else
+				Spring.Log(LOG_SECTION, LOG.WARNING, "Game config not found: " .. fileName)
+			end
 		end
 	end
 
@@ -282,8 +303,10 @@ function Configuration:init()
 	self.ingameNotifcations = true -- Party, chat
 	self.nonFriendNotifications = true -- Party, chat
 	self.friendActivityNotification = true
+	self.doNotDisturb = false
 	self.addFriendWindowButton = true
-	self.simplifiedSkirmishSetup = false
+	self.simplifiedSkirmishSetup = true
+	self.randomSkirmishDifficulty = "easy"
 	self.debugMode = false
 	self.devMode = VFS.FileExists("devmode.txt") or VFS.FileExists("devmode.txt.txt") or VFS.FileExists("devmode.rtf.txt")
 	self.ShowhiddenModopions = false
@@ -301,7 +324,7 @@ function Configuration:init()
 	self.onlyShowFeaturedMaps = true
 	self.simpleAiList = true
 	self.useSpringRestart = false
-	self.menuMusicVolume = 0.5
+	self.menuMusicVolume = 0.3
 	self.menuNotificationVolume = 0.8
 	self.menuBackgroundBrightness = 0.8
 	self.gameOverlayOpacity = 0.5
@@ -335,10 +358,19 @@ function Configuration:init()
 	self.lobby_fullscreen = 1
 	self.game_fullscreen = 1
 
-	self.configParamTypes = {}
-	for _, param in pairs(Spring.GetConfigParams()) do
-		self.configParamTypes[param.name] = param.type
-	end
+	-- Lazy-load config param types: Spring.GetConfigParams() returns a large
+	-- table but configParamTypes is only used for individual lookups (settings window).
+	-- Defer the iteration until first access.
+	self.configParamTypes = setmetatable({}, {
+		__index = function(t, name)
+			-- Populate all entries on first access, then remove metamethod
+			for _, param in pairs(Spring.GetConfigParams()) do
+				rawset(t, param.name, param.type)
+			end
+			setmetatable(t, nil)
+			return rawget(t, name)
+		end
+	})
 
 	self.AtiIntelSettingsOverride = {
 		Water = 1,
@@ -412,7 +444,11 @@ function Configuration:init()
 	-- should be removed at about 1.1.2024 together with all other occurences of tempChangedShowSkill
 	-- remember if new default of showSkill was applied
 	self.tempChangedShowSkill = false
+	self.supperAnnouncementKey = "nil"
+
+	self.rejoinID = "nil"
 end
+
 
 ---------------------------------------------------------------------------------
 -- Settings
@@ -600,6 +636,11 @@ function Configuration:SetConfigData(data)
 		end
 	end
 
+	if data.battleFilterVsAI ~= nil then
+		self.battleFilterPvMode = data.battleFilterVsAI and 2 or 1
+		Spring.Log("Settings", LOG.NOTICE, ("Migrated battleFilterVsAI (%s) -> battleFilterPvMode (%d)"):format(tostring(data.battleFilterVsAI), self.battleFilterPvMode))
+	end
+
 	-- should be removed at 1.1.2024
 	-- replace showSkillOpt once , if it's not already above 1
 	if not self.tempChangedShowSkill then
@@ -666,10 +707,13 @@ function Configuration:GetConfigData()
 		steamLinkComplete = self.steamLinkComplete,
 		alreadySeenFactionPopup4 = self.alreadySeenFactionPopup4,
 		firstBattleStarted = self.firstBattleStarted,
+		seenWelcomeItems = self.seenWelcomeItems,
 		battleFilterPassworded2 = self.battleFilterPassworded2,
 		battleFilterNonFriend = self.battleFilterNonFriend,
 		battleFilterRunning = self.battleFilterRunning,
 		battleFilterLocked = self.battleFilterLocked,
+		battleFilterVsAI = self.battleFilterVsAI,
+		battleFilterPvMode = self.battleFilterPvMode,
 		channels = self.channels,
 		gameConfigName = self.gameConfigName,
 		language = self.language,
@@ -684,7 +728,9 @@ function Configuration:GetConfigData()
 		notifyForAllChat = self.notifyForAllChat,
 		ingameNotifcations = self.ingameNotifcations,
 		nonFriendNotifications = self.nonFriendNotifications,
+		doNotDisturb = self.doNotDisturb,
 		simplifiedSkirmishSetup = self.simplifiedSkirmishSetup,
+		randomSkirmishDifficulty = self.randomSkirmishDifficulty,
 		debugMode = self.debugMode,
 		debugAutoWin = self.debugAutoWin,
 		enableProfiler = self.enableProfiler,
@@ -736,6 +782,7 @@ function Configuration:GetConfigData()
 		chatFontSize = self.chatFontSize,
 		myAccountID = self.myAccountID,
 		lastAddedAiName = self.lastAddedAiName,
+		lastBarbAiProfile = self.lastBarbAiProfile,
 		window_WindowPosX = self.window_WindowPosX,
 		window_WindowPosY = self.window_WindowPosY,
 		window_XResolutionWindowed = self.window_XResolutionWindowed,
@@ -751,6 +798,8 @@ function Configuration:GetConfigData()
 		useLastGameSpectatorState = self.useLastGameSpectatorState,
 		friendsFilterOnline = self.friendsFilterOnline,
 		queueExitConfirmPromptDoNotAskAgain = self.queueExitConfirmPromptDoNotAskAgain,
+		supperAnnouncementKey = self.supperAnnouncementKey,
+		rejoinBattleID = self.rejoinBattleID
 	}
 end
 
@@ -777,6 +826,9 @@ function Configuration:SetConfigValue(key, value)
 	end
 	if key == "gameConfigName" then
 		self:LoadGameConfig(LUA_DIRNAME .. "configs/gameConfig/" .. value .. "/mainConfig.lua")
+		if self.gameConfig and WG and WG.ScenarioHandler then
+			WG.ScenarioHandler.reloadGameVersion()
+		end
 	end
 	-- if key == "campaignConfigName" then
 	-- 	self.campaignPath = "campaign/" .. value
@@ -1069,8 +1121,9 @@ function Configuration:SanitizeEngineVersion(engineVersion)
 		end
 	end
 
-	local format = "(%d+)%.(%d+)%.(%d+)%-(%d+)%-g([%x][%x][%x][%x][%x][%x][%x])%s"
-    if not ret:match(format) then
+	local oldFormat = "(%d+)%.(%d+)%.(%d+)%-(%d+)%-g([%x][%x][%x][%x][%x][%x][%x])%s"
+	local newFormat = "(%d+)%.(%d+)%.(%d+)"
+	if not ret:match(oldFormat) and not ret:match(newFormat) then
         Spring.Echo("Invalid engine version format: " .. engineVersion)
 		ret = ""
     end

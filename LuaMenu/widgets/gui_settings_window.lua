@@ -87,25 +87,21 @@ local function ToggleFullscreenOn()
 	Spring.SetConfigInt("Fullscreen", 1, false)
 end
 
-local function SaveWindowPos(width, height, x, y)
+local function SaveWindowPos()
 	local Configuration = WG.Chobby.Configuration
 
-	if not width then
-		width, height, x, y = Spring.GetWindowGeometry()
-	end
-	local screenX, screenY = Spring.GetScreenGeometry()
-	y = screenY - height - y
+	-- Read from GetConfigInt (physical pixels, engine-internal space)
+	-- instead of GetWindowGeometry (DPI/UI-scaled) to avoid shrinkage
+	-- on high-DPI displays or non-1.0 UI scale.
+	local width  = Spring.GetConfigInt("XResolutionWindowed", 0)
+	local height = Spring.GetConfigInt("YResolutionWindowed", 0)
+	local x      = Spring.GetConfigInt("WindowPosX", 0)
+	local y      = Spring.GetConfigInt("WindowPosY", 0)
 
-	if x then
+	if width > 0 and height > 0 then
 		Configuration:SetConfigValue("window_WindowPosX", x)
-	end
-	if y then
 		Configuration:SetConfigValue("window_WindowPosY", y)
-	end
-	if width then
 		Configuration:SetConfigValue("window_XResolutionWindowed", width)
-	end
-	if height then
 		Configuration:SetConfigValue("window_YResolutionWindowed", height)
 	end
 
@@ -138,9 +134,12 @@ local function SetLobbyFullscreenMode(mode, borderOverride)
 	end
 
 	local Configuration = WG.Chobby.Configuration
-	local needAgressiveSetting = (mode ~= 2) and (currentMode ~= 2)
+	local prevMode = currentMode
+	-- All non-trivial mode transitions need a delayed retry because
+	-- SetConfigInt bounces may not fully apply within a single frame.
+	local needAgressiveSetting = prevMode and (prevMode ~= mode)
 
-	if (currentMode == 2 or not currentMode) and lobbyFullscreen == 2 then
+	if currentMode == 2 and lobbyFullscreen == 2 then
 		SaveWindowPos()
 	end
 	currentMode = mode
@@ -168,33 +167,30 @@ local function SetLobbyFullscreenMode(mode, borderOverride)
 		Spring.SetConfigInt("WindowBorderless", 1, false)
 		Spring.SetConfigInt("Fullscreen", 0, false)
 	elseif mode == 2 then -- Windowed
-		local winSizeX, winSizeY, winPosX, winPosY = Spring.GetWindowGeometry()
-		winPosX = Configuration.window_WindowPosX or winPosX
-		winSizeX = Configuration.window_XResolutionWindowed or winSizeX
-		winSizeY = Configuration.window_YResolutionWindowed or winSizeY
-		Spring.SetConfigInt("WindowBorderless", 0, false)
-		Spring.SetConfigInt("Fullscreen", 0)
+		if prevMode then
+			-- Switching from another mode at runtime: bounce through fullscreen
+			-- to force the engine to re-process windowed geometry.
+			-- Values are in engine-internal (physical pixel) space from SaveWindowPos.
+			local winSizeX = Configuration.window_XResolutionWindowed
+			local winSizeY = Configuration.window_YResolutionWindowed
+			local winPosX  = Configuration.window_WindowPosX
+			local winPosY  = Configuration.window_WindowPosY
 
-		if Configuration.window_WindowPosY then
-			winPosY = Configuration.window_WindowPosY
-		else
-			winPosY = screenY - winPosY - winSizeY
+			if winSizeX and winSizeY then
+				Spring.SetConfigInt("Fullscreen", 1)
+
+				Spring.SetConfigInt("WindowBorderless", 0, false)
+				Spring.SetConfigInt("WindowPosX", winPosX or 0, false)
+				Spring.SetConfigInt("WindowPosY", winPosY or 0, false)
+				Spring.SetConfigInt("XResolutionWindowed", winSizeX, false)
+				Spring.SetConfigInt("YResolutionWindowed", winSizeY, false)
+				Spring.SetConfigInt("Fullscreen", 0, false)
+			end
 		end
 
-		if winPosY > 10 then
-			-- Window is not stuck at the top of the screen
-			Spring.SetConfigInt("WindowPosX", math.min(winPosX, screenX - 50), false)
-			Spring.SetConfigInt("WindowPosY", math.min(winPosY, screenY - 50), false)
-			Spring.SetConfigInt("XResolutionWindowed",  math.min(winSizeX, screenX), false)
-			Spring.SetConfigInt("YResolutionWindowed",  math.min(winSizeY, screenY - 50), false)
-		else
-			-- Reset window to screen centre
-			Spring.SetConfigInt("WindowPosX", screenX/4, false)
-			Spring.SetConfigInt("WindowPosY", screenY/8, false)
-			Spring.SetConfigInt("XResolutionWindowed", screenX/2, false)
-			Spring.SetConfigInt("YResolutionWindowed", screenY*3/4, false)
-		end
-		Spring.SetConfigInt("WindowBorderless", 0, false)
+		-- Persist windowed state so engine starts windowed on next launch.
+		-- Do NOT persist WindowBorderless — other modes set it non-persist,
+		-- and persisting 0 here would override the game's borderless setting.
 		Spring.SetConfigInt("Fullscreen", 0)
 	elseif mode == 3 then -- Fullscreen
 		Spring.SetConfigInt("XResolution", screenX, false)
@@ -232,13 +228,16 @@ local function SetLobbyFullscreenMode(mode, borderOverride)
 		Spring.SetConfigInt("Fullscreen", 1, false)
 	end
 
-	if delayedModeSet == mode and delayedBorderOverride then
+	if delayedModeSet == mode then
 		delayedModeSet = nil
 		delayedBorderOverride = nil
 	elseif needAgressiveSetting then
 		delayedModeSet = mode
 		delayedBorderOverride = borderOverride
-		currentMode = 2
+		-- Use -1 sentinel: not equal to any real mode (passes early-return check),
+		-- not 2 (prevents SaveWindowPos from capturing wrong geometry), and
+		-- truthy (so the retry's prevMode takes the runtime path, not startup no-op).
+		currentMode = -1
 
 		-- not sure why this is needed, disabled the switching cause else borderless is like windowed, without the border, but not fullscreen
 		--Spring.SetConfigInt("WindowBorderless", 0, false)
@@ -250,7 +249,7 @@ end
 
 local function SaveLobbyDisplayMode()
 	local Configuration = WG.Chobby.Configuration
-	if (currentMode == 2 or not currentMode) and lobbyFullscreen == 2 then
+	if currentMode == 2 and lobbyFullscreen == 2 then
 		SaveWindowPos()
 	end
 	inLobby = true
@@ -295,7 +294,6 @@ local function GetValueEntryBox(parent, name, position, currentValue)
 		text = tostring(currentValue),
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(3),
-		useIME = false,
 		parent = parent,
 		OnFocusUpdate = {
 			function (obj)
@@ -606,7 +604,6 @@ local function AddNumberSetting(offset, caption, desc, key, default, minVal, max
 		text = ToPercent(default*100),
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
-		useIME = false,
 		OnFocusUpdate = {
 			function (obj)
 				if obj.focused or freezeSettings then
@@ -710,7 +707,7 @@ local function GetLobbyTabControls()
 		width  = COMBO_WIDTH,
 		height = 30,
 		right = 18,
-		value  = Configuration.menuMusicVolume or 0.5,
+		value  = Configuration.menuMusicVolume or 0.3,
 		min    = 0,
 		max    = 1,
 		step   = 0.02,
@@ -974,6 +971,59 @@ local function GetLobbyTabControls()
 	children[#children + 1] = randomSkirmishSetup
 	offset = offset + ITEM_OFFSET
 
+	children[#children + 1] = Label:New {
+		x = 20,
+		y = offset + TEXT_OFFSET,
+		width = 180,
+		height = 40,
+		valign = "top",
+		align = "left",
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		caption = i18n("randomSkirmishDifficulty"),
+	}
+
+	local randomSkirmishDifficultyOptions = {
+		{label = "Hard | Aggressive", key = "hard_aggressive"},
+		{label = "Hard | Balanced", key = "hard"},
+		{label = "Medium | Lazy", key = "medium"},
+		{label = "Easy | Slow", key = "easy"},
+		{label = "Testing AI", key = "dev"},
+	}
+	-- Prepare dropdown text from the same options table.
+	local randomSkirmishDifficultyLabels = {}
+	-- Pick current config selection
+	local selectedRandomSkirmishDifficulty = 2
+	local selectedDifficultyKey = Configuration.randomSkirmishDifficulty or "hard"
+	for i = 1, #randomSkirmishDifficultyOptions do
+		local option = randomSkirmishDifficultyOptions[i]
+		randomSkirmishDifficultyLabels[i] = option.label
+		if option.key == selectedDifficultyKey then
+			selectedRandomSkirmishDifficulty = i
+		end
+	end
+
+	children[#children + 1] = ComboBox:New {
+		x = COMBO_X,
+		y = offset,
+		width = COMBO_WIDTH,
+		right = 18,
+		height = 30,
+		items = randomSkirmishDifficultyLabels,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		selected = selectedRandomSkirmishDifficulty,
+		tooltip = i18n("randomSkirmishDifficulty_tooltip"),
+		OnSelect = {
+			function (obj)
+				if freezeSettings then
+					return
+				end
+				local selectedOption = randomSkirmishDifficultyOptions[obj.selected]
+				Configuration:SetConfigValue("randomSkirmishDifficulty", (selectedOption and selectedOption.key) or "hard")
+			end
+		},
+	}
+	offset = offset + ITEM_OFFSET
+
 	local autoLogin = Checkbox:New {
 		x = 20,
 		width = CHECK_WIDTH,
@@ -1065,9 +1115,10 @@ local function GetLobbyTabControls()
 	--children[#children + 1], offset = AddCheckboxSetting(offset, "Multiplayer in new window", "multiplayerLaunchNewSpring", true)
 	children[#children + 1], offset = AddCheckboxSetting(offset, i18n("ingame_notifcations"), "ingameNotifcations", true, nil , i18n("ingame_notifcations_tooltip"))
 	children[#children + 1], offset = AddCheckboxSetting(offset, i18n("non_friend_notifications"), "nonFriendNotifications", true, nil,  i18n("non_friend_notifications_tooltip"))
+	children[#children + 1], offset = AddCheckboxSetting(offset, "Do Not Disturb", "doNotDisturb", false, nil, "Disables the Chat switching channels when receiving a message")
 	--children[#children + 1], offset = AddCheckboxSetting(offset, i18n("notifyForAllChat"), "notifyForAllChat", false)
 	--children[#children + 1], offset = AddCheckboxSetting(offset, i18n("only_featured_maps"), "onlyShowFeaturedMaps", true)
-	--children[#children + 1], offset = AddCheckboxSetting(offset, i18n("simplifiedSkirmishSetup"), "simplifiedSkirmishSetup", true) -- not used by BAR
+	children[#children + 1], offset = AddCheckboxSetting(offset, i18n("simplifiedSkirmishSetup"), "simplifiedSkirmishSetup", true, nil, i18n("simplifiedSkirmishSetup_tooltip"))
 	children[#children + 1], offset = AddCheckboxSetting(offset, i18n("animate_lobby"), "animate_lobby", true, nil, i18n("animate_lobby_tooltip"))
 	children[#children + 1], offset = AddCheckboxSetting(offset, i18n("drawFullSpeed"), "drawAtFullSpeed", false, nil, i18n("drawFullSpeed_tooltip"))
 	children[#children + 1], offset = AddCheckboxSetting(offset, i18n("fixFlicker"), "fixFlicker", true, nil, i18n("fixFlicker_tooltip"))
@@ -1221,7 +1272,13 @@ local function GetLobbyTabControls()
 			else
 				Spring.SetConfigInt("randomSkirmishSetup", 0)
 			end
-			--Configuration:SetConfigValue("randomSkirmishSetup", value)
+		end
+		if key == "simplifiedSkirmishSetup" then
+			if value == true then
+				Spring.SetConfigInt("simplifiedSkirmishSetup", 1)
+			else
+				Spring.SetConfigInt("simplifiedSkirmishSetup", 0)
+			end
 		end
 
 		if key == "queueExitConfirmPromptDoNotAskAgain" and cbQueueExitConfirmPromptDoNotAskAgain.checked ~= value then
@@ -1283,6 +1340,84 @@ local function GetVoidTabControls()
 		WG.Chobby.Configuration.showCampaignButton = newState
 	end
 
+	children[#children + 1] = Label:New {
+		x = 20,
+		y = offset + TEXT_OFFSET,
+		width = 90,
+		height = 30,
+		valign = "top",
+		align = "left",
+		parent = window,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		caption = "Singleplayer",
+	}
+
+	local singleplayerSelectedName = Configuration.gameConfigName
+	local singleplayerSelected = 1
+	for i = 1, #Configuration.gameConfigOptions do
+		if Configuration.gameConfigOptions[i] == singleplayerSelectedName then
+			singleplayerSelected = i
+			break
+		end
+	end
+
+	children[#children + 1] = ComboBox:New {
+		name = "gameSelection",
+		x = COMBO_X,
+		y = offset,
+		width = COMBO_WIDTH,
+		height = 30,
+		right = 18,
+		parent = window,
+		items = Configuration.gameConfigHumanNames,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		selected = singleplayerSelected,
+		OnSelect = {
+			function (obj)
+				if freezeSettings then
+					return
+				end
+				Configuration:SetConfigValue("gameConfigName", Configuration.gameConfigOptions[obj.selected])
+			end
+		},
+	}
+	offset = offset + ITEM_OFFSET
+
+	children[#children + 1] = Label:New {
+		x = 20,
+		y = offset + TEXT_OFFSET,
+		width = 90,
+		height = 40,
+		valign = "top",
+		align = "left",
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		caption = "Start position type",
+		tooltip = "Default start position type for singleplayer skirmish.",
+	}
+	local startPosTypeOptions = {"Fixed", "Random", "Choose In Game", "Choose Before Game"}
+	local startPosTypeSelected = (Configuration.singleplayerStartPosType ~= nil and Configuration.singleplayerStartPosType + 1) or 3
+	children[#children + 1] = ComboBox:New {
+		x = COMBO_X,
+		y = offset,
+		width = COMBO_WIDTH,
+		height = 30,
+		right = 18,
+		items = startPosTypeOptions,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		selected = startPosTypeSelected,
+		OnSelect = {
+			function(obj)
+				if freezeSettings then
+					return
+				end
+				local idx = obj.selected
+				if idx and idx >= 1 and idx <= 4 then
+					Configuration:SetConfigValue("singleplayerStartPosType", idx - 1)
+				end
+			end
+		},
+	}
+	offset = offset + ITEM_OFFSET
 
 	children[#children + 1], offset = AddCheckboxSetting(offset, i18n("debugMode"), "debugMode", false)
 	children[#children + 1], offset = AddCheckboxSetting(offset, i18n("ShowhiddenModopions"), "ShowhiddenModopions", false, WG.ModoptionsPanel.RefreshModoptions, i18n("ShowhiddenTooltip"))
@@ -1361,7 +1496,6 @@ local function GetVoidTabControls()
 		text = Configuration:GetServerAddress(),
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
-		useIME = false,
 		tooltip = "Requires a lobby restart for changes to take effect. Current live server: server4.beyondallreason.info",
 		OnFocusUpdate = {
 			function (obj)
@@ -1394,7 +1528,6 @@ local function GetVoidTabControls()
 		text = tostring(Configuration.serverPort),
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
-		useIME = false,
 		OnFocusUpdate = {
 			function (obj)
 				if obj.focused then
@@ -1415,48 +1548,6 @@ local function GetVoidTabControls()
 	}
 	offset = offset + ITEM_OFFSET
 
-	children[#children + 1] = Label:New {
-		x = 20,
-		y = offset + TEXT_OFFSET,
-		width = 90,
-		height = 30,
-		valign = "top",
-		align = "left",
-		parent = window,
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
-		caption = "Singleplayer",
-	}
-
-	local singleplayerSelectedName = Configuration.gameConfigName
-	local singleplayerSelected = 1
-	for i = 1, #Configuration.gameConfigOptions do
-		if Configuration.gameConfigOptions[i] == singleplayerSelectedName then
-			singleplayerSelected = i
-			break
-		end
-	end
-
-	children[#children + 1] = ComboBox:New {
-		name = "gameSelection",
-		x = COMBO_X,
-		y = offset,
-		width = COMBO_WIDTH,
-		height = 30,
-		right = 18,
-		parent = window,
-		items = Configuration.gameConfigHumanNames,
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
-		selected = singleplayerSelected,
-		OnSelect = {
-			function (obj)
-				if freezeSettings then
-					return
-				end
-				Configuration:SetConfigValue("gameConfigName", Configuration.gameConfigOptions[obj.selected])
-			end
-		},
-	}
-	offset = offset + ITEM_OFFSET
 
 	--children[#children + 1] = Label:New {
 	--	x = 20,
@@ -1500,7 +1591,6 @@ local function GetVoidTabControls()
 	--	},
 	--}
 	--offset = offset + ITEM_OFFSET
-
 
 	children[#children + 1] = Label:New {
 		x = 20,
@@ -1852,7 +1942,6 @@ local function ProcessSettingsNumber(data, offset, defaults, customSettingsSwitc
 		text = FormatFunc(Configuration.settingsMenuValues[data.name] or defaults[data.name]),
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
-		useIME = false,
 		OnFocusUpdate = {
 			function (obj)
 				if obj.focused or freezeSettings then

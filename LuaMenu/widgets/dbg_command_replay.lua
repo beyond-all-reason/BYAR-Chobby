@@ -17,7 +17,6 @@ end
 
 if ENABLED then
 
-VFS.Include("libs/json.lua")
 local startClock
 
 function widget:Initialize()
@@ -44,7 +43,7 @@ function widget:Update()
 	executed = true
 
 	if STREAM_COMMANDS then
-		cmds = json.decode(VFS.LoadFile("commands.json"))
+		cmds = Json.Decode(VFS.LoadFile("commands.json"))
 		Spring.Echo("Commands: " .. tostring(#cmds))
 
 		for i, v in ipairs(cmds) do

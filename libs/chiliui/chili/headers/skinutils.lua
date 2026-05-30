@@ -832,6 +832,22 @@ end
 --// =============================================================================
 --//
 
+function DrawBackgroundedControl(obj)
+	local tw, th = TextureHandler.LoadTexture(0, obj.BackgroundTileImage, obj)
+	
+	local skLeft, skTop, skRight, skBottom = unpack4(obj.bkgndtiles)
+
+	local width = obj.width
+	local height = obj.height
+
+	gl.Color(obj.backgroundColor)
+	gl.BeginEnd(GL.TRIANGLE_STRIP, _DrawTiledTexture, 0, 0, width, height, skLeft, skTop, skRight, skBottom, tw, th, 0)
+	gl.Texture(0, false)
+end
+
+--// =============================================================================
+--//
+
 function DrawScrollPanelBorder(self)
 	local clientX, clientY, clientWidth, clientHeight = unpack4(self.clientArea)
 	local contX, contY, contWidth, contHeight = unpack4(self.contentArea)

@@ -27,6 +27,10 @@ CHOBBY_DIR = LUA_DIRNAME .. "widgets/chobby/"
 local interfaceRoot
 
 local oldSizeX, oldSizeY
+local lobbyIcon = nil -- Track desired lobby icon for periodic reapplication
+local lastIconReapply = os.clock()
+local ICON_REAPPLY_INTERVAL = 5 -- seconds
+local ingame = false
 function widget:ViewResize(vsx, vsy, viewGeometry)
 	oldSizeX, oldSizeY = vsx, vsy
 	if interfaceRoot then
@@ -36,10 +40,19 @@ function widget:ViewResize(vsx, vsy, viewGeometry)
 	WG.Chobby:_ViewResize(vsx, vsy)
 end
 
-function widget:Update()
+function widget:Update(dt)
 	local screenWidth, screenHeight = Spring.GetWindowGeometry()
 	if screenWidth ~= oldSizeX or screenHeight ~= oldSizeY then
 		widget:ViewResize(screenWidth, screenHeight)
+	end
+
+	-- Periodically reapply lobby icon to handle stale game icons (e.g. gameover)
+	if lobbyIcon and not ingame then
+		local now = os.clock()
+		if now - lastIconReapply >= ICON_REAPPLY_INTERVAL then
+			lastIconReapply = now
+			Spring.SetWMIcon(lobbyIcon, true)
+		end
 	end
 end
 
@@ -57,11 +70,13 @@ function widget:ActivateMenu()
 		ignoreFirstCall = false
 		return
 	end
+	ingame = false
 	interfaceRoot.SetIngame(false)
 	WG.Delay(SetIngameFalse, 1)
 end
 
 function widget:ActivateGame()
+	ingame = true
 	interfaceRoot.SetIngame(true)
 	WG.Delay(SetIngameTrue, 1)
 end
@@ -97,10 +112,9 @@ function widget:Initialize()
 	if taskbarTitle then
 		Spring.SetWMCaption(taskbarTitle, taskbarTitleShort)
 	end
-	local taskbarIcon = Chobby.Configuration.gameConfig.taskbarIcon
-	if taskbarIcon then
-		Spring.SetWMIcon(taskbarIcon, true)
-	end
+	local taskbarIcon = Chobby.Configuration.gameConfig.taskbarIcon or "bitmaps/logo.png"
+	lobbyIcon = taskbarIcon
+	Spring.SetWMIcon(lobbyIcon, true)
 
 	local function OnBattleAboutToStart()
 		lobby:SetIngameStatus(true)
@@ -118,10 +132,9 @@ function widget:Initialize()
 			if taskbarTitle then
 				Spring.SetWMCaption(taskbarTitle, taskbarTitleShort)
 			end
-			local taskbarIcon = Chobby.Configuration.gameConfig.taskbarIcon
-			if taskbarIcon then
-				Spring.SetWMIcon(taskbarIcon, true)
-			end
+			local taskbarIcon = Chobby.Configuration.gameConfig.taskbarIcon or "bitmaps/logo.png"
+			lobbyIcon = taskbarIcon
+			Spring.SetWMIcon(lobbyIcon, true)
 		end
 		if key == "language" then
 			Spring.Echo("Set language to "..value)

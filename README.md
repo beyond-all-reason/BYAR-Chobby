@@ -67,3 +67,7 @@ Note: Windows executables are signed, this procedure can be done only by one of 
    - untick pre-release and mark it as latest release
 6. Send new download links to .exe and .AppImage to BAR discord #website so download links on website can be updated.
 7. Note that pr-downloader is fetched from https://github.com/beyond-all-reason/spring-launcher
+
+### Contributing
+
+All contributors are welcome; if you spot an issue or bug open an issue in this repo or visit *#chobby* channel on [BAR Discord](https://discord.gg/beyond-all-reason). Pull requests are also welcome; even if it's just a spelling mistake, however if using AI tools please follow our [AI Usage Policy](/AI_POLICY.md).

@@ -58,6 +58,24 @@ local function sortfunc(t)
 	return st
  end
 
+local function GetReadableBarbProfile(profile)
+	if not profile or profile == "" then
+		return nil
+	end
+	local profileKey = string.lower(tostring(profile))
+	local profileNames = {
+		hard_aggressive = "Hard | Aggressive",
+		hard = "Hard | Balanced",
+		medium = "Medium | Lazy",
+		easy = "Easy | Slow",
+		dev = "Testing AI",
+	}
+	if profileNames[profileKey] then
+		return profileNames[profileKey]
+	end
+	return tostring(profile)
+end
+
 --------------------------------------------------------------------------
 --------------------------------------------------------------------------
 -- Initialization
@@ -102,7 +120,13 @@ function widget:ViewResize(vsx, vsy)
 	screenHeight = vsy
 end
 
+local evilHaxCounter = 0
 local function EvilHax()
+	evilHaxCounter = evilHaxCounter + 1
+	if evilHaxCounter < 30 then
+		return
+	end
+	evilHaxCounter = 0
 	local screenWidth, screenHeight = Spring.GetWindowGeometry()
 	if screenWidth ~= oldSizeX or screenHeight ~= oldSizeY then
 		widget:ViewResize(screenWidth, screenHeight)
@@ -130,7 +154,7 @@ local function GetTooltipLine(parent, hasImage, fontSize, xOffset, imageWidth)
 			parent = parent,
 			keepAspect = true,
 			file = nil,
-			fallbackFile = WG.Chobby.Configuration:GetLoadingImage(1),
+			fallbackFile = (WG.Chobby and WG.Chobby.Configuration) and WG.Chobby.Configuration:GetLoadingImage(1) or nil,
 		}
 	end
 
@@ -141,8 +165,8 @@ local function GetTooltipLine(parent, hasImage, fontSize, xOffset, imageWidth)
 		height = 20,
 		align = "left",
 		parent = parent,
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(fontSize, "Nimbus" .. fontSize, {font = "fonts/n019003l.pfb"}),
-		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(fontSize, "Nimbus" .. fontSize),
+		objectOverrideFont = (WG.Chobby and WG.Chobby.Configuration) and WG.Chobby.Configuration:GetFont(fontSize, "Nimbus" .. fontSize, {font = "fonts/n019003l.pfb"}) or nil,
+		objectOverrideHintFont = (WG.Chobby and WG.Chobby.Configuration) and WG.Chobby.Configuration:GetFont(fontSize, "Nimbus" .. fontSize) or nil,
 		text = "",
 	}
 
@@ -153,11 +177,13 @@ local function GetTooltipLine(parent, hasImage, fontSize, xOffset, imageWidth)
 		textDisplay:SetText(newText)
 		textDisplay:SetPos(nil, newPosition)
 
-		if newColor then
-			textDisplay.font = WG.Chobby.Configuration:GetFont(fontSize, colorName, {font="fonts/n019003l.pfb", color = newColor})
-			textDisplay:Invalidate()
-		else
-			textDisplay.font = WG.Chobby.Configuration:GetFont(fontSize, "Nimbus" .. fontSize, {font = "fonts/n019003l.pfb"})
+		if WG.Chobby and WG.Chobby.Configuration then
+			if newColor then
+				textDisplay.font = WG.Chobby.Configuration:GetFont(fontSize, colorName, {font="fonts/n019003l.pfb", color = newColor})
+				textDisplay:Invalidate()
+			else
+				textDisplay.font = WG.Chobby.Configuration:GetFont(fontSize, "Nimbus" .. fontSize, {font = "fonts/n019003l.pfb"})
+			end
 		end
 
 		if hasImage then
@@ -194,10 +220,7 @@ local function GetTooltipLine(parent, hasImage, fontSize, xOffset, imageWidth)
 	end
 
 	function externalFunctions.GetLines()
-		-- Does not work so always returns 1.
-		local text = textDisplay.text
-		local _, _, numLines = textDisplay.font:GetTextHeight(text)
-		return numLines
+		return #textDisplay.physicalLines or 1
 	end
 
 	function externalFunctions.GetFont()
@@ -292,7 +315,10 @@ local function QueueSpadsStatusRequest(battleID, offset)
 end
 
 local function GetBattleTooltip(battleID, battle, showMapName)
-	local Configuration = WG.Chobby.Configuration
+	local Configuration = WG.Chobby and WG.Chobby.Configuration
+	if not Configuration then
+		return nil
+	end
 
 	local width = 320
 	if not battleTooltip.mainControl then
@@ -301,7 +327,7 @@ local function GetBattleTooltip(battleID, battle, showMapName)
 			y = 0,
 			width = width,
 			height = 120,
-			padding = {0, 0, 0, 0},
+			padding = {0, 0, 7, 0},
 		}
 	end
 	local offset = 7
@@ -310,13 +336,11 @@ local function GetBattleTooltip(battleID, battle, showMapName)
 	if not battleTooltip.title then
 		battleTooltip.title = GetTooltipLine(battleTooltip.mainControl, nil, 3)
 	end
-	local title = battle.title
 	--if battle.isMatchMaker then
 	--	title = (title or "") .. " - Click to watch"
 	--end
-	local truncatedName = StringUtilities.GetTruncatedStringWithDotDot(title, battleTooltip.title.GetFont(), width - 10)
-	battleTooltip.title.Update(offset, truncatedName)
-	offset = offset + 25 -- * battleTooltip.title.GetLines() -- Not required with truncation
+	battleTooltip.title.Update(offset, battle.title)
+	offset = offset + 25 * battleTooltip.title.GetLines()
 
 	-- Battle Type (ZK specific)
 	-- if battle.battleMode then
@@ -346,16 +370,44 @@ local function GetBattleTooltip(battleID, battle, showMapName)
 		if not battleTooltip.playerCount then
 			battleTooltip.playerCount = GetTooltipLine(battleTooltip.mainControl)
 		end
-		battleTooltip.playerCount.Update(offset, "Players: " .. lobby:GetBattlePlayerCount(battleID) .. "/" .. battle.maxPlayers)
+		battleTooltip.playerCount.Update(offset, "Players: " .. lobby:GetPlayerOccupancy(battleID))
 
 		if not battleTooltip.spectatorCount then
 			battleTooltip.spectatorCount = GetTooltipLine(battleTooltip.mainControl, nil, nil, 130)
 		end
-		battleTooltip.spectatorCount.Update(offset, "Spectators: " .. battle.spectatorCount)
+		battleTooltip.spectatorCount.Update(offset,"|    " .. "Spectators: " .. battle.spectatorCount)
 
 		offset = offset + 21
 	elseif battleTooltip.playerCount then
 		battleTooltip.playerCount.Hide()
+	end
+
+	-- Avg OpenSkill, disabled if showOS is turned off
+	local showOS = Configuration.showSkillOpt and Configuration.showSkillOpt > 1
+	if showOS and battle.users and WG.UserHandler and WG.UserHandler.GetSnapshotSkillValue then
+		local total = 0
+		local count = 0
+		for i = 1, #battle.users do
+			local userName = battle.users[i]
+			local userInfo = lobby:GetUser(userName) or {}
+			local value = WG.UserHandler.GetSnapshotSkillValue(userInfo.accountID, battle)
+			if value then
+				total = total + value
+				count = count + 1
+			end
+		end
+		if count > 0 then
+			if not battleTooltip.avgOpenSkill then
+				battleTooltip.avgOpenSkill = GetTooltipLine(battleTooltip.mainControl)
+			end
+			local avg = math.floor((total / count) + 0.5)
+			battleTooltip.avgOpenSkill.Update(offset, "Avg OpenSkill: " .. tostring(avg))
+			offset = offset + 21
+		elseif battleTooltip.avgOpenSkill then
+			battleTooltip.avgOpenSkill.Hide()
+		end
+	elseif battleTooltip.avgOpenSkill then
+		battleTooltip.avgOpenSkill.Hide()
 	end
 
 	-- Password
@@ -455,14 +507,22 @@ local function GetBattleTooltip(battleID, battle, showMapName)
 		end
 		battleTooltip.userList:ClearChildren()
 		local playerOffset = 0
+		if WG.UserHandler and WG.UserHandler.SetTooltipBattle then
+			WG.UserHandler.SetTooltipBattle(battle)
+		end
 		for i = 1, #battle.users do
 			local userName = battle.users[i]
 			local playerControl = WG.UserHandler.GetTooltipUser(userName)
-			battleTooltip.userList:AddChild(playerControl)
-			playerControl:SetPos(6, playerOffset)
-			playerControl._relativeBounds.right = 0
-			playerControl:UpdateClientArea()
-			playerOffset = playerOffset + 20
+			if playerControl then
+				battleTooltip.userList:AddChild(playerControl)
+				playerControl:SetPos(6, playerOffset)
+				playerControl._relativeBounds.right = 0
+				playerControl:UpdateClientArea()
+				playerOffset = playerOffset + 20
+			end
+		end
+		if WG.UserHandler and WG.UserHandler.SetTooltipBattle then
+			WG.UserHandler.SetTooltipBattle(nil)
 		end
 		offset = offset + playerOffset + 5
 	end
@@ -527,7 +587,10 @@ end
 local minimapTooltip = {}
 
 local function GetMinimapTooltip(mapName, title)
-		local Configuration = WG.Chobby.Configuration
+		local Configuration = WG.Chobby and WG.Chobby.Configuration
+		if not Configuration then
+			return nil
+		end
 	
 		local width = MAX_WINDOW_WIDTH
 		local height = width
@@ -581,7 +644,10 @@ end
 local userTooltip = {}
 
 local function GetUserTooltip(userName, userInfo, userBattleInfo, inBattleroom)
-	local Configuration = WG.Chobby.Configuration
+	local Configuration = WG.Chobby and WG.Chobby.Configuration
+	if not Configuration then
+		return nil
+	end
 
 	local width = 240
 	if not userTooltip.mainControl then
@@ -701,7 +767,11 @@ local function GetUserTooltip(userName, userInfo, userBattleInfo, inBattleroom)
 		elseif userBattleInfo.aiLib then
 			text = "AI: " .. userBattleInfo.aiLib
 		elseif Configuration.showSkillOpt and Configuration.showSkillOpt > 1 and userInfo.skill and userInfo.skillUncertainty then
-			text = "OpenSkill: " .. userInfo.skill 
+			if tonumber(userInfo.skillUncertainty) > 6.65 then
+				text = "OpenSkill: " .. "??"
+			else
+				text = "OpenSkill: " .. userInfo.skill
+			end
 			if Configuration.showSkillOpt == 3 then
 				text = text .. " (σ=".. userInfo.skillUncertainty .. ")"
 			end
@@ -717,6 +787,32 @@ local function GetUserTooltip(userName, userInfo, userBattleInfo, inBattleroom)
 		offset = offset + 20
 	elseif userTooltip.level then
 		userTooltip.level:Hide()
+	end
+
+	-- AI profile (BARbarian only)
+	local isBarbAi = userBattleInfo.aiLib and string.lower(userBattleInfo.aiLib) == "barb"
+	local aiProfile
+	if type(userBattleInfo.aiOptions) == "table" then
+		aiProfile = userBattleInfo.aiOptions.profile
+	elseif type(userBattleInfo.aiOptions) == "string" then
+		aiProfile = userBattleInfo.aiOptions:match('"profile"%s*:%s*"([^"]+)"')
+	end
+	if isBarbAi and (not aiProfile or aiProfile == "") then
+		-- Default difficulty when added without explicity choosing a profile
+		aiProfile = "hard"
+	end
+	local readableProfile = isBarbAi and GetReadableBarbProfile(aiProfile) or nil
+	if readableProfile then
+		if not userTooltip.aiProfile then
+			userTooltip.aiProfile = GetTooltipLine(userTooltip.mainControl, false)
+		end
+		userTooltip.aiProfile.Update(
+			offset,
+			"Profile: " .. readableProfile
+		)
+		offset = offset + 20
+	elseif userTooltip.aiProfile then
+		userTooltip.aiProfile:Hide()
 	end
 
 
@@ -882,14 +978,16 @@ local function GetUserTooltip(userName, userInfo, userBattleInfo, inBattleroom)
 		end
 
 		local battleTooltipControl = GetBattleTooltip(userInfo.battleID, battle, true)
-		userTooltip.battleTooltipHolder:AddChild(battleTooltipControl)
-		local battleHeight = battleTooltipControl.clientHeight
-		local battleWidth = battleTooltipControl.clientWidth
-		userTooltip.battleTooltipHolder:SetPos(nil, nil, battleWidth, battleHeight)
+		if battleTooltipControl then
+			userTooltip.battleTooltipHolder:AddChild(battleTooltipControl)
+			local battleHeight = battleTooltipControl.clientHeight
+			local battleWidth = battleTooltipControl.clientWidth
+			userTooltip.battleTooltipHolder:SetPos(nil, nil, battleWidth, battleHeight)
 
-		offset = offset + battleHeight
-		battleOffset = battleOffset + battleHeight
-		width = math.max(width, battleWidth)
+			offset = offset + battleHeight
+			battleOffset = battleOffset + battleHeight
+			width = math.max(width, battleWidth)
+		end
 		userTooltip.battleInfoHolder:SetPos(nil, nil, width, battleOffset)
 	elseif userTooltip.battleInfoHolder then
 		userTooltip.battleInfoHolder:Hide()
@@ -1102,6 +1200,7 @@ local function GetTooltip()
 	end
 end
 
+local _cachedTooltipText, _cachedTooltipWidth
 local function SetTooltipPos()
 	local tooltipChild = tipWindow.children[1]
 	if not tooltipChild then
@@ -1116,7 +1215,11 @@ local function SetTooltipPos()
 
 	if tooltipChild.name == TOOLTIP_TEXT_NAME then
 		local text = tipTextDisplay.text
-		width  = tipTextDisplay.font:GetTextWidth(text) + 15
+		if text ~= _cachedTooltipText then
+			_cachedTooltipText = text
+			_cachedTooltipWidth = tipTextDisplay.font:GetTextWidth(text) + 15
+		end
+		width  = _cachedTooltipWidth
 		height = tooltipChild.height + 14
 	else
 		-- Fudge numbers correspond to padding
@@ -1154,7 +1257,10 @@ local function SetTooltipPos()
 end
 
 local function UpdateTooltip(inputText)
-	local Configuration = WG.Chobby.Configuration
+	local Configuration = WG.Chobby and WG.Chobby.Configuration
+	if not Configuration then
+		return
+	end
 	if inputText:starts(Configuration.USER_TOOLTIP_PREFIX) then
 		local userName = string.sub(inputText, 13)
 		local myLobby, inBattleroom
@@ -1211,16 +1317,23 @@ local function UpdateTooltip(inputText)
 end
 
 local currentTooltipText = false
+local _lastTooltipMouseX, _lastTooltipMouseY = 0, 0
 local function CheckTooltipUpdate(newText)
 	if newText then
 		if currentTooltipText ~= newText then
 			currentTooltipText = newText
 			UpdateTooltip(newText)
 			SetTooltipPos()
+			_lastTooltipMouseX, _lastTooltipMouseY = spGetMouseState()
 		else
 			-- Changed to dont update tooltip pos if not desired
 			if WG.Chobby.Configuration and WG.Chobby.Configuration.staticTooltipPositions ~= true then
-				SetTooltipPos()
+				-- Only update tooltip position when mouse has actually moved
+				local mx, my = spGetMouseState()
+				if mx ~= _lastTooltipMouseX or my ~= _lastTooltipMouseY then
+					_lastTooltipMouseX, _lastTooltipMouseY = mx, my
+					SetTooltipPos()
+				end
 			end
 		end
 	else

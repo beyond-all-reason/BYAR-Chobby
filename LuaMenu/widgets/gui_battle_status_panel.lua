@@ -21,6 +21,10 @@ local IMG_STATUS_PLAYER      = LUA_DIRNAME .. "images/playing.png"
 local PLAYER_PREFIX_BIG = "Players: "
 local PLAYER_PREFIX_SMALL = ""
 
+local function ChobbyReady()
+	return WG.Chobby ~= nil and WG.Chobby.interfaceRoot ~= nil
+end
+
 ------------------------------------------------------------------
 ------------------------------------------------------------------
 -- Info Handlers
@@ -35,7 +39,10 @@ local function GetBattleInfoHolder(parent, battleID)
 		return nil
 	end
 
-	local Configuration = WG.Chobby.Configuration
+	local Configuration = WG.Chobby and WG.Chobby.Configuration
+	if not Configuration then
+		return nil
+	end
 
 	local mainControl = Control:New {
 		x = 0,
@@ -53,7 +60,7 @@ local function GetBattleInfoHolder(parent, battleID)
 		width = 225,
 		height = 20,
 		valign = 'top',
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideFont = Configuration:GetFont(2),
 		parent = mainControl,
 	}
 	local text = StringUtilities.GetTruncatedStringWithDotDot(battle.title, lblTitle.font, lblTitle.width)
@@ -68,7 +75,7 @@ local function GetBattleInfoHolder(parent, battleID)
 		valign = 'top',
 		caption = "Spectator",
 		parent = mainControl,
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideFont = Configuration:GetFont(2),
 	}
 	local imPlayerStatus = Image:New {
 		name = "imPlayerStatus",
@@ -87,8 +94,8 @@ local function GetBattleInfoHolder(parent, battleID)
 		y = 54,
 		height = 20,
 		valign = 'top',
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
-		caption = playersPrefix .. lobby:GetBattlePlayerCount(battleID) .. "/" .. battle.maxPlayers,
+		objectOverrideFont = Configuration:GetFont(2),
+		caption = playersPrefix .. lobby:GetPlayerOccupancy(battleID),
 		parent = mainControl,
 	}
 
@@ -130,35 +137,38 @@ local function GetBattleInfoHolder(parent, battleID)
 	local currentSmallMode = false
 
 	function externalFunctions.Resize(smallMode)
+		if not Configuration then
+			return
+		end
 		currentSmallMode = smallMode
 
 		if smallMode then
 			minimap:SetPos(nil, nil, 30, 30)
 
-			lblTitle.font = WG.Chobby.Configuration:GetFont(1)
+			lblTitle.font = Configuration:GetFont(1)
 			lblTitle:SetPos(36, 1, 150)
 
-			lblPlayerStatus.font = WG.Chobby.Configuration:GetFont(1)
+			lblPlayerStatus.font = Configuration:GetFont(1)
 			lblPlayerStatus:SetPos(58, 18)
 
 			imPlayerStatus:SetPos(43, 18, 12, 12)
 
-			lblPlayers.font = WG.Chobby.Configuration:GetFont(1)
+			lblPlayers.font = Configuration:GetFont(1)
 			lblPlayers:SetPos(165, 18)
 
 			playersPrefix = PLAYER_PREFIX_SMALL
 		else
 			minimap:SetPos(nil, nil, 68, 68)
 
-			lblTitle.font = WG.Chobby.Configuration:GetFont(2)
+			lblTitle.font = Configuration:GetFont(2)
 			lblTitle:SetPos(76, 2, 225)
 
-			lblPlayerStatus.font = WG.Chobby.Configuration:GetFont(2)
+			lblPlayerStatus.font = Configuration:GetFont(2)
 			lblPlayerStatus:SetPos(103, 26)
 
 			imPlayerStatus:SetPos(82, 26, 18, 18)
 
-			lblPlayers.font = WG.Chobby.Configuration:GetFont(2)
+			lblPlayers.font = Configuration:GetFont(2)
 			lblPlayers:SetPos(80, 48)
 
 			playersPrefix = PLAYER_PREFIX_BIG
@@ -166,7 +176,7 @@ local function GetBattleInfoHolder(parent, battleID)
 		local text = StringUtilities.GetTruncatedStringWithDotDot(battle.title, lblTitle.font, smallMode and 150 or 180)
 		lblTitle:SetCaption(text)
 
-		lblPlayers:SetCaption(playersPrefix .. lobby:GetBattlePlayerCount(battleID) .. "/" .. battle.maxPlayers)
+		lblPlayers:SetCaption(playersPrefix .. lobby:GetPlayerOccupancy(battleID))
 	end
 
 	function externalFunctions.Update(newBattleID)
@@ -192,12 +202,16 @@ local function GetBattleInfoHolder(parent, battleID)
 			return
 		end
 
+		if not battle then
+			return
+		end
+
 		minimapImage.file, minimapImage.checkFileExists = Configuration:GetMinimapSmallImage(battle.mapName)
 		minimapImage:Invalidate()
 
 		externalFunctions.Resize(currentSmallMode)
 
-		lblPlayers:SetCaption(playersPrefix .. lobby:GetBattlePlayerCount(battleID) .. "/" .. battle.maxPlayers)
+		lblPlayers:SetCaption(playersPrefix .. lobby:GetPlayerOccupancy(battleID))
 	end
 	lobby:AddListener("OnUpdateBattleInfo", OnUpdateBattleInfo)
 
@@ -223,13 +237,13 @@ local function GetBattleInfoHolder(parent, battleID)
 		if updatedBattleID ~= battleID then
 			return
 		end
-		lblPlayers:SetCaption(playersPrefix .. lobby:GetBattlePlayerCount(battleID) .. "/" .. battle.maxPlayers)
+		lblPlayers:SetCaption(playersPrefix .. lobby:GetPlayerOccupancy(battleID))
 	end
 	lobby:AddListener("OnLeftBattle", PlayersUpdate)
 	lobby:AddListener("OnJoinedBattle", PlayersUpdate)
 
 	local function OnUpdateUserTeamStatus(listeners)
-		lblPlayers:SetCaption(playersPrefix .. lobby:GetBattlePlayerCount(battleID) .. "/" .. battle.maxPlayers)
+		lblPlayers:SetCaption(playersPrefix .. lobby:GetPlayerOccupancy(battleID))
 	end
 	lobby:AddListener("OnUpdateUserTeamStatus", OnUpdateUserTeamStatus)
 
@@ -261,7 +275,13 @@ end
 -- Initialization
 
 local function InitializeControls(parentControl)
-	local statusWindowHandler = WG.Chobby.interfaceRoot.GetBattleStatusWindowHandler()
+	if not ChobbyReady() then
+		return
+	end
+	local statusWindowHandler = WG.Chobby and WG.Chobby.interfaceRoot and WG.Chobby.interfaceRoot.GetBattleStatusWindowHandler()
+	if not statusWindowHandler then
+		return
+	end
 
 	local infoHolder = Panel:New {
 		x = 68,
@@ -310,7 +330,9 @@ local function InitializeControls(parentControl)
 
 			--lblBattle:SetPos(nil, 24)
 		end
-		battleInfoHolder.Resize(smallMode)
+		if battleInfoHolder then
+			battleInfoHolder.Resize(smallMode)
+		end
 	end
 
 	local unreadMessages = 0
@@ -371,7 +393,9 @@ local function InitializeControls(parentControl)
 
 	local function onJoinBattle(listener, battleID)
 		parentControl.tooltip = "battle_tooltip_" .. battleID
-		battleInfoHolder.Update(battleID)
+		if battleInfoHolder then
+			battleInfoHolder.Update(battleID)
+		end
 	end
 	lobby:AddListener("OnJoinBattle", onJoinBattle)
 end
@@ -389,7 +413,7 @@ function BattleStatusPanel.GetControl(fontSizeScale)
 		width = 290,
 		bottom = 0,
 		padding = {0,0,0,0},
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(fontSizeScale),
+		objectOverrideFont = WG.Chobby and WG.Chobby.Configuration and WG.Chobby.Configuration:GetFont(fontSizeScale),
 		caption = "",
 		OnParent = {
 			function(obj)
@@ -403,14 +427,26 @@ function BattleStatusPanel.GetControl(fontSizeScale)
 end
 
 function BattleStatusPanel.AddBattleTab(control)
-	local interfaceRoot = WG.Chobby.interfaceRoot
+	if not ChobbyReady() then
+		return
+	end
+	local interfaceRoot = WG.Chobby and WG.Chobby.interfaceRoot
+	if not interfaceRoot then
+		return
+	end
 	local tabPanel = interfaceRoot.GetBattleStatusWindowHandler()
 	tabPanel.AddTab("myBattle", "My Battle", control, false, 3, true)
 	interfaceRoot.SetBattleTabHolderVisible(true, 10)
 end
 
 function BattleStatusPanel.RemoveBattleTab()
-	local interfaceRoot = WG.Chobby.interfaceRoot
+	if not ChobbyReady() then
+		return
+	end
+	local interfaceRoot = WG.Chobby and WG.Chobby.interfaceRoot
+	if not interfaceRoot then
+		return
+	end
 	local tabPanel = interfaceRoot.GetBattleStatusWindowHandler()
 	interfaceRoot.SetBattleTabHolderVisible(false)
 	tabPanel.RemoveTab("myBattle", true)

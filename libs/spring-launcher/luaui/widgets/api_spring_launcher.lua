@@ -1,5 +1,3 @@
-VFS.Include(JSON_LIB_PATH, nil, VFS.DEF_MODE)
-
 local LOG_SECTION = "spring-launcher"
 
 local host, port
@@ -58,7 +56,7 @@ function Connector._SendCommandImmediate(command)
 	-- TODO: delete or add table.lua dependency
 	-- local msg = table.show(command)
 	-- Spring.Log(LOG_SECTION, LOG.INFO, msg)
-	local encoded = json.encode(command)
+	local encoded = Json.encode(command)
 	Spring.Log(LOG_SECTION, LOG.INFO, encoded)
 	client:send(encoded .. "\n")
 end
@@ -117,7 +115,7 @@ function widget:Initialize()
 	elseif VFS.FileExists("sl-connection.json", nil, VFS.RAW_ONLY) then
 		pcall(function()
 			local connectionInfo = VFS.LoadFile("sl-connection.json", nil, VFS.RAW_ONLY)
-			connectionInfo = json.decode(connectionInfo)
+			connectionInfo = Json.decode(connectionInfo)
 			host = connectionInfo._sl_address
 			port = connectionInfo._sl_port
 			Connector.writePath = connectionInfo._sl_write_path
@@ -142,7 +140,7 @@ end
 
 -- pocesses raw string line and executes command
 local function CommandReceived(command)
-	local success, obj = pcall(json.decode, command)
+	local success, obj = pcall(Json.decode, command)
 	if not success then
 		Spring.Log(LOG_SECTION, LOG.ERROR, "Failed to parse JSON: " .. tostring(command))
 		return

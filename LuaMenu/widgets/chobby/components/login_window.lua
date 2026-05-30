@@ -60,7 +60,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		return
 	end
 	self.emailRequired = (params and params.emailRequired) or false
-	self.windowHeight = (params and params.windowHeight) or (self.emailRequired and 430+200) or 390+200
+	self.windowHeight = (params and params.windowHeight) or (self.emailRequired and 460+200) or 420+200
 	self.loginAfterRegister = (params and params.loginAfterRegister) or false
 
 	local registerChildren = {}
@@ -124,7 +124,6 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		text = Configuration.userName or Configuration.suggestedNameFromSteam or "",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(11),
-		useIME = false,
 	}
 	loginChildren[#loginChildren+1] = self.ebUsername
 
@@ -150,7 +149,6 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		hint = i18n("enter_password"),
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(11),
-		useIME = false,
 		OnKeyPress = {
 			function(obj, key, mods, ...)
 				if key == Spring.GetKeyCode("enter") or key == Spring.GetKeyCode("numpad_enter") then
@@ -186,7 +184,6 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		text = Configuration.userName or Configuration.suggestedNameFromSteam or "",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(11),
-		useIME = false,
 	}
 	registerChildren[#registerChildren+1] = self.ebUsernameRegister
 
@@ -212,7 +209,6 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		hint = i18n("enter_password"),
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(11),
-		useIME = false,
 		OnKeyPress = {
 			function(obj, key, mods, ...)
 				if key == Spring.GetKeyCode("enter") or key == Spring.GetKeyCode("numpad_enter") then
@@ -236,7 +232,6 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		text = i18n("confirm") .. ":",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(11),
-		useIME = false,
 	}
 	registerChildren[#registerChildren + 1] = self.txtConfirmPassword
 
@@ -271,7 +266,6 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 			text = i18n("email") .. ":",
 			objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 			objectOverrideHintFont = WG.Chobby.Configuration:GetFont(11),
-   		useIME = false,
 		}
 		registerChildren[#registerChildren + 1] = self.txtEmail
 
@@ -284,7 +278,6 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 			hint = i18n("enter_email"),
 			objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 			objectOverrideHintFont = WG.Chobby.Configuration:GetFont(11),
-			useIME = false,
 			OnKeyPress = {
 				function(obj, key, mods, ...)
 					if key == Spring.GetKeyCode("enter") or key == Spring.GetKeyCode("numpad_enter") then
@@ -305,7 +298,6 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 			text = i18n("confirm") .. ":",
 			objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 			objectOverrideHintFont = WG.Chobby.Configuration:GetFont(11),
-   		useIME = false,
 		}
 		registerChildren[#registerChildren + 1] = self.txtConfirmEmail
 
@@ -318,7 +310,6 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
             hint = i18n('confirm_email'),
 			objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 			objectOverrideHintFont = WG.Chobby.Configuration:GetFont(11),
-			useIME = false,
 			OnKeyPress = {
 				function(obj, key, mods, ...)
 					if key == Spring.GetKeyCode("enter") or key == Spring.GetKeyCode("numpad_enter") then
@@ -362,7 +353,6 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
             hint = i18n("ask_moderation"),
 			objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 			objectOverrideHintFont = WG.Chobby.Configuration:GetFont(11),
-			useIME = false,
 		}
 		registerChildren[#registerChildren + 1] = self.TextAcknowledgementBox
 	end
@@ -445,7 +435,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 	self.txtErrorRegister = TextBox:New {
 		x = 15,
 		right = 15,
-		y = self.windowHeight - 216,
+		y = self.windowHeight - 246,
 		height = 90,
 		text = "",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
@@ -453,7 +443,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 	}
 	registerChildren[#registerChildren + 1] = self.txtErrorRegister
 
-	local function reenablebtnLogin()
+	local function reEnableBtnLogin()
 		self.btnLogin.tooltip = nil
 		self.btnLogin.suppressButtonReaction = false
 		self.btnLogin:SetEnabled(true)
@@ -470,7 +460,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		self.btnLogin:SetEnabled(false)
 		self.btnLogin.OnClick = {}
 		self:MayBeDisconnectBeforeTryLogin()
-		WG.Delay(reenablebtnLogin, 5)
+		WG.Delay(reEnableBtnLogin, 20)
 	end
 
 	self.btnLogin = Button:New {
@@ -595,7 +585,6 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
 		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(1),
 		tooltip = 'User name may contain only letters, numbers, square brackets and underscores',
-		useIME = false,
 	}
 	recoverChildren[#recoverChildren+1] = self.ebChangeUserName
 
@@ -682,7 +671,6 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
 		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(1),
 		tooltip = 'Make sure you enter your valid email address',
-		useIME = false,
 	}
 	recoverChildren[#recoverChildren+1] = self.ebResetPasswordEmail
 
@@ -706,7 +694,6 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
 		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(1),
 		tooltip = 'You will recieve this code via email after submitting your email in the above box',
-		useIME = false,
 	}
 	recoverChildren[#recoverChildren+1] = self.ebResetPasswordVerification
 
@@ -806,7 +793,6 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
 		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(1),
 		tooltip = 'Enter your old password here',
-		useIME = false,
 	}
 	recoverChildren[#recoverChildren+1] = self.ebChangePasswordOld
 
@@ -830,7 +816,6 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
 		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(1),
 		tooltip = 'Enter your new password here',
-		useIME = false,
 	}
 	recoverChildren[#recoverChildren+1] = self.ebChangePasswordNew
 
@@ -896,7 +881,6 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
 		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(1),
 		tooltip = 'Make sure you enter your new email address',
-		useIME = false,
 	}
 	recoverChildren[#recoverChildren+1] = self.ebChangeEmailEmail
 
@@ -920,7 +904,6 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
 		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(1),
 		tooltip = 'You will recieve this code via email after submitting your email in the above box',
-		useIME = false,
 	}
 	recoverChildren[#recoverChildren+1] = self.ebChangeEmailVerification
 
@@ -1225,13 +1208,62 @@ function isInValidUserName(username)
 	end
 end
 
+function isInValidEmail(email)
+	if not email or email == '' then
+		return false -- Let other validation handle empty email
+	end
+	
+	-- Extract domain from email
+	local domain = string.match(email, "@(.+)$")
+	if not domain then
+		return false -- Invalid email format, let other validation handle
+	end
+	
+	domain = string.lower(domain)
+	
+	-- Common email providers and their frequent typos
+	local commonProviders = {
+		["gmail.com"] = {"gmai.com", "gmail.co", "gmial.com", "gmail.cm", "gmail.om", "gmail.con", "gmal.com", "gamil.com"},
+		["hotmail.com"] = {"hotmai.com", "hotmail.co", "hotmil.com", "hotmail.cm", "hotmale.com", "hotmial.com"},
+		["yahoo.com"] = {"yaho.com", "yahoo.co", "yahho.com", "yahoo.cm", "yajoo.com", "yahooo.com"},
+		["outlook.com"] = {"outlook.co", "outlok.com", "outlook.cm", "outloook.com", "outlookk.com"},
+		["aol.com"] = {"aol.co", "aol.cm", "aol.om", "aol.con"},
+		["icloud.com"] = {"icloud.co", "icloud.cm", "iclud.com", "icloud.om", "icould.com"},
+		["live.com"] = {"live.co", "live.cm", "liv.com", "livee.com"},
+		["msn.com"] = {"msn.co", "msn.cm", "msnn.com"},
+		["comcast.net"] = {"comcast.com", "comast.net", "comcst.net"},
+		["verizon.net"] = {"verizon.com", "verison.net", "verizonn.net"},
+		["web.de"] = {"webb.de", "weeb.de", "web.dee", "web.dde", "web.ed", "webde.de", "web-de.de", "wed.de"},
+		["gmx.de"] = {"gmmx.de", "ggmx.de", "gmxx.de", "gmx.ed", "gmx.dee", "gmx.dde", "gmx.ed", "gmz.de"},
+		["freenet.de"] = {"freeenet.de", "freenett.de", "ffreenet.de", "freenet.ed", "freenet.dee", "freenet.dde", "freenet.ed", "free-net.de", "freenet-mobilfunk.de", "frenet.de", "freenete.de"},
+		["t-online.de"] = {"t-onlin.de", "tt-online.de", "t-onlinee.de", "t-online.ed", "t-online.dee", "t-online.dde", "t-online.ed", "t-onnline.de", "t-oonline.de", "tonline.de", "t-onine.de", "tonline.de", "t-oneline.de", "t.online.de"},
+		["protonmail.com"] = {"protonmail.co", "protonmail.cm", "protonmail.con", "protonmaill.com", "protonmai.com", "protomail.com", "protronmail.com", "prontonmail.com", "protonnmail.com", "protonmial.com"},
+		["proton.me"] = {"proton.me.com", "proton.ne", "proton.ms", "proton.mr", "protom.me", "protron.me", "protonm.me"},
+		["pm.me"] = {"pmme.com", "pm.me.com", "pn.me", "pm.ne", "pm.ms", "pm.mr", "pm-me.me"},
+		["protonmail.ch"] = {"protonmail.c", "protonmail.h", "protonmai.ch", "protonmial.ch", "protomail.ch", "protronmail.ch", "prontonmail.ch"}
+	}
+	
+	-- Check if the domain is a known typo
+	for correctDomain, typos in pairs(commonProviders) do
+		for _, typo in ipairs(typos) do
+			if domain == typo then
+				return "Did you mean " .. correctDomain .. "? (Common typo detected)"
+			end
+		end
+	end
+	
+	return false
+end
+
 
 function LoginWindow:tryRegister()
 	local username = self.ebUsernameRegister.text
 
 	if username == '' then
+		self.txtErrorRegister:SetText(Configuration:GetErrorColor() .. "No username provided.")
 		return
 	end
+
 	local isinValidUserName = isInValidUserName(username)
 	if isinValidUserName then
 		self.txtErrorRegister:SetText(Configuration:GetErrorColor() .. isinValidUserName)
@@ -1248,6 +1280,13 @@ function LoginWindow:tryRegister()
 		return
 	end
 
+	local email = self.ebEmail.text
+	local isInvalidEmail = isInValidEmail(email)
+	if isInvalidEmail then
+		self.txtErrorRegister:SetText(Configuration:GetErrorColor() .. isInvalidEmail)
+		return
+	end
+
     if (not Configuration.firstLoginEver) and (VFS.CalculateHash(self.TextAcknowledgementBox.text, 1) ~= "a374635fe062d9b6694049d64b3f3c69527e7a0a63628b2374fed654da7388e549aa7a5294e3b05295b6a450edf22b5b4f289955c56e281085f65680fbdbe052") then
 		self.txtErrorRegister:SetText(Configuration:GetErrorColor() .. "Contact moderation first (#open-ticket on Discord).")
         return
@@ -1258,10 +1297,6 @@ function LoginWindow:tryRegister()
 
 	local password = (self.ebPasswordRegister.visible and self.ebPasswordRegister.text) or nil
 	local email = (self.emailRequired and self.ebEmail.visible and self.ebEmail.text) or nil
-	if username == '' then
-		self.txtErrorRegister:SetText(Configuration:GetErrorColor() .. "No username provided.")
-		return
-	end
 
 	if password == '' then
 		self.txtErrorRegister:SetText(Configuration:GetErrorColor() .. "No password provided.")
@@ -1277,7 +1312,7 @@ function LoginWindow:tryRegister()
 		self.txtErrorRegister:SetText(Configuration:GetErrorColor() .. "Registration error:" .. err)
 		lobby:RemoveListener("OnRegistrationDenied", self.onRegistrationDenied)
 	end
-	
+
 	lobby:AddListener("OnRegistrationDenied", self.onRegistrationDenied)
 
 	if (lobby:GetConnectionStatus() ~= "connected") or self.loginAttempts >= 3 then
@@ -1336,6 +1371,12 @@ function LoginWindow:tryChangeEmail()
 		Configuration:GetErrorColor() ..
 		"Enter a valid email address, not " .. newemail
 		)
+		return false
+	end
+
+	local isInvalidEmail = isInValidEmail(newemail)
+	if isInvalidEmail then
+		self.txtErrorChangeEmail:SetText(Configuration:GetErrorColor() .. isInvalidEmail)
 		return false
 	end
 
@@ -1452,6 +1493,12 @@ function LoginWindow:tryResetPasswordEmail()
 		Configuration:GetErrorColor() ..
 		"Enter a valid email address, not " .. emailaddress
 		)
+		return false
+	end
+
+	local isInvalidEmail = isInValidEmail(emailaddress)
+	if isInvalidEmail then
+		self.txtErrorResetPassword:SetText(Configuration:GetErrorColor() .. isInvalidEmail)
 		return false
 	end
 
@@ -1666,7 +1713,6 @@ function LoginWindow:createAgreementWindow()
 			text = i18n("email_verification_code") .. ":",
 			objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 			objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
-			useIME = false,
 			parent = self.agreementWindow,
 		}
 		self.ebVerif = EditBox:New {
@@ -1677,7 +1723,6 @@ function LoginWindow:createAgreementWindow()
 			text = "",
 			objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 			objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
-			useIME = false,
 			parent = self.agreementWindow,
 		}
 	end

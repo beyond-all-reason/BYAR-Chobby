@@ -4,7 +4,6 @@
 
 -- Set this line to the spring-wrapper-connection installation folder
 SPRING_LAUNCHER_DIR = "libs/spring-launcher/"
-JSON_LIB_PATH = "libs/json.lua"
 
 -- Do NOT modify the following lines
 function widget:GetInfo()

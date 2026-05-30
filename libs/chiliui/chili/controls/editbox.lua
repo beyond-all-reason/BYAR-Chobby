@@ -122,29 +122,34 @@ end
 
 --// =============================================================================
 
+local string_byte = string.byte
+local string_sub  = string.sub
 local function explode(div, str)
 	str = tostring(str)
 	local arr = {}
-	local i, j = 1, 1
-	local N = str:len()
+	local n = 0
+	local start = 1
+	local len = #str
+	local divByte = string_byte(div)
+	local pos = 1
 
-	while j <= N do
-		local c = str:sub(j, j)
-		if c == '\255' then
-			j = j + 3
-		elseif c == div then
-			arr[#arr + 1] = str:sub(i, j - 1)
-			i = j + 1
+	while pos <= len do
+		local byte = string_byte(str, pos)
+		if byte == 255 then
+			pos = pos + 4 -- skip \255\R\G\B color code
+		elseif byte == divByte then
+			n = n + 1
+			arr[n] = string_sub(str, start, pos - 1)
+			start = pos + 1
+			pos = pos + 1
+		else
+			pos = pos + 1
 		end
-		j = j + 1
 	end
-
-	if i <= N then
-		arr[#arr + 1] = str:sub(i, N)
-	end
-
+	n = n + 1
+	arr[n] = string_sub(str, start)
 	return arr
- end
+end
 
 --- Sets the EditBox text
 -- @string newtext text to be set
@@ -201,21 +206,39 @@ function EditBox:_SetSelection(selStart, selStartY, selEnd, selEndY)
 	self.selStartY = selStartY       or self.selStartY
 	self.selEnd    = selEnd          or self.selEnd
 	self.selEndY   = selEndY         or self.selEndY
+
+	local n = #self.lines
+	local function clampLineIndex(y)
+		if y == nil then
+			return nil
+		end
+		return math.min(math.max(1, y), n)
+	end
+	self.selStartY = clampLineIndex(self.selStartY)
+	self.selEndY = clampLineIndex(self.selEndY)
+	local function clampColumn(y, c)
+		if c == nil or y == nil then
+			return c
+		end
+		local line = self.lines[y]
+		if not line then
+			return c
+		end
+		local maxC = #line.text + 1
+		return math.min(math.max(1, c), maxC)
+	end
+	self.selStart = clampColumn(self.selStartY, self.selStart)
+	self.selEnd = clampColumn(self.selEndY, self.selEnd)
+
 	if selStart or selStartY then
-		if not self.lines[self.selStartY] then
-				spLog("chiliui", LOG.ERROR, "self.lines[self.selStartY] is nil for self.selStartY: " .. tostring(self.selStartY) .. " and #self.lines: " .. tostring(#self.lines))
-				spLog("chiliui", LOG.ERROR, debug.traceback())
-		else
+		if self.selStart ~= nil and self.selStartY ~= nil and self.lines[self.selStartY] then
 			local logicalLine = self.lines[self.selStartY]
 			self.selStartPhysical, self.selStartPhysicalY = self:_LineLog2Phys(logicalLine, self.selStart)
 		end
 	end
 
 	if selEnd or selEndY then
-		if not self.lines[self.selEndY] then
-				spLog("chiliui", LOG.ERROR, "self.lines[self.selEndY] is nil for self.selEndY: " .. tostring(self.selEndY) .. " and #self.lines: " .. tostring(#self.lines))
-				spLog("chiliui", LOG.ERROR, debug.traceback())
-		else
+		if self.selEnd ~= nil and self.selEndY ~= nil and self.lines[self.selEndY] then
 			local logicalLine = self.lines[self.selEndY]
 			self.selEndPhysical, self.selEndPhysicalY  = self:_LineLog2Phys(logicalLine, self.selEnd)
 		end
@@ -514,8 +537,9 @@ function EditBox:Update(...)
 
 	if self.state.focused and self.editable then
 		self:RequestUpdate()
-		if (os.clock() >= (self._nextCursorRedraw or -math.huge)) then
-			self._nextCursorRedraw = os.clock() + 0.1 --10FPS
+		local now = os.clock()
+		if (now >= (self._nextCursorRedraw or -math.huge)) then
+			self._nextCursorRedraw = now + 0.1 --10FPS
 			self:Invalidate()
 		end
 	end
@@ -768,9 +792,20 @@ function EditBox:ClearSelected()
 		left, right = right, left
 	end
 	self.cursor = right
-	while self.cursor ~= left do
+
+	local iterations = 0
+	local maxIterations = math.max(100, #self.text)
+	while self.cursor ~= left and iterations < maxIterations do
 		self.text, self.cursor = Utf8BackspaceAt(self.text, self.cursor)
+		iterations = iterations + 1
+		if iterations > 10 and self.cursor == right then
+			break
+		end
 	end
+	if iterations >= maxIterations then
+		self.cursor = left
+	end
+
 	self.selStart = nil
 	self.selStartY = nil
 	self.selEnd = nil
@@ -792,7 +827,10 @@ function EditBox:UpdateLine(lineID, text)
 			self:_GeneratePhysicalLines(lineID)
 		end
 	end
-	self.selStartY = 1
+	self.selStart = nil
+	self.selStartY = nil
+	self.selEnd = nil
+	self.selEndY = nil
 end
 
 local function RemoveColorFromText(text)
@@ -978,6 +1016,15 @@ function EditBox:TextEditing(utf8, start, length)
 
 	self.textEditing = utf8
 	return true
+end
+
+function EditBox:SelectAll()
+	if not self.multiline then
+		self:_SetSelection(1, 1, #self.text + 1, 1)
+	else
+		self:_SetSelection(1, 1, #self.lines[#self.lines].text + 1, #self.lines)
+	end
+	self:Invalidate()
 end
 
 --// =============================================================================

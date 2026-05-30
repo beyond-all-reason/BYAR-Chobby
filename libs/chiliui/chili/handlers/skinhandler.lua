@@ -52,6 +52,20 @@ SkinHandler.knownSkins = knownSkins
 
 local n = 1
 local skinDirs = VFS.SubDirs(SKIN_DIRNAME , "*", VFS.RAW_FIRST)
+-- Fix potentially lowercased directory names from VFS archive scanning.
+-- VFS.SubDirs() may return lowercased paths from .sdp archives,
+-- causing texture load failures on case-sensitive filesystems (Linux).
+-- Use raw filesystem paths (which preserve correct casing) when available.
+local rawDirs = VFS.SubDirs(SKIN_DIRNAME, "*", VFS.RAW) or {}
+if #rawDirs > 0 then
+	local rawLookup = {}
+	for _, rd in ipairs(rawDirs) do
+		rawLookup[rd:lower()] = rd
+	end
+	for i = 1, #skinDirs do
+		skinDirs[i] = rawLookup[skinDirs[i]:lower()] or skinDirs[i]
+	end
+end
 for i, dir in ipairs(skinDirs) do
 	local skinCfgFile = dir .. 'skin.lua'
 
@@ -64,6 +78,12 @@ for i, dir in ipairs(skinDirs) do
 		--// load the skin
 		local skinConfig = VFS.Include(skinCfgFile, senv, VFS.RAW_FIRST)
 		if (skinConfig) and (type(skinConfig) == "table") and (type(skinConfig.info) == "table") then
+			--// Fallback: if dir is still lowercased (archive-only, no raw dirs),
+			--// reconstruct using info.name which preserves correct casing.
+			local correctDir = SKIN_DIRNAME .. skinConfig.info.name .. "/"
+			if dir:lower() == correctDir:lower() and dir ~= correctDir then
+				dir = correctDir
+			end
 			skinConfig.info.dir = dir
 			SkinHandler.knownSkins[n] = skinConfig
 			SkinHandler.knownSkins[skinConfig.info.name:lower()] = skinConfig

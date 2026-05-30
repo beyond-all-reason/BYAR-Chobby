@@ -4,6 +4,14 @@ local IMG_BATTLE_RUNNING  = LUA_DIRNAME .. "images/ingame.png"
 local IMG_LOCK            = LUA_DIRNAME .. "images/lock.png"
 local IMG_KEY             = LUA_DIRNAME .. "images/key.png"
 
+local myFont1 = WG.Chobby.Configuration:GetFont(1)
+local myFont2 = WG.Chobby.Configuration:GetFont(2)
+local myFont3 = WG.Chobby.Configuration:GetFont(3)
+local myHintFont = WG.Chobby.Configuration:GetFont(11)
+
+local function ChobbyReady()
+	return WG.Chobby ~= nil and WG.Chobby.Configuration ~= nil
+end
 
 function BattleListWindow:init(parent)
 
@@ -18,18 +26,14 @@ function BattleListWindow:init(parent)
 		height = 37,
 		hint = i18n("searchbar_hint"),
 		text = "",
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
-		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(11),
-		useIME = false,
+		objectOverrideFont = myFont3,
+		objectOverrideHintFont = myHintFont,
 		parent = self.window,
 		OnTextModified = {
 			function (input)
 				Configuration.gameConfig.battleListOnlyShow = input.text
-				-- force an update
-				if Configuration.battleFilterRedundant then
-					self:UpdateAllBattleIDs()
-				end
-				self:UpdateFilters()
+				-- when a filter is updated, force an update immediately
+				self:SoftUpdate(true)
 			end
 		}
 	}
@@ -42,7 +46,7 @@ function BattleListWindow:init(parent)
 			width = 160,
 			height = 45,
 			caption = i18n("open_mp_game"),
-			objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+			objectOverrideFont = myFont3,
 			classname = "option_button",
 			parent = self.window,
 			OnClick = {
@@ -51,10 +55,6 @@ function BattleListWindow:init(parent)
 				end
 			},
 		}
-	end
-
-	local function update()
-		self:Update()
 	end
 
 	self.infoPanel = Panel:New {
@@ -82,13 +82,13 @@ function BattleListWindow:init(parent)
 		right = 5,
 		bottom = 15,
 		height = 20,
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideFont = myFont2,
 		caption = "Filter out:",
 		parent = self.window
 	}
 
 	local checkPassworded = Checkbox:New {
-		x = 110,
+		x = "15%",
 		width = 21,
 		bottom = 8,
 		height = 30,
@@ -96,18 +96,18 @@ function BattleListWindow:init(parent)
 		boxsize = 20,
 		caption = " Passworded",
 		checked = Configuration.battleFilterPassworded2 or false,
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideFont = myFont2,
 		OnChange = {
 			function (obj, newState)
 				Configuration:SetConfigValue("battleFilterPassworded2", newState)
-				self:SoftUpdate()
+				self:SoftUpdate(true) -- force the re-sort immediately when any filter box is changed
 			end
 		},
 		parent = self.window,
 		tooltip = "Hides all battles that require a password to join",
 	}
 	local checkNonFriend = Checkbox:New {
-		x = 280,
+		x = "35%",
 		width = 21,
 		bottom = 8,
 		height = 30,
@@ -115,18 +115,18 @@ function BattleListWindow:init(parent)
 		boxsize = 20,
 		caption = " Non-friend",
 		checked = Configuration.battleFilterNonFriend or false,
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideFont = myFont2,
 		OnChange = {
 			function (obj, newState)
 				Configuration:SetConfigValue("battleFilterNonFriend", newState)
-				self:SoftUpdate()
+				self:SoftUpdate(true)
 			end
 		},
 		parent = self.window,
 		tooltip = "Hides all battles that don't have your friends in them",
 	}
 	local checkRunning = Checkbox:New {
-		x = 435,
+		x = "55%",
 		width = 21,
 		bottom = 8,
 		height = 30,
@@ -134,19 +134,37 @@ function BattleListWindow:init(parent)
 		boxsize = 20,
 		caption = " Running",
 		checked = Configuration.battleFilterRunning or false,
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideFont = myFont2,
 		OnChange = {
 			function (obj, newState)
 				Configuration:SetConfigValue("battleFilterRunning", newState)
-				self:SoftUpdate()
+				self:SoftUpdate(true)
 			end
 		},
 		parent = self.window,
 		tooltip = "Hides all battles that are in progress",
 	}
-
+	local combPvMode = ComboBox:New {
+		x = "70%",
+		width = 85,
+		bottom = 8,
+		height = 30,
+		boxalign = "left",
+		boxsize = 20,
+		items = {"---", "PvE", "PvP"},
+		objectOverrideFont = myFont2,
+		selected = Configuration.battleFilterPvMode or 1,
+		OnSelect = {
+			function (obj)
+				Configuration:SetConfigValue("battleFilterPvMode", obj.selected)
+				self:SoftUpdate(true)
+			end
+		},
+		parent = self.window,
+		tooltip = "Hides all AI (including PvE) or PvP battles.",
+	}
     local checkLocked = Checkbox:New {
-		x = 575,
+		x = "85%",
 		width = 21,
 		bottom = 8,
 		height = 30,
@@ -154,11 +172,11 @@ function BattleListWindow:init(parent)
 		boxsize = 20,
 		caption = " Locked",
 		checked = Configuration.battleFilterLocked or false,
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideFont = myFont2,
 		OnChange = {
 			function (obj, newState)
 				Configuration:SetConfigValue("battleFilterLocked", newState)
-				self:SoftUpdate()
+				self:SoftUpdate(true)
 			end
 		},
 		parent = self.window,
@@ -170,8 +188,10 @@ function BattleListWindow:init(parent)
 		checkNonFriend:SetToggle(Configuration.battleFilterNonFriend)
 		checkRunning:SetToggle(Configuration.battleFilterRunning)
         checkLocked:SetToggle(Configuration.battleFilterLocked)
+		combPvMode:Select(Configuration.battleFilterPvMode)
 	end
 	WG.Delay(UpdateCheckboxes, 0.2)
+	-- Delay required as Configuration:GetConfigData (where these values are set) runs after this is initialised.
 
 	self:SetMinItemWidth(100000)
 	self.columns = 3
@@ -235,7 +255,7 @@ function BattleListWindow:init(parent)
 
 	local function onConfigurationChange(listener, key, value)
 		if key == "displayBadEngines2" then
-			update()
+			self:Update()
 		elseif key == "battleFilterRedundant" then
 			self:SoftUpdate()
 		end
@@ -249,7 +269,7 @@ function BattleListWindow:init(parent)
 	end
 	WG.DownloadHandler.AddListener("DownloadFinished", downloadFinished)
 
-	update()
+	self:Update()
 end
 
 function BattleListWindow:RemoveListeners()
@@ -288,22 +308,21 @@ function BattleListWindow:Update()
 		self:UpdateButtonColor(battle.battleID)
 	end
 
-	self:SoftUpdate()
+	self:SoftUpdate(true) -- on a "hard" update, force the Filters call to be immediate
 end
 
-
-function BattleListWindow:SoftUpdate()
+function BattleListWindow:SoftUpdate(forceNow)
 	-- UpdateFilters is quite heavy, because it sorts all the battles on the
 	-- list, so instead of just calling SoftUpdate functionality directly,
-	-- we only update, if we havent updated in 3 seconds.
+	-- we only update, if we havent updated in 4 seconds.
 	-- Also note, that the previous implementation somehow ran on intermediate states, 
-	-- causeing severe bouncing of battles up and down
-	if self.lastSoftUpdate == nil then
-		self.lastSoftUpdate = Spring.GetTimer()
-	end
+	-- causing severe bouncing of battles up and down
 
+	forceNow = forceNow or false --set default behavior to not force the update now and allow empty calls
+	-- using force now is different from Update() because update will clear and re-add everything, which is expensive!
+	
 	self:UpdateInfoPanel()
-	if Spring.DiffTimers(Spring.GetTimer(), self.lastSoftUpdate) > 3 then
+	if self.lastSoftUpdate == nil or forceNow or Spring.DiffTimers(Spring.GetTimer(), self.lastSoftUpdate) > 4 then
 		self.lastSoftUpdate = Spring.GetTimer()
 		if Configuration.battleFilterRedundant then
 			self:UpdateAllBattleIDs()
@@ -379,13 +398,17 @@ end
 function BattleListWindow:MakeWatchBattle(battleID, battle)
 	local function RejoinBattleFunc()
 		if not VFS.HasArchive(battle.mapName) then
-			WG.Chobby.InformationPopup("Map download required. Wait for the download to complete and try again.")
+			if ChobbyReady() then
+				WG.Chobby.InformationPopup("Map download required. Wait for the download to complete and try again.")
+			end
 			WG.DownloadHandler.MaybeDownloadArchive(battle.mapName, "map", -1)
 			return
 		end
 
 		if not VFS.HasArchive(battle.gameName) then
-			WG.Chobby.InformationPopup("Game update required. Wait for the download to complete or restart the game.")
+			if ChobbyReady() then
+				WG.Chobby.InformationPopup("Game update required. Wait for the download to complete or restart the game.")
+			end
 			WG.DownloadHandler.MaybeDownloadArchive(battle.gameName, "game", -1)
 			return
 		end
@@ -405,7 +428,7 @@ function BattleListWindow:MakeWatchBattle(battleID, battle)
 			function()
 				if Spring.GetGameName() == "" then
 					RejoinBattleFunc()
-				else
+				elseif ChobbyReady() then
 					WG.Chobby.ConfirmationPopup(RejoinBattleFunc, "Are you sure you want to leave your current game to watch/rejoin this one?", nil, 315, 200)
 				end
 			end
@@ -420,7 +443,7 @@ function BattleListWindow:MakeWatchBattle(battleID, battle)
 		right = 0,
 		height = 20,
 		valign = 'center',
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideFont = myFont2,
 		caption = (battle.title or "") .. " - Click to watch",
 		parent = parentButton,
 		OnResize = {
@@ -472,7 +495,7 @@ function BattleListWindow:MakeWatchBattle(battleID, battle)
 		y = 20,
 		height = 15,
 		valign = 'center',
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
+		objectOverrideFont = myFont1,
 		caption = playerCount .. ((playerCount == 1 and " player on " ) or " players on ") .. battle.mapName:gsub("_", " "),
 		parent = parentButton,
 	}
@@ -494,7 +517,7 @@ function BattleListWindow:MakeWatchBattle(battleID, battle)
 		y = 36,
 		height = 15,
 		valign = 'center',
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
+		objectOverrideFont = myFont1,
 		caption = modeName,
 		parent = parentButton,
 	}
@@ -520,13 +543,15 @@ function BattleListWindow:MakeJoinBattle(battleID, battle)
 				if myBattleID then
 					if battleID == myBattleID then
 						-- Do not rejoin current battle
-						local battleTab = WG.Chobby.interfaceRoot.GetBattleStatusWindowHandler()
-						battleTab.OpenTabByName("myBattle")
+						if ChobbyReady() then
+							local battleTab = WG.Chobby.interfaceRoot.GetBattleStatusWindowHandler()
+							battleTab.OpenTabByName("myBattle")
+						end
 						return
 					end
 					if not Configuration.confirmation_battleFromBattle then
 						local myBattle = lobby:GetBattle(myBattleID)
-						if not WG.Chobby.Configuration.showMatchMakerBattles and myBattle and not myBattle.isMatchMaker then
+						if ChobbyReady() and not WG.Chobby.Configuration.showMatchMakerBattles and myBattle and not myBattle.isMatchMaker then
 							local function Success()
 								self:JoinBattle(battle)
 							end
@@ -561,7 +586,7 @@ function BattleListWindow:MakeJoinBattle(battleID, battle)
 		height = 20,
 		align = "left",
 		valign = 'center',
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideFont = myFont2,
 		--caption = battle.title .. " | " .. battle.mapName:gsub("_", " "),
 		caption = battle.title,
 		parent = parentButton,
@@ -606,7 +631,7 @@ function BattleListWindow:MakeJoinBattle(battleID, battle)
 		--align = "right",
 		valign = 'center',
 		caption = battle.mapName:gsub("_", " "),
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideFont = myFont2,
 		parent = parentButton,
 		OnResize = {
 			function (obj, xSize, ySize)
@@ -670,10 +695,13 @@ function BattleListWindow:MakeJoinBattle(battleID, battle)
 		height = 20,
 		align = "right",
 		valign = 'center',
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
-		caption = lobby:GetBattlePlayerCount(battleID) .. "/" .. battle.maxPlayers,
+		objectOverrideFont = myFont2,
+		caption = lobby:GetPlayerOccupancy(battleID),
 		parent = parentButton,
 	}
+
+	parentButton.previousMaxPlayers = lobby:GetBattleMaxPlayers(battleID)
+	parentButton.previousPlayerCount = lobby:GetBattlePlayerCount(battleID)
 
 	return parentButton
 end
@@ -696,27 +724,126 @@ function BattleListWindow:AddBattle(battleID, battle)
 	end
 
 	self:AddRow({button}, battle.battleID)
+	self:RecalculateOrder(battle.battleID) -- when a battle is added to the list, go ahead and ensure it's sorted correctly. Other cases will rely on soft update
+end
+
+-- Fuzzy subsequence scorer for battle list search.
+-- Returns a positive score if query is a subsequence of target, 0 otherwise.
+local function fuzzyScore(query, target)
+	local qlen = #query
+	local tlen = #target
+	if qlen == 0 then return 0 end
+	if qlen > tlen then return 0 end
+
+	local score = 0
+	local qi = 1
+	local consecutive = 0
+	local lastMatchPos = 0
+
+	for ti = 1, tlen do
+		if qi <= qlen and string.byte(target, ti) == string.byte(query, qi) then
+			if lastMatchPos > 0 then
+				local gap = ti - lastMatchPos - 1
+				if gap > 0 then
+					score = score - gap * 1.0
+					consecutive = 0
+				end
+			end
+
+			score = score + 1
+			consecutive = consecutive + 1
+			if consecutive > 1 then
+				score = score + consecutive
+			end
+
+			if ti > 1 then
+				local prev = string.byte(target, ti - 1)
+				if prev == 32 or prev == 95 or prev == 45 then
+					score = score + 4
+				end
+			elseif ti == 1 then
+				score = score + 5
+			end
+
+			score = score + math.max(0, (20 - ti) * 0.1)
+			lastMatchPos = ti
+			qi = qi + 1
+		else
+			if qi <= qlen then
+				consecutive = 0
+			end
+		end
+	end
+
+	if qi <= qlen then return 0 end
+	score = score + math.max(0, 3 - (tlen - qlen) * 0.1)
+	return score
 end
 
 function BattleListWindow:ItemInFilter(id)
 	local battle = lobby:GetBattle(id)
 	local filterString = Configuration.gameConfig.battleListOnlyShow
 	if filterString ~= nil and filterString ~= "" then
+		local lowerFilter = string.lower(filterString)
+
+		-- Collect all searchable strings for this battle
 		local battleStrings = {battle.title, battle.mapName}
 		for _, user in ipairs(battle.users) do
-			table.insert(battleStrings, user)
+			battleStrings[#battleStrings + 1] = user
+		end
+		-- Include gameName (version hash) only for queries of 5+ chars
+		local queryLen = #(lowerFilter:gsub("%s+", ""))
+		if queryLen >= 5 and battle.gameName then
+			battleStrings[#battleStrings + 1] = battle.gameName
 		end
 
-		local filterToGame = nil
+		-- Split filter into words for multi-word AND matching
+		local filterWords = {}
+		for word in lowerFilter:gmatch("%S+") do
+			filterWords[#filterWords + 1] = word
+		end
 
-		-- try to find the filterString in one battleString {battle.title, battle.mapName, battle.users}
-		for _, battleString in ipairs(battleStrings) do
-			filterToGame = string.find(string.lower(battleString), string.lower(filterString), nil, true)
-			if filterToGame ~= nil then
-				break;
+		local matched = false
+
+		-- Tier 1: Single-term exact substring (original behavior, fast path)
+		if #filterWords <= 1 then
+			for _, battleString in ipairs(battleStrings) do
+				if string.find(string.lower(battleString), lowerFilter, 1, true) then
+					matched = true
+					break
+				end
+			end
+		else
+			-- Tier 1b: Multi-word AND — each word must appear in at least one battle string
+			local combinedLower = ""
+			for _, battleString in ipairs(battleStrings) do
+				combinedLower = combinedLower .. " " .. string.lower(battleString)
+			end
+			local allFound = true
+			for _, word in ipairs(filterWords) do
+				if not string.find(combinedLower, word, 1, true) then
+					allFound = false
+					break
+				end
+			end
+			if allFound then matched = true end
+		end
+
+		-- Tier 2: Fuzzy subsequence match (min 4 chars, name-only)
+		if not matched then
+			local queryNoSpaces = lowerFilter:gsub("%s+", "")
+			if #queryNoSpaces >= 4 then
+				local threshold = #queryNoSpaces * 3
+				for _, battleString in ipairs(battleStrings) do
+					if fuzzyScore(queryNoSpaces, string.lower(battleString)) >= threshold then
+						matched = true
+						break
+					end
+				end
 			end
 		end
-		if filterToGame == nil then
+
+		if not matched then
 			return false
 		end
 	end
@@ -735,6 +862,17 @@ function BattleListWindow:ItemInFilter(id)
 
 	if Configuration.battleFilterRunning and battle.isRunning then
 		return false
+	end
+
+	if Configuration.battleFilterPvMode and Configuration.battleFilterPvMode > 1 then
+		local vsAI = battle.title:find("vs AI") 
+				or battle.title:find("vs Scavengers") 
+				or battle.title:find("vs Raptors")
+
+		if (vsAI and Configuration.battleFilterPvMode == 2)
+		or (not vsAI and Configuration.battleFilterPvMode == 3) then
+			return false
+		end
 	end
 
 	if Configuration.battleFilterRedundant then
@@ -1060,7 +1198,7 @@ function BattleListWindow:JoinedBattle(battleID)
 	if playersCaption then
 		local newPlayerCount = lobby:GetBattlePlayerCount(battleID)
 		if battleButton.previousPlayerCount ~= newPlayerCount then 
-			playersCaption:SetCaption(newPlayerCount .. "/" .. battle.maxPlayers)
+			playersCaption:SetCaption(lobby:GetPlayerOccupancy(battleID))
 			battleButton.previousPlayerCount = newPlayerCount
 		end
 	else
@@ -1071,7 +1209,6 @@ function BattleListWindow:JoinedBattle(battleID)
 
 	self:UpdateRankIcon(battleID, battle, items)
 	self:UpdateButtonColor(battleID)
-	self:RecalculateOrder(battleID)
 end
 
 function BattleListWindow:LeftBattle(battleID)
@@ -1091,7 +1228,7 @@ function BattleListWindow:LeftBattle(battleID)
 	if playersCaption then
 		local newPlayerCount = lobby:GetBattlePlayerCount(battleID)
 		if battleButton.previousPlayerCount ~= newPlayerCount then 
-			playersCaption:SetCaption(newPlayerCount .. "/" .. battle.maxPlayers)
+			playersCaption:SetCaption(lobby:GetPlayerOccupancy(battleID))
 			battleButton.previousPlayerCount = newPlayerCount
 		end
 	else
@@ -1102,7 +1239,6 @@ function BattleListWindow:LeftBattle(battleID)
 
 	self:UpdateRankIcon(battleID, battle, items)
 	self:UpdateButtonColor(battleID)
-	self:RecalculateOrder(battleID)
 end
 
 function BattleListWindow:OnUpdateBattleInfo(battleID)
@@ -1169,10 +1305,12 @@ function BattleListWindow:OnUpdateBattleInfo(battleID)
 		-- local gameCaption = items.battleButton:GetChildByName("gameCaption")
 		-- gameCaption:SetCaption(self:_MakeGameCaption(battle))
 		local newPlayerCount = lobby:GetBattlePlayerCount(battleID)
-		if battleButton.previousPlayerCount ~= newPlayerCount then 
+		local newMaxPlayers = lobby:GetBattleMaxPlayers(battleID)
+		if battleButton.previousPlayerCount ~= newPlayerCount or battleButton.previousMaxPlayers ~= newMaxPlayers then 
 			local playersCaption = battleButton:GetChildByName("playersCaption")
-			playersCaption:SetCaption(newPlayerCount .. "/" .. battle.maxPlayers)
+			playersCaption:SetCaption(lobby:GetPlayerOccupancy(battleID))
 			battleButton.previousPlayerCount = newPlayerCount
+			battleButton.previousMaxPlayers = newMaxPlayers
 		end
 
 	else
@@ -1190,7 +1328,6 @@ function BattleListWindow:OnUpdateBattleInfo(battleID)
 	end
 
 	self:UpdateButtonColor(battleID)
-	self:RecalculateOrder(battleID)
 end
 
 function BattleListWindow:OnBattleIngameUpdate(battleID, isRunning)
@@ -1209,7 +1346,6 @@ function BattleListWindow:OnBattleIngameUpdate(battleID, isRunning)
 	imgIsRunning:SetVisibility(battle.isRunning == true)
 
 	self:UpdateButtonColor(battleID)
-	self:RecalculateOrder(battleID)
 end
 
 function BattleListWindow:OnFriendRequestList()
@@ -1240,7 +1376,6 @@ function BattleListWindow:OnUpdateBattleTitle(battleID, battleTitle)
 	items.battleButton:Invalidate()
 
 	self:UpdateButtonColor(battleID)
-	self:RecalculateOrder(battleID)
 end
 
 
@@ -1249,24 +1384,25 @@ function BattleListWindow:OpenHostWindow()
 	-- Enumerate all known clusters and their number of children
 	local regions = {'EU','US','AU','EA'}
 	local clusters = {
-		['Host[AU1]'] = {limit = 80,  current = 0, online = false, priority = 0.2, region = 'AU', location = "Sydney"}, -- lower priority because its at contabo
-		['Host[AU2]'] = {limit = 40,  current = 0, online = false, priority = 1.0, region = 'AU', location = "Sydney"}, -- higher priority OVH host
+		['Host[AU1]'] = {limit = 150,  current = 0, online = false, priority = 1.0, region = 'AU', location = "Sydney"},   -- HostHatch is a good provider
+		['Host[AU2]'] = {limit = 40,  current = 0, online = false, priority = 1.0, region = 'AU', location = "Sydney"},    -- higher priority OVH host
 
-		['Host[EU1]'] = {limit = 120, current = 0, online = false, priority = 0.3, region = 'EU', location = "Frankfurt"}, -- Lower priority because it is on a SSDNodes host, which isnt the best regarding latency 
+		['Host[EU1]'] = {limit = 150, current = 0, online = false, priority = 1.0, region = 'EU', location = "Vienna"}, 
 		['Host[EU2]'] = {limit = 120, current = 0, online = false, priority = 1.0, region = 'EU', location = "Vienna"},
-		['Host[EU3]'] = {limit = 25,  current = 0, online = false, priority = 1.0, region = 'EU', location = "Frankfurt"},
-		['Host[EU4]'] = {limit = 150, current = 0, online = false, priority = 1.0, region = 'EU', location = "Dusseldorf"},  -- this is pointed to integration server
-		['Host[EU5]'] = {limit = 150, current = 0, online = false, priority = 0.01,region = 'EU',location = "Frankfurt"}, -- Further deproiritize because ssdnodes is trash
+		['Host[EU3]'] = {limit = 25,  current = 0, online = false, priority = 0.5, region = 'EU', location = "Frankfurt"}, -- Lower prio because it runs files
+		['Host[EU4]'] = {limit = 150, current = 0, online = false, priority = 1.0, region = 'EU', location = "Dusseldorf"},-- this is pointed to integration server
+		['Host[EU5]'] = {limit = 150, current = 0, online = false, priority = 0.1, region = 'EU', location = "Frankfurt"}, -- Further deproiritize because ssdnodes is trash
 		['Host[EU6]'] = {limit = 120, current = 0, online = false, priority = 1.0, region = 'EU', location = "Amsterdam"},
-		['Host[EU7]'] = {limit = 200, current = 0, online = false, priority = 1.0, region = 'EU', location = "Amsterdam"}, -- This runs on integration server, but has plenty of capacity
+		['Host[EU7]'] = {limit = 250, current = 0, online = false, priority = 1.0, region = 'EU', location = "Amsterdam"}, -- This runs on integration server, but has plenty of capacity
+		['Host[EU8]'] = {limit = 150, current = 0, online = false, priority = 1.0, region = 'EU', location = "Zurich"},    -- TEMPORARILY BUMP CAPACITY FOR SWAP LOAD TEST
 		
 		['Host[US1]'] = {limit = 120, current = 0, online = false, priority = 1.0, region = 'US', location = "Virginia"},
-		['Host[US2]'] = {limit = 60,  current = 0, online = false, priority = 1.0, region = 'US', location = "Chicago"},
+		['Host[US2]'] = {limit = 50,  current = 0, online = false, priority = 1.0, region = 'US', location = "Chicago"},
 		['Host[US3]'] = {limit = 80,  current = 0, online = false, priority = 1.0, region = 'US', location = "St. Louis"},
 		['Host[US4]'] = {limit = 150, current = 0, online = false, priority = 0.3, region = 'US', location = "Seattle"}, -- Seems to see more cpu steal than the rest
+		['Host[US5]'] = {limit = 150, current = 0, online = false, priority = 1.0, region = 'US', location = "Chicago"}, 
 
-
-		['Host[EA1]'] = {limit = 100, current = 0, online = false, priority = 1.0, region = 'EA', location = "HK"}, -- Seems to see more cpu steal than the rest
+		['Host[EA1]'] = {limit = 120, current = 0, online = false, priority = 1.0, region = 'EA', location = "HK"}, 
 	}
 
 	-- Try to check for their engine version too. It is unlikely that a cluster has multiple engines (except during a switch, so scratch that)
@@ -1358,7 +1494,7 @@ function BattleListWindow:OpenHostWindow()
 		height = 35,
 		align = "center",
 		caption = i18n("open_mp_game"),
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+		objectOverrideFont = myFont3,
 		parent = hostBattleWindow,
 	}
 
@@ -1373,8 +1509,8 @@ function BattleListWindow:OpenHostWindow()
 		--text = "You can host a game by requesting an empty battle room. You can lock the battle rooms (!lock) to prevent anyone from joining, otherwise anyone can join your game.",--i18n("game_name") .. ":",
 		text = "Choose whether you want a public or a private custom battle where you are the boss and only you may change game settings. Only the boss leaving the room can unboss them. Anyone may join public battles, but private battles are password protected.",
 		--i18n("game_name") .. ":",
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
-		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideFont = myFont2,
+		objectOverrideHintFont = myFont2,
 		parent = hostBattleWindow,
 	}
 
@@ -1385,7 +1521,7 @@ function BattleListWindow:OpenHostWindow()
 		align = "right",
 		height = 35,
 		caption = "Geographical region",-- i18n("game_type") .. ":",
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideFont = myFont2,
 		parent = hostBattleWindow,
 	}
 
@@ -1396,10 +1532,8 @@ function BattleListWindow:OpenHostWindow()
 		height = 35,
 		itemHeight = 22,
 		text = "",
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
-				text = "",
 		items = {'Europe', 'North America', 'Australia', 'East Asia'}, -- {'EU','US','AU','EA'}
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideFont = myFont2,
 		selected = 1,
 		tooltip = "You may choose any region you wish, BAR is not sensitive to latency.",
 		parent = hostBattleWindow,
@@ -1414,7 +1548,7 @@ function BattleListWindow:OpenHostWindow()
 		boxsize = 20,
 		caption = "Friends only",
 		checked =  false,
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideFont = myFont2,
 		OnChange = {
 			function (obj, newState)
 				allowFriendsToJoin =  newState
@@ -1437,7 +1571,7 @@ function BattleListWindow:OpenHostWindow()
 			boxsize = 20,
 			caption = "Passworded private battle",
 			checked =  false,
-			objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+			objectOverrideFont = myFont2,
 			OnChange = {
 				function (obj, newState)
 					userWantsPrivateBattle =  newState
@@ -1461,7 +1595,7 @@ function BattleListWindow:OpenHostWindow()
 		align = "left",
 		height = 35,
 		caption = "",-- i18n("game_type") .. ":",
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		objectOverrideFont = myFont2,
 		parent = hostBattleWindow,
 	}
 
@@ -1611,7 +1745,7 @@ function BattleListWindow:OpenHostWindow()
 		end
 	end
 
-	local function reenableHost()
+	local function reEnableBtnHost()
 		buttonHost.tooltip = "Request a hosted battle. Please be patient while the lobby spins up."
 		buttonHost.suppressButtonReaction = false
 		buttonHost:SetEnabled(true)
@@ -1628,7 +1762,7 @@ function BattleListWindow:OpenHostWindow()
 		buttonHost:SetEnabled(false)
 		buttonHost.OnClick = {}
 		HostBattle()
-		WG.Delay(reenableHost, 15)
+		WG.Delay(reEnableBtnHost, 15)
 	end
 
 	buttonHost = Button:New {
@@ -1637,7 +1771,7 @@ function BattleListWindow:OpenHostWindow()
 		bottom = 1,
 		height = 70,
 		caption = i18n("host"),
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+		objectOverrideFont = myFont3,
 		parent = hostBattleWindow,
 		classname = "action_button",
 		tooltip = "Request a hosted battle. Please be patient while the lobby spins up.",
@@ -1654,7 +1788,7 @@ function BattleListWindow:OpenHostWindow()
 		bottom = 1,
 		height = 70,
 		caption = i18n("cancel"),
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+		objectOverrideFont = myFont3,
 		parent = hostBattleWindow,
 		classname = "negative_button",
 		OnClick = {
@@ -1671,8 +1805,6 @@ function BattleListWindow:JoinBattle(battle, _, _, joinAsPlayer)
 	-- We can be force joined to an invalid engine version. This widget is not
 	-- the place to deal with this case.
 	if not battle.passworded then
-		WG.BattleRoomWindow.LeaveBattle()
-
 		local removeListeners
 
 		local function onJoinBattle(listener)
@@ -1680,19 +1812,33 @@ function BattleListWindow:JoinBattle(battle, _, _, joinAsPlayer)
 		end
 
 		local function onJoinBattleFailed(listener, reason)
-			WG.Chobby.InformationPopup("Unable to join battle: " .. (reason or ""))
 			removeListeners()
+			if ChobbyReady() then
+				WG.Chobby.InformationPopup("Unable to join battle: " .. (reason or ""))
+			end
+		end
+
+		local function joinBattle(listener)
+			removeListeners()
+
+			lobby:AddListener("OnJoinBattleFailed", onJoinBattleFailed)
+			lobby:AddListener("OnJoinBattle", onJoinBattle)
+
+			lobby:JoinBattle(battle.battleID, _, _, joinAsPlayer)	
 		end
 
 		removeListeners = function ()
+			lobby:RemoveListener("OnLeftBattle", joinBattle)
 			lobby:RemoveListener("OnJoinBattleFailed", onJoinBattleFailed)
 			lobby:RemoveListener("OnJoinBattle", onJoinBattle)
 		end
 
-		lobby:AddListener("OnJoinBattleFailed", onJoinBattleFailed)
-		lobby:AddListener("OnJoinBattle", onJoinBattle)
-
-		lobby:JoinBattle(battle.battleID, _, _, joinAsPlayer)
+		if lobby:GetMyBattleID() then
+			lobby:AddListener("OnLeftBattle", joinBattle)
+			WG.BattleRoomWindow.LeaveBattle()
+		else
+			joinBattle()
+		end
 	else
 		local tryJoin, passwordWindow
 
@@ -1739,7 +1885,7 @@ function BattleListWindow:JoinBattle(battle, _, _, joinAsPlayer)
 			right = 15,
 			y = 15,
 			height = 35,
-			objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+			objectOverrideFont = myFont3,
 			caption = i18n("enter_battle_password"),
 			parent = passwordWindow,
 		}
@@ -1751,10 +1897,9 @@ function BattleListWindow:JoinBattle(battle, _, _, joinAsPlayer)
 			height = 35,
 			text = "",
 			hint = i18n("password"),
-			objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
-			objectOverrideHintFont = WG.Chobby.Configuration:GetFont(11),
+			objectOverrideFont = myFont3,
+			objectOverrideHintFont = myHintFont,
 			passwordInput = true,
-			useIME = false,
 			parent = passwordWindow,
 		}
 
@@ -1774,7 +1919,7 @@ function BattleListWindow:JoinBattle(battle, _, _, joinAsPlayer)
 			bottom = 1,
 			height = 70,
 			caption = i18n("join"),
-			objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+			objectOverrideFont = myFont3,
 			classname = "action_button",
 			OnClick = {
 				function()
@@ -1789,7 +1934,7 @@ function BattleListWindow:JoinBattle(battle, _, _, joinAsPlayer)
 			bottom = 1,
 			height = 70,
 			caption = i18n("cancel"),
-			objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+			objectOverrideFont = myFont3,
 			classname = "negative_button",
 			OnClick = {
 				function()
@@ -1807,4 +1952,6 @@ function BattleListWindow:JoinBattle(battle, _, _, joinAsPlayer)
 		local popupHolder = PriorityPopup(passwordWindow, CancelFunc, tryJoin)
 		screen0:FocusControl(ebPassword)
 	end
+	
 end
+

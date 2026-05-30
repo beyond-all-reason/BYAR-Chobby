@@ -19,9 +19,6 @@ end
 	-- push
 
 
-
---------------------------------------------------------------------------------
---------------------------------------------------------------------------------
 -- Local Variables
 local reloadcount = 0
 local scenarioWindow
@@ -40,6 +37,12 @@ local mydifficulty = {name = "Normal", playerhandicap = 100, enemyhandicap = 100
 local myscores = {time = 0, resources = 0}
 local myside = nil
 
+local lastScenarioID
+local lastScenarioVersion
+local lastDifficulty
+local lastTime
+local lastResources
+local scoreLabels = {}
 local scoreData = {} -- a table, with keys being scenario uniqueIDs, e.g.:
 --[[
 { supcrossingvsbarbs001 = {
@@ -57,16 +60,25 @@ local unitdefname_to_humanname = {} -- from en.lua, attached at the end of the f
 --------------------------------------------------------------------------------
 -- Utilities
 
+--- Format a number of seconds as a time string.
+-- The formatting differs depending on whether the duration is at least one hour.
+-- If there is a full hour: `h:mm:ss` and otherwise: `m:ss`
+-- Example outputs:
+-- - 10: `0:10`
+-- - 60: `1:00`
+-- - 3599: `59:59`
+-- - 7280: `2:01:20`
 local function SecondsToTimeString(s)
 	local hours = math.floor(s/3600)
 	s = math.fmod(s, 3600 )
 	local minutes = math.floor(s/60)
 	s = math.fmod(s,60)
-	result = ""
+
 	if hours>0 then
-		result = string.format("%d:",hours)
+		return string.format("%d:%02d:%02d",hours,minutes,s)
+	else
+		return string.format("%d:%02d",minutes,s)
 	end
-	return result .. string.format("%d:%02d",minutes,s)
 end
 
 local function MaybeDownloadMap(mapName)
@@ -109,55 +121,69 @@ end
 
 
 local function LoadScenarios()
-	scenarios = {}
-	local files = VFS.DirList("LuaMenu/configs/gameConfig/byar/scenarios/")
-	for i = 1, #files do
-		if string.find(files[i],".lua") and string.find (files[i], "scenario") then
-			local success, error = pcall ( function()
-				local newscen = VFS.Include(files[i])
-				scenarios[#scenarios+1] = newscen
-			end)
+	local dummyVar = 'temp'	-- delete this any time
+    scenarios = {}
+    local files = VFS.DirList("LuaMenu/configs/gameConfig/byar/scenarios/")
+    for i = 1, #files do
+        if string.find(files[i], ".lua") and string.find(files[i], "scenario") then
+            local success, error = pcall ( function()
+                local newscen = VFS.Include(files[i])
+                scenarios[#scenarios+1] = newscen
+            end)
 
-			if not success then
-				Spring.Echo("Error: loading scenario ",files[i], error)
-				newscen = {title = "Error " ..files[i] ,
-							scenarioid = "failed to load",
-							index = -1,
-							difficulty = -1,
-							mapfilename = "",
-							error = files[i] .. '\n' .. error,
-				}
-				scenarios[#scenarios+1] = newscen
-			end
-		end
-	end
+            if not success then
+                Spring.Echo("Error: loading scenario ",files[i], error)
+                newscen = {title = "Error " ..files[i] ,
+                            scenarioid = "failed to load",
+                            index = -1,
+                            difficulty = -1,
+                            mapfilename = "",
+                            error = files[i] .. '\n' .. error,
+                }
+                scenarios[#scenarios+1] = newscen
+            end
+        end
+    end
 
-	local function SortFunc(a,b)
-		return a.difficulty < b.difficulty
-	end
+    local function SortFunc(a,b)
+        return a.difficulty < b.difficulty
+    end
 
-	table.sort(scenarios, SortFunc )
+    table.sort(scenarios, SortFunc )
 end
-
-
 
 local function EncodeScenarioOptions(scenario)
 	scenario.scenariooptions.version = scenario.version
 	scenario.scenariooptions.scenarioid = scenario.scenarioid
 	scenario.scenariooptions.difficulty = mydifficulty.name
-	return Spring.Utilities.Base64Encode(Spring.Utilities.json.encode(scenario.scenariooptions))
+	return Spring.Utilities.Base64Encode(Json.encode(scenario.scenariooptions))
 end
 
 local function GetBestScores(scenarioID,scenarioVersion,difficulty)
 	--Spring.Echo("GetBestScores",scenarioID,scenarioVersion,difficulty)
-	if scoreData[scenarioID] and
-		scoreData[scenarioID][scenarioVersion] and
-		scoreData[scenarioID][scenarioVersion][difficulty] then
-			myscores = scoreData[scenarioID][scenarioVersion][difficulty]
-			Spring.Echo(myscores)
-			return myscores
+	if scoreData[scenarioID] 
+	and	scoreData[scenarioID][scenarioVersion] 
+	and	scoreData[scenarioID][scenarioVersion][difficulty] then
+		Spring.Echo(scoreData[scenarioID][scenarioVersion][difficulty])
+		return scoreData[scenarioID][scenarioVersion][difficulty]
 	else
 		return nil
+	end
+end
+
+local function RefreshScores(scenarioID,scenarioVersion,difficulty)
+	Spring.Echo("Scenario Window RefreshScores")
+	myscores = GetBestScores(scenarioID,scenarioVersion,difficulty)
+	if myscores == nil then
+		myscores = {time = "0", resources = "0"}
+	end
+	
+	if scoreLabels[scenarioID] 
+	and scoreLabels[scenarioID][scenarioVersion] 
+	and scoreLabels[scenarioID][scenarioVersion][difficulty] then
+		local labels = scoreLabels[scenarioID][scenarioVersion][difficulty]
+		labels.time:SetCaption(SecondsToTimeString(myscores.time))
+		labels.resources:SetCaption(string.format("%.2fK metal", myscores.resources / 1000.0))
 	end
 end
 
@@ -200,7 +226,6 @@ local function CreateScenarioPanel(shortname, sPanel)
 	
 	MaybeDownloadMap(scen.mapfilename)
 
-
 	local difficulties = {}
 	local defaultdifficultyindex = 1
 	for i,diff in pairs(scen.difficulties) do
@@ -211,10 +236,7 @@ local function CreateScenarioPanel(shortname, sPanel)
 		end
 	end
 
-	myscores = GetBestScores(scen.scenarioid, scen.version, mydifficulty.name)
-	if myscores == nil then
-		myscores = {time = "0", resources = "0"}
-	end
+	RefreshScores(scen.scenarioid, scen.version, mydifficulty.name)
 	myside = (scen.allowedsides and scen.allowedsides[1]) or "Armada"
 
 
@@ -231,7 +253,7 @@ local function CreateScenarioPanel(shortname, sPanel)
 	local summarySP = ScrollPanel:New {
 		x = 0,
 		y = "5%",
-		width = "49%",
+		width = "51%",
 		height = "14%",
 		parent = sPanel,
 		horizontalScrollbar = true,
@@ -242,19 +264,26 @@ local function CreateScenarioPanel(shortname, sPanel)
 	local numdisabledunits = 0
 	if scen.unitlimits then
 		for unitid, count in pairs(scen.unitlimits) do
-			additionalText = additionalText .. "\n  - " .. unitdefname_to_humanname[unitid] .. " (" ..unitid .. "): "
+			local humanName = unitdefname_to_humanname[unitid]
+			if not humanName then
+				Spring.Log("gui_scenario_window", LOG.ERROR, "Error No human name for: " .. unitid)
+				humanName = "human name missing"
+			end
+	
+			additionalText = additionalText .. "\n  - " .. humanName .. " (" .. unitid .. "): "
+	
 			if count == 0 then
 				additionalText = additionalText .. "Disabled"
 			else
 				additionalText = additionalText .. tostring(count)
 			end
+	
 			numdisabledunits = numdisabledunits + 1
 		end
 	end
 	if numdisabledunits > 0 then
 		summarytext = summarytext .. additionalText
 	end
-
 
 	local summarytextbox = TextBox:New {
 		x = 0,
@@ -457,7 +486,6 @@ local function CreateScenarioPanel(shortname, sPanel)
 		caption = "Personal Records",
 	}
 
-
 	local lbldifflevelpersonal = Label:New{
 		x = "76%",
 		y = "72.5%",
@@ -495,7 +523,7 @@ local function CreateScenarioPanel(shortname, sPanel)
 		height = "5%",
 		parent = sPanel,
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2, "scn_label"),
-		caption = "My Resources ",
+		caption = "My Resources: ",
 	}
 
 	local myresources = Label:New{
@@ -505,7 +533,7 @@ local function CreateScenarioPanel(shortname, sPanel)
 		height = "5%",
 		parent = sPanel,
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
-		caption =  string.format( "%.2fK metal",myscores.resources/1000.0),
+		caption = string.format( "%.2fK metal",myscores.resources/1000.0),
 	}
 
 	if scen.author then
@@ -625,17 +653,13 @@ local function CreateScenarioPanel(shortname, sPanel)
 
 	local function UpdateDifficulty(newdifficultyname)
 		for i, diff in pairs(scen.difficulties) do
-			if diff.name == newdifficultyname then mydifficulty = diff end
+			if diff.name == newdifficultyname then 
+				mydifficulty = diff 
+			end
 		end
+
 		lbldifflevelpersonal:SetCaption("Difficulty: "..tostring(mydifficulty.name))
-    
-    myscores = GetBestScores(scen.scenarioid, scen.version, mydifficulty.name)
-    if myscores == nil then
-      myscores = {time = "0", resources = "0"}
-    end
-    
-    mytime:SetCaption(SecondsToTimeString(myscores.time))
-    myresources:SetCaption(string.format( "%.2fK metal",myscores.resources/1000.0))
+		RefreshScores(scen.scenarioid, scen.version, mydifficulty.name)
 	end
 
 	local difficultCombo = ComboBox:New{
@@ -661,6 +685,19 @@ local function CreateScenarioPanel(shortname, sPanel)
 		parent = sPanel,
 	}
 
+	local function SaveScoreLabels(scenarioID, scenarioVersion, difficulty)
+		scoreLabels[scenarioID] = scoreLabels[scenarioID] or {}
+		scoreLabels[scenarioID][scenarioVersion] = scoreLabels[scenarioID][scenarioVersion] or {}
+		scoreLabels[scenarioID][scenarioVersion][difficulty] = scoreLabels[scenarioID][scenarioVersion][difficulty] or {}
+		scoreLabels[scenarioID][scenarioVersion][difficulty] = {
+			time = mytime,
+			resources = myresources
+		}
+	end
+	
+	for _, diff in pairs(scen.difficulties) do
+		SaveScoreLabels(scen.scenarioid, scen.version, diff.name)
+	end
 
 	local function createstartscript()
 		local basescript = scen.startscript
@@ -730,6 +767,7 @@ local function CreateScenarioPanel(shortname, sPanel)
 		},
 		parent = sPanel,
 	}
+
 	startmissionbutton:SetEnabled(true)
 	startmissionbutton:StyleReady()
 end
@@ -1052,6 +1090,10 @@ function ScenarioHandler.GetControl()
 	return window
 end
 
+function ScenarioHandler.reloadGameVersion()
+	DownloadRequirements()
+end
+
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 -- Widget Interface
@@ -1065,7 +1107,7 @@ function widget:RecvLuaMsg(msg)
 
 	if string.find(msg, SCENARIO_COMPLETE_STRING) then
 		msg = string.sub(msg, 16)
-		local stats = Spring.Utilities.json.decode(msg)
+		local stats = Json.decode(msg)
 		--Spring.Utilities.TableEcho(stats)
 
 		if stats.benchmarkcommand then
@@ -1075,18 +1117,22 @@ function widget:RecvLuaMsg(msg)
 				WG.Analytics.SendRepeatEvent("system:benchmark", stats)
 			end
 		else
-			local decodedscenopts = Spring.Utilities.json.decode(Spring.Utilities.
-			Base64Decode(stats.scenariooptions))
-
-			Spring.Echo(decodedscenopts.scenarioid,decodedscenopts.version,stats.endtime,stats.metalUsed + stats.energyUsed/60.0,stats.won)
+			local decodedscenopts = Json.decode(Spring.Utilities
+			.Base64Decode(stats.scenariooptions))
+			lastScenarioID = decodedscenopts.scenarioid
+			lastScenarioVersion = decodedscenopts.version
+			lastDifficulty = decodedscenopts.difficulty
+			lastTime = stats.endtime
+			lastResources = (stats.metalUsed + stats.energyUsed/60.0) or 0
 			local won = (stats.won and stats.cheated ~= true ) or false
-			local resourcesused = (stats.metalUsed + stats.energyUsed/60.0) or 0 
+
+			Spring.Echo(lastScenarioID, lastScenarioVersion, lastDifficulty, lastTime, lastResources, won)
 			if WG.Analytics and WG.Analytics.SendRepeatEvent then
-				WG.Analytics.SendRepeatEvent("game_start:singleplayer:scenario_end", {scenarioid = decodedscenopts.scenarioid, difficulty = decodedscenopts.difficulty, won = won, endtime = stats.endtime, resources = resourcesused })
+				WG.Analytics.SendRepeatEvent("game_start:singleplayer:scenario_end", {scenarioid = lastScenarioID, difficulty = lastDifficulty, won = won, endtime = lastTime, resources = lastResources })
 			end
 
 			if won then
-				SetScore(decodedscenopts.scenarioid,decodedscenopts.version,decodedscenopts.difficulty, stats.endtime,resourcesused,won)
+				SetScore(lastScenarioID, lastScenarioVersion, lastDifficulty, lastTime, lastResources, won)
 				widget:Initialize()
 				MakeScenarioScrollPanelChildren()
 			end
@@ -1102,7 +1148,6 @@ function widget:GetConfigData()
 end
 
 function widget:SetConfigData(data)
-
 	Spring.Echo("Scenario Window SetConfigData")
 	scoreData = data.scores or {}
 end
@@ -1110,6 +1155,9 @@ end
 local function DelayedInitialize()
 	local Configuration = WG.Chobby.Configuration
 	--SetScore("testscores","1.0","Hard",100,9999) -- seems to work
+	if lastScenarioID and lastScenarioVersion and lastDifficulty then
+		RefreshScores(lastScenarioID, lastScenarioVersion, lastDifficulty)
+	end
 end
 
 function widget:Initialize()
@@ -1443,7 +1491,7 @@ unitdefname_to_humanname  = {
 		corcut = "Cutlass",
 		corcv = "Construction Vehicle",
 		cordecom = "Commander",
-		cordemont4 = "Demon",
+		cordemon = "Demon",
 		cordl = "Jellyfish",
 		cordoom = "Doomsday Machine",
 		cordrag = "Dragon's Teeth",

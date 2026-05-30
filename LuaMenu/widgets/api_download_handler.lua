@@ -234,6 +234,8 @@ local function RemoveDownload(name, fileType, putInRemoveList, removalType)
 				CallListeners("DownloadFailed", downloadID, removalType, name, fileType)
 			end
 		end
+	elseif putInRemoveList and removalType == "unsupported" then
+		CallListeners("DownloadFailed", downloadID, removalType, name, fileType)
 	end
 	requestUpdate = true
 	return true
@@ -336,7 +338,13 @@ function externalFunctions.MaybeDownloadArchive(name, archiveType, priority, res
 	if archiveType == "resource" then
 		local haveEngine = haveEngineDir(resource.destination)
 		if not haveEngine then
-			externalFunctions.QueueDownload(name, archiveType, priority, _, resource)
+			if USE_WRAPPER_DOWNLOAD and WG.WrapperLoopback and WG.WrapperLoopback.DownloadFile then
+				externalFunctions.QueueDownload(name, archiveType, priority, _, resource)
+			else
+				Spring.Log("Chobby", LOG.WARNING, "Download aborted (no wrapper, unsupported VFS type)", "name=", tostring(name), "fileType=", tostring(archiveType))
+				externalFunctions.QueueDownload(name, archiveType, priority, _, resource)
+				RemoveDownload(name, archiveType, true, "unsupported")
+			end
 		end
 		return
 

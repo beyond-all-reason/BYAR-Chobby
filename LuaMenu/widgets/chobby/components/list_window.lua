@@ -1,7 +1,6 @@
-ListWindow = Component:extends{}
+ListWindow = LCS.class{}
 
 function ListWindow:init(parent, title, noWindow, windowClassname, noClose, customPadding, bottomSpacing)
-	self:DoInit() -- Lack of inheritance strikes again.
 
 	self.CancelFunc = function ()
 		self:HideWindow()
@@ -346,27 +345,37 @@ function ListWindow:UpdateFilters()
 end
 
 function ListWindow:SwapPlaces(panel1, panel2)
-	tmp = panel1.index
+	local tmp = panel1.index
 
 	local x1,y1,w1,h1 = panel1._relativeBounds.left, panel1.y, panel1._relativeBounds.width, panel1.height
 	local x2,y2,w2,h2 = panel2._relativeBounds.left, panel2.y, panel2._relativeBounds.width, panel2.height
 
 	panel1._relativeBounds.left = x2
 	panel1._relativeBounds.width = w2
-	panel1:SetPos(nil, y2, nil, h2)
-	panel1:UpdateClientArea()
+	panel1:SetPos(nil, y2, nil, h2, nil, nil, true) -- dontRealignParent = true, because its just a swap
+	panel1:UpdateClientArea(nil, true)
 
 	panel2._relativeBounds.left = x1
 	panel2._relativeBounds.width = w1
-	panel2:SetPos(nil, y1, nil, h1)
-	panel2:UpdateClientArea()
+	panel2:SetPos(nil, y1, nil, h1, nil, nil, true) -- dontRealignParent = true, because its just a swap
+	panel2:UpdateClientArea(nil, true)
 
 	-- Swap positions in table
 	panel1.index = panel2.index
-	self.orderPanelMapping[panel1.index] = panel1
+	if self.orderPanelMapping and type(self.orderPanelMapping) == "table" then
+		self.orderPanelMapping[panel1.index] = panel1
+	else
+		Spring.Echo("Error: orderPanelMapping is not a valid table")
+		return
+	end
 
 	panel2.index = tmp
-	self.orderPanelMapping[panel2.index] = panel2
+	if self.orderPanelMapping and type(self.orderPanelMapping) == "table" then
+		self.orderPanelMapping[panel2.index] = panel2
+	else
+		Spring.Echo("Error: orderPanelMapping is not a valid table")
+		return
+	end
 end
 
 function ListWindow:RecalculateOrder(id)

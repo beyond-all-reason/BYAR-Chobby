@@ -236,12 +236,15 @@ function GetTabPanelHandler(name, conf)
 			buttonOffset = newButtonOffset - buttonSpacing
 		end
 		if backButton then
-			local size = WG.Chobby.Configuration:GetFont(fontSizeScale).size
-			local buttonSize = math.floor(size * 1.75)
-			local horSpacing = math.floor(size * 1.2)
-			backButton:SetPos(horSpacing, nil, nil, buttonSize)
-			backButton._relativeBounds.right = horSpacing
-			backButton:UpdateClientArea()
+			local Configuration = WG.Chobby and WG.Chobby.Configuration
+			if Configuration then
+				local size = Configuration:GetFont(fontSizeScale).size
+				local buttonSize = math.floor(size * 1.75)
+				local horSpacing = math.floor(size * 1.2)
+				backButton:SetPos(horSpacing, nil, nil, buttonSize)
+				backButton._relativeBounds.right = horSpacing
+				backButton:UpdateClientArea()
+			end
 		end
 
 		for i = 1, #tabs do
@@ -351,6 +354,10 @@ function GetTabPanelHandler(name, conf)
 	end
 
 	function externalFunctions.SetActivity(tabName, activityCount, priorityLevel)
+		local Configuration = WG.Chobby and WG.Chobby.Configuration
+		if not Configuration then
+			return
+		end
 		priorityLevel = priorityLevel or 1
 		activityCount = activityCount or 0
 		for i = 1, #tabs do
@@ -366,11 +373,11 @@ function GetTabPanelHandler(name, conf)
 				end
 				local fontSize = tab.activityLabel.font.size
 				if tab.priorityLevel == 1 then
-					tab.activityLabel.font = WG.Chobby.Configuration:GetFont(fontSize, "tab_white", whiteFontParams, true)
+					tab.activityLabel.font = Configuration:GetFont(fontSize, "tab_white", whiteFontParams, true)
 				elseif tab.priorityLevel == 2 then
-					tab.activityLabel.font = WG.Chobby.Configuration:GetFont(fontSize, "tab_red", redFontParams, true)
+					tab.activityLabel.font = Configuration:GetFont(fontSize, "tab_red", redFontParams, true)
 				else
-					tab.activityLabel.font = WG.Chobby.Configuration:GetFont(fontSize, "tab_yellow", yellowFontParams, true)
+					tab.activityLabel.font = Configuration:GetFont(fontSize, "tab_yellow", yellowFontParams, true)
 				end
 				tab.activityLabel:SetCaption(activityLabel)
 			end
@@ -415,7 +422,7 @@ function GetTabPanelHandler(name, conf)
 				height = "100%",
 				padding = {0,0,0,0},
 				caption = humanName,
-				objectOverrideFont = WG.Chobby.Configuration:GetFont(fontSizeScale),
+				objectOverrideFont = WG.Chobby and WG.Chobby.Configuration and WG.Chobby.Configuration:GetFont(fontSizeScale),
 			}
 		end
 
@@ -483,7 +490,7 @@ function GetTabPanelHandler(name, conf)
 			valign = "top",
 			align = "right",
 			parent = button,
-			objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
+			objectOverrideFont = WG.Chobby and WG.Chobby.Configuration and WG.Chobby.Configuration:GetFont(1),
 			caption = "",
 		}
 
@@ -570,7 +577,11 @@ function GetTabPanelHandler(name, conf)
 			backFunction(externalFunctions) -- Returns UI to main menu
 		end
 
-		local size = WG.Chobby.Configuration:GetFont(fontSizeScale).size
+		local Configuration = WG.Chobby and WG.Chobby.Configuration
+		if not Configuration then
+			return
+		end
+		local size = Configuration:GetFont(fontSizeScale).size
 		local buttonSize = math.min(size * 1.5)
 		backButton = Button:New {
 			name = name .. "_back_button",
@@ -580,7 +591,7 @@ function GetTabPanelHandler(name, conf)
 			height = buttonSize,
 			caption = "      Back",
 			padding = {1,0,1,1},
-			objectOverrideFont = WG.Chobby.Configuration:GetFont(fontSizeScale),
+			objectOverrideFont = WG.Chobby and WG.Chobby.Configuration and WG.Chobby.Configuration:GetFont(fontSizeScale),
 			children = {
 				Image:New {
 					x = 0,

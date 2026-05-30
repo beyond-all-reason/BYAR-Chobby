@@ -1,7 +1,7 @@
 local scenariodata = {
 	index			= 16, --  integer, sort order, MUST BE EQUAL TO FILENAME NUMBER
 	scenarioid		= "neuropeww225", -- no spaces, lowercase, this will be used to save the score
-    version         = "1.0", -- increment this to keep the score when changing a mission
+    version         = "1.1", -- increment this to keep the score when changing a mission
 	title			= "World War XXV", -- can be anything
 	author			= "Beherith", -- your name here
 	isnew = true,
@@ -32,8 +32,8 @@ The difficulty modifier will change the amount of resources you and the enemy re
     ]],
 
 	mapfilename		= "Neurope_Remake 4.2.1", -- the name of the map to be displayed here
-	playerstartx	= "5%", -- X position of where player comm icon should be drawn, from top left of the map
-	playerstarty	= "10%", -- Y position of where player comm icon should be drawn, from top left of the map
+	playerstartx	= "4%", -- X position of where player comm icon should be drawn, from top left of the map
+	playerstarty	= "35%", -- Y position of where player comm icon should be drawn, from top left of the map
 	partime 		= 3000, -- par time in seconds
 	parresources	= 10000000, -- par resource amount
 	difficulty		= 8, -- Percieved difficulty at 'normal' level: integer 1-10

@@ -9,63 +9,36 @@
     }
 ]]
 
+
 local welcomePanelItems = {
+
     {
         Header = "Welcome to Beyond All Reason",
         Text = "Welcome back Commander. We hope you are ready for epic Singleplayer and Multiplayer battles. Check out our Discord and join the community!\n",
+        NoPulse = true,
     },
 
     {
-        Header = "Map Update: Eclipsed 0.9.6",
-        Text = " \n" .. " \n" .. "Thanks to player feedback this 1v1 map has received a few changes, the largest change being a map size change from 16x16 to 14x14." .. " \n" .. " \n" .. "25% less map. Same great taste.",
-        Image = "LuaMenu/configs/gameConfig/byar/minimapOverride/Eclipsed_0.9.5.jpg",
-    },
-    
-    {
-        Header = "Map Update: Supreme Isthmus Winter",
-        Text = " \n" .. " \n" .. "Supreme Isthmus has recieved a winter-themed update for Christmas from Nikuksis.",
-        Image = "LuaMenu/configs/gameConfig/byar/minimapOverride/Supreme_Isthmus_Winter_v1.8.1.jpg",
+        Header = "This Month in BAR – April/May 2026",
+        Text = "New visual effects, gameplay changes, and balance updates are here! GL4 visual overhaul brings build particles, death fire, beam lasers, plasma projectiles, missile trails, shield effects, bloom and more!" .. " \n" .. " \n" .. "EasyTax 2.0 overhauls resource sharing. New UI widgets, PiP improvements, ETA timers for reclaim/resurrect, and 4 new music tracks round out the update." .. " \n" .. " \n",
+        Url = "https://www.beyondallreason.info/microblogs/184",
+        UrlText = "Read the devlog",
     },
 
     {
-        Header = "New Map: Cells",
-        Text = " \n" .. " \n" .. "An open desert with rocky ridges for 8v8 Teams. By RebelNode.",
-        Image = "LuaMenu/configs/gameConfig/byar/minimapOverride/Cells_1.2.jpg",
+        Header = "The BAR Documentary is Here!",
+        Text = "From community roots to modern RTS ambition, this is the story of Beyond All Reason, featuring the one and only Chris Taylor." .. " \n" .. " \n" .. "Hear from BAR devs as they look back at the project's history, share where it stands today, and talk about where it's heading next. Go behind the scenes, with the journey put into context by the man who started it all." .. " \n" .. " \n" .. "Huge thanks to Fortress Sydney and the Source Code crew for making this possible!" .. " \n" .. " \n",
+        Image = "LuaMenu/images/welcomepanel/sourcecode_documentary.png",
+        Url = "https://www.youtube.com/watch?v=5F36yViPz7w",
+        UrlText = "Watch the Documentary",
     },
 
     {
-        Header = "Now Available: BAR Guides",
-        Text = "New to Beyond All Reason? Check out these new Guides on Discord written by Zeteo!" .. " \n" .. " \n",
-        Url = "https://discord.com/channels/549281623154229250/1303141562120929320/1303141562120929320",
-        UrlText = "Read the new Guides",
-    },
-
-    {
-        Header = "New Feature: Option Presets",
-        Text = "A comprehensive new system for saving and loading game configurations and modoptions. It supports current map, startboxes, modoptions, and AI team placement and configurations. You can access this dialog by clicking on the Option Presets button in the battle room. Thanks to jere500 for the contribution.",
-    },
-
-    {
-        Header = "New Official Trailer released, help us making it big!",
-        Text = "We've just deployed a brand-new cinematic trailer, and we need your help to spread the word! We believe the strongest community is built through word-of-mouth, so we're counting on you to take Beyond All Reason to new heights. " .. " \n" .. " \n" .. "Watch the trailer, share it with your friends, and let’s make this a massive success together! \n",
-        Image = "LuaMenu/images/trailer.png",
-        Url = "https://www.beyondallreason.info/news/bar-trailer-2024",
-        UrlText = "Watch the trailer",
-    },
-
-    {
-        Header = "BAR is accepting donations again! ",
-        Text = "Dear Commanders, we are delighted to announce the reopening of our donation platform after a longer-than-expected hiatus." .. " \n" .. " \n" .. "As we've been hard at work refining BAR to ensure maximum enjoyment for our ever-expanding community, we repeatedly placed donation efforts on hold to focus on other priorities." .. " \n" .. " \n" .. "Support BAR with our newly reopened donation platform!" .. " \n",
-        Image = "LuaMenu/images/donate.png",
-        Url = "https://www.beyondallreason.info/news/support-bar-with-our-newly-reopened-donation-platform",
-        UrlText = "Read Announcement",
-    },
-
-    {
-        Header = "Video guides for new players",
-        Url = "https://www.youtube.com/channel/UCAByJ5NKeMmQ95EIWgBtbEw",
-        Text = "Requiem has created some guides for new players. If you're new to the game and want to learn the basics via video we highly recommend you check them out.\n",
-        UrlText = "Link to video guides"
+        Header = "Help Keep BAR Clean - Join the Overwatch Team!",
+        Text = "As BAR grows, so does the need for solid community moderation. We're looking for reliable, level-headed players to join the Overwatch Team—a trusted group that helps review reports, flag issues, and keep things fair.".." \n".." \n".."If you're active and care about a respectful game space, we'd love your help!".." \n".." \n",
+        Image = "LuaMenu/images/welcomepanel/overwatch.png",
+        Url = "https://discord.com/channels/549281623154229250/1097438343861649458",
+        UrlText = "Sign Up for Overwatch",
     },
 
     --{
@@ -74,28 +47,12 @@ local welcomePanelItems = {
     --    UrlText = "BAR #engine channel on Discord"
     --},
 
-    {
-        Header = "Steam release roadmap",
-        Url = "https://www.beyondallreason.info/development/steam-release",
-        Text = "We've published our Steam Release roadmap, check it out on the website!",
-        UrlText = "Roadmap Link"
-    },
-
-    --[[
+     --[[
     {
         Header = "New engine release",
-        Url = nil, -- should be nil if you dont want a clickable link button
-        Time = nil, --"",
         Text = "We've just released a new engine update. Be sure to report any issues to #bugreports on the discord and thank you for bearing with us through any teething problems with it.."
     },
     --]]
-
-    --{
-    --    Header = "Code of Conduct",
-    --    Url = "https://www.beyondallreason.info/code-of-conduct",
-    --    Text = "We recently updated our code of conduct; be sure to check it out. As our community growth we've added the ability to report problems, click a user and select 'report user' to alert the moderator team to an issue. See the full code of conduct at https://www.beyondallreason.info/code-of-conduct",
-    --    UrlText = "Code of Conduct Link"
-    --},
 
     {
         Header = "Play with your friends: use our servers!",
@@ -132,6 +89,7 @@ local welcomePanelItems = {
             " \n" ..
             " \b",
     },
+
 }
 
 return welcomePanelItems

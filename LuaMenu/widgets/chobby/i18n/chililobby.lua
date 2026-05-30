@@ -21,6 +21,14 @@ return {
 		date = "Date",
 		game_version = "Game Version",
 
+		error_popup_title = "Error",
+		error_party_create_failed = "Failed to create party: %{error_message}",
+		error_party_accept_invite_failed = "Failed to accept party invite: %{error_message}",
+		error_party_decline_invite_failed = "Failed to decline party invite: %{error_message}",
+		error_party_leave_failed = "Failed to leave party: %{error_message}",
+		error_party_invite_player_failed = "Failed to invite player: %{error_message}",
+		error_party_cancel_invite_failed = "Failed to cancel party invite: %{error_message}",
+
 		-- console
 		type_here_to_chat = "Type here to chat. Press enter to send.",
 		-- login_window
@@ -66,8 +74,11 @@ return {
 		simple_ai_list_tooltip = "Hides some developer-only AIs from the list",
 		login_with_steam = "Login with Steam",
 		use_steam_browser = "Use Steam browser",
-		download_maps = "Download Maps",
+		download_maps = "Manual Download",
+		download_maps_tooltip = "Browse and Download Maps online",
 		download_replays = "Download Replays",
+		open_replays = "Open Folder",
+		open_replays_tooltip = "Open the replay folder in a file browser",
 		refresh = "Refresh",
 		rescan_files = "Rescan Files",
 		more = "More",
@@ -81,6 +92,26 @@ return {
 		start_download = 'Start download',
 		download_noun = 'Download',
 		friends = 'Friends',
+
+		----------------------
+		-- Non-Zero-k parties
+		parties = 'Parties',
+
+		party_status_invite = 'Invite pending',
+		party_status_member = 'Partied',
+
+		your_party_title = "Your party",
+		your_party_invites = "Your invites:",
+		parties_require_login = "(Requires login)",
+
+		create_new_party = "Create party",
+		leave_my_party = "Leave party",
+		accept_party_invite = "Accept invite",
+		decline_party_invite = "Decline invite",
+
+		how_to_invite_to_party = "Right click a player and select \"Invite to Party\" to invite them to your party",
+		----------------------
+
 		start_verb = 'Start',
 		open_mp_game = "Host Game",
 		searchbar_hint = "Search for lobby, map or player",
@@ -184,11 +215,13 @@ return {
 		matchmaking = "Matchmaking",
 		customGames = "Custom Games",
 		pick_map = "Change Map",
+		pick_team = "Change Team",
 		add_team = "Add Team",
 		players = "Players",
 		submit = "Submit",
 		time_in_queue = "Time in queue",
 		leave = "Leave",
+		leave_lobby = "Leave Lobby",
 		invite_friends = "Invite Friends",
 		users = "Users",
 		battles = "Battles",
@@ -210,7 +243,9 @@ return {
 		-- Settings
 		autoLaunchAsSpectator = "Auto-launch when spectating",
 		randomSkirmishSetup = "Random Skirmish AI and Map",
-		randomSkirmishSetup_tooltip = "Randomizes AIs and Map in Singleplayer Skirmish mode. Requires Restart.",
+		randomSkirmishSetup_tooltip = "Randomizes AIs and Map in Singleplayer Skirmish mode on initial load. Requires Restart.",
+		randomSkirmishDifficulty = "Random Skirmish Difficulty",
+		randomSkirmishDifficulty_tooltip = "BARbarian AI difficulty profile used when generating a random game.",
 		queueExitConfirmPromptDoNotAskAgain = "No prompt when leaving queue",
 		queueExitConfirmPromptDoNotAskAgain_tooltip = "Disabled = Shows a prompt when leaving the queue or game.",
 		ingame_notifcations = "Notifications while ingame",
@@ -223,9 +258,10 @@ return {
 		fixFlicker = "Fix lobby flickering",
 		fixFlicker_tooltip = "At the cost of significant idle CPU load: Enable this if you experience flickering in the lobby.",
 		flushLogs = "Flush logs to disk",
-		flushLogs_tooltip = "Immediately flush infolog.txt to disk for debuggging.",
+		flushLogs_tooltip = "Immediately flush infolog.txt to disk for debugging.",
 		keep_queues = "Stay in MM queues on launch",
 		simplifiedSkirmishSetup = "Simple skirmish setup",
+		simplifiedSkirmishSetup_tooltip = "Provides step-by-step instructions while setting up a singleplayer skirmish.",
 		debugMode = "Debug mode",
 		ShowhiddenModopions = "Show Hidden Modoptions",
 		ShowhiddenTooltip = "WARNING: Hidden options may not work. Rearranges Tabs",
@@ -268,7 +304,7 @@ return {
 		-- gui_maplist_panel.lua
 
 		mapsearch_hint = "Search for a map",
-		maincaption_multiplayer = "Select a Map. Only Certified and Classic in Online.",
+		maincaption_multiplayer = "Select a Map. Only Certified or Classic in Online.",
 		maincaption_singleplayer = "Select a Map. Certified maps are recommended.",
 		click_to_pick_map = "Click to choose this map.",
 		click_to_download_map = "Click to download this map.",
@@ -345,6 +381,9 @@ return {
 
 		-- moderation
 		mod_priv_chat = "Remember: Direct Messages are not private and subject to the same moderation rules as other chat. Be careful not to click links from people you don't know and never give out your password.",
+		
+		-- Battle Rejoin
+		rejoinBattlePopup = "You were in a lobby last time. Rejoin it?",
 	},
 	de = {
 		-- general
@@ -488,6 +527,7 @@ return {
 		customGames = "Spezielle Spiele",
 		playing = "Am Spielen",
 		pick_map = "Karte wechseln",
+		pick_team = "Team wechseln",
 		add_team = "Team hinzufügen",
 		players = "Spieler",
 		submit = "Abschicken",

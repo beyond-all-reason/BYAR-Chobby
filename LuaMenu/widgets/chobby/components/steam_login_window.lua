@@ -68,7 +68,6 @@ function SteamLoginWindow:init(failFunction, cancelText, windowClassname)
 		text = Configuration.userName or Configuration.suggestedNameFromSteam or "",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(3),
-		useIME = false,
 		parent = self.window
 	}
 
@@ -90,7 +89,6 @@ function SteamLoginWindow:init(failFunction, cancelText, windowClassname)
 		passwordInput = true,
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(3),
-		useIME = false,
 		OnKeyPress = {
 			function(obj, key, mods, ...)
 				if key == Spring.GetKeyCode("enter") or key == Spring.GetKeyCode("numpad_enter") then

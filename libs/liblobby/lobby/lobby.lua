@@ -5,7 +5,7 @@
 VFS.Include(LIB_LOBBY_DIRNAME .. "observable.lua")
 VFS.Include(LIB_LOBBY_DIRNAME .. "utilities.lua")
 
-local spJsonDecode = Spring.Utilities.json.decode
+local JsonDecode = Json.decode
 local spGetTimer = Spring.GetTimer
 local spDiffTimers = Spring.DiffTimers
 
@@ -36,6 +36,9 @@ function Lobby:_Clean()
 	self.hasOutgoingFriendRequestsByID = {} -- map
 	self.isDisregardedID = {} -- map
 
+	self.parties = {}
+	self.myPartyID = nil
+
 	self.loginInfoEndSent = false
 	self.userCountLimited = false
 
@@ -44,6 +47,7 @@ function Lobby:_Clean()
 
 	self.battles = {}
 	self.battleCount = 0
+	self.founderToBattle = {}  -- reverse index: founder userName -> battleID
 	self.modoptions = {}
 
 	self.battleAis = {}
@@ -75,6 +79,8 @@ function Lobby:_Clean()
 
 	-- reconnection delay in seconds
 	self.reconnectionDelay = 15
+
+	self.commandsAwaitingResponse = {}
 end
 
 function Lobby:_PreserveData()
@@ -89,7 +95,7 @@ function Lobby:_PreserveData()
 	}
 end
 
-local function GenerateScriptTxt(battleIp, battlePort, clientPort, scriptPassword, myName)
+local function GenerateScriptTxt(battleIp, battlePort, clientPort, scriptPassword, myName, serverName)
 	local scriptTxt =
 [[
 [GAME]
@@ -100,13 +106,15 @@ local function GenerateScriptTxt(battleIp, battlePort, clientPort, scriptPasswor
 	IsHost=0;
 	MyPlayerName=__MY_PLAYER_NAME__;
 	MyPasswd=__MY_PASSWD__;
+	ShowServerName=__SERVER_NAME__;
 }]]
 
 	scriptTxt = scriptTxt:gsub("__IP__", battleIp)
-                         :gsub("__PORT__", battlePort)
-                         :gsub("__CLIENT_PORT__", clientPort or 0)
-                         :gsub("__MY_PLAYER_NAME__", myName or lobby:GetMyUserName() or "noname")
-                         :gsub("__MY_PASSWD__", scriptPassword)
+						:gsub("__PORT__", battlePort)
+						:gsub("__CLIENT_PORT__", clientPort or 0)
+						:gsub("__MY_PLAYER_NAME__", myName or lobby:GetMyUserName() or "noname")
+						:gsub("__MY_PASSWD__", scriptPassword)
+						:gsub("__SERVER_NAME__", serverName or "unknown server")
 	return scriptTxt
 end
 
@@ -277,10 +285,6 @@ function Lobby:JoinBattle(battleID, password, scriptPassword)
 end
 
 function Lobby:LeaveBattle()
-	local myBattleID = self:GetMyBattleID()
-	if myBattleID then
-		self:_OnLeaveBattle(myBattleID)
-	end
 	return self
 end
 
@@ -312,7 +316,7 @@ function Lobby:SayBattleEx(message)
 	return self
 end
 
-function Lobby:ConnectToBattle(useSpringRestart, battleIp, battlePort, clientPort, scriptPassword, myName, gameName, mapName, engineName, battleType)
+function Lobby:ConnectToBattle(useSpringRestart, battleIp, battlePort, clientPort, scriptPassword, myName, gameName, mapName, engineName, battleType, serverName)
 	local battle = self.battles[self.myBattleID] or {}
 	gameName = gameName or battle.gameName
 	mapName = mapName or battle.mapName
@@ -335,7 +339,7 @@ function Lobby:ConnectToBattle(useSpringRestart, battleIp, battlePort, clientPor
 	if engineName and (Config.multiplayerLaunchNewSpring or not Config:IsValidEngineVersion(engineName)) and not Config.useWrongEngine then
 		if WG.WrapperLoopback and WG.WrapperLoopback.StartNewSpring and WG.SettingsWindow and WG.SettingsWindow.GetSettingsString then
 			local params = {
-				StartScriptContent = GenerateScriptTxt(battleIp, battlePort, clientPort, scriptPassword, myName),
+				StartScriptContent = GenerateScriptTxt(battleIp, battlePort, clientPort, scriptPassword, myName, serverName),
 				Engine = engineName,
 				SpringSettings = WG.SettingsWindow.GetSettingsString(),
 			}
@@ -372,7 +376,7 @@ function Lobby:ConnectToBattle(useSpringRestart, battleIp, battlePort, clientPor
 		Spring.Echo(springURL)
 		Spring.Restart(springURL, "")
 	else
-		local scriptTxt = GenerateScriptTxt(battleIp, battlePort, clientPort, scriptPassword, myName)
+		local scriptTxt = GenerateScriptTxt(battleIp, battlePort, clientPort, scriptPassword, myName, serverName)
 		Spring.Echo(scriptTxt)
 		--local scriptFileName = "scriptFile.txt"
 		--local scriptFile = io.open(scriptFileName, "w")
@@ -684,6 +688,10 @@ function Lobby:_OnRemoveUser(userName)
 	self.userCount = self.userCount - 1 -- this shows: userCount reflects the "online users"
 
 	self.userNamesLC[userName:lower()] = nil
+
+	for partyID, party in pairs(self.parties) do
+		party.invites[userName] = nil
+	end
 
 	self:_CallListeners("OnRemoveUser", userName)
 end
@@ -1204,6 +1212,7 @@ function Lobby:_OnBattleOpened(battleID, battle)
 		-- isMatchMaker = battle.isMatchMaker,
 	}
 	self.battleCount = self.battleCount + 1
+	self.founderToBattle[battle.founder] = battleID
 
 	self:_CallListeners("OnBattleOpened", battleID, self.battles[battleID])
 end
@@ -1220,6 +1229,7 @@ function Lobby:_OnBattleClosed(battleID)
 	for _, userName in pairs(battleusers) do
 		self:_OnLeftBattle(battleID, userName)
 	end
+	self.founderToBattle[battle.founder] = nil
 	self.battles[battleID] = nil
 	self.battleCount = self.battleCount - 1
 	self:_CallListeners("OnBattleClosed", battleID)
@@ -1237,6 +1247,15 @@ function Lobby:_OnJoinedBattle(battleID, userName, scriptPassword)
 	if not battle then
 		Spring.Log(LOG_SECTION, LOG.WARNING, "_OnJoinedBattle nonexistent battle.")
 		return
+	end
+	if userName == self:GetMyUserName() then
+		local lastFaction = WG.Chobby.Configuration.lastFactionChoice
+		if lastFaction then
+			local sideData = WG.Chobby.Configuration:GetSideById(lastFaction)
+			if sideData and sideData.requiresModoption and (not self.modoptions or self.modoptions[sideData.requiresModoption] ~= "1") then
+				WG.Chobby.Configuration.lastFactionChoice = 0	-- Our default side is Armada
+			end
+		end
 	end
 	local found = false
 	local users = battle.users
@@ -1513,7 +1532,7 @@ function Lobby:ParseBarManager(battleID, message)
 	local battleInfo = {}
 	local newBosses
 
-	local barManagerSettings = spJsonDecode(message)
+	local barManagerSettings = JsonDecode(message)
 	if not barManagerSettings['BattleStateChanged'] then
 		return battleInfo
 	end
@@ -1602,9 +1621,19 @@ function Lobby:_OnUserVoted(userName, voteOption)
 	self:_CallListeners("OnUserVoted", userName, voteOption)
 end
 
-function Lobby:_OnSetModOptions(data)
+-- Optional changes {[key]={old,new}}; else diff vs previous modoptions. Second listener arg.
+function Lobby:_OnSetModOptions(data, changes)
+	if not changes then
+		changes = {}
+		local oldM = self.modoptions or {}
+		for k, v in pairs(data) do
+			if oldM[k] ~= v then
+				changes[k] = { old = oldM[k], new = v }
+			end
+		end
+	end
 	self.modoptions = data
-	self:_CallListeners("OnSetModOptions", data)
+	self:_CallListeners("OnSetModOptions", data, changes)
 end
 
 function Lobby:_OnResetModOptions()
@@ -1744,7 +1773,7 @@ function Lobby:ParseRPC(json)
 	local thisGameStartedAt = nil
 	local lastGameEndedAt = nil
 
-	local rpc = spJsonDecode(json)
+	local rpc = JsonDecode(json)
 	local statusRpc = RpcGetGameStatus(rpc) or RpcGetBattleStatus(rpc)
 	
 	if statusRpc then
@@ -2269,14 +2298,22 @@ function Lobby:GetBattlePlayerCount(battleID)
 	end
 end
 
-function Lobby:GetBattleFoundedBy(userName)
-	-- TODO, improve data structures to make this search nice
-	for battleID, battleData in pairs(self.battles) do
-		if battleData.founder == userName then
-			return battleID
-		end
+function Lobby:GetBattleMaxPlayers(battleID)
+	local battle = self:GetBattle(battleID)
+	if not battle then
+		return 0
 	end
-	return false
+
+	-- fall back to maxPlayers, if nbTeams or teamSize is unknown
+	return (battle.teamSize and battle.nbTeams) and (battle.teamSize * battle.nbTeams) or battle.maxPlayers
+end
+
+function Lobby:GetPlayerOccupancy(battleID)
+	return self:GetBattlePlayerCount(battleID) .. "/" .. self:GetBattleMaxPlayers(battleID)
+end
+
+function Lobby:GetBattleFoundedBy(userName)
+	return self.founderToBattle[userName] or false
 end
 
 -- returns battles table (not necessarily an array)
