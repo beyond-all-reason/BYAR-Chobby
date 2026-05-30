@@ -1168,7 +1168,7 @@ function PluginsWindow:init(parent)
         width = btnW - 10,
         height = btnH,
         fontSize = btnFont,
-        OnClick = { function() WG.WrapperLoopback.OpenUrl("https://github.com/WybrenKoelmans/Public-BAR-Widgets?tab=readme-ov-file#how-to-contribute-a-new-widget") end },
+        OnClick = { function() WG.WrapperLoopback.OpenUrl("https://github.com/beyond-all-reason/BAR-widgets#how-to-contribute-a-new-widget") end },
         parent = self.window,
     }
     Button:New {
