@@ -406,6 +406,11 @@ end
 -- gadget to consume. Shape matches the maps-metadata-native startboxesInfo
 -- (one startboxesInfo per num_teams key), base64url(zlib(json))-encoded to
 -- match the existing mapmetadata_startpos transport.
+--
+-- The game-side contract (resolution order, expected payload shape) lives in
+-- beyond-all-reason/Beyond-All-Reason:
+--   luarules/gadgets/include/startbox_utilities.lua
+-- Any change here must keep that decoder/resolver in sync.
 local function encodeStartboxesSetModoption(polygonConfig)
   if not polygonConfig then return nil end
 
