@@ -297,11 +297,20 @@ local function loadPolygonStartboxes(mapName)
   end
 
   -- Tessellate unconditionally: anchors without strength are sharp corners,
-  -- so plain polygons emerge vertex-identical.
+  -- so plain polygons emerge vertex-identical. Preserve the raw anchor data
+  -- alongside the tessellated polygon so we can encode it as the modoption
+  -- the game-side gadget consumes (mapmetadata_startboxes_set).
   for _, entry in pairs(rawConfig) do
     if entry.boxes then
+      entry.anchorBoxes = {}
       for i = 1, #entry.boxes do
-        entry.boxes[i] = SplineLib.TessellateRing(entry.boxes[i])
+        local anchors = entry.boxes[i]
+        local copy = {}
+        for j, a in ipairs(anchors) do
+          copy[j] = { a[1], a[2], a[3] }
+        end
+        entry.anchorBoxes[i] = copy
+        entry.boxes[i] = SplineLib.TessellateRing(anchors)
       end
     end
   end
@@ -327,6 +336,21 @@ local function loadPolygonStartboxes(mapName)
           }
         end
         lobbyEntry.boxes[i] = lobbyPolygon
+      end
+    end
+
+    if entry.anchorBoxes then
+      lobbyEntry.anchorBoxes = {}
+      for i, anchorPoly in ipairs(entry.anchorBoxes) do
+        local lobbyAnchors = {}
+        for j, anchor in ipairs(anchorPoly) do
+          lobbyAnchors[j] = {
+            200 * anchor[1] / mapSizeX,
+            200 * anchor[2] / mapSizeZ,
+            anchor[3],
+          }
+        end
+        lobbyEntry.anchorBoxes[i] = lobbyAnchors
       end
     end
 
@@ -361,8 +385,11 @@ local function loadPolygonStartboxes(mapName)
 end
 
 local function makeAllyTeamBoxFromPolygon(polygonConfig, allyteamindex)
-  -- The game-side gadget re-reads the polygon config from the map archive and does
-  -- containment; the bounding box here is only the engine's coarse AABB.
+  -- The engine only understands AABB startrects, so we publish each polygon's
+  -- bounding box here. The game-side gadget reads the full polygon from the
+  -- mapmetadata_startboxes_set modoption (see encodeStartboxesSetModoption)
+  -- and applies polygon containment on top, widening the engine AABB if
+  -- needed via Spring.SetAllyTeamStartBox.
   local allyteamtable = { numallies = 0 }
   local entry = polygonConfig[allyteamindex + 1]
   if entry and entry.boundingBox then
@@ -373,6 +400,53 @@ local function makeAllyTeamBoxFromPolygon(polygonConfig, allyteamindex)
     allyteamtable.startrectbottom = bb.bottom / 200
   end
   return allyteamtable
+end
+
+-- Builds the mapmetadata_startboxes_set modoption value for the game-side
+-- gadget to consume. Shape matches the maps-metadata-native startboxesInfo
+-- (one startboxesInfo per num_teams key), base64url(zlib(json))-encoded to
+-- match the existing mapmetadata_startpos transport.
+local function encodeStartboxesSetModoption(polygonConfig)
+  if not polygonConfig then return nil end
+
+  local sortedKeys = {}
+  for k in pairs(polygonConfig) do
+    sortedKeys[#sortedKeys + 1] = k
+  end
+  table.sort(sortedKeys)
+
+  local numTeams = #sortedKeys
+  if numTeams == 0 then return nil end
+
+  local startboxes = {}
+  for _, k in ipairs(sortedKeys) do
+    local entry = polygonConfig[k]
+    local sourcePoly = entry.anchorBoxes and entry.anchorBoxes[1] or entry.boxes and entry.boxes[1]
+    local poly = {}
+    if sourcePoly then
+      for j, point in ipairs(sourcePoly) do
+        local p = { x = point[1], y = point[2] }
+        if point[3] ~= nil then p.strength = point[3] end
+        poly[j] = p
+      end
+    end
+    startboxes[#startboxes + 1] = { poly = poly }
+  end
+
+  local payload = {
+    [tostring(numTeams)] = {
+      startboxes = startboxes,
+      maxPlayersPerStartbox = 8,
+    },
+  }
+
+  local ok, encoded = pcall(Json.encode, payload)
+  if not ok or not encoded then return nil end
+
+  local compressed = VFS.ZlibCompress(encoded)
+  if not compressed then return nil end
+
+  return Spring.Utilities.Base64Encode(compressed)
 end
 
 -- how about some more helpers?
@@ -419,6 +493,7 @@ return {
   makeAllyTeamBox = makeAllyTeamBox,
   loadPolygonStartboxes = loadPolygonStartboxes,
   makeAllyTeamBoxFromPolygon = makeAllyTeamBoxFromPolygon,
+  encodeStartboxesSetModoption = encodeStartboxesSetModoption,
   getBox = getBox,
   clearBoxes = clearBoxes,
   removeBox = removeBox,
