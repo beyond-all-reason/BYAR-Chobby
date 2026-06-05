@@ -339,6 +339,14 @@ function InterfaceSkirmish:_StartScript(gameName, mapName, playerName, friendLis
 	script.modoptions["date_year"] = os.date("%Y")
 	script.modoptions["date_hour"] = os.date("%H")
 
+	if polygonConfig and Configuration.gameConfig.mapStartBoxes
+			and Configuration.gameConfig.mapStartBoxes.encodeStartboxesSetModoption then
+		local encoded = Configuration.gameConfig.mapStartBoxes.encodeStartboxesSetModoption(polygonConfig)
+		if encoded then
+			script.modoptions["mapmetadata_startboxes_set"] = encoded
+		end
+	end
+
 	for i, ai in pairs(ais) do
 		script["ai" .. i] = ai
 	end
