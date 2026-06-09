@@ -19,6 +19,12 @@ local welcomePanelItems = {
     },
 
     {
+        Header = "New Map: Vittra",
+        Text = "Close quarters combat over grassy plateaus and cliffs. 1v1 - 2v2 N vs S. Made by Moose and Beherith." .. " \n" .. " \n",
+        Image = "LuaMenu/configs/gameConfig/byar/minimapOverride/Vittra_3.jpg",
+    },
+
+    {
         Header = "This Month in BAR – April/May 2026",
         Text = "New visual effects, gameplay changes, and balance updates are here! GL4 visual overhaul brings build particles, death fire, beam lasers, plasma projectiles, missile trails, shield effects, bloom and more!" .. " \n" .. " \n" .. "EasyTax 2.0 overhauls resource sharing. New UI widgets, PiP improvements, ETA timers for reclaim/resurrect, and 4 new music tracks round out the update." .. " \n" .. " \n",
         Url = "https://www.beyondallreason.info/microblogs/184",
