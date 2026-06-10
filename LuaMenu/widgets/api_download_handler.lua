@@ -14,6 +14,8 @@ function widget:GetInfo()
 	}
 end
 
+local MAX_CONCURRENT_RESOURCES = 6 -- Max parallel resource downloads via spring-launcher
+
 local externalFunctions = {}
 local listeners = {}
 local wrapperFunctions = {}
@@ -124,6 +126,7 @@ local function DownloadSortFunc(a, b)
 	return a.priority > b.priority or (a.priority == b.priority and a.id < b.id)
 end
 
+
 local function DownloadQueueUpdate()
 	requestUpdate = false
 
@@ -133,18 +136,58 @@ local function DownloadQueueUpdate()
 	end
 	table.sort(downloadQueue, DownloadSortFunc)
 
-	local front = downloadQueue[1]
-	if not front.active then
-		if USE_WRAPPER_DOWNLOAD and WG.WrapperLoopback and WG.WrapperLoopback.DownloadFile then
-			WG.WrapperLoopback.DownloadFile(front.name, typeMap[front.fileType], front.resource)
-			CallListeners("DownloadStarted", front.id, front.name, front.fileType)
-		else
-			VFS.DownloadArchive(front.name, front.fileType)
+	-- Count currently active downloads by type
+	local activeResources = 0
+	local hasActiveNonResource = false
+	for i = 1, #downloadQueue do
+		if downloadQueue[i].active then
+			if downloadQueue[i].fileType == "resource" then
+				activeResources = activeResources + 1
+			else
+				hasActiveNonResource = true
+			end
 		end
-		front.active = true
 	end
 
-	CallListeners("DownloadQueueUpdate", downloadQueue, removedDownloads)
+	-- Activate pending downloads
+	for i = 1, #downloadQueue do
+		local item = downloadQueue[i]
+		if not item.active then
+			if item.fileType == "resource" then
+				-- Resource downloads run concurrently up to the limit
+				if activeResources < MAX_CONCURRENT_RESOURCES and
+				   USE_WRAPPER_DOWNLOAD and WG.WrapperLoopback and WG.WrapperLoopback.DownloadFile then
+					WG.WrapperLoopback.DownloadFile(item.name, typeMap[item.fileType], item.resource)
+				if not item.hidden then
+					CallListeners("DownloadStarted", item.id, item.name, item.fileType)
+				end
+				item.active = true
+				activeResources = activeResources + 1
+			end
+		elseif not hasActiveNonResource then
+			-- Non-resource downloads remain sequential (one at a time)
+			if USE_WRAPPER_DOWNLOAD and WG.WrapperLoopback and WG.WrapperLoopback.DownloadFile then
+				WG.WrapperLoopback.DownloadFile(item.name, typeMap[item.fileType], item.resource)
+				if not item.hidden then
+					CallListeners("DownloadStarted", item.id, item.name, item.fileType)
+				end
+				else
+					VFS.DownloadArchive(item.name, item.fileType)
+				end
+				item.active = true
+				hasActiveNonResource = true
+			end
+		end
+	end
+
+	-- Build filtered queues that exclude hidden items for UI listeners
+	local visibleQueue = {}
+	for i = 1, #downloadQueue do
+		if not downloadQueue[i].hidden then
+			visibleQueue[#visibleQueue + 1] = downloadQueue[i]
+		end
+	end
+	CallListeners("DownloadQueueUpdate", visibleQueue, removedDownloads)
 end
 
 local function GetDownloadIndex(downloadList, name, fileType)
@@ -273,9 +316,12 @@ function externalFunctions.QueueDownload(name, fileType, priority, retryCount, r
 		id = downloadCount,
 		retryCount = retryCount or 0,
 		resource = resource,
+		hidden = (resource and resource.hidden) and true or false,
 	}
 	requestUpdate = true
-	CallListeners("DownloadQueued", downloadCount, name, fileType, resource)
+	if not downloadQueue[#downloadQueue].hidden then
+		CallListeners("DownloadQueued", downloadCount, name, fileType, resource)
+	end
 end
 
 function externalFunctions.SetDownloadTopPriority(name, fileType)
@@ -310,7 +356,7 @@ function externalFunctions.RetryDownload(name, fileType)
 		return false
 	end
 
-	externalFunctions.QueueDownload(name, fileType, removedDownloads[index].priority,removedDownloads[index].retryCount)
+	externalFunctions.QueueDownload(name, fileType, removedDownloads[index].priority,removedDownloads[index].retryCount, removedDownloads[index].resource)
 	removedDownloads[index] = removedDownloads[#removedDownloads]
 	removedDownloads[#removedDownloads] = nil
 	requestUpdate = true
@@ -369,8 +415,11 @@ function wrapperFunctions.DownloadFinished(name, fileType, success, aborted)
 			RestoreVersionGZ(SaveLobbyVersionGZPath)
 		end
 
-		if not VFS.HasArchive(name) then
-			VFS.ScanAllDirs() -- Find downloaded file (if it exists).
+		-- Only scan for archives (game/map/engine). Resource downloads are plain
+		-- files (images, JSON) that are never archives, so scanning is wasteful
+		-- and blocks the UI thread for ~380ms per call.
+		if fileType ~= "resource" and not VFS.HasArchive(name) then
+			VFS.ScanAllDirs() -- Find downloaded archive (if it exists).
 		end
 		RemoveDownload(name, fileType, true, (aborted and "cancel") or (success and "success") or "fail")
 	end
@@ -388,6 +437,7 @@ function wrapperFunctions.DownloadFileProgress(name, progress, totalLength)
 	if not index then
 		return
 	end
+	if downloadQueue[index].hidden then return end
 
 	totalLength = (tonumber(totalLength or 0) or 0)/1023^2
 	CallListeners("DownloadProgress", downloadQueue[index].id, totalLength*math.min(1, (tonumber(progress or 0) or 0)/100), totalLength, downloadQueue[index].name)
@@ -411,6 +461,7 @@ function widget:DownloadProgress(downloadID, downloaded, total)
 	if not index then
 		return
 	end
+	if downloadQueue[index].hidden then return end
 	downloaded = downloaded / 1024 / 1024
 	total = total / 1024 / 1024
 	CallListeners("DownloadProgress", downloadQueue[index].id, downloaded, total, downloadQueue[index].name)
@@ -422,6 +473,7 @@ function widget:DownloadStarted(downloadID)
 		return
 	end
 	local data = downloadQueue[index]
+	if data.hidden then return end
 
 	CallListeners("DownloadStarted", data.id, data.name, data.fileType)
 end
