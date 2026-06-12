@@ -242,6 +242,7 @@ function InterfaceSkirmish:_StartScript(gameName, mapName, playerName, friendLis
 	local Configuration = WG.Chobby.Configuration
 
 	local startBoxes  = nil
+	local polygonConfig = nil
 	--if Configuration.gameConfig.mapStartBoxes then
 	--  Spring.Echo("Number of mapStartBoxes is",#Configuration.gameConfig.mapStartBoxes, allyTeamCount)
 	--end
@@ -249,7 +250,14 @@ function InterfaceSkirmish:_StartScript(gameName, mapName, playerName, friendLis
 	if Configuration.gameConfig and
 		Configuration.gameConfig.useDefaultStartBoxes and
 		Configuration.gameConfig.mapStartBoxes then
-		if Configuration.gameConfig.mapStartBoxes.singleplayerboxes and next(Configuration.gameConfig.mapStartBoxes.singleplayerboxes) ~= nil then
+
+		if Configuration.gameConfig.mapStartBoxes.loadPolygonStartboxes then
+			polygonConfig = Configuration.gameConfig.mapStartBoxes.loadPolygonStartboxes(mapName)
+		end
+
+		if polygonConfig then
+			Spring.Echo("Skirmish: Using polygon startboxes for", mapName)
+		elseif Configuration.gameConfig.mapStartBoxes.singleplayerboxes and next(Configuration.gameConfig.mapStartBoxes.singleplayerboxes) ~= nil then
 			startBoxes = Configuration.gameConfig.mapStartBoxes.singleplayerboxes
 			Spring.Echo("Skirmish: Using custom startboxes",startBoxes)
 			--Spring.Echo(Spring.Utilities.TableToString(startBoxes))
@@ -265,7 +273,9 @@ function InterfaceSkirmish:_StartScript(gameName, mapName, playerName, friendLis
 
 	for i, teamData in pairs(teams) do
 		if not allyTeams[teamData.AllyTeam] then
-		    if startBoxes then
+			if polygonConfig then
+				allyTeams[teamData.AllyTeam] = Configuration.gameConfig.mapStartBoxes.makeAllyTeamBoxFromPolygon(polygonConfig, teamData.AllyTeam)
+		    elseif startBoxes then
 				allyTeams[teamData.AllyTeam] = Configuration.gameConfig.mapStartBoxes.makeAllyTeamBox(startBoxes,teamData.AllyTeam)
 		    else
 				allyTeams[teamData.AllyTeam] = {
@@ -328,6 +338,14 @@ function InterfaceSkirmish:_StartScript(gameName, mapName, playerName, friendLis
 	script.modoptions["date_month"] = os.date("%m")
 	script.modoptions["date_year"] = os.date("%Y")
 	script.modoptions["date_hour"] = os.date("%H")
+
+	if polygonConfig and Configuration.gameConfig.mapStartBoxes
+			and Configuration.gameConfig.mapStartBoxes.encodeStartboxesSetModoption then
+		local encoded = Configuration.gameConfig.mapStartBoxes.encodeStartboxesSetModoption(polygonConfig)
+		if encoded then
+			script.modoptions["mapmetadata_startboxes_set"] = encoded
+		end
+	end
 
 	for i, ai in pairs(ais) do
 		script["ai" .. i] = ai

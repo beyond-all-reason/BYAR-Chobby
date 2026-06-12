@@ -148,6 +148,84 @@ local function makeAllyTeamBox(startboxes, allyteamindex)
     return allyteamtable
 end
 
+-- Polygon data source is pending: maps-metadata#615 needs to ship polygon
+-- payloads through the existing rect-sync pipeline (or an equivalent), at
+-- which point a loader exposed under the same `loadPolygonStartboxes` key on
+-- the module's return table will repopulate polygonConfig in the lobbyEntry
+-- shape the renderer and encoder below expect. Until that lands, the call
+-- sites in interface_skirmish.lua and gui_battle_room_window.lua guard on
+-- the function's presence and the polygon path stays dormant.
+
+local function makeAllyTeamBoxFromPolygon(polygonConfig, allyteamindex)
+  -- The engine only understands AABB startrects, so we publish each polygon's
+  -- bounding box here. The game-side gadget reads the full polygon from the
+  -- mapmetadata_startboxes_set modoption (see encodeStartboxesSetModoption)
+  -- and applies polygon containment on top, widening the engine AABB if
+  -- needed via Spring.SetAllyTeamStartBox.
+  local allyteamtable = { numallies = 0 }
+  local entry = polygonConfig[allyteamindex + 1]
+  if entry and entry.boundingBox then
+    local bb = entry.boundingBox
+    allyteamtable.startrectleft   = bb.left / 200
+    allyteamtable.startrecttop    = bb.top / 200
+    allyteamtable.startrectright  = bb.right / 200
+    allyteamtable.startrectbottom = bb.bottom / 200
+  end
+  return allyteamtable
+end
+
+-- Builds the mapmetadata_startboxes_set modoption value for the game-side
+-- gadget to consume. Shape matches the maps-metadata-native startboxesInfo
+-- (one startboxesInfo per num_teams key), base64url(zlib(json))-encoded to
+-- match the existing mapmetadata_startpos transport.
+--
+-- The game-side contract (resolution order, expected payload shape) lives in
+-- beyond-all-reason/Beyond-All-Reason:
+--   luarules/gadgets/include/startbox_utilities.lua
+-- Any change here must keep that decoder/resolver in sync.
+local function encodeStartboxesSetModoption(polygonConfig)
+  if not polygonConfig then return nil end
+
+  local sortedKeys = {}
+  for k in pairs(polygonConfig) do
+    sortedKeys[#sortedKeys + 1] = k
+  end
+  table.sort(sortedKeys)
+
+  local numTeams = #sortedKeys
+  if numTeams == 0 then return nil end
+
+  local startboxes = {}
+  for _, k in ipairs(sortedKeys) do
+    local entry = polygonConfig[k]
+    local sourcePoly = entry.anchorBoxes and entry.anchorBoxes[1] or entry.boxes and entry.boxes[1]
+    local poly = {}
+    if sourcePoly then
+      for j, point in ipairs(sourcePoly) do
+        local p = { x = point[1], y = point[2] }
+        if point[3] ~= nil then p.strength = point[3] end
+        poly[j] = p
+      end
+    end
+    startboxes[#startboxes + 1] = { poly = poly }
+  end
+
+  local payload = {
+    [tostring(numTeams)] = {
+      startboxes = startboxes,
+      maxPlayersPerStartbox = 8,
+    },
+  }
+
+  local ok, encoded = pcall(Json.encode, payload)
+  if not ok or not encoded then return nil end
+
+  local compressed = VFS.ZlibCompress(encoded)
+  if not compressed then return nil end
+
+  return Spring.Utilities.Base64Encode(compressed)
+end
+
 -- how about some more helpers?
 local function initCustomBox(mapName)
     singleplayerboxes = {}
@@ -190,6 +268,8 @@ return {
   savedBoxes = savedBoxes,
   selectStartBoxesForAllyTeamCount = selectStartBoxesForAllyTeamCount,
   makeAllyTeamBox = makeAllyTeamBox,
+  makeAllyTeamBoxFromPolygon = makeAllyTeamBoxFromPolygon,
+  encodeStartboxesSetModoption = encodeStartboxesSetModoption,
   getBox = getBox,
   clearBoxes = clearBoxes,
   removeBox = removeBox,
