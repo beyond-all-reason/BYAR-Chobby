@@ -19,6 +19,7 @@ local modesByGame = {}
 local activeModes = {}
 local selectedModeKeys = {}
 local modeUI = {}
+local modoptionWindowOpen = false
 local lockedOverlaysByKey = {}
 
 -- Variables
@@ -969,7 +970,7 @@ local function CreateModePanel(category, sectionData)
 		},
 	}
 
-	modeUI[category] = { modeList = modeList, rankedBadge = rankedBadge }
+	modeUI[category] = { modeList = modeList, rankedBadge = rankedBadge, applyMode = applyMode, itemKeyToName = itemKeyToName }
 
 	local parentPanel = Control:New {
 		name = "modeParentPanel_" .. category .. "_" .. (math.random(1000, 9999)),
@@ -998,6 +999,7 @@ end
 -- Modoptions Window Handler
 
 local function CreateModoptionWindow()
+	modoptionWindowOpen = true
 	local ww, wh = Spring.GetWindowGeometry()
 
 	local modoptionsSelectionWindow = Window:New {
@@ -1089,6 +1091,7 @@ local function CreateModoptionWindow()
 		}
 	}
 	local function CancelFunc()
+		modoptionWindowOpen = false
 		modoptionsSelectionWindow:Dispose()
 		if WG.BattleRoomChatInput then
 			screen0:FocusControl(WG.BattleRoomChatInput)
@@ -1158,6 +1161,7 @@ local function CreateModoptionWindow()
 		end
 
 		battleLobby:SetModOptions(localModoptions, allModeKeys)
+		modoptionWindowOpen = false
 		modoptionsSelectionWindow:Dispose()
 		if WG.BattleRoomChatInput then
 			screen0:FocusControl(WG.BattleRoomChatInput)
@@ -1490,10 +1494,22 @@ local function InitializeModoptionsDisplay()
 
 		-- Reflect the mode chosen in the battle (e.g. sharing_mode) so the tab shows
 		-- the active mode even when it was changed externally (SPADS, other players).
+		-- If the modoptions window is open, live-refresh that category's panel so the
+		-- selector and its sub-options update without reopening.
 		if activeModes then
 			for cat in pairs(activeModes) do
 				local battleKey = panelModoptions[cat .. "_mode"]
-				if battleKey then
+				if battleKey and selectedModeKeys[cat] ~= battleKey then
+					selectedModeKeys[cat] = battleKey
+					local ui = modeUI[cat]
+					if modoptionWindowOpen and ui and ui.applyMode then
+						local name = ui.itemKeyToName and ui.itemKeyToName[battleKey]
+						if name and ui.modeList then
+							ui.modeList:Select(name)
+						end
+						ui.applyMode(battleKey)
+					end
+				elseif battleKey then
 					selectedModeKeys[cat] = battleKey
 				end
 			end
