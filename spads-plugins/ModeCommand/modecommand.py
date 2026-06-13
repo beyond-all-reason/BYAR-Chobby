@@ -58,7 +58,12 @@ def hSpadsMode(source, user, params, checkOnly):
     if checkOnly:
         return 1
 
-    change_descs = []
+    # Record the chosen mode in the <category>_mode selector so clients reflect it
+    # even when no key=value options were passed.
+    selector_key = '%s_mode' % category
+    spads.updateSetting('bSet', selector_key, mode_key)
+
+    change_descs = ['%s=%s' % (selector_key, mode_key)]
     for (key, val) in settings:
         spads.updateSetting('bSet', key, val)
         change_descs.append('%s=%s' % (key, val))

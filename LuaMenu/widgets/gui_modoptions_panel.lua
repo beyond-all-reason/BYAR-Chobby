@@ -1488,6 +1488,17 @@ local function InitializeModoptionsDisplay()
 		panelModoptions = modopts or panelModoptions or {}
 		if not modoptions then return end
 
+		-- Reflect the mode chosen in the battle (e.g. sharing_mode) so the tab shows
+		-- the active mode even when it was changed externally (SPADS, other players).
+		if activeModes then
+			for cat in pairs(activeModes) do
+				local battleKey = panelModoptions[cat .. "_mode"]
+				if battleKey then
+					selectedModeKeys[cat] = battleKey
+				end
+			end
+		end
+
 		for _, option in pairs(modoptions) do
 			if option.type == "bool" then
 				if panelModoptions[option.key] == "1" then
