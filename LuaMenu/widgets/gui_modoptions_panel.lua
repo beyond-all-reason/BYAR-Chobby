@@ -853,6 +853,7 @@ local function CreateModePanel(category, sectionData)
 
 	local function applyMode(modeKey)
 		if not (catModes and catModes.modes) then return end
+		local previousModeKey = selectedModeKeys[category]
 		selectedModeKeys[category] = modeKey
 		local mode
 		for _, m in ipairs(catModes.modes) do
@@ -876,6 +877,19 @@ local function CreateModePanel(category, sectionData)
 
 		if WG.BattleRoomWindow and WG.BattleRoomWindow.SetRankedModeAllowed then
 			WG.BattleRoomWindow.SetRankedModeAllowed(allowRanked)
+		end
+
+		-- Switching modes UNSETs the old one: clear user edits and reset the
+		-- category to defaults so no values carry over into the new mode.
+		if previousModeKey ~= modeKey and modoptions then
+			for i = 1, #modoptions do
+				local opt = modoptions[i]
+				if opt.key and opt.section == category
+						and opt.type ~= "subheader" and opt.type ~= "separator" then
+					userModifiedOptions[opt.key] = nil
+					localModoptions[opt.key] = modoptionDefaults[opt.key]
+				end
+			end
 		end
 
 		applyModeValues(mode)
