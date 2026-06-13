@@ -1143,19 +1143,40 @@ local function CreateModoptionWindow()
 			local mode = getActiveMode(cat)
 			if mode and mode.modOptions then
 				local selectorKey = cat .. "_mode"
-				local modeChanged = false
-				local modeOptions = {}
+				local modeChanged = battleLobby.modoptions[selectorKey] ~= mode.key
+				-- Send only deviations from the preset; the SPADS plugin expands the
+				-- mode's full option set server-side. Keeps the command short so it
+				-- doesn't hit teiserver's 256-char SAYBATTLE cap (which silently truncates).
+				local deviations = {}
 				for k, v in pairs(localModoptions) do
-					if allModeKeys and allModeKeys[k] then
-						modeOptions[k] = v
+					if allModeKeys and allModeKeys[k] and k ~= selectorKey then
 						if battleLobby.modoptions[k] ~= v then
 							modeChanged = true
+						end
+						local rule = mode.modOptions[k]
+						local presetVal = rule and rule.value
+						if presetVal ~= nil then
+							if type(presetVal) == "boolean" then presetVal = (presetVal and "1") or "0" end
+							presetVal = tostring(presetVal)
+						end
+						if tostring(v) ~= presetVal then
+							deviations[k] = v
 						end
 					end
 				end
 
 				if modeChanged then
-					battleLobby:SetMode(mode.category, mode.key, modeOptions)
+					local parts = { "!mode", tostring(cat), tostring(mode.key) }
+					for k, v in pairs(deviations) do
+						parts[#parts + 1] = tostring(k) .. "=" .. tostring(v)
+					end
+					if #table.concat(parts, " ") > 256 then
+						WG.Chobby.InformationPopup(
+							"Too many customizations to send as one vote — the lobby caps commands at 256 characters.\n\nReduce your overrides, or use Customize mode to set options individually.",
+							{ width = 480, height = 260 })
+					else
+						battleLobby:SetMode(mode.category, mode.key, deviations)
+					end
 				end
 			end
 		end
