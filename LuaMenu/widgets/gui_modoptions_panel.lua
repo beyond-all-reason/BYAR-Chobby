@@ -1118,7 +1118,8 @@ local function CreateModoptionWindow()
 	local function AcceptFunc()
 		screen0:FocusControl(buttonAccept) -- Defocus the text entry
 
-		local allModeKeys
+		local allModeKeys -- keys this mode defines; drives the deviation diff
+		local managedKeys -- the whole mode category; the !mode plugin owns it server-side
 		for cat, _ in pairs(activeModes) do
 			local mode = getActiveMode(cat)
 			if mode then
@@ -1126,10 +1127,23 @@ local function CreateModoptionWindow()
 
 				local selectorKey = cat .. "_mode"
 				allModeKeys = allModeKeys or {}
+				managedKeys = managedKeys or {}
 				allModeKeys[selectorKey] = true
+				managedKeys[selectorKey] = true
 				if mode.modOptions then
 					for optKey, _ in pairs(mode.modOptions) do
 						allModeKeys[optKey] = true
+					end
+				end
+				-- !mode resets the whole category server-side; keep every category key
+				-- off the !bSet path (BAR grants players no bSet command).
+				if modoptions then
+					for i = 1, #modoptions do
+						local opt = modoptions[i]
+						if opt.key and opt.section == cat
+								and opt.type ~= "subheader" and opt.type ~= "separator" then
+							managedKeys[opt.key] = true
+						end
 					end
 				end
 			end
@@ -1196,7 +1210,7 @@ local function CreateModoptionWindow()
 			end
 		end
 
-		battleLobby:SetModOptions(localModoptions, allModeKeys)
+		battleLobby:SetModOptions(localModoptions, managedKeys or allModeKeys)
 		modoptionWindowOpen = false
 		modoptionsSelectionWindow:Dispose()
 		if WG.BattleRoomChatInput then
