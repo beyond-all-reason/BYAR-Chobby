@@ -462,29 +462,30 @@ local function GetDesyncGameStates()
 				local infolog = VFS.LoadFile(filename)
 				if infolog == nil then
 					Spring.Echo("Failed to load desync dump", filename)
-				end
-				if string.len(infolog) > 16000000 then 
-					infolog = string.sub(infolog,1,16000000)
-				end
-				local t0 = Spring.GetTimer()
-				infolog = ascii(infolog)
-				local compressedlog = Spring.Utilities.Base64Encode(VFS.ZlibCompress(infolog))
-				local t1 = Spring.GetTimer()
-				--local validate = io.open("tempdump.txt",'w')
-				--validate:write(compressedlog)
-				--validate:close()
-				--Spring.Echo("Crash Dump Header is",string.sub(compressedlog, 1, 1000))
-				local header = string.sub(infolog, 1, 1000)
-				-- Parse the following fields in the lines of the header:
-				local versionData = {
-					map = string.match(header, "mapName: ([^\n]+)"),
-					game = string.match(header, "modName: ([^\n]+)"),
-					engine = string.match(header, "syncVer: ([^\n]+)"),
-					gameID = string.match(header, "gameID: ([^\n]+)"),
-				}
+				else
+					if string.len(infolog) > 16000000 then 
+						infolog = string.sub(infolog,1,16000000)
+					end
+					local t0 = Spring.GetTimer()
+					infolog = ascii(infolog)
+					local compressedlog = Spring.Utilities.Base64Encode(VFS.ZlibCompress(infolog))
+					local t1 = Spring.GetTimer()
+					--local validate = io.open("tempdump.txt",'w')
+					--validate:write(compressedlog)
+					--validate:close()
+					--Spring.Echo("Crash Dump Header is",string.sub(compressedlog, 1, 1000))
+					local header = string.sub(infolog, 1, 1000)
+					-- Parse the following fields in the lines of the header:
+					local versionData = {
+						map = string.match(header, "mapName: ([^\n]+)"),
+						game = string.match(header, "modName: ([^\n]+)"),
+						engine = string.match(header, "syncVer: ([^\n]+)"),
+						gameID = string.match(header, "gameID: ([^\n]+)"),
+					}
 
-				Analytics.SendCrashReportOneTimeEvent(filename, "SyncError", filename, compressedlog, false, versionData)
-				Spring.Echo("Dump done in ", Spring.DiffTimers(Spring.GetTimer(), t1), Spring.DiffTimers(t1,t0))
+					Analytics.SendCrashReportOneTimeEvent(filename, "SyncError", filename, compressedlog, false, versionData)
+					Spring.Echo("Dump done in ", Spring.DiffTimers(Spring.GetTimer(), t1), Spring.DiffTimers(t1,t0))
+				end
 			end
 		end
 	end
