@@ -205,7 +205,8 @@ local function applyModeValues(mode)
 	if modoptions then
 		for i = 1, #modoptions do
 			local opt = modoptions[i]
-			if opt.key and opt.section == mode.category then
+			if opt.key and opt.section == mode.category
+					and opt.type ~= "subheader" and opt.type ~= "separator" then
 				local isWhitelisted = mode.modOptions and mode.modOptions[opt.key] ~= nil
 				if not isWhitelisted and modoptionDefaults[opt.key] then
 					localModoptions[opt.key] = modoptionDefaults[opt.key]
