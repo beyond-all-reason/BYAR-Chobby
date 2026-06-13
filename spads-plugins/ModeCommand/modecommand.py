@@ -1,10 +1,33 @@
 import perl
 import re
+import os
+import json
 
 spads = perl.ModeCommand
 
 pluginVersion = '0.1'
 requiredSpadsVersion = '0.12.29'
+
+
+def _load_presets():
+    # Generated from the game's modes/sharing/*.lua (tools/export_sharing_presets.lua),
+    # shipped beside this plugin so a bare `!mode` can apply a mode's full option set.
+    candidates = []
+    try:
+        candidates.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'sharing_presets.json'))
+    except Exception:
+        pass
+    candidates.append('/opt/spads/var/plugins/sharing_presets.json')
+    for path in candidates:
+        try:
+            with open(path) as f:
+                return json.load(f)
+        except Exception:
+            continue
+    return {}
+
+
+PRESETS = _load_presets()
 
 globalPluginParams = {
     'commandsFile': ['notNull'],
@@ -58,15 +81,22 @@ def hSpadsMode(source, user, params, checkOnly):
     if checkOnly:
         return 1
 
-    # Record the chosen mode in the <category>_mode selector so clients reflect it
-    # even when no key=value options were passed.
+    # Record the chosen mode in the <category>_mode selector so clients reflect it.
     selector_key = '%s_mode' % category
     spads.updateSetting('bSet', selector_key, mode_key)
 
-    change_descs = ['%s=%s' % (selector_key, mode_key)]
+    # Expand the mode preset so a bare `!mode <category> <key>` fully applies the
+    # mode's options; explicit key=value params override the preset.
+    effective = {}
+    for (key, val) in PRESETS.get(category, {}).get(mode_key, {}).items():
+        effective[key] = val
     for (key, val) in settings:
-        spads.updateSetting('bSet', key, val)
-        change_descs.append('%s=%s' % (key, val))
+        effective[key] = val
+
+    change_descs = ['%s=%s' % (selector_key, mode_key)]
+    for key in sorted(effective):
+        spads.updateSetting('bSet', key, effective[key])
+        change_descs.append('%s=%s' % (key, effective[key]))
 
     changes_str = ', '.join(change_descs)
     mode_label = '%s %s' % (category, mode_key)
