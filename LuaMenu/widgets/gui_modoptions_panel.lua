@@ -15,13 +15,28 @@ end
 -- Structure
 local modoptionDefaults = {}
 local modoptionStructure = {}
+local modesByGame = {}
+local activeModes = {}
+local selectedModeKeys = {}
+local modeUI = {}
+local modoptionWindowOpen = false
+local lockedOverlaysByKey = {}
 
 -- Variables
 local battleLobby
 local localModoptions = {}
+local userModifiedOptions = {}
+local isProgrammaticUpdate = false
 local modoptionControlNames = {}
 local modoptions
 local modoptionsByGame = {}
+
+local function SetUserModifiedOption(key, value)
+	localModoptions[key] = value
+	if not isProgrammaticUpdate then
+		userModifiedOptions[key] = true
+	end
+end
 
 -- constants
 local MARKED_AS_CHANGED_COLOR = {0.99, 0.75, .3, 1} -- {0.07, 0.66, 0.92, 1.0}
@@ -45,6 +60,85 @@ local function UpdateControlValue(key, value)
 			control:SetToggle(value == true or value == 1 or value == "1")
 		end
 	end
+end
+
+-- Enable/disable the interactive control for a given modoption key
+local function SetControlLock(key, locked)
+    if not modoptionControlNames then return end
+    local control = modoptionControlNames[key]
+    if not control then return end
+    if control.SetEnabled then
+        control:SetEnabled(not locked)
+    end
+    -- If the control is embedded in a row control, try disabling that too
+    local parent = control.parent
+    if parent and parent.SetEnabled and parent.name ~= "tabPanel" then
+        parent:SetEnabled(not locked)
+    end
+    -- Fallback: disable input handlers if the widget lacks SetEnabled
+    if control.OnSelectName then
+        control._origOnSelectName = control._origOnSelectName or control.OnSelectName
+        control.OnSelectName = locked and {} or control._origOnSelectName
+    end
+    if control.OnChange then
+        control._origOnChange = control._origOnChange or control.OnChange
+        control.OnChange = locked and {} or control._origOnChange
+    end
+
+    -- Add/remove an input-blocking overlay for controls that don't visually disable
+    local parentRow = control.parent
+    if parentRow and parentRow.name ~= "tabPanel" then
+        local displayValue = localModoptions[key] or modoptionDefaults[key] or ""
+        if control.itemKeyToName then
+            displayValue = control.itemKeyToName[displayValue] or displayValue
+        elseif control.SetToggle then
+            if displayValue == "1" or displayValue == 1 or displayValue == true then
+                displayValue = "Enabled"
+            else
+                displayValue = "Disabled"
+            end
+        else
+            displayValue = tostring(displayValue)
+        end
+
+        if locked then
+            local info = lockedOverlaysByKey[key]
+            if not info then
+                -- Expand narrow areas (e.g. checkboxes) so text like "Disabled" fits
+                local ovX, ovW = control.x, control.width
+                if ovW < 100 then ovW = 300 end
+                local overlay = Label:New {
+                    name = "lockOverlay_" .. key,
+                    x = ovX,
+                    y = control.y,
+                    width = ovW,
+                    height = control.height,
+                    valign = "center",
+                    align = "left",
+                    caption = tostring(displayValue),
+                    tooltip = control.tooltip,
+                    objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+                    greedyHitTest = true,
+                }
+                parentRow:AddChild(overlay)
+                lockedOverlaysByKey[key] = { overlay = overlay, oldX = control.x }
+                if control.SetPos then control:SetPos(control.x + 4095, control.y) end
+            else
+                info.overlay:SetCaption(tostring(displayValue))
+            end
+        else
+            local info = lockedOverlaysByKey[key]
+            if info then
+                if control.SetPos then control:SetPos(info.oldX or control.x, control.y) end
+                if info.overlay and info.overlay.parent then
+                    info.overlay.parent:RemoveChild(info.overlay)
+                end
+            end
+            lockedOverlaysByKey[key] = nil
+        end
+    end
+
+    -- Simple visual state: if a control supports SetEnabled, that's sufficient.
 end
 
 local function TextFromNum(num, step)
@@ -77,6 +171,52 @@ local function getModOptionByKey(key)
 		end
 	end
 	return retOption
+end
+
+local function getActiveMode(category)
+	local catModes = activeModes[category]
+	local selectedKey = selectedModeKeys[category]
+	if not (catModes and catModes.modes and selectedKey) then return nil end
+	for _, m in ipairs(catModes.modes) do
+		if m.key == selectedKey then return m end
+	end
+	return nil
+end
+
+-- Applies the given mode's values to localModoptions, resets non-whitelisted
+-- mode options to their defaults, and sets the category_mode key.
+local function applyModeValues(mode)
+	if not mode then return end
+
+	if mode.modOptions then
+		for optKey, rule in pairs(mode.modOptions) do
+			if rule.value ~= nil then
+				local modeValue = rule.value
+				if type(modeValue) == "boolean" then modeValue = tostring((modeValue and 1) or 0) end
+				modeValue = tostring(modeValue)
+
+				if rule.locked or not userModifiedOptions[optKey] then
+					localModoptions[optKey] = modeValue
+				end
+			end
+		end
+	end
+
+	if modoptions then
+		for i = 1, #modoptions do
+			local opt = modoptions[i]
+			if opt.key and opt.section == mode.category
+					and opt.type ~= "subheader" and opt.type ~= "separator" then
+				local isWhitelisted = mode.modOptions and mode.modOptions[opt.key] ~= nil
+				if not isWhitelisted and modoptionDefaults[opt.key] then
+					localModoptions[opt.key] = modoptionDefaults[opt.key]
+					userModifiedOptions[opt.key] = nil
+				end
+			end
+		end
+	end
+
+	localModoptions[mode.category .. "_mode"] = mode.key
 end
 
 --------------------------------------------------------------------------------
@@ -211,7 +351,7 @@ local function ProcessListOption(data, index)
 						label.font = WG.Chobby.Configuration:GetFont(2, "Changed2", {color = MARKED_AS_CHANGED_COLOR})
 						list.font = WG.Chobby.Configuration:GetFont(2, "Changed2", {color = MARKED_AS_CHANGED_COLOR})
 				end
-				localModoptions[data.key] = itemNameToKey[selectedName]
+				SetUserModifiedOption(data.key, itemNameToKey[selectedName])
 			end
 		} or
 			{function (obj, selectedName)	
@@ -222,7 +362,7 @@ local function ProcessListOption(data, index)
 						label.font = WG.Chobby.Configuration:GetFont(2, "Changed2", {color = MARKED_AS_CHANGED_COLOR})
 						list.font = WG.Chobby.Configuration:GetFont(2, "Changed2", {color = MARKED_AS_CHANGED_COLOR})
 				end
-				localModoptions[data.key] = itemNameToKey[selectedName]
+				SetUserModifiedOption(data.key, itemNameToKey[selectedName])
 			end
 		},
 		itemKeyToName = itemKeyToName, -- Not a chili key
@@ -290,7 +430,7 @@ local function ProcessBoolOption(data, index)
 				else -- on disable
 					processChildrenLocks(data.lock, data.unlock, data.bitmask or 1)
 				end
-				localModoptions[data.key] = tostring((newState and 1) or 0)
+				SetUserModifiedOption(data.key, tostring((newState and 1) or 0))
 				if (newState and modoptionDefaults[data.key] == "1") or (not newState and modoptionDefaults[data.key] == "0") then
 					label.font = WG.Chobby.Configuration:GetFont(2)
 				else
@@ -304,7 +444,7 @@ local function ProcessBoolOption(data, index)
 				else
 					label.font = WG.Chobby.Configuration:GetFont(2, "Changed2", {color = MARKED_AS_CHANGED_COLOR})
 				end
-				localModoptions[data.key] = tostring((newState and 1) or 0)
+				SetUserModifiedOption(data.key, tostring((newState and 1) or 0))
 			end
 		},
 	}
@@ -322,7 +462,7 @@ local function ProcessBoolOption(data, index)
 	control = Control:New {
 		x = 0,
 		y = index*32,
-		width = 350,
+		width = 625,
 		height = 32,
 		padding = {0, 0, 0, 0},
 		tooltip = data.desc,
@@ -382,7 +522,7 @@ local function ProcessNumberOption(data, index)
 				newValue = math.floor(newValue/data.step + 0.5)*data.step + 0.01*data.step
 
 				oldText = TextFromNum(newValue, data.step)
-				localModoptions[data.key] = oldText
+				SetUserModifiedOption(data.key, oldText)
 				obj:SetText(oldText)
 
 				if oldText == modoptionDefaults[data.key] then
@@ -414,7 +554,7 @@ local function ProcessNumberOption(data, index)
 				newValue = math.floor(newValue/data.step + 0.5)*data.step + 0.01*data.step
 
 				oldText = TextFromNum(newValue, data.step)
-				localModoptions[data.key] = oldText
+				SetUserModifiedOption(data.key, oldText)
 				obj:SetText(oldText)
 
 				if oldText == modoptionDefaults[data.key] then
@@ -492,14 +632,14 @@ local function ProcessStringOption(data, index)
 
 				if string.len(obj.text) <= 1 then
 					if not textHidden then
-						localModoptions[data.key] = 0
+						SetUserModifiedOption(data.key, 0)
 					end
 					obj.text = ""
 					textBox.font = WG.Chobby.Configuration:GetFont(2)
 					label.font = WG.Chobby.Configuration:GetFont(2)
 
 				else
-					localModoptions[data.key] = obj.text
+					SetUserModifiedOption(data.key, obj.text)
 					if obj.text == modoptionDefaults[data.key] then
 						textBox.font = WG.Chobby.Configuration:GetFont(2)
 						label.font = WG.Chobby.Configuration:GetFont(2)
@@ -657,9 +797,228 @@ end
 
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
+-- Mode Panel
+
+local function CreateModePanel(category, sectionData)
+	local selectorKey = category .. "_mode"
+	local catModes = activeModes[category]
+
+	local modeScroll = ScrollPanel:New {
+		name = "modeTabPanel_" .. category .. "_" .. (math.random(1000, 9999)),
+		x = 10,
+		right = 10,
+		y = 56,
+		bottom = 10,
+		horizontalScrollbar = false,
+	}
+
+	local panelOptions = sectionData.options or {}
+
+	local selectorOpt = nil
+	for _, opt in ipairs(panelOptions) do
+		if opt.key == selectorKey then selectorOpt = opt; break end
+	end
+
+	local modeLabel = Label:New {
+		x = 15,
+		y = 10,
+		width = 200,
+		height = 30,
+		valign = "center",
+		align = "left",
+		caption = selectorOpt and selectorOpt.name or (category:sub(1,1):upper() .. category:sub(2) .. " Mode"),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+	}
+
+	local items, itemKeyToName, itemNameToKey, itemsTooltips = {}, {}, {}, {}
+	if catModes and catModes.modes then
+		for i, m in ipairs(catModes.modes) do
+			local name = m.name or m.key
+			items[i] = name
+			itemKeyToName[m.key] = name
+			itemNameToKey[name] = m.key
+			if m.desc then
+				itemsTooltips[i] = m.desc
+			end
+		end
+	end
+
+	local rankedBadge = Label:New {
+		x = 650,
+		y = 10,
+		width = 220,
+		height = 30,
+		valign = "center",
+		align = "left",
+		caption = "",
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2, nil, {color = {1,0.3,0.3,1}}),
+	}
+
+	local function applyMode(modeKey)
+		if not (catModes and catModes.modes) then return end
+		local previousModeKey = selectedModeKeys[category]
+		selectedModeKeys[category] = modeKey
+		local mode
+		for _, m in ipairs(catModes.modes) do
+			if m.key == modeKey then mode = m; break end
+		end
+		if not mode then return end
+
+		local allowRanked = (mode.allowRanked ~= false)
+		WG.ModePolicy = WG.ModePolicy or {}
+		WG.ModePolicy[category] = WG.ModePolicy[category] or {}
+		WG.ModePolicy[category].allowRanked = allowRanked
+		WG.ModePolicy[category].modeLocked = {}
+		rankedBadge:SetCaption(allowRanked and "" or "Not Ranked")
+
+		isProgrammaticUpdate = true
+		if not allowRanked then
+			localModoptions["ranked_game"] = "0"
+			UpdateControlValue("ranked_game", "0")
+		end
+		isProgrammaticUpdate = false
+
+		if WG.BattleRoomWindow and WG.BattleRoomWindow.SetRankedModeAllowed then
+			WG.BattleRoomWindow.SetRankedModeAllowed(allowRanked)
+		end
+
+		-- Switching modes UNSETs the old one: clear user edits and reset the
+		-- category to defaults so no values carry over into the new mode.
+		if previousModeKey ~= modeKey and modoptions then
+			for i = 1, #modoptions do
+				local opt = modoptions[i]
+				if opt.key and opt.section == category
+						and opt.type ~= "subheader" and opt.type ~= "separator" then
+					userModifiedOptions[opt.key] = nil
+					localModoptions[opt.key] = modoptionDefaults[opt.key]
+				end
+			end
+		end
+
+		applyModeValues(mode)
+
+		for _, opt in ipairs(panelOptions) do
+			if opt.key then
+				modoptionControlNames[opt.key] = nil
+				lockedOverlaysByKey[opt.key] = nil
+			end
+		end
+
+		modeScroll:ClearChildren()
+
+		local column, row = 1, 0
+		for _, opt in ipairs(panelOptions) do
+			if opt.key == selectorKey then
+				-- handled by the header dropdown
+			elseif opt.type ~= "subheader" and opt.type ~= "separator"
+				and not (mode.modOptions and mode.modOptions[opt.key]) then
+				-- not whitelisted for this mode
+			elseif mode.modOptions and mode.modOptions[opt.key] and mode.modOptions[opt.key].ui == "hidden" then
+				-- explicitly hidden by this mode
+			else
+				if (opt.column or -1) > column then
+					row = row - 1
+				end
+
+				local rowData = nil
+				if opt.type == "number" then
+					rowData = ProcessNumberOption(opt, row)
+				elseif opt.type == "string" then
+					rowData = ProcessStringOption(opt, row)
+				elseif opt.type == "subheader" then
+					rowData = ProcessSubHeader(opt, row)
+				elseif opt.type == "bool" then
+					rowData = ProcessBoolOption(opt, row)
+				elseif opt.type == "list" then
+					rowData = ProcessListOption(opt, row)
+				elseif opt.type == "separator" then
+					rowData = ProcessLineSeparator(opt, row)
+					row = row - 0.5
+				end
+				if rowData then
+					column = math.abs(opt.column or 1)
+					rowData.x = rowData.x + (column - 1) * 625
+					row = row + 1
+					rowData.rowOrginal = rowData.y
+					modeScroll:AddChild(rowData)
+				end
+			end
+		end
+
+		if mode.modOptions then
+			for optKey, rule in pairs(mode.modOptions) do
+				if rule.locked then
+					lockedOptions[optKey] = 1
+					WG.ModePolicy[category].modeLocked[optKey] = true
+					SetControlLock(optKey, true)
+				else
+					lockedOptions[optKey] = nil
+					WG.ModePolicy[category].modeLocked[optKey] = nil
+					SetControlLock(optKey, false)
+				end
+			end
+		end
+	end
+
+	local defaultSelected = 1
+	if catModes and catModes.modes then
+		for i, m in ipairs(catModes.modes) do
+			if m.key == (selectedModeKeys[category] or "enabled") then
+				defaultSelected = i; break
+			end
+		end
+	end
+
+	local modeList = ComboBox:New {
+		x = 340,
+		y = 11,
+		width = 300,
+		height = 30,
+		items = items,
+		itemsTooltips = itemsTooltips,
+		selectByName = true,
+		selected = defaultSelected,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		OnSelectName = {
+			function (obj, selectedName)
+				local k = itemNameToKey[selectedName]
+				WG.Delay(function()
+					applyMode(k)
+				end, 0.05)
+			end
+		},
+	}
+
+	modeUI[category] = { modeList = modeList, rankedBadge = rankedBadge, applyMode = applyMode, itemKeyToName = itemKeyToName }
+
+	local parentPanel = Control:New {
+		name = "modeParentPanel_" .. category .. "_" .. (math.random(1000, 9999)),
+		x = 6,
+		right = 5,
+		y = 10,
+		bottom = 8,
+		padding = {0,0,0,0},
+	}
+
+	parentPanel:AddChild(modeLabel)
+	parentPanel:AddChild(modeList)
+	parentPanel:AddChild(rankedBadge)
+	parentPanel:AddChild(Line:New { classname = "line_solid", x = 10, y = 48, right = 10, height = 2 })
+	parentPanel:AddChild(modeScroll)
+
+	if catModes and catModes.modes and catModes.modes[defaultSelected] then
+		applyMode(catModes.modes[defaultSelected].key)
+	end
+
+	return { parentPanel }
+end
+
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 -- Modoptions Window Handler
 
 local function CreateModoptionWindow()
+	modoptionWindowOpen = true
 	local ww, wh = Spring.GetWindowGeometry()
 
 	local modoptionsSelectionWindow = Window:New {
@@ -675,6 +1034,8 @@ local function CreateModoptionWindow()
 
 	localModoptions = Spring.Utilities.CopyTable(battleLobby:GetMyBattleModoptions() or {})
 	modoptionControlNames = {}
+	lockedOverlaysByKey = {}
+	postLock = {}
 
 	local tabs = {}
 	lockedOptions = {}
@@ -691,7 +1052,11 @@ local function CreateModoptionWindow()
 		if origCaption ~= caption then
 			tooltip = origCaption
 		end
-		local tabChildren = PopulateTab(data.options)
+		local catModes = activeModes[key]
+		local tabChildren = (not catModes) and PopulateTab(data.options) or {}
+		if catModes then
+			tabChildren = CreateModePanel(key, data)
+		end
 		tabs[#tabs + 1] = {
 			name = key,
 			caption = caption,
@@ -745,6 +1110,7 @@ local function CreateModoptionWindow()
 		}
 	}
 	local function CancelFunc()
+		modoptionWindowOpen = false
 		modoptionsSelectionWindow:Dispose()
 		if WG.BattleRoomChatInput then
 			screen0:FocusControl(WG.BattleRoomChatInput)
@@ -755,15 +1121,101 @@ local function CreateModoptionWindow()
 
 	local function AcceptFunc()
 		screen0:FocusControl(buttonAccept) -- Defocus the text entry
-		local isBoss = false
-		if not isBoss then
-			for k, v in pairs(localModoptions) do
-				if lockedOptions[k] then
-					localModoptions[k] = battleLobby.modoptions[k]
+
+		local allModeKeys -- keys this mode defines; drives the deviation diff
+		local managedKeys -- the whole mode category; the !mode plugin owns it server-side
+		for cat, _ in pairs(activeModes) do
+			local mode = getActiveMode(cat)
+			if mode then
+				applyModeValues(mode)
+
+				local selectorKey = cat .. "_mode"
+				allModeKeys = allModeKeys or {}
+				managedKeys = managedKeys or {}
+				allModeKeys[selectorKey] = true
+				managedKeys[selectorKey] = true
+				if mode.modOptions then
+					for optKey, _ in pairs(mode.modOptions) do
+						allModeKeys[optKey] = true
+					end
+				end
+				-- !mode resets the whole category server-side; keep every category key
+				-- off the !bSet path (BAR grants players no bSet command).
+				if modoptions then
+					for i = 1, #modoptions do
+						local opt = modoptions[i]
+						if opt.key and opt.section == cat
+								and opt.type ~= "subheader" and opt.type ~= "separator" then
+							managedKeys[opt.key] = true
+						end
+					end
 				end
 			end
 		end
-		battleLobby:SetModOptions(localModoptions)
+
+		local isBoss = false
+		if not isBoss then
+			local policy = WG.ModePolicy or {}
+			for k, v in pairs(localModoptions) do
+				if lockedOptions[k] then
+					local isModeLocked = false
+					for cat, catPolicy in pairs(policy) do
+						if catPolicy.modeLocked and catPolicy.modeLocked[k] then
+							isModeLocked = true
+							break
+						end
+					end
+					if not isModeLocked then
+						localModoptions[k] = battleLobby.modoptions[k]
+					end
+				end
+			end
+		end
+
+		for cat, _ in pairs(activeModes) do
+			local mode = getActiveMode(cat)
+			if mode and mode.modOptions then
+				local selectorKey = cat .. "_mode"
+				local modeChanged = battleLobby.modoptions[selectorKey] ~= mode.key
+				-- Send only deviations from the preset; the SPADS plugin expands the
+				-- mode's full option set server-side. Keeps the command short so it
+				-- doesn't hit teiserver's 256-char SAYBATTLE cap (which silently truncates).
+				local deviations = {}
+				for k, v in pairs(localModoptions) do
+					if allModeKeys and allModeKeys[k] and k ~= selectorKey then
+						if battleLobby.modoptions[k] ~= v then
+							modeChanged = true
+						end
+						local rule = mode.modOptions[k]
+						local presetVal = rule and rule.value
+						if presetVal ~= nil then
+							if type(presetVal) == "boolean" then presetVal = (presetVal and "1") or "0" end
+							presetVal = tostring(presetVal)
+						end
+						if tostring(v) ~= presetVal then
+							deviations[k] = v
+						end
+					end
+				end
+
+				if modeChanged then
+					local parts = { "!mode", tostring(cat), tostring(mode.key) }
+					for k, v in pairs(deviations) do
+						parts[#parts + 1] = tostring(k) .. "=" .. tostring(v)
+					end
+					if #table.concat(parts, " ") > 256 then
+						WG.Chobby.InformationPopup(
+							"Too many customizations to send as one vote — the lobby caps commands at 256 characters.\n\nReduce your overrides, or use Customize mode to set options individually.",
+							{ width = 480, height = 260 })
+					else
+						battleLobby:SetMode(mode.category, mode.key, deviations)
+					end
+				end
+			end
+		end
+
+		battleLobby:SetModOptions(localModoptions, managedKeys or allModeKeys)
+		modoptionWindowOpen = false
 		modoptionsSelectionWindow:Dispose()
 		if WG.BattleRoomChatInput then
 			screen0:FocusControl(WG.BattleRoomChatInput)
@@ -1094,6 +1546,29 @@ local function InitializeModoptionsDisplay()
 		panelModoptions = modopts or panelModoptions or {}
 		if not modoptions then return end
 
+		-- Reflect the mode chosen in the battle (e.g. sharing_mode) so the tab shows
+		-- the active mode even when it was changed externally (SPADS, other players).
+		-- If the modoptions window is open, live-refresh that category's panel so the
+		-- selector and its sub-options update without reopening.
+		if activeModes then
+			for cat in pairs(activeModes) do
+				local battleKey = panelModoptions[cat .. "_mode"]
+				if battleKey and selectedModeKeys[cat] ~= battleKey then
+					selectedModeKeys[cat] = battleKey
+					local ui = modeUI[cat]
+					if modoptionWindowOpen and ui and ui.applyMode then
+						local name = ui.itemKeyToName and ui.itemKeyToName[battleKey]
+						if name and ui.modeList then
+							ui.modeList:Select(name)
+						end
+						ui.applyMode(battleKey)
+					end
+				elseif battleKey then
+					selectedModeKeys[cat] = battleKey
+				end
+			end
+		end
+
 		for _, option in pairs(modoptions) do
 			if option.type == "bool" then
 				if panelModoptions[option.key] == "1" then
@@ -1212,7 +1687,6 @@ function ModoptionsPanel.RefreshModoptions()
 		sections = {}
 	}
 
-	-- Populate the sections
 	for i = 1, #modoptions do
 		local data = modoptions[i]
 		if data.type == "section" then
@@ -1225,7 +1699,6 @@ function ModoptionsPanel.RefreshModoptions()
 						title = data.section,
 						options = {}
 					}
-
 					local options = modoptionStructure.sections[data.section].options
 					options[#options + 1] = data
 				elseif showHidden and devmode then
@@ -1237,6 +1710,7 @@ function ModoptionsPanel.RefreshModoptions()
 			end
 		end
 	end
+
 
 	if not devmode then
 		modoptionStructure.sections["dev"] = nil
@@ -1287,14 +1761,60 @@ function ModoptionsPanel.LoadModoptions(gameName, newBattleLobby, forceReload)
 
 	end
 
+	local function LoadModes()
+		local byCategory = {}
+
+		local modeDirs = VFS.SubDirs("modes/", "*", VFS.ZIP)
+		for _, dir in ipairs(modeDirs) do
+			local modeFiles = VFS.DirList(dir, "*.lua", VFS.ZIP)
+			for _, modeFile in ipairs(modeFiles) do
+				local mode = VFS.Include(modeFile)
+				if mode and mode.key and mode.category then
+					byCategory[mode.category] = byCategory[mode.category] or { modes = {} }
+					local modes = byCategory[mode.category].modes
+					modes[#modes + 1] = mode
+				end
+			end
+		end
+
+		if next(byCategory) then
+			return byCategory
+		end
+		return nil
+	end
+	activeModes = modesByGame[gameName]
+	if not activeModes then
+		activeModes = VFS.UseArchive(gameName, LoadModes) or {}
+		modesByGame[gameName] = activeModes
+	end
+	WG.Modes = activeModes
+	WG.ModoptionDefs = modoptions
 
 	modoptionDefaults = {}
 	if not modoptions then
 		return
 	end
 
+	-- Populate mode selector items dynamically for each category
+	for cat, catModes in pairs(activeModes) do
+		local selectorKey = cat .. "_mode"
+		for i = 1, #modoptions do
+			local data = modoptions[i]
+			if data.key == selectorKey and data.type == "list" then
+				data.items = {}
+				for _, mode in ipairs(catModes.modes) do
+					data.items[#data.items + 1] = {
+						key = mode.key,
+						name = mode.name,
+						desc = mode.desc or ""
+					}
+				end
+				break
+			end
+		end
+	end
+	
 	local currentUnixTime = os.time()
-
 	-- Set modoptionDefaults
 	for i = 1, #modoptions do
 		local data = modoptions[i]
@@ -1344,6 +1864,7 @@ end
 function widget:Initialize()
 	CHOBBY_DIR = LUA_DIRNAME .. "widgets/chobby/"
 	VFS.Include(LUA_DIRNAME .. "widgets/chobby/headers/exports.lua", nil, VFS.RAW_FIRST)
+	VFS.Include("libs/json.lua")
 
 	WG.ModoptionsPanel = ModoptionsPanel
 end

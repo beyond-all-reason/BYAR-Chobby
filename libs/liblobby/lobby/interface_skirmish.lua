@@ -614,8 +614,71 @@ function InterfaceSkirmish:UpdateAi(aiName, status)
 	self:_OnUpdateUserBattleStatus(aiName, status)
 end
 
-function InterfaceSkirmish:SetModOptions(data)
-	self:_OnSetModOptions(data)
+-- Skirmish has no autohost to expand a mode, so do it locally with the same
+-- logic the SPADS ModeCommand plugin uses (tools/export_sharing_presets.lua):
+-- the category's modoption defaults overlaid with the mode preset, then any
+-- deviations, plus the <category>_mode selector. Source = WG.Modes/ModoptionDefs.
+local function resolveModeModoptions(category, modeKey, deviations)
+	local catModes = WG.Modes and WG.Modes[category]
+	local defs = WG.ModoptionDefs
+	if not (catModes and catModes.modes and defs) then return nil end
+
+	local mode
+	for _, m in ipairs(catModes.modes) do
+		if m.key == modeKey then mode = m; break end
+	end
+	if not mode then return nil end
+
+	local function toVal(v)
+		if type(v) == "boolean" then return v and "1" or "0" end
+		return tostring(v)
+	end
+
+	local selectorKey = category .. "_mode"
+	local out = {}
+	for i = 1, #defs do
+		local o = defs[i]
+		if o.section == category and o.key and o.key ~= selectorKey
+				and o.type ~= "subheader" and o.type ~= "separator" and o.def ~= nil then
+			out[o.key] = toVal(o.def)
+		end
+	end
+	for k, rule in pairs(mode.modOptions or {}) do
+		if k ~= selectorKey and rule.value ~= nil then out[k] = toVal(rule.value) end
+	end
+	if deviations then
+		for k, v in pairs(deviations) do out[k] = tostring(v) end
+	end
+	out[selectorKey] = modeKey
+	return out
+end
+
+-- skipKeys come from the mode category (managed by SetMode's expansion); skip
+-- them here so a follow-up SetModOptions can't clobber the resolved category.
+function InterfaceSkirmish:SetModOptions(data, skipKeys)
+	if skipKeys then
+		local merged = {}
+		if self.modoptions then
+			for k, v in pairs(self.modoptions) do merged[k] = v end
+		end
+		for k, v in pairs(data) do
+			if not skipKeys[k] then merged[k] = v end
+		end
+		self:_OnSetModOptions(merged)
+	else
+		self:_OnSetModOptions(data)
+	end
+	return self
+end
+
+function InterfaceSkirmish:SetMode(category, modeKey, modeOptions)
+	local resolved = resolveModeModoptions(category, modeKey, modeOptions)
+	local merged = {}
+	if self.modoptions then
+		for k, v in pairs(self.modoptions) do merged[k] = v end
+	end
+	for k, v in pairs(resolved or modeOptions or {}) do merged[k] = v end
+	self:_OnSetModOptions(merged)
 	return self
 end
 
