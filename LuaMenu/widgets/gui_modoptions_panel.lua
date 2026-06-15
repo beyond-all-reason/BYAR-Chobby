@@ -830,13 +830,16 @@ local function CreateModePanel(category, sectionData)
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 	}
 
-	local items, itemKeyToName, itemNameToKey = {}, {}, {}
+	local items, itemKeyToName, itemNameToKey, itemsTooltips = {}, {}, {}, {}
 	if catModes and catModes.modes then
 		for i, m in ipairs(catModes.modes) do
 			local name = m.name or m.key
 			items[i] = name
 			itemKeyToName[m.key] = name
 			itemNameToKey[name] = m.key
+			if m.desc then
+				itemsTooltips[i] = m.desc
+			end
 		end
 	end
 
@@ -972,6 +975,7 @@ local function CreateModePanel(category, sectionData)
 		width = 300,
 		height = 30,
 		items = items,
+		itemsTooltips = itemsTooltips,
 		selectByName = true,
 		selected = defaultSelected,
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
