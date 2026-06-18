@@ -11,8 +11,19 @@ local function clamp01(v)
 	return v
 end
 
--- tension=0 collapses to linear; tension=1 is full Catmull-Rom. Anchor points
--- lie on the curve at any tension because t=0/t=1 coincide for both.
+local function knotDelta(ax, az, bx, bz)
+	local dx, dz = bx - ax, bz - az
+	return (dx * dx + dz * dz) ^ 0.25 -- |delta|^0.5  (alpha = 0.5, centripetal)
+end
+
+local function bgLerp(tt, ax, az, bx, bz, ta, tb)
+	local w = (tb - tt) / (tb - ta)
+	return w * ax + (1 - w) * bx, w * az + (1 - w) * bz
+end
+
+-- tension=0 collapses to linear; tension=1 is full centripetal Catmull-Rom.
+-- Centripetal (alpha=0.5) avoids the curly-q overshoot at sharp corners. Anchor
+-- points lie on the curve at any tension because t=0/t=1 coincide for both.
 local function sampleSegment(p0, p1, p2, p3, t, tension)
 	local lx = p1[1] + (p2[1] - p1[1]) * t
 	local lz = p1[2] + (p2[2] - p1[2]) * t
@@ -20,16 +31,29 @@ local function sampleSegment(p0, p1, p2, p3, t, tension)
 		return lx, lz
 	end
 
-	local t2 = t * t
-	local t3 = t2 * t
-	local crX = 0.5 * ((2 * p1[1])
-		+ (-p0[1] + p2[1]) * t
-		+ (2 * p0[1] - 5 * p1[1] + 4 * p2[1] - p3[1]) * t2
-		+ (-p0[1] + 3 * p1[1] - 3 * p2[1] + p3[1]) * t3)
-	local crZ = 0.5 * ((2 * p1[2])
-		+ (-p0[2] + p2[2]) * t
-		+ (2 * p0[2] - 5 * p1[2] + 4 * p2[2] - p3[2]) * t2
-		+ (-p0[2] + 3 * p1[2] - 3 * p2[2] + p3[2]) * t3)
+	local t0 = 0
+	local t1 = t0 + knotDelta(p0[1], p0[2], p1[1], p1[2])
+	local t2 = t1 + knotDelta(p1[1], p1[2], p2[1], p2[2])
+	local t3 = t2 + knotDelta(p2[1], p2[2], p3[1], p3[2])
+
+	local crX, crZ
+	if t2 - t1 <= 1e-9 then
+		crX, crZ = p1[1], p1[2] -- coincident segment endpoints
+	else
+		local tt = t1 + (t2 - t1) * t
+		local A1x, A1z = p1[1], p1[2]
+		if t1 - t0 > 1e-9 then
+			A1x, A1z = bgLerp(tt, p0[1], p0[2], p1[1], p1[2], t0, t1)
+		end
+		local A2x, A2z = bgLerp(tt, p1[1], p1[2], p2[1], p2[2], t1, t2)
+		local A3x, A3z = p2[1], p2[2]
+		if t3 - t2 > 1e-9 then
+			A3x, A3z = bgLerp(tt, p2[1], p2[2], p3[1], p3[2], t2, t3)
+		end
+		local B1x, B1z = bgLerp(tt, A1x, A1z, A2x, A2z, t0, t2)
+		local B2x, B2z = bgLerp(tt, A2x, A2z, A3x, A3z, t1, t3)
+		crX, crZ = bgLerp(tt, B1x, B1z, B2x, B2z, t1, t2)
+	end
 
 	if tension >= 1 then
 		return crX, crZ
