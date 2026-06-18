@@ -252,7 +252,7 @@ function InterfaceSkirmish:_StartScript(gameName, mapName, playerName, friendLis
 		Configuration.gameConfig.mapStartBoxes then
 
 		if Configuration.gameConfig.mapStartBoxes.loadPolygonStartboxes then
-			polygonConfig = Configuration.gameConfig.mapStartBoxes.loadPolygonStartboxes(mapName)
+			polygonConfig = Configuration.gameConfig.mapStartBoxes.loadPolygonStartboxes(mapName, allyTeamCount)
 		end
 
 		if polygonConfig then

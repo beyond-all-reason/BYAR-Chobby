@@ -148,13 +148,114 @@ local function makeAllyTeamBox(startboxes, allyteamindex)
     return allyteamtable
 end
 
--- Polygon data source is pending: maps-metadata#615 needs to ship polygon
--- payloads through the existing rect-sync pipeline (or an equivalent), at
--- which point a loader exposed under the same `loadPolygonStartboxes` key on
--- the module's return table will repopulate polygonConfig in the lobbyEntry
--- shape the renderer and encoder below expect. Until that lands, the call
--- sites in interface_skirmish.lua and gui_battle_room_window.lua guard on
--- the function's presence and the polygon path stays dormant.
+local SplineLib = VFS.Include(LUA_DIRNAME .. "configs/gameConfig/byar/lib_spline.lua")
+
+-- Polygon arrangements come from lobby_maps.validated.json, synced from
+-- beyond-all-reason/maps-metadata (gen/lobby_maps.validated.json) the same way
+-- savedBoxes.dat is. Until that file is synced into this directory the loader
+-- returns nil and the polygon path stays dormant. Rectangle-only maps also
+-- return nil so they keep using the savedBoxes.dat path unchanged; only an
+-- arrangement that contains a real polygon (a poly with more than two points)
+-- activates this path.
+local lobbyMapsFilename = LUA_DIRNAME .. "configs/gameConfig/byar/lobby_maps.validated.json"
+local startboxesSetByMap = nil -- lazily-built springName -> startboxesSet array
+
+local function loadLobbyMaps()
+  if startboxesSetByMap ~= nil then return end
+  startboxesSetByMap = {}
+  local raw = VFS.LoadFile(lobbyMapsFilename)
+  if not raw then return end
+  local ok, parsed = pcall(Json.decode, raw)
+  if not ok or type(parsed) ~= "table" then
+    Spring.Log("mapStartBoxes", LOG.WARNING, "Could not parse", lobbyMapsFilename)
+    return
+  end
+  for _, mapEntry in ipairs(parsed) do
+    if mapEntry.springName and mapEntry.startboxesSet then
+      startboxesSetByMap[mapEntry.springName] = mapEntry.startboxesSet
+    end
+  end
+end
+
+-- Mirrors the game-side resolveArrangement (startbox_utilities.lua) and the
+-- rectangle selectStartBoxesForAllyTeamCount above: exact team-count match,
+-- then the next larger arrangement, then the next smaller.
+local function selectArrangementForAllyTeamCount(startboxesSet, allyTeamCount)
+  local larger, smaller
+  local largerN, smallerN
+  for _, arrangement in ipairs(startboxesSet) do
+    local n = #arrangement.startboxes
+    if n == allyTeamCount then
+      return arrangement
+    elseif n > allyTeamCount and (not largerN or n < largerN) then
+      larger, largerN = arrangement, n
+    elseif n < allyTeamCount and (not smallerN or n > smallerN) then
+      smaller, smallerN = arrangement, n
+    end
+  end
+  return larger or smaller
+end
+
+local function arrangementHasPolygon(arrangement)
+  for _, box in ipairs(arrangement.startboxes) do
+    if #box.poly > 2 then return true end
+  end
+  return false
+end
+
+-- Build the lobbyEntry-shaped config the renderer, encoder and
+-- makeAllyTeamBoxFromPolygon consume. Keyed 1-based by allyteam index:
+--   entry.anchorBoxes = { { {x,y[,strength]}, ... } }  raw anchors, for re-encode
+--   entry.boxes       = { { {x,y}, ... } }             tessellated ring (>=3 pts), for render
+--   entry.boundingBox = { left, top, right, bottom }   0-200, for the engine startrect
+--   entry.maxPlayersPerStartbox                        carried through to the modoption
+local function buildPolygonConfig(arrangement)
+  local config = {}
+  for i, box in ipairs(arrangement.startboxes) do
+    local srcPoly = box.poly
+
+    local anchor = {}
+    for j, pt in ipairs(srcPoly) do
+      anchor[j] = pt.strength ~= nil and { pt.x, pt.y, pt.strength } or { pt.x, pt.y }
+    end
+
+    local renderPoly
+    if #anchor == 2 then
+      local x1, y1 = anchor[1][1], anchor[1][2]
+      local x2, y2 = anchor[2][1], anchor[2][2]
+      renderPoly = { { x1, y1 }, { x2, y1 }, { x2, y2 }, { x1, y2 } }
+    else
+      renderPoly = SplineLib.TessellateRing(anchor)
+    end
+
+    local left, top, right, bottom = math.huge, math.huge, -math.huge, -math.huge
+    for _, p in ipairs(renderPoly) do
+      if p[1] < left then left = p[1] end
+      if p[1] > right then right = p[1] end
+      if p[2] < top then top = p[2] end
+      if p[2] > bottom then bottom = p[2] end
+    end
+
+    config[i] = {
+      anchorBoxes = { anchor },
+      boxes = { renderPoly },
+      boundingBox = { left = left, top = top, right = right, bottom = bottom },
+      maxPlayersPerStartbox = arrangement.maxPlayersPerStartbox,
+    }
+  end
+  return config
+end
+
+local function loadPolygonStartboxes(mapName, allyTeamCount)
+  loadLobbyMaps()
+  local startboxesSet = startboxesSetByMap[mapName]
+  if not startboxesSet or #startboxesSet == 0 then return nil end
+
+  local arrangement = selectArrangementForAllyTeamCount(startboxesSet, allyTeamCount or 2)
+  if not arrangement or not arrangementHasPolygon(arrangement) then return nil end
+
+  return buildPolygonConfig(arrangement)
+end
 
 local function makeAllyTeamBoxFromPolygon(polygonConfig, allyteamindex)
   -- The engine only understands AABB startrects, so we publish each polygon's
@@ -210,10 +311,11 @@ local function encodeStartboxesSetModoption(polygonConfig)
     startboxes[#startboxes + 1] = { poly = poly }
   end
 
+  local firstEntry = polygonConfig[sortedKeys[1]]
   local payload = {
     [tostring(numTeams)] = {
       startboxes = startboxes,
-      maxPlayersPerStartbox = 8,
+      maxPlayersPerStartbox = (firstEntry and firstEntry.maxPlayersPerStartbox) or 8,
     },
   }
 
@@ -270,6 +372,7 @@ return {
   makeAllyTeamBox = makeAllyTeamBox,
   makeAllyTeamBoxFromPolygon = makeAllyTeamBoxFromPolygon,
   encodeStartboxesSetModoption = encodeStartboxesSetModoption,
+  loadPolygonStartboxes = loadPolygonStartboxes,
   getBox = getBox,
   clearBoxes = clearBoxes,
   removeBox = removeBox,

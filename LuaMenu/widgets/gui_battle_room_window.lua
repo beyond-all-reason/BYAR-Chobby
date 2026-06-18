@@ -1676,7 +1676,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 					Configuration.gameConfig.useDefaultStartBoxes and
 					Configuration.gameConfig.mapStartBoxes and
 					Configuration.gameConfig.mapStartBoxes.loadPolygonStartboxes then
-				polygonConfig = Configuration.gameConfig.mapStartBoxes.loadPolygonStartboxes(mapName)
+				polygonConfig = Configuration.gameConfig.mapStartBoxes.loadPolygonStartboxes(mapName, allyTeamCount)
 			end
 
 			if isSingleplayer then
@@ -4520,7 +4520,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 					Configuration.gameConfig.useDefaultStartBoxes and
 					Configuration.gameConfig.mapStartBoxes and
 					Configuration.gameConfig.mapStartBoxes.loadPolygonStartboxes then
-				local polygonConfig = Configuration.gameConfig.mapStartBoxes.loadPolygonStartboxes(battle.mapName)
+				local polygonConfig = Configuration.gameConfig.mapStartBoxes.loadPolygonStartboxes(battle.mapName, tonumber(battle.nbTeams) or 2)
 				if polygonConfig then
 					infoHandler.RemoveStartRect()
 					infoHandler.AddPolygonStartboxes(polygonConfig, tonumber(battle.nbTeams) or 2)
