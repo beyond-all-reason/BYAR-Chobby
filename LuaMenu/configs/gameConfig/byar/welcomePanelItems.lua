@@ -32,7 +32,13 @@ local welcomePanelItems = {
         Url = "https://discord.com/channels/549281623154229250/1097438343861649458",
         UrlText = "Sign Up for Overwatch",
     },
-    
+
+    {
+        Header = "New Map: SailAway",
+        Text = "Islands of forests and wildflowers above the sea. 8v8 N vs S. Made by Moose and IceXuick." .. " \n" .. " \n",
+        Image = "LuaMenu/configs/gameConfig/byar/minimapOverride/SailAway_2.jpg",
+    },
+
     {
         Header = "New Map: Vittra",
         Text = "Close quarters combat over grassy plateaus and cliffs. 1v1 - 2v2 N vs S. Made by Moose and Beherith." .. " \n" .. " \n",
