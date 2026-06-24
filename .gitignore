@@ -1,3 +1,9 @@
 devmode.txt
 *code-workspace
 .vscode/settings.json
+
+# Game mode presets (BAR export_game_modes widget). The ModeCommand plugin
+# self-fetches these from the BAR `game-modes` release into game_modes.cache.json;
+# game_modes.json is an optional host-dropped fallback. Neither is source.
+spads-plugins/ModeCommand/game_modes.json
+spads-plugins/ModeCommand/game_modes.cache.json
