@@ -14,7 +14,7 @@ function ConfirmationPopup:init(successFunction, question, doNotAskAgainKey, wid
 		caption = "",
 		resizable = false,
 		draggable = false,
-		parent = WG.Chobby.lobbyInterfaceHolder,
+		parent = (WG.Chobby and WG.Chobby.lobbyInterfaceHolder) or nil,
 		classname = "main_window_small",
 	}
 
@@ -50,8 +50,8 @@ function ConfirmationPopup:init(successFunction, question, doNotAskAgainKey, wid
 		right = 15,
 		y = 15,
 		height = 35,
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
-		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(3),
+		objectOverrideFont = (WG.Chobby and WG.Chobby.Configuration and WG.Chobby.Configuration:GetFont(3)) or nil,
+		objectOverrideHintFont = (WG.Chobby and WG.Chobby.Configuration and WG.Chobby.Configuration:GetFont(3)) or nil,
 		text = question,
 		parent = mainWindow,
 	}
@@ -62,7 +62,7 @@ function ConfirmationPopup:init(successFunction, question, doNotAskAgainKey, wid
 		bottom = 1,
 		height = 70,
 		caption = i18n(yesText or "yes"),
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+		objectOverrideFont = (WG.Chobby and WG.Chobby.Configuration and WG.Chobby.Configuration:GetFont(3)) or nil,
 		classname = "action_button",
 		OnClick = {
 			function()
@@ -77,7 +77,7 @@ function ConfirmationPopup:init(successFunction, question, doNotAskAgainKey, wid
 		bottom = 1,
 		height = 70,
 		caption = i18n(noText or "cancel"),
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+		objectOverrideFont = (WG.Chobby and WG.Chobby.Configuration and WG.Chobby.Configuration:GetFont(3)) or nil,
 		classname = "negative_button",
 		OnClick = {
 			function()
@@ -97,7 +97,7 @@ function ConfirmationPopup:init(successFunction, question, doNotAskAgainKey, wid
 			boxsize = 15,
 			caption = i18n("do_not_ask_again"),
 			checked = Configuration[doNotAskAgainKey] or false,
-			objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
+			objectOverrideFont = (WG.Chobby and WG.Chobby.Configuration and WG.Chobby.Configuration:GetFont(1)) or nil,
 			parent = mainWindow,
 			OnClick = {
 				function (obj)

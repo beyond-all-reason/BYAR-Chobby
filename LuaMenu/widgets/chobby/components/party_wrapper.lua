@@ -93,6 +93,10 @@ end
 function PartyWrapper:AddMember(username)
     if not self.rows[username] then
         local userControl = WG.UserHandler.GetPartyUser(username, self.partyID, "party_status_member")
+        if not userControl then
+            Spring.Log("Chobby", LOG.WARNING, "GetPartyUser returned nil for member", tostring(username), "party", tostring(self.partyID))
+            return
+        end
         userControl.y = self:ContentHeight()
         userControl._relativeBounds.right = PartyWindow.MAJOR_SPACING + PartyWindow.BUTTON_WIDTH
         self.wrapper:AddChild(userControl)
@@ -117,6 +121,10 @@ end
 function PartyWrapper:AddInvite(username)
     if not self.inviteRows[username] then
         local userControl = WG.UserHandler.GetPartyUser(username, self.partyID, "party_status_invite")
+        if not userControl then
+            Spring.Log("Chobby", LOG.WARNING, "GetPartyUser returned nil for invite", tostring(username), "party", tostring(self.partyID))
+            return
+        end
         userControl.y = self:ContentHeight()
         userControl._relativeBounds.right = PartyWindow.MAJOR_SPACING + PartyWindow.BUTTON_WIDTH
         self.wrapper:AddChild(userControl)

@@ -206,21 +206,39 @@ function EditBox:_SetSelection(selStart, selStartY, selEnd, selEndY)
 	self.selStartY = selStartY       or self.selStartY
 	self.selEnd    = selEnd          or self.selEnd
 	self.selEndY   = selEndY         or self.selEndY
+
+	local n = #self.lines
+	local function clampLineIndex(y)
+		if y == nil then
+			return nil
+		end
+		return math.min(math.max(1, y), n)
+	end
+	self.selStartY = clampLineIndex(self.selStartY)
+	self.selEndY = clampLineIndex(self.selEndY)
+	local function clampColumn(y, c)
+		if c == nil or y == nil then
+			return c
+		end
+		local line = self.lines[y]
+		if not line then
+			return c
+		end
+		local maxC = #line.text + 1
+		return math.min(math.max(1, c), maxC)
+	end
+	self.selStart = clampColumn(self.selStartY, self.selStart)
+	self.selEnd = clampColumn(self.selEndY, self.selEnd)
+
 	if selStart or selStartY then
-		if not self.lines[self.selStartY] then
-				spLog("chiliui", LOG.ERROR, "self.lines[self.selStartY] is nil for self.selStartY: " .. tostring(self.selStartY) .. " and #self.lines: " .. tostring(#self.lines))
-				spLog("chiliui", LOG.ERROR, debug.traceback())
-		else
+		if self.selStart ~= nil and self.selStartY ~= nil and self.lines[self.selStartY] then
 			local logicalLine = self.lines[self.selStartY]
 			self.selStartPhysical, self.selStartPhysicalY = self:_LineLog2Phys(logicalLine, self.selStart)
 		end
 	end
 
 	if selEnd or selEndY then
-		if not self.lines[self.selEndY] then
-				spLog("chiliui", LOG.ERROR, "self.lines[self.selEndY] is nil for self.selEndY: " .. tostring(self.selEndY) .. " and #self.lines: " .. tostring(#self.lines))
-				spLog("chiliui", LOG.ERROR, debug.traceback())
-		else
+		if self.selEnd ~= nil and self.selEndY ~= nil and self.lines[self.selEndY] then
 			local logicalLine = self.lines[self.selEndY]
 			self.selEndPhysical, self.selEndPhysicalY  = self:_LineLog2Phys(logicalLine, self.selEnd)
 		end
@@ -809,7 +827,10 @@ function EditBox:UpdateLine(lineID, text)
 			self:_GeneratePhysicalLines(lineID)
 		end
 	end
-	self.selStartY = 1
+	self.selStart = nil
+	self.selStartY = nil
+	self.selEnd = nil
+	self.selEndY = nil
 end
 
 local function RemoveColorFromText(text)

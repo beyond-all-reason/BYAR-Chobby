@@ -516,6 +516,106 @@ function Interface:SetModOptions(data)
 	return self
 end
 
+-- multiplayer chat throttling for presets and large battle settings pastes
+Interface.THROTTLED_SAY_MAX_CHARS_PER_BATCH = 20000
+Interface.THROTTLED_SAY_INTERVAL_SECONDS = 4
+
+-- Batch SayBattle lines by size; delay between batches; cancelToken.cancelled stops pending sends.
+function Interface:SayBattleThrottled(lines, maxCharsPerBatch, intervalSeconds, progressCallback, cancelToken)
+	maxCharsPerBatch = maxCharsPerBatch or Interface.THROTTLED_SAY_MAX_CHARS_PER_BATCH
+	intervalSeconds = intervalSeconds or Interface.THROTTLED_SAY_INTERVAL_SECONDS
+	cancelToken = cancelToken or {}
+
+	if self._activeThrottleToken and self._activeThrottleToken ~= cancelToken then
+		self._activeThrottleToken.cancelled = true
+	end
+	self._activeThrottleToken = cancelToken
+
+	if not lines or #lines == 0 then
+		if progressCallback then
+			progressCallback(0, 0)
+		end
+		return self
+	end
+
+	local batches = {}
+	local currentBatch = {}
+	local currentSize = 0
+
+	for _, line in ipairs(lines) do
+		local lineSize = #line + 1 -- +1 for newline
+		if currentSize + lineSize > maxCharsPerBatch and #currentBatch > 0 then
+			table.insert(batches, currentBatch)
+			currentBatch = {}
+			currentSize = 0
+		end
+		table.insert(currentBatch, line)
+		currentSize = currentSize + lineSize
+	end
+	if #currentBatch > 0 then
+		table.insert(batches, currentBatch)
+	end
+
+	local totalBatches = #batches
+	local batchIndex = 0
+	local sendNextBatch
+
+	sendNextBatch = function()
+		if cancelToken.cancelled then
+			batches = {}
+			batchIndex = totalBatches
+			if self._activeThrottleToken == cancelToken then
+				self._activeThrottleToken = nil
+			end
+			if progressCallback then
+				progressCallback(batchIndex, totalBatches, true)
+			end
+			return
+		end
+
+		batchIndex = batchIndex + 1
+		if batchIndex > totalBatches then
+			if self._activeThrottleToken == cancelToken then
+				self._activeThrottleToken = nil
+			end
+			if progressCallback then
+				progressCallback(totalBatches, totalBatches)
+			end
+			return
+		end
+
+		local batch = batches[batchIndex]
+		Spring.Echo("[SayBattleThrottled] sending batch " .. batchIndex .. "/" .. totalBatches ..
+			" (" .. #batch .. " lines)")
+		for _, line in ipairs(batch) do
+			self:SayBattle(line)
+		end
+
+		if progressCallback then
+			progressCallback(batchIndex, totalBatches)
+		end
+
+		if batchIndex < totalBatches then
+			WG.Delay(sendNextBatch, intervalSeconds)
+		elseif self._activeThrottleToken == cancelToken then
+			self._activeThrottleToken = nil
+		end
+	end
+
+	sendNextBatch()
+	return self
+end
+
+function Interface:SetModOptionsThrottled(data, maxCharsPerBatch, intervalSeconds, progressCallback, cancelToken)
+	local lines = {}
+	for k, v in pairs(data) do
+		if self.modoptions[k] ~= v then
+			table.insert(lines, "!bSet " .. tostring(k) .. " " .. tostring(v))
+		end
+	end
+	return self:SayBattleThrottled(lines, maxCharsPerBatch, intervalSeconds, progressCallback, cancelToken)
+end
+
 function Interface:AddAi(aiName, aiLib, allyNumber, version, aiOptions, battleStatusOptions)
 	local userData = {
 		isReady = true,
@@ -2121,12 +2221,24 @@ function Interface:_OnSetScriptTags(tagsTxt)
 	if self.modoptions == nil then
 		self.modoptions = {}
 	end
+	local changes = {}
 	for _, tag in pairs(tags) do
 		if string_starts(tag, mod_opts_pre) then
 			local kv = tag:sub(mod_opts_pre_indx)
-			local kvTable = explode("=", kv)
-			local k = kvTable[1]
-			local v = kvTable[2]
+			-- Split on first '=' only; values may contain '=' (e.g. base64 padding).
+			local eqPos = kv:find("=", 1, true)
+			local k, v
+			if eqPos then
+				k = kv:sub(1, eqPos - 1)
+				v = kv:sub(eqPos + 1)
+			else
+				k = kv
+				v = ""
+			end
+			local oldV = self.modoptions[k]
+			if oldV ~= v then
+				changes[k] = { old = oldV, new = v }
+			end
 			self.modoptions[k] = v
 		elseif string_starts(tag, scriptTagPlayers) then
 			local userNameLC, status = self:GetSkillFromScriptTag(tag:sub(scriptTagPlayersIndx))
@@ -2138,7 +2250,7 @@ function Interface:_OnSetScriptTags(tagsTxt)
 			end
 		end
 	end
-	self:_OnSetModOptions(self.modoptions)
+	self:_OnSetModOptions(self.modoptions, changes)
 end
 Interface.commands["SETSCRIPTTAGS"] = Interface._OnSetScriptTags
 Interface.commandPattern["SETSCRIPTTAGS"] = "(.*)"

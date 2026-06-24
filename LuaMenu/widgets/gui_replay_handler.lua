@@ -517,19 +517,48 @@ end
 -- This function reads from end of replays and puts all demos from engines prior to 2113 to the beginnnig
 -- This is a hot-fix and won't sort by date. If testers did games with prior 2113 and newer in between, older demos will still be found at the very end !
 local function SortReplays(replays)
+	local Configuration = WG.Chobby.Configuration
+	if Configuration.debugMode then
+		Spring.Echo("ReplayHandler: SortReplays called with", #replays, "replays")
+		for i, replay in ipairs(replays) do
+			Spring.Echo("ReplayHandler: Replay[" .. i .. "]", replay)
+		end
+	end
+	
 	local oldReplays = {}
 	local done = false
 	repeat
-		if #replays == 0 or not string.match(replays[#replays], "(%d%d%d%d%d_)") then
+		if #replays == 0 then
+			if Configuration.debugMode then
+				Spring.Echo("ReplayHandler: No more replays to process")
+			end
 			done = true
 		else
-			table.insert(oldReplays, replays[#replays])
-			table.remove(replays, #replays)
+			local currentReplay = replays[#replays]
+			local match = string.match(currentReplay, "_(%d%d%d%d%d)%.")
+			if Configuration.debugMode then
+				Spring.Echo("ReplayHandler: Checking replay:", currentReplay, "Match result:", match)
+			end
+			if not match then
+				if Configuration.debugMode then
+					Spring.Echo("ReplayHandler: No match found for old engine pattern, stopping")
+				end
+				done = true
+			else
+				if Configuration.debugMode then
+					Spring.Echo("ReplayHandler: Found old engine replay, moving to front:", currentReplay)
+				end
+				table.insert(oldReplays, currentReplay)
+				table.remove(replays, #replays)
+			end
 		end
 	until(done)
 
 	for _, oldReplay in ipairs(oldReplays) do
 		table.insert(replays, 1, oldReplay)
+	end
+	if Configuration.debugMode then
+		Spring.Echo("ReplayHandler: SortReplays returning", #replays, "replays")
 	end
 	return replays
 end
@@ -592,13 +621,25 @@ local function InitializeControls(parentControl)
 	local PartialAddReplays, moreButton
 
 	local function AddReplays()
-		local replays = SortReplays(VFS.DirList("demos", "*.sdfz"))
+		local Configuration = WG.Chobby.Configuration
+		if Configuration.debugMode then
+			Spring.Echo("ReplayHandler: AddReplays called, discovering demo files...")
+		end
+		local rawReplays = VFS.DirList("demos", "*.sdfz")
+		if Configuration.debugMode then
+			Spring.Echo("ReplayHandler: VFS.DirList found", #rawReplays, "demo files")
+		end
+		local replays = SortReplays(rawReplays)
 
 		local index = #replays
 
         --  Add one replay to the replay list
 		local function AddOneReplay()
+			local Configuration = WG.Chobby.Configuration
 			if index < 1 then
+				if Configuration.debugMode then
+					Spring.Echo("ReplayHandler: No more replays to add, index =", index)
+				end
 				if moreButton then
 					moreButton:SetVisibility(false)
 				end
@@ -606,6 +647,9 @@ local function InitializeControls(parentControl)
 				return
 			end
 			local replayPath = replays[index]
+			if Configuration.debugMode then
+				Spring.Echo("ReplayHandler: Processing replay", replayPath, "index =", index)
+			end
 			WG.WrapperLoopback.ReadReplayInfo(replayPath)
 			index = index - 1
 		end
@@ -707,13 +751,13 @@ local function InitializeControls(parentControl)
 		local replaymanual = EditBox:New{
 			right = 15,
 			y = 7 + 45 + 7,
-			width = 200,
+			width = 330,
 			height = 45,
-			text = "/demos/",
+			text = "demos/",
 			objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
 			objectOverrideHintFont = WG.Chobby.Configuration:GetFont(1),
 			parent = parentControl,
-			tooltip = "Enter the path to the replay",
+			tooltip = "Enter full replay filename including extension (.sdfz)",
 			OnFocusUpdate = {
 				function (obj)
 					manualreplaypath = obj.text
@@ -725,7 +769,7 @@ local function InitializeControls(parentControl)
 		}
 
 		local manualbutton = Button:New{
-			right = 225,
+			right = 355,
 			y = 7 + 45 + 7,
 			width = 170,
 			height = 45,
@@ -737,7 +781,7 @@ local function InitializeControls(parentControl)
 			OnClick = {
 				function ()
 					Spring.Echo("Attempting to start a manual replay from", manualreplaypath)
-					WG.Chobby.localLobby:StartReplay(manualreplaypath, "BeherithDebugMode")
+					WG.Chobby.localLobby:StartReplay(manualreplaypath, "ReplayDebugMode")
 				end
 			},
 
@@ -814,10 +858,21 @@ function ReplayHandler.GetControl()
 end
 
 function ReplayHandler.ReadReplayInfoDone(path, engine, game, map, players, time, winningAllyTeamIds)
+	local Configuration = WG.Chobby.Configuration
+	if Configuration.debugMode then
+		Spring.Echo("ReplayHandler: ReadReplayInfoDone called for", path)
+		Spring.Echo("ReplayHandler: Engine:", engine, "Game:", game, "Map:", map, "Time:", time)
+	end
 	if not replayListWindow then
+		if Configuration.debugMode then
+			Spring.Echo("ReplayHandler: replayListWindow is nil, cannot add replay")
+		end
 		return
 	end
 
+	if Configuration.debugMode then
+		Spring.Echo("ReplayHandler: Calling replayListWindow.AddReplay")
+	end
 	replayListWindow.AddReplay(path, engine, game, map, players, time, winningAllyTeamIds)
 end
 

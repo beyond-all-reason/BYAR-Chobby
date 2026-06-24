@@ -250,6 +250,9 @@ function widget:ActivateMenu()
 	if interfaceRoot then
 		interfaceRoot.SetLobbyButtonEnabled(true)
 	end
+
+	-- Re-enforce minimum nano-particle budget on return-from-game. (fix for older game versions)
+	Spring.SetConfigInt("MaxNanoParticles", math.max(Spring.GetConfigInt("MaxNanoParticles", 0), 5000))
 end
 
 function widget:ActivateGame()
@@ -257,4 +260,7 @@ end
 
 function widget:Initialize()
 	WG.IngameInterface = externalFunctions
+
+	-- Re-enforce minimum nano-particle budget on return-from-game. (fix for older game versions)
+	Spring.SetConfigInt("MaxNanoParticles", math.max(Spring.GetConfigInt("MaxNanoParticles", 0), 5000))
 end

@@ -17,42 +17,12 @@ local welcomePanelItems = {
         Text = "Welcome back Commander. We hope you are ready for epic Singleplayer and Multiplayer battles. Check out our Discord and join the community!\n",
         NoPulse = true,
     },
-
     {
-        Header = "The Lore is here!",
-        Text = "Time to dive in, Commanders.  \n" .. " \n" .. "Step Beyond Human Reach, uncover the stories of Armada and Cortex, and navigate the vastness of BAR universe.",
-        Image = "LuaMenu/images/welcomepanel/lore.png",
-        Url = "https://www.beyondallreason.info/news/the-lore-is-here",
+        Header = "BAR & Hooded Horse: A New Chapter",
+        Text = "After almost seven years of development, BAR is going professional and teaming up with Hooded Horse, one of the most respected publishers in the strategy space, to bring the game to a full Steam release." .. " \n" .. " \n" .. "Multiplayer stays free forever on the website. A paid Premium Edition on Steam will add a single-player campaign, with the same multiplayer playable across both versions." .. " \n" .. " \n" .. "Read the full announcement for all the details.",
+        Image = "LuaMenu/images/welcomepanel/hoodedhorse.png",
+        Url = "https://www.beyondallreason.info/news/beyond-all-reason-and-hooded-horse",
         UrlText = "Read the Announcement",
-    },
-
-    { -- Please don't delete this, just comment it out, it's getting reused.
-        Header = "Creative Call To Arms - April Fools Edition",
-        Text = "Are you a music producer? Or do you know someone who is and deserves a bit of recognition? " .. " \n" .. " \n" .. "Create a remix or cover of any Beyond All Reason track, or even combine multiple BAR themes into a single piece. The best entries may end up featured in the game, giving aspiring artists a chance to have their music heard by thousands of players!",
-        Image = "LuaMenu/images/welcomepanel/BAR OST.png",
-        Url = "https://discord.com/channels/549281623154229250/697141979892416512/1481301729252347995",
-        UrlText = "Announcement On Discord",
-        Time = "2026-03-29T23:00:00"
-    },
-
-    {
-        Header = "New Map: Argent Strata",
-        Text =  " \n" .. "A frozen island with icey plateaus and multiple pathways to the center. 1v1 SW vs NE." .. " \n" .. " \n" .. "Made by Moose and Beherith.",
-        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/Argent_Strata_1.0.png",
-    },
-
-    {
-        Header = "New Map: Houses of Tripolis",
-        Text =  " \n" .. "Did you build your house out of straw or metal?" .. " \n" .. " \n" .. "Made by RebelNode and TradeMark.",
-        Image = "LuaMenu/configs/gameConfig/byar/minimapThumbnail/Houses_of_Tripolis_1.2.png",
-    },
-
-    {
-        Header = "Star BAR on GitHub!",
-        Text = "BAR is built by the community, for the community. One easy way to support us: star our GitHub repository! " .. " \n" .. " \n" .. "It signals the project is alive and helps us access developer programs that give us better tools to build with." .. " \n" .. " \n" .. "(Star button in top right corner of the linked page)" .. " \n" .. " \n",
-        Image = "LuaMenu/images/welcomepanel/github_star.png",
-        Url = "https://github.com/beyond-all-reason/Beyond-All-Reason",
-        UrlText = "Star us on GitHub",
     },
 
     {
@@ -64,10 +34,30 @@ local welcomePanelItems = {
     },
 
     {
-        Header = "Now Available: BAR Guides",
-        Text = "New to Beyond All Reason? Check out these new Guides on Discord written by Zeteo!" .. " \n" .. " \n",
-        Url = "https://discord.com/channels/549281623154229250/1303141562120929320/1303141562120929320",
-        UrlText = "Read the new Guides",
+        Header = "New Map: SailAway",
+        Text = "Islands of forests and wildflowers above the sea. 8v8 N vs S. Made by Moose and IceXuick." .. " \n" .. " \n",
+        Image = "LuaMenu/configs/gameConfig/byar/minimapOverride/SailAway_2.jpg",
+    },
+
+    {
+        Header = "New Map: Vittra",
+        Text = "Close quarters combat over grassy plateaus and cliffs. 1v1 - 2v2 N vs S. Made by Moose and Beherith." .. " \n" .. " \n",
+        Image = "LuaMenu/configs/gameConfig/byar/minimapOverride/Vittra_3.jpg",
+    },
+
+    {
+        Header = "This Month in BAR – April/May 2026",
+        Text = "New visual effects, gameplay changes, and balance updates are here! GL4 visual overhaul brings build particles, death fire, beam lasers, plasma projectiles, missile trails, shield effects, bloom and more!" .. " \n" .. " \n" .. "EasyTax 2.0 overhauls resource sharing. New UI widgets, PiP improvements, ETA timers for reclaim/resurrect, and 4 new music tracks round out the update." .. " \n" .. " \n",
+        Url = "https://www.beyondallreason.info/microblogs/184",
+        UrlText = "Read the devlog",
+    },
+
+    {
+        Header = "The BAR Documentary is Here!",
+        Text = "From community roots to modern RTS ambition, this is the story of Beyond All Reason, featuring the one and only Chris Taylor." .. " \n" .. " \n" .. "Hear from BAR devs as they look back at the project's history, share where it stands today, and talk about where it's heading next. Go behind the scenes, with the journey put into context by the man who started it all." .. " \n" .. " \n" .. "Huge thanks to Fortress Sydney and the Source Code crew for making this possible!" .. " \n" .. " \n",
+        Image = "LuaMenu/images/welcomepanel/sourcecode_documentary.png",
+        Url = "https://www.youtube.com/watch?v=5F36yViPz7w",
+        UrlText = "Watch the Documentary",
     },
 
     --{
@@ -76,14 +66,7 @@ local welcomePanelItems = {
     --    UrlText = "BAR #engine channel on Discord"
     --},
 
-    {
-        Header = "Steam release roadmap",
-        Url = "https://www.beyondallreason.info/development/steam-release",
-        Text = "We've published our Steam Release roadmap, check it out on the website!",
-        UrlText = "Roadmap Link"
-    },
-
-    --[[
+     --[[
     {
         Header = "New engine release",
         Text = "We've just released a new engine update. Be sure to report any issues to #bugreports on the discord and thank you for bearing with us through any teething problems with it.."

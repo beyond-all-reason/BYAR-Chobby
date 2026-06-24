@@ -6,7 +6,6 @@ local subnameMap = {
 	['SimpleAI'] = "SimpleAI",
 	['SimpleDefenderAI'] = "SimpleDefenderAI",
 	['SimpleConstructorAI'] = "SimpleConstructorAI",
-	--['STAI'] = "STAI",
 }
 
 local function GetAiSimpleName(name)
@@ -15,7 +14,6 @@ end
 
 local simpleAiOrder = {
 	['BARb stable'] = 01,
-	['STAI'] = 02,
 	['SimpleAI'] = 11,
 	['SimpleDefenderAI'] = 13,
 	['SimpleConstructorAI'] = 14,
@@ -29,7 +27,6 @@ local aiTooltip = {
 	['SimpleDefenderAI'] = "An easy AI, mostly defends and doesnt attack much",
 	['SimpleConstructorAI'] = "A simple, passive AI, that builds only constructing units and turrets",
 	['ScavengersAI'] = "This is a PvE game mode, with an increasing difficulty waves of Scavenger AI controlled units attacking the players. Only add 1 per game.",
-	['STAI'] = "A medium to hard difficulty, experimental, non cheating AI.",
 	['NullAI 0.1'] = "A game-testing AI. Literally does nothing.",
 	['BARb stable'] = "The recommended excellent performance, adjustable difficulty, non-cheating AI. Add as many as you wish!",
 	['RaptorsAI'] = "This is a PvE game mode, where hordes of alien creatures attack the players. Only add 1 per game.",

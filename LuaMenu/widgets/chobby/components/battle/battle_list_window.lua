@@ -9,6 +9,9 @@ local myFont2 = WG.Chobby.Configuration:GetFont(2)
 local myFont3 = WG.Chobby.Configuration:GetFont(3)
 local myHintFont = WG.Chobby.Configuration:GetFont(11)
 
+local function ChobbyReady()
+	return WG.Chobby ~= nil and WG.Chobby.Configuration ~= nil
+end
 
 function BattleListWindow:init(parent)
 
@@ -395,13 +398,17 @@ end
 function BattleListWindow:MakeWatchBattle(battleID, battle)
 	local function RejoinBattleFunc()
 		if not VFS.HasArchive(battle.mapName) then
-			WG.Chobby.InformationPopup("Map download required. Wait for the download to complete and try again.")
+			if ChobbyReady() then
+				WG.Chobby.InformationPopup("Map download required. Wait for the download to complete and try again.")
+			end
 			WG.DownloadHandler.MaybeDownloadArchive(battle.mapName, "map", -1)
 			return
 		end
 
 		if not VFS.HasArchive(battle.gameName) then
-			WG.Chobby.InformationPopup("Game update required. Wait for the download to complete or restart the game.")
+			if ChobbyReady() then
+				WG.Chobby.InformationPopup("Game update required. Wait for the download to complete or restart the game.")
+			end
 			WG.DownloadHandler.MaybeDownloadArchive(battle.gameName, "game", -1)
 			return
 		end
@@ -421,7 +428,7 @@ function BattleListWindow:MakeWatchBattle(battleID, battle)
 			function()
 				if Spring.GetGameName() == "" then
 					RejoinBattleFunc()
-				else
+				elseif ChobbyReady() then
 					WG.Chobby.ConfirmationPopup(RejoinBattleFunc, "Are you sure you want to leave your current game to watch/rejoin this one?", nil, 315, 200)
 				end
 			end
@@ -536,13 +543,15 @@ function BattleListWindow:MakeJoinBattle(battleID, battle)
 				if myBattleID then
 					if battleID == myBattleID then
 						-- Do not rejoin current battle
-						local battleTab = WG.Chobby.interfaceRoot.GetBattleStatusWindowHandler()
-						battleTab.OpenTabByName("myBattle")
+						if ChobbyReady() then
+							local battleTab = WG.Chobby.interfaceRoot.GetBattleStatusWindowHandler()
+							battleTab.OpenTabByName("myBattle")
+						end
 						return
 					end
 					if not Configuration.confirmation_battleFromBattle then
 						local myBattle = lobby:GetBattle(myBattleID)
-						if not WG.Chobby.Configuration.showMatchMakerBattles and myBattle and not myBattle.isMatchMaker then
+						if ChobbyReady() and not WG.Chobby.Configuration.showMatchMakerBattles and myBattle and not myBattle.isMatchMaker then
 							local function Success()
 								self:JoinBattle(battle)
 							end
@@ -1804,7 +1813,9 @@ function BattleListWindow:JoinBattle(battle, _, _, joinAsPlayer)
 
 		local function onJoinBattleFailed(listener, reason)
 			removeListeners()
-			WG.Chobby.InformationPopup("Unable to join battle: " .. (reason or ""))
+			if ChobbyReady() then
+				WG.Chobby.InformationPopup("Unable to join battle: " .. (reason or ""))
+			end
 		end
 
 		local function joinBattle(listener)

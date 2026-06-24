@@ -1419,6 +1419,14 @@ local function InitializeControls()
 								end
 								return rankA < rankB
 							end)
+						elseif i == 3 then
+							table.sort(state.optionOrder, function(a, b)
+								local na = tonumber(a:match("%d+")) or 0
+								local nb = tonumber(b:match("%d+")) or 0
+								return na < nb
+							end)
+						else
+							table.sort(state.optionOrder)
 						end
 					end
 				end

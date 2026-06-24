@@ -27,7 +27,6 @@ if randomSkirmishEnabled == 1 and simpleSkirmishEnabled == 0 then
 			local friendlyAI = {}
 			for i = 1,teamSizes do
 				local randomAIList = {"SimpleAI", "BARb"}
-				--local randomAIList = {"BARb", "STAI",}
 				local randomAI = randomAIList[math.random(1,#randomAIList)]
 				if i == 1 then
 					enemyAI[#enemyAI+1] = {shortName = "SimpleAI"}

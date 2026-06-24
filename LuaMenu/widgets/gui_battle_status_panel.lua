@@ -21,6 +21,10 @@ local IMG_STATUS_PLAYER      = LUA_DIRNAME .. "images/playing.png"
 local PLAYER_PREFIX_BIG = "Players: "
 local PLAYER_PREFIX_SMALL = ""
 
+local function ChobbyReady()
+	return WG.Chobby ~= nil and WG.Chobby.interfaceRoot ~= nil
+end
+
 ------------------------------------------------------------------
 ------------------------------------------------------------------
 -- Info Handlers
@@ -271,7 +275,13 @@ end
 -- Initialization
 
 local function InitializeControls(parentControl)
-	local statusWindowHandler = WG.Chobby.interfaceRoot.GetBattleStatusWindowHandler()
+	if not ChobbyReady() then
+		return
+	end
+	local statusWindowHandler = WG.Chobby and WG.Chobby.interfaceRoot and WG.Chobby.interfaceRoot.GetBattleStatusWindowHandler()
+	if not statusWindowHandler then
+		return
+	end
 
 	local infoHolder = Panel:New {
 		x = 68,
@@ -417,14 +427,26 @@ function BattleStatusPanel.GetControl(fontSizeScale)
 end
 
 function BattleStatusPanel.AddBattleTab(control)
-	local interfaceRoot = WG.Chobby.interfaceRoot
+	if not ChobbyReady() then
+		return
+	end
+	local interfaceRoot = WG.Chobby and WG.Chobby.interfaceRoot
+	if not interfaceRoot then
+		return
+	end
 	local tabPanel = interfaceRoot.GetBattleStatusWindowHandler()
 	tabPanel.AddTab("myBattle", "My Battle", control, false, 3, true)
 	interfaceRoot.SetBattleTabHolderVisible(true, 10)
 end
 
 function BattleStatusPanel.RemoveBattleTab()
-	local interfaceRoot = WG.Chobby.interfaceRoot
+	if not ChobbyReady() then
+		return
+	end
+	local interfaceRoot = WG.Chobby and WG.Chobby.interfaceRoot
+	if not interfaceRoot then
+		return
+	end
 	local tabPanel = interfaceRoot.GetBattleStatusWindowHandler()
 	interfaceRoot.SetBattleTabHolderVisible(false)
 	tabPanel.RemoveTab("myBattle", true)

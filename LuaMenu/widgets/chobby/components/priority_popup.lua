@@ -29,7 +29,7 @@ function PriorityPopup:init(mainWindow, cancelFunction, acceptFunction, parentCo
 		bottom = 0,
 		padding = {0,0,0,0},
 		margin = {0,0,0,0},
-		parent = parentControlOverride or WG.Chobby.lobbyInterfaceHolder,
+		parent = parentControlOverride or (WG.Chobby and WG.Chobby.lobbyInterfaceHolder) or screen0,
 		greedyHitTest = true,
 		Draw = function()
 			if not startTime then

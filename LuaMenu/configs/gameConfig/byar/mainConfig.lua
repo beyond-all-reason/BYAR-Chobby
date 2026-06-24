@@ -75,7 +75,7 @@ end
 local externalFuncAndData = {
 	dirName                = "byar",
 	name                   = "Beyond All Reason",
-	--_defaultGameArchiveName = "??", fill this in.
+	_defaultGameArchiveName = "Beyond All Reason $VERSION", -- Fallback when rapid is unavailable (e.g. dev .sdd install).
 	_defaultGameRapidTag   = "byar:test", -- Do not read directly
 	--editor                 = "rapid://sb-byar:test",
 	--editor                 = "SpringBoard BYAR $VERSION",
