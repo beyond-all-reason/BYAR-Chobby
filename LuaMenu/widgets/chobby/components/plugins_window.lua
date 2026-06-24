@@ -213,6 +213,24 @@ local function getInstalledVersion(widgetId)
     return nil
 end
 
+local function renameLuaFilesRecursive(dirPath)
+    -- Ensure trailing slash for VFS calls
+    local dir = dirPath
+    if string.sub(dir, -1) ~= "/" then dir = dir .. "/" end
+    local luaFiles = VFS.DirList(dir, "*.lua")
+    if luaFiles then
+        for _, luaFile in ipairs(luaFiles) do
+            os.rename(luaFile, luaFile .. ".backup")
+        end
+    end
+    local subDirs = VFS.SubDirs(dir)
+    if subDirs then
+        for _, subDir in ipairs(subDirs) do
+            renameLuaFilesRecursive(subDir)
+        end
+    end
+end
+
 local function backupDirectory(dirPath)
     -- Strip trailing slash for a clean rename
     local cleanPath = dirPath
@@ -224,24 +242,8 @@ local function backupDirectory(dirPath)
     local ok, err = os.rename(cleanPath, backupPath)
     if ok then
         Spring.Echo("[PluginsWindow] Backed up directory: " .. cleanPath .. " -> " .. backupPath)
-        -- Rename all .lua files to .lua.backup so the engine won't load them
-        local luaFiles = VFS.DirList(backupPath .. "/", "*.lua")
-        if luaFiles then
-            for _, luaFile in ipairs(luaFiles) do
-                os.rename(luaFile, luaFile .. ".backup")
-            end
-        end
-        local subDirs = VFS.SubDirs(backupPath .. "/")
-        if subDirs then
-            for _, subDir in ipairs(subDirs) do
-                local subLuaFiles = VFS.DirList(subDir, "*.lua")
-                if subLuaFiles then
-                    for _, luaFile in ipairs(subLuaFiles) do
-                        os.rename(luaFile, luaFile .. ".backup")
-                    end
-                end
-            end
-        end
+        -- Recursively rename all .lua files to .lua.backup so the engine won't load them
+        renameLuaFilesRecursive(backupPath)
     else
         Spring.Echo("[PluginsWindow] Failed to backup directory: " .. tostring(cleanPath) .. " - " .. tostring(err))
     end
@@ -418,7 +420,7 @@ local function openDetail(widget)
 
     local coverPath = ensureCover(widget)
     local readmePath = ensureReadme(widget)
-    local readmeContent = VFS.LoadFile(readmePath) or "README is loading or unavailable."
+    local readmeContent = VFS.LoadFile(readmePath) or i18n("plugins_readme_loading")
     local widgetId = widget.id or widget.name or "unknown"
     detailWidgetId = widgetId
 
@@ -441,7 +443,7 @@ local function openDetail(widget)
 
     -- Title
     Label:New {
-        caption = widget.name or "Unknown Widget",
+        caption = widget.name or i18n("plugins_unknown_widget"),
         x = 15,
         y = 8,
         right = 100,
@@ -467,7 +469,7 @@ local function openDetail(widget)
     -- Metadata bar
     local metaY = 40
     Label:New {
-        caption = "by " .. (widget.author or "Unknown"),
+        caption = i18n("plugins_by_author", { author = widget.author or i18n("plugins_unknown_author") }),
         x = 15,
         y = metaY,
         width = 300,
@@ -492,7 +494,7 @@ local function openDetail(widget)
     if widget.tags and #widget.tags > 0 then
         local tagStr = table.concat(widget.tags, ", ")
         Label:New {
-            caption = "Tags: " .. tagStr,
+            caption = i18n("plugins_tags", { tags = tagStr }),
             x = 15,
             y = metaY + 22,
             right = 15,
@@ -541,7 +543,7 @@ local function openDetail(widget)
             keepAspect = true,
             checkFileExists = true,
             file = coverPath,
-            fallbackFile = IMG_FALLBACK,
+            fallbackFile = IMG_FALLBACK_LARGE,
             parent = detailWindow,
         }
         detailCoverImage = img
@@ -550,7 +552,7 @@ local function openDetail(widget)
     local btnY = contentY + 10
 
     Button:New {
-        caption = isWidgetInstalled(widgetId) and "Installed" or (installingWidgets[widgetId] and "Installing..." or "Install"),
+        caption = isWidgetInstalled(widgetId) and i18n("plugins_installed") or (installingWidgets[widgetId] and i18n("plugins_installing") or i18n("plugins_install")),
         x = rightX,
         bottom = 120,
         right = 10,
@@ -569,7 +571,7 @@ local function openDetail(widget)
 
     if widget.homepage then
         Button:New {
-            caption = "Homepage",
+            caption = i18n("plugins_homepage"),
             x = rightX,
             bottom = 65,
             right = 10,
@@ -611,7 +613,7 @@ local function createWidgetCard(widget, itemWidth)
         height = 100,
         keepAspect = true,
         checkFileExists = true,
-        fallbackFile = IMG_FALLBACK,
+        fallbackFile = IMG_FALLBACK_MEDIUM,
     }
     if id then
         cardImageRefs[id] = thumbImage
@@ -628,7 +630,7 @@ local function createWidgetCard(widget, itemWidth)
             thumbImage,
             -- Widget name
             Label:New {
-                caption = widget.name or "Unnamed Widget",
+                caption = widget.name or i18n("plugins_unnamed_widget"),
                 x = 8,
                 y = 105,
                 right = 8,
@@ -639,7 +641,7 @@ local function createWidgetCard(widget, itemWidth)
             },
             -- Author
             Label:New {
-                caption = "by " .. (widget.author or "Unknown"),
+                caption = i18n("plugins_by_author", { author = widget.author or i18n("plugins_unknown_author") }),
                 x = 8,
                 y = 135,
                 right = 8,
@@ -660,7 +662,7 @@ local function createWidgetCard(widget, itemWidth)
             },
             -- Install button
             Button:New {
-                caption = isWidgetInstalled(id) and "Installed" or (installingWidgets[id] and "Installing..." or "Install"),
+                caption = isWidgetInstalled(id) and i18n("plugins_installed") or (installingWidgets[id] and i18n("plugins_installing") or i18n("plugins_install")),
                 right = 85,
                 bottom = 4,
                 width = 75,
@@ -679,7 +681,7 @@ local function createWidgetCard(widget, itemWidth)
             },
             -- Details button
             Button:New {
-                caption = "Details",
+                caption = i18n("plugins_details"),
                 right = 4,
                 bottom = 4,
                 width = 75,
@@ -712,7 +714,7 @@ local function refreshGrid()
 
     if loadState == STATE_LOADING then
         if statusLabel then
-            statusLabel:SetCaption("Loading widgets...")
+            statusLabel:SetCaption(i18n("plugins_loading"))
             statusLabel:SetVisibility(true)
         end
         if pageLabel then pageLabel:SetCaption("") end
@@ -721,7 +723,7 @@ local function refreshGrid()
 
     if loadState == STATE_ERROR then
         if statusLabel then
-            statusLabel:SetCaption("Failed to load widgets: " .. (loadError or "Unknown error"))
+            statusLabel:SetCaption(i18n("plugins_load_failed", { error = loadError or i18n("plugins_unknown_error") }))
             statusLabel:SetVisibility(true)
         end
         if pageLabel then pageLabel:SetCaption("") end
@@ -736,9 +738,9 @@ local function refreshGrid()
     if #filtered == 0 then
         if statusLabel then
             if currentFilter ~= "" then
-                statusLabel:SetCaption("No widgets match your search.")
+                statusLabel:SetCaption(i18n("plugins_no_match"))
             else
-                statusLabel:SetCaption("No widgets available.")
+                statusLabel:SetCaption(i18n("plugins_none_available"))
             end
             statusLabel:SetVisibility(true)
         end
@@ -785,7 +787,7 @@ local function refreshGrid()
 
     -- Update pagination label
     if pageLabel then
-        pageLabel:SetCaption("Page " .. currentPage .. " of " .. totalPages .. "  (" .. #filtered .. " widgets)")
+        pageLabel:SetCaption(i18n("plugins_page_status", { page = currentPage, total = totalPages, count = #filtered }))
     end
 
     -- Prefetch thumbnails for the next page at lower priority
@@ -822,7 +824,7 @@ local function parseManifest(rawJson)
 
     if not ok or type(data) ~= "table" then
         loadState = STATE_ERROR
-        loadError = "Invalid manifest format"
+        loadError = i18n("plugins_error_invalid_manifest")
         Spring.Echo("[PluginsWindow] Failed to parse manifest JSON: " .. tostring(data))
         return
     end
@@ -867,7 +869,7 @@ local function onDownloadFinished(listener, downloadID, downloadName, downloadFi
                 parseManifest(content)
             else
                 loadState = STATE_ERROR
-                loadError = "Could not read downloaded manifest file"
+                loadError = i18n("plugins_error_read_manifest")
                 Spring.Echo("[PluginsWindow] Could not open manifest file at: " .. MANIFEST_DEST)
             end
         end
@@ -958,7 +960,7 @@ end
 local function onDownloadFailed(listener, downloadID, errorID, downloadName, downloadFileType)
     if downloadName == MANIFEST_NAME then
         loadState = STATE_ERROR
-        loadError = "Network error (code " .. tostring(errorID) .. ")"
+        loadError = i18n("plugins_error_network", { code = tostring(errorID) })
         Spring.Echo("[PluginsWindow] Manifest download failed: " .. tostring(errorID))
         refreshGrid()
         return
@@ -1014,7 +1016,7 @@ local function fetchManifest()
         })
     else
         loadState = STATE_ERROR
-        loadError = "Download handler not available"
+        loadError = i18n("plugins_error_no_handler")
         Spring.Echo("[PluginsWindow] DownloadHandler not available")
     end
 end
@@ -1121,7 +1123,7 @@ function PluginsWindow:init(parent)
 
     Label:New {
         objectOverrideFont = WG.Chobby.Configuration:GetFont(4),
-        caption = "Widgets",
+        caption = i18n("plugins_title"),
         x = 0,
         y = row1Y,
         width = 110,
@@ -1131,7 +1133,7 @@ function PluginsWindow:init(parent)
     }
 
     Label:New {
-        caption = "Community widgets. BAR is not responsible for their content.",
+        caption = i18n("plugins_disclaimer"),
         x = 120,
         right = 0,
         y = row1Y,
@@ -1150,8 +1152,8 @@ function PluginsWindow:init(parent)
     local btnFont = 12
     local btnLeft = 0
     Button:New {
-        caption = "Widgets Folder",
-        tooltip = "Open the local folder where installed widgets are stored (opens in file explorer)",
+        caption = i18n("plugins_folder"),
+        tooltip = i18n("plugins_folder_tooltip"),
         x = btnLeft,
         y = btnY,
         width = btnW,
@@ -1161,8 +1163,8 @@ function PluginsWindow:init(parent)
         parent = self.window,
     }
     Button:New {
-        caption = "Contribute",
-        tooltip = "Learn how to submit your own widget to the community repository (opens in browser)",
+        caption = i18n("plugins_contribute"),
+        tooltip = i18n("plugins_contribute_tooltip"),
         x = btnLeft + btnW + btnGap,
         y = btnY,
         width = btnW - 10,
@@ -1172,8 +1174,8 @@ function PluginsWindow:init(parent)
         parent = self.window,
     }
     Button:New {
-        caption = "Refresh",
-        tooltip = "Re-download the widget list from the community repository",
+        caption = i18n("plugins_refresh"),
+        tooltip = i18n("plugins_refresh_tooltip"),
         x = btnLeft + 2 * btnW - 10 + 2 * btnGap,
         y = btnY,
         width = btnW - 20,
@@ -1189,7 +1191,7 @@ function PluginsWindow:init(parent)
         y = btnY,
         width = 180,
         height = btnH,
-        hint = "Search widgets...",
+        hint = i18n("plugins_search_hint"),
         objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
         objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
         OnKeyPress = {
@@ -1240,7 +1242,7 @@ function PluginsWindow:init(parent)
     }
 
     pageLabel = Label:New {
-        caption = "Loading...",
+        caption = i18n("plugins_loading_short"),
         x = (pagBtnW + pagBtnGap) * 2,
         right = (pagBtnW + pagBtnGap) * 2,
         y = paginationY,
@@ -1281,7 +1283,7 @@ function PluginsWindow:init(parent)
     local contentY = paginationY + PAGINATION_HEIGHT + 5
 
     statusLabel = Label:New {
-        caption = "Loading widgets...",
+        caption = i18n("plugins_loading"),
         x = 0,
         y = contentY + 40,
         right = 0,
@@ -1343,6 +1345,10 @@ end
 
 function PluginsWindow:cleanup()
     closeDetail()
+    if WG.DownloadHandler and WG.DownloadHandler.RemoveListener then
+        WG.DownloadHandler.RemoveListener("DownloadFinished", onDownloadFinished)
+        WG.DownloadHandler.RemoveListener("DownloadFailed", onDownloadFailed)
+    end
     mainGrid = nil
     scrollPanel = nil
     pageLabel = nil

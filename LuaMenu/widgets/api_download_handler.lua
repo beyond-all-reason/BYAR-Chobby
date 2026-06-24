@@ -319,7 +319,7 @@ function externalFunctions.QueueDownload(name, fileType, priority, retryCount, r
 		hidden = (resource and resource.hidden) and true or false,
 	}
 	requestUpdate = true
-	if not downloadQueue[#downloadQueue].hidden then
+	if not (resource and resource.hidden) then
 		CallListeners("DownloadQueued", downloadCount, name, fileType, resource)
 	end
 end
