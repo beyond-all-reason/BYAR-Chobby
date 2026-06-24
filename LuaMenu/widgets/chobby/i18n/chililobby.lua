@@ -47,6 +47,7 @@ return {
 		plugins_none_available = "No widgets available.",
 		plugins_page_status = "Page %{page} of %{total}  (%{count} widgets)",
 		plugins_install = "Install",
+		plugins_install_disclaimer = "This is community-made custom code. The BAR organisation is not responsible for this widget or its content. Do you want to install it?",
 		plugins_installing = "Installing...",
 		plugins_installed = "Installed",
 		plugins_details = "Details",

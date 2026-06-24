@@ -190,6 +190,35 @@ local function installWidget(widget)
     end
 end
 
+-- Configuration key for the "do not show again" preference on the install disclaimer
+local INSTALL_DISCLAIMER_PREF_KEY = "pluginsInstallDisclaimerAccepted"
+
+-- Show the custom-code disclaimer (unless the user opted out) before installing.
+local function confirmAndInstall(widget, afterInstall)
+    local function doInstall()
+        installWidget(widget)
+        if afterInstall then afterInstall() end
+    end
+
+    local Configuration = WG.Chobby and WG.Chobby.Configuration
+    if Configuration and Configuration[INSTALL_DISCLAIMER_PREF_KEY] then
+        -- User previously chose not to be asked again
+        doInstall()
+    elseif WG.Chobby and WG.Chobby.ConfirmationPopup then
+        WG.Chobby.ConfirmationPopup(
+            doInstall,
+            i18n("plugins_install_disclaimer"),
+            INSTALL_DISCLAIMER_PREF_KEY,
+            440,
+            280,
+            "plugins_install",
+            "cancel"
+        )
+    else
+        doInstall()
+    end
+end
+
 --------------------------------------------------------------------------------
 -- Upgrade helpers
 --------------------------------------------------------------------------------
@@ -562,7 +591,7 @@ local function openDetail(widget)
         OnClick = {
             function()
                 if not isWidgetInstalled(widgetId) and not installingWidgets[widgetId] then
-                    installWidget(widget)
+                    confirmAndInstall(widget)
                 end
             end
         },
@@ -672,9 +701,10 @@ local function createWidgetCard(widget, itemWidth)
                 OnClick = {
                     function()
                         if not isWidgetInstalled(id) and not installingWidgets[id] then
-                            installWidget(widget)
-                            widgetPanelCache[id] = nil
-                            scheduleRefresh()
+                            confirmAndInstall(widget, function()
+                                widgetPanelCache[id] = nil
+                                scheduleRefresh()
+                            end)
                         end
                     end
                 },
