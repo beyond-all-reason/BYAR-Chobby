@@ -328,6 +328,35 @@ local function encodeStartboxesSetModoption(polygonConfig)
   return Spring.Utilities.Base64Encode(compressed)
 end
 
+-- Builds the mapmetadata_startbox_override modoption: the player's custom
+-- rectangles as a single arrangement the game prefers over the server-set
+-- mapmetadata_startboxes_set when its box count matches the team count. Boxes
+-- are 0-200 rects (two opposite corners). '=' padding is stripped so the value
+-- matches the base64url SPADS allows for this modoption.
+local function encodeStartboxOverrideModoption(boxes)
+  if not boxes then return nil end
+
+  local startboxes = {}
+  local i = 1
+  while boxes[i] do
+    local b = boxes[i]
+    startboxes[i] = { poly = {
+      { x = math.floor(b.left + 0.5),  y = math.floor(b.top + 0.5) },
+      { x = math.floor(b.right + 0.5), y = math.floor(b.bottom + 0.5) },
+    } }
+    i = i + 1
+  end
+  if #startboxes == 0 then return nil end
+
+  local ok, encoded = pcall(Json.encode, { startboxes = startboxes })
+  if not ok or not encoded then return nil end
+
+  local compressed = VFS.ZlibCompress(encoded)
+  if not compressed then return nil end
+
+  return (Spring.Utilities.Base64Encode(compressed):gsub("=+$", ""))
+end
+
 -- how about some more helpers?
 local function initCustomBox(mapName)
     singleplayerboxes = {}
@@ -372,6 +401,7 @@ return {
   makeAllyTeamBox = makeAllyTeamBox,
   makeAllyTeamBoxFromPolygon = makeAllyTeamBoxFromPolygon,
   encodeStartboxesSetModoption = encodeStartboxesSetModoption,
+  encodeStartboxOverrideModoption = encodeStartboxOverrideModoption,
   loadPolygonStartboxes = loadPolygonStartboxes,
   getBox = getBox,
   clearBoxes = clearBoxes,

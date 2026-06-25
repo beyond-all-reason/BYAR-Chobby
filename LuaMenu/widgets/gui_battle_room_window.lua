@@ -445,6 +445,12 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 
 				if selected == "Default Boxes" then
 					local function defaultBoxes()
+						-- Leaving custom boxes: clear the override so the game uses the default
+						-- set. Flag first so the incoming default-box echoes don't re-send it.
+						defaultStartboxMode = true
+						if battleLobby.name ~= "singleplayer" then
+							battleLobby:SetModOptions({ mapmetadata_startbox_override = "" })
+						end
 						if battleLobby.name == "singleplayer" then
 							battleLobby:SelectMap(battle.mapName)
 						elseif battle.nbTeams and tonumber(battle.nbTeams) > 1 then --Minimum 2 teams in multiplayer until PvE boxes are supported
@@ -1808,6 +1814,18 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 
 		-- Capture happens before the early return so script export works in either mode.
 		startRectValues[allyNo+1]={["left"]=left, ["top"]=top, ["right"]=right, ["bottom"]=bottom}
+
+		-- Online + custom boxes: mirror them into the override modoption so the game
+		-- enforces these exact boxes over the default set, re-sent as each box echoes back.
+		if battleLobby.name ~= "singleplayer" and not defaultStartboxMode then
+			local mapStartBoxes = WG.Chobby.Configuration.gameConfig and WG.Chobby.Configuration.gameConfig.mapStartBoxes
+			if mapStartBoxes and mapStartBoxes.encodeStartboxOverrideModoption then
+				local encoded = mapStartBoxes.encodeStartboxOverrideModoption(startRectValues)
+				if encoded then
+					battleLobby:SetModOptions({ mapmetadata_startbox_override = encoded })
+				end
+			end
+		end
 
 		-- SPADS-sent AABBs in default mode are bounding boxes of the polygons we're already drawing.
 		if polygonStartboxesActive and defaultStartboxMode then
@@ -4511,10 +4529,15 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		local myUserName = battleLobby:GetMyUserName()
 		local iAmMentioned = (string.find(message,myUserName,nil,true) ~= nil)
 
+		-- Suppress SPADS' "Battle setting changed (mapmetadata_startbox_override=...)"
+		-- announcement; the value is an opaque base64 blob with no meaning in chat.
+		if string.match(message, "%(mapmetadata_startbox_override=") then return true end
+
 		-- SPADS' confirmation that defaults were reloaded; reactivate the polygon overlay
 		-- so the rectangle draws arriving next get suppressed by AddStartRect.
 		if string.match(message, "Loaded boxes of map .%w+. ") then
 			defaultStartboxMode = true
+			battleLobby:SetModOptions({ mapmetadata_startbox_override = "" })
 			local Configuration = WG.Chobby.Configuration
 			if Configuration.gameConfig and
 					Configuration.gameConfig.useDefaultStartBoxes and
@@ -4567,9 +4590,12 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		local mine = userName == battleLobby:GetMyUserName() 
 
 		if string.match(message, "^!split ") or string.match(message, "^!addbox ") then
-			lastUserToChangeStartBoxes = userName 
+			lastUserToChangeStartBoxes = userName
 			if not mine then return true end
 		end
+
+		-- The startbox override is an opaque base64 blob; never show its !bSet in chat.
+		if string.match(message, "^!b[Ss]et mapmetadata_startbox_override") then return true end
 
 		if mine then return false end -- alway show own messages from here:
 
