@@ -27,7 +27,7 @@ PluginsWindow = LCS.class{}
 -- Constants
 --------------------------------------------------------------------------------
 
-local CDN_BASE         = "https://bar-workshop.zen-ben.com/bar-workshop"
+local CDN_BASE         = "https://widget-hub.beyondallreason.dev"
 local MANIFEST_URL     = CDN_BASE .. "/manifests.json"
 local MANIFEST_DEST    = "LuaUI/Widgets/manifests.json"
 local MANIFEST_NAME    = "plugin_manifest"
