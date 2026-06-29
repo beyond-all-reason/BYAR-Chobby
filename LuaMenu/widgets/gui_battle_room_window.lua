@@ -3350,11 +3350,43 @@ local function InitializeSetupPage(subPanel, screenHeight, pageConfig, nextPage,
 			return {}
 		end
 
+		local simpleSkirmishImageConfig = {
+			gameType = {
+				baseDir = LUA_DIRNAME .. "images/",
+				images = {
+					"startboxsplit_c1.png",
+					"startboxsplit_c.png",
+					"startboxsplit_3v3.png",
+					"gametype_scavengers.png",
+					"gametype_raptors.png"
+				}
+			},
+			difficulty = {
+				baseDir = LUA_DIRNAME .. "images/ranks/",
+				images = {
+					"1.png",
+					"2.png",
+					"3.png",
+					"6.png",
+					"8.png"
+				}
+			},
+			faction = {
+				baseDir = LUA_DIRNAME .. "configs/gameConfig/byar/sidepics/",
+				images = {
+					"armada.png",
+					"cortex.png",
+					"random.png"
+				}
+			}
+		}
+
 		for i = 1, #options do
 			local x, y, right, height, caption, tooltip
 			local mapImageFile, needDownload = Configuration:GetMinimapImage(options[i])
 			local haveMap = VFS.HasArchive(options[i])
 			local mapButtonCaption = nil
+			local iconWidth = buttonHeight
 			if pageConfig.minimap then
 				WG.DownloadHandler.MaybeDownloadArchive(options[i], "map", -1)
 				if i%2 == 1 then
@@ -3364,8 +3396,13 @@ local function InitializeSetupPage(subPanel, screenHeight, pageConfig, nextPage,
 				end
 				caption = ""
 			else
-				x, y, right, height = "36%", buttonHeight - 4 + i*buttonScale, "36%", buttonHeight
-				caption = options[i]
+				if simpleSkirmishImageConfig[pageConfig.name] then
+					x, y, right, height = "36%", buttonHeight - 4 + i*buttonScale, "36%", buttonHeight
+					caption = "      " .. options[i]  -- Add spacing for icon
+				else
+					x, y, right, height = "36%", buttonHeight - 4 + i*buttonScale, "36%", buttonHeight
+					caption = options[i]
+				end
 			end
 			if not haveMap then
 				mapButtonCaption = i18n("click_to_download_map")
@@ -3443,22 +3480,36 @@ local function InitializeSetupPage(subPanel, screenHeight, pageConfig, nextPage,
 					checkFileExists = needDownload,
 					parent = buttons[i],
 				}
+			elseif simpleSkirmishImageConfig[pageConfig.name] and simpleSkirmishImageConfig[pageConfig.name].images[i] then
+				local iconFile = simpleSkirmishImageConfig[pageConfig.name].baseDir .. simpleSkirmishImageConfig[pageConfig.name].images[i]
+				local iconImage = Image:New {
+					x = 4,
+					y = 2,
+					width = iconWidth - 16,
+					height = iconWidth - 24,
+					keepAspect = true,
+					file = iconFile,
+					fallbackFile = nil,
+					checkFileExists = false,
+					parent = buttons[i],
+				}
+			end
+
+			local selectedIndex = 1
+			if pageConfig.name == "faction" then
+				local lastFaction = WG.Chobby.Configuration.lastFactionChoice or 0
+				selectedIndex = lastFaction + 1
+			elseif pageConfig.name ~= "map" then
+				local storedChoice = Spring.GetConfigInt("skirmish_" .. pageConfig.name .. "_choice", 0)
+				selectedIndex = (storedChoice > 0 and storedChoice <= #options) and storedChoice or 1
 			else
-				local selectedIndex = 1
-
-				if pageConfig.name == "faction" then
-					local lastFaction = WG.Chobby.Configuration.lastFactionChoice or 0
-					selectedIndex = lastFaction + 1
-				else
-					local storedChoice = Spring.GetConfigInt("skirmish_" .. pageConfig.name .. "_choice", 0)
-					selectedIndex = (storedChoice > 0 and storedChoice <= #options) and storedChoice or 1
-				end
-
-				if i == selectedIndex then
-					ButtonUtilities.SetButtonSelected(buttons[i])
-					selectedOptions[pageConfig.name] = i
-					nextButton:SetVisibility(true)
-				end
+				-- Don't auto pick a map
+				selectedIndex = nil
+			end		
+			if selectedIndex and i == selectedIndex then
+				ButtonUtilities.SetButtonSelected(buttons[i])
+				selectedOptions[pageConfig.name] = i
+				nextButton:SetVisibility(true)
 			end
 		end
 		return buttons
@@ -3707,7 +3758,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		x = (battleLobby.name == "singleplayer") and 20 or 13,
 		y = 7,
 		right = (battleLobby.name ~= "singleplayer") and 180 or nil,
-		width = (battleLobby.name == "singleplayer") and 146 or nil,
+		width = (battleLobby.name == "singleplayer") and 156 or nil,
 		height = 45,
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		caption = "",
