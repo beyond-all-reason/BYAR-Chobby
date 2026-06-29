@@ -150,31 +150,41 @@ end
 
 local SplineLib = VFS.Include(LUA_DIRNAME .. "configs/gameConfig/byar/lib_spline.lua")
 
--- Polygon arrangements come from lobby_maps.validated.json, synced from
--- beyond-all-reason/maps-metadata (gen/lobby_maps.validated.json) the same way
--- savedBoxes.dat is. Until that file is synced into this directory the loader
--- returns nil and the polygon path stays dormant. Rectangle-only maps also
--- return nil so they keep using the savedBoxes.dat path unchanged; only an
--- arrangement that contains a real polygon (a poly with more than two points)
--- activates this path.
-local lobbyMapsFilename = LUA_DIRNAME .. "configs/gameConfig/byar/lobby_maps.validated.json"
-local startboxesSetByMap = nil -- lazily-built springName -> startboxesSet array
+-- Polygon arrangements ride in mapDetails.lua as the encoded
+-- mapmetadata_startboxes_set field (the same blob the game reads), synced from
+-- beyond-all-reason/maps-metadata. Decoded lazily per map; maps without the
+-- field, and rect-only sets that don't pass arrangementHasPolygon, stay on the
+-- savedBoxes.dat path.
+local mapDetails = VFS.Include(LUA_DIRNAME .. "configs/gameConfig/byar/mapDetails.lua")
+local startboxesSetByMap = {} -- springName -> decoded arrangement array, or false when none
 
-local function loadLobbyMaps()
-  if startboxesSetByMap ~= nil then return end
-  startboxesSetByMap = {}
-  local raw = VFS.LoadFile(lobbyMapsFilename)
-  if not raw then return end
-  local ok, parsed = pcall(Json.decode, raw)
-  if not ok or type(parsed) ~= "table" then
-    Spring.Log("mapStartBoxes", LOG.WARNING, "Could not parse", lobbyMapsFilename)
-    return
+local function decodeStartboxesSet(encoded)
+  -- Spring.Utilities.Base64Decode handles url-safe chars; re-add stripped padding.
+  local pad = #encoded % 4
+  if pad > 0 then encoded = encoded .. string.rep("=", 4 - pad) end
+  local bytes = Spring.Utilities.Base64Decode(encoded)
+  local json = bytes and VFS.ZlibDecompress(bytes)
+  if not json then return nil end
+  local ok, parsed = pcall(Json.decode, json)
+  if not ok or type(parsed) ~= "table" then return nil end
+  -- parsed is keyed by team count; flatten to the array the selector expects.
+  local arrangements = {}
+  for _, arrangement in pairs(parsed) do
+    arrangements[#arrangements + 1] = arrangement
   end
-  for _, mapEntry in ipairs(parsed) do
-    if mapEntry.springName and mapEntry.startboxesSet then
-      startboxesSetByMap[mapEntry.springName] = mapEntry.startboxesSet
-    end
+  return arrangements
+end
+
+local function getStartboxesSet(mapName)
+  local cached = startboxesSetByMap[mapName]
+  if cached ~= nil then return cached or nil end
+  local entry = mapDetails[mapName]
+  local arrangements = entry and entry.StartboxesSet and decodeStartboxesSet(entry.StartboxesSet)
+  if entry and entry.StartboxesSet and not arrangements then
+    Spring.Log("mapStartBoxes", LOG.WARNING, "Could not decode StartboxesSet for", mapName)
   end
+  startboxesSetByMap[mapName] = arrangements or false
+  return arrangements or nil
 end
 
 -- Mirrors the game-side resolveArrangement (startbox_utilities.lua) and the
@@ -247,8 +257,7 @@ local function buildPolygonConfig(arrangement)
 end
 
 local function loadPolygonStartboxes(mapName, allyTeamCount)
-  loadLobbyMaps()
-  local startboxesSet = startboxesSetByMap[mapName]
+  local startboxesSet = getStartboxesSet(mapName)
   if not startboxesSet or #startboxesSet == 0 then return nil end
 
   local arrangement = selectArrangementForAllyTeamCount(startboxesSet, allyTeamCount or 2)
