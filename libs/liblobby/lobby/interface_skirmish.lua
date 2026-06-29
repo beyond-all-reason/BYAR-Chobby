@@ -339,6 +339,9 @@ function InterfaceSkirmish:_StartScript(gameName, mapName, playerName, friendLis
 	script.modoptions["date_year"] = os.date("%Y")
 	script.modoptions["date_hour"] = os.date("%H")
 
+	-- script.modoptions aliases self.modoptions and persists across launches, so a set
+	-- from a previously launched polygon map would leak into this one; clear before re-adding.
+	script.modoptions["mapmetadata_startboxes_set"] = nil
 	if polygonConfig and Configuration.gameConfig.mapStartBoxes
 			and Configuration.gameConfig.mapStartBoxes.encodeStartboxesSetModoption then
 		local encoded = Configuration.gameConfig.mapStartBoxes.encodeStartboxesSetModoption(polygonConfig)
