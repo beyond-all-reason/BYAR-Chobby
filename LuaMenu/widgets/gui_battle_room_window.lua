@@ -4880,6 +4880,12 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	battleLobby:AddListener("OnUpdateUserBattleStatus", OnUpdateUserBattleStatus)
 	battleLobby:AddListener("OnBattleIngameUpdate", OnBattleIngameUpdate)
 	battleLobby:AddListener("OnUpdateBattleInfo", OnUpdateBattleInfo)
+	-- Listeners only fire on future changes; prime with the current battle so the
+	-- initial map's startboxes render on open, not only after a map change.
+	local currentBattle = battleLobby:GetBattle(battleID)
+	if currentBattle then
+		OnUpdateBattleInfo(nil, battleID, currentBattle)
+	end
 	battleLobby:AddListener("OnLeftBattle", OnLeftBattle)
 	battleLobby:AddListener("OnJoinedBattle", OnJoinedBattle)
 	battleLobby:AddListener("OnRemoveAi", OnRemoveAi)
@@ -4893,10 +4899,6 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	-- battleLobby:AddListener("OnMatchMakerReadyResult", OnMatchMakerReadyResult)
 	battleLobby:AddListener("OnRemoveStartRect", OnRemoveStartRect)
 	battleLobby:AddListener("OnAddStartRect", OnAddStartRect)
-	local currentBattle = battleLobby:GetBattle(battleID)
-	if currentBattle then
-		OnUpdateBattleInfo(nil, battleID, currentBattle)
-	end
 	battleLobby:AddListener("OnRing", OnRing)
 	battleLobby:AddListener("OnEnableAllUnits", OnEnableAllUnits)
 	battleLobby:AddListener("OnDisableUnits", OnDisableUnits)
