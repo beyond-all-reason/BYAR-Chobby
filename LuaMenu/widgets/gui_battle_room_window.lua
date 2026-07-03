@@ -3496,11 +3496,11 @@ local function InitializeSetupPage(subPanel, screenHeight, pageConfig, nextPage,
 			end
 
 			local selectedIndex = 1
-			if pageConfig.name == "faction" then
-				local lastFaction = WG.Chobby.Configuration.lastFactionChoice or 0
-				selectedIndex = lastFaction + 1
-			elseif pageConfig.name ~= "map" then
+			if pageConfig.name ~= "map" then
 				local storedChoice = Spring.GetConfigInt("skirmish_" .. pageConfig.name .. "_choice", 0)
+				if pageConfig.name == "faction" and storedChoice == 0 then
+					storedChoice = (WG.Chobby.Configuration.lastFactionChoice or 0) + 1
+				end
 				selectedIndex = (storedChoice > 0 and storedChoice <= #options) and storedChoice or 1
 			else
 				-- Don't auto pick a map
