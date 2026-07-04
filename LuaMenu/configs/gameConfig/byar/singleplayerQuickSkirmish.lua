@@ -83,7 +83,27 @@ local skirmishSetupData = {
 				"3 vs 3 with AI allies and enemies",
 				"Survival: Defend against waves of Scavenger units",
 				"Survival: Face hordes of alien Raptors",
-			}
+			},
+			optionDecorations = {
+				baseDir = LUA_DIRNAME .. "images/skirmish/gameType/",
+				images = {
+					"1v1.jpg",
+					"2v2.jpg",
+					"3v3.jpg",
+					"scavengers.jpg",
+					"raptors.jpg",
+				},
+				buttonIcons = {
+					baseDir = LUA_DIRNAME .. "images/",
+					images = {
+						"startboxsplit_c1.png",
+						"startboxsplit_c.png",
+						"startboxsplit_3v3.png",
+						"gametype_scavengers.png",
+						"gametype_raptors.png",
+					},
+				},
+			},
 		},
 		{
 			humanName = "Select Difficulty",
@@ -102,7 +122,27 @@ local skirmishSetupData = {
 				"For players familiar with RTS games.",
 				"For veteran RTS players.",
 				"For veteran RTS players who aren't afraid of losing.",
-			}
+			},
+			optionDecorations = {
+				baseDir = LUA_DIRNAME .. "images/skirmish/difficulty/",
+				images = {
+					"beginner.jpg",
+					"easy.jpg",
+					"medium.jpg",
+					"hard.jpg",
+					"expert.jpg",
+				},
+				buttonIcons = {
+					baseDir = LUA_DIRNAME .. "images/ranks/",
+					images = {
+						"1.png",
+						"2.png",
+						"3.png",
+						"6.png",
+						"8.png",
+					},
+				},
+			},
 		},
 		{
 			humanName = "Select your Faction",
@@ -117,7 +157,23 @@ local skirmishSetupData = {
 				"Armada relies on mobility, versatility and stealth, focusing more on direct firepower than indirect artillery.",
 				"Cortex relies on overwhelming firepower, tough frontline units, and conventional artillery.",
 				"Randomly choose from available factions.",
-			}
+			},
+			optionDecorations = {
+				baseDir = LUA_DIRNAME .. "images/skirmish/faction/",
+				images = {
+					"armada.jpg",
+					"cortex.jpg",
+					"random.jpg",
+				},
+				buttonIcons = {
+					baseDir = LUA_DIRNAME .. "configs/gameConfig/byar/sidepics/",
+					images = {
+						"armada.png",
+						"cortex.png",
+						"random.png",
+					},
+				},
+			},
 		},
 		{
 			humanName = "Select Map",

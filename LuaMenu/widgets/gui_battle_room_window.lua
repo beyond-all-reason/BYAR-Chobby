@@ -3350,36 +3350,79 @@ local function InitializeSetupPage(subPanel, screenHeight, pageConfig, nextPage,
 			return {}
 		end
 
-		local simpleSkirmishImageConfig = {
-			gameType = {
-				baseDir = LUA_DIRNAME .. "images/",
-				images = {
-					"startboxsplit_c1.png",
-					"startboxsplit_c.png",
-					"startboxsplit_3v3.png",
-					"gametype_scavengers.png",
-					"gametype_raptors.png"
+		local optionDecorations = pageConfig.optionDecorations
+		local previewImage, previewLabel
+
+		local function UpdateSkirmishPreview(index)
+			if not optionDecorations or not previewImage then
+				return
+			end
+			if optionDecorations.images and optionDecorations.images[index] then
+				previewImage.file = optionDecorations.baseDir .. optionDecorations.images[index]
+				previewImage:Invalidate()
+			end
+			local overlayText = (optionDecorations.overlayText and optionDecorations.overlayText[index])
+				or (pageConfig.optionTooltip and pageConfig.optionTooltip[index])
+				or options[index]
+			if previewLabel then
+				previewLabel:SetCaption(overlayText)
+				previewLabel:BringToFront()
+			end
+		end
+
+		if optionDecorations then
+			local previewPanel = subPanel:GetChildByName('skirmishPreviewPanel')
+			if not previewPanel then
+				previewPanel = Panel:New {
+					name = 'skirmishPreviewPanel',
+					x = "4%",
+					right = "50%",
+					y = 60,
+					bottom = "14%",
+					padding = {0, 0, 0, 0},
+					parent = subPanel,
 				}
-			},
-			difficulty = {
-				baseDir = LUA_DIRNAME .. "images/ranks/",
-				images = {
-					"1.png",
-					"2.png",
-					"3.png",
-					"6.png",
-					"8.png"
+				previewImage = Image:New {
+					name = 'skirmishPreviewImage',
+					x = 3,
+					y = 3,
+					right = 3,
+					bottom = 3,
+					keepAspect = false,
+					crop = true,
+					file = Configuration:GetLoadingImage(2),
+					fallbackFile = Configuration:GetLoadingImage(2),
+					parent = previewPanel,
 				}
-			},
-			faction = {
-				baseDir = LUA_DIRNAME .. "configs/gameConfig/byar/sidepics/",
-				images = {
-					"armada.png",
-					"cortex.png",
-					"random.png"
+				previewLabel = Label:New {
+					name = 'skirmishPreviewLabel',
+					x = "3%",
+					right = "3%",
+					bottom = "4%",
+					height = "30%",
+					align = "left",
+					valign = "bottom",
+					autosize = false,
+					objectOverrideFont = WG.Chobby.Configuration:GetFont(0),
+					caption = "",
+					parent = previewImage,
 				}
-			}
-		}
+			else
+				previewImage = previewPanel:GetChildByName('skirmishPreviewImage')
+				previewLabel = previewImage and previewImage:GetChildByName('skirmishPreviewLabel')
+			end
+		end
+
+		local selectedIndex = 1
+		if pageConfig.name ~= "map" then
+			local storedChoice = Spring.GetConfigInt("skirmish_" .. pageConfig.name .. "_choice", 0)
+			if pageConfig.name == "faction" and storedChoice == 0 then
+				storedChoice = (WG.Chobby.Configuration.lastFactionChoice or 0) + 1
+			end
+			selectedIndex = (storedChoice > 0 and storedChoice <= #options) and storedChoice or 1
+		else
+			selectedIndex = nil
+		end
 
 		for i = 1, #options do
 			local x, y, right, height, caption, tooltip
@@ -3387,6 +3430,7 @@ local function InitializeSetupPage(subPanel, screenHeight, pageConfig, nextPage,
 			local haveMap = VFS.HasArchive(options[i])
 			local mapButtonCaption = nil
 			local iconWidth = buttonHeight
+			local buttonIcons = optionDecorations and optionDecorations.buttonIcons
 			if pageConfig.minimap then
 				WG.DownloadHandler.MaybeDownloadArchive(options[i], "map", -1)
 				if i%2 == 1 then
@@ -3395,14 +3439,16 @@ local function InitializeSetupPage(subPanel, screenHeight, pageConfig, nextPage,
 					x, y, right, height = "51%", i*buttonScale - 10, "25%", 2*buttonHeight
 				end
 				caption = ""
-			else
-				if simpleSkirmishImageConfig[pageConfig.name] then
-					x, y, right, height = "36%", buttonHeight - 4 + i*buttonScale, "36%", buttonHeight
-					caption = "      " .. options[i]  -- Add spacing for icon
+			elseif optionDecorations then
+				x, y, right, height = "52%", buttonHeight - 4 + i*buttonScale, "5%", buttonHeight
+				if buttonIcons and buttonIcons.images and buttonIcons.images[i] then
+					caption = "      " .. options[i]
 				else
-					x, y, right, height = "36%", buttonHeight - 4 + i*buttonScale, "36%", buttonHeight
 					caption = options[i]
 				end
+			else
+				x, y, right, height = "36%", buttonHeight - 4 + i*buttonScale, "36%", buttonHeight
+				caption = options[i]
 			end
 			if not haveMap then
 				mapButtonCaption = i18n("click_to_download_map")
@@ -3428,6 +3474,7 @@ local function InitializeSetupPage(subPanel, screenHeight, pageConfig, nextPage,
 						ButtonUtilities.SetButtonSelected(obj)
 						selectedOptions[pageConfig.name] = i
 						Spring.SetConfigInt("skirmish_" .. pageConfig.name .. "_choice", i)
+						UpdateSkirmishPreview(i)
 						if pageConfig.name == "gameType" and selectedOptions.currentControl then
 							Spring.Echo("Simple Skirmish: Selected game type: " .. options[i])
 							local mapPage
@@ -3443,7 +3490,7 @@ local function InitializeSetupPage(subPanel, screenHeight, pageConfig, nextPage,
 								local children = selectedOptions.currentControl.children
 								for j = #children, 1, -1 do
 									local child = children[j]
-									if child.name:find("nextButton") or child.name:find("tipTextBox") or child.name:find("advButton") or child.name:find("prevPage") or child.name:find("titleLabel") then
+									if child.name:find("nextButton") or child.name:find("tipTextBox") or child.name:find("advButton") or child.name:find("prevPage") or child.name:find("titleLabel") or child.name:find("skirmishPreviewPanel") then
 										-- Leave these buttons alone
 									else
 										selectedOptions.currentControl:RemoveChild(child)
@@ -3480,9 +3527,9 @@ local function InitializeSetupPage(subPanel, screenHeight, pageConfig, nextPage,
 					checkFileExists = needDownload,
 					parent = buttons[i],
 				}
-			elseif simpleSkirmishImageConfig[pageConfig.name] and simpleSkirmishImageConfig[pageConfig.name].images[i] then
-				local iconFile = simpleSkirmishImageConfig[pageConfig.name].baseDir .. simpleSkirmishImageConfig[pageConfig.name].images[i]
-				local iconImage = Image:New {
+			elseif buttonIcons and buttonIcons.images and buttonIcons.images[i] then
+				local iconFile = buttonIcons.baseDir .. buttonIcons.images[i]
+				Image:New {
 					x = 4,
 					y = 2,
 					width = iconWidth - 16,
@@ -3495,22 +3542,15 @@ local function InitializeSetupPage(subPanel, screenHeight, pageConfig, nextPage,
 				}
 			end
 
-			local selectedIndex = 1
-			if pageConfig.name ~= "map" then
-				local storedChoice = Spring.GetConfigInt("skirmish_" .. pageConfig.name .. "_choice", 0)
-				if pageConfig.name == "faction" and storedChoice == 0 then
-					storedChoice = (WG.Chobby.Configuration.lastFactionChoice or 0) + 1
-				end
-				selectedIndex = (storedChoice > 0 and storedChoice <= #options) and storedChoice or 1
-			else
-				-- Don't auto pick a map
-				selectedIndex = nil
-			end		
 			if selectedIndex and i == selectedIndex then
 				ButtonUtilities.SetButtonSelected(buttons[i])
 				selectedOptions[pageConfig.name] = i
 				nextButton:SetVisibility(true)
 			end
+		end
+
+		if selectedIndex then
+			UpdateSkirmishPreview(selectedIndex)
 		end
 		return buttons
 	end
