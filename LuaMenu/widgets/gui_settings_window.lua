@@ -842,8 +842,8 @@ local function GetLobbyTabControls()
 		right = 18,
 		--value  = Configuration.uiScale * 100.0,
 		value  = Spring.GetConfigFloat("ChobbyAutomaticUIScaleMultiplier", 1) * 100.0,
-		min    = 50,
-		max    = 200,
+		min    = math.ceil(Configuration.minUiScale * 100.0),
+		max    = math.floor(Configuration.maxUiScale * 100.0),
 		step   = 1,
 		OnMouseUp = {
 			function(obj)
@@ -867,7 +867,7 @@ local function GetLobbyTabControls()
 		--uiScaleTrackbar:SetValue(newScale * 100.0)
 	end)
 	Configuration:AddListener("OnUiScaleMaxMinChange", function(_, newMin, newMax)
-		uiScaleTrackbar:SetMinMax(50, 200)
+		uiScaleTrackbar:SetMinMax(newMin * 100.0, newMax * 100.0)
 	end)
 
 	children[#children + 1], offset = AddCheckboxSetting(offset, i18n("showTestingEngines"), "displayBadEngines2", false, nil, i18n("showTestingEnginestooltip"))
