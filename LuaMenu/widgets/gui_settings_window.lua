@@ -840,8 +840,7 @@ local function GetLobbyTabControls()
 		width  = COMBO_WIDTH,
 		height = 30,
 		right = 18,
-		--value  = Configuration.uiScale * 100.0,
-		value  = Spring.GetConfigFloat("ChobbyAutomaticUIScaleMultiplier", 1) * 100.0,
+		value  = Configuration.uiScale * 100.0,
 		min    = math.ceil(Configuration.minUiScale * 100.0),
 		max    = math.floor(Configuration.maxUiScale * 100.0),
 		step   = 1,
@@ -850,8 +849,8 @@ local function GetLobbyTabControls()
 				if freezeSettings then
 					return
 				end
-				--Configuration:SetUiScale(obj.value / 100.0)
-				Spring.SetConfigFloat("ChobbyAutomaticUIScaleMultiplier", (obj.value / 100.0))
+
+				Configuration:SetUiScale(obj.value / 100.0)
 			end
 		},
 		OnChange = {
@@ -864,7 +863,7 @@ local function GetLobbyTabControls()
 	offset = offset + ITEM_OFFSET
 
 	Configuration:AddListener("OnUiScaleChange", function(_, newScale)
-		--uiScaleTrackbar:SetValue(newScale * 100.0)
+		uiScaleTrackbar:SetValue(newScale * 100.0)
 	end)
 	Configuration:AddListener("OnUiScaleMaxMinChange", function(_, newMin, newMax)
 		uiScaleTrackbar:SetMinMax(newMin * 100.0, newMax * 100.0)
