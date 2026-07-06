@@ -32,6 +32,7 @@ local USER_STATUS_WIDTH  = 155
 local ONLINE_COUNT_GAP   = 10
 local ONLINE_COUNT_X     = USER_STATUS_X + USER_STATUS_WIDTH + ONLINE_COUNT_GAP
 local ONLINE_COUNT_Y     = 53
+local ONLINE_COUNT_UPDATE_INTERVAL = 60
 
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
@@ -212,7 +213,7 @@ local function InitializeControls(window)
 			window:AddChild(userControl)
 			window:RemoveChild(connectivityText)
 		end
-		UpdateOnlineCount()
+		WG.Delay(UpdateOnlineCount, 2)
 		SetOnlineCountVisible(true)
 		lobby:Ping()
 	end
@@ -272,6 +273,7 @@ end
 -- Widget Interface
 
 local oldStatus
+local onlineCountLastUpdate = 0
 
 function widget:Update()
 	local newStatus = lobby:GetConnectionStatus()
@@ -301,6 +303,14 @@ function widget:Update()
 			SetOnlineCountVisible(true)
 		end
 		oldStatus = newStatus
+	end
+
+	if newStatus == "connected" then
+		local now = os.clock()
+		if now - onlineCountLastUpdate >= ONLINE_COUNT_UPDATE_INTERVAL then
+			UpdateOnlineCount()
+			onlineCountLastUpdate = now
+		end
 	end
 end
 
