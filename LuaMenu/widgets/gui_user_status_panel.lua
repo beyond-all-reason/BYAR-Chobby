@@ -19,23 +19,43 @@ end
 local btnLogout
 local connectivityText
 local connectivityImage
+local onlineCountText
 
 local IMAGE_DIR          = LUA_DIRNAME .. "images/"
 local IMAGE_ONLINE       = IMAGE_DIR .. "online.png"
 local IMAGE_CONNECTING   = IMAGE_DIR .. "connecting.png"
 local IMAGE_OFFLINE      = IMAGE_DIR .. "offline.png"
 
+local USER_STATUS_X      = 40
+local USER_STATUS_Y      = 51
+local USER_STATUS_WIDTH  = 155
+local ONLINE_COUNT_GAP   = 10
+local ONLINE_COUNT_X     = USER_STATUS_X + USER_STATUS_WIDTH + ONLINE_COUNT_GAP
+local ONLINE_COUNT_Y     = 53
+
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 -- Lobby listeners
 
-local onAccepted, onDisconnected, onPong
+local onAccepted, onDisconnected, onPong, onAddUser, onUserCount
 
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 -- Initialization
 
 local UserStatusPanel = {}
+
+local function SetOnlineCountVisible(visible)
+	if onlineCountText then
+		onlineCountText:SetVisibility(visible)
+	end
+end
+
+local function UpdateOnlineCount()
+	if onlineCountText and onlineCountText.parent then
+		onlineCountText:SetText("\255\180\180\180" .. lobby:GetUserCount() .. " online\b")
+	end
+end
 
 local function Logout()
 	if lobby:GetConnectionStatus() ~= "offline" then
@@ -147,7 +167,7 @@ local function InitializeControls(window)
 
 	connectivityText = TextBox:New {
 		name = "connectivityText",
-		x = 40,
+		x = USER_STATUS_X,
 		width = 150,
 		y = 53,
 		height = 20,
@@ -157,6 +177,21 @@ local function InitializeControls(window)
 		objectOverrideHintFont = (WG.Chobby and WG.Chobby.Configuration and WG.Chobby.Configuration:GetFont(2)) or nil,
 		parent = window,
 	}
+
+	onlineCountText = TextBox:New {
+		name = "onlineCountText",
+		x = ONLINE_COUNT_X,
+		width = 110,
+		y = ONLINE_COUNT_Y,
+		height = 20,
+		valign = "center",
+		align = "left",
+		text = "\255\180\180\180" .. lobby:GetUserCount() .. " online\b",
+		objectOverrideFont = (WG.Chobby and WG.Chobby.Configuration and WG.Chobby.Configuration:GetFont(2)) or nil,
+		objectOverrideHintFont = (WG.Chobby and WG.Chobby.Configuration and WG.Chobby.Configuration:GetFont(2)) or nil,
+		parent = window,
+	}
+	SetOnlineCountVisible(lobby:GetConnectionStatus() == "connected")
 
 	connectivityImage = Image:New {
 		name = "connectivityImage",
@@ -171,12 +206,14 @@ local function InitializeControls(window)
 
 	local userControl
 	onAccepted = function(listener)
-		userControl = WG.UserHandler.GetStatusUser(lobby:GetMyUserName())
+		userControl = WG.UserHandler.GetStatusUser(lobby:GetMyUserName(), USER_STATUS_WIDTH)
 		if userControl then
-			userControl:SetPos(40, 51, 265)
+			userControl:SetPos(USER_STATUS_X, USER_STATUS_Y, USER_STATUS_WIDTH)
 			window:AddChild(userControl)
 			window:RemoveChild(connectivityText)
 		end
+		WG.Delay(UpdateOnlineCount, 2)
+		SetOnlineCountVisible(true)
 		lobby:Ping()
 	end
 
@@ -185,13 +222,15 @@ local function InitializeControls(window)
 			window:RemoveChild(userControl)
 			window:AddChild(connectivityText)
 		end
+		SetOnlineCountVisible(false)
+		UpdateOnlineCount()
 	end
 
 	onPong = function(listener)
 		--UpdateLatency()
 	end
 
-	local function onAddUser(listener, userName, status)
+	onAddUser = function(listener, userName, status)
 		if userName == lobby:GetMyUserName() and status.accountID then
 			if WG.Chobby and WG.Chobby.Configuration then
 				WG.Chobby.Configuration:SetConfigValue("myAccountID", status.accountID)
@@ -199,10 +238,15 @@ local function InitializeControls(window)
 		end
 	end
 
+	onUserCount = function(listener)
+		UpdateOnlineCount()
+	end
+
 	lobby:AddListener("OnDisconnected", onDisconnected)
 	lobby:AddListener("OnAccepted", onAccepted)
 	lobby:AddListener("OnPong", onPong)
 	lobby:AddListener("OnAddUser", onAddUser)
+	lobby:AddListener("OnUserCount", onUserCount)
 end
 
 function UserStatusPanel.GetControl()
@@ -237,6 +281,7 @@ function widget:Update()
 			connectivityText:SetText("\255\180\180\180" .. i18n("offline") .. "\b")
 			connectivityImage.file = IMAGE_OFFLINE
 			connectivityImage:Invalidate()
+			SetOnlineCountVisible(false)
 		else
 			if WG.Chobby and WG.Chobby.Configuration and WG.Chobby.Configuration.gameConfig and WG.Chobby.Configuration.gameConfig.logoutOpensLoginPanel then
 				btnLogout:SetCaption(i18n("account"))
@@ -248,10 +293,12 @@ function widget:Update()
 			connectivityText:SetText((WG.Chobby and WG.Chobby.Configuration and WG.Chobby.Configuration:GetPartialColor()) or ("\255\255\255\255" .. i18n("connecting") .. "\b"))
 			connectivityImage.file = IMAGE_CONNECTING
 			connectivityImage:Invalidate()
+			SetOnlineCountVisible(false)
 		elseif newStatus == "connected" then
 			connectivityText:SetText((WG.Chobby and WG.Chobby.Configuration and WG.Chobby.Configuration:GetSuccessColor()) or ("\255\255\255\255" .. i18n("online") .. "\b"))
 			connectivityImage.file = IMAGE_ONLINE
 			connectivityImage:Invalidate()
+			SetOnlineCountVisible(true)
 		end
 		oldStatus = newStatus
 	end
@@ -266,8 +313,11 @@ end
 
 function widget:Shutdown()
 	if lobby then
+		lobby:RemoveListener("OnDisconnected", onDisconnected)
 		lobby:RemoveListener("OnAccepted", onAccepted)
 		lobby:RemoveListener("OnPong", onPong)
+		lobby:RemoveListener("OnAddUser", onAddUser)
+		lobby:RemoveListener("OnUserCount", onUserCount)
 	end
 end
 
