@@ -188,8 +188,8 @@ local function InitializeControls(window)
 		valign = "center",
 		align = "left",
 		text = "\255\180\180\180" .. lobby:GetUserCount() .. " online\b",
-		objectOverrideFont = (WG.Chobby and WG.Chobby.Configuration and WG.Chobby.Configuration:GetFont(2)) or nil,
-		objectOverrideHintFont = (WG.Chobby and WG.Chobby.Configuration and WG.Chobby.Configuration:GetFont(2)) or nil,
+		objectOverrideFont = (WG.Chobby and WG.Chobby.Configuration and WG.Chobby.Configuration:GetFont(11)) or nil,
+		objectOverrideHintFont = (WG.Chobby and WG.Chobby.Configuration and WG.Chobby.Configuration:GetFont(11)) or nil,
 		parent = window,
 	}
 	SetOnlineCountVisible(lobby:GetConnectionStatus() == "connected")
