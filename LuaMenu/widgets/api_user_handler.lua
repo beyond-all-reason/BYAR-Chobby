@@ -2173,12 +2173,12 @@ function userHandler.GetPopupUser(userName)
 	})
 end
 
-function userHandler.GetStatusUser(userName)
+function userHandler.GetStatusUser(userName, maxNameLength)
 	if not ChobbyReady() then
 		return nil
 	end
 	return _GetUser(statusUsers, userName, {
-		maxNameLength       = WG.Chobby.Configuration.statusMaxNameLength,
+		maxNameLength       = maxNameLength or WG.Chobby.Configuration.statusMaxNameLength,
 		disableInteraction  = true,
 	})
 end

@@ -28,7 +28,7 @@ local IMAGE_OFFLINE      = IMAGE_DIR .. "offline.png"
 
 local USER_STATUS_X      = 40
 local USER_STATUS_Y      = 51
-local USER_STATUS_WIDTH  = 155
+local USER_STATUS_WIDTH  = 325
 local ONLINE_COUNT_GAP   = 10
 local ONLINE_COUNT_X     = USER_STATUS_X + USER_STATUS_WIDTH + ONLINE_COUNT_GAP
 local ONLINE_COUNT_Y     = 53
@@ -207,7 +207,7 @@ local function InitializeControls(window)
 
 	local userControl
 	onAccepted = function(listener)
-		userControl = WG.UserHandler.GetStatusUser(lobby:GetMyUserName())
+		userControl = WG.UserHandler.GetStatusUser(lobby:GetMyUserName(), USER_STATUS_WIDTH)
 		if userControl then
 			userControl:SetPos(USER_STATUS_X, USER_STATUS_Y, USER_STATUS_WIDTH)
 			window:AddChild(userControl)
