@@ -206,13 +206,13 @@ local function InitializeControls(window)
 
 	local userControl
 	onAccepted = function(listener)
-		userControl = WG.UserHandler.GetStatusUser(lobby:GetMyUserName(), USER_STATUS_WIDTH)
+		userControl = WG.UserHandler.GetStatusUser(lobby:GetMyUserName())
 		if userControl then
 			userControl:SetPos(USER_STATUS_X, USER_STATUS_Y, USER_STATUS_WIDTH)
 			window:AddChild(userControl)
 			window:RemoveChild(connectivityText)
 		end
-		WG.Delay(UpdateOnlineCount, 2)
+		UpdateOnlineCount()
 		SetOnlineCountVisible(true)
 		lobby:Ping()
 	end
