@@ -557,9 +557,9 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		x = pad + formw * 0 ,
 		y = pad + formh * 0 ,
 		width =   formw * 3 ,
-		height =  formh * 2 ,
+		height =  60 ,
 		-- caption = i18n("register_long"),
-		text = "Change username. Max: 20 chars. Cooldown: no more than twice a week, 3/month. Login required.",
+		text = "Change username. You must be logged in, and will be logged out on successful change. Max: 20 characters. Cooldown: no more than twice a week, 3/month.",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
 		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(1),
 	}
@@ -567,7 +567,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 
 	self.ebChangeUserName = EditBox:New {
 		x = pad ,
-		y = pad + formh * 2 ,
+		y = 80 ,
 		width =   350 ,
 		height =  formh * 1 ,
 		text = Configuration.userName or Configuration.suggestedNameFromSteam or "",
@@ -579,7 +579,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 
 	self.btnChangeUserName = Button:New {
 		x = pad + 360 ,
-		y = pad + formh * 2 ,
+		y = 80 ,
 		width =   150 ,
 		height =  formh * 1 ,
 		caption = i18n("change_username"),
@@ -593,23 +593,34 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 	}
 	recoverChildren[#recoverChildren+1] = self.btnChangeUserName
 
+	self.txtHelpChangeUserName = TextBox:New {
+		x = pad + formw * 0 ,
+		y = 105 ,
+		width =   formw * 3 + 60 ,
+		height =  formh * 1 ,
+		text = "If this doesnt work contact us on Discord.",
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(1),
+	}
+	recoverChildren[#recoverChildren+1] = self.txtHelpChangeUserName
+
 	self.txtErrorChangeUserName = TextBox:New {
 		x = pad + formw * 0 ,
-		y = 4 + pad + formh * 3 ,
+		y = 128 ,
 		width =   formw * 3 + 60 ,
-		height =  32 ,
+		height =  28 ,
 		text = "",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
 		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(1),
 	}
 	recoverChildren[#recoverChildren+1] = self.txtErrorChangeUserName
 
-	recoverChildren[#recoverChildren+1] = Line:New{x=5,y=126,right=5, height = 1}
+	recoverChildren[#recoverChildren+1] = Line:New{x=5,y=165,right=5, height = 1}
 
 ------------------------------RESET PASSWORD----------------------------------
 	self.txtResetPassword = TextBox:New {
 		x = pad + formw * 0 ,
-		y = 135 ,
+		y = 175 ,
 		width =   formw * 3 ,
 		height =  formh * 2 ,
 		-- caption = i18n("register_long"),
@@ -621,7 +632,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 
 	self.btnResetPassword = Button:New {
 		x = pad + formw * 0 ,
-		y = 185 ,
+		y = 230 ,
 		width =   formw * 3 ,
 		height =  formh * 2 ,
 		caption = "Reset your password via a browser link",
@@ -635,7 +646,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 	}
 	recoverChildren[#recoverChildren+1] = self.btnResetPassword
 	
-	recoverChildren[#recoverChildren+1] = Line:New{x=5,y=250,right=5, height = 1}
+	recoverChildren[#recoverChildren+1] = Line:New{x=5,y=295,right=5, height = 1}
 --[[
 
 
@@ -734,7 +745,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 ---------------------------Change Password--------------------------------
 	self.txtChangePassword = TextBox:New {
 		x = pad + formw * 0 ,
-		y = 265 ,
+		y = 310 ,
 		width =   formw * 3 ,
 		height =  formh * 2 ,
 		-- caption = i18n("register_long"),
@@ -746,7 +757,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 
 	self.btnChangePassword = Button:New {
 		x = pad + formw * 0 ,
-		y = 325 ,
+		y = 370 ,
 		width =   formw * 3 ,
 		height =  formh * 2 ,
 		caption = "Edit your password via a browser link",
@@ -759,7 +770,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		},
 	}
 	recoverChildren[#recoverChildren+1] = self.btnChangePassword
-	recoverChildren[#recoverChildren+1] = Line:New{x=5,y=405,right=5, height = 1}
+	recoverChildren[#recoverChildren+1] = Line:New{x=5,y=450,right=5, height = 1}
 
 --[[
 	self.lblChangePasswordOld =  Label:New {
@@ -840,8 +851,8 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 	---------------------------Change Email-------------------------------
 	self.txtChangeEmail = TextBox:New {
 		x = pad + formw * 0 ,
-		y = 414 ,
-		width =   560 ,
+		y = 465 ,
+		width =   520 ,
 		height =  82 ,
 		-- caption = i18n("register_long"),
 		text = "Change email address associated with your account. You must be logged in. Enter the new email address you wish to use, then enter the validation code sent to the new email address.",
@@ -852,9 +863,11 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 
 	self.lblChangeEmailEmail =  Label:New {
 		x = pad + formw * 0 ,
-		y = 515 ,
-		width =   formw * 1 ,
+		y = 560 ,
+		width =   170 ,
 		height =  formh * 1 ,
+		autosize = false,
+		valign = "center",
 		-- caption = i18n("register_long"),
 		caption = "New email address:",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
@@ -863,7 +876,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 
 	self.ebChangeEmailEmail = EditBox:New {
 		x = 190 ,
-		y = 515 ,
+		y = 560 ,
 		width =   210 ,
 		height =  formh * 1 ,
 		text = "",
@@ -875,9 +888,11 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 
 	self.lblChangeEmailVerification =  Label:New {
 		x = pad + formw * 0 ,
-		y = 545 ,
-		width =   formw * 1 ,
+		y = 590 ,
+		width =   170 ,
 		height =  formh * 1 ,
+		autosize = false,
+		valign = "center",
 		-- caption = i18n("register_long"),
 		caption = "Verification Code:",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
@@ -886,7 +901,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 
 	self.ebChangeEmailVerification = EditBox:New {
 		x = 190 ,
-		y = 545 ,
+		y = 590 ,
 		width =   210 ,
 		height =  formh * 1 ,
 		text = "",
@@ -898,7 +913,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 
 	self.btnChangeEmail = Button:New {
 		x = 405 ,
-		y = 515 ,
+		y = 560 ,
 		width =   155 ,
 		height =  formh * 1 ,
 		caption = i18n("submit_email"),
@@ -914,7 +929,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 
 	self.btnChangeEmailVerification = Button:New {
 		x = 405 ,
-		y = 545 ,
+		y = 590 ,
 		width =   155 ,
 		height =  formh * 1 ,
 		caption = i18n("submit_verification"),
@@ -930,7 +945,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 
 	self.txtErrorChangeEmail = TextBox:New {
 		x = pad + formw * 0 ,
-		y = 590 ,
+		y = 635 ,
 		width =   560 ,
 		height =  formh * 1 ,
 		text = "If this doesnt work contact us on Discord",
