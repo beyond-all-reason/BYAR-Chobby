@@ -404,6 +404,7 @@ local headingFormats = {
 		imageSize = 120,
 		buttonBot = 10,
 		vSpacing = 6,
+		textLineSpacing = 3,
 	},
 }
 
@@ -570,6 +571,7 @@ local function GetNewsEntry(parentHolder, index, headingSize, timeAsTooltip, top
 					align = "left",
 					valign = "top",
 					text = entryData.text,
+					lineSpacing = headFormat.textLineSpacing or 0,
 					objectOverrideFont = newsFont,
 					parent = holder,
 				}
