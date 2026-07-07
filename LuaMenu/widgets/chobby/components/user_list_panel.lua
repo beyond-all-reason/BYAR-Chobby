@@ -15,27 +15,12 @@ function UserListPanel:init(userUpdateFunction, spacing, showCount, getUserFunct
 	self.userComponentMap = {}
 	self.users = {}
 
-	if showCount then
-		self.textCount =
-			TextBox:New {
-				name = "textCount",
-				x = 7,
-				right = 0,
-				height = 20,
-				bottom = 2,
-				align = "left",
-				objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
-				objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
-				text = lobby:GetUserCount() .. " players online"
-			}
-	end
-
 	self.userPanel =
 		ScrollPanel:New {
 			x = 0,
 			right = 0,
 			y = 0,
-			bottom = 28,
+			bottom = 0,
 			horizontalScrollbar = false
 		}
 
