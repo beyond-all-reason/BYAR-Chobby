@@ -59,8 +59,10 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		Log.Error("Tried to spawn duplicate login window")
 		return
 	end
+	local ww, wh = Spring.GetWindowGeometry()
 	self.emailRequired = (params and params.emailRequired) or false
-	self.windowHeight = (params and params.windowHeight) or (self.emailRequired and 800) or 800
+	local defaultWindowHeight = (params and params.windowHeight) or (self.emailRequired and 800) or 800
+	self.windowHeight = math.min(defaultWindowHeight, math.max(740, wh - 20))
 	self.loginAfterRegister = (params and params.loginAfterRegister) or false
 
 	local registerChildren = {}
@@ -615,12 +617,12 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 	}
 	recoverChildren[#recoverChildren+1] = self.txtErrorChangeUserName
 
-	recoverChildren[#recoverChildren+1] = Line:New{x=5,y=165,right=5, height = 1}
+	recoverChildren[#recoverChildren+1] = Line:New{x=5,y=160,right=5, height = 1}
 
 ------------------------------RESET PASSWORD----------------------------------
 	self.txtResetPassword = TextBox:New {
 		x = pad + formw * 0 ,
-		y = 175 ,
+		y = 168 ,
 		width =   formw * 3 ,
 		height =  formh * 2 ,
 		-- caption = i18n("register_long"),
@@ -632,7 +634,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 
 	self.btnResetPassword = Button:New {
 		x = pad + formw * 0 ,
-		y = 230 ,
+		y = 220 ,
 		width =   formw * 3 ,
 		height =  formh * 2 ,
 		caption = "Reset your password via a browser link",
@@ -646,7 +648,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 	}
 	recoverChildren[#recoverChildren+1] = self.btnResetPassword
 	
-	recoverChildren[#recoverChildren+1] = Line:New{x=5,y=295,right=5, height = 1}
+	recoverChildren[#recoverChildren+1] = Line:New{x=5,y=280,right=5, height = 1}
 --[[
 
 
@@ -745,7 +747,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 ---------------------------Change Password--------------------------------
 	self.txtChangePassword = TextBox:New {
 		x = pad + formw * 0 ,
-		y = 310 ,
+		y = 292 ,
 		width =   formw * 3 ,
 		height =  formh * 2 ,
 		-- caption = i18n("register_long"),
@@ -757,7 +759,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 
 	self.btnChangePassword = Button:New {
 		x = pad + formw * 0 ,
-		y = 370 ,
+		y = 342 ,
 		width =   formw * 3 ,
 		height =  formh * 2 ,
 		caption = "Edit your password via a browser link",
@@ -770,7 +772,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		},
 	}
 	recoverChildren[#recoverChildren+1] = self.btnChangePassword
-	recoverChildren[#recoverChildren+1] = Line:New{x=5,y=450,right=5, height = 1}
+	recoverChildren[#recoverChildren+1] = Line:New{x=5,y=410,right=5, height = 1}
 
 --[[
 	self.lblChangePasswordOld =  Label:New {
@@ -851,7 +853,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 	---------------------------Change Email-------------------------------
 	self.txtChangeEmail = TextBox:New {
 		x = pad + formw * 0 ,
-		y = 465 ,
+		y = 420 ,
 		width =   520 ,
 		height =  82 ,
 		-- caption = i18n("register_long"),
@@ -863,7 +865,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 
 	self.lblChangeEmailEmail =  Label:New {
 		x = pad + formw * 0 ,
-		y = 560 ,
+		y = 510 ,
 		width =   170 ,
 		height =  formh * 1 ,
 		autosize = false,
@@ -876,7 +878,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 
 	self.ebChangeEmailEmail = EditBox:New {
 		x = 190 ,
-		y = 560 ,
+		y = 510 ,
 		width =   210 ,
 		height =  formh * 1 ,
 		text = "",
@@ -888,7 +890,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 
 	self.lblChangeEmailVerification =  Label:New {
 		x = pad + formw * 0 ,
-		y = 590 ,
+		y = 540 ,
 		width =   170 ,
 		height =  formh * 1 ,
 		autosize = false,
@@ -901,7 +903,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 
 	self.ebChangeEmailVerification = EditBox:New {
 		x = 190 ,
-		y = 590 ,
+		y = 540 ,
 		width =   210 ,
 		height =  formh * 1 ,
 		text = "",
@@ -913,7 +915,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 
 	self.btnChangeEmail = Button:New {
 		x = 405 ,
-		y = 560 ,
+		y = 510 ,
 		width =   155 ,
 		height =  formh * 1 ,
 		caption = i18n("submit_email"),
@@ -929,7 +931,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 
 	self.btnChangeEmailVerification = Button:New {
 		x = 405 ,
-		y = 590 ,
+		y = 540 ,
 		width =   155 ,
 		height =  formh * 1 ,
 		caption = i18n("submit_verification"),
@@ -945,7 +947,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 
 	self.txtErrorChangeEmail = TextBox:New {
 		x = pad + formw * 0 ,
-		y = 635 ,
+		y = 570 ,
 		width =   560 ,
 		height =  formh * 1 ,
 		text = "If this doesnt work contact us on Discord",
@@ -1001,11 +1003,10 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 	
 	recoverChildren[#recoverChildren+1] = self.btnTeiserver
 
-	local ww, wh = Spring.GetWindowGeometry()
-	local width = 620
+	local width = math.min(620, math.max(580, ww - 20))
 
 	self.window = Window:New {
-		x = math.floor((ww - width) / 2),
+		x = math.floor(math.max(0, (ww - width) / 2)),
 		y = math.floor(math.max(0,(wh - self.windowHeight) / 2)),
 		width = width,
 		height = self.windowHeight,
@@ -1074,7 +1075,8 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		right = 5,
 		y = 30,
 		bottom = 4,
-		horizontalScrollbar = true,
+		horizontalScrollbar = false,
+		verticalScrollbar = false,
 		children = {
 			self.tabPanel,
 			self.btnCancel
