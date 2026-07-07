@@ -170,12 +170,12 @@ local function InitializeControls(window)
 		name = "connectivityText",
 		x = USER_STATUS_X + 2,
 		width = 150,
-		y = USER_STATUS_Y + 5,
+		y = USER_STATUS_Y + 4,
 		height = 20,
 		valign = "center",
 		text = "\255\180\180\180" .. i18n("offline") .. "\b",
-		objectOverrideFont = (WG.Chobby and WG.Chobby.Configuration and WG.Chobby.Configuration:GetFont(1)) or nil,
-		objectOverrideHintFont = (WG.Chobby and WG.Chobby.Configuration and WG.Chobby.Configuration:GetFont(1)) or nil,
+		objectOverrideFont = (WG.Chobby and WG.Chobby.Configuration and WG.Chobby.Configuration:GetFont(2)) or nil,
+		objectOverrideHintFont = (WG.Chobby and WG.Chobby.Configuration and WG.Chobby.Configuration:GetFont(2)) or nil,
 		parent = window,
 	}
 
