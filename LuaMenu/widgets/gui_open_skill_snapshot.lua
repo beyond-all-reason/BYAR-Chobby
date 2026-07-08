@@ -9,9 +9,9 @@ function widget:GetInfo()
 		enabled = true,
 	}
 end
-
--- CSV snapshot from the BAR data processing repository. The old file is moved
--- aside during refresh because launcher resource downloads do not overwrite
+--taken from the data processing repository in BAR. CSV format is used over parquet 
+-- if download fails, current local csv is used and if there is no local file then snapshot cache is empty. Does not block UI startup
+--.bak used  during refresh since launcher resource downloads are not overwriting
 local SNAPSHOT_URL = "https://data-marts.beyondallreason.dev/player_skill_snapshot.csv"
 local SNAPSHOT_DIR = "data-processing-main/data_export"
 local SNAPSHOT_PATH = SNAPSHOT_DIR .. "/player_skill_snapshot.csv"
