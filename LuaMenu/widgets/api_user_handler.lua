@@ -95,7 +95,7 @@ local IMAGE_BOSS           = IMAGE_DIR .. "boss-icon.png"
 local IMAGE_RUNNING_BATTLE = IMAGE_DIR .. "runningBattle.png"
 local IMAGE_MUTED          = IMAGE_DIR .. "mute.png"
 
-local DEFAULT_SNAPSHOT_PATH = "data-processing-main/data-processing-main/data_export/player_skill_snapshot.csv"
+local DEFAULT_SNAPSHOT_PATH = "data-processing-main/data_export/player_skill_snapshot.csv"
 
 local openSkillCache = nil
 local openSkillLoaded = false

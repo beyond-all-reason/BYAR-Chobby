@@ -3,17 +3,17 @@ function widget:GetInfo()
 		name    = "OpenSkill Snapshot Downloader",
 		desc    = "Downloads the latest OpenSkill snapshot on startup.",
 		author  = "Zain M",
-		date    = "Jan 18, 2025",
+		date    = "Jan 18, 2025", -- modified July 8th, 2025
 		license = "GNU LGPL, v2.1 or later",
-		layer   = -100001,
+		layer   = -1000,
 		enabled = true,
 	}
 end
 
 -- CSV snapshot from the BAR data processing repository. The old file is moved
--- aside during refresh because launcher resource downloads do not overwrite.
+-- aside during refresh because launcher resource downloads do not overwrite
 local SNAPSHOT_URL = "https://data-marts.beyondallreason.dev/player_skill_snapshot.csv"
-local SNAPSHOT_DIR = "data-processing-main/data-processing-main/data_export"
+local SNAPSHOT_DIR = "data-processing-main/data_export"
 local SNAPSHOT_PATH = SNAPSHOT_DIR .. "/player_skill_snapshot.csv"
 local SNAPSHOT_BACKUP_PATH = SNAPSHOT_PATH .. ".bak"
 local SNAPSHOT_DOWNLOAD_NAME = "open-skill-snapshot"
@@ -101,12 +101,12 @@ local function download_snapshot()
 	fetchStartedAt = now
 	onFinished = function(_, _, name, fileType)
 		if name == SNAPSHOT_DOWNLOAD_NAME and fileType == "resource" then
-			FinishFetch(true, "OpenSkill snapshot download reported success but no file was written; restoring previous snapshot")
+			FinishFetch(true, "OpenSkill snapshot download reported success but no file was written. Restoring previous snapshot")
 		end
 	end
 	onFailed = function(_, _, errorID, name, fileType)
 		if name == SNAPSHOT_DOWNLOAD_NAME and fileType == "resource" then
-			FinishFetch(false, "OpenSkill snapshot download failed: " .. tostring(errorID))
+			FinishFetch(false, "OpenSkill csv download failed: " .. tostring(errorID))
 		end
 	end
 
