@@ -16,6 +16,8 @@ local SNAPSHOT_URL = "https://data-marts.beyondallreason.dev/player_skill_snapsh
 local SNAPSHOT_DIR = "data-processing-main/data_export"
 local SNAPSHOT_PATH = SNAPSHOT_DIR .. "/player_skill_snapshot.csv"
 local SNAPSHOT_BACKUP_PATH = SNAPSHOT_PATH .. ".bak"
+local LEGACY_SNAPSHOT_PATH = "data-processing-main/data-processing-main/data_export/player_skill_snapshot.csv"
+local LEGACY_SNAPSHOT_BACKUP_PATH = LEGACY_SNAPSHOT_PATH .. ".bak"
 local SNAPSHOT_DOWNLOAD_NAME = "open-skill-snapshot"
 local SNAPSHOT_FETCH_INTERVAL = 24 * 60 * 60
 local SNAPSHOT_FETCH_CONFIG_KEY = "OpenSkillSnapshotLastSuccessfulFetch"
@@ -35,6 +37,13 @@ end
 
 local function ScanVfs()
 	if VFS.ScanAllDirs then VFS.ScanAllDirs() end
+end
+
+local function RemoveLegacySnapshot()
+	if RawFileExists(SNAPSHOT_PATH) then
+		os.remove(LEGACY_SNAPSHOT_PATH)
+		os.remove(LEGACY_SNAPSHOT_BACKUP_PATH)
+	end
 end
 
 local function RestoreBackup()
@@ -62,6 +71,7 @@ local function FinishFetch(success, warning)
 
 	if success and RawFileExists(SNAPSHOT_PATH) then
 		os.remove(SNAPSHOT_BACKUP_PATH)
+		RemoveLegacySnapshot()
 		Spring.SetConfigInt(SNAPSHOT_FETCH_CONFIG_KEY, fetchStartedAt)
 		ScanVfs()
 		return
@@ -80,6 +90,7 @@ local function download_snapshot()
 	end
 
 	RestoreBackup()
+	RemoveLegacySnapshot()
 
 	local now = os.time()
 	local lastFetch = Spring.GetConfigInt(SNAPSHOT_FETCH_CONFIG_KEY, 0)
