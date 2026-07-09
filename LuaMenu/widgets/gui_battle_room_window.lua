@@ -4918,13 +4918,13 @@ function BattleRoomWindow.GetSingleplayerControl(setupData)
 
 					for i, ai in ipairs(singleplayerDefault.friendlyAI or {}) do
 						totalAIcount = AddAI(totalAIcount, ai.shortName, ai.version, 0,
-							0, -- Default side for friendly AI is Armada
+							2, -- random faction
 							GetStarterFriendlyAIColorAssignment(i))
 					end
 
 					for i, ai in ipairs(singleplayerDefault.enemyAI or {}) do
 						totalAIcount = AddAI(totalAIcount, ai.shortName, ai.version, 1,
-							1, -- Default side for enemy AI is Cortex
+							2, -- random faction
 							GetStarterEnemyAIColorAssignment(i))
 					end
 					if singleplayerDefault.startboxes then 

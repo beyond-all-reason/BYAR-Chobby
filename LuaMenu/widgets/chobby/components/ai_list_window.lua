@@ -199,7 +199,7 @@ function AiListWindow:AddAi(displayName, shortName, version, options)
 		counter = counter + 1
 	end
 
-	local battleStatusOptions = {side = math.random(0,1), teamColor = PickRandomColor(),}
+	local battleStatusOptions = {side = 2, teamColor = PickRandomColor(),}
 
 	if shortName == "BARb" then
 		if type(options) == "table" and options.profile and options.profile ~= "" then

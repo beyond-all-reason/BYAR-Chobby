@@ -279,7 +279,7 @@ function skirmishSetupData.ApplyFunction(battleLobby, pageChoices)
 			}
 			local battleStatusOptions = {
 				allyNumber = allyNumber,
-				side = math.random(0, 1),
+				side = 2,
 			}
 			if pageConfig[2].options[difficulty] == "Beginner" then
 				battleLobby:AddAi("SimpleAI" .. "(" .. aiNumber .. ")", "SimpleAI", allyNumber, nil, nil, battleStatusOptions)
