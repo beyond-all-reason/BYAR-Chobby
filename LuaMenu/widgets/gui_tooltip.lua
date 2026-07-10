@@ -650,6 +650,10 @@ local function GetUserTooltip(userName, userInfo, userBattleInfo, inBattleroom)
 	end
 
 	local width = 240
+	local playerNote = WG.UserHandler and WG.UserHandler.GetPlayerNote and WG.UserHandler.GetPlayerNote(userName, userInfo)
+	if playerNote then
+		width = 320
+	end
 	if not userTooltip.mainControl then
 		userTooltip.mainControl = Chili.Control:New {
 			x = 0,
@@ -991,6 +995,16 @@ local function GetUserTooltip(userName, userInfo, userBattleInfo, inBattleroom)
 		userTooltip.battleInfoHolder:SetPos(nil, nil, width, battleOffset)
 	elseif userTooltip.battleInfoHolder then
 		userTooltip.battleInfoHolder:Hide()
+	end
+
+	if playerNote then
+		if not userTooltip.playerNote then
+			userTooltip.playerNote = GetTooltipLine(userTooltip.mainControl)
+		end
+		userTooltip.playerNote.Update(offset, "Note: " .. playerNote)
+		offset = offset + 20 * math.max(1, userTooltip.playerNote.GetLines())
+	elseif userTooltip.playerNote then
+		userTooltip.playerNote:Hide()
 	end
 
 	-- Debug Mode
