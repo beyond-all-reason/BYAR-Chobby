@@ -114,6 +114,8 @@ local votedUsers = {} -- 2023-06-29 FB: ToDo: Does not get reset, if user leaves
 local usersAllowedToVote = {}
 
 local PLAYER_NOTES_OPTION = "Add Player Notes"
+local PLAYER_NOTES_FILE = "playerNotes.json"
+local playerNotes
 
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
@@ -374,17 +376,72 @@ local function GetPlayerNoteKey(userName, userInfo)
 	return "name_" .. tostring(userName or "")
 end
 
-local function GetPlayerNote(userName, userInfo)
-	local Configuration = WG.Chobby and WG.Chobby.Configuration
-	local playerNotes = Configuration and Configuration.playerNotes
-	if type(playerNotes) ~= "table" then
-		return nil
+local function CleanPlayerNotes(rawNotes)
+	local cleanNotes = {}
+	if type(rawNotes) ~= "table" then
+		return cleanNotes
 	end
 
+	for key, value in pairs(rawNotes) do
+		if type(key) == "string" and type(value) == "string" and value ~= "" then
+			cleanNotes[key] = value
+		end
+	end
+	return cleanNotes
+end
+
+local function SavePlayerNotes()
+	local notesFile = io.open(PLAYER_NOTES_FILE, "w")
+	if not notesFile then
+		Spring.Echo("Unable to save player notes to " .. PLAYER_NOTES_FILE)
+		return
+	end
+	notesFile:write(Json.encode(playerNotes or {}))
+	notesFile:close()
+end
+
+local function LoadPlayerNotes()
+	if playerNotes then
+		return playerNotes
+	end
+
+	playerNotes = {}
+	if VFS.FileExists(PLAYER_NOTES_FILE) then
+		local rawNotes = VFS.LoadFile(PLAYER_NOTES_FILE)
+		if rawNotes and rawNotes ~= "" then
+			local success, decodedNotes = pcall(Json.decode, rawNotes)
+			if success then
+				playerNotes = CleanPlayerNotes(decodedNotes)
+			else
+				Spring.Echo("Unable to read player notes from " .. PLAYER_NOTES_FILE)
+			end
+		end
+	end
+
+	-- One-time migration for notes saved by the earlier config-backed version.
+	local configNotes = WG.Chobby and WG.Chobby.Configuration and WG.Chobby.Configuration.playerNotes
+	local migrated = false
+	if type(configNotes) == "table" then
+		for key, value in pairs(CleanPlayerNotes(configNotes)) do
+			if playerNotes[key] == nil then
+				playerNotes[key] = value
+				migrated = true
+			end
+		end
+	end
+	if migrated then
+		SavePlayerNotes()
+	end
+
+	return playerNotes
+end
+
+local function GetPlayerNote(userName, userInfo)
+	local notes = LoadPlayerNotes()
 	local noteKey = GetPlayerNoteKey(userName, userInfo)
-	local note = playerNotes[noteKey]
+	local note = notes[noteKey]
 	if (not note or note == "") and userInfo and userInfo.accountID ~= nil then
-		note = playerNotes["name_" .. tostring(userName or "")]
+		note = notes["name_" .. tostring(userName or "")]
 	end
 	if type(note) == "string" and note ~= "" then
 		return note
@@ -392,35 +449,22 @@ local function GetPlayerNote(userName, userInfo)
 end
 
 local function SetPlayerNote(userName, userInfo, note)
-	local Configuration = WG.Chobby and WG.Chobby.Configuration
-	if not Configuration then
-		return
-	end
-
-	local playerNotes = {}
-	if type(Configuration.playerNotes) == "table" then
-		for key, value in pairs(Configuration.playerNotes) do
-			if type(value) == "string" and value ~= "" then
-				playerNotes[key] = value
-			end
-		end
-	end
-
+	local notes = LoadPlayerNotes()
 	local cleanNote = TrimPlayerNote(note)
 	local noteKey = GetPlayerNoteKey(userName, userInfo)
 	local nameNoteKey = "name_" .. tostring(userName or "")
 	if cleanNote ~= "" then
-		playerNotes[noteKey] = cleanNote
+		notes[noteKey] = cleanNote
 		if nameNoteKey ~= noteKey then
-			playerNotes[nameNoteKey] = nil
+			notes[nameNoteKey] = nil
 		end
 	else
-		playerNotes[noteKey] = nil
-		playerNotes[nameNoteKey] = nil
+		notes[noteKey] = nil
+		notes[nameNoteKey] = nil
 	end
 
-	-- Client-side only: persisted in local Chobby config and never sent through lobby.
-	Configuration:SetConfigValue("playerNotes", playerNotes)
+	-- Client-side only: persisted to a local file and never sent through lobby.
+	SavePlayerNotes()
 end
 
 local function OpenPlayerNotesWindow(userName, userInfo)

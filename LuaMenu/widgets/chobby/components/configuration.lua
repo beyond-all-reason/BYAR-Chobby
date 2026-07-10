@@ -94,7 +94,6 @@ function Configuration:init()
 	self.alreadySeenFactionPopup4 = false
 	self.firstBattleStarted = false
 	self.seenWelcomeItems = {}
-	self.playerNotes = {}
 	self.lobbyTimeoutTime = 60 -- Seconds
 
 	self.battleFilterPassworded2 = true
@@ -709,7 +708,6 @@ function Configuration:GetConfigData()
 		alreadySeenFactionPopup4 = self.alreadySeenFactionPopup4,
 		firstBattleStarted = self.firstBattleStarted,
 		seenWelcomeItems = self.seenWelcomeItems,
-		playerNotes = self.playerNotes,
 		battleFilterPassworded2 = self.battleFilterPassworded2,
 		battleFilterNonFriend = self.battleFilterNonFriend,
 		battleFilterRunning = self.battleFilterRunning,
