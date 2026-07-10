@@ -113,7 +113,6 @@ local UserLevelToImageConfFunction
 local votedUsers = {} -- 2023-06-29 FB: ToDo: Does not get reset, if user leaves battle during vote, but has no impact
 local usersAllowedToVote = {}
 
-local PLAYER_NOTES_FILE = "playerNotes.json"
 local playerNotes
 
 --------------------------------------------------------------------------------
@@ -364,7 +363,7 @@ local function TrimPlayerNote(note)
 	if type(note) ~= "string" then
 		return ""
 	end
-	return note:gsub("^%s+", ""):gsub("%s+$", "")
+	return note:gsub("^%s+", ""):gsub("%s+$", ""):sub(1, 100)
 end
 
 local function GetPlayerNoteKey(userName, userInfo)
@@ -382,17 +381,20 @@ local function CleanPlayerNotes(rawNotes)
 	end
 
 	for key, value in pairs(rawNotes) do
-		if type(key) == "string" and type(value) == "string" and value ~= "" then
-			cleanNotes[key] = value
+		if type(key) == "string" and type(value) == "string" then
+			local cleanNote = TrimPlayerNote(value)
+			if cleanNote ~= "" then
+				cleanNotes[key] = cleanNote
+			end
 		end
 	end
 	return cleanNotes
 end
 
 local function SavePlayerNotes()
-	local notesFile = io.open(PLAYER_NOTES_FILE, "w")
+	local notesFile = io.open("playerNotes.json", "w")
 	if not notesFile then
-		Spring.Echo("Unable to save player notes to " .. PLAYER_NOTES_FILE)
+		Spring.Echo("Unable to save player notes to playerNotes.json")
 		return
 	end
 	notesFile:write(Json.encode(playerNotes or {}))
@@ -405,14 +407,14 @@ local function LoadPlayerNotes()
 	end
 
 	playerNotes = {}
-	if VFS.FileExists(PLAYER_NOTES_FILE) then
-		local rawNotes = VFS.LoadFile(PLAYER_NOTES_FILE)
+	if VFS.FileExists("playerNotes.json") then
+		local rawNotes = VFS.LoadFile("playerNotes.json")
 		if rawNotes and rawNotes ~= "" then
 			local success, decodedNotes = pcall(Json.decode, rawNotes)
 			if success then
 				playerNotes = CleanPlayerNotes(decodedNotes)
 			else
-				Spring.Echo("Unable to read player notes from " .. PLAYER_NOTES_FILE)
+				Spring.Echo("Unable to read player notes from playerNotes.json")
 			end
 		end
 	end
@@ -462,8 +464,8 @@ local function OpenPlayerNotesWindow(userName, userInfo)
 	WG.TextEntryWindow.CreateTextEntryWindow({
 		defaultValue = GetPlayerNote(userName, userInfo) or "",
 		caption = "Add Player Notes",
-		labelCaption = "Local note for " .. userName .. ". Leave blank to remove the note.",
-		hint = "Enter a local player note",
+		labelCaption = "Local note for " .. userName .. ". 100 character limit. Leave blank to remove the note.",
+		hint = "Enter a local player note, up to 100 characters",
 		height = 260,
 		width = 520,
 		oklabel = "Save",
