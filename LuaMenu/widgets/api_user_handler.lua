@@ -437,6 +437,9 @@ end
 local function SetPlayerNote(userName, userInfo, note)
 	local notes = LoadPlayerNotes()
 	local cleanNote = TrimPlayerNote(note)
+	if type(note) == "string" and #(note:gsub("^%s+", ""):gsub("%s+$", "")) > 100 and WG.Chobby and WG.Chobby.InformationPopup then
+		WG.Chobby.InformationPopup("Player notes are limited to 100 characters. Your note was shortened to 100 characters.", {width = 420, height = 180})
+	end
 	local noteKey = GetPlayerNoteKey(userName, userInfo)
 	local nameNoteKey = "name_" .. tostring(userName or "")
 	if cleanNote ~= "" then
