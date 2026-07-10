@@ -113,7 +113,6 @@ local UserLevelToImageConfFunction
 local votedUsers = {} -- 2023-06-29 FB: ToDo: Does not get reset, if user leaves battle during vote, but has no impact
 local usersAllowedToVote = {}
 
-local PLAYER_NOTES_OPTION = "Add Player Notes"
 local PLAYER_NOTES_FILE = "playerNotes.json"
 local playerNotes
 
@@ -418,21 +417,6 @@ local function LoadPlayerNotes()
 		end
 	end
 
-	-- One-time migration for notes saved by the earlier config-backed version.
-	local configNotes = WG.Chobby and WG.Chobby.Configuration and WG.Chobby.Configuration.playerNotes
-	local migrated = false
-	if type(configNotes) == "table" then
-		for key, value in pairs(CleanPlayerNotes(configNotes)) do
-			if playerNotes[key] == nil then
-				playerNotes[key] = value
-				migrated = true
-			end
-		end
-	end
-	if migrated then
-		SavePlayerNotes()
-	end
-
 	return playerNotes
 end
 
@@ -477,7 +461,7 @@ local function OpenPlayerNotesWindow(userName, userInfo)
 
 	WG.TextEntryWindow.CreateTextEntryWindow({
 		defaultValue = GetPlayerNote(userName, userInfo) or "",
-		caption = PLAYER_NOTES_OPTION,
+		caption = "Add Player Notes",
 		labelCaption = "Local note for " .. userName .. ". Leave blank to remove the note.",
 		hint = "Enter a local player note",
 		height = 260,
@@ -535,7 +519,7 @@ local function GetUserComboBoxOptions(userName, isInBattle, control, showTeamCol
 	if bs.aiLib then																								comboOptions[#comboOptions + 1] = "Clone AI" end
 	if bs.aiLib and bs.owner == myUserName and isInBattle then														comboOptions[#comboOptions + 1] = "Remove" end
 	if not itsme and not info.isBot and not bs.aiLib then															comboOptions[#comboOptions + 1] = "Report User" end
-	if not (info.isBot or bs.aiLib) then																			comboOptions[#comboOptions + 1] = PLAYER_NOTES_OPTION end
+	if not (info.isBot or bs.aiLib) then																			comboOptions[#comboOptions + 1] = "Add Player Notes" end
 																													comboOptions[#comboOptions + 1] = "Copy Name"
 	if (iAmBoss or iPlay) and not (control.isSingleplayer or bs.aiLib or info.isBot) and isInBattle  then			comboOptions[#comboOptions + 1] = "\255\128\128\128" .. "--------------"
 																													comboOptions[#comboOptions + 1] =  isBoss and "Disable Boss" or "Make Boss" end
@@ -1421,7 +1405,7 @@ local function GetUserControls(userName, opts)
 						local chatWindow = WG.Chobby.interfaceRoot.OpenPrivateChat(userName)
 					elseif selectedName == "Copy Name" then
 						Spring.SetClipboard(userName)
-					elseif selectedName == PLAYER_NOTES_OPTION then
+					elseif selectedName == "Add Player Notes" then
 						local latestUserInfo = userControls.lobby:GetUser(userName) or userInfo or {}
 						OpenPlayerNotesWindow(userName, latestUserInfo)
 					elseif selectedName == "Kickban" then
