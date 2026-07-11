@@ -999,10 +999,25 @@ local function GetUserTooltip(userName, userInfo, userBattleInfo, inBattleroom)
 
 	if playerNote then
 		if not userTooltip.playerNote then
-			userTooltip.playerNote = GetTooltipLine(userTooltip.mainControl)
+			userTooltip.playerNote = Chili.TextBox:New{
+				x      = 6,
+				y      = offset,
+				width  = width - 12,
+				height = 20,
+				align  = "left",
+				parent = userTooltip.mainControl,
+				objectOverrideFont = Configuration:GetFont(2, "Nimbus2", {font = "fonts/n019003l.pfb"}),
+				objectOverrideHintFont = Configuration:GetFont(2, "Nimbus2"),
+				text = "",
+			}
+		else
+			userTooltip.playerNote:Show()
 		end
-		userTooltip.playerNote.Update(offset, "Note: " .. playerNote)
-		offset = offset + 20 * math.max(1, userTooltip.playerNote.GetLines())
+		userTooltip.playerNote:SetText("Note: " .. playerNote)
+		userTooltip.playerNote:SetPos(nil, offset, width - 12)
+		userTooltip.playerNote:UpdateLayout()
+		local noteLines = userTooltip.playerNote.physicalLines and #userTooltip.playerNote.physicalLines or 1
+		offset = offset + 20 * math.max(1, noteLines)
 	elseif userTooltip.playerNote then
 		userTooltip.playerNote:Hide()
 	end
