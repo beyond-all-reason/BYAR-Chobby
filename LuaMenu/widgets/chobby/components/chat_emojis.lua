@@ -1,44 +1,54 @@
 ChatEmojis = {}
 
-ChatEmojis.aliases = {
-	["+1"] = "\240\159\145\141",
-	["-1"] = "\240\159\145\142",
-	angry = "\240\159\152\160",
-	clap = "\240\159\145\143",
-	confused = "\240\159\152\149",
-	cool = "\240\159\152\142",
-	cry = "\240\159\152\162",
-	fire = "\240\159\148\165",
-	gg = "\240\159\164\157",
-	grin = "\240\159\152\129",
-	heart = "\226\157\164\239\184\143",
-	joy = "\240\159\152\130",
-	laughing = "\240\159\152\134",
-	lol = "\240\159\152\130",
-	ok_hand = "\240\159\145\140",
-	party = "\240\159\165\179",
-	pleading = "\240\159\165\186",
-	rofl = "\240\159\164\163",
-	sad = "\240\159\152\162",
-	salute = "\240\159\171\161",
-	shrug = "\240\159\164\183",
-	slight_smile = "\240\159\153\130",
-	smile = "\240\159\152\132",
-	smiley = "\240\159\152\131",
-	sob = "\240\159\152\173",
-	thinking = "\240\159\164\148",
-	thumbsdown = "\240\159\145\142",
-	thumbsup = "\240\159\145\141",
-	tada = "\240\159\142\137",
-	wave = "\240\159\145\139",
-	wink = "\240\159\152\137",
+ChatEmojis.imageDir = (LUA_DIRNAME or "LuaMenu/") .. "images/emojis/twemoji/"
+
+ChatEmojis.aliasData = {
+	angry = { unicode = "\240\159\152\160", image = "angry.png" },
+	clap = { unicode = "\240\159\145\143", image = "clap.png" },
+	confused = { unicode = "\240\159\152\149", image = "confused.png" },
+	cool = { unicode = "\240\159\152\142", image = "cool.png" },
+	cry = { unicode = "\240\159\152\162", image = "cry.png" },
+	fire = { unicode = "\240\159\148\165", image = "fire.png" },
+	gg = { unicode = "\240\159\164\157", image = "gg.png" },
+	grin = { unicode = "\240\159\152\129", image = "grin.png" },
+	heart = { unicode = "\226\157\164\239\184\143", image = "heart.png" },
+	joy = { unicode = "\240\159\152\130", image = "joy.png" },
+	laughing = { unicode = "\240\159\152\134", image = "laughing.png" },
+	lol = { unicode = "\240\159\152\130", image = "lol.png" },
+	ok_hand = { unicode = "\240\159\145\140", image = "ok_hand.png" },
+	party = { unicode = "\240\159\165\179", image = "party.png" },
+	pleading = { unicode = "\240\159\165\186", image = "pleading.png" },
+	rofl = { unicode = "\240\159\164\163", image = "rofl.png" },
+	sad = { unicode = "\240\159\152\162", image = "sad.png" },
+	salute = { unicode = "\240\159\171\161", image = "salute.png" },
+	shrug = { unicode = "\240\159\164\183", image = "shrug.png" },
+	slight_smile = { unicode = "\240\159\153\130", image = "slight_smile.png" },
+	smile = { unicode = "\240\159\152\132", image = "smile.png" },
+	smiley = { unicode = "\240\159\152\131", image = "smiley.png" },
+	sob = { unicode = "\240\159\152\173", image = "sob.png" },
+	thinking = { unicode = "\240\159\164\148", image = "thinking.png" },
+	thumbsdown = { unicode = "\240\159\145\142", image = "thumbsdown.png" },
+	thumbsup = { unicode = "\240\159\145\141", image = "thumbsup.png" },
+	tada = { unicode = "\240\159\142\137", image = "tada.png" },
+	wave = { unicode = "\240\159\145\139", image = "wave.png" },
+	wink = { unicode = "\240\159\152\137", image = "wink.png" },
 }
+
+ChatEmojis.aliases = {}
+for alias, data in pairs(ChatEmojis.aliasData) do
+	ChatEmojis.aliases[alias] = data.unicode
+end
 
 ChatEmojis.sortedAliases = {}
 for alias in pairs(ChatEmojis.aliases) do
 	ChatEmojis.sortedAliases[#ChatEmojis.sortedAliases + 1] = alias
 end
 table.sort(ChatEmojis.sortedAliases)
+
+function ChatEmojis.GetImageFile(alias)
+	local data = ChatEmojis.aliasData[alias]
+	return data and data.image and (ChatEmojis.imageDir .. data.image)
+end
 
 function ChatEmojis.GetDisplayEntries()
 	local entries = {}
@@ -47,6 +57,7 @@ function ChatEmojis.GetDisplayEntries()
 		entries[#entries + 1] = {
 			alias = alias,
 			emoji = ChatEmojis.aliases[alias],
+			image = ChatEmojis.GetImageFile(alias),
 		}
 	end
 	return entries

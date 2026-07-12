@@ -42,7 +42,8 @@ function Console:init(channelName, sendMessageListener, noHistoryLoad, onResizeF
 	else
 		font = Configuration:GetFont(Configuration.chatFontSize, "console_" .. Configuration.chatFontSize, {font = "fonts/n019003l.pfb", shadow = true}, true)
 	end
-	self.tbHistory = TextBox:New {
+	local HistoryTextBox = EmojiTextBox or TextBox
+	self.tbHistory = HistoryTextBox:New {
 		x = 0,
 		right = 0,
 		y = 0,
@@ -85,12 +86,14 @@ function Console:init(channelName, sendMessageListener, noHistoryLoad, onResizeF
 	}
 
 	self.emojiPicker = self:CreateEmojiPicker()
+	local emojiButtonImage = ChatEmojis and ChatEmojis.GetImageFile and ChatEmojis.GetImageFile("smile")
 	self.btnEmojiPicker = Button:New {
 		bottom = 7,
 		right = 2,
 		width = 27,
 		height = 25,
-		caption = (ChatEmojis and ChatEmojis.aliases.smile) or ":)",
+		padding = {0, 0, 0, 0},
+		caption = emojiButtonImage and "" or ((ChatEmojis and ChatEmojis.aliases.smile) or ":)"),
 		tooltip = "Emoji",
 		objectOverrideFont = Configuration:GetFont(Configuration.chatFontSize, "console_emoji_button_" .. Configuration.chatFontSize, {font = "fonts/n019003l.pfb", shadow = true}, true),
 		OnClick = {
@@ -99,6 +102,17 @@ function Console:init(channelName, sendMessageListener, noHistoryLoad, onResizeF
 			end
 		},
 	}
+	if emojiButtonImage then
+		Image:New {
+			x = 4,
+			y = 3,
+			width = 19,
+			height = 19,
+			file = emojiButtonImage,
+			keepAspect = true,
+			parent = self.btnEmojiPicker,
+		}
+	end
 
 	local function onConfigurationChange(listener, key, value)
 		if key == "chatFontSize" then
@@ -226,12 +240,13 @@ function Console:CreateEmojiPicker()
 		local entry = entries[i]
 		local column = (i - 1)%columns
 		local row = math.floor((i - 1)/columns)
-		Button:New {
+		local button = Button:New {
 			x = column * cellSize,
 			y = row * cellSize,
 			width = buttonSize,
 			height = buttonSize,
-			caption = entry.emoji,
+			padding = {0, 0, 0, 0},
+			caption = entry.image and "" or entry.emoji,
 			tooltip = ":" .. entry.alias .. ":",
 			objectOverrideFont = font,
 			parent = emojiScroll,
@@ -241,6 +256,17 @@ function Console:CreateEmojiPicker()
 				end
 			},
 		}
+		if entry.image then
+			Image:New {
+				x = 4,
+				y = 4,
+				width = 20,
+				height = 20,
+				file = entry.image,
+				keepAspect = true,
+				parent = button,
+			}
+		end
 	end
 
 	return picker
@@ -459,8 +485,7 @@ function Console:AddMessage(message, userName, dateOverride, color, thirdPerson,
 		end
 	end
 
-	local displayMessage = (ChatEmojis and ChatEmojis.ReplaceAliases(message)) or message
-	txt = txt .. displayMessage
+	txt = txt .. message
 	onTextClick, textTooltip = WG.BrowserHandler.AddClickableUrls(txt, onTextClick or {}, textTooltip or {})
 
 	whiteText = whiteText .. message
@@ -530,7 +555,6 @@ function Console:LoadHistory(numLines)
 			local start = string.find(line, "%[")
 			if start then
 				local txt = "\255\128\128\128" .. string.sub(line, start)
-				txt = (ChatEmojis and ChatEmojis.ReplaceAliases(txt)) or txt
 				if self.tbHistory.text == "" then
 					self.tbHistory:SetText(txt)
 				else

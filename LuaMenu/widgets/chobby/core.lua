@@ -10,6 +10,7 @@ local includes = {
 	"components/party_wrapper.lua",
 	"components/list_window.lua",
 	"components/chat_emojis.lua",
+	"components/emoji_text_box.lua",
 	"components/console.lua",
 	"components/user_list_panel.lua",
 	"components/sortable_list.lua",
