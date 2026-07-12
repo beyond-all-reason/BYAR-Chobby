@@ -63,6 +63,7 @@ function Chotify:Post(obj)
     self._idCounter = self._idCounter + 1
 
     local window = Chili.Window:New {
+        classname = obj.classname or "overlay_window",
         right = 2,
         width = 300,
         bottom = 2,

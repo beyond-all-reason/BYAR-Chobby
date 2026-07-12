@@ -50,6 +50,8 @@ return {
 		plugins_install_disclaimer = "This is community-made custom code. The BAR organisation is not responsible for this widget or its content. Do you want to install it?",
 		plugins_installing = "Installing...",
 		plugins_installed = "Installed",
+		plugins_installed_notification = "%{name} has been installed.",
+		plugins_upgraded_notification = "%{name} has been updated to the latest version.",
 		plugins_details = "Details",
 		plugins_homepage = "Homepage",
 		plugins_source = "Source",

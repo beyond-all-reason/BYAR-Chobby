@@ -220,6 +220,7 @@ function Configuration:init()
 	self.confirmation_battleFromBattle = false
 	self.leaveMultiplayerOnMainMenu = false
 	self.queueExitConfirmPromptDoNotAskAgain = false
+	self.pluginsInstallDisclaimerAccepted = false
 	self.backConfirmation = {
 		multiplayer = {
 			self.leaveMultiplayerOnMainMenu and {
@@ -798,6 +799,7 @@ function Configuration:GetConfigData()
 		useLastGameSpectatorState = self.useLastGameSpectatorState,
 		friendsFilterOnline = self.friendsFilterOnline,
 		queueExitConfirmPromptDoNotAskAgain = self.queueExitConfirmPromptDoNotAskAgain,
+		pluginsInstallDisclaimerAccepted = self.pluginsInstallDisclaimerAccepted,
 		supperAnnouncementKey = self.supperAnnouncementKey,
 		rejoinBattleID = self.rejoinBattleID
 	}

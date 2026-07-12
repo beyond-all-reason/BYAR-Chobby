@@ -14,8 +14,8 @@
 --   Distribution:/bar-workshop/distributions/{id}.zip
 --
 -- Manifest entry fields:
---   id, display_name, name, author, description, tags, version, homepage,
---   github_link, discord_link
+--   id, display_name, name, author, description, tags, version, last_updated,
+--   homepage, github_link, discord_link
 --------------------------------------------------------------------------------
 
 
@@ -111,31 +111,18 @@ local function hasLink(url)
 end
 
 --------------------------------------------------------------------------------
--- Utility: Compare two version strings (e.g. "1.2.3" vs "1.3.0")
--- Returns -1 if v1 < v2, 0 if equal, 1 if v1 > v2
+-- Utility: Compare two ISO 8601 timestamps (e.g. "2026-07-12T00:00:00.000Z")
+-- Returns -1 if t1 < t2, 0 if equal, 1 if t1 > t2
+-- Same-format UTC timestamps order correctly as plain strings.
 --------------------------------------------------------------------------------
 
-local function compareVersions(v1, v2)
-    -- Spring.Echo("[PluginsWindow] Comparing versions: '" .. tostring(v1) .. "' vs '" .. tostring(v2) .. "'")
-    if not v1 and not v2 then return 0 end
-    if not v1 then return -1 end
-    if v1 == v2 then return 0 end
-    local parts1 = {}
-    for p in string.gmatch(tostring(v1), "(%d+)") do
-        parts1[#parts1 + 1] = tonumber(p)
-    end
-    local parts2 = {}
-    for p in string.gmatch(tostring(v2), "(%d+)") do
-        parts2[#parts2 + 1] = tonumber(p)
-    end
-    local maxLen = math.max(#parts1, #parts2)
-    for i = 1, maxLen do
-        local a = parts1[i] or 0
-        local b = parts2[i] or 0
-        if a < b then return -1 end
-        if a > b then return 1 end
-    end
-    return 0
+local function compareTimestamps(t1, t2)
+    if not t1 and not t2 then return 0 end
+    if not t1 then return -1 end
+    if not t2 then return 1 end
+    if t1 == t2 then return 0 end
+    if t1 < t2 then return -1 end
+    return 1
 end
 
 --------------------------------------------------------------------------------
@@ -160,6 +147,15 @@ end
 
 local function getInstallPath(widgetId)
     return "LuaUI/Widgets/" .. widgetId
+end
+
+local function getWidgetDisplayName(widgetId)
+    for _, widget in ipairs(widgetsList) do
+        if widget.id == widgetId then
+            return widget.display_name or widget.name or widgetId
+        end
+    end
+    return widgetId
 end
 
 --------------------------------------------------------------------------------
@@ -234,7 +230,7 @@ end
 -- Upgrade helpers
 --------------------------------------------------------------------------------
 
-local function getInstalledVersion(widgetId)
+local function getInstalledLastUpdated(widgetId)
     local manifestPath = getInstallPath(widgetId) .. "/manifest.json"
     local content = VFS.LoadFile(manifestPath)
     if not content then
@@ -248,7 +244,7 @@ local function getInstalledVersion(widgetId)
     if not json then VFS.Include("libs/json.lua") end
     local ok, data = pcall(function() return json.decode(content) end)
     if ok and type(data) == "table" then
-        return data.version
+        return data.last_updated
     end
     return nil
 end
@@ -294,10 +290,10 @@ local function checkForUpgrades()
     if #widgetsList == 0 then return end
     for _, widget in ipairs(widgetsList) do
         local widgetId = widget.id
-        if widgetId and widget.version and isWidgetInstalled(widgetId) then
-            local installedVersion = getInstalledVersion(widgetId)
-            if compareVersions(installedVersion, widget.version) < 0 then
-                Spring.Echo("[PluginsWindow] Upgrading " .. widgetId .. " from v" .. tostring(installedVersion) .. " to v" .. tostring(widget.version))
+        if widgetId and widget.last_updated and isWidgetInstalled(widgetId) then
+            local installedLastUpdated = getInstalledLastUpdated(widgetId)
+            if compareTimestamps(installedLastUpdated, widget.last_updated) < 0 then
+                Spring.Echo("[PluginsWindow] Upgrading " .. widgetId .. " (installed: " .. tostring(installedLastUpdated) .. ", available: " .. widget.last_updated .. ")")
                 if installingWidgets[widgetId] then
                     Spring.Echo("[PluginsWindow] Upgrade already in progress for " .. widgetId .. ", skipping")
                     return
@@ -1004,6 +1000,11 @@ local function onDownloadFinished(listener, downloadID, downloadName, downloadFi
         upgradeBackups[widgetId] = nil -- backup kept on disk but no longer tracked
         widgetPanelCache[widgetId] = nil
         Spring.Echo("[PluginsWindow] Widget upgraded: " .. widgetId)
+        Chotify:Post({
+            title = i18n("plugins_title"),
+            body = i18n("plugins_upgraded_notification", { name = getWidgetDisplayName(widgetId) }),
+            time = 10,
+        })
         refreshGrid()
         return
     end
@@ -1015,6 +1016,11 @@ local function onDownloadFinished(listener, downloadID, downloadName, downloadFi
         installedWidgets[widgetId] = true
         widgetPanelCache[widgetId] = nil
         Spring.Echo("[PluginsWindow] Widget installed: " .. widgetId)
+        Chotify:Post({
+            title = i18n("plugins_title"),
+            body = i18n("plugins_installed_notification", { name = getWidgetDisplayName(widgetId) }),
+            time = 10,
+        })
         refreshGrid()
         return
     end
