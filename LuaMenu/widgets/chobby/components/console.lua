@@ -77,17 +77,35 @@ function Console:init(channelName, sendMessageListener, noHistoryLoad, onResizeF
 		x = 0,
 		bottom = 7,
 		height = 25,
-		right = 2,
+		right = 31,
 		text = "",
 		objectOverrideFont = Configuration:GetFont(Configuration.chatFontSize, "console_" .. Configuration.chatFontSize, {font = "fonts/n019003l.pfb", shadow = true}, true),
 		objectOverrideHintFont = Configuration:GetHintFont(Configuration.chatFontSize, "console_" .. Configuration.chatFontSize, {font = "fonts/n019003l.pfb", shadow = true}, true),
 		--hint = i18n("type_here_to_chat"),
 	}
 
+	self.emojiPicker = self:CreateEmojiPicker()
+	self.btnEmojiPicker = Button:New {
+		bottom = 7,
+		right = 2,
+		width = 27,
+		height = 25,
+		caption = (ChatEmojis and ChatEmojis.aliases.smile) or ":)",
+		tooltip = "Emoji",
+		objectOverrideFont = Configuration:GetFont(Configuration.chatFontSize, "console_emoji_button_" .. Configuration.chatFontSize, {font = "fonts/n019003l.pfb", shadow = true}, true),
+		OnClick = {
+			function()
+				self:ToggleEmojiPicker()
+			end
+		},
+	}
+
 	local function onConfigurationChange(listener, key, value)
 		if key == "chatFontSize" then
 			self.ebInputText.font = Configuration:GetFont(value, "console_" .. value, {font = "fonts/n019003l.pfb", shadow = true}, true)
 			self.ebInputText:UpdateLayout()
+			self.btnEmojiPicker.font = Configuration:GetFont(value, "console_emoji_button_" .. value, {font = "fonts/n019003l.pfb", shadow = true}, true)
+			self.btnEmojiPicker:Invalidate()
 
 			if monospaced then
 				self.tbHistory.font = Configuration:GetFont(Configuration.chatFontSize, "consoleMono_" .. Configuration.chatFontSize, {font = "fonts/monospaced/SourceCodePro-Medium.otf", shadow = true}, true)
@@ -137,6 +155,9 @@ function Console:init(channelName, sendMessageListener, noHistoryLoad, onResizeF
 		x = 0, y = 0,
 		bottom = 0, right = 0,
 		OnClick = { function()
+			if self.emojiPicker then
+				self.emojiPicker:Hide()
+			end
 			screen0:FocusControl(self.ebInputText)
 		end}
 	}
@@ -153,12 +174,102 @@ function Console:init(channelName, sendMessageListener, noHistoryLoad, onResizeF
 			self.spHistory,
 			self.ebInputText,
 			self.fakeImage,
+			self.emojiPicker,
+			self.btnEmojiPicker,
 		},
 	}
+	self.emojiPicker:Hide()
+	self.btnEmojiPicker:BringToFront()
 
 	if not noHistoryLoad then
 		self:LoadHistory(Configuration.lastLoginChatLength)
 	end
+end
+
+function Console:CreateEmojiPicker()
+	local picker = Control:New {
+		name = (self.channelName or "console") .. " emoji picker",
+		right = 2,
+		bottom = 35,
+		width = 282,
+		height = 174,
+		padding = {4, 4, 4, 4},
+		itemPadding = {0, 0, 0, 0},
+		itemMargin = {0, 0, 0, 0},
+		backgroundColor = {0.05, 0.05, 0.05, 0.96},
+		borderColor = {0.35, 0.35, 0.35, 0.9},
+		resizable = false,
+		draggable = false,
+	}
+
+	local emojiScroll = ScrollPanel:New {
+		x = 4,
+		y = 4,
+		right = 4,
+		bottom = 4,
+		padding = {0, 0, 0, 0},
+		itemPadding = {0, 0, 0, 0},
+		itemMargin = {0, 0, 0, 0},
+		parent = picker,
+	}
+
+	if not ChatEmojis then
+		return picker
+	end
+
+	local entries = ChatEmojis.GetDisplayEntries()
+	local columns = 8
+	local cellSize = 31
+	local buttonSize = 28
+	local font = Configuration:GetFont(Configuration.chatFontSize, "console_emoji_picker_" .. Configuration.chatFontSize, {font = "fonts/n019003l.pfb", shadow = true}, true)
+	for i = 1, #entries do
+		local entry = entries[i]
+		local column = (i - 1)%columns
+		local row = math.floor((i - 1)/columns)
+		Button:New {
+			x = column * cellSize,
+			y = row * cellSize,
+			width = buttonSize,
+			height = buttonSize,
+			caption = entry.emoji,
+			tooltip = ":" .. entry.alias .. ":",
+			objectOverrideFont = font,
+			parent = emojiScroll,
+			OnClick = {
+				function()
+					self:InsertEmojiAlias(entry.alias)
+				end
+			},
+		}
+	end
+
+	return picker
+end
+
+function Console:ToggleEmojiPicker()
+	if not self.emojiPicker then
+		return
+	end
+	if self.emojiPicker.visible then
+		self.emojiPicker:Hide()
+	else
+		self.emojiPicker:Show()
+		self.emojiPicker:BringToFront()
+		self.btnEmojiPicker:BringToFront()
+	end
+	screen0:FocusControl(self.ebInputText)
+end
+
+function Console:InsertEmojiAlias(alias)
+	if not alias or alias == "" then
+		return
+	end
+	self.ebInputText:TextInput(":" .. alias .. ": ")
+	self.sentMessageIndex = 1
+	if self.emojiPicker then
+		self.emojiPicker:Hide()
+	end
+	screen0:FocusControl(self.ebInputText)
 end
 
 -- Changes the current console text entry to message sent after the one currently shown.
@@ -221,6 +332,12 @@ function Console:Autocomplete(textSoFar)
 				self.suggestions[#self.suggestions + 1] = string.sub(name, length + 1)
 			end
 		end
+		if ChatEmojis then
+			local emojiSuggestions = ChatEmojis.GetCompletionSuffixes(self.subword)
+			for i = 1, #emojiSuggestions do
+				self.suggestions[#self.suggestions + 1] = emojiSuggestions[i]
+			end
+		end
 	end
 
 	if #self.suggestions == 0 then
@@ -241,6 +358,9 @@ end
 
 function Console:SendMessage()
 	if self.ebInputText.text ~= "" then
+		if self.emojiPicker then
+			self.emojiPicker:Hide()
+		end
 		message = self.ebInputText.text
 		-- Listener handles sending the message.
 		if self.listener then
@@ -339,7 +459,8 @@ function Console:AddMessage(message, userName, dateOverride, color, thirdPerson,
 		end
 	end
 
-	txt = txt .. message
+	local displayMessage = (ChatEmojis and ChatEmojis.ReplaceAliases(message)) or message
+	txt = txt .. displayMessage
 	onTextClick, textTooltip = WG.BrowserHandler.AddClickableUrls(txt, onTextClick or {}, textTooltip or {})
 
 	whiteText = whiteText .. message
@@ -409,6 +530,7 @@ function Console:LoadHistory(numLines)
 			local start = string.find(line, "%[")
 			if start then
 				local txt = "\255\128\128\128" .. string.sub(line, start)
+				txt = (ChatEmojis and ChatEmojis.ReplaceAliases(txt)) or txt
 				if self.tbHistory.text == "" then
 					self.tbHistory:SetText(txt)
 				else
