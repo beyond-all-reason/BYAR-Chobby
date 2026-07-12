@@ -14,7 +14,8 @@
 --   Distribution:/bar-workshop/distributions/{id}.zip
 --
 -- Manifest entry fields:
---   id, display_name, name, author, description, tags, version, homepage
+--   id, display_name, name, author, description, tags, version, homepage,
+--   github_link, discord_link
 --------------------------------------------------------------------------------
 
 
@@ -35,6 +36,8 @@ local MANIFEST_NAME    = "plugin_manifest"
 local PLUGINS_DIR         = "plugins/"
 local IMG_FALLBACK_LARGE  = "LuaMenu/images/load_img_512.png"
 local IMG_FALLBACK_MEDIUM = "LuaMenu/images/load_img_128.png"
+local IMG_SOURCE          = "LuaMenu/images/source.png"
+local IMG_DISCORD         = "LuaMenu/images/Discord-Symbol-White.png"
 
 local ITEM_MIN_WIDTH   = 300  -- Minimum width for a widget card; actual width is dynamic based on container size
 local ITEM_HEIGHT      = 240
@@ -97,6 +100,14 @@ local function clamp(val, lo, hi)
     if val < lo then return lo end
     if val > hi then return hi end
     return val
+end
+
+--------------------------------------------------------------------------------
+-- Utility: Check that a manifest link field is a non-empty string
+--------------------------------------------------------------------------------
+
+local function hasLink(url)
+    return type(url) == "string" and url ~= ""
 end
 
 --------------------------------------------------------------------------------
@@ -578,12 +589,70 @@ local function openDetail(widget)
         detailCoverImage = img
     end
 
-    local btnY = contentY + 10
+    -- Action buttons stack upward from the bottom of the right column;
+    -- link buttons only appear when the manifest provides a URL.
+    local actionBottom = 15
+    local function nextActionBottom()
+        local value = actionBottom
+        actionBottom = actionBottom + 55
+        return value
+    end
+
+    if hasLink(widget.discord_link) then
+        Button:New {
+            caption = i18n("plugins_discord"),
+            x = rightX,
+            bottom = nextActionBottom(),
+            right = 10,
+            height = 45,
+            objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+            OnClick = {
+                function()
+                    WG.WrapperLoopback.OpenUrl(widget.discord_link)
+                end
+            },
+            parent = detailWindow,
+        }
+    end
+
+    if hasLink(widget.github_link) then
+        Button:New {
+            caption = i18n("plugins_source"),
+            x = rightX,
+            bottom = nextActionBottom(),
+            right = 10,
+            height = 45,
+            objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+            OnClick = {
+                function()
+                    WG.WrapperLoopback.OpenUrl(widget.github_link)
+                end
+            },
+            parent = detailWindow,
+        }
+    end
+
+    if hasLink(widget.homepage) then
+        Button:New {
+            caption = i18n("plugins_homepage"),
+            x = rightX,
+            bottom = nextActionBottom(),
+            right = 10,
+            height = 45,
+            objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+            OnClick = {
+                function()
+                    WG.WrapperLoopback.OpenUrl(widget.homepage)
+                end
+            },
+            parent = detailWindow,
+        }
+    end
 
     Button:New {
         caption = isWidgetInstalled(widgetId) and i18n("plugins_installed") or (installingWidgets[widgetId] and i18n("plugins_installing") or i18n("plugins_install")),
         x = rightX,
-        bottom = 120,
+        bottom = nextActionBottom(),
         right = 10,
         height = 45,
         objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
@@ -597,23 +666,6 @@ local function openDetail(widget)
         },
         parent = detailWindow,
     }
-
-    if widget.homepage then
-        Button:New {
-            caption = i18n("plugins_homepage"),
-            x = rightX,
-            bottom = 65,
-            right = 10,
-            height = 45,
-            objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
-            OnClick = {
-                function()
-                    WG.WrapperLoopback.OpenUrl(widget.homepage)
-                end
-            },
-            parent = detailWindow,
-        }
-    end
 
     -- Modal overlay background
     PriorityPopup(detailWindow, closeDetail, nil, nil, nil, true)
@@ -725,6 +777,39 @@ local function createWidgetCard(widget, itemWidth)
             },
         },
     }
+
+    -- Small icon-only link buttons in the bottom-left corner of the card
+    local linkIconX = 4
+    local function addLinkIcon(iconFile, url, tooltip)
+        Button:New {
+            x = linkIconX,
+            caption = "",
+            bottom = 4,
+            width = 28,
+            height = 28,
+            padding = {0, 0, 0, 0},
+            tooltip = tooltip,
+            OnClick = { function() WG.WrapperLoopback.OpenUrl(url) end },
+            parent = card,
+            children = {
+                Image:New {
+                    x = 4,
+                    y = 4,
+                    right = 4,
+                    bottom = 4,
+                    keepAspect = true,
+                    file = iconFile,
+                },
+            },
+        }
+        linkIconX = linkIconX + 32
+    end
+    if hasLink(widget.github_link) then
+        addLinkIcon(IMG_SOURCE, widget.github_link, i18n("plugins_source_tooltip"))
+    end
+    if hasLink(widget.discord_link) then
+        addLinkIcon(IMG_DISCORD, widget.discord_link, i18n("plugins_discord_tooltip"))
+    end
 
     card.pluginId = id
     if id then
