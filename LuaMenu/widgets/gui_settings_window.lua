@@ -1124,6 +1124,7 @@ local function GetLobbyTabControls()
 	children[#children + 1], offset = AddCheckboxSetting(offset, i18n("fixFlicker"), "fixFlicker", true, nil, i18n("fixFlicker_tooltip"))
 	children[#children + 1], offset = AddCheckboxSetting(offset, i18n("displayBots"), "displayBots", false, nil, i18n("displayBots_tooltip") )
 	children[#children + 1], offset = AddCheckboxSetting(offset, i18n("filterbattleroom"), "filterbattleroom", true, nil, i18n("filterbattleroom_tooltip"))
+	children[#children + 1], offset = AddCheckboxSetting(offset, i18n("plugins_auto_update"), "autoUpdateWidgets", true, nil, i18n("plugins_auto_update_tooltip"))
 
 	children[#children + 1], offset = AddCheckboxSetting(offset, i18n("flushLogs"), "flushLogs",
 		Spring.GetConfigInt("LogFlushLevel") == 0,

@@ -72,10 +72,12 @@ local searchBox        = nil
 local detailReadmeBox  = nil      -- TextBox inside detail modal showing README
 local detailCoverImage = nil      -- Image inside detail modal showing cover art
 local detailWidgetId   = nil      -- id of widget currently shown in detail modal
+local updateAllButton  = nil      -- header button, only visible when updates are available
 
 local installingWidgets = {}      -- id -> true while install download is in progress
 local installedWidgets  = {}      -- id -> true after successful install
 local upgradeBackups    = {}      -- id -> backup path for in-progress upgrades
+local installedLastUpdatedCache = {} -- id -> last_updated from installed manifest.json (false = none)
 
 -- Parallel download pipeline state
 local downloadToWidgetId = {}     -- download name -> widget id (O(1) lookup)
@@ -249,6 +251,49 @@ local function getInstalledLastUpdated(widgetId)
     return nil
 end
 
+-- Cached wrapper; card rendering queries this repeatedly and the uncached
+-- version hits the disk and decodes JSON every call
+local function getInstalledLastUpdatedCached(widgetId)
+    local cached = installedLastUpdatedCache[widgetId]
+    if cached ~= nil then
+        return cached or nil
+    end
+    local value = getInstalledLastUpdated(widgetId)
+    installedLastUpdatedCache[widgetId] = value or false
+    return value
+end
+
+local function isUpgradeAvailable(widget)
+    local widgetId = widget and widget.id
+    if not (widgetId and widget.last_updated and isWidgetInstalled(widgetId)) then
+        return false
+    end
+    return compareTimestamps(getInstalledLastUpdatedCached(widgetId), widget.last_updated) < 0
+end
+
+local function getUpgradableWidgets()
+    local upgradable = {}
+    for _, widget in ipairs(widgetsList) do
+        if isUpgradeAvailable(widget) and not installingWidgets[widget.id] then
+            upgradable[#upgradable + 1] = widget
+        end
+    end
+    return upgradable
+end
+
+local function updateUpdateAllButton()
+    if not updateAllButton then return end
+    local upgradable = getUpgradableWidgets()
+    if #upgradable > 0 then
+        local lines = { i18n("plugins_update_all_tooltip") }
+        for i, widget in ipairs(upgradable) do
+            lines[i + 1] = "- " .. getWidgetDisplayName(widget.id)
+        end
+        updateAllButton.tooltip = table.concat(lines, "\n")
+    end
+    updateAllButton:SetVisibility(#upgradable > 0)
+end
+
 local function renameLuaFilesRecursive(dirPath)
     -- Ensure trailing slash for VFS calls
     local dir = dirPath
@@ -286,49 +331,70 @@ local function backupDirectory(dirPath)
     return ok, backupPath
 end
 
+local function upgradeWidget(widget)
+    local widgetId = widget.id
+    if installingWidgets[widgetId] then
+        Spring.Echo("[PluginsWindow] Upgrade already in progress for " .. widgetId .. ", skipping")
+        return
+    end
+    Spring.Echo("[PluginsWindow] Upgrading " .. widgetId .. " (installed: " .. tostring(getInstalledLastUpdatedCached(widgetId)) .. ", available: " .. tostring(widget.last_updated) .. ")")
+
+    -- Backup the existing install folder by renaming it
+    local installDir = getInstallPath(widgetId)
+    local ok, backupPath = backupDirectory(installDir)
+    if not ok then
+        Spring.Echo("[PluginsWindow] Cannot upgrade " .. widgetId .. ": failed to backup existing install")
+        return
+    end
+
+    installingWidgets[widgetId] = true
+    upgradeBackups[widgetId] = backupPath
+
+    -- Download and extract to the original install path (same as fresh install)
+    local downloadName = "upgrade_" .. widgetId
+    local url = getDistributionUrl(widgetId) .. "?t=" .. os.time()
+
+    if WG.DownloadHandler and WG.DownloadHandler.QueueDownload then
+        WG.DownloadHandler.QueueDownload(downloadName, "resource", -1, 0, {
+            url = url,
+            destination = installDir,
+            extract = true,
+        })
+        Spring.Echo("[PluginsWindow] Queued upgrade download to: " .. installDir)
+    else
+        -- Restore backup since we can't proceed
+        os.rename(backupPath, installDir)
+        installingWidgets[widgetId] = nil
+        upgradeBackups[widgetId] = nil
+        Spring.Echo("[PluginsWindow] Cannot upgrade: DownloadHandler not available")
+    end
+end
+
 local function checkForUpgrades()
     if #widgetsList == 0 then return end
-    for _, widget in ipairs(widgetsList) do
-        local widgetId = widget.id
-        if widgetId and widget.last_updated and isWidgetInstalled(widgetId) then
-            local installedLastUpdated = getInstalledLastUpdated(widgetId)
-            if compareTimestamps(installedLastUpdated, widget.last_updated) < 0 then
-                Spring.Echo("[PluginsWindow] Upgrading " .. widgetId .. " (installed: " .. tostring(installedLastUpdated) .. ", available: " .. widget.last_updated .. ")")
-                if installingWidgets[widgetId] then
-                    Spring.Echo("[PluginsWindow] Upgrade already in progress for " .. widgetId .. ", skipping")
-                    return
-                end
 
-                -- Backup the existing install folder by renaming it
-                local installDir = getInstallPath(widgetId)
-                local ok, backupPath = backupDirectory(installDir)
-                if not ok then
-                    Spring.Echo("[PluginsWindow] Cannot upgrade " .. widgetId .. ": failed to backup existing install")
-                else
-                    installingWidgets[widgetId] = true
-                    upgradeBackups[widgetId] = backupPath
+    local upgradable = getUpgradableWidgets()
+    if #upgradable == 0 then return end
 
-                    -- Download and extract to the original install path (same as fresh install)
-                    local downloadName = "upgrade_" .. widgetId
-                    local url = getDistributionUrl(widgetId) .. "?t=" .. os.time()
-
-                    if WG.DownloadHandler and WG.DownloadHandler.QueueDownload then
-                        WG.DownloadHandler.QueueDownload(downloadName, "resource", -1, 0, {
-                            url = url,
-                            destination = installDir,
-                            extract = true,
-                        })
-                        Spring.Echo("[PluginsWindow] Queued upgrade download to: " .. installDir)
-                    else
-                        -- Restore backup since we can't proceed
-                        os.rename(backupPath, installDir)
-                        installingWidgets[widgetId] = nil
-                        upgradeBackups[widgetId] = nil
-                        Spring.Echo("[PluginsWindow] Cannot upgrade: DownloadHandler not available")
-                    end
-                end
-            end
+    local Configuration = WG.Chobby and WG.Chobby.Configuration
+    if Configuration and not Configuration.autoUpdateWidgets then
+        -- Auto-update disabled: only notify; the widget's Update button handles the rest
+        local body
+        if #upgradable == 1 then
+            body = i18n("plugins_update_available_notification", { name = getWidgetDisplayName(upgradable[1].id) })
+        else
+            body = i18n("plugins_updates_available_notification", { count = #upgradable })
         end
+        Chotify:Post({
+            title = i18n("plugins_title"),
+            body = body,
+            time = 10,
+        })
+        return
+    end
+
+    for _, widget in ipairs(upgradable) do
+        upgradeWidget(widget)
     end
 end
 
@@ -645,17 +711,27 @@ local function openDetail(widget)
         }
     end
 
+    local upgradeAvailable = isUpgradeAvailable(widget)
     Button:New {
-        caption = isWidgetInstalled(widgetId) and i18n("plugins_installed") or (installingWidgets[widgetId] and i18n("plugins_installing") or i18n("plugins_install")),
+        caption = (installingWidgets[widgetId] and i18n("plugins_installing"))
+            or (upgradeAvailable and i18n("plugins_update"))
+            or (isWidgetInstalled(widgetId) and i18n("plugins_installed"))
+            or i18n("plugins_install"),
         x = rightX,
         bottom = nextActionBottom(),
         right = 10,
         height = 45,
         objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
-        classname = isWidgetInstalled(widgetId) and "option_button" or "action_button",
+        classname = (isWidgetInstalled(widgetId) and not upgradeAvailable) and "option_button" or "action_button",
         OnClick = {
             function()
-                if not isWidgetInstalled(widgetId) and not installingWidgets[widgetId] then
+                if installingWidgets[widgetId] then
+                    return
+                end
+                if isUpgradeAvailable(widget) then
+                    upgradeWidget(widget)
+                    updateUpdateAllButton()
+                elseif not isWidgetInstalled(widgetId) then
                     confirmAndInstall(widget)
                 end
             end
@@ -737,18 +813,29 @@ local function createWidgetCard(widget, itemWidth)
                 autosize = false,
                 wordwrap = true,
             },
-            -- Install button
+            -- Install/Update button
             Button:New {
-                caption = isWidgetInstalled(id) and i18n("plugins_installed") or (installingWidgets[id] and i18n("plugins_installing") or i18n("plugins_install")),
+                caption = (installingWidgets[id] and i18n("plugins_installing"))
+                    or (isUpgradeAvailable(widget) and i18n("plugins_update"))
+                    or (isWidgetInstalled(id) and i18n("plugins_installed"))
+                    or i18n("plugins_install"),
                 right = 85,
                 bottom = 4,
                 width = 75,
                 height = 28,
                 fontSize = 12,
-                classname = isWidgetInstalled(id) and "option_button" or "action_button",
+                classname = (isWidgetInstalled(id) and not isUpgradeAvailable(widget)) and "option_button" or "action_button",
                 OnClick = {
                     function()
-                        if not isWidgetInstalled(id) and not installingWidgets[id] then
+                        if installingWidgets[id] then
+                            return
+                        end
+                        if isUpgradeAvailable(widget) then
+                            upgradeWidget(widget)
+                            updateUpdateAllButton()
+                            widgetPanelCache[id] = nil
+                            scheduleRefresh()
+                        elseif not isWidgetInstalled(id) then
                             confirmAndInstall(widget, function()
                                 widgetPanelCache[id] = nil
                                 scheduleRefresh()
@@ -988,6 +1075,7 @@ local function onDownloadFinished(listener, downloadID, downloadName, downloadFi
         if loadState == STATE_LOADED then
             checkForUpgrades()
         end
+        updateUpdateAllButton()
         refreshGrid()
         return
     end
@@ -999,6 +1087,8 @@ local function onDownloadFinished(listener, downloadID, downloadName, downloadFi
         installedWidgets[widgetId] = true
         upgradeBackups[widgetId] = nil -- backup kept on disk but no longer tracked
         widgetPanelCache[widgetId] = nil
+        installedLastUpdatedCache[widgetId] = nil -- re-read manifest.json from the new install
+        updateUpdateAllButton()
         Spring.Echo("[PluginsWindow] Widget upgraded: " .. widgetId)
         Chotify:Post({
             title = i18n("plugins_title"),
@@ -1015,6 +1105,7 @@ local function onDownloadFinished(listener, downloadID, downloadName, downloadFi
         installingWidgets[widgetId] = nil
         installedWidgets[widgetId] = true
         widgetPanelCache[widgetId] = nil
+        installedLastUpdatedCache[widgetId] = nil -- re-read manifest.json from the new install
         Spring.Echo("[PluginsWindow] Widget installed: " .. widgetId)
         Chotify:Post({
             title = i18n("plugins_title"),
@@ -1100,6 +1191,7 @@ local function onDownloadFailed(listener, downloadID, errorID, downloadName, dow
         upgradeBackups[widgetId] = nil
         widgetPanelCache[widgetId] = nil
         Spring.Echo("[PluginsWindow] Widget upgrade failed: " .. widgetId .. " (error " .. tostring(errorID) .. ")")
+        updateUpdateAllButton()
         refreshGrid()
         return
     end
@@ -1302,9 +1394,31 @@ function PluginsWindow:init(parent)
         width = btnW - 20,
         height = btnH,
         fontSize = btnFont,
-        OnClick = { function() widgetPanelCache = {}; cardImageRefs = {}; widgetsList = {}; downloadToWidgetId = {}; currentPage = 1; fetchManifest(); refreshGrid() end },
+        OnClick = { function() widgetPanelCache = {}; cardImageRefs = {}; widgetsList = {}; downloadToWidgetId = {}; installedLastUpdatedCache = {}; currentPage = 1; fetchManifest(); refreshGrid() end },
         parent = self.window,
     }
+    updateAllButton = Button:New {
+        caption = i18n("plugins_update_all"),
+        tooltip = i18n("plugins_update_all_tooltip"),
+        x = btnLeft + 3 * btnW - 30 + 3 * btnGap,
+        y = btnY,
+        width = btnW - 10,
+        height = btnH,
+        fontSize = btnFont,
+        classname = "action_button",
+        OnClick = { function()
+            for _, widget in ipairs(getUpgradableWidgets()) do
+                upgradeWidget(widget)
+                if widget.id then
+                    widgetPanelCache[widget.id] = nil
+                end
+            end
+            updateUpdateAllButton()
+            refreshGrid()
+        end },
+        parent = self.window,
+    }
+    updateUpdateAllButton()
 
     searchBox = EditBox:New {
         text = "",
@@ -1475,9 +1589,11 @@ function PluginsWindow:cleanup()
     pageLabel = nil
     statusLabel = nil
     searchBox = nil
+    updateAllButton = nil
     widgetPanelCache = {}
     installingWidgets = {}
     upgradeBackups = {}
+    installedLastUpdatedCache = {}
     downloadToWidgetId = {}
     cardImageRefs = {}
     refreshPending = false
