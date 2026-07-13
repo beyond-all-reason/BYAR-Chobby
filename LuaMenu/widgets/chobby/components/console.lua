@@ -201,13 +201,19 @@ function Console:init(channelName, sendMessageListener, noHistoryLoad, onResizeF
 end
 
 function Console:CreateEmojiPicker()
+	local columns = 8
+	local cellSize = 31
+	local buttonSize = 28
+	local pickerPadding = 4
+	local pickerExtraWidth = 8
+
 	local picker = Control:New {
 		name = (self.channelName or "console") .. " emoji picker",
 		right = 2,
 		bottom = 35,
-		width = 282,
+		width = columns * cellSize + pickerPadding * 2 + pickerExtraWidth,
 		height = 174,
-		padding = {4, 4, 4, 4},
+		padding = {pickerPadding, pickerPadding, pickerPadding, pickerPadding},
 		itemPadding = {0, 0, 0, 0},
 		itemMargin = {0, 0, 0, 0},
 		backgroundColor = {0.05, 0.05, 0.05, 0.96},
@@ -232,9 +238,6 @@ function Console:CreateEmojiPicker()
 	end
 
 	local entries = ChatEmojis.GetDisplayEntries()
-	local columns = 8
-	local cellSize = 31
-	local buttonSize = 28
 	local font = Configuration:GetFont(Configuration.chatFontSize, "console_emoji_picker_" .. Configuration.chatFontSize, {font = "fonts/n019003l.pfb", shadow = true}, true)
 	for i = 1, #entries do
 		local entry = entries[i]

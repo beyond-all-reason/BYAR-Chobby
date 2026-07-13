@@ -82,6 +82,12 @@ function EmojiTextBox:GetLineHeight()
 	return math.max(fontLineHeight, emojiLineHeight)
 end
 
+function EmojiTextBox:GetEmojiYOffset(size)
+	local fontHeight = self.font and self.font.GetAscenderHeight and math.ceil(self.font:GetAscenderHeight()) or nil
+	fontHeight = fontHeight or (self.font and self.font.GetLineHeight and math.ceil(self.font:GetLineHeight())) or self:GetLineHeight()
+	return math.max(0, math.floor((fontHeight - size) * 0.5))
+end
+
 function EmojiTextBox:GetTextWidth(text)
 	if not text or text == "" then
 		return 0
@@ -398,7 +404,7 @@ end
 
 function EmojiTextBox:DrawEmoji(token, x, y)
 	local size = self:GetEmojiSize()
-	local emojiY = y + math.max(0, math.floor((self:GetLineHeight() - size) * 0.5))
+	local emojiY = y + self:GetEmojiYOffset(size)
 	local textureHandler = GetTextureHandler()
 	if token.image and textureHandler and textureHandler.LoadTexture then
 		gl.Color(1, 1, 1, 1)
