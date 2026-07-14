@@ -766,6 +766,25 @@ local function UpdateUserStatusImage(userName, userControls)
 	end
 end
 
+local function UpdateUserDisplayName(userName, userControls)
+	if not userControls.tbName then
+		return
+	end
+
+	local displayName = GetPlayerDisplayName(userName, userControls)
+	local maxWidth = userControls.maxNameLength and (userControls.maxNameLength - (userControls.nameStartY or 0))
+	local truncatedName = StringUtilities.TruncateStringIfRequiredAndDotDot(displayName, userControls.tbName.font, maxWidth)
+
+	if truncatedName then
+		userControls.tbName:SetText(truncatedName)
+		userControls.nameTruncated = true
+	else
+		userControls.tbName:SetText(displayName)
+		userControls.nameTruncated = false
+	end
+	userControls.nameActualLength = userControls.tbName.font:GetTextWidth(userControls.tbName.text)
+end
+
 local function UpdateUserControlStatus(userName, userControls)
 	if userControls.hideStatus then
 		return
@@ -774,6 +793,7 @@ local function UpdateUserControlStatus(userName, userControls)
 		local imgFile, status, font = GetUserStatusFont(userName, isInBattle, userControls)
 		userControls.tbName.font = font
 		userControls.tbName:Invalidate()
+		UpdateUserDisplayName(userName, userControls)
 		userControls.imStatusLarge.file = imgFile
 		userControls.imStatusLarge:Invalidate()
 		userControls.lblStatusLarge.font = font
@@ -883,6 +903,7 @@ local function UpdateUserActivitySingleList(userList, userName, status)
 
 		userControls.tbName.font = GetUserNameColorFont(userName, userControls)
 		userControls.tbName:Invalidate()
+		UpdateUserDisplayName(userName, userControls)
 
 		UpdateUserStatusImage(userName, userControls)
 		UpdateUserControlStatus(userName, userControls)
