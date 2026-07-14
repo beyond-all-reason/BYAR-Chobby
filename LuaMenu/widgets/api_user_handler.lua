@@ -440,6 +440,9 @@ local function GetPlayerNoteUserInfo(userName, userControls)
 end
 
 local function GetPlayerDisplayName(userName, userControls)
+	if userControls.lobby and userControls.lobby.GetMyUserName and userName == userControls.lobby:GetMyUserName() then
+		return userName
+	end
 	if GetPlayerNote(userName, GetPlayerNoteUserInfo(userName, userControls)) then
 		return userName .. "*"
 	end
@@ -447,10 +450,6 @@ local function GetPlayerDisplayName(userName, userControls)
 end
 
 local function SetPlayerNote(userName, userInfo, note)
-	if lobby and lobby.GetMyUserName and userName == lobby:GetMyUserName() then
-		return
-	end
-
 	local notes = LoadPlayerNotes()
 	local cleanNote = TrimPlayerNote(note)
 	if type(note) == "string" and #(note:gsub("^%s+", ""):gsub("%s+$", "")) > 100 and WG.Chobby and WG.Chobby.InformationPopup then
@@ -543,7 +542,7 @@ local function GetUserComboBoxOptions(userName, isInBattle, control, showTeamCol
 	if bs.aiLib then																								comboOptions[#comboOptions + 1] = "Clone AI" end
 	if bs.aiLib and bs.owner == myUserName and isInBattle then														comboOptions[#comboOptions + 1] = "Remove" end
 	if not itsme and not info.isBot and not bs.aiLib then															comboOptions[#comboOptions + 1] = "Report User" end
-	if not (itsme or info.isBot or bs.aiLib) then																comboOptions[#comboOptions + 1] = "Add Player Notes" end
+	if not (info.isBot or bs.aiLib) then																			comboOptions[#comboOptions + 1] = "Add Player Notes" end
 																													comboOptions[#comboOptions + 1] = "Copy Name"
 	if (iAmBoss or iPlay) and not (control.isSingleplayer or bs.aiLib or info.isBot) and isInBattle  then			comboOptions[#comboOptions + 1] = "\255\128\128\128" .. "--------------"
 																													comboOptions[#comboOptions + 1] =  isBoss and "Disable Boss" or "Make Boss" end
