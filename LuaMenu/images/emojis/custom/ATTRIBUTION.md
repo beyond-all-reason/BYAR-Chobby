@@ -1,4 +1,4 @@
-All attiributions for custom emojis:
+All attributions for custom emojis:
 
 
 
