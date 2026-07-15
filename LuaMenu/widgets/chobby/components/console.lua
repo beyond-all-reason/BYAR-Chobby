@@ -165,17 +165,6 @@ function Console:init(channelName, sendMessageListener, noHistoryLoad, onResizeF
 			self.sentMessageIndex = 1
 		end
 	}
-	self.fakeImage = Image:New {
-		x = 0, y = 0,
-		bottom = 0, right = 0,
-		OnClick = { function()
-			if self.emojiPicker then
-				self.emojiPicker:Hide()
-			end
-			screen0:FocusControl(self.ebInputText)
-		end}
-	}
-
 	self.panel = Control:New {
 		x = 0,
 		y = 0,
@@ -187,7 +176,6 @@ function Console:init(channelName, sendMessageListener, noHistoryLoad, onResizeF
 		children = {
 			self.spHistory,
 			self.ebInputText,
-			self.fakeImage,
 			self.emojiPicker,
 			self.btnEmojiPicker,
 		},
