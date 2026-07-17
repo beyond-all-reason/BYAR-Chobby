@@ -42,7 +42,7 @@ function Console:init(channelName, sendMessageListener, noHistoryLoad, onResizeF
 	else
 		font = Configuration:GetFont(Configuration.chatFontSize, "console_" .. Configuration.chatFontSize, {font = "fonts/n019003l.pfb", shadow = true}, true)
 	end
-	local HistoryTextBox = TextBox
+	local HistoryTextBox = EmojiTextBox or TextBox
 	self.tbHistory = HistoryTextBox:New {
 		x = 0,
 		right = 0,
