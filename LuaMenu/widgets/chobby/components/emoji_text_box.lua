@@ -1,3 +1,7 @@
+local spGetKeyCode = Spring.GetKeyCode
+local spGetModKeyState = Spring.GetModKeyState
+local spSetClipboard = Spring.SetClipboard
+
 EmojiTextBox = Control:Inherit{
 	classname = "emojitextbox",
 
@@ -15,6 +19,32 @@ EmojiTextBox = Control:Inherit{
 	emojiInlinePadding = 2,
 	lines = {},
 	physicalLines = {},
+
+	cursor = 1,
+	cursorY = 1,
+	selStart = nil,
+	selStartY = nil,
+	selEnd = nil,
+	selEndY = nil,
+	selectionColor = {0, 1, 1, 0.3},
+
+	inedibleInput = {
+		[spGetKeyCode("enter")] = true,
+		[spGetKeyCode("numpad_enter")] = true,
+		[spGetKeyCode("esc")] = true,
+		[spGetKeyCode("f1")] = true,
+		[spGetKeyCode("f2")] = true,
+		[spGetKeyCode("f3")] = true,
+		[spGetKeyCode("f4")] = true,
+		[spGetKeyCode("f5")] = true,
+		[spGetKeyCode("f6")] = true,
+		[spGetKeyCode("f7")] = true,
+		[spGetKeyCode("f8")] = true,
+		[spGetKeyCode("f9")] = true,
+		[spGetKeyCode("f10")] = true,
+		[spGetKeyCode("f11")] = true,
+		[spGetKeyCode("f12")] = true,
+	},
 }
 
 local this = EmojiTextBox
@@ -357,6 +387,12 @@ function EmojiTextBox:SetText(newtext, tooltips, OnTextClick, allowEmoji)
 	newtext = newtext or ""
 	self.text = newtext
 	self.lines = {}
+	self.cursor = 1
+	self.cursorY = 1
+	self.selStart = nil
+	self.selStartY = nil
+	self.selEnd = nil
+	self.selEndY = nil
 	for line in LineIterator(newtext) do
 		self.lines[#self.lines + 1] = {
 			text = line,
@@ -370,6 +406,14 @@ end
 
 function EmojiTextBox:AddLine(text, tooltips, OnTextClick, allowEmoji)
 	if self.agressiveMaxLines and #self.lines > self.agressiveMaxLines then
+		-- Line indices shift when trimming, so any active selection becomes invalid.
+		self.forgetMouseMove = true
+		self.cursor = 1
+		self.cursorY = 1
+		self.selStart = nil
+		self.selStartY = nil
+		self.selEnd = nil
+		self.selEndY = nil
 		local preserve = {}
 		for i = math.max(1, #self.lines - self.agressiveMaxLinesPreserve), #self.lines do
 			preserve[#preserve + 1] = self.lines[i]
@@ -416,6 +460,148 @@ function EmojiTextBox:GetPhysicalLinePosition(distanceFromBottom, usePhysical)
 	return 0
 end
 
+function EmojiTextBox:_ClampCursor(lineID, cursor)
+	lineID = math.max(1, math.min(lineID or 1, math.max(1, #self.lines)))
+	local lineText = self.lines[lineID] and self.lines[lineID].text or ""
+	cursor = math.max(1, math.min(cursor or 1, #lineText + 1))
+	return lineID, cursor
+end
+
+function EmojiTextBox:_SetSelection(selStart, selStartY, selEnd, selEndY)
+	self.selStart  = selStart  or self.selStart
+	self.selStartY = selStartY or self.selStartY
+	self.selEnd    = selEnd    or self.selEnd
+	self.selEndY   = selEndY   or self.selEndY
+	if self.selStartY then
+		self.selStartY, self.selStart = self:_ClampCursor(self.selStartY, self.selStart)
+	end
+	if self.selEndY then
+		self.selEndY, self.selEnd = self:_ClampCursor(self.selEndY, self.selEnd)
+	end
+end
+
+function EmojiTextBox:_ClearSelection()
+	self.selStart = nil
+	self.selStartY = nil
+	self.selEnd = nil
+	self.selEndY = nil
+end
+
+local function RemoveColorFromText(text)
+	text = text:gsub("\255...", ""):gsub("\b", "")
+	return text
+end
+
+function EmojiTextBox:GetSelectionText()
+	local sy = self.selStartY
+	local ey = self.selEndY
+	local s = self.selStart
+	local e = self.selEnd
+	if not (s and e and sy and ey) then
+		return nil
+	end
+	if sy > ey then
+		sy, ey = ey, sy
+		s, e = e, s
+	elseif sy == ey and s > e then
+		s, e = e, s
+	end
+	if sy == ey then
+		return RemoveColorFromText(self.lines[sy].text:sub(s, e - 1))
+	end
+	local ls = {}
+	table.insert(ls, RemoveColorFromText(self.lines[sy].text:sub(s)))
+	for i = sy + 1, ey - 1 do
+		table.insert(ls, RemoveColorFromText(self.lines[i].text))
+	end
+	table.insert(ls, RemoveColorFromText(self.lines[ey].text:sub(1, e - 1)))
+	return table.concat(ls, "\n")
+end
+
+function EmojiTextBox:SelectAll()
+	if #self.lines == 0 then
+		return
+	end
+	self:_SetSelection(1, 1, #self.lines[#self.lines].text + 1, #self.lines)
+	self:Invalidate()
+end
+
+function EmojiTextBox:KeyPress(key, mods, isRepeat, label, unicode, ...)
+	local eatInput = true
+	if mods.ctrl and (key == spGetKeyCode("c") or key == spGetKeyCode("insert")) then
+		local txt = self:GetSelectionText()
+		if txt then
+			spSetClipboard(txt)
+		end
+	elseif mods.ctrl and key == spGetKeyCode("a") then
+		self:SelectAll()
+	else
+		eatInput = self.state.focused and not self.inedibleInput[key]
+	end
+	eatInput = inherited.KeyPress(self, key, mods, isRepeat, label, unicode, ...) or eatInput
+	self:Invalidate()
+	return eatInput
+end
+
+-- Returns the x offset of a byte cursor within a physical line, walking token widths.
+function EmojiTextBox:GetCursorXOffset(physicalLine, cursor)
+	local x = 0
+	local tokens = physicalLine.tokens
+	for i = 1, #tokens do
+		local token = tokens[i]
+		if cursor <= token.startIndex then
+			return x
+		end
+		if token.type == "text" and cursor <= token.endIndex then
+			return x + self:GetTextWidth(string.sub(token.text, 1, cursor - token.startIndex))
+		end
+		x = x + (token.width or 0)
+	end
+	return x
+end
+
+function EmojiTextBox:DrawSelection()
+	local top, left = self.selStartY, self.selStart
+	local bottom, right = self.selEndY, self.selEnd
+	if not (top and left and bottom and right) then
+		return
+	end
+	if top > bottom then
+		top, bottom = bottom, top
+		left, right = right, left
+	elseif top == bottom and left > right then
+		left, right = right, left
+	end
+	if top == bottom and left == right then
+		return
+	end
+	local clientX, clientY = self.clientArea[1], self.clientArea[2]
+	local lineHeight = self:GetLineHeight()
+	local cc = self.selectionColor
+	gl.Color(cc[1], cc[2], cc[3], cc[4])
+	for i = 1, #self.physicalLines do
+		local physicalLine = self.physicalLines[i]
+		if physicalLine.lineID >= top and physicalLine.lineID <= bottom then
+			local tokens = physicalLine.tokens
+			local firstToken = tokens[1]
+			local lastToken = tokens[#tokens]
+			local lineStart = firstToken and firstToken.startIndex or 1
+			local lineEnd = lastToken and (lastToken.endIndex + 1) or 1
+			local selFrom = (physicalLine.lineID == top) and math.max(left, lineStart) or lineStart
+			local selTo = (physicalLine.lineID == bottom) and math.min(right, lineEnd) or lineEnd
+			if selTo > selFrom then
+				local x1 = self:GetCursorXOffset(physicalLine, selFrom)
+				local x2 = self:GetCursorXOffset(physicalLine, selTo)
+				if x2 > x1 then
+					local y = clientY + physicalLine.y
+					gl.Rect(clientX + x1, y, clientX + x2, y + lineHeight)
+				end
+			end
+		end
+	end
+	gl.Color(1, 1, 1, 1)
+end
+
 function EmojiTextBox:DrawEmoji(token, x, y)
 	local size = self:GetEmojiSize()
 	local padding = self:GetEmojiInlinePadding(size)
@@ -450,6 +636,9 @@ function EmojiTextBox:DrawControl()
 				self.font:Draw(run.text, clientX + run.x, y)
 			end
 		end
+	end
+	if self.selStart and self.state.focused then
+		self:DrawSelection()
 	end
 end
 
@@ -495,10 +684,11 @@ function EmojiTextBox:GetCursorByMousePos(x, y)
 	end
 
 	local lastToken = physicalLine.tokens[#physicalLine.tokens]
-	return physicalLine.lineID, lastToken and lastToken.endIndex or 1
+	return physicalLine.lineID, lastToken and (lastToken.endIndex + 1) or 1
 end
 
 function EmojiTextBox:MouseDown(x, y, ...)
+	self.forgetMouseMove = nil
 	local lineID, cursor = self:GetCursorByMousePos(x, y)
 	local line = lineID and self.lines[lineID]
 	if line and line.OnTextClick then
@@ -514,7 +704,28 @@ function EmojiTextBox:MouseDown(x, y, ...)
 		end
 	end
 	local localX, localY = self:NormalizeLocalMousePos(x, y)
-	return inherited.MouseDown(self, localX, localY, ...)
+	if not self.selectable then
+		return inherited.MouseDown(self, localX, localY, ...)
+	end
+
+	local _, _, _, shift = spGetModKeyState()
+	local oldCursor, oldCursorY = self.cursor, self.cursorY
+	local lineID2, cursor2 = self:GetCursorByMousePos(localX, localY)
+	if lineID2 then
+		self.cursorY, self.cursor = self:_ClampCursor(lineID2, cursor2)
+	end
+	if shift then
+		if not self.selStart then
+			self:_SetSelection(oldCursor, oldCursorY, nil, nil)
+		end
+		self:_SetSelection(nil, nil, self.cursor, self.cursorY)
+	elseif self.selStart then
+		self:_ClearSelection()
+	end
+
+	inherited.MouseDown(self, localX, localY, ...)
+	self:Invalidate()
+	return self
 end
 
 function EmojiTextBox:MouseMove(x, y, dx, dy, button)
@@ -538,7 +749,37 @@ function EmojiTextBox:MouseMove(x, y, dx, dy, button)
 			self.tooltip = nil
 		end
 	end
-	return inherited.MouseMove(self, localX, localY, dx, dy, button)
+
+	if button ~= 1 and button ~= true then
+		return inherited.MouseMove(self, localX, localY, dx, dy, button)
+	end
+	if self.forgetMouseMove then
+		return self
+	end
+	if not self.selectable then
+		return inherited.MouseMove(self, localX, localY, dx, dy, button)
+	end
+
+	local oldCursor, oldCursorY = self.cursor, self.cursorY
+	local lineID, cursor = self:GetCursorByMousePos(localX, localY)
+	if lineID then
+		self.cursorY, self.cursor = self:_ClampCursor(lineID, cursor)
+		if not self.selStart then
+			self:_SetSelection(oldCursor, oldCursorY, nil, nil)
+		end
+		self:_SetSelection(nil, nil, self.cursor, self.cursorY)
+	end
+
+	inherited.MouseMove(self, localX, localY, dx, dy, button)
+	self:Invalidate()
+	return self
+end
+
+function EmojiTextBox:MouseUp(x, y, ...)
+	local localX, localY = self:NormalizeLocalMousePos(x, y)
+	inherited.MouseUp(self, localX, localY, ...)
+	self:Invalidate()
+	return self
 end
 
 function EmojiTextBox:HitTest()
