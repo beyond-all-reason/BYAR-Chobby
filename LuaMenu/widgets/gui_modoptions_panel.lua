@@ -1832,12 +1832,21 @@ function ModoptionsPanel.LoadModoptions(gameName, newBattleLobby, forceReload)
 		local byCategory = {}
 
 		-- Modes live either at modes/<category>/*.lua or, for encapsulated game
-		-- modules, at modules/<module>/modes/*.lua.
+		-- modules, at modules/<module>/modes/*.lua. The game's module handler
+		-- owns the module layout; ask it rather than mirroring the convention
+		-- (older game archives predate it, hence the pcall + fallback scan).
 		local modeDirs = VFS.SubDirs("modes/", "*", VFS.ZIP)
-		for _, moduleDir in ipairs(VFS.SubDirs("modules/", "*", VFS.ZIP)) do
-			for _, dir in ipairs(VFS.SubDirs(moduleDir, "*", VFS.ZIP)) do
-				if dir:match("modes[/\\]?$") then
-					modeDirs[#modeDirs + 1] = dir
+		local ok, moduleHandler = pcall(VFS.Include, "modules/module_handler.lua", nil, VFS.ZIP)
+		if ok and type(moduleHandler) == "table" and moduleHandler.ModeDirs then
+			for _, dir in ipairs(moduleHandler.ModeDirs(VFS.ZIP)) do
+				modeDirs[#modeDirs + 1] = dir
+			end
+		else
+			for _, moduleDir in ipairs(VFS.SubDirs("modules/", "*", VFS.ZIP)) do
+				for _, dir in ipairs(VFS.SubDirs(moduleDir, "*", VFS.ZIP)) do
+					if dir:match("modes[/\\]?$") then
+						modeDirs[#modeDirs + 1] = dir
+					end
 				end
 			end
 		end
