@@ -1831,7 +1831,16 @@ function ModoptionsPanel.LoadModoptions(gameName, newBattleLobby, forceReload)
 	local function LoadModes()
 		local byCategory = {}
 
+		-- Modes live either at modes/<category>/*.lua or, for encapsulated game
+		-- modules, at modules/<module>/modes/*.lua.
 		local modeDirs = VFS.SubDirs("modes/", "*", VFS.ZIP)
+		for _, moduleDir in ipairs(VFS.SubDirs("modules/", "*", VFS.ZIP)) do
+			for _, dir in ipairs(VFS.SubDirs(moduleDir, "*", VFS.ZIP)) do
+				if dir:match("modes[/\\]?$") then
+					modeDirs[#modeDirs + 1] = dir
+				end
+			end
+		end
 		for _, dir in ipairs(modeDirs) do
 			local modeFiles = VFS.DirList(dir, "*.lua", VFS.ZIP)
 			for _, modeFile in ipairs(modeFiles) do
