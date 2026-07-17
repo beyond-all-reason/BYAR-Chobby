@@ -1,4 +1,4 @@
-EmojiTextBox = Control:Inherit{
+EmojiTextBox = TextBox:Inherit{
 	classname = "emojitextbox",
 
 	padding = {0, 0, 0, 0},
@@ -63,11 +63,7 @@ end
 
 function EmojiTextBox:New(obj)
 	obj = inherited.New(self, obj)
-	local text = obj.text or ""
-	obj.text = ""
-	obj.lines = {}
-	obj.physicalLines = {}
-	obj:SetText(text)
+	obj.DrawControl = self.DrawControl
 	return obj
 end
 
@@ -229,13 +225,22 @@ end
 function EmojiTextBox:PushPhysicalLine(lineID, tokens, width)
 	local prevLine = self.physicalLines[#self.physicalLines]
 	local y = prevLine and (prevLine.y + self:GetLineHeight()) or 0
+	local firstToken, lastToken = tokens[1], tokens[#tokens]
+	local startIndex = firstToken and firstToken.startIndex or 1
+	local endIndex = lastToken and (lastToken.endIndex + 1) or 1
+	local physicalLineID = #self.physicalLines + 1
 	self.physicalLines[#self.physicalLines + 1] = {
 		lineID = lineID,
 		tokens = tokens,
 		drawRuns = self:BuildDrawRuns(tokens),
 		width = width or 0,
+		startIndex = startIndex,
+		endIndex = endIndex,
 		y = y,
 	}
+	if self.lines[lineID] then
+		self.lines[lineID].pls[#self.lines[lineID].pls + 1] = physicalLineID
+	end
 end
 
 function EmojiTextBox:CopyToken(token)
@@ -340,12 +345,16 @@ end
 function EmojiTextBox:RebuildPhysicalLines()
 	self.physicalLines = {}
 	for lineID = 1, #self.lines do
+		self.lines[lineID].pls = {}
 		self:GeneratePhysicalLines(lineID)
 	end
 end
 
 function EmojiTextBox:UpdateLayout()
 	self:RebuildPhysicalLines()
+	if self.selStart then
+		self:_SetSelection(self.selStart, self.selStartY, self.selEnd, self.selEndY)
+	end
 	if self.autoHeight then
 		self:Resize(nil, math.max(1, #self.physicalLines * self:GetLineHeight()), true, true)
 	end
@@ -356,6 +365,8 @@ end
 function EmojiTextBox:SetText(newtext, tooltips, OnTextClick, allowEmoji)
 	newtext = newtext or ""
 	self.text = newtext
+	self.cursor, self.cursorY, self.physicalCursor, self.physicalCursorY, self.offset = 1, 1, 1, 1, 0
+	self.selStart, self.selStartY, self.selEnd, self.selEndY = nil, nil, nil, nil
 	self.lines = {}
 	for line in LineIterator(newtext) do
 		self.lines[#self.lines + 1] = {
@@ -363,6 +374,7 @@ function EmojiTextBox:SetText(newtext, tooltips, OnTextClick, allowEmoji)
 			tooltips = tooltips,
 			OnTextClick = OnTextClick,
 			allowEmoji = (allowEmoji ~= false),
+			pls = {},
 		}
 	end
 	self:UpdateLayout()
@@ -375,6 +387,7 @@ function EmojiTextBox:AddLine(text, tooltips, OnTextClick, allowEmoji)
 			preserve[#preserve + 1] = self.lines[i]
 		end
 		self.lines = preserve
+		self.selStart, self.selStartY, self.selEnd, self.selEndY = nil, nil, nil, nil
 		local preservedText = {}
 		for i = 1, #self.lines do
 			preservedText[#preservedText + 1] = self.lines[i].text
@@ -387,6 +400,7 @@ function EmojiTextBox:AddLine(text, tooltips, OnTextClick, allowEmoji)
 		tooltips = tooltips,
 		OnTextClick = OnTextClick,
 		allowEmoji = (allowEmoji ~= false),
+		pls = {},
 	}
 	self.text = self.text == "" and (text or "") or (self.text .. "\n" .. (text or ""))
 	self:UpdateLayout()
@@ -436,7 +450,55 @@ function EmojiTextBox:DrawEmoji(token, x, y)
 	end
 end
 
+function EmojiTextBox:DrawSelection()
+	if not (self.state.focused and self.selStart and self.selEnd and self.selStartY and self.selEndY) then
+		return
+	end
+
+	local startLine, endLine = self.selStartY, self.selEndY
+	local startIndex, endIndex = self.selStart, self.selEnd
+	if startLine > endLine or (startLine == endLine and startIndex > endIndex) then
+		startLine, endLine = endLine, startLine
+		startIndex, endIndex = endIndex, startIndex
+	end
+
+	local function CursorX(physicalLine, cursor)
+		local x = 0
+		for i = 1, #(physicalLine.tokens or {}) do
+			local token = physicalLine.tokens[i]
+			local width = token.width or 0
+			if cursor <= token.endIndex + 1 then
+				if cursor <= token.startIndex then return x end
+				if cursor >= token.endIndex + 1 then return x + width end
+				if token.type == "text" and token.text and token.text ~= "" then
+					return x + self:GetTextWidth(string.sub(token.text, 1, cursor - token.startIndex))
+				end
+				return x + math.floor(width * ((cursor - token.startIndex) / math.max(1, token.endIndex - token.startIndex + 1)))
+			end
+			x = x + width
+		end
+		return x
+	end
+
+	local color, lineHeight = self.selectionColor or {0, 1, 1, 0.3}, self:GetLineHeight()
+	local clientX, clientY = self.clientArea[1], self.clientArea[2]
+	gl.Color(color[1], color[2], color[3], color[4])
+	for i = 1, #self.physicalLines do
+		local physicalLine = self.physicalLines[i]
+		if physicalLine.lineID >= startLine and physicalLine.lineID <= endLine then
+			local leftIndex = math.max(physicalLine.startIndex, physicalLine.lineID == startLine and startIndex or physicalLine.startIndex)
+			local rightIndex = math.min(physicalLine.endIndex, physicalLine.lineID == endLine and endIndex or physicalLine.endIndex)
+			local leftX, rightX = CursorX(physicalLine, leftIndex), CursorX(physicalLine, rightIndex)
+			if rightX > leftX then
+				gl.Rect(clientX + leftX - 1, clientY + physicalLine.y, clientX + rightX, clientY + physicalLine.y + lineHeight)
+			end
+		end
+	end
+	gl.Color(1, 1, 1, 1)
+end
+
 function EmojiTextBox:DrawControl()
+	self:DrawSelection()
 	local clientX, clientY = self.clientArea[1], self.clientArea[2]
 	for i = 1, #self.physicalLines do
 		local physicalLine = self.physicalLines[i]
@@ -489,56 +551,51 @@ function EmojiTextBox:GetCursorByMousePos(x, y)
 					textPos = nextPos
 				end
 			end
+			if token.type == "emoji" and localX > cursorX + (width * 0.5) then
+				return physicalLine.lineID, token.endIndex + 1
+			end
 			return physicalLine.lineID, token.startIndex
 		end
 		cursorX = cursorX + width
 	end
 
 	local lastToken = physicalLine.tokens[#physicalLine.tokens]
-	return physicalLine.lineID, lastToken and lastToken.endIndex or 1
+	return physicalLine.lineID, lastToken and (lastToken.endIndex + 1) or 1
 end
 
-function EmojiTextBox:MouseDown(x, y, ...)
-	local lineID, cursor = self:GetCursorByMousePos(x, y)
-	local line = lineID and self.lines[lineID]
-	if line and line.OnTextClick then
-		local cx, cy = self:ScreenToLocal(x, y)
-		for _, onTextClick in pairs(line.OnTextClick) do
-			if onTextClick.startIndex <= cursor and onTextClick.endIndex >= cursor then
-				for _, f in pairs(onTextClick.OnTextClick) do
-					f(self, cx, cy, ...)
-				end
-				self:Invalidate()
-				return self
-			end
+function EmojiTextBox:_LineLog2Phys(logicalLine, pos)
+	if not logicalLine then
+		return pos or 1, 1
+	end
+	local pls = logicalLine.pls or {}
+	for i = 1, #pls do
+		local physicalLineID = pls[i]
+		local physicalLine = self.physicalLines[physicalLineID]
+		if physicalLine and (pos <= (physicalLine.endIndex or 1) or i == #pls) then
+			return math.max(1, (pos or 1) - (physicalLine.startIndex or 1) + 1), physicalLineID
 		end
 	end
-	local localX, localY = self:NormalizeLocalMousePos(x, y)
-	return inherited.MouseDown(self, localX, localY, ...)
+	return pos or 1, pls[#pls] or 1
+end
+
+function EmojiTextBox:_GetCursorByMousePos(x, y)
+	local lineID, cursor = self:GetCursorByMousePos(x, y)
+	local physicalCursor, physicalCursorY = self:_LineLog2Phys(self.lines[lineID], cursor)
+	local physicalLine = self.physicalLines[physicalCursorY]
+	local localX = self:NormalizeLocalMousePos(x, y)
+	return {
+		offset = self.offset,
+		cursor = cursor or self.cursor,
+		cursorY = lineID or self.cursorY,
+		physicalCursor = physicalCursor or self.physicalCursor,
+		physicalCursorY = physicalCursorY or self.physicalCursorY,
+		outOfBounds = physicalLine and (localX < 0 or localX > (physicalLine.width or 0)) or false,
+	}
 end
 
 function EmojiTextBox:MouseMove(x, y, dx, dy, button)
 	local localX, localY = self:NormalizeLocalMousePos(x, y)
-	if self.subTooltips then
-		local tooltipSet = false
-		if button == nil then
-			local lineID, cursor = self:GetCursorByMousePos(localX, localY)
-			local line = lineID and self.lines[lineID]
-			if line and line.tooltips then
-				for _, tooltip in pairs(line.tooltips) do
-					if tooltip.startIndex <= cursor and tooltip.endIndex >= cursor then
-						self.tooltip = tooltip.tooltip
-						tooltipSet = true
-						break
-					end
-				end
-			end
-		end
-		if not tooltipSet then
-			self.tooltip = nil
-		end
-	end
-	return inherited.MouseMove(self, localX, localY, dx, dy, button)
+	return inherited.MouseMove(self, localX, localY, dx, dy, button == true and 1 or button)
 end
 
 function EmojiTextBox:HitTest()
