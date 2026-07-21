@@ -1117,7 +1117,7 @@ local function hasWidgetDownloadInProgress()
 end
 
 local function clearWidgetBrowserInstallState()
-    -- Force install/update buttons to check disk after reset
+    -- Force install buttons to check after reset
     installedWidgets = {}
     installingWidgets = {}
     upgradeBackups = {}
