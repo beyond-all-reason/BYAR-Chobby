@@ -42,7 +42,7 @@ return {
 		plugins_restore_defaults_short = "Reset to Default",
 		plugins_restore_defaults_tooltip = "Remove installed custom widgets and reset in-game widget settings to the BAR defaults",
 		plugins_restore_defaults_confirm = "This removes every custom widget from LuaUI/Widgets and resets the in-game widget order, enabled state, and saved widget settings. Continue?",
-		plugins_restore_defaults_ack = "this action cannot be reversed",
+		plugins_restore_defaults_ack = "This action cannot be reversed",
 		plugins_restore_defaults_busy = "Wait for widget installs or updates to finish before restoring defaults.",
 		plugins_restore_defaults_notification = "Custom widgets were removed and in-game widget settings were reset to defaults.",
 		plugins_restore_defaults_failed = "Widget defaults were reset, but %{count} file removals failed. Check infolog.txt for details.",

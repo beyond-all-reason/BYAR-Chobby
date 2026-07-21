@@ -1102,6 +1102,7 @@ local function hasWidgetDownloadInProgress()
         return true
     end
 
+    -- Check the shared queue
     if WG.DownloadHandler and WG.DownloadHandler.GetDownloadQueue then
         local downloadQueue = WG.DownloadHandler.GetDownloadQueue()
         for _, item in ipairs(downloadQueue or {}) do
@@ -1116,6 +1117,7 @@ local function hasWidgetDownloadInProgress()
 end
 
 local function clearWidgetBrowserInstallState()
+    -- Force install/update buttons to check disk after reset
     installedWidgets = {}
     installingWidgets = {}
     upgradeBackups = {}
@@ -1134,11 +1136,13 @@ local function restoreWidgetsToDefault()
     end
 
     local failures = {}
+
     local removedCount = clearDirectoryContents(LUAUI_WIDGETS_DIR, failures)
 
     Spring.CreateDir(LUAUI_WIDGETS_DIR)
     Spring.CreateDir(LUAUI_CONFIG_DIR)
 
+    -- Removes saved LuaUI widget order, enabled state and per-widget data
     for _, configFile in ipairs(LUAUI_WIDGET_CONFIG_FILES) do
         removedCount = removedCount + removeFileIfExists(configFile, failures)
     end
