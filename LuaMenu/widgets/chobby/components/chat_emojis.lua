@@ -57,7 +57,6 @@ ChatEmojis._candidateCacheCount = 0
 ChatEmojis._candidateCacheMax = 4096
 
 local function HasRenderableAlias(text)
-	-- Find a real :alias: token; timestamps and usernames also contain colons.
 	for alias in string.gmatch(text, ":([%a_]+):") do
 		if ChatEmojis._aliasImagePath[alias] ~= nil then
 			return true
