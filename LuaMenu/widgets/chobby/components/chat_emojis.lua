@@ -56,6 +56,16 @@ ChatEmojis._candidateCache = {}
 ChatEmojis._candidateCacheCount = 0
 ChatEmojis._candidateCacheMax = 4096
 
+local function HasRenderableAlias(text)
+	-- Find a real :alias: token; timestamps and usernames also contain colons.
+	for alias in string.gmatch(text, ":([%a_]+):") do
+		if ChatEmojis._aliasImagePath[alias] ~= nil then
+			return true
+		end
+	end
+	return false
+end
+
 for alias, data in pairs(ChatEmojis.aliasData) do
 	if data and data.image then
 		ChatEmojis._aliasImagePath[alias] = (data.custom and ChatEmojis.customImageDir or ChatEmojis.imageDir) .. data.image
@@ -79,18 +89,7 @@ function ChatEmojis.HasEmojiCandidate(text)
 		return cached
 	end
 
-	local hasEmoji = false
-	local firstColon = string.find(text, ":", 1, true)
-	if firstColon and string.find(text, ":", firstColon + 1, true) then
-		hasEmoji = true
-	else
-		for i = 1, #ChatEmojis._unicodeStartChars do
-			if string.find(text, ChatEmojis._unicodeStartChars[i], 1, true) then
-				hasEmoji = true
-				break
-			end
-		end
-	end
+	local hasEmoji = HasRenderableAlias(text)
 
 	if ChatEmojis._candidateCache[text] == nil then
 		ChatEmojis._candidateCacheCount = ChatEmojis._candidateCacheCount + 1
