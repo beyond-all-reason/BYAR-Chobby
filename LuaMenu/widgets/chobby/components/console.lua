@@ -476,7 +476,7 @@ function Console:AddMessage(message, userName, dateOverride, color, thirdPerson,
 		end
 	end
 
-	-- Checks the raw message
+	-- Check before formatting adds colons (raw message)
 	local allowEmoji = false
 	if userName ~= nil and ChatEmojis and ChatEmojis.HasEmojiCandidate then
 		allowEmoji = ChatEmojis.HasEmojiCandidate(message)

@@ -50,12 +50,10 @@ end
 table.sort(ChatEmojis.sortedAliases)
 
 ChatEmojis._aliasImagePath = {}
-ChatEmojis._unicodeStartChars = {}
-ChatEmojis._unicodeStartSet = {}
 ChatEmojis._candidateCache = {}
 ChatEmojis._candidateCacheCount = 0
 ChatEmojis._candidateCacheMax = 4096
-
+-- Only known :alias:  should enable emoji parsing
 local function HasRenderableAlias(text)
 	for alias in string.gmatch(text, ":([%a_]+):") do
 		if ChatEmojis._aliasImagePath[alias] ~= nil then
@@ -69,13 +67,6 @@ for alias, data in pairs(ChatEmojis.aliasData) do
 	if data and data.image then
 		ChatEmojis._aliasImagePath[alias] = (data.custom and ChatEmojis.customImageDir or ChatEmojis.imageDir) .. data.image
 	end
-	if data and data.unicode then
-		local firstByte = string.byte(data.unicode, 1)
-		if firstByte and not ChatEmojis._unicodeStartSet[firstByte] then
-			ChatEmojis._unicodeStartSet[firstByte] = true
-			ChatEmojis._unicodeStartChars[#ChatEmojis._unicodeStartChars + 1] = string.char(firstByte)
-		end
-	end
 end
 
 function ChatEmojis.HasEmojiCandidate(text)
@@ -88,7 +79,10 @@ function ChatEmojis.HasEmojiCandidate(text)
 		return cached
 	end
 
-	local hasEmoji = HasRenderableAlias(text)
+	local hasEmoji = false
+	if string.find(text, ":", 1, true) then
+		hasEmoji = HasRenderableAlias(text)
+	end
 
 	if ChatEmojis._candidateCache[text] == nil then
 		ChatEmojis._candidateCacheCount = ChatEmojis._candidateCacheCount + 1

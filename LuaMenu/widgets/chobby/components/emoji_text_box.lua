@@ -414,7 +414,7 @@ function EmojiTextBox:AddLine(text, tooltips, OnTextClick, allowEmoji)
 		pls = {},
 	}
 	self.text = self.text == "" and (text or "") or (self.text .. "\n" .. (text or ""))
-	--  only wrap the new line
+	-- Catchup appends many lines; only wrap the new one on the common path.
 	self:GeneratePhysicalLines(#self.lines)
 	if self.selStart and not rebuilt then
 		self:_SetSelection(self.selStart, self.selStartY, self.selEnd, self.selEndY)
@@ -447,11 +447,11 @@ function EmojiTextBox:GetPhysicalLinePosition(distanceFromBottom, usePhysical)
 	return 0
 end
 
-function EmojiTextBox:DrawEmoji(token, x, y, size, padding, yOffset, textureHandler)
-	size = size or self:GetEmojiSize()
-	padding = padding or self:GetEmojiInlinePadding(size)
-	local emojiY = y + (yOffset or self:GetEmojiYOffset(size))
-	textureHandler = textureHandler or GetTextureHandler()
+function EmojiTextBox:DrawEmoji(token, x, y)
+	local size = self:GetEmojiSize()
+	local padding = self:GetEmojiInlinePadding(size)
+	local emojiY = y + self:GetEmojiYOffset(size)
+	local textureHandler = GetTextureHandler()
 	if token.image and textureHandler and textureHandler.LoadTexture then
 		gl.Color(1, 1, 1, 1)
 		local loaded = pcall(textureHandler.LoadTexture, 0, token.image, self)
@@ -480,10 +480,10 @@ function EmojiTextBox:GetVisiblePhysicalLineRange()
 
 	local lineHeight = self:GetLineHeight()
 	local clientY = self.clientArea and self.clientArea[2] or 0
-	local topY = math.max(0, parent.scrollPosY - clientY)
-	local bottomY = topY + (parent.clientArea[4] or self.height or 0)
-	local firstLine = math.max(1, math.floor(topY / lineHeight) + 1)
-	local lastLine = math.min(lineCount, math.ceil(bottomY / lineHeight) + 1)
+	local visibleTop = math.max(0, parent.scrollPosY - (self.y or 0) - clientY)
+	local visibleBottom = visibleTop + (parent.clientArea[4] or self.height or 0)
+	local firstLine = math.max(1, math.floor(visibleTop / lineHeight) + 1)
+	local lastLine = math.min(lineCount, math.ceil(visibleBottom / lineHeight) + 1)
 	return firstLine, lastLine
 end
 
@@ -539,10 +539,6 @@ function EmojiTextBox:DrawControl()
 	self:DrawSelection()
 	local clientX, clientY = self.clientArea[1], self.clientArea[2]
 	local firstLine, lastLine = self:GetVisiblePhysicalLineRange()
-	local emojiSize = self:GetEmojiSize()
-	local emojiPadding = self:GetEmojiInlinePadding(emojiSize)
-	local emojiYOffset = self:GetEmojiYOffset(emojiSize)
-	local textureHandler = GetTextureHandler()
 	for i = firstLine, lastLine do
 		local physicalLine = self.physicalLines[i]
 		local y = clientY + physicalLine.y
@@ -550,7 +546,7 @@ function EmojiTextBox:DrawControl()
 		for j = 1, #drawRuns do
 			local run = drawRuns[j]
 			if run.type == "emoji" then
-				self:DrawEmoji(run.token, clientX + run.x, y, emojiSize, emojiPadding, emojiYOffset, textureHandler)
+				self:DrawEmoji(run.token, clientX + run.x, y)
 			elseif run.text and run.text ~= "" then
 				self.font:Draw(run.text, clientX + run.x, y)
 			end
