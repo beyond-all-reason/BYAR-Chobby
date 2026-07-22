@@ -34,6 +34,7 @@ local MANIFEST_DEST    = "LuaUI/Widgets/manifests.json"
 local MANIFEST_NAME    = "plugin_manifest"
 
 local LUAUI_WIDGETS_DIR = "LuaUI/Widgets"
+local LUAUI_WIDGET_BACKUP_DIR = "LuaUI/WidgetBackups"
 local LUAUI_CONFIG_DIR  = "LuaUI/Config"
 local LUAUI_WIDGET_CONFIG_FILES = {
     LUAUI_CONFIG_DIR .. "/IGL_order.lua",
@@ -156,7 +157,7 @@ local function getDistributionUrl(widgetId)
 end
 
 local function getInstallPath(widgetId)
-    return "LuaUI/Widgets/" .. widgetId
+    return LUAUI_WIDGETS_DIR .. "/" .. widgetId
 end
 
 local function getWidgetDisplayName(widgetId)
@@ -302,41 +303,23 @@ local function updateUpdateAllButton()
     updateAllButton:SetVisibility(#upgradable > 0)
 end
 
-local function renameLuaFilesRecursive(dirPath)
-    -- Ensure trailing slash for VFS calls
-    local dir = dirPath
-    if string.sub(dir, -1) ~= "/" then dir = dir .. "/" end
-    local luaFiles = VFS.DirList(dir, "*.lua")
-    if luaFiles then
-        for _, luaFile in ipairs(luaFiles) do
-            os.rename(luaFile, luaFile .. ".backup")
-        end
-    end
-    local subDirs = VFS.SubDirs(dir)
-    if subDirs then
-        for _, subDir in ipairs(subDirs) do
-            renameLuaFilesRecursive(subDir)
-        end
-    end
-end
-
 local function backupDirectory(dirPath)
     -- Strip trailing slash for a clean rename
     local cleanPath = dirPath
     if string.sub(cleanPath, -1) == "/" then
         cleanPath = string.sub(cleanPath, 1, -2)
     end
+    local basename = string.match(cleanPath, "[^/\\]+$") or "widget"
     local stamp = os.date("%Y%m%d_%H%M%S")
-    local backupPath = cleanPath .. "_backup_" .. stamp
+    Spring.CreateDir(LUAUI_WIDGET_BACKUP_DIR)
+    local backupPath = LUAUI_WIDGET_BACKUP_DIR .. "/" .. basename .. "_backup_" .. stamp
     local ok, err = os.rename(cleanPath, backupPath)
     if ok then
         Spring.Echo("[PluginsWindow] Backed up directory: " .. cleanPath .. " -> " .. backupPath)
-        -- Recursively rename all .lua files to .lua.backup so the engine won't load them
-        renameLuaFilesRecursive(backupPath)
     else
         Spring.Echo("[PluginsWindow] Failed to backup directory: " .. tostring(cleanPath) .. " - " .. tostring(err))
     end
-    return ok, backupPath
+    return ok, backupPath, err
 end
 
 local function upgradeWidget(widget)
@@ -1020,21 +1003,9 @@ end
 -- Restore Defaults
 --------------------------------------------------------------------------------
 
-local function trimTrailingSlash(path)
-    local trimmed = string.gsub(path, "[/\\]+$", "")
-    return trimmed
-end
-
-local function ensureTrailingSlash(path)
-    if string.sub(path, -1) == "/" then
-        return path
-    end
-    return path .. "/"
-end
-
-local function addRemovalFailure(failures, path, err)
-    failures[#failures + 1] = path .. ": " .. tostring(err)
-    Spring.Echo("[PluginsWindow] Failed to remove " .. path .. ": " .. tostring(err))
+local function addResetFailure(failures, action, path, err)
+    failures[#failures + 1] = action .. " " .. path .. ": " .. tostring(err)
+    Spring.Echo("[PluginsWindow] Failed to " .. action .. " " .. path .. ": " .. tostring(err))
 end
 
 local function removeFileIfExists(filePath, failures)
@@ -1047,54 +1018,8 @@ local function removeFileIfExists(filePath, failures)
         return 1
     end
 
-    addRemovalFailure(failures, filePath, err)
+    addResetFailure(failures, "remove", filePath, err)
     return 0
-end
-
-local function removeDirectoryRecursive(dirPath, failures)
-    local removed = 0
-    local dir = ensureTrailingSlash(dirPath)
-
-    local subDirs = VFS.SubDirs(dir, "*", VFS.RAW) or {}
-    for _, subDir in ipairs(subDirs) do
-        removed = removed + removeDirectoryRecursive(subDir, failures)
-    end
-
-    local files = VFS.DirList(dir, "*", VFS.RAW) or {}
-    for _, filePath in ipairs(files) do
-        removed = removed + removeFileIfExists(filePath, failures)
-    end
-
-    local cleanDir = trimTrailingSlash(dir)
-    local ok, err = os.remove(cleanDir)
-    if ok then
-        removed = removed + 1
-    else
-        local remainingFiles = VFS.DirList(dir, "*", VFS.RAW) or {}
-        local remainingDirs = VFS.SubDirs(dir, "*", VFS.RAW) or {}
-        if #remainingFiles > 0 or #remainingDirs > 0 then
-            addRemovalFailure(failures, cleanDir, err)
-        end
-    end
-
-    return removed
-end
-
-local function clearDirectoryContents(dirPath, failures)
-    local removed = 0
-    local dir = ensureTrailingSlash(dirPath)
-
-    local subDirs = VFS.SubDirs(dir, "*", VFS.RAW) or {}
-    for _, subDir in ipairs(subDirs) do
-        removed = removed + removeDirectoryRecursive(subDir, failures)
-    end
-
-    local files = VFS.DirList(dir, "*", VFS.RAW) or {}
-    for _, filePath in ipairs(files) do
-        removed = removed + removeFileIfExists(filePath, failures)
-    end
-
-    return removed
 end
 
 local function hasWidgetDownloadInProgress()
@@ -1114,6 +1039,19 @@ local function hasWidgetDownloadInProgress()
     end
 
     return false
+end
+
+local function backupWidgetsFolderForReset(failures)
+    -- Move the whole Widgets folder aside instead of deleting or walking user files.
+    local ok, backupPath, err = backupDirectory(LUAUI_WIDGETS_DIR)
+    if not ok then
+        addResetFailure(failures, "backup", LUAUI_WIDGETS_DIR, err)
+        return nil
+    end
+
+    -- Recreate the active Widgets folder so future installs have a clean target.
+    Spring.CreateDir(LUAUI_WIDGETS_DIR)
+    return backupPath
 end
 
 local function clearWidgetBrowserInstallState()
@@ -1136,15 +1074,19 @@ local function restoreWidgetsToDefault()
     end
 
     local failures = {}
+    local backupPath = backupWidgetsFolderForReset(failures)
+    if not backupPath then
+        if WG.Chobby and WG.Chobby.InformationPopup then
+            WG.Chobby.InformationPopup(i18n("plugins_restore_defaults_failed", { count = #failures }), { width = 440, height = 220 })
+        end
+        return
+    end
 
-    local removedCount = clearDirectoryContents(LUAUI_WIDGETS_DIR, failures)
-
-    Spring.CreateDir(LUAUI_WIDGETS_DIR)
-    Spring.CreateDir(LUAUI_CONFIG_DIR)
+    local removedConfigCount = 0
 
     -- Removes saved LuaUI widget order, enabled state and per-widget data
     for _, configFile in ipairs(LUAUI_WIDGET_CONFIG_FILES) do
-        removedCount = removedCount + removeFileIfExists(configFile, failures)
+        removedConfigCount = removedConfigCount + removeFileIfExists(configFile, failures)
     end
 
     clearWidgetBrowserInstallState()
@@ -1159,7 +1101,7 @@ local function restoreWidgetsToDefault()
         Spring.SendCommands("luaui reload")
     end
 
-    Spring.Echo("[PluginsWindow] Restored widgets to defaults. Removed " .. tostring(removedCount) .. " files/directories.")
+    Spring.Echo("[PluginsWindow] Restored widgets to defaults. Backed up Widgets folder to " .. tostring(backupPath) .. " and removed " .. tostring(removedConfigCount) .. " config files.")
 
     if #failures > 0 then
         if WG.Chobby and WG.Chobby.InformationPopup then
