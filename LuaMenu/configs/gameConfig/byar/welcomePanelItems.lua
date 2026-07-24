@@ -17,6 +17,14 @@ local welcomePanelItems = {
         Text = "Welcome back Commander. We hope you are ready for epic Singleplayer and Multiplayer battles. Check out our Discord and join the community!\n",
         NoPulse = true,
     },
+
+    {
+        Header = "July Balance Patch is Live!",
+        Text = "The July balance patch introduces three major focus areas: an Anti-Air overhaul that buffs weaker AA turrets while toning down T2 fighters, medium tank nerfs (Stout, Brute, Rover, Pounder) to diversify open-map strategies, and buffs to underused T2 bruisers (Welder, Sumo)." .. " \n" .. " \n" .. "Also included: Gauss weapon consistency buffs, seaplane gunship tuning, and a new \"Slow Commander Transport\" modoption that caps T2 transports carrying Commanders at speed 120." .. " \n" .. " \n",
+        Url = "https://www.beyondallreason.info/microblogs/194",
+        UrlText = "Read the patch notes",
+    },
+
     {
         Header = "BAR & Hooded Horse: A New Chapter",
         Text = "After almost seven years of development, BAR is going professional and teaming up with Hooded Horse, one of the most respected publishers in the strategy space, to bring the game to a full Steam release." .. " \n" .. " \n" .. "Multiplayer stays free forever on the website. A paid Premium Edition on Steam will add a single-player campaign, with the same multiplayer playable across both versions." .. " \n" .. " \n" .. "Read the full announcement for all the details.",
