@@ -1855,9 +1855,17 @@ function ModoptionsPanel.LoadModoptions(gameName, newBattleLobby, forceReload)
 			for _, modeFile in ipairs(modeFiles) do
 				local mode = VFS.Include(modeFile)
 				if mode and mode.key and mode.category then
-					byCategory[mode.category] = byCategory[mode.category] or { modes = {} }
-					local modes = byCategory[mode.category].modes
-					modes[#modes + 1] = mode
+					byCategory[mode.category] = byCategory[mode.category] or { modes = {}, indexByKey = {} }
+					local cat = byCategory[mode.category]
+					-- Module presets scan after modes/; same key replaces in
+					-- place so a mode never lists twice.
+					local existing = cat.indexByKey[mode.key]
+					if existing then
+						cat.modes[existing] = mode
+					else
+						cat.modes[#cat.modes + 1] = mode
+						cat.indexByKey[mode.key] = #cat.modes
+					end
 				end
 			end
 		end
