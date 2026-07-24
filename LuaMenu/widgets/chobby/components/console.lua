@@ -477,10 +477,7 @@ function Console:AddMessage(message, userName, dateOverride, color, thirdPerson,
 	end
 
 	-- Check before formatting adds colons (raw message)
-	local allowEmoji = false
-	if userName ~= nil and ChatEmojis and ChatEmojis.HasEmojiCandidate then
-		allowEmoji = ChatEmojis.HasEmojiCandidate(message)
-	end
+	local allowEmoji = userName ~= nil and ChatEmojis and ChatEmojis.HasEmojiCandidate and ChatEmojis.HasEmojiCandidate(message)
 
 	txt = txt .. message
 	onTextClick, textTooltip = WG.BrowserHandler.AddClickableUrls(txt, onTextClick or {}, textTooltip or {})
