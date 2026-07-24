@@ -53,7 +53,8 @@ ChatEmojis._aliasImagePath = {}
 ChatEmojis._candidateCache = {}
 ChatEmojis._candidateCacheCount = 0
 ChatEmojis._candidateCacheMax = 4096
--- Only known :alias:  should enable emoji parsing
+
+-- Only known :alias: should enable emoji parsing
 local function HasRenderableAlias(text)
 	for alias in string.gmatch(text, ":([%a_]+):") do
 		if ChatEmojis._aliasImagePath[alias] ~= nil then
@@ -79,10 +80,7 @@ function ChatEmojis.HasEmojiCandidate(text)
 		return cached
 	end
 
-	local hasEmoji = false
-	if string.find(text, ":", 1, true) then
-		hasEmoji = HasRenderableAlias(text)
-	end
+	local hasEmoji = string.find(text, ":", 1, true) ~= nil and HasRenderableAlias(text)
 
 	if ChatEmojis._candidateCache[text] == nil then
 		ChatEmojis._candidateCacheCount = ChatEmojis._candidateCacheCount + 1
