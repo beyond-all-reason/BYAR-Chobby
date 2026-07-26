@@ -332,6 +332,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	local minimapBottomClearance = 172
 
 	local currentMapName
+	local startBoxMapName
 	local oldSelectedBoxes = 1
 	local startBoxSelect = {}
 	local startBoxDefaultImage = LUA_DIRNAME .. "images/load_img_128.png"
@@ -1658,6 +1659,8 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 			return
 		end
 		if battleInfo.mapName then
+			local mapChanged = (battleInfo.mapName ~= startBoxMapName)
+			startBoxMapName = battleInfo.mapName
 			SetMapName(battleInfo.mapName, mapLinkWidth)
 			imMinimap.file, imMinimap.checkFileExists = config:GetMinimapImage(battleInfo.mapName)
 			imMinimap:Invalidate()
@@ -1665,12 +1668,15 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 			local isSingleplayer = (battleLobby.name == "singleplayer")
 			local mapName = battleInfo.mapName
 			local allyTeamCount = isSingleplayer and emptyTeamIndex or (tonumber(battle.nbTeams) or emptyTeamIndex or 2)
-			local startboxes = nil
+			-- 0 during the skirmish prime, before teams are set up; start boxes need at least two
+			if allyTeamCount < 2 then allyTeamCount = 2 end
 			local Configuration = WG.Chobby and WG.Chobby.Configuration
 
-			externalFunctions.RemoveStartRect()
 			externalFunctions.RemovePolygonOverlays()
-			defaultStartboxMode = true
+			-- UpdateBattleInfo also fires on unrelated updates (spectator count, lock), so only a map change reverts to default mode.
+			if mapChanged then
+				defaultStartboxMode = true
+			end
 
 			if isSingleplayer then
 				imMinimap.children = {}
@@ -1692,12 +1698,13 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 						Configuration.gameConfig.mapStartBoxes.savedBoxes then
 
 					local mapStartBoxes = Configuration.gameConfig.mapStartBoxes
+					externalFunctions.RemoveStartRect()
 					mapStartBoxes.clearBoxes()
 
 					if polygonConfig then
-						externalFunctions.AddPolygonStartboxes(polygonConfig)
+						externalFunctions.AddPolygonStartboxes(polygonConfig, allyTeamCount)
 					else
-						startBoxes = Configuration.gameConfig.mapStartBoxes.savedBoxes[mapName]
+						local startBoxes = Configuration.gameConfig.mapStartBoxes.savedBoxes[mapName]
 						startBoxes = Configuration.gameConfig.mapStartBoxes.selectStartBoxesForAllyTeamCount(startBoxes,allyTeamCount)
 						if startBoxes then
 							for i = 1, allyTeamCount do
@@ -1716,8 +1723,9 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 				else
 					Spring.Echo("No map startBoxes found or disabled for map",mapName,"teamcount:",allyTeamCount)
 				end
-			elseif polygonConfig then
-				externalFunctions.AddPolygonStartboxes(polygonConfig)
+			elseif polygonConfig and defaultStartboxMode then
+				-- keep the default overlay hidden while the user is editing custom boxes
+				externalFunctions.AddPolygonStartboxes(polygonConfig, allyTeamCount)
 			end
 
 			-- TODO: Bit lazy here, seeing as we only need to update the map
@@ -1981,14 +1989,13 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		end
 	end
 
-	function externalFunctions.AddPolygonStartboxes(polygonConfig)
+	function externalFunctions.AddPolygonStartboxes(polygonConfig, allyTeamCount)
 		externalFunctions.RemovePolygonOverlays()
 		externalFunctions.RemoveStartRect()
 		polygonStartboxesActive = true
 		activePolygonConfig = polygonConfig
 
 		local labelFont = WG.Chobby.Configuration:GetFont(2)
-		local teamCount = #polygonConfig
 
 		-- PostChildren: draws after the minimap image so the overlay is on top.
 		minimapPanel.DrawControlPostChildren = function(self)
@@ -2002,7 +2009,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 			gl.Texture(0, false)
 			gl.Texture(false)
 
-			for allyIdx = 1, teamCount do
+			for allyIdx = 1, allyTeamCount do
 				local entry = activePolygonConfig[allyIdx]
 				if entry and entry.boxes then
 
@@ -2056,7 +2063,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 
 		minimapPanel:Invalidate()
 
-		for allyIdx = 1, #polygonConfig do
+		for allyIdx = 1, allyTeamCount do
 			local entry = polygonConfig[allyIdx]
 			if entry and entry.boundingBox then
 				local bb = entry.boundingBox
@@ -4546,7 +4553,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 				local polygonConfig = Configuration.gameConfig.mapStartBoxes.loadPolygonStartboxes(battle.mapName, tonumber(battle.nbTeams) or 2)
 				if polygonConfig then
 					infoHandler.RemoveStartRect()
-					infoHandler.AddPolygonStartboxes(polygonConfig)
+					infoHandler.AddPolygonStartboxes(polygonConfig, tonumber(battle.nbTeams) or 2)
 				end
 			end
 			StartBoxComboBoxSelectDefault()
