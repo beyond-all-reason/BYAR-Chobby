@@ -4,25 +4,32 @@ ChatEmojis.imageDir = (LUA_DIRNAME or "LuaMenu/") .. "images/emojis/twemoji/"
 ChatEmojis.customImageDir = (LUA_DIRNAME or "LuaMenu/") .. "images/emojis/custom/"
 
 ChatEmojis.aliasData = {
+	["100"] = { unicode = "\240\159\146\175", image = "100.png" },
 	angry = { unicode = "\240\159\152\160", image = "angry.png" },
+	broken_heart = { unicode = "\240\159\146\148", image = "broken_heart.png" },
+	checkmark = { unicode = "\226\156\133", image = "checkmark.png" },
 	clap = { unicode = "\240\159\145\143", image = "clap.png" },
 	confused = { unicode = "\240\159\152\149", image = "confused.png" },
 	cookie = { unicode = "\240\159\141\170", image = "cookie.png", custom = true },
 	cool = { unicode = "\240\159\152\142", image = "cool.png" },
 	cry = { unicode = "\240\159\152\162", image = "cry.png" },
+	facepalm = { unicode = "\240\159\164\166", image = "facepalm.png" },
 	fire = { unicode = "\240\159\148\165", image = "fire.png" },
 	gg = { unicode = "\240\159\164\157", image = "gg.png" },
+	goat = { unicode = "\240\159\144\144", image = "goat.png" },
 	grin = { unicode = "\240\159\152\129", image = "grin.png" },
 	heart = { unicode = "\226\157\164\239\184\143", image = "heart.png" },
 	joy = { unicode = "\240\159\152\130", image = "joy.png" },
+	joy_cat = { unicode = "\240\159\152\185", image = "joy_cat.png" },
 	laughing = { unicode = "\240\159\152\134", image = "laughing.png" },
-	lol = { unicode = "\240\159\152\130", image = "lol.png" },
+	mouse = { unicode = "\240\159\144\173", image = "mouse.png" },
 	ok_hand = { unicode = "\240\159\145\140", image = "ok_hand.png" },
 	party = { unicode = "\240\159\165\179", image = "party.png" },
+	pensive = { unicode = "\240\159\152\148", image = "pensive.png" },
 	pleading = { unicode = "\240\159\165\186", image = "pleading.png" },
 	pray = { unicode = "\240\159\153\143", image = "praying.png" },
+	raised_eyebrow = { unicode = "\240\159\164\168", image = "raised_eyebrow.png" },
 	rofl = { unicode = "\240\159\164\163", image = "rofl.png" },
-	sad = { unicode = "\240\159\152\162", image = "sad.png" },
 	salute = { unicode = "\240\159\171\161", image = "salute.png" },
 	shrug = { unicode = "\240\159\164\183", image = "shrug.png" },
 	slight_smile = { unicode = "\240\159\153\130", image = "slight_smile.png" },
@@ -36,6 +43,7 @@ ChatEmojis.aliasData = {
 	tada = { unicode = "\240\159\142\137", image = "tada.png" },
 	wave = { unicode = "\240\159\145\139", image = "wave.png" },
 	wink = { unicode = "\240\159\152\137", image = "wink.png" },
+	x = { unicode = "\226\157\140", image = "x.png" },
 }
 
 ChatEmojis.aliases = {}
@@ -56,7 +64,7 @@ ChatEmojis._candidateCacheMax = 4096
 
 -- Only known :alias: should enable emoji parsing
 local function HasRenderableAlias(text)
-	for alias in string.gmatch(text, ":([%a_]+):") do
+	for alias in string.gmatch(text, ":([%w_]+):") do
 		if ChatEmojis._aliasImagePath[alias] ~= nil then
 			return true
 		end
