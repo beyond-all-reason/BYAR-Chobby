@@ -260,10 +260,18 @@ local function loadPolygonStartboxes(mapName, allyTeamCount)
   local startboxesSet = getStartboxesSet(mapName)
   if not startboxesSet or #startboxesSet == 0 then return nil end
 
-  local arrangement = selectArrangementForAllyTeamCount(startboxesSet, allyTeamCount or 2)
-  if not arrangement or not arrangementHasPolygon(arrangement) then return nil end
+  -- hand-edited mapDetails can be valid JSON of the wrong shape; keep a malformed set from crashing the build
+  local ok, config = pcall(function()
+    local arrangement = selectArrangementForAllyTeamCount(startboxesSet, allyTeamCount or 2)
+    if not arrangement or not arrangementHasPolygon(arrangement) then return nil end
+    return buildPolygonConfig(arrangement)
+  end)
+  if not ok then
+    Spring.Log("mapStartBoxes", LOG.WARNING, "Skipping malformed polygon startboxes for", mapName)
+    return nil
+  end
 
-  return buildPolygonConfig(arrangement)
+  return config
 end
 
 local function makeAllyTeamBoxFromPolygon(polygonConfig, allyteamindex)
