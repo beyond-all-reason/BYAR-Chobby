@@ -88,7 +88,7 @@ function BattleListWindow:init(parent)
 	}
 
 	local checkPassworded = Checkbox:New {
-		x = "15%",
+		x = "12%",
 		width = 21,
 		bottom = 8,
 		height = 30,
@@ -107,7 +107,7 @@ function BattleListWindow:init(parent)
 		tooltip = "Hides all battles that require a password to join",
 	}
 	local checkNonFriend = Checkbox:New {
-		x = "35%",
+		x = "27%",
 		width = 21,
 		bottom = 8,
 		height = 30,
@@ -126,7 +126,7 @@ function BattleListWindow:init(parent)
 		tooltip = "Hides all battles that don't have your friends in them",
 	}
 	local checkRunning = Checkbox:New {
-		x = "55%",
+		x = "43%",
 		width = 21,
 		bottom = 8,
 		height = 30,
@@ -144,8 +144,27 @@ function BattleListWindow:init(parent)
 		parent = self.window,
 		tooltip = "Hides all battles that are in progress",
 	}
+	local checkOutOfRange = Checkbox:New {
+		x = "55%",
+		width = 21,
+		bottom = 8,
+		height = 30,
+		boxalign = "left",
+		boxsize = 20,
+		caption = " Out of range",
+		checked = Configuration.battleFilterOutOfRange or false,
+		objectOverrideFont = myFont2,
+		OnChange = {
+			function (obj, newState)
+				Configuration:SetConfigValue("battleFilterOutOfRange", newState)
+				self:SoftUpdate(true)
+			end
+		},
+		parent = self.window,
+		tooltip = "Hides battles whose title lists chevron/rating limits you are outside (e.g. Min chev, Max chev, Rating, Max rating)",
+	}
 	local combPvMode = ComboBox:New {
-		x = "70%",
+		x = "72%",
 		width = 85,
 		bottom = 8,
 		height = 30,
@@ -163,8 +182,8 @@ function BattleListWindow:init(parent)
 		parent = self.window,
 		tooltip = "Hides all AI (including PvE) or PvP battles.",
 	}
-    local checkLocked = Checkbox:New {
-		x = "85%",
+	local checkLocked = Checkbox:New {
+		x = "86%",
 		width = 21,
 		bottom = 8,
 		height = 30,
@@ -187,7 +206,8 @@ function BattleListWindow:init(parent)
 		checkPassworded:SetToggle(Configuration.battleFilterPassworded2)
 		checkNonFriend:SetToggle(Configuration.battleFilterNonFriend)
 		checkRunning:SetToggle(Configuration.battleFilterRunning)
-        checkLocked:SetToggle(Configuration.battleFilterLocked)
+		checkOutOfRange:SetToggle(Configuration.battleFilterOutOfRange)
+		checkLocked:SetToggle(Configuration.battleFilterLocked)
 		combPvMode:Select(Configuration.battleFilterPvMode)
 	end
 	WG.Delay(UpdateCheckboxes, 0.2)
@@ -315,12 +335,12 @@ function BattleListWindow:SoftUpdate(forceNow)
 	-- UpdateFilters is quite heavy, because it sorts all the battles on the
 	-- list, so instead of just calling SoftUpdate functionality directly,
 	-- we only update, if we havent updated in 4 seconds.
-	-- Also note, that the previous implementation somehow ran on intermediate states, 
+	-- Also note, that the previous implementation somehow ran on intermediate states,
 	-- causing severe bouncing of battles up and down
 
 	forceNow = forceNow or false --set default behavior to not force the update now and allow empty calls
 	-- using force now is different from Update() because update will clear and re-add everything, which is expensive!
-	
+
 	self:UpdateInfoPanel()
 	if self.lastSoftUpdate == nil or forceNow or Spring.DiffTimers(Spring.GetTimer(), self.lastSoftUpdate) > 4 then
 		self.lastSoftUpdate = Spring.GetTimer()
@@ -330,7 +350,7 @@ function BattleListWindow:SoftUpdate(forceNow)
 		self:UpdateFilters()
 	end
 
-	-- this method, for some godforsaken reason doesnt work as expected. 
+	-- this method, for some godforsaken reason doesnt work as expected.
 	-- It is kept here as a tomb for weary travellers to rest by.
 	--[[
 	self.lastSoftUpdate = os.clock()
@@ -367,7 +387,7 @@ function BattleListWindow:UpdateInfoPanel()
 	if noBattles then
 		self.infoPanel:SetVisibility(true)
 		self.infoPanel:BringToFront()
-		if lobby.status == "connected" then 
+		if lobby.status == "connected" then
 			self.infoLabel:SetCaption("No battle rooms found, report this to us on Discord!\nIf the server was just restarted,\nthen wait a few minutes.")
 		else
 			self.infoLabel:SetCaption("You are not connected to the server.\nPlease wait 30 seconds while we automatically reconnect you.")
@@ -577,7 +597,7 @@ function BattleListWindow:MakeJoinBattle(battleID, battle)
 		parent = parentButton,
 	}
 	imgIsRunning:SetVisibility(battle.isRunning == true)
-	
+
 	local lblTitle = Label:New {
 		name = "lblTitle",
 		x = "4%",
@@ -725,6 +745,86 @@ function BattleListWindow:AddBattle(battleID, battle)
 
 	self:AddRow({button}, battle.battleID)
 	self:RecalculateOrder(battle.battleID) -- when a battle is added to the list, go ahead and ensure it's sorted correctly. Other cases will rely on soft update
+end
+
+-- Parse chevron/rating join limits advertised in battle titles, e.g.
+-- "Min chev: 4 | Max chev: 6 | Rating 13 - 60 | Max rating: 25"
+local function ParseJoinLimitsFromTitle(title)
+	if not title or title == "" then
+		return nil
+	end
+	local t = string.lower(title)
+	local limits = {}
+
+	limits.minChev = tonumber(t:match("min%s*chev%s*:?%s*(%d+)"))
+	limits.maxChev = tonumber(t:match("max%s*chev%s*:?%s*(%d+)"))
+	limits.minRating = tonumber(t:match("min%s*rating%s*:?%s*(%-?%d+%.?%d*)"))
+	limits.maxRating = tonumber(t:match("max%s*rating%s*:?%s*(%-?%d+%.?%d*)"))
+
+	-- Bare "Rating lo - hi", skipping matches that are part of "min rating" / "max rating"
+	local searchFrom = 1
+	while true do
+		local s, e, lo, hi = string.find(t, "rating%s*:?%s*(%-?%d+%.?%d*)%s*%-%s*(%-?%d+%.?%d*)", searchFrom)
+		if not s then
+			break
+		end
+		local prefix = string.sub(t, math.max(1, s - 4), s - 1)
+		if not string.find(prefix, "min%s*$") and not string.find(prefix, "max%s*$") then
+			limits.minRating = limits.minRating or tonumber(lo)
+			limits.maxRating = limits.maxRating or tonumber(hi)
+			break
+		end
+		searchFrom = e + 1
+	end
+
+	if limits.minChev or limits.maxChev or limits.minRating or limits.maxRating then
+		return limits
+	end
+	return nil
+end
+
+local function GetMyOpenSkillRating(battle)
+	local me = lobby:GetUser(lobby:GetMyUserName())
+	if not me then
+		return nil, nil
+	end
+	local myRating
+	if me.accountID and WG.UserHandler and WG.UserHandler.GetSnapshotSkillValue then
+		myRating = WG.UserHandler.GetSnapshotSkillValue(me.accountID, battle)
+	end
+	if not myRating then
+		myRating = tonumber(me.skill)
+	end
+	return myRating, me.level
+end
+
+local function CanJoinByTitleLimits(battle)
+	local limits = ParseJoinLimitsFromTitle(battle and battle.title)
+	if not limits then
+		return true
+	end
+
+	local myRating, myChev = GetMyOpenSkillRating(battle)
+
+	if myChev then
+		if limits.minChev and myChev < limits.minChev then
+			return false
+		end
+		if limits.maxChev and myChev > limits.maxChev then
+			return false
+		end
+	end
+
+	if myRating then
+		if limits.minRating and myRating < limits.minRating then
+			return false
+		end
+		if limits.maxRating and myRating > limits.maxRating then
+			return false
+		end
+	end
+
+	return true
 end
 
 -- Fuzzy subsequence scorer for battle list search.
@@ -878,9 +978,13 @@ function BattleListWindow:ItemInFilter(id)
 		return false
 	end
 
+	if Configuration.battleFilterOutOfRange and not CanJoinByTitleLimits(battle) then
+		return false
+	end
+
 	if Configuration.battleFilterPvMode and Configuration.battleFilterPvMode > 1 then
-		local vsAI = battle.title:find("vs AI") 
-				or battle.title:find("vs Scavengers") 
+		local vsAI = battle.title:find("vs AI")
+				or battle.title:find("vs Scavengers")
 				or battle.title:find("vs Raptors")
 
 		if (vsAI and Configuration.battleFilterPvMode == 2)
@@ -976,7 +1080,7 @@ function BattleListWindow:CompareItems(id1, id2)
 		--)
 		local battle1passworded = (battle1.passworded == true )
 		local battle2passworded = (battle2.passworded == true )
-		
+
 		if battle1passworded ~= battle2passworded then
 			return battle2passworded
 		elseif battle1passworded  and battle2passworded then
@@ -1011,7 +1115,7 @@ function BattleListWindow:CompareItems(id1, id2)
 		if empty1 ~= empty2 then
 			return (empty2 == true)
 		end
-		
+
 		if countOne == 0 and countTwo > 0 then -- id1 is empty
 			return false
 		elseif countOne > 0 and countTwo == 0 then  -- id2 is empty
@@ -1211,7 +1315,7 @@ function BattleListWindow:JoinedBattle(battleID)
 	local playersCaption = battleButton:GetChildByName("playersCaption")
 	if playersCaption then
 		local newPlayerCount = lobby:GetBattlePlayerCount(battleID)
-		if battleButton.previousPlayerCount ~= newPlayerCount then 
+		if battleButton.previousPlayerCount ~= newPlayerCount then
 			playersCaption:SetCaption(lobby:GetPlayerOccupancy(battleID))
 			battleButton.previousPlayerCount = newPlayerCount
 		end
@@ -1241,7 +1345,7 @@ function BattleListWindow:LeftBattle(battleID)
 	local playersCaption = battleButton:GetChildByName("playersCaption")
 	if playersCaption then
 		local newPlayerCount = lobby:GetBattlePlayerCount(battleID)
-		if battleButton.previousPlayerCount ~= newPlayerCount then 
+		if battleButton.previousPlayerCount ~= newPlayerCount then
 			playersCaption:SetCaption(lobby:GetPlayerOccupancy(battleID))
 			battleButton.previousPlayerCount = newPlayerCount
 		end
@@ -1294,7 +1398,7 @@ function BattleListWindow:OnUpdateBattleInfo(battleID)
 		lblTitle.OnResize[1](lblTitle)
 
 		-- Update minimap button if changed
-		if battleButton.previousMapName ~= battle.mapName then 
+		if battleButton.previousMapName ~= battle.mapName then
 			local minimapImage = battleButton:GetChildByName("minimap"):GetChildByName("minimapImage")
 			local mapCaption = battleButton:GetChildByName("mapCaption")
 			minimapImage.file, minimapImage.checkFileExists = Configuration:GetMinimapSmallImage(battle.mapName)
@@ -1320,7 +1424,7 @@ function BattleListWindow:OnUpdateBattleInfo(battleID)
 		-- gameCaption:SetCaption(self:_MakeGameCaption(battle))
 		local newPlayerCount = lobby:GetBattlePlayerCount(battleID)
 		local newMaxPlayers = lobby:GetBattleMaxPlayers(battleID)
-		if battleButton.previousPlayerCount ~= newPlayerCount or battleButton.previousMaxPlayers ~= newMaxPlayers then 
+		if battleButton.previousPlayerCount ~= newPlayerCount or battleButton.previousMaxPlayers ~= newMaxPlayers then
 			local playersCaption = battleButton:GetChildByName("playersCaption")
 			playersCaption:SetCaption(lobby:GetPlayerOccupancy(battleID))
 			battleButton.previousPlayerCount = newPlayerCount
@@ -1401,7 +1505,7 @@ function BattleListWindow:OpenHostWindow()
 		['Host[AU1]'] = {limit = 150,  current = 0, online = false, priority = 1.0, region = 'AU', location = "Sydney"},   -- HostHatch is a good provider
 		['Host[AU2]'] = {limit = 40,  current = 0, online = false, priority = 1.0, region = 'AU', location = "Sydney"},    -- higher priority OVH host
 
-		['Host[EU1]'] = {limit = 150, current = 0, online = false, priority = 1.0, region = 'EU', location = "Vienna"}, 
+		['Host[EU1]'] = {limit = 150, current = 0, online = false, priority = 1.0, region = 'EU', location = "Vienna"},
 		['Host[EU2]'] = {limit = 120, current = 0, online = false, priority = 1.0, region = 'EU', location = "Vienna"},
 		['Host[EU3]'] = {limit = 25,  current = 0, online = false, priority = 0.5, region = 'EU', location = "Frankfurt"}, -- Lower prio because it runs files
 		['Host[EU4]'] = {limit = 150, current = 0, online = false, priority = 1.0, region = 'EU', location = "Dusseldorf"},-- this is pointed to integration server
@@ -1409,14 +1513,14 @@ function BattleListWindow:OpenHostWindow()
 		['Host[EU6]'] = {limit = 120, current = 0, online = false, priority = 1.0, region = 'EU', location = "Amsterdam"},
 		['Host[EU7]'] = {limit = 250, current = 0, online = false, priority = 1.0, region = 'EU', location = "Amsterdam"}, -- This runs on integration server, but has plenty of capacity
 		['Host[EU8]'] = {limit = 150, current = 0, online = false, priority = 1.0, region = 'EU', location = "Zurich"},    -- TEMPORARILY BUMP CAPACITY FOR SWAP LOAD TEST
-		
+
 		['Host[US1]'] = {limit = 120, current = 0, online = false, priority = 1.0, region = 'US', location = "Virginia"},
 		['Host[US2]'] = {limit = 50,  current = 0, online = false, priority = 1.0, region = 'US', location = "Chicago"},
 		['Host[US3]'] = {limit = 80,  current = 0, online = false, priority = 1.0, region = 'US', location = "St. Louis"},
 		['Host[US4]'] = {limit = 150, current = 0, online = false, priority = 0.3, region = 'US', location = "Seattle"}, -- Seems to see more cpu steal than the rest
-		['Host[US5]'] = {limit = 150, current = 0, online = false, priority = 1.0, region = 'US', location = "Chicago"}, 
+		['Host[US5]'] = {limit = 150, current = 0, online = false, priority = 1.0, region = 'US', location = "Chicago"},
 
-		['Host[EA1]'] = {limit = 120, current = 0, online = false, priority = 1.0, region = 'EA', location = "HK"}, 
+		['Host[EA1]'] = {limit = 120, current = 0, online = false, priority = 1.0, region = 'EA', location = "HK"},
 	}
 
 	-- Try to check for their engine version too. It is unlikely that a cluster has multiple engines (except during a switch, so scratch that)
@@ -1433,7 +1537,7 @@ function BattleListWindow:OpenHostWindow()
 			-- Parse the region, cluster number, instance number
 			local clustermanager = string.match(userName, '^(Host%[%a+%d+%])$')
 			if clustermanager then  -- this is a manager
-				if clusters[clustermanager] then 
+				if clusters[clustermanager] then
 					clusters[clustermanager].online = true
 				else
 					-- This seems to be a novel cluster, we could initialize it with some sane defaults:
@@ -1449,6 +1553,39 @@ function BattleListWindow:OpenHostWindow()
 		end
 	end
 
+	-- Report detected bots for host-request diagnostics
+	local botStatus = {}
+	for userName, userInfo in pairs(lobby.users) do
+		if userInfo.isBot then
+			local clustermanager, instancenumber = string.match(userName, '^(Host%[%a+%d+%])%[(%d+)%]$')
+			if clustermanager then
+				table.insert(botStatus, userName .. " => " .. clustermanager .. " [" .. instancenumber .. "]")
+			else
+				local clustermanagerOnly = string.match(userName, '^(Host%[%a+%d+%])$')
+				if clustermanagerOnly then
+					table.insert(botStatus, userName .. " => " .. clustermanagerOnly)
+				else
+					table.insert(botStatus, userName .. " => (bot)")
+				end
+			end
+		end
+	end
+	if #botStatus > 0 then
+		local msg = "Host request bot status: " .. table.concat(botStatus, ", ")
+		Spring.Echo(msg)
+		local chatWindow = WG.Chobby and WG.Chobby.interfaceRoot and WG.Chobby.interfaceRoot.GetChatWindow and WG.Chobby.interfaceRoot.GetChatWindow()
+		if chatWindow and chatWindow.debugConsole and Configuration.activeDebugConsole then
+			chatWindow.debugConsole:AddMessage(msg)
+		end
+	else
+		local msg = "Host request bot status: no bots detected"
+		Spring.Echo(msg)
+		local chatWindow = WG.Chobby and WG.Chobby.interfaceRoot and WG.Chobby.interfaceRoot.GetChatWindow and WG.Chobby.interfaceRoot.GetChatWindow()
+		if chatWindow and chatWindow.debugConsole and Configuration.activeDebugConsole then
+			chatWindow.debugConsole:AddMessage(msg)
+		end
+	end
+
 	-- return a cluster manager name and error code
 	local function TryGetRegion(targetregion)
 		local emptiness = {} -- key is manager name, value is fullness
@@ -1458,7 +1595,7 @@ function BattleListWindow:OpenHostWindow()
 				-- The relative probability of a cluster being picked is a product of
 				-- 1. The current fullness of the cluster
 				-- 2. The actual capacity of the cluster itself.
-				-- Any one of these measures by themselves are insufficient, because of repeated sampling. 
+				-- Any one of these measures by themselves are insufficient, because of repeated sampling.
 				-- if its only actual capacity, then smaller clusters wont ever get loaded
 
 				local probability =  (1.0 - data.current/data.limit) * (data.limit - data.current)
@@ -1566,7 +1703,7 @@ function BattleListWindow:OpenHostWindow()
 		OnChange = {
 			function (obj, newState)
 				allowFriendsToJoin =  newState
-			
+
 			end
 		},
 		parent = hostBattleWindow,
@@ -1618,7 +1755,7 @@ function BattleListWindow:OpenHostWindow()
 	end
 
 	local function HostBattle()
-		
+
 		--Attempting to host game at
 		--local requestedregion = typeCombo.items[typeCombo.selected] ---self.hostRegions = {"DE","EU","EU2","US","AU"}
 		local regionStrings = {'Europe', 'North America', 'Australia', 'East Asia'} -- {'EU','US','AU','EA'}
@@ -1637,7 +1774,7 @@ function BattleListWindow:OpenHostWindow()
 					Spring.Echo("Got the password:", mypassword)
 				end
 			end
-			
+
 
 			lobby:AddListener("OnSaidPrivate", listenForPrivateBattle)
 			lobby:SayPrivate(targetCluster, "!privatehost")
@@ -1710,6 +1847,7 @@ function BattleListWindow:OpenHostWindow()
 			local targetbattle = nil
 			-- try to get empty matching one
 			local battles = lobby:GetBattles()
+			Spring.Echo("Num of running battles:", #battles)
 			local tmp = {}
 			for _, battle in pairs(battles) do
 				table.insert(tmp, battle)
@@ -1735,14 +1873,14 @@ function BattleListWindow:OpenHostWindow()
 
 			if targetbattle == nil then
 				--Spring.Echo("Failed to find a battle")
-				errorLabel:SetCaption("Could not find a suitable battle room in your selected region!\nPlease try another.")
+				errorLabel:SetCaption("Could not find a suitable battle room in your selected region!\nPlease try another. TEST EST TEST .")
 			else
 				errorLabel:SetCaption("")
-				if WG.Analytics then
-					WG.Analytics.SendRepeatEvent("lobby:multiplayer:hostgame", {
-						hostregion = requestedregion
-					})
-				end
+				--if WG.Analytics then
+				--	WG.Analytics.SendRepeatEvent("lobby:multiplayer:hostgame", {
+				--		hostregion = requestedregion
+				--	})
+				--end
 				-- Configuration:SetConfigValue("lastGameSpectatorState", false) -- assume that private hoster wants to play, needed so he can boss self!
 
 				--Spring.Echo("Found a battle")
@@ -1771,12 +1909,7 @@ function BattleListWindow:OpenHostWindow()
 	end
 
 	function buttonHostOnClick()
-		buttonHost.tooltip = "Please wait for more time before requesting another hosted battle"
-		buttonHost.suppressButtonReaction = true
-		buttonHost:SetEnabled(false)
-		buttonHost.OnClick = {}
 		HostBattle()
-		WG.Delay(reEnableBtnHost, 15)
 	end
 
 	buttonHost = Button:New {
@@ -1838,7 +1971,7 @@ function BattleListWindow:JoinBattle(battle, _, _, joinAsPlayer)
 			lobby:AddListener("OnJoinBattleFailed", onJoinBattleFailed)
 			lobby:AddListener("OnJoinBattle", onJoinBattle)
 
-			lobby:JoinBattle(battle.battleID, _, _, joinAsPlayer)	
+			lobby:JoinBattle(battle.battleID, _, _, joinAsPlayer)
 		end
 
 		removeListeners = function ()
@@ -1960,12 +2093,12 @@ function BattleListWindow:JoinBattle(battle, _, _, joinAsPlayer)
 
 		lobby:AddListener("OnJoinBattleFailed", onJoinBattleFailed)
 		lobby:AddListener("OnJoinBattle", onJoinBattle)
-			
+
 		-- try to join first without a password, succeeds when lobby is open to friends
 		tryJoin()
 		local popupHolder = PriorityPopup(passwordWindow, CancelFunc, tryJoin)
 		screen0:FocusControl(ebPassword)
 	end
-	
+
 end
 
