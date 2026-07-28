@@ -88,7 +88,7 @@ function BattleListWindow:init(parent)
 	}
 
 	local checkPassworded = Checkbox:New {
-		x = "15%",
+		x = "12%",
 		width = 21,
 		bottom = 8,
 		height = 30,
@@ -107,7 +107,7 @@ function BattleListWindow:init(parent)
 		tooltip = "Hides all battles that require a password to join",
 	}
 	local checkNonFriend = Checkbox:New {
-		x = "35%",
+		x = "27%",
 		width = 21,
 		bottom = 8,
 		height = 30,
@@ -126,7 +126,7 @@ function BattleListWindow:init(parent)
 		tooltip = "Hides all battles that don't have your friends in them",
 	}
 	local checkRunning = Checkbox:New {
-		x = "55%",
+		x = "43%",
 		width = 21,
 		bottom = 8,
 		height = 30,
@@ -144,8 +144,27 @@ function BattleListWindow:init(parent)
 		parent = self.window,
 		tooltip = "Hides all battles that are in progress",
 	}
+	local checkOutOfRange = Checkbox:New {
+		x = "55%",
+		width = 21,
+		bottom = 8,
+		height = 30,
+		boxalign = "left",
+		boxsize = 20,
+		caption = " Out of range",
+		checked = Configuration.battleFilterOutOfRange or false,
+		objectOverrideFont = myFont2,
+		OnChange = {
+			function (obj, newState)
+				Configuration:SetConfigValue("battleFilterOutOfRange", newState)
+				self:SoftUpdate(true)
+			end
+		},
+		parent = self.window,
+		tooltip = "Hides battles whose title lists chevron/rating limits you are outside (e.g. Min chev, Max chev, Rating, Max rating)",
+	}
 	local combPvMode = ComboBox:New {
-		x = "70%",
+		x = "72%",
 		width = 85,
 		bottom = 8,
 		height = 30,
@@ -163,8 +182,8 @@ function BattleListWindow:init(parent)
 		parent = self.window,
 		tooltip = "Hides all AI (including PvE) or PvP battles.",
 	}
-    local checkLocked = Checkbox:New {
-		x = "85%",
+	local checkLocked = Checkbox:New {
+		x = "86%",
 		width = 21,
 		bottom = 8,
 		height = 30,
@@ -187,7 +206,8 @@ function BattleListWindow:init(parent)
 		checkPassworded:SetToggle(Configuration.battleFilterPassworded2)
 		checkNonFriend:SetToggle(Configuration.battleFilterNonFriend)
 		checkRunning:SetToggle(Configuration.battleFilterRunning)
-        checkLocked:SetToggle(Configuration.battleFilterLocked)
+		checkOutOfRange:SetToggle(Configuration.battleFilterOutOfRange)
+		checkLocked:SetToggle(Configuration.battleFilterLocked)
 		combPvMode:Select(Configuration.battleFilterPvMode)
 	end
 	WG.Delay(UpdateCheckboxes, 0.2)
@@ -727,6 +747,86 @@ function BattleListWindow:AddBattle(battleID, battle)
 	self:RecalculateOrder(battle.battleID) -- when a battle is added to the list, go ahead and ensure it's sorted correctly. Other cases will rely on soft update
 end
 
+-- Parse chevron/rating join limits advertised in battle titles, e.g.
+-- "Min chev: 4 | Max chev: 6 | Rating 13 - 60 | Max rating: 25"
+local function ParseJoinLimitsFromTitle(title)
+	if not title or title == "" then
+		return nil
+	end
+	local t = string.lower(title)
+	local limits = {}
+
+	limits.minChev = tonumber(t:match("min%s*chev%s*:?%s*(%d+)"))
+	limits.maxChev = tonumber(t:match("max%s*chev%s*:?%s*(%d+)"))
+	limits.minRating = tonumber(t:match("min%s*rating%s*:?%s*(%-?%d+%.?%d*)"))
+	limits.maxRating = tonumber(t:match("max%s*rating%s*:?%s*(%-?%d+%.?%d*)"))
+
+	-- Bare "Rating lo - hi", skipping matches that are part of "min rating" / "max rating"
+	local searchFrom = 1
+	while true do
+		local s, e, lo, hi = string.find(t, "rating%s*:?%s*(%-?%d+%.?%d*)%s*%-%s*(%-?%d+%.?%d*)", searchFrom)
+		if not s then
+			break
+		end
+		local prefix = string.sub(t, math.max(1, s - 4), s - 1)
+		if not string.find(prefix, "min%s*$") and not string.find(prefix, "max%s*$") then
+			limits.minRating = limits.minRating or tonumber(lo)
+			limits.maxRating = limits.maxRating or tonumber(hi)
+			break
+		end
+		searchFrom = e + 1
+	end
+
+	if limits.minChev or limits.maxChev or limits.minRating or limits.maxRating then
+		return limits
+	end
+	return nil
+end
+
+local function GetMyOpenSkillRating(battle)
+	local me = lobby:GetUser(lobby:GetMyUserName())
+	if not me then
+		return nil, nil
+	end
+	local myRating
+	if me.accountID and WG.UserHandler and WG.UserHandler.GetSnapshotSkillValue then
+		myRating = WG.UserHandler.GetSnapshotSkillValue(me.accountID, battle)
+	end
+	if not myRating then
+		myRating = tonumber(me.skill)
+	end
+	return myRating, me.level
+end
+
+local function CanJoinByTitleLimits(battle)
+	local limits = ParseJoinLimitsFromTitle(battle and battle.title)
+	if not limits then
+		return true
+	end
+
+	local myRating, myChev = GetMyOpenSkillRating(battle)
+
+	if myChev then
+		if limits.minChev and myChev < limits.minChev then
+			return false
+		end
+		if limits.maxChev and myChev > limits.maxChev then
+			return false
+		end
+	end
+
+	if myRating then
+		if limits.minRating and myRating < limits.minRating then
+			return false
+		end
+		if limits.maxRating and myRating > limits.maxRating then
+			return false
+		end
+	end
+
+	return true
+end
+
 -- Fuzzy subsequence scorer for battle list search.
 -- Returns a positive score if query is a subsequence of target, 0 otherwise.
 local function fuzzyScore(query, target)
@@ -875,6 +975,10 @@ function BattleListWindow:ItemInFilter(id)
 	end
 
 	if Configuration.battleFilterRunning and battle.isRunning then
+		return false
+	end
+
+	if Configuration.battleFilterOutOfRange and not CanJoinByTitleLimits(battle) then
 		return false
 	end
 
