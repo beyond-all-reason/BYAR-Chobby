@@ -956,6 +956,28 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 	}
 	recoverChildren[#recoverChildren+1] = self.txtErrorChangeEmail
 
+	recoverChildren[#recoverChildren+1] = Line:New{x=5,y=600,right=5, height = 1}
+
+---------------------------Delete Account--------------------------------
+	self.btnDeleteAccount = Button:New {
+		x = pad + formw * 0 ,
+		y = 610 ,
+		width =   formw * 3 ,
+		height =  formh * 2 ,
+		caption = i18n("delete_account"),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		classname = "negative_button",
+		OnClick = {
+			function()
+				if lobby:GetConnectionStatus() == "connected" then
+					AccountDeletionWizard(Configuration.userName)
+				else
+					WG.Chobby.InformationPopup("You must be logged in to delete your account.")
+				end
+			end
+		},
+	}
+	recoverChildren[#recoverChildren+1] = self.btnDeleteAccount
 
 	--------- just logout button --------
 	local function LogoutFunc()
@@ -1124,6 +1146,10 @@ function LoginWindow:RemoveListeners()
 	if self.OnChangeEmailRequestDenied then
 		lobby:RemoveListener("OnChangeEmailRequestDenied", self.OnChangeEmailRequestDenied)
 	end
+	if self.onAccountDeletionCancelled then
+		lobby:RemoveListener("OnAccountDeletionCancelled", self.onAccountDeletionCancelled)
+		self.onAccountDeletionCancelled = nil
+	end
 end
 
 function LoginWindow:ClearRenameListeners()
@@ -1187,6 +1213,26 @@ function LoginWindow:tryLogin()
 			self.txtError:SetText(Configuration:GetErrorColor() .. "Cannot reach server:\n" .. tostring(Configuration:GetServerAddress()) .. ":" .. tostring(Configuration:GetServerPort()))
 		end
 		lobby:AddListener("OnDisconnected", self.onDisconnected)
+
+		-- Listener for account deletion cancellation during grace period
+		self.onAccountDeletionCancelled = function(listener, message)
+			-- TODO: Display prominent notification when user logs in during grace period
+			-- The server will send a message when a pending deletion is cancelled by login
+			-- This should be displayed prominently to the user
+			if message then
+				Spring.Log("login_window", LOG.NOTICE, "Account deletion cancelled: " .. tostring(message))
+				-- Display notification using Chotify or similar system
+				if WG.Chotify then
+					WG.Chotify:Popup({
+						title = "Account Deletion Cancelled",
+						text = message or "Your account deletion request has been cancelled by this login.",
+						lifetime = 10,
+						sound = false
+					})
+				end
+			end
+		end
+		lobby:AddListener("OnAccountDeletionCancelled", self.onAccountDeletionCancelled)
 
 		local function FollowRedirect()
 			lobby:Connect(Configuration:GetServerAddress(), Configuration:GetServerPort(), username, password, 3, nil, GetLobbyName())
