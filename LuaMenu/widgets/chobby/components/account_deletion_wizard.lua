@@ -32,6 +32,11 @@ function AccountDeletionWizard:CreateWindow()
 		parent = (WG.Chobby and WG.Chobby.lobbyInterfaceHolder) or nil,
 		classname = "main_window_small",
 	}
+
+	local function CancelFunc()
+		self:Dispose()
+	end
+	PriorityPopup(self.window, CancelFunc, nil)
 end
 
 function AccountDeletionWizard:ShowStep1()
