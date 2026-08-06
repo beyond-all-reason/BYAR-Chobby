@@ -35,6 +35,22 @@ local function findMode(modes, category, modeKey)
 	return nil
 end
 
+-- Whether an option's section answers to the category: directly (section ==
+-- category) or by declaration (the section entry's mode_category — a flavor's
+-- dials handing the choice to a shared axis, e.g. scav_defense_options ->
+-- game). Section entries ride in the same defs list, so governance is
+-- computed from what the caller already has.
+local function governedSections(defs, category)
+	local governed = { [category] = true }
+	for i = 1, #defs do
+		local o = defs[i]
+		if o.key and o.type == "section" and o.mode_category == category then
+			governed[o.key] = true
+		end
+	end
+	return governed
+end
+
 -- Full effective modoptions for a mode: the category's modoption defaults overlaid
 -- with the mode preset, then any deviations, plus the <category>_mode selector.
 -- Returns nil if the mode data is unavailable, so callers can fall back to whatever
@@ -45,10 +61,11 @@ function ModeResolver.Resolve(modes, defs, category, modeKey, deviations)
 	if not mode then return nil end
 
 	local selectorKey = category .. "_mode"
+	local governed = governedSections(defs, category)
 	local out = {}
 	for i = 1, #defs do
 		local o = defs[i]
-		if o.section == category and o.key and o.key ~= selectorKey
+		if governed[o.section] and o.key and o.key ~= selectorKey
 				and o.type ~= "subheader" and o.type ~= "separator" and o.def ~= nil then
 			out[o.key] = toVal(o.def)
 		end
@@ -80,10 +97,11 @@ function ModeResolver.DeviationsFromMode(resolved, defs, mode, category)
 	-- Baseline = the mode's preset effective values WITHOUT user deviations, i.e.
 	-- exactly what Resolve(...) would return with no deviations. Run every value
 	-- through the same toVal as `resolved` so the comparison is string-clean.
+	local governed = governedSections(defs, category)
 	local baseline = {}
 	for i = 1, #defs do
 		local o = defs[i]
-		if o.section == category and o.key and o.key ~= selectorKey
+		if governed[o.section] and o.key and o.key ~= selectorKey
 				and o.type ~= "subheader" and o.type ~= "separator" and o.def ~= nil then
 			baseline[o.key] = toVal(o.def)
 		end
