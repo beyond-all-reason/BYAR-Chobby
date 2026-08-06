@@ -37,6 +37,10 @@ local LUAUI_WIDGETS_DIR = "LuaUI/Widgets"
 local LUAUI_WIDGET_BACKUP_DIR = "LuaUI/WidgetBackups"
 local LUAUI_CONFIG_DIR  = "LuaUI/Config"
 local LUAUI_WIDGET_CONFIG_FILES = {
+    LUAUI_CONFIG_DIR .. "/BYAR.lua",
+    LUAUI_CONFIG_DIR .. "/BYAR_order.lua",
+    LUAUI_CONFIG_DIR .. "/BYAR_known.lua",
+    LUAUI_CONFIG_DIR .. "/BYAR_data.lua",
     LUAUI_CONFIG_DIR .. "/IGL_order.lua",
     LUAUI_CONFIG_DIR .. "/IGL_known.lua",
     LUAUI_CONFIG_DIR .. "/IGL_data.lua",
