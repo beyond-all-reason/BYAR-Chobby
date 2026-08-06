@@ -41,9 +41,6 @@ local LUAUI_WIDGET_CONFIG_FILES = {
     LUAUI_CONFIG_DIR .. "/BYAR_order.lua",
     LUAUI_CONFIG_DIR .. "/BYAR_known.lua",
     LUAUI_CONFIG_DIR .. "/BYAR_data.lua",
-    LUAUI_CONFIG_DIR .. "/IGL_order.lua",
-    LUAUI_CONFIG_DIR .. "/IGL_known.lua",
-    LUAUI_CONFIG_DIR .. "/IGL_data.lua",
 }
 
 local PLUGINS_DIR         = "plugins/"
