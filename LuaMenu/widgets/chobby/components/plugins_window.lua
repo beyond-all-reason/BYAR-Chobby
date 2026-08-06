@@ -33,6 +33,16 @@ local MANIFEST_URL     = CDN_BASE .. "/manifests.json"
 local MANIFEST_DEST    = "LuaUI/Widgets/manifests.json"
 local MANIFEST_NAME    = "plugin_manifest"
 
+local LUAUI_WIDGETS_DIR = "LuaUI/Widgets"
+local LUAUI_WIDGET_BACKUP_DIR = "LuaUI/WidgetBackups"
+local LUAUI_CONFIG_DIR  = "LuaUI/Config"
+local LUAUI_WIDGET_CONFIG_FILES = {
+    LUAUI_CONFIG_DIR .. "/BYAR.lua",
+    LUAUI_CONFIG_DIR .. "/BYAR_order.lua",
+    LUAUI_CONFIG_DIR .. "/BYAR_known.lua",
+    LUAUI_CONFIG_DIR .. "/BYAR_data.lua",
+}
+
 local PLUGINS_DIR         = "plugins/"
 local IMG_FALLBACK_LARGE  = "LuaMenu/images/load_img_512.png"
 local IMG_FALLBACK_MEDIUM = "LuaMenu/images/load_img_128.png"
@@ -148,7 +158,7 @@ local function getDistributionUrl(widgetId)
 end
 
 local function getInstallPath(widgetId)
-    return "LuaUI/Widgets/" .. widgetId
+    return LUAUI_WIDGETS_DIR .. "/" .. widgetId
 end
 
 local function getWidgetDisplayName(widgetId)
@@ -294,41 +304,23 @@ local function updateUpdateAllButton()
     updateAllButton:SetVisibility(#upgradable > 0)
 end
 
-local function renameLuaFilesRecursive(dirPath)
-    -- Ensure trailing slash for VFS calls
-    local dir = dirPath
-    if string.sub(dir, -1) ~= "/" then dir = dir .. "/" end
-    local luaFiles = VFS.DirList(dir, "*.lua")
-    if luaFiles then
-        for _, luaFile in ipairs(luaFiles) do
-            os.rename(luaFile, luaFile .. ".backup")
-        end
-    end
-    local subDirs = VFS.SubDirs(dir)
-    if subDirs then
-        for _, subDir in ipairs(subDirs) do
-            renameLuaFilesRecursive(subDir)
-        end
-    end
-end
-
 local function backupDirectory(dirPath)
     -- Strip trailing slash for a clean rename
     local cleanPath = dirPath
     if string.sub(cleanPath, -1) == "/" then
         cleanPath = string.sub(cleanPath, 1, -2)
     end
+    local basename = string.match(cleanPath, "[^/\\]+$") or "widget"
     local stamp = os.date("%Y%m%d_%H%M%S")
-    local backupPath = cleanPath .. "_backup_" .. stamp
+    Spring.CreateDir(LUAUI_WIDGET_BACKUP_DIR)
+    local backupPath = LUAUI_WIDGET_BACKUP_DIR .. "/" .. basename .. "_backup_" .. stamp
     local ok, err = os.rename(cleanPath, backupPath)
     if ok then
         Spring.Echo("[PluginsWindow] Backed up directory: " .. cleanPath .. " -> " .. backupPath)
-        -- Recursively rename all .lua files to .lua.backup so the engine won't load them
-        renameLuaFilesRecursive(backupPath)
     else
         Spring.Echo("[PluginsWindow] Failed to backup directory: " .. tostring(cleanPath) .. " - " .. tostring(err))
     end
-    return ok, backupPath
+    return ok, backupPath, err
 end
 
 local function upgradeWidget(widget)
@@ -1009,6 +1001,226 @@ scheduleRefresh = function()
 end
 
 --------------------------------------------------------------------------------
+-- Restore Defaults
+--------------------------------------------------------------------------------
+
+local function addResetFailure(failures, action, path, err)
+    failures[#failures + 1] = action .. " " .. path .. ": " .. tostring(err)
+    Spring.Echo("[PluginsWindow] Failed to " .. action .. " " .. path .. ": " .. tostring(err))
+end
+
+local function removeFileIfExists(filePath, failures)
+    if not VFS.FileExists(filePath, VFS.RAW) then
+        return 0
+    end
+
+    local ok, err = os.remove(filePath)
+    if ok then
+        return 1
+    end
+
+    addResetFailure(failures, "remove", filePath, err)
+    return 0
+end
+
+local function hasWidgetDownloadInProgress()
+    for _ in pairs(installingWidgets) do
+        return true
+    end
+
+    -- Check the shared queue
+    if WG.DownloadHandler and WG.DownloadHandler.GetDownloadQueue then
+        local downloadQueue = WG.DownloadHandler.GetDownloadQueue()
+        for _, item in ipairs(downloadQueue or {}) do
+            local name = item and item.name
+            if type(name) == "string" and (string.find(name, "^install_") or string.find(name, "^upgrade_")) then
+                return true
+            end
+        end
+    end
+
+    return false
+end
+
+local function backupWidgetsFolderForReset(failures)
+    -- Move the whole Widgets folder aside instead of deleting or walking user files.
+    local ok, backupPath, err = backupDirectory(LUAUI_WIDGETS_DIR)
+    if not ok then
+        addResetFailure(failures, "backup", LUAUI_WIDGETS_DIR, err)
+        return nil
+    end
+
+    -- Recreate the active Widgets folder so future installs have a clean target.
+    Spring.CreateDir(LUAUI_WIDGETS_DIR)
+    return backupPath
+end
+
+local function clearWidgetBrowserInstallState()
+    -- Force install buttons to check after reset
+    installedWidgets = {}
+    installingWidgets = {}
+    upgradeBackups = {}
+    installedLastUpdatedCache = {}
+    widgetPanelCache = {}
+    cardImageRefs = {}
+end
+
+local function restoreWidgetsToDefault()
+    if hasWidgetDownloadInProgress() then
+        Spring.Echo("[PluginsWindow] Cannot restore widget defaults while widget downloads are in progress")
+        if WG.Chobby and WG.Chobby.InformationPopup then
+            WG.Chobby.InformationPopup(i18n("plugins_restore_defaults_busy"), { width = 420, height = 180 })
+        end
+        return
+    end
+
+    local failures = {}
+    local backupPath = backupWidgetsFolderForReset(failures)
+    if not backupPath then
+        if WG.Chobby and WG.Chobby.InformationPopup then
+            WG.Chobby.InformationPopup(i18n("plugins_restore_defaults_failed", { count = #failures }), { width = 440, height = 220 })
+        end
+        return
+    end
+
+    local removedConfigCount = 0
+
+    -- Removes saved LuaUI widget order, enabled state and per-widget data
+    for _, configFile in ipairs(LUAUI_WIDGET_CONFIG_FILES) do
+        removedConfigCount = removedConfigCount + removeFileIfExists(configFile, failures)
+    end
+
+    clearWidgetBrowserInstallState()
+    closeDetail()
+    updateUpdateAllButton()
+
+    if VFS.ScanAllDirs then
+        VFS.ScanAllDirs()
+    end
+
+    if Spring.SendCommands then
+        Spring.SendCommands("luaui reload")
+    end
+
+    Spring.Echo("[PluginsWindow] Restored widgets to defaults. Backed up Widgets folder to " .. tostring(backupPath) .. " and removed " .. tostring(removedConfigCount) .. " config files.")
+
+    if #failures > 0 then
+        if WG.Chobby and WG.Chobby.InformationPopup then
+            WG.Chobby.InformationPopup(i18n("plugins_restore_defaults_failed", { count = #failures }), { width = 440, height = 220 })
+        end
+    elseif Chotify and Chotify.Post then
+        Chotify:Post({
+            title = i18n("plugins_title"),
+            body = i18n("plugins_restore_defaults_notification"),
+            time = 10,
+        })
+    elseif WG.Chobby and WG.Chobby.InformationPopup then
+        WG.Chobby.InformationPopup(i18n("plugins_restore_defaults_notification"), { width = 420, height = 180 })
+    end
+
+    refreshGrid()
+end
+
+local function confirmRestoreWidgetsToDefault()
+    if not (WG.Chobby and WG.Chobby.lobbyInterfaceHolder) then
+        restoreWidgetsToDefault()
+        return
+    end
+
+    local acknowledged = false
+    local popupHolder
+    local confirmWindow
+    local restoreButton
+
+    local function closePopup()
+        if popupHolder then
+            popupHolder:ClosePopup()
+        elseif confirmWindow then
+            confirmWindow:Dispose()
+        end
+    end
+
+    local function acceptRestore()
+        if not acknowledged then
+            return
+        end
+        closePopup()
+        restoreWidgetsToDefault()
+    end
+
+    confirmWindow = Window:New {
+        x = 0,
+        y = 0,
+        width = 520,
+        height = 300,
+        caption = "",
+        resizable = false,
+        draggable = false,
+        parent = WG.Chobby.lobbyInterfaceHolder,
+        classname = "main_window_small",
+    }
+
+    TextBox:New {
+        x = 20,
+        right = 20,
+        y = 20,
+        height = 100,
+        text = i18n("plugins_restore_defaults_confirm"),
+        objectOverrideFont = WG.Chobby.Configuration and WG.Chobby.Configuration:GetFont(3) or nil,
+        objectOverrideHintFont = WG.Chobby.Configuration and WG.Chobby.Configuration:GetFont(3) or nil,
+        parent = confirmWindow,
+    }
+
+    Checkbox:New {
+        x = 20,
+        right = 20,
+        y = 140,
+        height = 40,
+        boxalign = "left",
+        boxsize = 18,
+        caption = i18n("plugins_restore_defaults_ack"),
+        checked = false,
+        objectOverrideFont = WG.Chobby.Configuration and WG.Chobby.Configuration:GetFont(2) or nil,
+        OnChange = {
+            function(_, checked)
+                acknowledged = checked
+                if restoreButton then
+                    restoreButton:SetEnabled(acknowledged)
+                end
+            end
+        },
+        parent = confirmWindow,
+    }
+
+    restoreButton = Button:New {
+        x = 20,
+        bottom = 12,
+        width = 180,
+        height = 62,
+        caption = i18n("plugins_restore_defaults"),
+        objectOverrideFont = WG.Chobby.Configuration and WG.Chobby.Configuration:GetFont(3) or nil,
+        classname = "negative_button",
+        OnClick = { acceptRestore },
+        parent = confirmWindow,
+    }
+    restoreButton:SetEnabled(false)
+
+    Button:New {
+        right = 20,
+        bottom = 12,
+        width = 150,
+        height = 62,
+        caption = i18n("cancel"),
+        objectOverrideFont = WG.Chobby.Configuration and WG.Chobby.Configuration:GetFont(3) or nil,
+        classname = "action_button",
+        OnClick = { closePopup },
+        parent = confirmWindow,
+    }
+
+    popupHolder = PriorityPopup(confirmWindow, closePopup, acceptRestore, nil, nil, true)
+end
+
+--------------------------------------------------------------------------------
 -- Manifest Download and Parsing
 --------------------------------------------------------------------------------
 
@@ -1328,9 +1540,6 @@ function PluginsWindow:init(parent)
     ----------------------------------------------------------------------
 
     -- First row: title and disclaimer only
-    local btnW = 110
-    local btnH = 28
-    local btnFont = 12
     local row1Y = 0
     local row2Y = HEADER_HEIGHT + HEADER_ROW_GAP
 
@@ -1360,16 +1569,20 @@ function PluginsWindow:init(parent)
     -- Second row: all header buttons (left), search box (right)
     local btnY = row2Y + 6
     local btnGap = 8
-    local btnW = 110
     local btnH = 28
     local btnFont = 12
     local btnLeft = 0
+    local function nextHeaderButtonX(width)
+        local x = btnLeft
+        btnLeft = btnLeft + width + btnGap
+        return x
+    end
     Button:New {
         caption = i18n("plugins_folder"),
         tooltip = i18n("plugins_folder_tooltip"),
-        x = btnLeft,
+        x = nextHeaderButtonX(110),
         y = btnY,
-        width = btnW,
+        width = 110,
         height = btnH,
         fontSize = btnFont,
         OnClick = { function() if WG.Connector and WG.Connector.writePath then WG.WrapperLoopback.OpenFolder(WG.Connector.writePath .. "/LuaUI/Widgets") end end },
@@ -1378,9 +1591,9 @@ function PluginsWindow:init(parent)
     Button:New {
         caption = i18n("plugins_contribute"),
         tooltip = i18n("plugins_contribute_tooltip"),
-        x = btnLeft + btnW + btnGap,
+        x = nextHeaderButtonX(85),
         y = btnY,
-        width = btnW - 10,
+        width = 85,
         height = btnH,
         fontSize = btnFont,
         OnClick = { function() WG.WrapperLoopback.OpenUrl("https://github.com/beyond-all-reason/BAR-widgets#how-to-contribute-a-new-widget") end },
@@ -1389,20 +1602,32 @@ function PluginsWindow:init(parent)
     Button:New {
         caption = i18n("plugins_refresh"),
         tooltip = i18n("plugins_refresh_tooltip"),
-        x = btnLeft + 2 * btnW - 10 + 2 * btnGap,
+        x = nextHeaderButtonX(70),
         y = btnY,
-        width = btnW - 20,
+        width = 70,
         height = btnH,
         fontSize = btnFont,
         OnClick = { function() widgetPanelCache = {}; cardImageRefs = {}; widgetsList = {}; downloadToWidgetId = {}; installedLastUpdatedCache = {}; currentPage = 1; fetchManifest(); refreshGrid() end },
         parent = self.window,
     }
+    Button:New {
+        caption = i18n("plugins_restore_defaults_short"),
+        tooltip = i18n("plugins_restore_defaults_tooltip"),
+        x = nextHeaderButtonX(70),
+        y = btnY,
+        width = 70,
+        height = btnH,
+        fontSize = 11,
+        classname = "negative_button",
+        OnClick = { function() confirmRestoreWidgetsToDefault() end },
+        parent = self.window,
+    }
     updateAllButton = Button:New {
         caption = i18n("plugins_update_all"),
         tooltip = i18n("plugins_update_all_tooltip"),
-        x = btnLeft + 3 * btnW - 30 + 3 * btnGap,
+        x = nextHeaderButtonX(82),
         y = btnY,
-        width = btnW - 10,
+        width = 82,
         height = btnH,
         fontSize = btnFont,
         classname = "action_button",
