@@ -194,6 +194,15 @@ local function getActiveMode(category)
 	return nil
 end
 
+-- The mode category an option's section answers to: the section's declared
+-- mode_category (a flavor's dials handing the choice to a shared axis, e.g.
+-- scav_defense_options -> game), else the section itself.
+local function sectionCategory(sectionKey)
+	local declared = modoptionStructure and modoptionStructure.sectionModeCategories
+		and modoptionStructure.sectionModeCategories[sectionKey]
+	return declared or sectionKey
+end
+
 -- Applies the given mode's values to localModoptions, resets non-whitelisted
 -- mode options to their defaults, and sets the category_mode key.
 local function applyModeValues(mode)
@@ -216,7 +225,7 @@ local function applyModeValues(mode)
 	if modoptions then
 		for i = 1, #modoptions do
 			local opt = modoptions[i]
-			if opt.key and opt.section == mode.category
+			if opt.key and sectionCategory(opt.section) == mode.category
 					and opt.type ~= "subheader" and opt.type ~= "separator" then
 				local isWhitelisted = mode.modOptions and mode.modOptions[opt.key] ~= nil
 				if not isWhitelisted and modoptionDefaults[opt.key] then
@@ -908,7 +917,7 @@ local function CreateModePanel(category, sectionData)
 			if previousModeKey ~= modeKey and modoptions then
 				for i = 1, #modoptions do
 					local opt = modoptions[i]
-					if opt.key and opt.section == category
+					if opt.key and sectionCategory(opt.section) == category
 							and opt.type ~= "subheader" and opt.type ~= "separator" then
 						userModifiedOptions[opt.key] = nil
 						localModoptions[opt.key] = modoptionDefaults[opt.key]
@@ -1090,7 +1099,34 @@ local function CreateModoptionWindow()
 
 	local tabWidth = 120
 
+	-- A section governed by a mode category (mode_category on its section
+	-- entry) gets no tab of its own: the axis owns the choice, so the
+	-- section's dials fold into the governing category's mode panel, where
+	-- the active mode decides what shows. Heavier sections fold in first.
+	local governedSections = {}
 	for key, data in pairs(modoptionStructure.sections) do
+		local governedBy = sectionCategory(key)
+		if governedBy ~= key and activeModes[governedBy] then
+			governedSections[governedBy] = governedSections[governedBy] or {}
+			table.insert(governedSections[governedBy], { key = key, options = data.options })
+		end
+	end
+	for _, sections in pairs(governedSections) do
+		table.sort(sections, function(a, b)
+			local wa = modoptionStructure.sectionWeights[a.key] or 0
+			local wb = modoptionStructure.sectionWeights[b.key] or 0
+			if wa ~= wb then
+				return wa > wb
+			end
+			return a.key < b.key
+		end)
+	end
+
+	for key, data in pairs(modoptionStructure.sections) do
+		local governedBy = sectionCategory(key)
+		if governedBy ~= key and activeModes[governedBy] then
+			-- folded into the governing category's mode panel above
+		else
 		local caption = modoptionStructure.sectionTitles[data.title] or data.title
 		local weight = modoptionStructure.sectionWeights[data.title] or -#tabs
 		local fontSize = 2
@@ -1103,7 +1139,19 @@ local function CreateModoptionWindow()
 		local catModes = activeModes[key]
 		local tabChildren = (not catModes) and PopulateTab(data.options) or {}
 		if catModes then
-			tabChildren = CreateModePanel(key, data)
+			local sectionData = data
+			if governedSections[key] then
+				sectionData = { title = data.title, options = {} }
+				for _, opt in ipairs(data.options) do
+					sectionData.options[#sectionData.options + 1] = opt
+				end
+				for _, governed in ipairs(governedSections[key]) do
+					for _, opt in ipairs(governed.options) do
+						sectionData.options[#sectionData.options + 1] = opt
+					end
+				end
+			end
+			tabChildren = CreateModePanel(key, sectionData)
 		end
 		tabs[#tabs + 1] = {
 			name = key,
@@ -1114,6 +1162,7 @@ local function CreateModoptionWindow()
 			weight = data.weight or weight,
 			contentPanel = tabChildren[1],
 		}
+		end
 	end
 
 	for i = 1, #postLock do
@@ -1200,7 +1249,7 @@ local function CreateModoptionWindow()
 				if modoptions then
 					for i = 1, #modoptions do
 						local opt = modoptions[i]
-						if opt.key and opt.section == cat
+						if opt.key and sectionCategory(opt.section) == cat
 								and opt.type ~= "subheader" and opt.type ~= "separator" then
 							managedKeys[opt.key] = true
 						end
@@ -1240,7 +1289,7 @@ local function CreateModoptionWindow()
 				if modoptions then
 					for i = 1, #modoptions do
 						local opt = modoptions[i]
-						if opt.key and opt.section == cat
+						if opt.key and sectionCategory(opt.section) == cat
 								and opt.type ~= "subheader" and opt.type ~= "separator" then
 							local rule = mode.modOptions[opt.key]
 							if userModifiedOptions[opt.key] and not (rule and rule.locked)
@@ -1763,6 +1812,9 @@ function ModoptionsPanel.RefreshModoptions()
 	modoptionStructure = {
 		sectionTitles = {},
 		sectionWeights = {},
+		-- section key -> the mode category governing it (mode_category on the
+		-- section entry): a flavor's dials handing the choice to a shared axis.
+		sectionModeCategories = {},
 		sections = {}
 	}
 
@@ -1771,6 +1823,7 @@ function ModoptionsPanel.RefreshModoptions()
 		if data.type == "section" then
 			modoptionStructure.sectionTitles[data.key] = data.name
 			modoptionStructure.sectionWeights[data.key] = data.weight
+			modoptionStructure.sectionModeCategories[data.key] = data.mode_category
 		else
 			if data.section then
 				if data.hidden ~= true then
