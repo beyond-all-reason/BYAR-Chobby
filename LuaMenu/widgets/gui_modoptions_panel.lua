@@ -1003,7 +1003,7 @@ local function CreateModePanel(category, sectionData)
 	local defaultSelected = 1
 	if catModes and catModes.modes then
 		for i, m in ipairs(catModes.modes) do
-			if m.key == (selectedModeKeys[category] or "enabled") then
+			if m.key == selectedModeKeys[category] then
 				defaultSelected = i; break
 			end
 		end
@@ -1076,6 +1076,14 @@ local function CreateModoptionWindow()
 	modoptionControlNames = {}
 	lockedOverlaysByKey = {}
 	postLock = {}
+
+	-- Seed each category's selection from the battle, falling back to the
+	-- selector's own default. A pick that was never applied must not survive
+	-- a cancel, and a category is not obliged to ship an "enabled" mode.
+	for cat in pairs(activeModes) do
+		local selectorKey = cat .. "_mode"
+		selectedModeKeys[cat] = localModoptions[selectorKey] or modoptionDefaults[selectorKey]
+	end
 
 	local tabs = {}
 	lockedOptions = {}
@@ -1253,7 +1261,11 @@ local function CreateModoptionWindow()
 
 				-- Send a !mode when the selector changes or the user deviated from the
 				-- preset. (Locked options can't be deviated, so they never reach params.)
-				local modeChanged = battleLobby.modoptions[selectorKey] ~= mode.key
+				-- The battle's selector defaults when unset: a room that never chose a
+				-- mode is in the selector's default mode, and reflecting that back as a
+				-- !mode would reset category options the room set by other means.
+				local effectiveBattleKey = battleLobby.modoptions[selectorKey] or modoptionDefaults[selectorKey]
+				local modeChanged = effectiveBattleKey ~= mode.key
 				for k, v in pairs(params) do
 					if battleLobby.modoptions[k] ~= v then modeChanged = true; break end
 				end

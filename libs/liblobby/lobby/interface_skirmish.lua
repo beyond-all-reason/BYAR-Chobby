@@ -640,6 +640,59 @@ function InterfaceSkirmish:SetModOptions(data, skipKeys)
 	return self
 end
 
+-- A mode preset can ask for bots (mode.bots): scavengers are activated by a
+-- ScavengersAI being on the field, which no modoption can say. Skirmish has
+-- no autohost to field one, so the mode change reconciles it here. Only AIs
+-- this reconciliation added are ever removed — an AI the user placed
+-- themselves is their business.
+local function wantedModeBots(category, modeKey)
+	local catModes = WG.Modes and WG.Modes[category]
+	if not (catModes and catModes.modes) then
+		return {}
+	end
+	for _, m in ipairs(catModes.modes) do
+		if m.key == modeKey then
+			return m.bots or {}
+		end
+	end
+	return {}
+end
+
+function InterfaceSkirmish:ReconcileModeBots(category, modeKey)
+	self.modeBotsByCategory = self.modeBotsByCategory or {}
+	local fielded = self.modeBotsByCategory[category] or {}
+	local wanted = {}
+	for _, aiLib in ipairs(wantedModeBots(category, modeKey)) do
+		wanted[aiLib] = true
+	end
+
+	for aiLib, aiName in pairs(fielded) do
+		if not wanted[aiLib] then
+			self:RemoveAi(aiName)
+			fielded[aiLib] = nil
+		end
+	end
+
+	for aiLib in pairs(wanted) do
+		if not fielded[aiLib] then
+			local present = false
+			for _, aiName in ipairs(self.battleAis or {}) do
+				local status = self.userBattleStatus and self.userBattleStatus[aiName]
+				if status and status.aiLib == aiLib then
+					present = true
+					break
+				end
+			end
+			if not present then
+				local aiName = aiLib .. "(1)"
+				self:AddAi(aiName, aiLib, 1)
+				fielded[aiLib] = aiName
+			end
+		end
+	end
+	self.modeBotsByCategory[category] = fielded
+end
+
 function InterfaceSkirmish:SetMode(category, modeKey, modeOptions)
 	local resolved = resolveModeModoptions(category, modeKey, modeOptions)
 	local merged = {}
@@ -648,6 +701,7 @@ function InterfaceSkirmish:SetMode(category, modeKey, modeOptions)
 	end
 	for k, v in pairs(resolved or modeOptions or {}) do merged[k] = v end
 	self:_OnSetModOptions(merged)
+	self:ReconcileModeBots(category, modeKey)
 	return self
 end
 
