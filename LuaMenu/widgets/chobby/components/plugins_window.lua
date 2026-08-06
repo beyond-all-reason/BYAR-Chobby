@@ -1612,9 +1612,9 @@ function PluginsWindow:init(parent)
     Button:New {
         caption = i18n("plugins_restore_defaults_short"),
         tooltip = i18n("plugins_restore_defaults_tooltip"),
-        x = nextHeaderButtonX(112),
+        x = nextHeaderButtonX(70),
         y = btnY,
-        width = 112,
+        width = 70,
         height = btnH,
         fontSize = 11,
         classname = "negative_button",

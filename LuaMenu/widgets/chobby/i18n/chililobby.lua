@@ -39,7 +39,7 @@ return {
 		plugins_refresh = "Refresh",
 		plugins_refresh_tooltip = "Re-download the widget list from the community repository",
 		plugins_restore_defaults = "Restore Defaults",
-		plugins_restore_defaults_short = "Reset to Default",
+		plugins_restore_defaults_short = "Defaults",
 		plugins_restore_defaults_tooltip = "Back up the current widget folder and reset in-game widget settings to the BAR defaults",
 		plugins_restore_defaults_confirm = "This moves your current LuaUI/Widgets folder to LuaUI/WidgetBackups, creates a fresh Widgets folder, and resets the in-game widget order, enabled state, and saved widget settings. Continue?",
 		plugins_restore_defaults_ack = "This action cannot be reversed",
