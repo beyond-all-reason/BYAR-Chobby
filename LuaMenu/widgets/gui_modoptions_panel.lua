@@ -990,16 +990,23 @@ local function CreateModePanel(category, sectionData)
 
 		-- The mode explains itself before its dials do. No rowOrginal: the
 		-- desc is furniture, not an option row, and never shifts with locks.
+		-- Reserve the height the text will actually wrap to (measured against
+		-- a conservative width, since layout has not run yet) so the first
+		-- option row starts below it.
 		if mode.desc and mode.desc ~= "" then
+			local font = WG.Chobby.Configuration:GetFont(2)
+			local measured = font.GetTextWidth and font:GetTextWidth(mode.desc) or (#mode.desc * 8)
+			local descLines = math.max(1, math.ceil(measured / 900))
+			local descHeight = descLines * 20 + 4
 			modeScroll:AddChild(TextBox:New {
 				x = 15,
 				right = 15,
 				y = 8,
-				height = 36,
+				height = descHeight,
 				text = mode.desc,
-				objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+				objectOverrideFont = font,
 			})
-			row = row + 1.5
+			row = row + math.ceil((descHeight + 20) / 16) / 2
 		end
 
 		local function addRow(opt)
