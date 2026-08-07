@@ -10,9 +10,9 @@ pluginVersion = '0.2'
 requiredSpadsVersion = '0.12.29'
 
 
-# game_modes.json describes every mode preset's full effective modoption set for a
+# modes.json describes every mode preset's full effective modoption set for a
 # given game version. It is generated headless in BAR CI from the game's
-# modes/<category>/*.lua (luaui/Widgets/export_game_modes.lua) and published per
+# modules/*/modes/*.lua (modules/modes/widgets/export_modes.lua) and published per
 # channel as a GitHub Release asset. This plugin self-fetches the asset for the
 # version it is currently hosting, caches it locally, and falls back to a local
 # file, so `!mode <category> <key>` can apply a mode's full option set.
@@ -21,24 +21,24 @@ requiredSpadsVersion = '0.12.29'
 
 _PLUGIN_DIR = os.path.dirname(os.path.abspath(__file__))
 
-# Default publish location: the rolling `game-modes` prerelease in the BAR repo.
-# We prefer a COMMIT-PINNED asset (game_modes-<shortsha>.json, published by BAR CI's
-# export_game_modes.yml on manual dispatch for the exact commit) so the plugin never
+# Default publish location: the rolling `modes` prerelease in the BAR repo.
+# We prefer a COMMIT-PINNED asset (modes-<shortsha>.json, published by BAR CI's
+# export_modes.yml on manual dispatch for the exact commit) so the plugin never
 # serves mode data that disagrees with the game it is hosting — the client/skirmish
 # reads the matching modes/*.lua straight from that archive via VFS, and the hosted
 # version string ends in that same git short SHA (e.g. "...test-24450-6c81e38" ->
 # 6c81e38), so the SHA is what keeps the two in sync. We fall back to the rolling
-# per-channel asset (game_modes-<channel>.json) when no pinned asset exists for the
+# per-channel asset (modes-<channel>.json) when no pinned asset exists for the
 # commit (the normal case for production hosts), which preserves the previous behaviour.
 # Override the base for local testing with MODECOMMAND_RELEASE_BASE; pin to an explicit
-# asset key with MODECOMMAND_MODES_VERSION (any <key> -> game_modes-<key>.json, handy
+# asset key with MODECOMMAND_MODES_VERSION (any <key> -> modes-<key>.json, handy
 # for hosting an off-master build), or force the channel with
 # MODECOMMAND_MODES_CHANNEL=test|stable, in the SPADS service Environment=.
-_DEFAULT_RELEASE_BASE = 'https://github.com/beyond-all-reason/Beyond-All-Reason/releases/download/game-modes'
-_CACHE_PATH = os.path.join(_PLUGIN_DIR, 'game_modes.cache.json')
+_DEFAULT_RELEASE_BASE = 'https://github.com/beyond-all-reason/Beyond-All-Reason/releases/download/modes'
+_CACHE_PATH = os.path.join(_PLUGIN_DIR, 'modes.cache.json')
 _LOCAL_PATHS = [
-    os.path.join(_PLUGIN_DIR, 'game_modes.json'),
-    '/opt/spads/var/plugins/game_modes.json',
+    os.path.join(_PLUGIN_DIR, 'modes.json'),
+    '/opt/spads/var/plugins/modes.json',
 ]
 _FETCH_TIMEOUT = 5
 
@@ -78,7 +78,7 @@ def _channel(mod_name):
 
 def _commit_sha(mod_name):
     # The asset key for a commit-pinned fetch. Prefer an explicit ops override (any
-    # asset key -> game_modes-<key>.json); otherwise extract the trailing git short
+    # asset key -> modes-<key>.json); otherwise extract the trailing git short
     # SHA from the hosted version string (e.g. "Beyond All Reason test-24450-6c81e38"
     # -> "6c81e38"). Returns None when no SHA token is present (e.g. a clean stable
     # version), in which case _fetch falls back to the per-channel asset.
@@ -99,8 +99,8 @@ def _fetch(mod_name):
     urls = []
     sha = _commit_sha(mod_name)
     if sha:
-        urls.append('%s/game_modes-%s.json' % (base, sha))
-    urls.append('%s/game_modes-%s.json' % (base, _channel(mod_name)))
+        urls.append('%s/modes-%s.json' % (base, sha))
+    urls.append('%s/modes-%s.json' % (base, _channel(mod_name)))
 
     for url in urls:
         try:
