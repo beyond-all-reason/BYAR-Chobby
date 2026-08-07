@@ -1380,7 +1380,7 @@ local function CreateModoptionWindow()
 				-- singleplayer path uses (and the SPADS plugin mirrors server-side), then
 				-- send only the user's deviations from the mode's own preset (see
 				-- ModeResolver.DeviationsFromMode). A clean mode pick sends no option params;
-				-- the server expands the preset from its version-matched game_modes.json.
+				-- the server expands the preset from its version-matched modes.json.
 				local resolved = ModeResolver.Resolve(activeModes, modoptions, cat, mode.key, deviations)
 				local params = ModeResolver.DeviationsFromMode(resolved, modoptions, mode, cat)
 

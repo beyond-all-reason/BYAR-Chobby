@@ -2,7 +2,7 @@
 -- set. Single source of truth for singleplayer (interface_skirmish), the
 -- multiplayer modoptions panel send-path, and the panel display, so they cannot
 -- drift. The server SPADS ModeCommand plugin mirrors this same logic from
--- game_modes.json (baked by BAR CI from the same modes/*.lua) for the hosted game
+-- modes.json (baked by BAR CI from the same modes/*.lua) for the hosted game
 -- version, so client and server agree as long as both are keyed to that version.
 --
 -- modes: the activeModes shape ->
@@ -16,8 +16,8 @@ ModeResolver = ModeResolver or {}
 -- ("0.60000002"). Round at float32's ~7-digit precision with %.7f, then strip
 -- trailing zeros (the engine's %g does not trim them). Yields "0.6", "30", "-1".
 -- This MUST match the export widget's toModOptionValue (Beyond-All-Reason
--- luaui/Widgets/export_game_modes.lua) byte-for-byte: the values we send must read
--- back identically to game_modes.json, which the export bakes the same way.
+-- modules/modes/widgets/export_modes.lua) byte-for-byte: the values we send must read
+-- back identically to modes.json, which the export bakes the same way.
 local function toVal(v)
 	if type(v) == "boolean" then return v and "1" or "0" end
 	if type(v) == "number" then
@@ -87,7 +87,7 @@ end
 -- bare modoption defaults: a value the mode bakes in (e.g. tech_core's tax rates) is
 -- part of the mode, not a deviation, so a clean mode pick sends NO option params --
 -- just the mode key, which the server expands into the full preset from its
--- version-matched game_modes.json. Locked options can't be customized, so they never
+-- version-matched modes.json. Locked options can't be customized, so they never
 -- appear here. Only the selector key is always omitted (the command carries it).
 function ModeResolver.DeviationsFromMode(resolved, defs, mode, category)
 	local params = {}
