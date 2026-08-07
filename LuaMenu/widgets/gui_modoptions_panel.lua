@@ -265,7 +265,10 @@ local function processChildrenLocks(unlock, lock, bitmask)
 					child:SetPos(child.x - 4095)
 
 					for j = 1, #tabPanel.children do
-						if tabPanel.children[j].rowOrginal > cachedY then
+						-- rowOrginal is only stamped on option rows; furniture
+						-- (the mode desc) has none and does not shift.
+						local siblingY = tabPanel.children[j].rowOrginal
+						if siblingY and cachedY and siblingY > cachedY then
 							tabPanel.children[j]:SetPos(nil, tabPanel.children[j].y + 32)
 						end
 					end
@@ -287,7 +290,8 @@ local function processChildrenLocks(unlock, lock, bitmask)
 				child:SetPos(child.x + 4095)
 
 				for j = 1, #tabPanel.children do
-					if tabPanel.children[j].rowOrginal > cachedY then
+					local siblingY = tabPanel.children[j].rowOrginal
+					if siblingY and cachedY and siblingY > cachedY then
 						tabPanel.children[j]:SetPos(nil, tabPanel.children[j].y - 32)
 					end
 				end
@@ -984,7 +988,8 @@ local function CreateModePanel(category, sectionData)
 		local column, row = 1, 0
 		local renderedKeys = {}
 
-		-- The mode explains itself before its dials do.
+		-- The mode explains itself before its dials do. No rowOrginal: the
+		-- desc is furniture, not an option row, and never shifts with locks.
 		if mode.desc and mode.desc ~= "" then
 			modeScroll:AddChild(TextBox:New {
 				x = 15,
