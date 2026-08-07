@@ -937,6 +937,36 @@ local function CreateModePanel(category, sectionData)
 
 		modeScroll:ClearChildren()
 
+		-- What renders under a mode:
+		--  * the category's own section: strict whitelist — the mode owns it
+		--    outright, and an unclaimed option is not part of the mode.
+		--  * a section governed by declaration (mode_category on its entry):
+		--    editable unless claimed — these are shared dials the axis carries
+		--    (Main under Game), so a mode locks what it pins and leaves the
+		--    rest open.
+		--  * a governed section bound to one preset (mode_key): rendered only
+		--    while that preset is the mode (scav dials under Scavengers).
+		local function optionVisible(opt)
+			if not opt.key or opt.key == selectorKey then
+				return false
+			end
+			local claim = mode.modOptions and mode.modOptions[opt.key]
+			if claim and claim.ui == "hidden" then
+				return false
+			end
+			local declared = modoptionStructure.sectionModeCategories
+				and modoptionStructure.sectionModeCategories[opt.section]
+			if not declared then
+				return claim ~= nil
+			end
+			local boundTo = modoptionStructure.sectionModeKeys
+				and modoptionStructure.sectionModeKeys[opt.section]
+			if boundTo and boundTo ~= modeKey then
+				return false
+			end
+			return true
+		end
+
 		-- A subheader has no key of its own, so it can't be whitelisted/hidden per mode.
 		-- Hide it when every option in its group (up to the next subheader/separator)
 		-- is filtered out, so modes don't render an orphan group header.
@@ -944,9 +974,7 @@ local function CreateModePanel(category, sectionData)
 			for i = startIndex + 1, #panelOptions do
 				local o = panelOptions[i]
 				if o.type == "subheader" or o.type == "separator" then break end
-				if o.key and o.key ~= selectorKey
-					and mode.modOptions and mode.modOptions[o.key]
-					and mode.modOptions[o.key].ui ~= "hidden" then
+				if optionVisible(o) then
 					return true
 				end
 			end
@@ -954,42 +982,78 @@ local function CreateModePanel(category, sectionData)
 		end
 
 		local column, row = 1, 0
-		for index, opt in ipairs(panelOptions) do
-			if opt.key == selectorKey then
-				-- handled by the header dropdown
-			elseif opt.type ~= "subheader" and opt.type ~= "separator"
-				and not (mode.modOptions and mode.modOptions[opt.key]) then
-				-- not whitelisted for this mode
-			elseif mode.modOptions and mode.modOptions[opt.key] and mode.modOptions[opt.key].ui == "hidden" then
-				-- explicitly hidden by this mode
-			elseif opt.type == "subheader" and not modeGroupHasVisibleOption(index) then
-				-- empty group for this mode; skip the orphan header
-			else
-				if (opt.column or -1) > column then
-					row = row - 1
-				end
+		local renderedKeys = {}
 
-				local rowData = nil
-				if opt.type == "number" then
-					rowData = ProcessNumberOption(opt, row)
-				elseif opt.type == "string" then
-					rowData = ProcessStringOption(opt, row)
-				elseif opt.type == "subheader" then
-					rowData = ProcessSubHeader(opt, row)
-				elseif opt.type == "bool" then
-					rowData = ProcessBoolOption(opt, row)
-				elseif opt.type == "list" then
-					rowData = ProcessListOption(opt, row)
-				elseif opt.type == "separator" then
-					rowData = ProcessLineSeparator(opt, row)
-					row = row - 0.5
+		-- The mode explains itself before its dials do.
+		if mode.desc and mode.desc ~= "" then
+			modeScroll:AddChild(TextBox:New {
+				x = 15,
+				right = 15,
+				y = 8,
+				height = 36,
+				text = mode.desc,
+				objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+			})
+			row = row + 1.5
+		end
+
+		local function addRow(opt)
+			if (opt.column or -1) > column then
+				row = row - 1
+			end
+
+			local rowData = nil
+			if opt.type == "number" then
+				rowData = ProcessNumberOption(opt, row)
+			elseif opt.type == "string" then
+				rowData = ProcessStringOption(opt, row)
+			elseif opt.type == "subheader" then
+				rowData = ProcessSubHeader(opt, row)
+			elseif opt.type == "bool" then
+				rowData = ProcessBoolOption(opt, row)
+			elseif opt.type == "list" then
+				rowData = ProcessListOption(opt, row)
+			elseif opt.type == "separator" then
+				rowData = ProcessLineSeparator(opt, row)
+				row = row - 0.5
+			end
+			if rowData then
+				column = math.abs(opt.column or 1)
+				rowData.x = rowData.x + (column - 1) * 625
+				row = row + 1
+				rowData.rowOrginal = rowData.y
+				modeScroll:AddChild(rowData)
+			end
+			if opt.key then
+				renderedKeys[opt.key] = true
+			end
+		end
+
+		for index, opt in ipairs(panelOptions) do
+			if opt.type == "subheader" then
+				if modeGroupHasVisibleOption(index) then
+					addRow(opt)
 				end
-				if rowData then
-					column = math.abs(opt.column or 1)
-					rowData.x = rowData.x + (column - 1) * 625
-					row = row + 1
-					rowData.rowOrginal = rowData.y
-					modeScroll:AddChild(rowData)
+			elseif opt.type == "separator" then
+				addRow(opt)
+			elseif optionVisible(opt) then
+				addRow(opt)
+			end
+		end
+
+		-- Options the mode pins outside the panel's sections (a mission pins
+		-- forceallunits, which lives with the cheats): rendered here so
+		-- picking the mode shows everything it does. Options hidden from the
+		-- lobby stay hidden — the pin still applies, silently.
+		if mode.modOptions and modoptions then
+			for i = 1, #modoptions do
+				local opt = modoptions[i]
+				if opt.key and mode.modOptions[opt.key] and not renderedKeys[opt.key]
+						and opt.key ~= selectorKey and not opt.hidden
+						and mode.modOptions[opt.key].ui ~= "hidden"
+						and opt.type ~= "subheader" and opt.type ~= "separator"
+						and opt.type ~= "section" then
+					addRow(opt)
 				end
 			end
 		end
@@ -1815,6 +1879,9 @@ function ModoptionsPanel.RefreshModoptions()
 		-- section key -> the mode category governing it (mode_category on the
 		-- section entry): a flavor's dials handing the choice to a shared axis.
 		sectionModeCategories = {},
+		-- section key -> the one preset (mode_key on the section entry) whose
+		-- selection reveals the section's dials.
+		sectionModeKeys = {},
 		sections = {}
 	}
 
@@ -1824,6 +1891,7 @@ function ModoptionsPanel.RefreshModoptions()
 			modoptionStructure.sectionTitles[data.key] = data.name
 			modoptionStructure.sectionWeights[data.key] = data.weight
 			modoptionStructure.sectionModeCategories[data.key] = data.mode_category
+			modoptionStructure.sectionModeKeys[data.key] = data.mode_key
 		else
 			if data.section then
 				if data.hidden ~= true then
