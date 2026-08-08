@@ -658,7 +658,7 @@ local function wantedModeBots(category, modeKey)
 	return {}
 end
 
-function InterfaceSkirmish:ReconcileModeBots(category, modeKey)
+function InterfaceSkirmish:ReconcileModeBots(category, modeKey, botSideIndex)
 	self.modeBotsByCategory = self.modeBotsByCategory or {}
 	local fielded = self.modeBotsByCategory[category] or {}
 	local wanted = {}
@@ -685,12 +685,31 @@ function InterfaceSkirmish:ReconcileModeBots(category, modeKey)
 			end
 			if not present then
 				local aiName = aiLib .. "(1)"
-				self:AddAi(aiName, aiLib, 1)
+				self:AddAi(aiName, aiLib, 1, nil, nil, botSideIndex ~= nil and { side = botSideIndex } or nil)
 				fielded[aiLib] = aiName
 			end
 		end
 	end
 	self.modeBotsByCategory[category] = fielded
+end
+
+-- The mission_name item a value names, carrying whatever the mission's
+-- manifest published at discovery time (title, side indexes). The archive
+-- resolved side names to indexes already, so this is a plain lookup.
+local function missionItem(missionKey)
+	if not missionKey or missionKey == "none" then
+		return nil
+	end
+	for _, opt in ipairs(WG.ModoptionDefs or {}) do
+		if opt.key == "mission_name" then
+			for _, item in ipairs(opt.items or {}) do
+				if item.key == missionKey then
+					return item
+				end
+			end
+		end
+	end
+	return nil
 end
 
 function InterfaceSkirmish:SetMode(category, modeKey, modeOptions)
@@ -701,7 +720,15 @@ function InterfaceSkirmish:SetMode(category, modeKey, modeOptions)
 	end
 	for k, v in pairs(resolved or modeOptions or {}) do merged[k] = v end
 	self:_OnSetModOptions(merged)
-	self:ReconcileModeBots(category, modeKey)
+
+	-- A mission is written for factions: its manifest publishes side indexes
+	-- through the mission_name items, and the table is set here — the player
+	-- moved to the story's side, the seat-filler fielded as the enemy's.
+	local mission = missionItem(resolved and resolved.mission_name)
+	if mission and mission.side_player_index ~= nil then
+		self:SetBattleStatus({ side = mission.side_player_index })
+	end
+	self:ReconcileModeBots(category, modeKey, mission and mission.side_enemy_index)
 	return self
 end
 
