@@ -1381,7 +1381,12 @@ local function CreateModoptionWindow()
 					if battleLobby.modoptions[k] ~= v then modeChanged = true; break end
 				end
 
-				if modeChanged then
+				-- In skirmish the guard has nothing to protect (no room, no
+				-- vote — SetMode is local and idempotent), and it has a cost:
+				-- modoptions PERSIST across skirmish battles but the mode's
+				-- fielded bots do NOT, so a fresh battle restoring the same
+				-- mode still needs its table set (seat-filler, player side).
+				if modeChanged or battleLobby.name == "singleplayer" then
 					local MAX_COMMAND_LENGTH = 1024 -- teiserver SAYBATTLE cap
 					local parts = { "!mode", tostring(cat), tostring(mode.key) }
 					for k, v in pairs(params) do

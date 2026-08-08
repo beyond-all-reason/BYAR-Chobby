@@ -536,6 +536,10 @@ function InterfaceSkirmish:SetBattleState(myUserName, gameName, mapName, title)
 
 	self.battleAis = {}
 	self.userBattleStatus = {}
+	-- The mode-bot ledger describes THIS battle's table; a new battle starts
+	-- with nobody fielded. (ReconcileModeBots also prunes entries whose AI
+	-- left the field, for every path that is not a fresh battle.)
+	self.modeBotsByCategory = {}
 
 	self:_OnAddUser(myUserName)
 	self.myUserName = myUserName
@@ -661,6 +665,18 @@ end
 function InterfaceSkirmish:ReconcileModeBots(category, modeKey, botSideIndex)
 	self.modeBotsByCategory = self.modeBotsByCategory or {}
 	local fielded = self.modeBotsByCategory[category] or {}
+	-- The ledger outlives battles (this lobby object is a singleton); the
+	-- bots do not. Trust the table, not the ledger: an entry whose AI is no
+	-- longer on the field is history, and blocks nothing.
+	local onField = {}
+	for _, aiName in ipairs(self.battleAis or {}) do
+		onField[aiName] = true
+	end
+	for aiLib, aiName in pairs(fielded) do
+		if not onField[aiName] then
+			fielded[aiLib] = nil
+		end
+	end
 	local wanted = {}
 	for _, aiLib in ipairs(wantedModeBots(category, modeKey)) do
 		wanted[aiLib] = true
