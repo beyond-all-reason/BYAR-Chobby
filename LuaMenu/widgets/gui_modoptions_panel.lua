@@ -876,17 +876,6 @@ local function CreateModePanel(category, sectionData)
 		end
 	end
 
-	local rankedBadge = Label:New {
-		x = 650,
-		y = 10,
-		width = 220,
-		height = 30,
-		valign = "center",
-		align = "left",
-		caption = "",
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(2, nil, {color = {1,0.3,0.3,1}}),
-	}
-
 	local function applyMode(modeKey)
 		if not (catModes and catModes.modes) then return end
 		local previousModeKey = selectedModeKeys[category]
@@ -902,7 +891,8 @@ local function CreateModePanel(category, sectionData)
 		WG.ModePolicy[category] = WG.ModePolicy[category] or {}
 		WG.ModePolicy[category].allowRanked = allowRanked
 		WG.ModePolicy[category].modeLocked = {}
-		rankedBadge:SetCaption(allowRanked and "" or "Not Ranked")
+		-- No badge: an unranked mode SAYS so by pinning ranked_game off, and
+		-- the locked option row is the indicator.
 
 		isProgrammaticUpdate = true
 		if not allowRanked then
@@ -1114,7 +1104,7 @@ local function CreateModePanel(category, sectionData)
 		},
 	}
 
-	modeUI[category] = { modeList = modeList, rankedBadge = rankedBadge, applyMode = applyMode, itemKeyToName = itemKeyToName }
+	modeUI[category] = { modeList = modeList, applyMode = applyMode, itemKeyToName = itemKeyToName }
 
 	local parentPanel = Control:New {
 		name = "modeParentPanel_" .. category .. "_" .. (math.random(1000, 9999)),
@@ -1127,7 +1117,6 @@ local function CreateModePanel(category, sectionData)
 
 	parentPanel:AddChild(modeLabel)
 	parentPanel:AddChild(modeList)
-	parentPanel:AddChild(rankedBadge)
 	parentPanel:AddChild(Line:New { classname = "line_solid", x = 10, y = 48, right = 10, height = 2 })
 	parentPanel:AddChild(modeScroll)
 
