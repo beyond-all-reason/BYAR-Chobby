@@ -1012,17 +1012,33 @@ local function CreateModePanel(category, sectionData)
 			end
 		end
 
+		-- A separator earns its line only when visible rows sit on both sides
+		-- of it: hold each one until the next visible row flushes it, so
+		-- filtered-out groups leave no stacked rules behind.
+		local renderedAny = false
+		local pendingSeparator = nil
+		local function addVisibleRow(opt)
+			if pendingSeparator then
+				addRow(pendingSeparator)
+				pendingSeparator = nil
+			end
+			addRow(opt)
+			renderedAny = true
+		end
 		for index, opt in ipairs(panelOptions) do
 			if opt.type == "subheader" then
 				if modeGroupHasVisibleOption(index) then
-					addRow(opt)
+					addVisibleRow(opt)
 				end
 			elseif opt.type == "separator" then
-				addRow(opt)
+				if renderedAny then
+					pendingSeparator = opt
+				end
 			elseif optionVisible(opt) then
-				addRow(opt)
+				addVisibleRow(opt)
 			end
 		end
+		pendingSeparator = nil
 
 		-- Options the mode pins outside the panel's sections (a mission pins
 		-- forceallunits, which lives with the cheats): rendered here so
