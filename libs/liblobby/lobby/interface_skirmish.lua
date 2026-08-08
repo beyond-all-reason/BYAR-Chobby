@@ -614,8 +614,136 @@ function InterfaceSkirmish:UpdateAi(aiName, status)
 	self:_OnUpdateUserBattleStatus(aiName, status)
 end
 
-function InterfaceSkirmish:SetModOptions(data)
-	self:_OnSetModOptions(data)
+-- Skirmish has no autohost to expand a mode, so do it locally with the shared
+-- ModeResolver (libs/liblobby/lobby/moderesolver.lua) — the same logic the SPADS
+-- ModeCommand plugin mirrors server-side. Source = WG.Modes/ModoptionDefs (the
+-- mode defs and modoption list the modoptions panel loads from the game archive).
+local function resolveModeModoptions(category, modeKey, deviations)
+	return ModeResolver.Resolve(WG.Modes, WG.ModoptionDefs, category, modeKey, deviations)
+end
+
+-- skipKeys come from the mode category (managed by SetMode's expansion); skip
+-- them here so a follow-up SetModOptions can't clobber the resolved category.
+function InterfaceSkirmish:SetModOptions(data, skipKeys)
+	if skipKeys then
+		local merged = {}
+		if self.modoptions then
+			for k, v in pairs(self.modoptions) do merged[k] = v end
+		end
+		for k, v in pairs(data) do
+			if not skipKeys[k] then merged[k] = v end
+		end
+		self:_OnSetModOptions(merged)
+	else
+		self:_OnSetModOptions(data)
+	end
+	return self
+end
+
+-- A mode preset can ask for bots (mode.bots): scavengers are activated by a
+-- ScavengersAI being on the field, which no modoption can say. Skirmish has
+-- no autohost to field one, so the mode change reconciles it here. Only AIs
+-- this reconciliation added are ever removed — an AI the user placed
+-- themselves is their business.
+local function wantedModeBots(category, modeKey)
+	local catModes = WG.Modes and WG.Modes[category]
+	if not (catModes and catModes.modes) then
+		return {}
+	end
+	for _, m in ipairs(catModes.modes) do
+		if m.key == modeKey then
+			return m.bots or {}
+		end
+	end
+	return {}
+end
+
+function InterfaceSkirmish:ReconcileModeBots(category, modeKey, botSideIndex)
+	self.modeBotsByCategory = self.modeBotsByCategory or {}
+	local fielded = self.modeBotsByCategory[category] or {}
+	local wanted = {}
+	for _, aiLib in ipairs(wantedModeBots(category, modeKey)) do
+		wanted[aiLib] = true
+	end
+
+	for aiLib, aiName in pairs(fielded) do
+		if not wanted[aiLib] then
+			self:RemoveAi(aiName)
+			fielded[aiLib] = nil
+		end
+	end
+
+	-- The mode's bots claim their ally slot: whatever else sits in it is
+	-- cleared, because the seat is part of the table the mode just set — a
+	-- leftover skirmish AI beside a mission's seat-filler plays a skirmish.
+	-- AIs on OTHER allies (co-op teammates) stay the user's business, and
+	-- re-adding one after is theirs too.
+	if next(wanted) ~= nil then
+		for _, aiName in ipairs(self.battleAis or {}) do
+			local status = self.userBattleStatus and self.userBattleStatus[aiName]
+			if status and status.aiLib and status.allyNumber == 1 and not wanted[status.aiLib] then
+				Spring.Echo("[modes] " .. aiName .. " removed: the mode's bots claim that seat")
+				self:RemoveAi(aiName)
+			end
+		end
+	end
+
+	for aiLib in pairs(wanted) do
+		if not fielded[aiLib] then
+			local present = false
+			for _, aiName in ipairs(self.battleAis or {}) do
+				local status = self.userBattleStatus and self.userBattleStatus[aiName]
+				if status and status.aiLib == aiLib then
+					present = true
+					break
+				end
+			end
+			if not present then
+				local aiName = aiLib .. "(1)"
+				self:AddAi(aiName, aiLib, 1, nil, nil, botSideIndex ~= nil and { side = botSideIndex } or nil)
+				fielded[aiLib] = aiName
+			end
+		end
+	end
+	self.modeBotsByCategory[category] = fielded
+end
+
+-- The mission_name item a value names, carrying whatever the mission's
+-- manifest published at discovery time (title, side indexes). The archive
+-- resolved side names to indexes already, so this is a plain lookup.
+local function missionItem(missionKey)
+	if not missionKey or missionKey == "none" then
+		return nil
+	end
+	for _, opt in ipairs(WG.ModoptionDefs or {}) do
+		if opt.key == "mission_name" then
+			for _, item in ipairs(opt.items or {}) do
+				if item.key == missionKey then
+					return item
+				end
+			end
+		end
+	end
+	return nil
+end
+
+function InterfaceSkirmish:SetMode(category, modeKey, modeOptions)
+	local resolved = resolveModeModoptions(category, modeKey, modeOptions)
+	local merged = {}
+	if self.modoptions then
+		for k, v in pairs(self.modoptions) do merged[k] = v end
+	end
+	for k, v in pairs(resolved or modeOptions or {}) do merged[k] = v end
+	self:_OnSetModOptions(merged)
+
+	-- A mission is written for factions: its manifest publishes side indexes
+	-- through the mission_name items, and the table is set here — the player
+	-- moved to the story's side, the seat-filler fielded as the enemy's.
+	local mission = missionItem(resolved and resolved.mission_name)
+	if mission and mission.side_player_index ~= nil then
+		self:SetBattleStatus({ side = mission.side_player_index })
+	end
+	self:ReconcileModeBots(category, modeKey, mission and mission.side_enemy_index)
 	return self
 end
 
