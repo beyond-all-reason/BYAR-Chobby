@@ -247,7 +247,9 @@ local function InitializeListeners()
 			Configuration.password = registerPassword
 			registerName = nil
 		end
-		if Configuration.userName then
+		-- Skip auto-login when no password is saved (password == false): the user
+		-- logs in manually. Avoids gsub-on-boolean in Login/TextEraseNewline.
+		if Configuration.userName and (steamMode or type(Configuration.password) == "string") then
 			lobby:Login(Configuration.userName, Configuration.password, 3, nil, "Chobby", steamMode)
 		end
 	end
