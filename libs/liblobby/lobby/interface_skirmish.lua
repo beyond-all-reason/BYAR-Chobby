@@ -673,6 +673,21 @@ function InterfaceSkirmish:ReconcileModeBots(category, modeKey, botSideIndex)
 		end
 	end
 
+	-- The mode's bots claim their ally slot: whatever else sits in it is
+	-- cleared, because the seat is part of the table the mode just set — a
+	-- leftover skirmish AI beside a mission's seat-filler plays a skirmish.
+	-- AIs on OTHER allies (co-op teammates) stay the user's business, and
+	-- re-adding one after is theirs too.
+	if next(wanted) ~= nil then
+		for _, aiName in ipairs(self.battleAis or {}) do
+			local status = self.userBattleStatus and self.userBattleStatus[aiName]
+			if status and status.aiLib and status.allyNumber == 1 and not wanted[status.aiLib] then
+				Spring.Echo("[modes] " .. aiName .. " removed: the mode's bots claim that seat")
+				self:RemoveAi(aiName)
+			end
+		end
+	end
+
 	for aiLib in pairs(wanted) do
 		if not fielded[aiLib] then
 			local present = false
