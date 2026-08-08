@@ -931,34 +931,15 @@ local function CreateModePanel(category, sectionData)
 
 		modeScroll:ClearChildren()
 
-		-- What renders under a mode:
-		--  * the category's own section: strict whitelist — the mode owns it
-		--    outright, and an unclaimed option is not part of the mode.
-		--  * a section governed by declaration (mode_category on its entry):
-		--    editable unless claimed — these are shared dials the axis carries
-		--    (Main under Game), so a mode locks what it pins and leaves the
-		--    rest open.
-		--  * a governed section bound to one preset (mode_key): rendered only
-		--    while that preset is the mode (scav dials under Scavengers).
+		-- The panel is a WHITELIST: a mode shows exactly what it claims, and
+		-- nothing else. Sections still matter for grouping, reset scope and
+		-- the resolver's defaults; visibility is the preset's own inventory.
 		local function optionVisible(opt)
 			if not opt.key or opt.key == selectorKey then
 				return false
 			end
 			local claim = mode.modOptions and mode.modOptions[opt.key]
-			if claim and claim.ui == "hidden" then
-				return false
-			end
-			local declared = modoptionStructure.sectionModeCategories
-				and modoptionStructure.sectionModeCategories[opt.section]
-			if not declared then
-				return claim ~= nil
-			end
-			local boundTo = modoptionStructure.sectionModeKeys
-				and modoptionStructure.sectionModeKeys[opt.section]
-			if boundTo and boundTo ~= modeKey then
-				return false
-			end
-			return true
+			return claim ~= nil and claim.ui ~= "hidden"
 		end
 
 		-- A subheader has no key of its own, so it can't be whitelisted/hidden per mode.
@@ -1880,9 +1861,6 @@ function ModoptionsPanel.RefreshModoptions()
 		-- section key -> the mode category governing it (mode_category on the
 		-- section entry): a flavor's dials handing the choice to a shared axis.
 		sectionModeCategories = {},
-		-- section key -> the one preset (mode_key on the section entry) whose
-		-- selection reveals the section's dials.
-		sectionModeKeys = {},
 		sections = {}
 	}
 
@@ -1892,7 +1870,6 @@ function ModoptionsPanel.RefreshModoptions()
 			modoptionStructure.sectionTitles[data.key] = data.name
 			modoptionStructure.sectionWeights[data.key] = data.weight
 			modoptionStructure.sectionModeCategories[data.key] = data.mode_category
-			modoptionStructure.sectionModeKeys[data.key] = data.mode_key
 		else
 			if data.section then
 				if data.hidden ~= true then
