@@ -106,6 +106,9 @@ function widget:Initialize()
 	lobbyInterfaceHolder = interfaceRoot.GetLobbyInterfaceHolder()
 	Chobby.lobbyInterfaceHolder = lobbyInterfaceHolder
 	Chobby.interfaceRoot = interfaceRoot
+	if WG.WrapperLoopback then
+		WG.WrapperLoopback.ReplayHandlerReady()
+	end
 
 	local taskbarTitle = Chobby.Configuration.gameConfig.taskbarTitle
 	local taskbarTitleShort = Chobby.Configuration.gameConfig.taskbarTitleShort or taskbarTitle

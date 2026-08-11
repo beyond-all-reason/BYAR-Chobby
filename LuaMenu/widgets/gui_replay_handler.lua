@@ -19,6 +19,23 @@ end
 
 local replayListWindow
 local replayList
+local replayToHighlight
+local highlightedReplay
+
+local function HighlightReplay(replayPath)
+	if replayPath ~= replayToHighlight then
+		return
+	end
+	local control = replayList.controlById[replayPath]
+	if not control then
+		return
+	end
+	replayList.priorityList = {[replayPath] = true}
+	replayList:UpdateOrder()
+	replayList:ScrollToItem(replayPath)
+	highlightedReplay = replayPath
+	replayToHighlight = nil
+end
 
 -- Size constants for the replay window
 local PLAYER_HEIGHT = 20
@@ -631,6 +648,17 @@ local function InitializeControls(parentControl)
 		end
 		local replays = SortReplays(rawReplays)
 
+		replayList.priorityList = highlightedReplay and {[highlightedReplay] = true} or {}
+		if highlightedReplay then
+			for i = 1, #replays do
+				if replays[i] == highlightedReplay then
+					table.remove(replays, i)
+					replays[#replays + 1] = highlightedReplay
+					break
+				end
+			end
+		end
+
 		local index = #replays
 
         --  Add one replay to the replay list
@@ -819,6 +847,7 @@ local function InitializeControls(parentControl)
 
 				if control then
 					replayList:AddItem(replayPath, control, sortData)
+					HighlightReplay(replayPath)
 				end
 			end,
 
@@ -828,6 +857,8 @@ local function InitializeControls(parentControl)
 			end
 		)
 	end
+
+	externalFunctions.Refresh = AddReplays
 
 	return externalFunctions
 end
@@ -855,6 +886,16 @@ function ReplayHandler.GetControl()
 		},
 	}
 	return window
+end
+
+function ReplayHandler.OpenReplay(replayPath)
+	local refreshExistingList = replayListWindow ~= nil
+	replayToHighlight = replayPath
+	highlightedReplay = replayPath
+	WG.Chobby.interfaceRoot.OpenSingleplayerTabByName("replays")
+	if refreshExistingList then
+		replayListWindow.Refresh()
+	end
 end
 
 function ReplayHandler.ReadReplayInfoDone(path, engine, game, map, players, time, winningAllyTeamIds)

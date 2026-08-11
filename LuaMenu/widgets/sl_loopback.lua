@@ -39,6 +39,10 @@ function WrapperLoopback.UploadLog()
 	WG.Connector.Send("UploadLog")
 end
 
+function WrapperLoopback.ReplayHandlerReady()
+	WG.Connector.Send("ReplayHandlerReady")
+end
+
 function WrapperLoopback.ReadReplayInfo(relativePath)
 	local Configuration = WG.Chobby.Configuration
 	if Configuration and Configuration.debugMode then
@@ -227,6 +231,13 @@ local function ReplayInfo(command)
 	)
 end
 
+local function OpenReplay(command)
+	if not command.relativePath or not WG.ReplayHandler then
+		return
+	end
+	WG.ReplayHandler.OpenReplay(command.relativePath)
+end
+
 
 -- init
 function widget:Initialize()
@@ -239,6 +250,7 @@ function widget:Initialize()
 	WG.WrapperLoopback = WrapperLoopback
 
 	WG.Connector.Register('ReplayInfo', ReplayInfo)
+	WG.Connector.Register('OpenReplay', OpenReplay)
 	WG.Connector.Register('ParseMiniMapFinished', ParseMiniMapFinished)
 	WG.Connector.Register('DownloadProgress', DownloadProgress)
 	WG.Connector.Register('DownloadFinished', DownloadFinished)
