@@ -36,12 +36,7 @@ local MANIFEST_NAME    = "plugin_manifest"
 local LUAUI_WIDGETS_DIR = "LuaUI/Widgets"
 local LUAUI_WIDGET_BACKUP_DIR = "LuaUI/WidgetBackups"
 local LUAUI_CONFIG_DIR  = "LuaUI/Config"
-local LUAUI_WIDGET_CONFIG_FILES = {
-    LUAUI_CONFIG_DIR .. "/BYAR.lua",
-    LUAUI_CONFIG_DIR .. "/BYAR_order.lua",
-    LUAUI_CONFIG_DIR .. "/BYAR_known.lua",
-    LUAUI_CONFIG_DIR .. "/BYAR_data.lua",
-}
+local LUAUI_WIDGET_CONFIG_FILE = LUAUI_CONFIG_DIR .. "/BYAR.lua"
 
 local PLUGINS_DIR         = "plugins/"
 local IMG_FALLBACK_LARGE  = "LuaMenu/images/load_img_512.png"
@@ -83,6 +78,7 @@ local detailReadmeBox  = nil      -- TextBox inside detail modal showing README
 local detailCoverImage = nil      -- Image inside detail modal showing cover art
 local detailWidgetId   = nil      -- id of widget currently shown in detail modal
 local updateAllButton  = nil      -- header button, only visible when updates are available
+local updateHeaderSearchLayout = nil
 
 local installingWidgets = {}      -- id -> true while install download is in progress
 local installedWidgets  = {}      -- id -> true after successful install
@@ -302,6 +298,9 @@ local function updateUpdateAllButton()
         updateAllButton.tooltip = table.concat(lines, "\n")
     end
     updateAllButton:SetVisibility(#upgradable > 0)
+    if updateHeaderSearchLayout then
+        updateHeaderSearchLayout()
+    end
 end
 
 local function backupDirectory(dirPath)
@@ -1083,12 +1082,8 @@ local function restoreWidgetsToDefault()
         return
     end
 
-    local removedConfigCount = 0
-
     -- Removes saved LuaUI widget order, enabled state and per-widget data
-    for _, configFile in ipairs(LUAUI_WIDGET_CONFIG_FILES) do
-        removedConfigCount = removedConfigCount + removeFileIfExists(configFile, failures)
-    end
+    local removedConfigCount = removeFileIfExists(LUAUI_WIDGET_CONFIG_FILE, failures)
 
     clearWidgetBrowserInstallState()
     closeDetail()
@@ -1571,6 +1566,8 @@ function PluginsWindow:init(parent)
     local btnGap = 8
     local btnH = 28
     local btnFont = 12
+    local searchPreferredW = 180
+    local searchMinVisibleW = 48
     local btnLeft = 0
     local function nextHeaderButtonX(width)
         local x = btnLeft
@@ -1622,6 +1619,7 @@ function PluginsWindow:init(parent)
         OnClick = { function() confirmRestoreWidgetsToDefault() end },
         parent = self.window,
     }
+    local defaultButtonsEndX = btnLeft - btnGap
     updateAllButton = Button:New {
         caption = i18n("plugins_update_all"),
         tooltip = i18n("plugins_update_all_tooltip"),
@@ -1643,13 +1641,13 @@ function PluginsWindow:init(parent)
         end },
         parent = self.window,
     }
-    updateUpdateAllButton()
+    local allButtonsEndX = btnLeft - btnGap
 
     searchBox = EditBox:New {
         text = "",
-        right = 0,
+        x = 0,
         y = btnY,
-        width = 180,
+        width = searchPreferredW,
         height = btnH,
         hint = i18n("plugins_search_hint"),
         objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
@@ -1665,6 +1663,29 @@ function PluginsWindow:init(parent)
         },
         parent = self.window,
     }
+
+    updateHeaderSearchLayout = function(clientWidth)
+        if not searchBox then return end
+
+        local headerWidth = clientWidth or (self.window and self.window.clientWidth) or usableWidth
+        local buttonEndX = (updateAllButton and updateAllButton.visible) and allButtonsEndX or defaultButtonsEndX
+        local searchX = math.max(buttonEndX + btnGap, headerWidth - searchPreferredW)
+        local searchW = headerWidth - searchX
+
+        if searchW < searchMinVisibleW then
+            searchBox:SetVisibility(false)
+            return
+        end
+
+        searchBox:SetVisibility(true)
+        searchBox:SetPos(searchX, nil, searchW, nil)
+    end
+    self.window.OnResize = self.window.OnResize or {}
+    self.window.OnResize[#self.window.OnResize + 1] = function(_, clientWidth)
+        updateHeaderSearchLayout(clientWidth)
+    end
+    updateUpdateAllButton()
+    updateHeaderSearchLayout()
 
     ----------------------------------------------------------------------
     -- Pagination bar (below header)
@@ -1815,6 +1836,7 @@ function PluginsWindow:cleanup()
     statusLabel = nil
     searchBox = nil
     updateAllButton = nil
+    updateHeaderSearchLayout = nil
     widgetPanelCache = {}
     installingWidgets = {}
     upgradeBackups = {}
