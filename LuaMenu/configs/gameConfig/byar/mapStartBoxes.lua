@@ -158,15 +158,26 @@ local SplineLib = VFS.Include(LUA_DIRNAME .. "configs/gameConfig/byar/lib_spline
 local mapDetails = VFS.Include(LUA_DIRNAME .. "configs/gameConfig/byar/mapDetails.lua")
 local startboxesSetByMap = {} -- springName -> decoded arrangement array, or false when none
 
-local function decodeStartboxesSet(encoded)
-  -- Spring.Utilities.Base64Decode handles url-safe chars; re-add stripped padding.
-  local pad = #encoded % 4
-  if pad > 0 then encoded = encoded .. string.rep("=", 4 - pad) end
-  local bytes = Spring.Utilities.Base64Decode(encoded)
-  local json = bytes and VFS.ZlibDecompress(bytes)
-  if not json then return nil end
-  local ok, parsed = pcall(Json.decode, json)
+-- Base64Decode raises on malformed quads and VFS.ZlibDecompress raises (rather than
+-- returning nil) on non-zlib or empty input, so the whole chain runs under one pcall.
+local function decodeBlob(encoded)
+  local ok, parsed = pcall(function()
+    local padded = encoded
+    local pad = #padded % 4
+    if pad > 0 then padded = padded .. string.rep("=", 4 - pad) end
+    local bytes = Spring.Utilities.Base64Decode(padded)
+    if not bytes or bytes == "" then return nil end
+
+    return Json.decode(VFS.ZlibDecompress(bytes))
+  end)
   if not ok or type(parsed) ~= "table" then return nil end
+
+  return parsed
+end
+
+local function decodeStartboxesSet(encoded)
+  local parsed = decodeBlob(encoded)
+  if not parsed then return nil end
   -- parsed is keyed by team count; flatten to the array the selector expects.
   local arrangements = {}
   for _, arrangement in pairs(parsed) do
@@ -272,6 +283,55 @@ local function loadPolygonStartboxes(mapName, allyTeamCount)
   end
 
   return config
+end
+
+-- MP twin of loadPolygonStartboxes: same selection and build, but fed by the
+-- server-set mapmetadata_startboxes_set modoption instead of local mapDetails.
+local function loadPolygonStartboxesFromBlob(encoded, allyTeamCount)
+  if not encoded or encoded == "" or encoded == "0" then return nil end
+  local startboxesSet = decodeStartboxesSet(encoded)
+  if not startboxesSet or #startboxesSet == 0 then return nil end
+
+  local ok, config = pcall(function()
+    local arrangement = selectArrangementForAllyTeamCount(startboxesSet, allyTeamCount or 2)
+    if not arrangement or not arrangementHasPolygon(arrangement) then return nil end
+    return buildPolygonConfig(arrangement)
+  end)
+  if not ok then
+    Spring.Log("mapStartBoxes", LOG.WARNING, "Skipping malformed startboxes set modoption")
+    return nil
+  end
+
+  return config
+end
+
+-- Override modoption -> 1-based rect list, or nil when absent/unset/garbage.
+-- "0" is the unset sentinel (SPADS won't broadcast empty values, see
+-- sendBattleSetting in spads.pl). Overrides with 3+ point polygons decode to
+-- nil too; this lobby only emits 2-point rects.
+local function decodeStartboxOverrideRects(encoded)
+  if not encoded or encoded == "" or encoded == "0" then return nil end
+  local parsed = decodeBlob(encoded)
+  if not parsed or type(parsed.startboxes) ~= "table" then return nil end
+
+  local rects = {}
+  for i, box in ipairs(parsed.startboxes) do
+    local poly = type(box) == "table" and box.poly
+    if type(poly) ~= "table" or #poly ~= 2 then return nil end
+    if type(poly[1]) ~= "table" or type(poly[2]) ~= "table" then return nil end
+    local x1, y1 = tonumber(poly[1].x), tonumber(poly[1].y)
+    local x2, y2 = tonumber(poly[2].x), tonumber(poly[2].y)
+    if not (x1 and y1 and x2 and y2) then return nil end
+    rects[i] = {
+      left = math.min(x1, x2),
+      top = math.min(y1, y2),
+      right = math.max(x1, x2),
+      bottom = math.max(y1, y2),
+    }
+  end
+  if #rects == 0 then return nil end
+
+  return rects
 end
 
 local function makeAllyTeamBoxFromPolygon(polygonConfig, allyteamindex)
@@ -420,6 +480,8 @@ return {
   encodeStartboxesSetModoption = encodeStartboxesSetModoption,
   encodeStartboxOverrideModoption = encodeStartboxOverrideModoption,
   loadPolygonStartboxes = loadPolygonStartboxes,
+  loadPolygonStartboxesFromBlob = loadPolygonStartboxesFromBlob,
+  decodeStartboxOverrideRects = decodeStartboxOverrideRects,
   getBox = getBox,
   clearBoxes = clearBoxes,
   removeBox = removeBox,
