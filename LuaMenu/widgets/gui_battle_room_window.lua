@@ -345,6 +345,16 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 
 	local externalFunctions = {}
 
+	-- battle.nbTeams only arrives via the s.battle.teams protocol extension, so hosts
+	-- that never send it need the occupied-team count rather than an assumed two.
+	local function GetAllyTeamCount(isSingleplayer)
+		local count = isSingleplayer and emptyTeamIndex or (tonumber(battle.nbTeams) or emptyTeamIndex or 2)
+		-- 0 during the skirmish prime, before teams are set up; start boxes need at least two
+		if count < 2 then count = 2 end
+
+		return count
+	end
+
 	-- Custom boxes travel as the mapmetadata_startbox_override modoption only;
 	-- one !bSet per edit (one vote), no !addbox/!split/!clearbox. The game and
 	-- every client render from the modoption once SPADS echoes it back.
@@ -1667,9 +1677,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 
 			local isSingleplayer = (battleLobby.name == "singleplayer")
 			local mapName = battleInfo.mapName
-			local allyTeamCount = isSingleplayer and emptyTeamIndex or (tonumber(battle.nbTeams) or emptyTeamIndex or 2)
-			-- 0 during the skirmish prime, before teams are set up; start boxes need at least two
-			if allyTeamCount < 2 then allyTeamCount = 2 end
+			local allyTeamCount = GetAllyTeamCount(isSingleplayer)
 			local Configuration = WG.Chobby and WG.Chobby.Configuration
 
 			-- UPDATEBATTLEINFO carries mapName on unrelated updates (spectator count,
@@ -1998,6 +2006,23 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		end
 	end
 
+	-- Nothing announces a team-count change: no modoption echo, no SPADS message, and
+	-- Add Team fires no lobby event at all. Hence driven off the minimap tick, gated on
+	-- the count actually changing so a rebuild never lands mid-edit.
+	local renderedAllyTeamCount
+	function externalFunctions.RefreshStartboxesOnTeamChange()
+		if battleLobby.name == "singleplayer" then
+			return
+		end
+
+		local count = GetAllyTeamCount(false)
+		if count == renderedAllyTeamCount then
+			return
+		end
+
+		externalFunctions.RefreshStartboxes()
+	end
+
 	-- MP render priority: override modoption > set modoption (polygons) > SPADS
 	-- engine rects. Modoptions arrive via SETSCRIPTTAGS once SPADS applies the
 	-- !bSet, so every client (the editor included) re-renders from server state.
@@ -2009,6 +2034,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		local Configuration = WG.Chobby.Configuration
 		local mapStartBoxes = Configuration.gameConfig and Configuration.gameConfig.mapStartBoxes
 		local modoptions = battleLobby.modoptions or {}
+		renderedAllyTeamCount = GetAllyTeamCount(false)
 
 		local overrideRects = mapStartBoxes and mapStartBoxes.decodeStartboxOverrideRects
 			and mapStartBoxes.decodeStartboxOverrideRects(modoptions.mapmetadata_startbox_override)
@@ -2024,8 +2050,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		end
 
 		defaultStartboxMode = true
-		local allyTeamCount = tonumber(battle.nbTeams) or 2
-		if allyTeamCount < 2 then allyTeamCount = 2 end
+		local allyTeamCount = renderedAllyTeamCount
 
 		local polygonConfig = Configuration.gameConfig and Configuration.gameConfig.useDefaultStartBoxes
 			and mapStartBoxes and mapStartBoxes.loadPolygonStartboxesFromBlob
@@ -5235,6 +5260,7 @@ function BattleRoomWindow.UpdateMinimapstartBoxes()
 
 	if mainWindowFunctions and mainWindowFunctions.GetInfoHandler() and not IsMousePressed() then
 		local infoHandler = mainWindowFunctions.GetInfoHandler()
+		infoHandler.RefreshStartboxesOnTeamChange()
 		infoHandler.rightInfo:Invalidate()
 		infoHandler.UpdateStartRectPositionsInMinimap()
 		infoHandler.rightInfo:UpdateClientArea()
