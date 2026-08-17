@@ -4615,12 +4615,12 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		local myUserName = battleLobby:GetMyUserName()
 		local iAmMentioned = (string.find(message,myUserName,nil,true) ~= nil)
 
-		-- Suppress SPADS' "Battle setting changed (mapmetadata_startbox_override=...)"
-		-- announcement; the value is an opaque base64 blob with no meaning in chat.
-		local boxChanger = string.match(message, "^Battle setting changed by (.-) %(mapmetadata_startbox_override=")
+		-- RewriteBSetSpadsMessage may already have replaced the raw value with a readable
+		-- "key from A to B" form, so match up to the key and let that version through;
+		-- only the un-rewritten "key=<blob>" is worth hiding.
+		local boxChanger = string.match(message, "%*?%s*Battle setting changed by (%S+) %(mapmetadata_startbox_override")
 		if boxChanger then
 			lastUserToChangeStartBoxes = boxChanger
-			return true
 		end
 		if string.match(message, "%(mapmetadata_startbox_override=") then return true end
 
