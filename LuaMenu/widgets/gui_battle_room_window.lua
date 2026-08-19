@@ -364,17 +364,14 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 			return
 		end
 
+		-- "0" rather than "" when clearing: SPADS drops empty values on the floor
+		-- (sendBattleSetting skips ''), same trick as gui_modoptions_panel.
 		local encoded = mapStartBoxes.encodeStartboxOverrideModoption(startRectValues)
-		if encoded then
-			defaultStartboxMode = false
-			battleLobby:SetModOptions({ mapmetadata_startbox_override = encoded })
-		else
-			-- No boxes left: back to defaults. "0" because SPADS drops empty
-			-- values on the floor (sendBattleSetting skips ''), same trick as
-			-- gui_modoptions_panel. The echo drives the re-render.
-			defaultStartboxMode = true
-			battleLobby:SetModOptions({ mapmetadata_startbox_override = "0" })
-		end
+		battleLobby:SetModOptions({ mapmetadata_startbox_override = encoded or "0" })
+
+		-- Boxes stay on whatever the server currently holds until the echo says
+		-- otherwise; a rejected or voted-down change then needs no undo.
+		externalFunctions.RefreshStartboxes()
 	end
 
 	local startBoxPanel = Control:New{
@@ -464,7 +461,6 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 						keepAspect = true,
 						labelCaption = startBoxSelect.Caption,
 						OnAccepted = function(integervalue)
-							defaultStartboxMode = false
 							externalFunctions.RemovePolygonOverlays()
 							externalFunctions.RemoveStartRect()
 							startBoxSelect.AcceptFunc(integervalue)
@@ -481,10 +477,9 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 					local function defaultBoxes()
 						-- Leaving custom boxes: clear the override so the game uses the
 						-- default set. SPADS' own boxes were never touched (no !addbox in
-						-- this flow), so there is nothing to !loadboxes back. "0" because
-						-- SPADS won't broadcast an empty value (sendBattleSetting skips '').
-						defaultStartboxMode = true
+						-- this flow), so there is nothing to !loadboxes back.
 						if battleLobby.name == "singleplayer" then
+							defaultStartboxMode = true
 							battleLobby:SelectMap(battle.mapName)
 						else
 							battleLobby:SetModOptions({ mapmetadata_startbox_override = "0" })
