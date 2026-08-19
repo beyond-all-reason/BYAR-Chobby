@@ -4561,6 +4561,17 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		return StringUtilities.TruncateMiddle(raw)
 	end
 
+	-- Encoded modoption values (startbox blobs) overflow anything that shows a raw
+	-- command, so shorten the value while leaving the command readable.
+	local function ShortenBSetCommand(command)
+		local head, value = string.match(command, "^(.-[bB][sS]et%s+[%w_]+%s+)(%S+)$")
+		if not head then
+			return command
+		end
+
+		return head .. FormatBSetValueForChat(value)
+	end
+
 	local function FormatBSetRewrite(user, key, diff)
 		local oldDisp = FormatBSetValueForChat(diff.old)
 		local newDisp = FormatBSetValueForChat(diff.new)
@@ -4752,6 +4763,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 			end
 
 			local title = string.sub(message, string.find(message, ' "',nil,true) + 2, string.find(message, '" ', nil, true) - 1)
+			title = ShortenBSetCommand(title)
 			title = title:sub(1, 1):upper() .. title:sub(2)
 			votePanel.VoteUpdate(title,nil, ismapppoll, candidates, votesNeeded, mapname, userwhocalledvote, newlycalledvote)
 			return true
