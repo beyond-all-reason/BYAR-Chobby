@@ -13,6 +13,98 @@ local function ChobbyReady()
 	return WG.Chobby ~= nil and WG.Chobby.Configuration ~= nil
 end
 
+local FILTER_ROW_HEIGHT = 30
+local FILTER_ITEM_GAP = 10
+local FILTER_BAR_BOTTOM = 10
+local FILTER_BAR_PADDING_TOP = 2
+local FILTER_BAR_PADDING_BOTTOM = 6
+local FILTER_LIST_GAP = 4
+local FILTER_COMBO_WIDTH = 85
+local FILTER_BOX_SIZE = 20
+
+function BattleListWindow:GetFilterRowHeight()
+	local font = Configuration:GetFont(2)
+	local fontSize = font.size or 16
+	return math.max(FILTER_ROW_HEIGHT, math.ceil(fontSize * 1.3), FILTER_BOX_SIZE + 12)
+end
+
+function BattleListWindow:GetFilterBoxSize()
+	return FILTER_BOX_SIZE
+end
+
+function BattleListWindow:MeasureFilterItemWidth(item, font)
+	if item.items then
+		local comboWidth = FILTER_COMBO_WIDTH
+		for i = 1, #item.items do
+			comboWidth = math.max(comboWidth, font:GetTextWidth(item.items[i]) + 28)
+		end
+		return comboWidth
+	end
+
+	local boxsize = item.boxsize or 20
+	local caption = item.caption or ""
+	return boxsize + font:GetTextWidth(caption) + 6
+end
+
+function BattleListWindow:LayoutFilterBar()
+	if not self.filterBar or not self.filterLabel or not self.filterItems then
+		return
+	end
+	if self._layoutFilterBarRunning then
+		return
+	end
+
+	local barWidth = self.filterBar.clientWidth
+	if not barWidth or barWidth <= 0 then
+		return
+	end
+
+	self._layoutFilterBarRunning = true
+
+	local font = Configuration:GetFont(2)
+	local rowHeight = self:GetFilterRowHeight()
+	local boxsize = self:GetFilterBoxSize()
+	local labelWidth = font:GetTextWidth(self.filterLabel.caption) + FILTER_ITEM_GAP
+	local x = labelWidth
+	local y = FILTER_BAR_PADDING_TOP
+	local row = 0
+	local rowCount = 1
+
+	for i = 1, #self.filterItems do
+		local item = self.filterItems[i]
+		if item.boxsize and item.boxsize ~= boxsize then
+			item.boxsize = boxsize
+			item:Invalidate()
+		end
+		local itemWidth = self:MeasureFilterItemWidth(item, font)
+
+		if x + itemWidth > barWidth and x > labelWidth then
+			row = row + 1
+			rowCount = rowCount + 1
+			y = FILTER_BAR_PADDING_TOP + row * rowHeight
+			x = labelWidth
+		end
+
+		item:SetPos(x, y, itemWidth, rowHeight)
+		x = x + itemWidth + FILTER_ITEM_GAP
+	end
+
+	local barHeight = FILTER_BAR_PADDING_TOP + FILTER_BAR_PADDING_BOTTOM + rowCount * rowHeight
+	if self.filterBar.height ~= barHeight then
+		self.filterBar:SetPos(nil, nil, nil, barHeight)
+	end
+	self.filterLabel:SetPos(0, FILTER_BAR_PADDING_TOP, labelWidth, rowHeight)
+
+	local listBottom = FILTER_BAR_BOTTOM + barHeight + FILTER_LIST_GAP
+	if self.listPanel and self.listPanel._relativeBounds.bottom ~= listBottom then
+		self.listPanel._relativeBounds.bottom = listBottom
+		self.listPanel:UpdateClientArea()
+		self:OnResize()
+	end
+
+	self._layoutFilterBarRunning = false
+end
+
 function BattleListWindow:init(parent)
 
 	self:super("init", parent, "Play or watch a game", true, nil, nil, nil, 34)
@@ -77,23 +169,43 @@ function BattleListWindow:init(parent)
 	}
 	self.infoPanel:SetVisibility(false)
 
-	Label:New {
-		x = 20,
-		right = 5,
-		bottom = 15,
-		height = 20,
-		objectOverrideFont = myFont2,
-		caption = "Filter out:",
-		parent = self.window
+	self.filterBar = Control:New {
+		x = 12,
+		right = 12,
+		bottom = FILTER_BAR_BOTTOM,
+		height = self:GetFilterRowHeight() + FILTER_BAR_PADDING_TOP + FILTER_BAR_PADDING_BOTTOM,
+		parent = self.window,
+		OnResize = {
+			function ()
+				WG.Delay(function ()
+					self:LayoutFilterBar()
+				end, 0)
+			end
+		},
 	}
 
+	self.window.OnResize = {
+		function ()
+			WG.Delay(function ()
+				self:LayoutFilterBar()
+			end, 0)
+		end
+	}
+
+	self.filterLabel = Label:New {
+		x = 0,
+		y = FILTER_BAR_PADDING_TOP,
+		height = self:GetFilterRowHeight(),
+		objectOverrideFont = myFont2,
+		caption = "Filter out:",
+		valign = "center",
+		parent = self.filterBar,
+	}
+
+	local boxsize = self:GetFilterBoxSize()
 	local checkPassworded = Checkbox:New {
-		x = "12%",
-		width = 21,
-		bottom = 8,
-		height = 30,
 		boxalign = "left",
-		boxsize = 20,
+		boxsize = boxsize,
 		caption = " Passworded",
 		checked = Configuration.battleFilterPassworded2 or false,
 		objectOverrideFont = myFont2,
@@ -103,16 +215,12 @@ function BattleListWindow:init(parent)
 				self:SoftUpdate(true) -- force the re-sort immediately when any filter box is changed
 			end
 		},
-		parent = self.window,
+		parent = self.filterBar,
 		tooltip = "Hides all battles that require a password to join",
 	}
 	local checkNonFriend = Checkbox:New {
-		x = "27%",
-		width = 21,
-		bottom = 8,
-		height = 30,
 		boxalign = "left",
-		boxsize = 20,
+		boxsize = boxsize,
 		caption = " Non-friend",
 		checked = Configuration.battleFilterNonFriend or false,
 		objectOverrideFont = myFont2,
@@ -122,16 +230,12 @@ function BattleListWindow:init(parent)
 				self:SoftUpdate(true)
 			end
 		},
-		parent = self.window,
+		parent = self.filterBar,
 		tooltip = "Hides all battles that don't have your friends in them",
 	}
 	local checkRunning = Checkbox:New {
-		x = "43%",
-		width = 21,
-		bottom = 8,
-		height = 30,
 		boxalign = "left",
-		boxsize = 20,
+		boxsize = boxsize,
 		caption = " Running",
 		checked = Configuration.battleFilterRunning or false,
 		objectOverrideFont = myFont2,
@@ -141,16 +245,12 @@ function BattleListWindow:init(parent)
 				self:SoftUpdate(true)
 			end
 		},
-		parent = self.window,
+		parent = self.filterBar,
 		tooltip = "Hides all battles that are in progress",
 	}
 	local checkOutOfRange = Checkbox:New {
-		x = "55%",
-		width = 21,
-		bottom = 8,
-		height = 30,
 		boxalign = "left",
-		boxsize = 20,
+		boxsize = boxsize,
 		caption = " Out of range",
 		checked = Configuration.battleFilterOutOfRange or false,
 		objectOverrideFont = myFont2,
@@ -160,14 +260,10 @@ function BattleListWindow:init(parent)
 				self:SoftUpdate(true)
 			end
 		},
-		parent = self.window,
+		parent = self.filterBar,
 		tooltip = "Hides battles whose title lists chevron/rating limits you are outside (e.g. Min chev, Max chev, Rating, Max rating)",
 	}
 	local combPvMode = ComboBox:New {
-		x = "72%",
-		width = 85,
-		bottom = 8,
-		height = 30,
 		boxalign = "left",
 		boxsize = 20,
 		items = {"---", "PvE", "PvP"},
@@ -179,16 +275,12 @@ function BattleListWindow:init(parent)
 				self:SoftUpdate(true)
 			end
 		},
-		parent = self.window,
+		parent = self.filterBar,
 		tooltip = "Hides all AI (including PvE) or PvP battles.",
 	}
 	local checkLocked = Checkbox:New {
-		x = "86%",
-		width = 21,
-		bottom = 8,
-		height = 30,
 		boxalign = "left",
-		boxsize = 20,
+		boxsize = boxsize,
 		caption = " Locked",
 		checked = Configuration.battleFilterLocked or false,
 		objectOverrideFont = myFont2,
@@ -198,8 +290,17 @@ function BattleListWindow:init(parent)
 				self:SoftUpdate(true)
 			end
 		},
-		parent = self.window,
+		parent = self.filterBar,
 		tooltip = "Hides all locked battles",
+	}
+
+	self.filterItems = {
+		checkPassworded,
+		checkNonFriend,
+		checkRunning,
+		checkOutOfRange,
+		combPvMode,
+		checkLocked,
 	}
 
 	local function UpdateCheckboxes()
@@ -212,6 +313,19 @@ function BattleListWindow:init(parent)
 	end
 	WG.Delay(UpdateCheckboxes, 0.2)
 	-- Delay required as Configuration:GetConfigData (where these values are set) runs after this is initialised.
+
+	WG.Delay(function ()
+		self:LayoutFilterBar()
+	end, 0)
+
+	self.onUiScaleChange = function ()
+		-- SetUiScale notifies listeners before screen0:Resize; defer so layout
+		-- uses the updated logical view size instead of the previous scale's.
+		WG.Delay(function ()
+			self:LayoutFilterBar()
+		end, 0)
+	end
+	Configuration:AddListener("OnUiScaleChange", self.onUiScaleChange)
 
 	self:SetMinItemWidth(100000)
 	self.columns = 3
@@ -299,6 +413,9 @@ function BattleListWindow:RemoveListeners()
 	lobby:RemoveListener("OnLeftBattle", self.onLeftBattle)
 	lobby:RemoveListener("OnUpdateBattleInfo", self.onUpdateBattleInfo)
 	lobby:RemoveListener("OnBattleIngameUpdate", self.onBattleIngameUpdate)
+	if self.onUiScaleChange then
+		Configuration:RemoveListener("OnUiScaleChange", self.onUiScaleChange)
+	end
 	lobby:RemoveListener("OnConfigurationChange", self.onConfigurationChange)
 	lobby:RemoveListener("DownloadFinished", self.downloadFinished)
 end
