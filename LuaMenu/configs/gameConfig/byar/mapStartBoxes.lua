@@ -148,6 +148,292 @@ local function makeAllyTeamBox(startboxes, allyteamindex)
     return allyteamtable
 end
 
+local SplineLib = VFS.Include(LUA_DIRNAME .. "configs/gameConfig/byar/lib_spline.lua")
+
+-- Polygon arrangements ride in mapDetails.lua as the encoded
+-- mapmetadata_startboxes_set field (the same blob the game reads), synced from
+-- beyond-all-reason/maps-metadata. Decoded lazily per map; maps without the
+-- field, and rect-only sets that don't pass arrangementHasPolygon, stay on the
+-- savedBoxes.dat path.
+local mapDetails = VFS.Include(LUA_DIRNAME .. "configs/gameConfig/byar/mapDetails.lua")
+local startboxesSetByMap = {} -- springName -> decoded arrangement array, or false when none
+
+-- Base64Decode raises on malformed quads and VFS.ZlibDecompress raises (rather than
+-- returning nil) on non-zlib or empty input, so the whole chain runs under one pcall.
+local function decodeBlob(encoded)
+  local ok, parsed = pcall(function()
+    local padded = encoded
+    local pad = #padded % 4
+    if pad > 0 then padded = padded .. string.rep("=", 4 - pad) end
+    local bytes = Spring.Utilities.Base64Decode(padded)
+    if not bytes or bytes == "" then return nil end
+
+    return Json.decode(VFS.ZlibDecompress(bytes))
+  end)
+  if not ok or type(parsed) ~= "table" then return nil end
+
+  return parsed
+end
+
+local function decodeStartboxesSet(encoded)
+  local parsed = decodeBlob(encoded)
+  if not parsed then return nil end
+  -- parsed is keyed by team count; flatten to the array the selector expects.
+  local arrangements = {}
+  for _, arrangement in pairs(parsed) do
+    arrangements[#arrangements + 1] = arrangement
+  end
+  return arrangements
+end
+
+local function getStartboxesSet(mapName)
+  local cached = startboxesSetByMap[mapName]
+  if cached ~= nil then return cached or nil end
+  local entry = mapDetails[mapName]
+  local arrangements = entry and entry.StartboxesSet and decodeStartboxesSet(entry.StartboxesSet)
+  if entry and entry.StartboxesSet and not arrangements then
+    Spring.Log("mapStartBoxes", LOG.WARNING, "Could not decode StartboxesSet for", mapName)
+  end
+  startboxesSetByMap[mapName] = arrangements or false
+  return arrangements or nil
+end
+
+-- Mirrors the game-side resolveArrangement (startbox_utilities.lua) and the
+-- rectangle selectStartBoxesForAllyTeamCount above: exact team-count match,
+-- then the next larger arrangement, then the next smaller.
+local function selectArrangementForAllyTeamCount(startboxesSet, allyTeamCount)
+  local larger, smaller
+  local largerN, smallerN
+  for _, arrangement in ipairs(startboxesSet) do
+    local n = #arrangement.startboxes
+    if n == allyTeamCount then
+      return arrangement
+    elseif n > allyTeamCount and (not largerN or n < largerN) then
+      larger, largerN = arrangement, n
+    elseif n < allyTeamCount and (not smallerN or n > smallerN) then
+      smaller, smallerN = arrangement, n
+    end
+  end
+  return larger or smaller
+end
+
+local function arrangementHasPolygon(arrangement)
+  for _, box in ipairs(arrangement.startboxes) do
+    if #box.poly > 2 then return true end
+  end
+  return false
+end
+
+-- Build the lobbyEntry-shaped config the renderer, encoder and
+-- makeAllyTeamBoxFromPolygon consume. Keyed 1-based by allyteam index:
+--   entry.anchorBoxes = { { {x,y[,strength]}, ... } }  raw anchors, for re-encode
+--   entry.boxes       = { { {x,y}, ... } }             tessellated ring (>=3 pts), for render
+--   entry.boundingBox = { left, top, right, bottom }   0-200, for the engine startrect
+--   entry.maxPlayersPerStartbox                        carried through to the modoption
+local function buildPolygonConfig(arrangement)
+  local config = {}
+  for i, box in ipairs(arrangement.startboxes) do
+    local srcPoly = box.poly
+
+    local anchor = {}
+    for j, pt in ipairs(srcPoly) do
+      anchor[j] = pt.strength ~= nil and { pt.x, pt.y, pt.strength } or { pt.x, pt.y }
+    end
+
+    local renderPoly
+    if #anchor == 2 then
+      local x1, y1 = anchor[1][1], anchor[1][2]
+      local x2, y2 = anchor[2][1], anchor[2][2]
+      renderPoly = { { x1, y1 }, { x2, y1 }, { x2, y2 }, { x1, y2 } }
+    else
+      renderPoly = SplineLib.TessellateRing(anchor)
+    end
+
+    local left, top, right, bottom = math.huge, math.huge, -math.huge, -math.huge
+    for _, p in ipairs(renderPoly) do
+      if p[1] < left then left = p[1] end
+      if p[1] > right then right = p[1] end
+      if p[2] < top then top = p[2] end
+      if p[2] > bottom then bottom = p[2] end
+    end
+
+    config[i] = {
+      anchorBoxes = { anchor },
+      boxes = { renderPoly },
+      boundingBox = { left = left, top = top, right = right, bottom = bottom },
+      maxPlayersPerStartbox = arrangement.maxPlayersPerStartbox,
+    }
+  end
+  return config
+end
+
+local function loadPolygonStartboxes(mapName, allyTeamCount)
+  local startboxesSet = getStartboxesSet(mapName)
+  if not startboxesSet or #startboxesSet == 0 then return nil end
+
+  -- hand-edited mapDetails can be valid JSON of the wrong shape; keep a malformed set from crashing the build
+  local ok, config = pcall(function()
+    local arrangement = selectArrangementForAllyTeamCount(startboxesSet, allyTeamCount or 2)
+    if not arrangement or not arrangementHasPolygon(arrangement) then return nil end
+    return buildPolygonConfig(arrangement)
+  end)
+  if not ok then
+    Spring.Log("mapStartBoxes", LOG.WARNING, "Skipping malformed polygon startboxes for", mapName)
+    return nil
+  end
+
+  return config
+end
+
+-- MP twin of loadPolygonStartboxes: same selection and build, but fed by the
+-- server-set mapmetadata_startboxes_set modoption instead of local mapDetails.
+local function loadPolygonStartboxesFromBlob(encoded, allyTeamCount)
+  if not encoded or encoded == "" or encoded == "0" then return nil end
+  local startboxesSet = decodeStartboxesSet(encoded)
+  if not startboxesSet or #startboxesSet == 0 then return nil end
+
+  local ok, config = pcall(function()
+    local arrangement = selectArrangementForAllyTeamCount(startboxesSet, allyTeamCount or 2)
+    if not arrangement or not arrangementHasPolygon(arrangement) then return nil end
+    return buildPolygonConfig(arrangement)
+  end)
+  if not ok then
+    Spring.Log("mapStartBoxes", LOG.WARNING, "Skipping malformed startboxes set modoption")
+    return nil
+  end
+
+  return config
+end
+
+-- Override modoption -> 1-based rect list, or nil when absent/unset/garbage.
+-- "0" is the unset sentinel (SPADS won't broadcast empty values, see
+-- sendBattleSetting in spads.pl). Overrides with 3+ point polygons decode to
+-- nil too; this lobby only emits 2-point rects.
+local function decodeStartboxOverrideRects(encoded)
+  if not encoded or encoded == "" or encoded == "0" then return nil end
+  local parsed = decodeBlob(encoded)
+  if not parsed or type(parsed.startboxes) ~= "table" then return nil end
+
+  local rects = {}
+  for i, box in ipairs(parsed.startboxes) do
+    local poly = type(box) == "table" and box.poly
+    if type(poly) ~= "table" or #poly ~= 2 then return nil end
+    if type(poly[1]) ~= "table" or type(poly[2]) ~= "table" then return nil end
+    local x1, y1 = tonumber(poly[1].x), tonumber(poly[1].y)
+    local x2, y2 = tonumber(poly[2].x), tonumber(poly[2].y)
+    if not (x1 and y1 and x2 and y2) then return nil end
+    rects[i] = {
+      left = math.min(x1, x2),
+      top = math.min(y1, y2),
+      right = math.max(x1, x2),
+      bottom = math.max(y1, y2),
+    }
+  end
+  if #rects == 0 then return nil end
+
+  return rects
+end
+
+local function makeAllyTeamBoxFromPolygon(polygonConfig, allyteamindex)
+  -- The engine only understands AABB startrects, so we publish each polygon's
+  -- bounding box here. The game-side gadget reads the full polygon from the
+  -- mapmetadata_startboxes_set modoption (see encodeStartboxesSetModoption)
+  -- and applies polygon containment on top, widening the engine AABB if
+  -- needed via Spring.SetAllyTeamStartBox.
+  local allyteamtable = { numallies = 0 }
+  local entry = polygonConfig[allyteamindex + 1]
+  if entry and entry.boundingBox then
+    local bb = entry.boundingBox
+    allyteamtable.startrectleft   = bb.left / 200
+    allyteamtable.startrecttop    = bb.top / 200
+    allyteamtable.startrectright  = bb.right / 200
+    allyteamtable.startrectbottom = bb.bottom / 200
+  end
+  return allyteamtable
+end
+
+-- Builds the mapmetadata_startboxes_set modoption value for the game-side
+-- gadget to consume. Shape matches the maps-metadata-native startboxesInfo
+-- (one startboxesInfo per num_teams key), base64url(zlib(json))-encoded to
+-- match the existing mapmetadata_startpos transport.
+--
+-- The game-side contract (resolution order, expected payload shape) lives in
+-- beyond-all-reason/Beyond-All-Reason:
+--   luarules/gadgets/include/startbox_utilities.lua
+-- Any change here must keep that decoder/resolver in sync.
+local function encodeStartboxesSetModoption(polygonConfig)
+  if not polygonConfig then return nil end
+
+  local sortedKeys = {}
+  for k in pairs(polygonConfig) do
+    sortedKeys[#sortedKeys + 1] = k
+  end
+  table.sort(sortedKeys)
+
+  local numTeams = #sortedKeys
+  if numTeams == 0 then return nil end
+
+  local startboxes = {}
+  for _, k in ipairs(sortedKeys) do
+    local entry = polygonConfig[k]
+    local sourcePoly = entry.anchorBoxes and entry.anchorBoxes[1] or entry.boxes and entry.boxes[1]
+    local poly = {}
+    if sourcePoly then
+      for j, point in ipairs(sourcePoly) do
+        local p = { x = point[1], y = point[2] }
+        if point[3] ~= nil then p.strength = point[3] end
+        poly[j] = p
+      end
+    end
+    startboxes[#startboxes + 1] = { poly = poly }
+  end
+
+  local firstEntry = polygonConfig[sortedKeys[1]]
+  local payload = {
+    [tostring(numTeams)] = {
+      startboxes = startboxes,
+      maxPlayersPerStartbox = (firstEntry and firstEntry.maxPlayersPerStartbox) or 8,
+    },
+  }
+
+  local ok, encoded = pcall(Json.encode, payload)
+  if not ok or not encoded then return nil end
+
+  local compressed = VFS.ZlibCompress(encoded)
+  if not compressed then return nil end
+
+  return Spring.Utilities.Base64Encode(compressed)
+end
+
+-- Builds the mapmetadata_startbox_override modoption: the player's custom
+-- rectangles as a single arrangement the game prefers over the server-set
+-- mapmetadata_startboxes_set when its box count matches the team count. Boxes
+-- are 0-200 rects (two opposite corners). '=' padding is stripped so the value
+-- matches the base64url SPADS allows for this modoption.
+local function encodeStartboxOverrideModoption(boxes)
+  if not boxes then return nil end
+
+  local startboxes = {}
+  local i = 1
+  while boxes[i] do
+    local b = boxes[i]
+    startboxes[i] = { poly = {
+      { x = math.floor(b.left + 0.5),  y = math.floor(b.top + 0.5) },
+      { x = math.floor(b.right + 0.5), y = math.floor(b.bottom + 0.5) },
+    } }
+    i = i + 1
+  end
+  if #startboxes == 0 then return nil end
+
+  local ok, encoded = pcall(Json.encode, { startboxes = startboxes })
+  if not ok or not encoded then return nil end
+
+  local compressed = VFS.ZlibCompress(encoded)
+  if not compressed then return nil end
+
+  return (Spring.Utilities.Base64Encode(compressed):gsub("=+$", ""))
+end
+
 -- how about some more helpers?
 local function initCustomBox(mapName)
     singleplayerboxes = {}
@@ -190,6 +476,12 @@ return {
   savedBoxes = savedBoxes,
   selectStartBoxesForAllyTeamCount = selectStartBoxesForAllyTeamCount,
   makeAllyTeamBox = makeAllyTeamBox,
+  makeAllyTeamBoxFromPolygon = makeAllyTeamBoxFromPolygon,
+  encodeStartboxesSetModoption = encodeStartboxesSetModoption,
+  encodeStartboxOverrideModoption = encodeStartboxOverrideModoption,
+  loadPolygonStartboxes = loadPolygonStartboxes,
+  loadPolygonStartboxesFromBlob = loadPolygonStartboxesFromBlob,
+  decodeStartboxOverrideRects = decodeStartboxOverrideRects,
   getBox = getBox,
   clearBoxes = clearBoxes,
   removeBox = removeBox,
