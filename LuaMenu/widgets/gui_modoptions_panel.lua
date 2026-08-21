@@ -1092,9 +1092,7 @@ local function InitializeModoptionsDisplay()
 		local text = ""
 		local empty = true
 		panelModoptions = modopts or panelModoptions or {}
-		if not modoptions then
-			return
-		end
+		if not modoptions then return end
 
 		for _, option in pairs(modoptions) do
 			if option.type == "bool" then
@@ -1119,11 +1117,7 @@ local function InitializeModoptionsDisplay()
 					end
 				end
 			elseif option.type == "number" then
-				if
-					option.lock
-					and panelModoptions[option.key]
-					and panelModoptions[option.key] ~= modoptionDefaults[option.key]
-				then
+				if option.lock and panelModoptions[option.key] and panelModoptions[option.key] ~= modoptionDefaults[option.key] then
 					for i = 1, #option.lock do
 						hidenOptions[option.lock[i]] = true
 					end
@@ -1141,8 +1135,7 @@ local function InitializeModoptionsDisplay()
 
 		local entries = {}
 		for key, value in pairs(panelModoptions) do
-			if
-				(modoptionDefaults[key] == nil or modoptionDefaults[key] ~= value or key == "ranked_game")
+			if (modoptionDefaults[key] == nil or modoptionDefaults[key] ~= value or key == "ranked_game")
 				and key:find("^mapmetadata_") == nil
 				and not hidenOptions[key]
 			then
@@ -1166,9 +1159,11 @@ local function InitializeModoptionsDisplay()
 				entries[#entries + 1] = { name = name, text = entry }
 			end
 		end
+
 		table.sort(entries, function(a, b)
 			return a.name:lower() < b.name:lower()
 		end)
+
 		for i = 1, #entries do
 			if i > 1 then
 				text = text .. "\255\128\128\128" .. "------" .. "\n"
