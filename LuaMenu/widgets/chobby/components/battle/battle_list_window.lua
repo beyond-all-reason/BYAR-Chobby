@@ -13,6 +13,98 @@ local function ChobbyReady()
 	return WG.Chobby ~= nil and WG.Chobby.Configuration ~= nil
 end
 
+local FILTER_ROW_HEIGHT = 30
+local FILTER_ITEM_GAP = 10
+local FILTER_BAR_BOTTOM = 10
+local FILTER_BAR_PADDING_TOP = 2
+local FILTER_BAR_PADDING_BOTTOM = 6
+local FILTER_LIST_GAP = 4
+local FILTER_COMBO_WIDTH = 85
+local FILTER_BOX_SIZE = 20
+
+function BattleListWindow:GetFilterRowHeight()
+	local font = Configuration:GetFont(2)
+	local fontSize = font.size or 16
+	return math.max(FILTER_ROW_HEIGHT, math.ceil(fontSize * 1.3), FILTER_BOX_SIZE + 12)
+end
+
+function BattleListWindow:GetFilterBoxSize()
+	return FILTER_BOX_SIZE
+end
+
+function BattleListWindow:MeasureFilterItemWidth(item, font)
+	if item.items then
+		local comboWidth = FILTER_COMBO_WIDTH
+		for i = 1, #item.items do
+			comboWidth = math.max(comboWidth, font:GetTextWidth(item.items[i]) + 28)
+		end
+		return comboWidth
+	end
+
+	local boxsize = item.boxsize or 20
+	local caption = item.caption or ""
+	return boxsize + font:GetTextWidth(caption) + 6
+end
+
+function BattleListWindow:LayoutFilterBar()
+	if not self.filterBar or not self.filterLabel or not self.filterItems then
+		return
+	end
+	if self._layoutFilterBarRunning then
+		return
+	end
+
+	local barWidth = self.filterBar.clientWidth
+	if not barWidth or barWidth <= 0 then
+		return
+	end
+
+	self._layoutFilterBarRunning = true
+
+	local font = Configuration:GetFont(2)
+	local rowHeight = self:GetFilterRowHeight()
+	local boxsize = self:GetFilterBoxSize()
+	local labelWidth = font:GetTextWidth(self.filterLabel.caption) + FILTER_ITEM_GAP
+	local x = labelWidth
+	local y = FILTER_BAR_PADDING_TOP
+	local row = 0
+	local rowCount = 1
+
+	for i = 1, #self.filterItems do
+		local item = self.filterItems[i]
+		if item.boxsize and item.boxsize ~= boxsize then
+			item.boxsize = boxsize
+			item:Invalidate()
+		end
+		local itemWidth = self:MeasureFilterItemWidth(item, font)
+
+		if x + itemWidth > barWidth and x > labelWidth then
+			row = row + 1
+			rowCount = rowCount + 1
+			y = FILTER_BAR_PADDING_TOP + row * rowHeight
+			x = labelWidth
+		end
+
+		item:SetPos(x, y, itemWidth, rowHeight)
+		x = x + itemWidth + FILTER_ITEM_GAP
+	end
+
+	local barHeight = FILTER_BAR_PADDING_TOP + FILTER_BAR_PADDING_BOTTOM + rowCount * rowHeight
+	if self.filterBar.height ~= barHeight then
+		self.filterBar:SetPos(nil, nil, nil, barHeight)
+	end
+	self.filterLabel:SetPos(0, FILTER_BAR_PADDING_TOP, labelWidth, rowHeight)
+
+	local listBottom = FILTER_BAR_BOTTOM + barHeight + FILTER_LIST_GAP
+	if self.listPanel and self.listPanel._relativeBounds.bottom ~= listBottom then
+		self.listPanel._relativeBounds.bottom = listBottom
+		self.listPanel:UpdateClientArea()
+		self:OnResize()
+	end
+
+	self._layoutFilterBarRunning = false
+end
+
 function BattleListWindow:init(parent)
 
 	self:super("init", parent, "Play or watch a game", true, nil, nil, nil, 34)
@@ -77,23 +169,43 @@ function BattleListWindow:init(parent)
 	}
 	self.infoPanel:SetVisibility(false)
 
-	Label:New {
-		x = 20,
-		right = 5,
-		bottom = 15,
-		height = 20,
-		objectOverrideFont = myFont2,
-		caption = "Filter out:",
-		parent = self.window
+	self.filterBar = Control:New {
+		x = 12,
+		right = 12,
+		bottom = FILTER_BAR_BOTTOM,
+		height = self:GetFilterRowHeight() + FILTER_BAR_PADDING_TOP + FILTER_BAR_PADDING_BOTTOM,
+		parent = self.window,
+		OnResize = {
+			function ()
+				WG.Delay(function ()
+					self:LayoutFilterBar()
+				end, 0)
+			end
+		},
 	}
 
+	self.window.OnResize = {
+		function ()
+			WG.Delay(function ()
+				self:LayoutFilterBar()
+			end, 0)
+		end
+	}
+
+	self.filterLabel = Label:New {
+		x = 0,
+		y = FILTER_BAR_PADDING_TOP,
+		height = self:GetFilterRowHeight(),
+		objectOverrideFont = myFont2,
+		caption = "Filter out:",
+		valign = "center",
+		parent = self.filterBar,
+	}
+
+	local boxsize = self:GetFilterBoxSize()
 	local checkPassworded = Checkbox:New {
-		x = "15%",
-		width = 21,
-		bottom = 8,
-		height = 30,
 		boxalign = "left",
-		boxsize = 20,
+		boxsize = boxsize,
 		caption = " Passworded",
 		checked = Configuration.battleFilterPassworded2 or false,
 		objectOverrideFont = myFont2,
@@ -103,16 +215,12 @@ function BattleListWindow:init(parent)
 				self:SoftUpdate(true) -- force the re-sort immediately when any filter box is changed
 			end
 		},
-		parent = self.window,
+		parent = self.filterBar,
 		tooltip = "Hides all battles that require a password to join",
 	}
 	local checkNonFriend = Checkbox:New {
-		x = "35%",
-		width = 21,
-		bottom = 8,
-		height = 30,
 		boxalign = "left",
-		boxsize = 20,
+		boxsize = boxsize,
 		caption = " Non-friend",
 		checked = Configuration.battleFilterNonFriend or false,
 		objectOverrideFont = myFont2,
@@ -122,16 +230,12 @@ function BattleListWindow:init(parent)
 				self:SoftUpdate(true)
 			end
 		},
-		parent = self.window,
+		parent = self.filterBar,
 		tooltip = "Hides all battles that don't have your friends in them",
 	}
 	local checkRunning = Checkbox:New {
-		x = "55%",
-		width = 21,
-		bottom = 8,
-		height = 30,
 		boxalign = "left",
-		boxsize = 20,
+		boxsize = boxsize,
 		caption = " Running",
 		checked = Configuration.battleFilterRunning or false,
 		objectOverrideFont = myFont2,
@@ -141,14 +245,25 @@ function BattleListWindow:init(parent)
 				self:SoftUpdate(true)
 			end
 		},
-		parent = self.window,
+		parent = self.filterBar,
 		tooltip = "Hides all battles that are in progress",
 	}
+	local checkOutOfRange = Checkbox:New {
+		boxalign = "left",
+		boxsize = boxsize,
+		caption = " Out of range",
+		checked = Configuration.battleFilterOutOfRange or false,
+		objectOverrideFont = myFont2,
+		OnChange = {
+			function (obj, newState)
+				Configuration:SetConfigValue("battleFilterOutOfRange", newState)
+				self:SoftUpdate(true)
+			end
+		},
+		parent = self.filterBar,
+		tooltip = "Hides battles whose title lists chevron/rating limits you are outside (e.g. Min chev, Max chev, Rating, Max rating)",
+	}
 	local combPvMode = ComboBox:New {
-		x = "70%",
-		width = 85,
-		bottom = 8,
-		height = 30,
 		boxalign = "left",
 		boxsize = 20,
 		items = {"---", "PvE", "PvP"},
@@ -160,16 +275,12 @@ function BattleListWindow:init(parent)
 				self:SoftUpdate(true)
 			end
 		},
-		parent = self.window,
+		parent = self.filterBar,
 		tooltip = "Hides all AI (including PvE) or PvP battles.",
 	}
-    local checkLocked = Checkbox:New {
-		x = "85%",
-		width = 21,
-		bottom = 8,
-		height = 30,
+	local checkLocked = Checkbox:New {
 		boxalign = "left",
-		boxsize = 20,
+		boxsize = boxsize,
 		caption = " Locked",
 		checked = Configuration.battleFilterLocked or false,
 		objectOverrideFont = myFont2,
@@ -179,19 +290,42 @@ function BattleListWindow:init(parent)
 				self:SoftUpdate(true)
 			end
 		},
-		parent = self.window,
+		parent = self.filterBar,
 		tooltip = "Hides all locked battles",
+	}
+
+	self.filterItems = {
+		checkPassworded,
+		checkNonFriend,
+		checkRunning,
+		checkOutOfRange,
+		combPvMode,
+		checkLocked,
 	}
 
 	local function UpdateCheckboxes()
 		checkPassworded:SetToggle(Configuration.battleFilterPassworded2)
 		checkNonFriend:SetToggle(Configuration.battleFilterNonFriend)
 		checkRunning:SetToggle(Configuration.battleFilterRunning)
-        checkLocked:SetToggle(Configuration.battleFilterLocked)
+		checkOutOfRange:SetToggle(Configuration.battleFilterOutOfRange)
+		checkLocked:SetToggle(Configuration.battleFilterLocked)
 		combPvMode:Select(Configuration.battleFilterPvMode)
 	end
 	WG.Delay(UpdateCheckboxes, 0.2)
 	-- Delay required as Configuration:GetConfigData (where these values are set) runs after this is initialised.
+
+	WG.Delay(function ()
+		self:LayoutFilterBar()
+	end, 0)
+
+	self.onUiScaleChange = function ()
+		-- SetUiScale notifies listeners before screen0:Resize; defer so layout
+		-- uses the updated logical view size instead of the previous scale's.
+		WG.Delay(function ()
+			self:LayoutFilterBar()
+		end, 0)
+	end
+	Configuration:AddListener("OnUiScaleChange", self.onUiScaleChange)
 
 	self:SetMinItemWidth(100000)
 	self.columns = 3
@@ -279,6 +413,9 @@ function BattleListWindow:RemoveListeners()
 	lobby:RemoveListener("OnLeftBattle", self.onLeftBattle)
 	lobby:RemoveListener("OnUpdateBattleInfo", self.onUpdateBattleInfo)
 	lobby:RemoveListener("OnBattleIngameUpdate", self.onBattleIngameUpdate)
+	if self.onUiScaleChange then
+		Configuration:RemoveListener("OnUiScaleChange", self.onUiScaleChange)
+	end
 	lobby:RemoveListener("OnConfigurationChange", self.onConfigurationChange)
 	lobby:RemoveListener("DownloadFinished", self.downloadFinished)
 end
@@ -727,6 +864,86 @@ function BattleListWindow:AddBattle(battleID, battle)
 	self:RecalculateOrder(battle.battleID) -- when a battle is added to the list, go ahead and ensure it's sorted correctly. Other cases will rely on soft update
 end
 
+-- Parse chevron/rating join limits advertised in battle titles, e.g.
+-- "Min chev: 4 | Max chev: 6 | Rating 13 - 60 | Max rating: 25"
+local function ParseJoinLimitsFromTitle(title)
+	if not title or title == "" then
+		return nil
+	end
+	local t = string.lower(title)
+	local limits = {}
+
+	limits.minChev = tonumber(t:match("min%s*chev%s*:?%s*(%d+)"))
+	limits.maxChev = tonumber(t:match("max%s*chev%s*:?%s*(%d+)"))
+	limits.minRating = tonumber(t:match("min%s*rating%s*:?%s*(%-?%d+%.?%d*)"))
+	limits.maxRating = tonumber(t:match("max%s*rating%s*:?%s*(%-?%d+%.?%d*)"))
+
+	-- Bare "Rating lo - hi", skipping matches that are part of "min rating" / "max rating"
+	local searchFrom = 1
+	while true do
+		local s, e, lo, hi = string.find(t, "rating%s*:?%s*(%-?%d+%.?%d*)%s*%-%s*(%-?%d+%.?%d*)", searchFrom)
+		if not s then
+			break
+		end
+		local prefix = string.sub(t, math.max(1, s - 4), s - 1)
+		if not string.find(prefix, "min%s*$") and not string.find(prefix, "max%s*$") then
+			limits.minRating = limits.minRating or tonumber(lo)
+			limits.maxRating = limits.maxRating or tonumber(hi)
+			break
+		end
+		searchFrom = e + 1
+	end
+
+	if limits.minChev or limits.maxChev or limits.minRating or limits.maxRating then
+		return limits
+	end
+	return nil
+end
+
+local function GetMyOpenSkillRating(battle)
+	local me = lobby:GetUser(lobby:GetMyUserName())
+	if not me then
+		return nil, nil
+	end
+	local myRating
+	if me.accountID and WG.UserHandler and WG.UserHandler.GetSnapshotSkillValue then
+		myRating = WG.UserHandler.GetSnapshotSkillValue(me.accountID, battle)
+	end
+	if not myRating then
+		myRating = tonumber(me.skill)
+	end
+	return myRating, me.level
+end
+
+local function CanJoinByTitleLimits(battle)
+	local limits = ParseJoinLimitsFromTitle(battle and battle.title)
+	if not limits then
+		return true
+	end
+
+	local myRating, myChev = GetMyOpenSkillRating(battle)
+
+	if myChev then
+		if limits.minChev and myChev < limits.minChev then
+			return false
+		end
+		if limits.maxChev and myChev > limits.maxChev then
+			return false
+		end
+	end
+
+	if myRating then
+		if limits.minRating and myRating < limits.minRating then
+			return false
+		end
+		if limits.maxRating and myRating > limits.maxRating then
+			return false
+		end
+	end
+
+	return true
+end
+
 -- Fuzzy subsequence scorer for battle list search.
 -- Returns a positive score if query is a subsequence of target, 0 otherwise.
 local function fuzzyScore(query, target)
@@ -875,6 +1092,10 @@ function BattleListWindow:ItemInFilter(id)
 	end
 
 	if Configuration.battleFilterRunning and battle.isRunning then
+		return false
+	end
+
+	if Configuration.battleFilterOutOfRange and not CanJoinByTitleLimits(battle) then
 		return false
 	end
 
