@@ -1427,6 +1427,9 @@ local function GetVoidTabControls()
 	local cbInspector
 	cbInspector, offset = AddCheckboxSetting(offset, "Enable Inspector", "enableInspector", false, EnableInspectorFunc)
 	children[#children + 1] = cbInspector
+	local cbHotReload
+	cbHotReload, offset = AddCheckboxSetting(offset, "Auto Reload Widgets (toggle Ctrl+T)", "devHotReloadAuto", false, nil, "Polls widget files and reloads changed ones.")
+	children[#children + 1] = cbHotReload
 	-- children[#children + 1], offset = AddCheckboxSetting(offset, "Show Campaign button", "showCampaignButton", false, toggleCampaignFunc)
 	-- children[#children + 1], offset = AddCheckboxSetting(offset, "Show Planet Unlocks", "showPlanetUnlocks", false)
 	-- children[#children + 1], offset = AddCheckboxSetting(offset, "Show Planet Enemy Units", "showPlanetEnemyUnits", false)
@@ -1633,6 +1636,11 @@ local function GetVoidTabControls()
 			cbInspector.checked = value
 			cbInspector.state.checked = cbInspector.checked
 			cbInspector:Invalidate()
+		end
+		if key == "devHotReloadAuto" and cbHotReload.checked ~= value then
+			cbHotReload.checked = value
+			cbHotReload.state.checked = cbHotReload.checked
+			cbHotReload:Invalidate()
 		end
 	end
 

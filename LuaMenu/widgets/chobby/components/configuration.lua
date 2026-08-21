@@ -312,6 +312,7 @@ function Configuration:init()
 	self.debugMode = false
 	self.devMode = VFS.FileExists("devmode.txt") or VFS.FileExists("devmode.txt.txt") or VFS.FileExists("devmode.rtf.txt")
 	self.ShowhiddenModopions = false
+	self.devHotReloadAuto = false
 	self.enableProfiler = false
 	self.enableInspector = false
 	self.enableCacheRapidPool = true
@@ -782,6 +783,7 @@ function Configuration:GetConfigData()
 		enableTextToSpeech = self.enableTextToSpeech,
 		showOldAiVersions = self.showOldAiVersions,
 		showAiOptions = self.showAiOptions,
+		devHotReloadAuto = self.devHotReloadAuto,
 		chatFontSize = self.chatFontSize,
 		myAccountID = self.myAccountID,
 		lastAddedAiName = self.lastAddedAiName,
