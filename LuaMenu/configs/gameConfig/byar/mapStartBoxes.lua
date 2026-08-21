@@ -305,13 +305,7 @@ local function loadPolygonStartboxesFromBlob(encoded, allyTeamCount)
   return config
 end
 
--- Override modoption -> polygon config (see buildPolygonConfig) and whether any
--- box carries a real polygon, or nil when absent/unset/garbage. "0" is the unset
--- sentinel (SPADS won't broadcast empty values, see sendBattleSetting in spads.pl).
---
--- A hand-written !bSet can carry polygons the editor never emits, and the game
--- accepts them (expandPoly in startbox_utilities.lua), so rejecting them here
--- would draw the map defaults over boxes the game is going to enforce.
+-- Game accepts 3+ point polygons here (expandPoly), so this has to as well.
 local function decodeStartboxOverride(encoded)
   if not encoded or encoded == "" or encoded == "0" then return nil end
   local parsed = decodeBlob(encoded)
