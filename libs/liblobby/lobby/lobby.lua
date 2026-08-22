@@ -2418,6 +2418,14 @@ function Lobby:GetMyIsSpectator()
 	end
 end
 
+-- Position in the join-queue of my battle; 0 when not queued.
+function Lobby:GetMyQueuePos()
+	if self.userBattleStatus[self.myUserName] then
+		return self.userBattleStatus[self.myUserName].queuePos or 0
+	end
+	return 0
+end
+
 function Lobby:GetMyIsBoss()
 	if self.userBattleStatus[self.myUserName] then
 		return self.userBattleStatus[self.myUserName].isBoss or false
