@@ -2031,14 +2031,22 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		local modoptions = battleLobby.modoptions or {}
 		renderedAllyTeamCount = GetAllyTeamCount(false)
 
-		local overrideRects = mapStartBoxes and mapStartBoxes.decodeStartboxOverrideRects
-			and mapStartBoxes.decodeStartboxOverrideRects(modoptions.mapmetadata_startbox_override)
-		if overrideRects then
+		local overrideConfig, overrideHasPolygon
+		if mapStartBoxes and mapStartBoxes.decodeStartboxOverride then
+			overrideConfig, overrideHasPolygon =
+				mapStartBoxes.decodeStartboxOverride(modoptions.mapmetadata_startbox_override)
+		end
+		if overrideConfig then
 			defaultStartboxMode = false
-			externalFunctions.RemovePolygonOverlays()
-			externalFunctions.RemoveStartRect()
-			for i, rect in ipairs(overrideRects) do
-				externalFunctions.AddStartRect(i - 1, rect.left, rect.top, rect.right, rect.bottom)
+			if overrideHasPolygon then
+				externalFunctions.AddPolygonStartboxes(overrideConfig, renderedAllyTeamCount)
+			else
+				externalFunctions.RemovePolygonOverlays()
+				externalFunctions.RemoveStartRect()
+				for i, entry in ipairs(overrideConfig) do
+					local box = entry.boundingBox
+					externalFunctions.AddStartRect(i - 1, box.left, box.top, box.right, box.bottom)
+				end
 			end
 
 			return

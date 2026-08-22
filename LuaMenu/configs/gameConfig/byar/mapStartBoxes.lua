@@ -305,33 +305,31 @@ local function loadPolygonStartboxesFromBlob(encoded, allyTeamCount)
   return config
 end
 
--- Override modoption -> 1-based rect list, or nil when absent/unset/garbage.
--- "0" is the unset sentinel (SPADS won't broadcast empty values, see
--- sendBattleSetting in spads.pl). Overrides with 3+ point polygons decode to
--- nil too; this lobby only emits 2-point rects.
-local function decodeStartboxOverrideRects(encoded)
+-- Game accepts 3+ point polygons here (expandPoly), so this has to as well.
+local function decodeStartboxOverride(encoded)
   if not encoded or encoded == "" or encoded == "0" then return nil end
   local parsed = decodeBlob(encoded)
   if not parsed or type(parsed.startboxes) ~= "table" then return nil end
+  if #parsed.startboxes == 0 then return nil end
 
-  local rects = {}
-  for i, box in ipairs(parsed.startboxes) do
+  for _, box in ipairs(parsed.startboxes) do
     local poly = type(box) == "table" and box.poly
-    if type(poly) ~= "table" or #poly ~= 2 then return nil end
-    if type(poly[1]) ~= "table" or type(poly[2]) ~= "table" then return nil end
-    local x1, y1 = tonumber(poly[1].x), tonumber(poly[1].y)
-    local x2, y2 = tonumber(poly[2].x), tonumber(poly[2].y)
-    if not (x1 and y1 and x2 and y2) then return nil end
-    rects[i] = {
-      left = math.min(x1, x2),
-      top = math.min(y1, y2),
-      right = math.max(x1, x2),
-      bottom = math.max(y1, y2),
-    }
+    if type(poly) ~= "table" or #poly < 2 then return nil end
+    for _, point in ipairs(poly) do
+      if type(point) ~= "table" then return nil end
+      local x, y = tonumber(point.x), tonumber(point.y)
+      if not (x and y) then return nil end
+      point.x, point.y = x, y
+    end
   end
-  if #rects == 0 then return nil end
 
-  return rects
+  local ok, config = pcall(buildPolygonConfig, parsed)
+  if not ok or not config then
+    Spring.Log("mapStartBoxes", LOG.WARNING, "Skipping malformed startbox override modoption")
+    return nil
+  end
+
+  return config, arrangementHasPolygon(parsed)
 end
 
 local function makeAllyTeamBoxFromPolygon(polygonConfig, allyteamindex)
@@ -481,7 +479,7 @@ return {
   encodeStartboxOverrideModoption = encodeStartboxOverrideModoption,
   loadPolygonStartboxes = loadPolygonStartboxes,
   loadPolygonStartboxesFromBlob = loadPolygonStartboxesFromBlob,
-  decodeStartboxOverrideRects = decodeStartboxOverrideRects,
+  decodeStartboxOverride = decodeStartboxOverride,
   getBox = getBox,
   clearBoxes = clearBoxes,
   removeBox = removeBox,
