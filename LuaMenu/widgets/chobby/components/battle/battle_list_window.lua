@@ -28,10 +28,6 @@ function BattleListWindow:GetFilterRowHeight()
 	return math.max(FILTER_ROW_HEIGHT, math.ceil(fontSize * 1.3), FILTER_BOX_SIZE + 12)
 end
 
-function BattleListWindow:GetFilterBoxSize()
-	return FILTER_BOX_SIZE
-end
-
 function BattleListWindow:MeasureFilterItemWidth(item, font)
 	if item.items then
 		local comboWidth = FILTER_COMBO_WIDTH
@@ -63,7 +59,6 @@ function BattleListWindow:LayoutFilterBar()
 
 	local font = Configuration:GetFont(2)
 	local rowHeight = self:GetFilterRowHeight()
-	local boxsize = self:GetFilterBoxSize()
 	local labelWidth = font:GetTextWidth(self.filterLabel.caption) + FILTER_ITEM_GAP
 	local x = labelWidth
 	local y = FILTER_BAR_PADDING_TOP
@@ -72,8 +67,8 @@ function BattleListWindow:LayoutFilterBar()
 
 	for i = 1, #self.filterItems do
 		local item = self.filterItems[i]
-		if item.boxsize and item.boxsize ~= boxsize then
-			item.boxsize = boxsize
+		if item.boxsize and item.boxsize ~= FILTER_BOX_SIZE then
+			item.boxsize = FILTER_BOX_SIZE
 			item:Invalidate()
 		end
 		local itemWidth = self:MeasureFilterItemWidth(item, font)
@@ -202,10 +197,9 @@ function BattleListWindow:init(parent)
 		parent = self.filterBar,
 	}
 
-	local boxsize = self:GetFilterBoxSize()
 	local checkPassworded = Checkbox:New {
 		boxalign = "left",
-		boxsize = boxsize,
+		boxsize = FILTER_BOX_SIZE,
 		caption = " Passworded",
 		checked = Configuration.battleFilterPassworded2 or false,
 		objectOverrideFont = myFont2,
@@ -220,7 +214,7 @@ function BattleListWindow:init(parent)
 	}
 	local checkNonFriend = Checkbox:New {
 		boxalign = "left",
-		boxsize = boxsize,
+		boxsize = FILTER_BOX_SIZE,
 		caption = " Non-friend",
 		checked = Configuration.battleFilterNonFriend or false,
 		objectOverrideFont = myFont2,
@@ -235,7 +229,7 @@ function BattleListWindow:init(parent)
 	}
 	local checkRunning = Checkbox:New {
 		boxalign = "left",
-		boxsize = boxsize,
+		boxsize = FILTER_BOX_SIZE,
 		caption = " Running",
 		checked = Configuration.battleFilterRunning or false,
 		objectOverrideFont = myFont2,
@@ -250,7 +244,7 @@ function BattleListWindow:init(parent)
 	}
 	local checkOutOfRange = Checkbox:New {
 		boxalign = "left",
-		boxsize = boxsize,
+		boxsize = FILTER_BOX_SIZE,
 		caption = " Out of range",
 		checked = Configuration.battleFilterOutOfRange or false,
 		objectOverrideFont = myFont2,
@@ -280,7 +274,7 @@ function BattleListWindow:init(parent)
 	}
 	local checkLocked = Checkbox:New {
 		boxalign = "left",
-		boxsize = boxsize,
+		boxsize = FILTER_BOX_SIZE,
 		caption = " Locked",
 		checked = Configuration.battleFilterLocked or false,
 		objectOverrideFont = myFont2,
@@ -317,15 +311,6 @@ function BattleListWindow:init(parent)
 	WG.Delay(function ()
 		self:LayoutFilterBar()
 	end, 0)
-
-	self.onUiScaleChange = function ()
-		-- SetUiScale notifies listeners before screen0:Resize; defer so layout
-		-- uses the updated logical view size instead of the previous scale's.
-		WG.Delay(function ()
-			self:LayoutFilterBar()
-		end, 0)
-	end
-	Configuration:AddListener("OnUiScaleChange", self.onUiScaleChange)
 
 	self:SetMinItemWidth(100000)
 	self.columns = 3
@@ -387,6 +372,13 @@ function BattleListWindow:init(parent)
 	end
 	lobby:AddListener("OnFriendRequestList", self.onFriendRequestList)
 
+	self.onUiScaleChange = function ()
+		WG.Delay(function ()
+			self:LayoutFilterBar()
+		end, 0)
+	end
+	Configuration:AddListener("OnUiScaleChange", self.onUiScaleChange)
+
 	local function onConfigurationChange(listener, key, value)
 		if key == "displayBadEngines2" then
 			self:Update()
@@ -413,9 +405,7 @@ function BattleListWindow:RemoveListeners()
 	lobby:RemoveListener("OnLeftBattle", self.onLeftBattle)
 	lobby:RemoveListener("OnUpdateBattleInfo", self.onUpdateBattleInfo)
 	lobby:RemoveListener("OnBattleIngameUpdate", self.onBattleIngameUpdate)
-	if self.onUiScaleChange then
-		Configuration:RemoveListener("OnUiScaleChange", self.onUiScaleChange)
-	end
+	Configuration:RemoveListener("OnUiScaleChange", self.onUiScaleChange)
 	lobby:RemoveListener("OnConfigurationChange", self.onConfigurationChange)
 	lobby:RemoveListener("DownloadFinished", self.downloadFinished)
 end
@@ -908,9 +898,6 @@ local function GetMyOpenSkillRating(battle)
 	local myRating
 	if me.accountID and WG.UserHandler and WG.UserHandler.GetSnapshotSkillValue then
 		myRating = WG.UserHandler.GetSnapshotSkillValue(me.accountID, battle)
-	end
-	if not myRating then
-		myRating = tonumber(me.skill)
 	end
 	return myRating, me.level
 end
