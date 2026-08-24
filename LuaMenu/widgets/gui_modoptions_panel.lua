@@ -1076,7 +1076,7 @@ local function InitializeModoptionsDisplay()
 			if line:sub(1, 2) ~= "--" then -- Line doesn't start with a comment
 				return tweakText
 			end
-			local comment = line:sub(3, 27)
+			local comment = line:sub(3, 27):match("^%s*(.-)%s*$")
 			if not comment:find("[^%w%p ]") then -- Only whitelisted characters found
 				return tweakText .. "\n[" .. comment .. "]"
 			end
@@ -1133,29 +1133,44 @@ local function InitializeModoptionsDisplay()
 			end
 		end
 
+		local entries = {}
 		for key, value in pairs(panelModoptions) do
-			if (modoptionDefaults[key] == nil or modoptionDefaults[key] ~= value or key == "ranked_game") and key:find("^mapmetadata_") == nil and not hidenOptions[key] then
+			if (modoptionDefaults[key] == nil or modoptionDefaults[key] ~= value or key == "ranked_game")
+				and key:find("^mapmetadata_") == nil
+				and not hidenOptions[key]
+			then
 				local option = getModOptionByKey(key)
-				local name = option.name and option.name or key
-				text = text .. "\255\255\255\255"
-				if text ~= "\255\255\255\255" then
-					text = text .. "\255\128\128\128" .. "------" .. "\n"
-				end
-				text = text .. tostring(name).. " = \255\255\255\255"
-				if (key:sub(1,10) == "tweakunits" or key:sub(1,9) == "tweakdefs") then
+				local name = tostring(option.name and option.name or key)
+				local entry = "\255\255\255\255" .. name .. " = \255\255\255\255"
+				if key:sub(1, 10) == "tweakunits" or key:sub(1, 9) == "tweakdefs" then
 					local success, result = pcall(tweakSummary, value)
 					if success then
-						text = text .. result
+						entry = entry .. result
 					else
-						text = text .. "\255\255\75\75".."Couldn't Parse\n".."\255\128\128\128"..shortenedValue(value)
+						entry = entry
+							.. "\255\255\75\75"
+							.. "Couldn't Parse\n"
+							.. "\255\128\128\128"
+							.. shortenedValue(value)
 					end
 				else
-					text = text .. shortenedValue(value)
+					entry = entry .. shortenedValue(value)
 				end
-				text = text .. "\n"
-				empty = false
+				entries[#entries + 1] = { name = name, text = entry }
 			end
 		end
+
+		table.sort(entries, function(a, b)
+			return a.name:lower() < b.name:lower()
+		end)
+
+		for i = 1, #entries do
+			if i > 1 then
+				text = text .. "\255\128\128\128" .. "------" .. "\n"
+			end
+			text = text .. entries[i].text .. "\n"
+		end
+		empty = (#entries == 0)
 		lblText:SetText(text)
 
 		if mainScrollPanel.parent then
