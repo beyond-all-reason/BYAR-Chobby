@@ -10,6 +10,13 @@ local items = 	{
 		--startWithTabOpen = 1,
 	},
 	{
+		-- devOnly is honoured by interface_root, which is where Configuration.devMode is
+		-- readable: this file is included while Configuration is still being built.
+		name = "terraformer",
+		control = WG.TerraformerWindow.GetControl(),
+		devOnly = true,
+	},
+	{
 		name = "load_game",
 		control = WG.LoadGameWindow.GetControl(),
 		entryCheck = WG.BattleRoomWindow.SetSingleplayerGame,

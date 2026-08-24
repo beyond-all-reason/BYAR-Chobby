@@ -288,6 +288,7 @@ return {
 		download_failed = "Download Failed",
 		wip_challenges = "WiP Challenges",
 		["scenarios"] = "Scenarios",
+		["terraformer"] = "Map Editor",
 		-- Settings
 		autoLaunchAsSpectator = "Auto-launch when spectating",
 		randomSkirmishSetup = "Random Skirmish AI and Map",
