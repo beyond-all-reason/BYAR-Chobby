@@ -13,7 +13,6 @@ local function ChobbyReady()
 	return WG.Chobby ~= nil and WG.Chobby.Configuration ~= nil
 end
 
-local FILTER_ROW_HEIGHT = 30
 local FILTER_ITEM_GAP = 10
 local FILTER_BAR_BOTTOM = 10
 local FILTER_BAR_PADDING_TOP = 2
@@ -21,12 +20,7 @@ local FILTER_BAR_PADDING_BOTTOM = 6
 local FILTER_LIST_GAP = 4
 local FILTER_COMBO_WIDTH = 85
 local FILTER_BOX_SIZE = 20
-
-function BattleListWindow:GetFilterRowHeight()
-	local font = Configuration:GetFont(2)
-	local fontSize = font.size or 16
-	return math.max(FILTER_ROW_HEIGHT, math.ceil(fontSize * 1.3), FILTER_BOX_SIZE + 12)
-end
+local FILTER_ROW_HEIGHT = FILTER_BOX_SIZE + 12
 
 function BattleListWindow:MeasureFilterItemWidth(item, font)
 	if item.items then
@@ -58,7 +52,6 @@ function BattleListWindow:LayoutFilterBar()
 	self._layoutFilterBarRunning = true
 
 	local font = Configuration:GetFont(2)
-	local rowHeight = self:GetFilterRowHeight()
 	local labelWidth = font:GetTextWidth(self.filterLabel.caption) + FILTER_ITEM_GAP
 	local x = labelWidth
 	local y = FILTER_BAR_PADDING_TOP
@@ -67,28 +60,26 @@ function BattleListWindow:LayoutFilterBar()
 
 	for i = 1, #self.filterItems do
 		local item = self.filterItems[i]
-		if item.boxsize and item.boxsize ~= FILTER_BOX_SIZE then
-			item.boxsize = FILTER_BOX_SIZE
-			item:Invalidate()
-		end
 		local itemWidth = self:MeasureFilterItemWidth(item, font)
 
 		if x + itemWidth > barWidth and x > labelWidth then
 			row = row + 1
 			rowCount = rowCount + 1
-			y = FILTER_BAR_PADDING_TOP + row * rowHeight
+			y = FILTER_BAR_PADDING_TOP + row * FILTER_ROW_HEIGHT
 			x = labelWidth
 		end
 
-		item:SetPos(x, y, itemWidth, rowHeight)
+		item:SetPos(x, y, itemWidth, FILTER_ROW_HEIGHT)
 		x = x + itemWidth + FILTER_ITEM_GAP
 	end
 
-	local barHeight = FILTER_BAR_PADDING_TOP + FILTER_BAR_PADDING_BOTTOM + rowCount * rowHeight
+	local padding = self.filterBar.padding or {0, 0, 0, 0}
+	local padY = (padding[2] or 0) + (padding[4] or 0)
+	local barHeight = padY + FILTER_BAR_PADDING_TOP + FILTER_BAR_PADDING_BOTTOM + rowCount * FILTER_ROW_HEIGHT
 	if self.filterBar.height ~= barHeight then
 		self.filterBar:SetPos(nil, nil, nil, barHeight)
 	end
-	self.filterLabel:SetPos(0, FILTER_BAR_PADDING_TOP, labelWidth, rowHeight)
+	self.filterLabel:SetPos(0, FILTER_BAR_PADDING_TOP, labelWidth, FILTER_ROW_HEIGHT)
 
 	local listBottom = FILTER_BAR_BOTTOM + barHeight + FILTER_LIST_GAP
 	if self.listPanel and self.listPanel._relativeBounds.bottom ~= listBottom then
@@ -168,7 +159,8 @@ function BattleListWindow:init(parent)
 		x = 12,
 		right = 12,
 		bottom = FILTER_BAR_BOTTOM,
-		height = self:GetFilterRowHeight() + FILTER_BAR_PADDING_TOP + FILTER_BAR_PADDING_BOTTOM,
+		height = FILTER_ROW_HEIGHT + FILTER_BAR_PADDING_TOP + FILTER_BAR_PADDING_BOTTOM,
+		padding = {0, 0, 0, 0},
 		parent = self.window,
 		OnResize = {
 			function ()
@@ -190,7 +182,7 @@ function BattleListWindow:init(parent)
 	self.filterLabel = Label:New {
 		x = 0,
 		y = FILTER_BAR_PADDING_TOP,
-		height = self:GetFilterRowHeight(),
+		height = FILTER_ROW_HEIGHT,
 		objectOverrideFont = myFont2,
 		caption = "Filter out:",
 		valign = "center",
@@ -379,21 +371,21 @@ function BattleListWindow:init(parent)
 	end
 	Configuration:AddListener("OnUiScaleChange", self.onUiScaleChange)
 
-	local function onConfigurationChange(listener, key, value)
+	self.onConfigurationChange = function (listener, key, value)
 		if key == "displayBadEngines2" then
 			self:Update()
 		elseif key == "battleFilterRedundant" then
 			self:SoftUpdate()
 		end
 	end
-	Configuration:AddListener("OnConfigurationChange", onConfigurationChange)
+	Configuration:AddListener("OnConfigurationChange", self.onConfigurationChange)
 
-	local function downloadFinished(listener, downloadID)
+	self.onDownloadFinished = function (listener, downloadID)
 		for battleID,_ in pairs(self.itemNames) do
 			self:UpdateSync(battleID)
 		end
 	end
-	WG.DownloadHandler.AddListener("DownloadFinished", downloadFinished)
+	WG.DownloadHandler.AddListener("DownloadFinished", self.onDownloadFinished)
 
 	self:Update()
 end
@@ -405,9 +397,11 @@ function BattleListWindow:RemoveListeners()
 	lobby:RemoveListener("OnLeftBattle", self.onLeftBattle)
 	lobby:RemoveListener("OnUpdateBattleInfo", self.onUpdateBattleInfo)
 	lobby:RemoveListener("OnBattleIngameUpdate", self.onBattleIngameUpdate)
+	lobby:RemoveListener("OnUpdateBattleTitle", self.onUpdateBattleTitle)
+	lobby:RemoveListener("OnFriendRequestList", self.onFriendRequestList)
 	Configuration:RemoveListener("OnUiScaleChange", self.onUiScaleChange)
-	lobby:RemoveListener("OnConfigurationChange", self.onConfigurationChange)
-	lobby:RemoveListener("DownloadFinished", self.downloadFinished)
+	Configuration:RemoveListener("OnConfigurationChange", self.onConfigurationChange)
+	WG.DownloadHandler.RemoveListener("DownloadFinished", self.onDownloadFinished)
 end
 
 function BattleListWindow:UpdateAllBattleIDs()
@@ -855,7 +849,7 @@ function BattleListWindow:AddBattle(battleID, battle)
 end
 
 -- Parse chevron/rating join limits advertised in battle titles, e.g.
--- "Min chev: 4 | Max chev: 6 | Rating 13 - 60 | Max rating: 25"
+-- "Min chev: 4 | Max chev: 6 | Rating: 13-60"
 local function ParseJoinLimitsFromTitle(title)
 	if not title or title == "" then
 		return nil
@@ -865,23 +859,10 @@ local function ParseJoinLimitsFromTitle(title)
 
 	limits.minChev = tonumber(t:match("min%s*chev%s*:?%s*(%d+)"))
 	limits.maxChev = tonumber(t:match("max%s*chev%s*:?%s*(%d+)"))
-	limits.minRating = tonumber(t:match("min%s*rating%s*:?%s*(%-?%d+%.?%d*)"))
-	limits.maxRating = tonumber(t:match("max%s*rating%s*:?%s*(%-?%d+%.?%d*)"))
-
-	-- Bare "Rating lo - hi", skipping matches that are part of "min rating" / "max rating"
-	local searchFrom = 1
-	while true do
-		local s, e, lo, hi = string.find(t, "rating%s*:?%s*(%-?%d+%.?%d*)%s*%-%s*(%-?%d+%.?%d*)", searchFrom)
-		if not s then
-			break
-		end
-		local prefix = string.sub(t, math.max(1, s - 4), s - 1)
-		if not string.find(prefix, "min%s*$") and not string.find(prefix, "max%s*$") then
-			limits.minRating = limits.minRating or tonumber(lo)
-			limits.maxRating = limits.maxRating or tonumber(hi)
-			break
-		end
-		searchFrom = e + 1
+	local lo, hi = t:match("rating%s*:?%s*(%-?%d+%.?%d*)%s*%-%s*(%-?%d+%.?%d*)")
+	if lo then
+		limits.minRating = tonumber(lo)
+		limits.maxRating = tonumber(hi)
 	end
 
 	if limits.minChev or limits.maxChev or limits.minRating or limits.maxRating then
