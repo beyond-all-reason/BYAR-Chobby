@@ -782,6 +782,7 @@ function Configuration:GetConfigData()
 		enableTextToSpeech = self.enableTextToSpeech,
 		showOldAiVersions = self.showOldAiVersions,
 		showAiOptions = self.showAiOptions,
+		ShowhiddenModopions = self.ShowhiddenModopions,
 		chatFontSize = self.chatFontSize,
 		myAccountID = self.myAccountID,
 		lastAddedAiName = self.lastAddedAiName,
