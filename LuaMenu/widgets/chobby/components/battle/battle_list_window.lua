@@ -73,9 +73,7 @@ function BattleListWindow:LayoutFilterBar()
 		x = x + itemWidth + FILTER_ITEM_GAP
 	end
 
-	local padding = self.filterBar.padding or {0, 0, 0, 0}
-	local padY = (padding[2] or 0) + (padding[4] or 0)
-	local barHeight = padY + FILTER_BAR_PADDING_TOP + FILTER_BAR_PADDING_BOTTOM + rowCount * FILTER_ROW_HEIGHT
+	local barHeight = FILTER_BAR_PADDING_TOP + FILTER_BAR_PADDING_BOTTOM + rowCount * FILTER_ROW_HEIGHT
 	if self.filterBar.height ~= barHeight then
 		self.filterBar:SetPos(nil, nil, nil, barHeight)
 	end
@@ -849,7 +847,7 @@ function BattleListWindow:AddBattle(battleID, battle)
 end
 
 -- Parse chevron/rating join limits advertised in battle titles, e.g.
--- "Min chev: 4 | Max chev: 6 | Rating: 13-60"
+-- "Min chev: 4 | Max chev: 6 | "Min rating: 10" | "Max rating: 25" | Rating: 13-60"
 local function ParseJoinLimitsFromTitle(title)
 	if not title or title == "" then
 		return nil
@@ -859,10 +857,12 @@ local function ParseJoinLimitsFromTitle(title)
 
 	limits.minChev = tonumber(t:match("min%s*chev%s*:?%s*(%d+)"))
 	limits.maxChev = tonumber(t:match("max%s*chev%s*:?%s*(%d+)"))
+	limits.minRating = tonumber(t:match("min%s*rating%s*:?%s*(%-?%d+%.?%d*)"))
+	limits.maxRating = tonumber(t:match("max%s*rating%s*:?%s*(%-?%d+%.?%d*)"))
 	local lo, hi = t:match("rating%s*:?%s*(%-?%d+%.?%d*)%s*%-%s*(%-?%d+%.?%d*)")
 	if lo then
-		limits.minRating = tonumber(lo)
-		limits.maxRating = tonumber(hi)
+		limits.minRating = limits.minRating or tonumber(lo)
+		limits.maxRating = limits.maxRating or tonumber(hi)
 	end
 
 	if limits.minChev or limits.maxChev or limits.minRating or limits.maxRating then
