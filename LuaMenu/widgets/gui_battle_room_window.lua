@@ -87,26 +87,14 @@ local function HasGame(gameName)
 	return VFS.HasArchive(gameName)
 end
 
-local function UpdateArchiveStatus(updateSync)
-	if not battleLobby or not battleLobby:GetMyBattleID() then
-		return
-	end
-	local battle = battleLobby:GetBattle(battleLobby:GetMyBattleID())
-	if not battle then
-		haveMapAndGame = false
-		return
-	end
-	local haveGame = HasGame(battle.gameName)
-	local haveMap = VFS.HasArchive(battle.mapName)
+local function GetStartboxShortfallMessage()
+	local infoHandler = mainWindowFunctions and mainWindowFunctions.GetInfoHandler
+		and mainWindowFunctions.GetInfoHandler()
 
+	return infoHandler and infoHandler.GetStartboxShortfallMessage and infoHandler.GetStartboxShortfallMessage()
+end
 
-	if mainWindowFunctions and mainWindowFunctions.GetInfoHandler() then
-		local infoHandler = mainWindowFunctions.GetInfoHandler()
-		infoHandler.SetHaveGame(haveGame)
-		infoHandler.SetHaveMap(haveMap)
-	end
-	haveMapAndGame = (haveGame and haveMap)
-
+local function UpdateStartButton(battle)
 	if btnStartBattle then
 		if haveMapAndGame then
 			--btnStartBattle.tooltip = "Start the game, or call a vote to start multiplayer, or join a running game"
@@ -147,7 +135,55 @@ local function UpdateArchiveStatus(updateSync)
 			end
 		end
 
+		local startboxShortfall = (not battle.isRunning) and GetStartboxShortfallMessage()
+		if haveMapAndGame and startboxShortfall then
+			btnStartBattle.tooltip = startboxShortfall
+			btnStartBattle:StyleOff()
+			btnStartBattle:SetEnabled(false)
+			btnStartBattle.suppressButtonReaction = true
+		end
 	end
+end
+
+-- Team counts and box edits both land without an event worth listening to, so the
+-- button is rechecked from the minimap tick. Only a change in the shortfall touches
+-- the button, otherwise every tick would restyle it.
+local shownStartboxShortfall
+local function RefreshStartButtonForStartboxes()
+	local shortfall = GetStartboxShortfallMessage()
+	if shortfall == shownStartboxShortfall then
+		return
+	end
+	shownStartboxShortfall = shortfall
+
+	local battleID = battleLobby and battleLobby:GetMyBattleID()
+	local battle = battleID and battleLobby:GetBattle(battleID)
+	if battle then
+		UpdateStartButton(battle)
+	end
+end
+
+local function UpdateArchiveStatus(updateSync)
+	if not battleLobby or not battleLobby:GetMyBattleID() then
+		return
+	end
+	local battle = battleLobby:GetBattle(battleLobby:GetMyBattleID())
+	if not battle then
+		haveMapAndGame = false
+		return
+	end
+	local haveGame = HasGame(battle.gameName)
+	local haveMap = VFS.HasArchive(battle.mapName)
+
+
+	if mainWindowFunctions and mainWindowFunctions.GetInfoHandler() then
+		local infoHandler = mainWindowFunctions.GetInfoHandler()
+		infoHandler.SetHaveGame(haveGame)
+		infoHandler.SetHaveMap(haveMap)
+	end
+	haveMapAndGame = (haveGame and haveMap)
+
+	UpdateStartButton(battle)
 
 	if updateSync and battleLobby then
 		battleLobby:SetBattleStatus({
@@ -366,6 +402,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	spadsRectValues = {}
 
 	local externalFunctions = {}
+	local ApplySingleplayerDefaultBoxes
 
 	-- battle.nbTeams only arrives via the s.battle.teams protocol extension, so hosts
 	-- that never send it need the occupied-team count rather than an assumed two.
@@ -828,6 +865,15 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 						WG.Chobby.ConfirmationPopup(RejoinBattleFunc, "Are you sure you want to leave your current game to rejoin this one?", nil, 315, 200)
 					end
 				else
+					local startboxShortfall = externalFunctions.GetStartboxShortfallMessage()
+					if startboxShortfall then
+						if AddLocalBattleWarning then
+							AddLocalBattleWarning(startboxShortfall)
+						end
+
+						return
+					end
+
 					if battleLobby.name == "singleplayer" then
 						local Configuration = WG.Chobby.Configuration
 						if Configuration.gameConfig.mapStartBoxes.singleplayerboxes then
@@ -1702,7 +1748,6 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 			local isSingleplayer = (battleLobby.name == "singleplayer")
 			local mapName = battleInfo.mapName
 			local allyTeamCount = GetAllyTeamCount(isSingleplayer)
-			local Configuration = WG.Chobby and WG.Chobby.Configuration
 
 			-- UPDATEBATTLEINFO carries mapName on unrelated updates (spectator count,
 			-- lock) too, and only a map change re-renders, so tearing down on every
@@ -1717,51 +1762,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 			if isSingleplayer then
 				imMinimap.children = {}
 				if startBoxPanel then startBoxPanel:SetVisibility(true) end
-			end
-
-			-- Singleplayer reads polygon data from local mapDetails; multiplayer must
-			-- render only what the server says (modoptions), or the lobby can show
-			-- boxes the game won't use.
-			local polygonConfig = nil
-			if isSingleplayer and Configuration.gameConfig and
-					Configuration.gameConfig.useDefaultStartBoxes and
-					Configuration.gameConfig.mapStartBoxes and
-					Configuration.gameConfig.mapStartBoxes.loadPolygonStartboxes then
-				polygonConfig = Configuration.gameConfig.mapStartBoxes.loadPolygonStartboxes(mapName, allyTeamCount)
-			end
-
-			if isSingleplayer then
-				if Configuration.gameConfig and
-						Configuration.gameConfig.useDefaultStartBoxes and
-						Configuration.gameConfig.mapStartBoxes and
-						Configuration.gameConfig.mapStartBoxes.savedBoxes then
-
-					local mapStartBoxes = Configuration.gameConfig.mapStartBoxes
-					externalFunctions.RemoveStartRect()
-					mapStartBoxes.clearBoxes()
-
-					if polygonConfig then
-						externalFunctions.AddPolygonStartboxes(polygonConfig, allyTeamCount)
-					else
-						local startBoxes = Configuration.gameConfig.mapStartBoxes.savedBoxes[mapName]
-						startBoxes = Configuration.gameConfig.mapStartBoxes.selectStartBoxesForAllyTeamCount(startBoxes,allyTeamCount)
-						if startBoxes then
-							for i = 1, allyTeamCount do
-								if startBoxes[i] then
-									externalFunctions.AddStartRect(i-1,200*startBoxes[i][1],200*startBoxes[i][2],200*startBoxes[i][3],200*startBoxes[i][4])
-								end
-							end
-						else
-							-- !split v 20
-							externalFunctions.AddStartRect(0,0,0,40,200)
-							externalFunctions.AddStartRect(1,160,0,200,200)
-						end
-					end
-
-					StartBoxComboBoxSelectDefault()
-				else
-					Spring.Echo("No map startBoxes found or disabled for map",mapName,"teamcount:",allyTeamCount)
-				end
+				ApplySingleplayerDefaultBoxes(mapName, allyTeamCount)
 			elseif mapChanged then
 				-- UPDATEBATTLEINFO carries mapName on every update (spec count, lock,
 				-- ...), and refreshing each tick would tear down mid-edit boxes that
@@ -1861,7 +1862,6 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		-- it doesnt even know how big it is right nowhere
 		-- Spring.Utilities.TraceFullEcho()
 
-		-- Capture happens before the early return so script export works in either mode.
 		startRectValues[allyNo+1]={["left"]=left, ["top"]=top, ["right"]=right, ["bottom"]=bottom}
 
 		if polygonStartboxesActive then
@@ -1998,6 +1998,30 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		return currentStartRects
 	end
 
+	-- An arrangement only boxes in the allyteams it covers; the rest keep whatever the
+	-- engine startrect holds (resolveArrangement in the game's startbox_utilities.lua),
+	-- so they start somewhere the lobby never showed. Rooms with no arrangement are the
+	-- old startrect-only world and are left alone.
+	function externalFunctions.GetStartboxShortfallMessage()
+		if not arrangementActive then
+			return nil
+		end
+
+		local allyTeamCount = GetAllyTeamCount(battleLobby.name == "singleplayer")
+		local boxedTeams = 0
+		for i = 1, allyTeamCount do
+			if startRectValues[i] then
+				boxedTeams = boxedTeams + 1
+			end
+		end
+
+		if boxedTeams >= allyTeamCount then
+			return nil
+		end
+
+		return "Cannot start: only " .. boxedTeams .. " of " .. allyTeamCount .. " teams have a start box."
+	end
+
 	function externalFunctions.ApplyStartBoxes(boxes)
 		externalFunctions.RemovePolygonOverlays()
 		externalFunctions.RemoveStartRect()
@@ -2037,17 +2061,69 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		end
 	end
 
-	-- Nothing announces a team-count change: no modoption echo, no SPADS message, and
-	-- Add Team fires no lobby event at all. Hence driven off the minimap tick, gated on
-	-- the count actually changing so a rebuild never lands mid-edit.
 	local renderedAllyTeamCount
-	function externalFunctions.RefreshStartboxesOnTeamChange()
-		if battleLobby.name == "singleplayer" then
+
+	-- Singleplayer reads polygon data from local mapDetails; multiplayer must render
+	-- only what the server says (modoptions), or the lobby can show boxes the game
+	-- won't use. The team count picks the arrangement, so this runs again whenever it
+	-- moves rather than only on map change.
+	function ApplySingleplayerDefaultBoxes(mapName, allyTeamCount)
+		local Configuration = WG.Chobby and WG.Chobby.Configuration
+		renderedAllyTeamCount = allyTeamCount
+
+		if not (mapName and Configuration.gameConfig and
+				Configuration.gameConfig.useDefaultStartBoxes and
+				Configuration.gameConfig.mapStartBoxes and
+				Configuration.gameConfig.mapStartBoxes.savedBoxes) then
+			Spring.Echo("No map startBoxes found or disabled for map",mapName,"teamcount:",allyTeamCount)
+
 			return
 		end
 
-		local count = GetAllyTeamCount(false)
+		local mapStartBoxes = Configuration.gameConfig.mapStartBoxes
+		externalFunctions.RemovePolygonOverlays()
+		externalFunctions.RemoveStartRect()
+		mapStartBoxes.clearBoxes()
+
+		-- Matches interface_skirmish: the encoded set modoption is only sent when the
+		-- map has polygon data, so without it the launch is startrects only.
+		local polygonConfig = mapStartBoxes.loadPolygonStartboxes
+			and mapStartBoxes.loadPolygonStartboxes(mapName, allyTeamCount)
+		arrangementActive = (polygonConfig ~= nil)
+
+		if polygonConfig then
+			externalFunctions.AddPolygonStartboxes(polygonConfig, allyTeamCount)
+		else
+			local startBoxes = mapStartBoxes.selectStartBoxesForAllyTeamCount(mapStartBoxes.savedBoxes[mapName], allyTeamCount)
+			if startBoxes then
+				for i = 1, allyTeamCount do
+					if startBoxes[i] then
+						externalFunctions.AddStartRect(i-1,200*startBoxes[i][1],200*startBoxes[i][2],200*startBoxes[i][3],200*startBoxes[i][4])
+					end
+				end
+			else
+				-- !split v 20
+				externalFunctions.AddStartRect(0,0,0,40,200)
+				externalFunctions.AddStartRect(1,160,0,200,200)
+			end
+		end
+
+		StartBoxComboBoxSelectDefault()
+	end
+
+	-- Nothing announces a team-count change: no modoption echo, no SPADS message, and
+	-- Add Team fires no lobby event at all. Hence driven off the minimap tick, gated on
+	-- the count actually changing so a rebuild never lands mid-edit.
+	function externalFunctions.RefreshStartboxesOnTeamChange()
+		local isSingleplayer = (battleLobby.name == "singleplayer")
+		local count = GetAllyTeamCount(isSingleplayer)
 		if count == renderedAllyTeamCount then
+			return
+		end
+
+		if isSingleplayer then
+			ApplySingleplayerDefaultBoxes(startBoxMapName, count)
+
 			return
 		end
 
@@ -5331,6 +5407,7 @@ function BattleRoomWindow.UpdateMinimapstartBoxes()
 		infoHandler.rightInfo:Invalidate()
 		infoHandler.UpdateStartRectPositionsInMinimap()
 		infoHandler.rightInfo:UpdateClientArea()
+		RefreshStartButtonForStartboxes()
 	end
 
 	if WG.Delay then
