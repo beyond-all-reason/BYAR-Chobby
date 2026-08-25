@@ -2174,10 +2174,10 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 
 		if overrideConfig then
 			arrangementActive = true
-			-- Spare boxes past the team count keep rendering: the game accepts an
-			-- override with more boxes than teams, and dropping them mid-edit would
-			-- look like the box the player just added never took.
-			RenderArrangement(overrideConfig, overrideHasPolygon, math.max(allyTeamCount, #overrideConfig))
+			-- Every override box renders, spares included: someone in the room made
+			-- these by hand, so hiding the one they just added reads as a bug. The
+			-- game takes an override with more boxes than teams too.
+			RenderArrangement(overrideConfig, overrideHasPolygon, #overrideConfig)
 
 			return
 		end
