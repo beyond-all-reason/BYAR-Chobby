@@ -243,29 +243,28 @@ function InterfaceSkirmish:_StartScript(gameName, mapName, playerName, friendLis
 
 	local startBoxes  = nil
 	local polygonConfig = nil
-	--if Configuration.gameConfig.mapStartBoxes then
-	--  Spring.Echo("Number of mapStartBoxes is",#Configuration.gameConfig.mapStartBoxes, allyTeamCount)
-	--end
+	local customBoxes = nil
 
 	if Configuration.gameConfig and
 		Configuration.gameConfig.useDefaultStartBoxes and
 		Configuration.gameConfig.mapStartBoxes then
 
-		if Configuration.gameConfig.mapStartBoxes.loadPolygonStartboxes then
-			polygonConfig = Configuration.gameConfig.mapStartBoxes.loadPolygonStartboxes(mapName, allyTeamCount)
+		local mapStartBoxes = Configuration.gameConfig.mapStartBoxes
+
+		if mapStartBoxes.loadStartboxesSet then
+			polygonConfig = mapStartBoxes.loadStartboxesSet(mapName, allyTeamCount)
 		end
 
-		if polygonConfig then
-			Spring.Echo("Skirmish: Using polygon startboxes for", mapName)
-		elseif Configuration.gameConfig.mapStartBoxes.singleplayerboxes and next(Configuration.gameConfig.mapStartBoxes.singleplayerboxes) ~= nil then
-			startBoxes = Configuration.gameConfig.mapStartBoxes.singleplayerboxes
+		if mapStartBoxes.singleplayerboxes and next(mapStartBoxes.singleplayerboxes) ~= nil then
+			customBoxes = mapStartBoxes.singleplayerboxes
+			startBoxes = customBoxes
 			Spring.Echo("Skirmish: Using custom startboxes",startBoxes)
-			--Spring.Echo(Spring.Utilities.TableToString(startBoxes))
-		elseif Configuration.gameConfig.mapStartBoxes.savedBoxes and
-			Configuration.gameConfig.mapStartBoxes.savedBoxes[mapName] then
-			startBoxes = Configuration.gameConfig.mapStartBoxes.savedBoxes[mapName]
+		elseif polygonConfig then
+			Spring.Echo("Skirmish: Using the map startboxes set for", mapName)
+		elseif mapStartBoxes.savedBoxes and mapStartBoxes.savedBoxes[mapName] then
+			startBoxes = mapStartBoxes.savedBoxes[mapName]
 			Spring.Echo("Skirmish: Using default startboxes",startBoxes)
-			startBoxes = Configuration.gameConfig.mapStartBoxes.selectStartBoxesForAllyTeamCount(startBoxes,allyTeamCount)
+			startBoxes = mapStartBoxes.selectStartBoxesForAllyTeamCount(startBoxes,allyTeamCount)
 		end
 	else
 		Spring.Echo("No map startBoxes found or disabled for map",mapName)
@@ -273,7 +272,7 @@ function InterfaceSkirmish:_StartScript(gameName, mapName, playerName, friendLis
 
 	for i, teamData in pairs(teams) do
 		if not allyTeams[teamData.AllyTeam] then
-			if polygonConfig then
+			if polygonConfig and not startBoxes then
 				allyTeams[teamData.AllyTeam] = Configuration.gameConfig.mapStartBoxes.makeAllyTeamBoxFromPolygon(polygonConfig, teamData.AllyTeam)
 		    elseif startBoxes then
 				allyTeams[teamData.AllyTeam] = Configuration.gameConfig.mapStartBoxes.makeAllyTeamBox(startBoxes,teamData.AllyTeam)
@@ -339,14 +338,19 @@ function InterfaceSkirmish:_StartScript(gameName, mapName, playerName, friendLis
 	script.modoptions["date_year"] = os.date("%Y")
 	script.modoptions["date_hour"] = os.date("%H")
 
-	-- script.modoptions aliases self.modoptions and persists across launches, so a set
-	-- from a previously launched polygon map would leak into this one; clear before re-adding.
+	-- script.modoptions aliases self.modoptions and persists across launches, so boxes
+	-- from a previously launched map would leak into this one; clear before re-adding.
 	script.modoptions["mapmetadata_startboxes_set"] = nil
-	if polygonConfig and Configuration.gameConfig.mapStartBoxes
-			and Configuration.gameConfig.mapStartBoxes.encodeStartboxesSetModoption then
-		local encoded = Configuration.gameConfig.mapStartBoxes.encodeStartboxesSetModoption(polygonConfig)
-		if encoded then
-			script.modoptions["mapmetadata_startboxes_set"] = encoded
+	script.modoptions["mapmetadata_startbox_override"] = nil
+	local mapStartBoxes = Configuration.gameConfig and Configuration.gameConfig.mapStartBoxes
+	if mapStartBoxes then
+		if polygonConfig and mapStartBoxes.encodeStartboxesSetModoption then
+			script.modoptions["mapmetadata_startboxes_set"] =
+				mapStartBoxes.encodeStartboxesSetModoption(polygonConfig) or nil
+		end
+		if customBoxes and mapStartBoxes.encodeStartboxOverrideModoption then
+			script.modoptions["mapmetadata_startbox_override"] =
+				mapStartBoxes.encodeStartboxOverrideModoption(customBoxes) or nil
 		end
 	end
 

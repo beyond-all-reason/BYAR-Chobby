@@ -2064,10 +2064,28 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 
 	local renderedAllyTeamCount
 
-	-- Singleplayer reads polygon data from local mapDetails; multiplayer must render
-	-- only what the server says (modoptions), or the lobby can show boxes the game
-	-- won't use. The team count picks the arrangement, so this runs again whenever it
-	-- moves rather than only on map change.
+	local function RenderArrangement(config, hasPolygon, boxCount)
+		if hasPolygon then
+			externalFunctions.AddPolygonStartboxes(config, boxCount)
+
+			return
+		end
+
+		externalFunctions.RemovePolygonOverlays()
+		externalFunctions.RemoveStartRect()
+		for i = 1, boxCount do
+			local entry = config[i]
+			if entry and entry.boundingBox then
+				local box = entry.boundingBox
+				externalFunctions.AddStartRect(i - 1, box.left, box.top, box.right, box.bottom)
+			end
+		end
+	end
+
+	-- Skirmish reads its set from the local mapDetails where multiplayer reads the
+	-- modoption, and renders it through the same path from there. savedBoxes.dat is
+	-- only for maps with no set at all. The team count picks the arrangement, so this
+	-- runs again whenever it moves rather than only on map change.
 	function ApplySingleplayerDefaultBoxes(mapName, allyTeamCount)
 		local Configuration = WG.Chobby and WG.Chobby.Configuration
 		renderedAllyTeamCount = allyTeamCount
@@ -2086,11 +2104,13 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		externalFunctions.RemoveStartRect()
 		mapStartBoxes.clearBoxes()
 
-		local polygonConfig = mapStartBoxes.loadPolygonStartboxes
-			and mapStartBoxes.loadPolygonStartboxes(mapName, allyTeamCount)
+		local setConfig, setHasPolygon
+		if mapStartBoxes.loadStartboxesSet then
+			setConfig, setHasPolygon = mapStartBoxes.loadStartboxesSet(mapName, allyTeamCount)
+		end
 
-		if polygonConfig then
-			externalFunctions.AddPolygonStartboxes(polygonConfig, allyTeamCount)
+		if setConfig then
+			RenderArrangement(setConfig, setHasPolygon, allyTeamCount)
 		else
 			local startBoxes = mapStartBoxes.selectStartBoxesForAllyTeamCount(mapStartBoxes.savedBoxes[mapName], allyTeamCount)
 			if startBoxes then
@@ -2126,24 +2146,6 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		end
 
 		externalFunctions.RefreshStartboxes()
-	end
-
-	local function RenderArrangement(config, hasPolygon, boxCount)
-		if hasPolygon then
-			externalFunctions.AddPolygonStartboxes(config, boxCount)
-
-			return
-		end
-
-		externalFunctions.RemovePolygonOverlays()
-		externalFunctions.RemoveStartRect()
-		for i = 1, boxCount do
-			local entry = config[i]
-			if entry and entry.boundingBox then
-				local box = entry.boundingBox
-				externalFunctions.AddStartRect(i - 1, box.left, box.top, box.right, box.bottom)
-			end
-		end
 	end
 
 	-- MP render priority: override modoption > startboxes set modoption > SPADS
