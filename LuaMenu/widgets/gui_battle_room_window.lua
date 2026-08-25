@@ -30,8 +30,9 @@ local startRectValues = {} -- for exporting the raw values
 local spadsRectValues = {} -- SPADS-sent AABBs, tracked even while not rendered
 local polygonStartboxesActive = false
 local activePolygonConfig = nil
--- true while the boxes on screen come from a modoption arrangement. SPADS' own rects
--- are bookkeeping while it is set: the game resolves the modoption ahead of them.
+-- Multiplayer only: true while the boxes on screen come from a modoption arrangement.
+-- SPADS' own rects are bookkeeping while it is set, since the game resolves the
+-- modoption ahead of them.
 local arrangementActive = false
 -- false while a custom preset is applied; true once defaults reload.
 local defaultStartboxMode = true
@@ -1998,12 +1999,12 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		return currentStartRects
 	end
 
-	-- An arrangement only boxes in the allyteams it covers; the rest keep whatever the
-	-- engine startrect holds (resolveArrangement in the game's startbox_utilities.lua),
-	-- so they start somewhere the lobby never showed. Rooms with no arrangement are the
-	-- old startrect-only world and are left alone.
+	-- We launch with the boxes we drew, and an allyteam without one falls back to the
+	-- engine's own start box, which covers the whole map. Counted the same way for
+	-- skirmish and multiplayer, rects and polygons, sets and overrides; an empty table
+	-- means the boxes have not arrived yet rather than that a team is missing one.
 	function externalFunctions.GetStartboxShortfallMessage()
-		if not arrangementActive then
+		if next(startRectValues) == nil then
 			return nil
 		end
 
@@ -2085,11 +2086,8 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		externalFunctions.RemoveStartRect()
 		mapStartBoxes.clearBoxes()
 
-		-- Matches interface_skirmish: the encoded set modoption is only sent when the
-		-- map has polygon data, so without it the launch is startrects only.
 		local polygonConfig = mapStartBoxes.loadPolygonStartboxes
 			and mapStartBoxes.loadPolygonStartboxes(mapName, allyTeamCount)
-		arrangementActive = (polygonConfig ~= nil)
 
 		if polygonConfig then
 			externalFunctions.AddPolygonStartboxes(polygonConfig, allyTeamCount)
