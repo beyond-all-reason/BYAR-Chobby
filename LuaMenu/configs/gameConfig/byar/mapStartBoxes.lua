@@ -292,7 +292,7 @@ end
 local function decodeStartboxesSet(encoded, allyTeamCount)
   if not encoded or encoded == "" or encoded == "0" then return nil end
   local startboxesSet = parseStartboxesSet(encoded)
-  if not startboxesSet or #startboxesSet == 0 then return nil end
+  if not startboxesSet or #startboxesSet == 0 then return nil, nil, true end
 
   local ok, config, hasPolygon = pcall(function()
     local arrangement = selectArrangementForAllyTeamCount(startboxesSet, allyTeamCount or 2)
@@ -300,28 +300,30 @@ local function decodeStartboxesSet(encoded, allyTeamCount)
 
     return buildPolygonConfig(arrangement), arrangementHasPolygon(arrangement)
   end)
-  if not ok then
+  if not ok or not config then
     Spring.Log("mapStartBoxes", LOG.WARNING, "Skipping malformed startboxes set modoption")
-    return nil
+    return nil, nil, true
   end
 
   return config, hasPolygon
 end
 
 -- Game accepts 3+ point polygons here (expandPoly), so this has to as well.
+-- Third return marks a value that was set but unusable, so the lobby can say so
+-- rather than quietly showing the map default boxes.
 local function decodeStartboxOverride(encoded)
   if not encoded or encoded == "" or encoded == "0" then return nil end
   local parsed = decodeBlob(encoded)
-  if not parsed or type(parsed.startboxes) ~= "table" then return nil end
-  if #parsed.startboxes == 0 then return nil end
+  if not parsed or type(parsed.startboxes) ~= "table" then return nil, nil, true end
+  if #parsed.startboxes == 0 then return nil, nil, true end
 
   for _, box in ipairs(parsed.startboxes) do
     local poly = type(box) == "table" and box.poly
-    if type(poly) ~= "table" or #poly < 2 then return nil end
+    if type(poly) ~= "table" or #poly < 2 then return nil, nil, true end
     for _, point in ipairs(poly) do
-      if type(point) ~= "table" then return nil end
+      if type(point) ~= "table" then return nil, nil, true end
       local x, y = tonumber(point.x), tonumber(point.y)
-      if not (x and y) then return nil end
+      if not (x and y) then return nil, nil, true end
       point.x, point.y = x, y
     end
   end
@@ -329,7 +331,7 @@ local function decodeStartboxOverride(encoded)
   local ok, config = pcall(buildPolygonConfig, parsed)
   if not ok or not config then
     Spring.Log("mapStartBoxes", LOG.WARNING, "Skipping malformed startbox override modoption")
-    return nil
+    return nil, nil, true
   end
 
   return config, arrangementHasPolygon(parsed)

@@ -57,6 +57,8 @@ local MINIMAP_TOOLTIP_PREFIX = "minimap_tooltip_"
 local MINIMUM_QUICKPLAY_PLAYERS = 4 -- Hax until the server tells me a number.
 
 local lastUserToChangeStartBoxes = ''
+local reportedStartboxDecodeFailures = {}
+local AddLocalBattleWarning
 
 local readyButton
 local btnStartBattle = nil
@@ -330,6 +332,24 @@ local function ApplySingleplayerSkirmishSetup(singleplayerDefault)
 	end, 0.12)
 end
 
+-- Every client decodes the same modoption, so the ones that cannot read it complain
+-- locally instead of each pushing a message into the room.
+local function ReportStartboxDecodeFailure(modoptionName, failedValue, message)
+	if not failedValue then
+		reportedStartboxDecodeFailures[modoptionName] = nil
+
+		return
+	end
+
+	if reportedStartboxDecodeFailures[modoptionName] == failedValue or not AddLocalBattleWarning then
+		return
+	end
+	reportedStartboxDecodeFailures[modoptionName] = failedValue
+
+	Spring.Log("Chobby gui_battle_room_window.lua", LOG.WARNING, "Could not decode " .. modoptionName)
+	AddLocalBattleWarning(message)
+end
+
 local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUserName, showRandomSkirmishButton)
 	local config = WG.Chobby.Configuration
 	local minimapBottomClearance = 172
@@ -366,9 +386,17 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 			return
 		end
 
+		local encoded = mapStartBoxes.encodeStartboxOverrideModoption(startRectValues)
+		if not encoded and next(startRectValues) ~= nil then
+			if AddLocalBattleWarning then
+				AddLocalBattleWarning("These start boxes could not be encoded, so they were not sent to the room.")
+			end
+
+			return
+		end
+
 		-- "0" rather than "" when clearing: SPADS drops empty values on the floor
 		-- (sendBattleSetting skips ''), same trick as gui_modoptions_panel.
-		local encoded = mapStartBoxes.encodeStartboxOverrideModoption(startRectValues)
 		battleLobby:SetModOptions({ mapmetadata_startbox_override = encoded or "0" })
 
 		-- Boxes stay on whatever the server currently holds until the echo says
@@ -2058,11 +2086,14 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		renderedAllyTeamCount = GetAllyTeamCount(false)
 		local allyTeamCount = renderedAllyTeamCount
 
-		local overrideConfig, overrideHasPolygon
+		local overrideConfig, overrideHasPolygon, overrideUnreadable
 		if mapStartBoxes and mapStartBoxes.decodeStartboxOverride then
-			overrideConfig, overrideHasPolygon =
+			overrideConfig, overrideHasPolygon, overrideUnreadable =
 				mapStartBoxes.decodeStartboxOverride(modoptions.mapmetadata_startbox_override)
 		end
+		ReportStartboxDecodeFailure("mapmetadata_startbox_override",
+			overrideUnreadable and modoptions.mapmetadata_startbox_override,
+			"The custom start boxes in this room could not be read, so the game will use the map default boxes.")
 		defaultStartboxMode = (overrideConfig == nil)
 
 		if overrideConfig then
@@ -2075,12 +2106,15 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 			return
 		end
 
-		local setConfig, setHasPolygon
+		local setConfig, setHasPolygon, setUnreadable
 		if Configuration.gameConfig and Configuration.gameConfig.useDefaultStartBoxes
 				and mapStartBoxes and mapStartBoxes.decodeStartboxesSet then
-			setConfig, setHasPolygon =
+			setConfig, setHasPolygon, setUnreadable =
 				mapStartBoxes.decodeStartboxesSet(modoptions.mapmetadata_startboxes_set, allyTeamCount)
 		end
+		ReportStartboxDecodeFailure("mapmetadata_startboxes_set",
+			setUnreadable and modoptions.mapmetadata_startboxes_set,
+			"The map start boxes for this room could not be read, so the game will fall back to its own boxes.")
 
 		if setConfig then
 			arrangementActive = true
@@ -4239,6 +4273,10 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	local battleRoomConsole = WG.Chobby.Console("Battleroom Chat", MessageListener, true, nil, true)
 	WG.BattleRoomChatInput = battleRoomConsole.ebInputText
 
+	AddLocalBattleWarning = function(message)
+		battleRoomConsole:AddMessage(message, nil, nil, Configuration.warningColor, true)
+	end
+
 	-- Oversized paste: throttle multiplayer or apply via singleplayer MessageListener (SPADS / UI).
 	do
 		local chatInput = battleRoomConsole.ebInputText
@@ -5066,6 +5104,8 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		WG.BattleStatusPanel.RemoveBattleTab()
 		WG.BattleRoomChatInput = nil
 		WG.BattleRoomInlineProgress = nil
+		AddLocalBattleWarning = nil
+		reportedStartboxDecodeFailures = {}
 	end
 
 	mainWindow.OnDispose = mainWindow.OnDispose or {}
