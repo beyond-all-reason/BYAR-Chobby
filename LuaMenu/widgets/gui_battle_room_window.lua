@@ -5001,9 +5001,9 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 
 	-- SPADS keeps sending its own rects (map change, !addbox, !loadboxes) but the game
 	-- resolves the modoption arrangement ahead of them, so they only reach the minimap
-	-- when no arrangement claims the boxes and the player isn't mid-edit.
+	-- when neither an arrangement nor a custom override claims the boxes.
 	local function SpadsRectsRendered()
-		return battleLobby.name == "singleplayer" or (not arrangementActive and defaultStartboxMode)
+		return not arrangementActive and defaultStartboxMode
 	end
 
 	local function OnRemoveStartRect(listener, allyNo)
