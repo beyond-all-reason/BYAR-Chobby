@@ -30,8 +30,10 @@ local startRectValues = {} -- for exporting the raw values
 local spadsRectValues = {} -- SPADS-sent AABBs, tracked even while not rendered
 local polygonStartboxesActive = false
 local activePolygonConfig = nil
--- false while a custom preset is applied; true once defaults reload. Drives whether
--- AddStartRect renders SPADS-sent AABBs or defers to the polygon overlay.
+-- true while the boxes on screen come from a modoption arrangement. SPADS' own rects
+-- are bookkeeping while it is set: the game resolves the modoption ahead of them.
+local arrangementActive = false
+-- false while a custom preset is applied; true once defaults reload.
 local defaultStartboxMode = true
 
 local singleplayerWrapper
@@ -355,9 +357,9 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		return count
 	end
 
-	-- Custom boxes travel as the mapmetadata_startbox_override modoption only;
-	-- one !bSet per edit (one vote), no !addbox/!split/!clearbox. The game and
-	-- every client render from the modoption once SPADS echoes it back.
+	-- Custom boxes travel as the mapmetadata_startbox_override modoption, one !bSet
+	-- per edit (one vote). The game and every client render from the modoption once
+	-- SPADS echoes it back.
 	local function SendStartboxOverride()
 		local mapStartBoxes = WG.Chobby.Configuration.gameConfig and WG.Chobby.Configuration.gameConfig.mapStartBoxes
 		if not (mapStartBoxes and mapStartBoxes.encodeStartboxOverrideModoption) then
@@ -476,8 +478,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 				if selected == "Default Boxes" then
 					local function defaultBoxes()
 						-- Leaving custom boxes: clear the override so the game uses the
-						-- default set. SPADS' own boxes were never touched (no !addbox in
-						-- this flow), so there is nothing to !loadboxes back.
+						-- default set.
 						if battleLobby.name == "singleplayer" then
 							defaultStartboxMode = true
 							battleLobby:SelectMap(battle.mapName)
@@ -1835,11 +1836,6 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		-- Capture happens before the early return so script export works in either mode.
 		startRectValues[allyNo+1]={["left"]=left, ["top"]=top, ["right"]=right, ["bottom"]=bottom}
 
-		-- SPADS-sent AABBs in default mode are bounding boxes of the polygons we're already drawing.
-		if polygonStartboxesActive and defaultStartboxMode then
-			return
-		end
-
 		if polygonStartboxesActive then
 			externalFunctions.RemovePolygonOverlays()
 		end
@@ -1974,6 +1970,18 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		return currentStartRects
 	end
 
+	function externalFunctions.ApplyStartBoxes(boxes)
+		externalFunctions.RemovePolygonOverlays()
+		externalFunctions.RemoveStartRect()
+		for i, box in ipairs(boxes) do
+			externalFunctions.AddStartRect(i - 1, box.left, box.top, box.right, box.bottom)
+		end
+
+		if battleLobby.name ~= "singleplayer" then
+			SendStartboxOverride()
+		end
+	end
+
 	-- Chosen to match the rectangular startbox_window's TileImage skin.
 	local polygonFillColor = {0.1, 0.1, 0.1, 0.7}
 	local polygonBorderColor = {1, 1, 1, 0.7}
@@ -2018,7 +2026,25 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		externalFunctions.RefreshStartboxes()
 	end
 
-	-- MP render priority: override modoption > set modoption (polygons) > SPADS
+	local function RenderArrangement(config, hasPolygon, boxCount)
+		if hasPolygon then
+			externalFunctions.AddPolygonStartboxes(config, boxCount)
+
+			return
+		end
+
+		externalFunctions.RemovePolygonOverlays()
+		externalFunctions.RemoveStartRect()
+		for i = 1, boxCount do
+			local entry = config[i]
+			if entry and entry.boundingBox then
+				local box = entry.boundingBox
+				externalFunctions.AddStartRect(i - 1, box.left, box.top, box.right, box.bottom)
+			end
+		end
+	end
+
+	-- MP render priority: override modoption > startboxes set modoption > SPADS
 	-- engine rects. Modoptions arrive via SETSCRIPTTAGS once SPADS applies the
 	-- !bSet, so every client (the editor included) re-renders from server state.
 	function externalFunctions.RefreshStartboxes()
@@ -2030,40 +2056,40 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		local mapStartBoxes = Configuration.gameConfig and Configuration.gameConfig.mapStartBoxes
 		local modoptions = battleLobby.modoptions or {}
 		renderedAllyTeamCount = GetAllyTeamCount(false)
+		local allyTeamCount = renderedAllyTeamCount
 
 		local overrideConfig, overrideHasPolygon
 		if mapStartBoxes and mapStartBoxes.decodeStartboxOverride then
 			overrideConfig, overrideHasPolygon =
 				mapStartBoxes.decodeStartboxOverride(modoptions.mapmetadata_startbox_override)
 		end
+		defaultStartboxMode = (overrideConfig == nil)
+
 		if overrideConfig then
-			defaultStartboxMode = false
-			if overrideHasPolygon then
-				externalFunctions.AddPolygonStartboxes(overrideConfig, renderedAllyTeamCount)
-			else
-				externalFunctions.RemovePolygonOverlays()
-				externalFunctions.RemoveStartRect()
-				for i, entry in ipairs(overrideConfig) do
-					local box = entry.boundingBox
-					externalFunctions.AddStartRect(i - 1, box.left, box.top, box.right, box.bottom)
-				end
-			end
+			arrangementActive = true
+			-- Spare boxes past the team count keep rendering: the game accepts an
+			-- override with more boxes than teams, and dropping them mid-edit would
+			-- look like the box the player just added never took.
+			RenderArrangement(overrideConfig, overrideHasPolygon, math.max(allyTeamCount, #overrideConfig))
 
 			return
 		end
 
-		defaultStartboxMode = true
-		local allyTeamCount = renderedAllyTeamCount
+		local setConfig, setHasPolygon
+		if Configuration.gameConfig and Configuration.gameConfig.useDefaultStartBoxes
+				and mapStartBoxes and mapStartBoxes.decodeStartboxesSet then
+			setConfig, setHasPolygon =
+				mapStartBoxes.decodeStartboxesSet(modoptions.mapmetadata_startboxes_set, allyTeamCount)
+		end
 
-		local polygonConfig = Configuration.gameConfig and Configuration.gameConfig.useDefaultStartBoxes
-			and mapStartBoxes and mapStartBoxes.loadPolygonStartboxesFromBlob
-			and mapStartBoxes.loadPolygonStartboxesFromBlob(modoptions.mapmetadata_startboxes_set, allyTeamCount)
-		if polygonConfig then
-			externalFunctions.AddPolygonStartboxes(polygonConfig, allyTeamCount)
+		if setConfig then
+			arrangementActive = true
+			RenderArrangement(setConfig, setHasPolygon, allyTeamCount)
 
 			return
 		end
 
+		arrangementActive = false
 		externalFunctions.RemovePolygonOverlays()
 		externalFunctions.RemoveStartRect()
 		for i, rect in pairs(spadsRectValues) do
@@ -4272,6 +4298,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		if battleID == closedBattleID and mainWindow then
 			polygonStartboxesActive = false
 			activePolygonConfig = nil
+			arrangementActive = false
 			mainWindow:Dispose()
 			mainWindow = nil
 			if wrapperControl and wrapperControl.visible and wrapperControl.parent then
@@ -4638,15 +4665,6 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		end
 		if string.match(message, "%(mapmetadata_startbox_override=") then return true end
 
-		-- Every client sees this confirmation, so clearing the override here would put
-		-- one !bSet per client on the wire; the sender does it (see ParseUserMessage).
-		-- Plain find because map names carry quotes and non-word characters.
-		if string.find(message, "Loaded boxes of map", 1, true) then
-			infoHandler.RefreshStartboxes()
-			StartBoxComboBoxSelectDefault()
-			return false
-		end
-
 		-- Restore default position on startbox selector when map, preset or teamcount changes
 		if string.match(message, "Global setting changed by .- %((nbTeams=%d+)%)$")
 		or string.match(message, "Map changed by .-%: .+$")
@@ -4686,17 +4704,6 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 
 	local function ParseUserMessage(userName,message) -- returns hidemessage bool
 		local mine = userName == battleLobby:GetMyUserName() 
-
-		if string.match(message, "^!split ") or string.match(message, "^!addbox ") then
-			lastUserToChangeStartBoxes = userName
-			if not mine then return true end
-		end
-
-		-- SPADS reloading its own boxes says nothing about the override, which outranks
-		-- them in game; clear it from the sender only so the room gets one !bSet.
-		if mine and string.match(message, "^!loadboxes") then
-			battleLobby:SetModOptions({ mapmetadata_startbox_override = "0" })
-		end
 
 		-- The startbox override is an opaque base64 blob; never show its !bSet in chat.
 		if string.match(message, "^!b[Ss]et mapmetadata_startbox_override") then return true end
@@ -4878,12 +4885,17 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		battleRoomConsole:AddMessage(message, userName, false, chatColour, true)
 	end
 
+	-- SPADS keeps sending its own rects (map change, !addbox, !loadboxes) but the game
+	-- resolves the modoption arrangement ahead of them, so they only reach the minimap
+	-- when no arrangement claims the boxes and the player isn't mid-edit.
+	local function SpadsRectsRendered()
+		return battleLobby.name == "singleplayer" or (not arrangementActive and defaultStartboxMode)
+	end
+
 	local function OnRemoveStartRect(listener, allyNo)
 		--Spring.Log("Chobby gui_battle_room_window.lua",LOG.INFO,"OnRemoveStartRect", allyNo)
 		spadsRectValues[allyNo + 1] = nil
-		-- While an override is active, SPADS' rects are default-box bookkeeping:
-		-- track them for the fallback render but leave the override boxes alone.
-		if battleLobby.name ~= "singleplayer" and not defaultStartboxMode then
+		if not SpadsRectsRendered() then
 			return
 		end
 		infoHandler.RemoveStartRect(allyNo)
@@ -4892,7 +4904,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	local function OnAddStartRect(listener, allyNo, left, top, right, bottom)
 		--Spring.Log("Chobby gui_battle_room_window.lua",LOG.WARNING,"OnAddStartRect", allyNo, left, top, right, bottom)
 		spadsRectValues[allyNo + 1] = {left = left, top = top, right = right, bottom = bottom}
-		if battleLobby.name ~= "singleplayer" and not defaultStartboxMode then
+		if not SpadsRectsRendered() then
 			return
 		end
 		infoHandler.AddStartRect(allyNo, left, top, right, bottom)
@@ -5355,12 +5367,20 @@ function BattleRoomWindow.GetCurrentStartRects()
 end
 
 function BattleRoomWindow.AddStartRect(allyNo, left, top, right, bottom)
-	if battleLobby.name == "singleplayer" then
-		local infoHandler = mainWindowFunctions.GetInfoHandler()
-		infoHandler.AddStartRect(allyNo, left, top, right, bottom)
-	else
-		battleLobby:SayBattle(string.format("!addbox %d %d %d %d %s", left, top, right, bottom, allyNo+1))
+	if battleLobby.name ~= "singleplayer" then
+		return
 	end
+
+	local infoHandler = mainWindowFunctions.GetInfoHandler()
+	infoHandler.AddStartRect(allyNo, left, top, right, bottom)
+end
+
+function BattleRoomWindow.ApplyStartBoxes(boxes)
+	if not (mainWindowFunctions and mainWindowFunctions.GetInfoHandler()) then
+		return
+	end
+
+	mainWindowFunctions.GetInfoHandler().ApplyStartBoxes(boxes)
 end
 
 function BattleRoomWindow.RemoveStartRect(allyNo)

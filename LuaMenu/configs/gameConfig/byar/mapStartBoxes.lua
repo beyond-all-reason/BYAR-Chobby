@@ -175,7 +175,7 @@ local function decodeBlob(encoded)
   return parsed
 end
 
-local function decodeStartboxesSet(encoded)
+local function parseStartboxesSet(encoded)
   local parsed = decodeBlob(encoded)
   if not parsed then return nil end
   -- parsed is keyed by team count; flatten to the array the selector expects.
@@ -190,7 +190,7 @@ local function getStartboxesSet(mapName)
   local cached = startboxesSetByMap[mapName]
   if cached ~= nil then return cached or nil end
   local entry = mapDetails[mapName]
-  local arrangements = entry and entry.StartboxesSet and decodeStartboxesSet(entry.StartboxesSet)
+  local arrangements = entry and entry.StartboxesSet and parseStartboxesSet(entry.StartboxesSet)
   if entry and entry.StartboxesSet and not arrangements then
     Spring.Log("mapStartBoxes", LOG.WARNING, "Could not decode StartboxesSet for", mapName)
   end
@@ -287,22 +287,25 @@ end
 
 -- MP twin of loadPolygonStartboxes: same selection and build, but fed by the
 -- server-set mapmetadata_startboxes_set modoption instead of local mapDetails.
-local function loadPolygonStartboxesFromBlob(encoded, allyTeamCount)
+-- Rect-only arrangements come back too: the game resolves this modoption ahead of
+-- the engine startrects, so the lobby has to draw the arrangement either way.
+local function decodeStartboxesSet(encoded, allyTeamCount)
   if not encoded or encoded == "" or encoded == "0" then return nil end
-  local startboxesSet = decodeStartboxesSet(encoded)
+  local startboxesSet = parseStartboxesSet(encoded)
   if not startboxesSet or #startboxesSet == 0 then return nil end
 
-  local ok, config = pcall(function()
+  local ok, config, hasPolygon = pcall(function()
     local arrangement = selectArrangementForAllyTeamCount(startboxesSet, allyTeamCount or 2)
-    if not arrangement or not arrangementHasPolygon(arrangement) then return nil end
-    return buildPolygonConfig(arrangement)
+    if not arrangement then return nil end
+
+    return buildPolygonConfig(arrangement), arrangementHasPolygon(arrangement)
   end)
   if not ok then
     Spring.Log("mapStartBoxes", LOG.WARNING, "Skipping malformed startboxes set modoption")
     return nil
   end
 
-  return config
+  return config, hasPolygon
 end
 
 -- Game accepts 3+ point polygons here (expandPoly), so this has to as well.
@@ -478,7 +481,7 @@ return {
   encodeStartboxesSetModoption = encodeStartboxesSetModoption,
   encodeStartboxOverrideModoption = encodeStartboxOverrideModoption,
   loadPolygonStartboxes = loadPolygonStartboxes,
-  loadPolygonStartboxesFromBlob = loadPolygonStartboxesFromBlob,
+  decodeStartboxesSet = decodeStartboxesSet,
   decodeStartboxOverride = decodeStartboxOverride,
   getBox = getBox,
   clearBoxes = clearBoxes,
