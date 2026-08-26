@@ -878,11 +878,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 
 					if battleLobby.name == "singleplayer" then
 						local Configuration = WG.Chobby.Configuration
-						if Configuration.gameConfig.mapStartBoxes.singleplayerboxes then
-							if currentStartRects ~= {} then
-								Configuration.gameConfig.mapStartBoxes.singleplayerboxes = currentStartRects
-							end
-						end
+						Configuration.gameConfig.mapStartBoxes.setBoxes(currentStartRects)
 						battle.startPosType = Configuration.singleplayerStartPosType ~= nil and Configuration.singleplayerStartPosType or 2
 						WG.Analytics.SendOnetimeEvent("lobby:singleplayer:skirmish:start")
 						WG.SteamCoopHandler.AttemptGameStart("skirmish", battle.gameName, battle.mapName)
@@ -1942,7 +1938,6 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 
 						obj:Invalidate() --doesnt do much
 						if battleLobby.name == "singleplayer" then
-							WG.Chobby.Configuration.gameConfig.mapStartBoxes.addBox(l,t,r,b,obj.caption)
 							obj.spadsSizes = {left = l, top = t, right = r, bottom = b, caption = obj.caption}
 						else
 							obj.spadsSizes = {left = l, top = t, right = r, bottom = b, caption = obj.caption}
@@ -2036,6 +2031,62 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		end
 	end
 
+	-- Rows across the 0-200 startbox space. The minimap is a couple of hundred pixels tall, so
+	-- one row per unit is finer than a pixel and the seams do not show.
+	local POLYGON_FILL_ROWS = 200
+
+	-- Even-odd scanline spans, the same rule the game's own inside test uses, so a box that
+	-- excludes its middle shades the same in both places. A triangle fan cannot express that:
+	-- it fills from a centre point outwards and swallows any hole.
+	local function BuildPolygonFillSpans(polygon)
+		local spans = {}
+		local n = #polygon
+		if n < 3 then
+			return spans
+		end
+
+		local minY, maxY = math.huge, -math.huge
+		for i = 1, n do
+			local y = polygon[i][2]
+			minY = math.min(minY, y)
+			maxY = math.max(maxY, y)
+		end
+
+		local step = 200 / POLYGON_FILL_ROWS
+		local crossings = {}
+		local rowTop = minY
+		while rowTop < maxY do
+			local y = rowTop + (step * 0.5)
+			local count = 0
+			for i = 1, n do
+				local a = polygon[i]
+				local b = polygon[(i % n) + 1]
+				if (a[2] > y) ~= (b[2] > y) then
+					count = count + 1
+					crossings[count] = b[1] + (y - b[2]) * (a[1] - b[1]) / (a[2] - b[2])
+				end
+			end
+
+			-- Insertion sort: a scanline crosses a handful of edges even on a busy polygon.
+			for i = 2, count do
+				local value, k = crossings[i], i - 1
+				while k > 0 and crossings[k] > value do
+					crossings[k + 1] = crossings[k]
+					k = k - 1
+				end
+				crossings[k + 1] = value
+			end
+
+			for i = 1, count - 1, 2 do
+				spans[#spans + 1] = { crossings[i], rowTop, crossings[i + 1], math.min(rowTop + step, maxY) }
+			end
+
+			rowTop = rowTop + step
+		end
+
+		return spans
+	end
+
 	-- Chosen to match the rectangular startbox_window's TileImage skin.
 	local polygonFillColor = {0.1, 0.1, 0.1, 0.7}
 	local polygonBorderColor = {1, 1, 1, 0.7}
@@ -2121,7 +2172,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 					end
 				end
 			else
-				-- !split v 20
+				-- 20% of the map to each team
 				externalFunctions.AddStartRect(0,0,0,40,200)
 				externalFunctions.AddStartRect(1,160,0,200,200)
 			end
@@ -2234,8 +2285,6 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 
 					for _, polygon in ipairs(entry.boxes) do
 						if #polygon >= 3 then
-							-- Centroid-fan fill; may artifact on highly concave polygons.
-							-- The outline below is always correct regardless of shape.
 							local cx, cy = 0, 0
 							for _, v in ipairs(polygon) do
 								cx = cx + (w * v[1] / 200)
@@ -2244,13 +2293,24 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 							cx = cx / #polygon
 							cy = cy / #polygon
 
+							local spans = polygon.fillSpans
+							if not spans then
+								spans = BuildPolygonFillSpans(polygon)
+								polygon.fillSpans = spans
+							end
+
 							gl.Color(polygonFillColor[1], polygonFillColor[2], polygonFillColor[3], polygonFillColor[4])
 							gl.BeginEnd(GL.TRIANGLES, function()
-								for i = 1, #polygon do
-									local j = (i % #polygon) + 1
-									gl.Vertex(cx, cy)
-									gl.Vertex(w * polygon[i][1] / 200, h * polygon[i][2] / 200)
-									gl.Vertex(w * polygon[j][1] / 200, h * polygon[j][2] / 200)
+								for i = 1, #spans do
+									local s = spans[i]
+									local x1, y1 = w * s[1] / 200, h * s[2] / 200
+									local x2, y2 = w * s[3] / 200, h * s[4] / 200
+									gl.Vertex(x1, y1)
+									gl.Vertex(x2, y1)
+									gl.Vertex(x2, y2)
+									gl.Vertex(x1, y1)
+									gl.Vertex(x2, y2)
+									gl.Vertex(x1, y2)
 								end
 							end)
 
@@ -3964,11 +4024,7 @@ local function SetupEasySetupPanel(mainWindow, standardSubPanel, setupData)
 		if startGame then
 			if haveMapAndGame then
 				local Configuration = WG.Chobby.Configuration
-					if Configuration.gameConfig.mapStartBoxes.singleplayerboxes then
-						if currentStartRects ~= {} then
-							Configuration.gameConfig.mapStartBoxes.singleplayerboxes = currentStartRects
-						end
-					end
+				Configuration.gameConfig.mapStartBoxes.setBoxes(currentStartRects)
 				WG.SteamCoopHandler.AttemptGameStart("skirmish", battle.gameName, battle.mapName, nil, true)
 			else
 				MaybeDownloadMap(battle)

@@ -435,42 +435,25 @@ local function encodeStartboxOverrideModoption(boxes)
   return (Spring.Utilities.Base64Encode(compressed):gsub("=+$", ""))
 end
 
--- how about some more helpers?
-local function initCustomBox(mapName)
-    singleplayerboxes = {}
-end
-
-local function addBox(left,top, right, bottom, allyTeam) --in spads order
-  initCustomBox()
-  singleplayerboxes[allyTeam] = {left,top,right,bottom}
-  -- if online then: function Interface:AddStartRect(allyNo, left, top, right, bottom)
-end
-
-local function removeBox(allyTeam)
-  initCustomBox()
-  if singleplayerboxes[allyTeam] then
+-- Emptied in place rather than reassigned: the table is handed out by reference in the
+-- return block below, so rebinding the local would leave every reader holding the old one.
+local function clearBoxes()
+  for allyTeam in pairs(singleplayerboxes) do
     singleplayerboxes[allyTeam] = nil
   end
 end
 
-local function clearBoxes()
-  initCustomBox()
-  singleplayerboxes = {}
-end
+-- The boxes a skirmish launches with are written here as a whole set when Start is
+-- pressed, keyed the same way the lobby keys its own rects.
+local function setBoxes(boxes)
+  clearBoxes()
+  if not boxes then
+    return
+  end
 
-local function getBox(allyTeam)
-  if savedBoxes[mapName] == nil then
-    initCustomBox(mapName)
+  for allyTeam, box in pairs(boxes) do
+    singleplayerboxes[allyTeam] = box
   end
-  if singleplayerboxes then
-    return singleplayerboxes[allyTeam]
-  else
-    local defaultboxes =  selectStartBoxesForAllyTeamCount(mapName,2)
-    if defaultboxes then
-      return defaultboxes[allyTeam]
-    end
-  end
-  return nil
 end
 
 return {
@@ -483,9 +466,7 @@ return {
   loadStartboxesSet = loadStartboxesSet,
   decodeStartboxesSet = decodeStartboxesSet,
   decodeStartboxOverride = decodeStartboxOverride,
-  getBox = getBox,
   clearBoxes = clearBoxes,
-  removeBox = removeBox,
-  addBox = addBox,
+  setBoxes = setBoxes,
   singleplayerboxes = singleplayerboxes,
 }
