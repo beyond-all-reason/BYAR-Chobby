@@ -255,7 +255,16 @@ function InterfaceSkirmish:_StartScript(gameName, mapName, playerName, friendLis
 			polygonConfig = mapStartBoxes.loadStartboxesSet(mapName, allyTeamCount)
 		end
 
-		if mapStartBoxes.singleplayerboxes and next(mapStartBoxes.singleplayerboxes) ~= nil then
+		-- The game drops an override that does not cover every allyteam (matchOverride in
+		-- startbox_utilities.lua) and resolves the set instead, rewriting every rect, so
+		-- short custom boxes are ignored here too rather than written into a script the
+		-- game will contradict.
+		local customBoxCount = 0
+		while mapStartBoxes.singleplayerboxes and mapStartBoxes.singleplayerboxes[customBoxCount + 1] do
+			customBoxCount = customBoxCount + 1
+		end
+
+		if customBoxCount >= allyTeamCount then
 			customBoxes = mapStartBoxes.singleplayerboxes
 			startBoxes = customBoxes
 			Spring.Echo("Skirmish: Using custom startboxes",startBoxes)
