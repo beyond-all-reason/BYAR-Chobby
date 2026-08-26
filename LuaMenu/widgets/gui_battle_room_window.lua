@@ -401,6 +401,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	local mapLinkWidth = 150
 	currentStartRects = {}
 	spadsRectValues = {}
+	startRectValues = {}
 
 	local externalFunctions = {}
 	local ApplySingleplayerDefaultBoxes
