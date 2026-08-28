@@ -18,6 +18,7 @@ local modoptionStructure = {}
 local modesByGame = {}
 local activeModes = {}
 local selectedModeKeys = {}
+local applyingModes = false -- Apply in progress: the battle listener must not re-seed the picks
 local modeUI = {}
 local modoptionWindowOpen = false
 local lockedOverlaysByKey = {}
@@ -1331,8 +1332,16 @@ local function CreateModoptionWindow()
 			end
 		end
 
+		-- Every category's pick is read before any is applied: applying one
+		-- category updates the battle, and the battle listener below re-seeds
+		-- the selectors from it — which would overwrite a pick not yet applied
+		-- with the battle's previous value.
+		local picks = {}
 		for cat, _ in pairs(activeModes) do
-			local mode = getActiveMode(cat)
+			picks[cat] = getActiveMode(cat)
+		end
+		applyingModes = true
+		for cat, mode in pairs(picks) do
 			if mode and mode.modOptions then
 				local selectorKey = cat .. "_mode"
 
@@ -1386,6 +1395,7 @@ local function CreateModoptionWindow()
 			end
 		end
 
+		applyingModes = false
 		battleLobby:SetModOptions(localModoptions, managedKeys or allModeKeys)
 		modoptionWindowOpen = false
 		modoptionsSelectionWindow:Dispose()
@@ -1722,7 +1732,7 @@ local function InitializeModoptionsDisplay()
 		-- the active mode even when it was changed externally (SPADS, other players).
 		-- If the modoptions window is open, live-refresh that category's panel so the
 		-- selector and its sub-options update without reopening.
-		if activeModes then
+		if activeModes and not applyingModes then
 			for cat in pairs(activeModes) do
 				local battleKey = panelModoptions[cat .. "_mode"]
 				if battleKey and selectedModeKeys[cat] ~= battleKey then
