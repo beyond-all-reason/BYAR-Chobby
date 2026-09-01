@@ -846,8 +846,7 @@ function BattleListWindow:AddBattle(battleID, battle)
 	self:RecalculateOrder(battle.battleID) -- when a battle is added to the list, go ahead and ensure it's sorted correctly. Other cases will rely on soft update
 end
 
--- Parse chevron/rating join limits advertised in battle titles, e.g.
--- "Min chev: 4 | Max chev: 6 | "Min rating: 10" | "Max rating: 25" | Rating: 13-60"
+-- Parse chevron/rating join limits advertised in battle titles.
 local function ParseJoinLimitsFromTitle(title)
 	if not title or title == "" then
 		return nil
