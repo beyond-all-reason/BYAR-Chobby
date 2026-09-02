@@ -17,6 +17,7 @@ ComboBox = Button:Inherit{
 	defaultHeight = 20,
 	items = { "items" },
 	itemsTooltips = {},
+	itemsDisabled = {},
 	itemImages = {},
 	itemHeight = 20,
 	selected = 1,
@@ -145,6 +146,7 @@ function ComboBox:MouseDown(x, y)
 					itemContainer:AddChild(imageControl)
 				end
 
+				local itemDisabled = self.itemsDisabled[i] and true or false
 				local newBtn = ComboBoxItem:New {
 					caption = item,
 					width = '100%',
@@ -152,10 +154,20 @@ function ComboBox:MouseDown(x, y)
 					padding = {3, 0, 3, 0},
 					fontsize = self.itemFontSize,
 					objectOverrideFont = self.objectOverrideFont,
-					state = {focused = (self.showSelection and i == self.selected), selected = (self.showSelection and i == self.selected)},
+					objectOverrideDisabledFont = self.objectOverrideDisabledFont,
+					hasDisabledFont = self.hasDisabledFont,
+					state = {
+						enabled = not itemDisabled,
+						focused = (self.showSelection and i == self.selected),
+						selected = (self.showSelection and i == self.selected),
+					},
 					children = { itemContainer },
 					OnMouseUp = {
 						function()
+							if itemDisabled then
+								return
+							end
+
 							if selectByName then
 								self:Select(item)
 							else

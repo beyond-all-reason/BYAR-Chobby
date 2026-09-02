@@ -205,7 +205,9 @@ end
 local ReconcileTeams
 local ShowTeamCount
 
-local function ApplyTeamCount(newCount, tellTheServer)
+-- Never called for a count the user merely asked for: in multiplayer SPADS owns nbTeams,
+-- so the teams only move once it says they did.
+local function ApplyTeamCount(newCount)
 	teamCount = math.max(newCount or 2, 1)
 
 	if ReconcileTeams then
@@ -214,28 +216,19 @@ local function ApplyTeamCount(newCount, tellTheServer)
 	if ShowTeamCount then
 		ShowTeamCount(teamCount)
 	end
-
-	-- SPADS owns the count in multiplayer, so the local teams above are only a preview
-	-- until it echoes the setting back and the tick re-syncs.
-	if tellTheServer and battleLobby.name ~= "singleplayer" then
-		battleLobby:SayBattle(string.format("!nbTeams %d", teamCount))
-	end
 end
 
-local function SyncTeamCountFromServer()
-	if battleLobby.name == "singleplayer" then
-		return
-	end
-
-	local battleID = battleLobby:GetMyBattleID()
-	local battle = battleID and battleLobby:GetBattle(battleID)
-	local serverCount = battle and tonumber(battle.nbTeams)
-	if not serverCount or serverCount == teamCount then
-		return
-	end
-
-	ApplyTeamCount(serverCount, false)
-end
+-- Mirrors the per-preset nbTeams ranges from the server's spads_cluster.conf, which are
+-- never sent to the client. An unlisted preset is left unrestricted.
+local presetTeamCountRange = {
+	team = {1, 80},
+	ffa = {4, 80},
+	coop = {1, 1},
+	duel = {2, 2},
+	tourney = {2, 16},
+	custom = {1, 100},
+	event = {1, 100},
+}
 
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
@@ -1255,6 +1248,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	-- list offers on some presets, so it grows to fit a room already using a bigger
 	-- count rather than offering all of them up front.
 	local teamCountItems = {}
+	local teamCountDisabled = {}
 	local function TeamCountToItem(count)
 		return math.max(count, 2) - 1
 	end
@@ -1265,6 +1259,8 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	end
 	EnsureTeamCountItems(teamCount)
 
+	local settingTeamCount = false
+
 	local teamCountSelect = ComboBox:New {
 		name = "teamCountSelect",
 		x = 5,
@@ -1273,22 +1269,34 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		right = 5,
 		classname = "option_button",
 		objectOverrideFont = config:GetFont(2),
+		objectOverrideDisabledFont = config:GetFont(1),
+		hasDisabledFont = true,
 		itemHeight = 24,
 		items = teamCountItems,
-		selectByName = true,
+		itemsDisabled = teamCountDisabled,
 		selected = TeamCountToItem(teamCount),
 		tooltip = "How many teams players and AI can be split into",
-		OnSelectName = {
-			function (obj, selectedName)
-				ApplyTeamCount(tonumber(selectedName:match("^%d+")), true)
+		OnSelect = {
+			function (obj, itemIndex)
+				local picked = itemIndex + 1
+				if settingTeamCount or picked == math.max(teamCount, 2) then
+					return
+				end
+
+				if battleLobby.name == "singleplayer" then
+					ApplyTeamCount(picked)
+
+					return
+				end
+
+				battleLobby:SayBattle(string.format("!nbTeams %d", picked))
+				ShowTeamCount(teamCount)
 			end
 		},
 		parent = leftInfo
 	}
 	leftOffset = leftOffset + 38
 
-	-- Select by index rather than by name: the name form fires OnSelectName and would
-	-- bounce a server-driven change straight back at the server.
 	ShowTeamCount = function (count)
 		local item = TeamCountToItem(count)
 		if item == teamCountSelect.selected then
@@ -1296,7 +1304,35 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		end
 
 		EnsureTeamCountItems(count)
+		settingTeamCount = true
 		teamCountSelect:Select(item)
+		settingTeamCount = false
+	end
+
+	local shownPresetRange, shownItemCount
+	local function RefreshTeamCountOptions()
+		local range = presetTeamCountRange[battle.preset]
+		if range == shownPresetRange and #teamCountItems == shownItemCount then
+			return
+		end
+		shownPresetRange, shownItemCount = range, #teamCountItems
+
+		for i = 1, #teamCountItems do
+			local count = i + 1
+			teamCountDisabled[i] = range and (count < range[1] or count > range[2]) or nil
+		end
+	end
+	RefreshTeamCountOptions()
+
+	-- nbTeams and preset both arrive by BarManager broadcast, which writes them into the
+	-- battle with no event of its own, so they get polled alongside the start boxes.
+	function externalFunctions.SyncTeamCount()
+		local serverCount = tonumber(battle.nbTeams)
+		if serverCount and serverCount ~= teamCount and battleLobby.name ~= "singleplayer" then
+			ApplyTeamCount(serverCount)
+		end
+
+		RefreshTeamCountOptions()
 	end
 
 	local btnPickMap = Button:New {
@@ -5517,7 +5553,7 @@ function BattleRoomWindow.UpdateMinimapstartBoxes()
 
 	if mainWindowFunctions and mainWindowFunctions.GetInfoHandler() and not IsMousePressed() then
 		local infoHandler = mainWindowFunctions.GetInfoHandler()
-		SyncTeamCountFromServer()
+		infoHandler.SyncTeamCount()
 		infoHandler.RefreshStartboxesOnTeamChange()
 		infoHandler.rightInfo:Invalidate()
 		infoHandler.UpdateStartRectPositionsInMinimap()
