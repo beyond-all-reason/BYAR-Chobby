@@ -81,6 +81,7 @@ local randomSkirmishCooldownEnds = 0
 -- Download management
 
 local emptyTeamIndex = 0
+local teamCount = 2
 
 local haveMapAndGame = false
 
@@ -201,7 +202,40 @@ local function MaybeDownloadMap(battle)
 	WG.DownloadHandler.MaybeDownloadArchive(battle.mapName, "map", -1)
 end
 
-local OpenNewTeam
+local ReconcileTeams
+local ShowTeamCount
+
+local function ApplyTeamCount(newCount, tellTheServer)
+	teamCount = math.max(newCount or 2, 1)
+
+	if ReconcileTeams then
+		ReconcileTeams()
+	end
+	if ShowTeamCount then
+		ShowTeamCount(teamCount)
+	end
+
+	-- SPADS owns the count in multiplayer, so the local teams above are only a preview
+	-- until it echoes the setting back and the tick re-syncs.
+	if tellTheServer and battleLobby.name ~= "singleplayer" then
+		battleLobby:SayBattle(string.format("!nbTeams %d", teamCount))
+	end
+end
+
+local function SyncTeamCountFromServer()
+	if battleLobby.name == "singleplayer" then
+		return
+	end
+
+	local battleID = battleLobby:GetMyBattleID()
+	local battle = battleID and battleLobby:GetBattle(battleID)
+	local serverCount = battle and tonumber(battle.nbTeams)
+	if not serverCount or serverCount == teamCount then
+		return
+	end
+
+	ApplyTeamCount(serverCount, false)
+end
 
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
@@ -407,13 +441,15 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	local ApplySingleplayerDefaultBoxes
 
 	-- battle.nbTeams only arrives via the s.battle.teams protocol extension, so hosts
-	-- that never send it need the occupied-team count rather than an assumed two.
-	local function GetAllyTeamCount(isSingleplayer)
-		local count = isSingleplayer and emptyTeamIndex or (tonumber(battle.nbTeams) or emptyTeamIndex or 2)
-		-- 0 during the skirmish prime, before teams are set up; start boxes need at least two
-		if count < 2 then count = 2 end
+	-- that never send it need the team count on screen rather than an assumed two.
+	local function GetAllyTeamCount()
+		local count = teamCount
+		if battleLobby.name ~= "singleplayer" and not battle.nbTeams then
+			count = math.max(count, emptyTeamIndex)
+		end
 
-		return count
+		-- 0 during the skirmish prime, before teams are set up; start boxes need at least two
+		return math.max(count, 2)
 	end
 
 	-- Custom boxes travel as the mapmetadata_startbox_override modoption, one !bSet
@@ -1213,46 +1249,55 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	}
 
 	local leftOffset = 0
-	local btnNewTeam = Button:New {
-		name = "btnNewTeam",
+
+	-- Two is the floor everything else here already assumes, so the list starts there and
+	-- an item's index is one below the count it names. SPADS allows far more than the
+	-- list offers on some presets, so it grows to fit a room already using a bigger
+	-- count rather than offering all of them up front.
+	local teamCountItems = {}
+	local function TeamCountToItem(count)
+		return math.max(count, 2) - 1
+	end
+	local function EnsureTeamCountItems(upTo)
+		for i = #teamCountItems + 1, TeamCountToItem(math.max(upTo, 16)) do
+			teamCountItems[i] = (i + 1) .. " Teams"
+		end
+	end
+	EnsureTeamCountItems(teamCount)
+
+	local teamCountSelect = ComboBox:New {
+		name = "teamCountSelect",
 		x = 5,
 		y = leftOffset,
 		height = 35,
 		right = 5,
 		classname = "option_button",
-		caption = i18n("add_team") .. "\b",
 		objectOverrideFont = config:GetFont(2),
-		tooltip = "Add another team for players or AI to join into",
-		OnClick = {
-			function()
-				if OpenNewTeam then
-					OpenNewTeam()
-				end
+		itemHeight = 24,
+		items = teamCountItems,
+		selectByName = true,
+		selected = TeamCountToItem(teamCount),
+		tooltip = "How many teams players and AI can be split into",
+		OnSelectName = {
+			function (obj, selectedName)
+				ApplyTeamCount(tonumber(selectedName:match("^%d+")), true)
 			end
 		},
-		-- Combo box settings
-		--ignoreItemCaption = true,
-		--itemFontSize = config:GetFont(1).size,
-		--itemHeight = 30,
-		--selected = 0,
-		--maxDropDownWidth = 120,
-		--minDropDownHeight = 0,
-		--items = {"Join", "Add AI"},
-		--OnSelect = {
-		--	function (obj)
-		--		if obj.selected == 1 then
-		--			battleLobby:SetBattleStatus({
-		--				allyNumber = emptyTeamIndex,
-		--				isSpectator = false,
-		--			})
-		--		elseif obj.selected == 2 then
-		--			WG.PopupPreloader.ShowAiListWindow(battleLobby, battle.gameName, emptyTeamIndex)
-		--		end
-		--	end
-		--},
 		parent = leftInfo
 	}
 	leftOffset = leftOffset + 38
+
+	-- Select by index rather than by name: the name form fires OnSelectName and would
+	-- bounce a server-driven change straight back at the server.
+	ShowTeamCount = function (count)
+		local item = TeamCountToItem(count)
+		if item == teamCountSelect.selected then
+			return
+		end
+
+		EnsureTeamCountItems(count)
+		teamCountSelect:Select(item)
+	end
 
 	local btnPickMap = Button:New {
 		name = 'btnPickMap',
@@ -1613,9 +1658,9 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		end
 		local offset = 0
 		if lastDisallowCustomTeams then
-			btnNewTeam:SetVisibility(false)
+			teamCountSelect:SetVisibility(false)
 		else
-			btnNewTeam:SetVisibility(true)
+			teamCountSelect:SetVisibility(true)
 			offset = offset + 38
 		end
 		btnPickMap:SetPos(nil, offset)
@@ -1745,7 +1790,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 
 			local isSingleplayer = (battleLobby.name == "singleplayer")
 			local mapName = battleInfo.mapName
-			local allyTeamCount = GetAllyTeamCount(isSingleplayer)
+			local allyTeamCount = GetAllyTeamCount()
 
 			-- UPDATEBATTLEINFO carries mapName on unrelated updates (spectator count,
 			-- lock) too, and only a map change re-renders, so tearing down on every
@@ -2004,7 +2049,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 			return nil
 		end
 
-		local allyTeamCount = GetAllyTeamCount(battleLobby.name == "singleplayer")
+		local allyTeamCount = GetAllyTeamCount()
 		local boxedTeams = 0
 		for i = 1, allyTeamCount do
 			if startRectValues[i] then
@@ -2181,12 +2226,12 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		StartBoxComboBoxSelectDefault()
 	end
 
-	-- Nothing announces a team-count change: no modoption echo, no SPADS message, and
-	-- Add Team fires no lobby event at all. Hence driven off the minimap tick, gated on
-	-- the count actually changing so a rebuild never lands mid-edit.
+	-- Nothing announces a team-count change: no modoption echo, and the BarManager
+	-- broadcast writes battle.nbTeams in place. Hence driven off the minimap tick, gated
+	-- on the count actually changing so a rebuild never lands mid-edit.
 	function externalFunctions.RefreshStartboxesOnTeamChange()
 		local isSingleplayer = (battleLobby.name == "singleplayer")
-		local count = GetAllyTeamCount(isSingleplayer)
+		local count = GetAllyTeamCount()
 		if count == renderedAllyTeamCount then
 			return
 		end
@@ -2211,7 +2256,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		local Configuration = WG.Chobby.Configuration
 		local mapStartBoxes = Configuration.gameConfig and Configuration.gameConfig.mapStartBoxes
 		local modoptions = battleLobby.modoptions or {}
-		renderedAllyTeamCount = GetAllyTeamCount(false)
+		renderedAllyTeamCount = GetAllyTeamCount()
 		local allyTeamCount = renderedAllyTeamCount
 
 		local overrideConfig, overrideHasPolygon, overrideUnreadable
@@ -2747,6 +2792,16 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 		panel:Invalidate()
 	end
 
+	-- Presets that disallow custom teams pin the layout to Players and Bots, so the
+	-- selected count does not apply to them.
+	local function GetTargetTeamCount()
+		if disallowCustomTeams then
+			return disallowBots and 1 or 2
+		end
+
+		return math.max(teamCount, 2)
+	end
+
 	local function GetPlayerData(name)
 		if not player[name] then
 			player[name] = {
@@ -2760,6 +2815,16 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 	local function GetTeam(teamIndex)
 		teamIndex = teamIndex or -2 -- default to -2 = Spectator team
 		if not team[teamIndex] then
+			-- Skirmish setups drop AI straight into whichever ally teams they want and
+			-- there is no nbTeams to answer to, so the count follows them up. In
+			-- multiplayer it would only fight the next sync.
+			if teamIndex >= teamCount and battleLobby.name == "singleplayer" then
+				teamCount = teamIndex + 1
+				if ShowTeamCount then
+					ShowTeamCount(teamCount)
+				end
+			end
+
 			if teamIndex == emptyTeamIndex then
 				local checkTeam = teamIndex + 1
 				while team[checkTeam] do
@@ -2977,27 +3042,25 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 				teamHolder:Dispose()
 			end
 
+			-- An emptied team stays exactly as it was before anyone joined it. Only teams
+			-- past the count go away, so lowering the count is the one thing that removes
+			-- one, and a team someone is still sitting in is never pulled out from under
+			-- them.
 			function teamData.CheckRemoval()
-				if teamStack:IsEmpty() and teamIndex ~= -2 then
-
-					if disallowCustomTeams then
-						if teamIndex > 1 then
-							teamData.RemoveTeam()
-							return true
-						elseif disallowBots and teamIndex > 0 then
-							teamData.RemoveTeam()
-							return true
-						end
-					else
-						if teamIndex > 1 then
-							teamData.RemoveTeam()
-							return true
-						elseif teamIndex == -1 then
-							teamHolder:SetVisibility(false)
-							return true
-						end
-					end
+				if not teamStack:IsEmpty() or teamIndex == -2 then
+					return false
 				end
+
+				if teamIndex == -1 then
+					teamHolder:SetVisibility(false)
+					return true
+				end
+
+				if teamIndex >= GetTargetTeamCount() then
+					teamData.RemoveTeam()
+					return true
+				end
+
 				return false
 			end
 
@@ -3050,17 +3113,22 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 	GetTeam(-1) -- Make Queue heading appear
 	GetTeam(-2) -- Make Spectator heading appear
 
-	GetTeam(0) -- Always show two teams in custom battles
-	if not (disallowCustomTeams and disallowBots) then
-		GetTeam(1)
+	ReconcileTeams = function ()
+		local target = math.min(GetTargetTeamCount(), 254)
+		for teamIndex = 0, target - 1 do
+			GetTeam(teamIndex)
+		end
+
+		for teamIndex, teamData in pairs(team) do
+			if teamIndex >= target then
+				teamData.CheckRemoval()
+			end
+		end
+
+		PositionChildren(mainStackPanel, mainScrollPanel.height)
 	end
 
-	OpenNewTeam = function ()
-		if emptyTeamIndex < 254 then
-			GetTeam(emptyTeamIndex)
-			PositionChildren(mainStackPanel, mainScrollPanel.height)
-		end
-	end
+	ReconcileTeams()
 
 	mainScrollPanel.OnResize = {
 		function (obj)
@@ -3079,10 +3147,8 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 		disallowCustomTeams = newDisallowCustomTeams
 		disallowBots = newDisallowBots
 
-		if not (disallowCustomTeams and disallowBots) then
-			GetTeam(1)
-			PositionChildren(mainStackPanel, mainScrollPanel.height)
-		end
+		ReconcileTeams()
+
 		for teamIndex, teamData in pairs(team) do
 			if not teamData.CheckRemoval() then
 				teamData.UpdateBattleMode()
@@ -3116,13 +3182,6 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 
 	function externalFunctions.RemoveAi(botName)
 		RemovePlayerFromTeam(botName)
-	end
-
-	function externalFunctions.GetTeam(index)
-		if(index >= emptyTeamIndex)then
-			OpenNewTeam()
-		end
-		return GetTeam(index)
 	end
 
 	return externalFunctions
@@ -3470,7 +3529,7 @@ local function SetupSpadsStatusPanel(battle, battleID)
 
 	local freezeSettings = true
 
-	local spadsSettingsOrder = {'teamSize','nbTeams','preset','autoBalance','balanceMode','locked'}
+	local spadsSettingsOrder = {'teamSize','preset','autoBalance','balanceMode','locked'}
 	spadsSettingsTable = {
 		teamSize = {
 			current = "2",
@@ -3478,13 +3537,6 @@ local function SetupSpadsStatusPanel(battle, battleID)
 			caption = "TeamSize",
 			tooltip = "How many players should be on each team",
 			spadscommand = "!set teamSize",
-		},
-		nbTeams = {
-			current = "2",
-			allowed = {"1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16"},
-			caption = "#Teams",
-			tooltip = "How many teams should SPADS make",
-			spadscommand = "!nbTeams",
 		},
 		preset = {
 			current = "team",
@@ -4067,6 +4119,8 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		Spring.Echo("Attempted to join missing battle", battleID, topPoportion)
 		return false
 	end
+
+	teamCount = math.max(tonumber(battle.nbTeams) or 2, 1)
 
 	local Configuration = WG.Chobby.Configuration
 	-- if not Configuration.showMatchMakerBattles and battle.isMatchMaker then
@@ -5210,6 +5264,9 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 
 	local function OnDisposeFunction()
 		emptyTeamIndex = 0
+		teamCount = 2
+		ReconcileTeams = nil
+		ShowTeamCount = nil
 
 		oldLobby:RemoveListener("OnUpdateUserTeamStatus", OnUpdateUserTeamStatus)
 		oldLobby:RemoveListener("OnUpdateUserBattleStatus", OnUpdateUserBattleStatus)
@@ -5460,6 +5517,7 @@ function BattleRoomWindow.UpdateMinimapstartBoxes()
 
 	if mainWindowFunctions and mainWindowFunctions.GetInfoHandler() and not IsMousePressed() then
 		local infoHandler = mainWindowFunctions.GetInfoHandler()
+		SyncTeamCountFromServer()
 		infoHandler.RefreshStartboxesOnTeamChange()
 		infoHandler.rightInfo:Invalidate()
 		infoHandler.UpdateStartRectPositionsInMinimap()
@@ -5564,13 +5622,6 @@ function BattleRoomWindow.RemoveStartRect(allyNo)
 	end
 end
 
-
-function BattleRoomWindow.SetTeams(numberOfTeams)
-	if battleLobby.name ~= "singleplayer" then
-		-- command to set the teams
-		battleLobby:SayBattle(string.format("!nbTeams %d", numberOfTeams))
-	end
-end
 
 function BattleRoomWindow.SetStart(allyNo)
 	local infoHandler = mainWindowFunctions.GetInfoHandler()
