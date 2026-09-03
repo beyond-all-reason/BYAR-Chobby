@@ -422,6 +422,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	local startBoxMapName
 	local oldSelectedBoxes = 1
 	local startBoxSelect = {}
+	local renderedAllyTeamCount
 	local startBoxDefaultImage = LUA_DIRNAME .. "images/load_img_128.png"
 	local freezeSettings = true
 
@@ -503,9 +504,14 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		parent = startBoxImageHolder,
 	}
 
-	local startBoxSelectorNames = {"Default Boxes", "East vs West", "North vs South", "NW vs SE", "NE vs SW", "4 Corners", "4 Sides"}
-	local startBoxSelectorTooltips = {"Reset to default", "East vs West", "North vs South", "Northwest vs Southeast", "Northeast vs Southwest", "Southwest vs Northeast vs Northwest vs Southeast", "West vs East vs North vs South"}
-	local startBoxSelectorImages = {startBoxDefaultImage, LUA_DIRNAME .. "images/startboxsplit_v.png", LUA_DIRNAME .. "images/startboxsplit_h.png", LUA_DIRNAME .. "images/startboxsplit_c1.png", LUA_DIRNAME .. "images/startboxsplit_c2.png", LUA_DIRNAME .. "images/startboxsplit_c.png", LUA_DIRNAME .. "images/startboxsplit_s.png"}
+	local startBoxSelectorNames = {"Default Boxes", "Custom Boxes", "East vs West", "North vs South", "NW vs SE", "NE vs SW", "4 Corners", "4 Sides"}
+	local startBoxSelectorTooltips = {"Reset to default", "Boxes that match none of the layouts below", "East vs West", "North vs South", "Northwest vs Southeast", "Northeast vs Southwest", "Southwest vs Northeast vs Northwest vs Southeast", "West vs East vs North vs South"}
+	local startBoxSelectorImages = {startBoxDefaultImage, LUA_DIRNAME .. "images/startboxsplit_3v3.png", LUA_DIRNAME .. "images/startboxsplit_v.png", LUA_DIRNAME .. "images/startboxsplit_h.png", LUA_DIRNAME .. "images/startboxsplit_c1.png", LUA_DIRNAME .. "images/startboxsplit_c2.png", LUA_DIRNAME .. "images/startboxsplit_c.png", LUA_DIRNAME .. "images/startboxsplit_s.png"}
+
+	-- Reports what the boxes already are rather than doing anything, so it is set from
+	-- the code below and never picked.
+	local CUSTOM_BOXES_ITEM = 2
+	local startBoxSelectorDisabled = {[CUSTOM_BOXES_ITEM] = true}
 	local startBoxComboBox = ComboBox:New{
 		name = 'startBoxComboBox',
 		x = "12.25%",
@@ -514,6 +520,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		bottom = 1,
 		items = startBoxSelectorNames,
 		itemsTooltips = startBoxSelectorTooltips,
+		itemsDisabled = startBoxSelectorDisabled,
 		itemImages = startBoxSelectorImages,
 		itemKeyToName = startBoxSelectorNames,
 		objectOverrideFont = config:GetFont(2),
@@ -523,6 +530,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		OnSelectName = {
 			function(obj, selected, item)
 				if freezeSettings then return end -- so these funcs dont run on first init
+				if selected == "Custom Boxes" then return end
 
 				local newSelectedBoxes = selected
 
@@ -532,15 +540,10 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 					freezeSettings = false
 				end
 
-				local imageFileMap = {
-					["Default Boxes"] = startBoxSelectorImages[1],
-					["East vs West"] = startBoxSelectorImages[2],
-					["North vs South"] = startBoxSelectorImages[3],
-					["NW vs SE"] = startBoxSelectorImages[4],
-					["NE vs SW"] = startBoxSelectorImages[5],
-					["4 Corners"] = startBoxSelectorImages[6],
-					["4 Sides"] = startBoxSelectorImages[7],
-				}
+				local imageFileMap = {}
+				for i, name in ipairs(startBoxSelectorNames) do
+					imageFileMap[name] = startBoxSelectorImages[i]
+				end
 
 				local function UpdateBoxes()
 					oldSelectedBoxes = newSelectedBoxes
@@ -653,6 +656,19 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		startBoxImage:Invalidate()
 	end
 
+	local function SelectCustomStartBoxes()
+		if startBoxComboBox.selected == CUSTOM_BOXES_ITEM then
+			return
+		end
+
+		freezeSettings = true
+		startBoxComboBox:Select(CUSTOM_BOXES_ITEM)
+		freezeSettings = false
+		oldSelectedBoxes = startBoxSelectorNames[CUSTOM_BOXES_ITEM]
+		startBoxImage.file = startBoxSelectorImages[CUSTOM_BOXES_ITEM]
+		startBoxImage:Invalidate()
+	end
+
 	local btnAddBox = Button:New{
 		name = 'btnAddBox',
 		x = 0,
@@ -670,6 +686,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 			function ()
 				externalFunctions.ExitPolygonMode()
 				externalFunctions.AddStartRect(#currentStartRects,66, 66, 133, 133)
+				SelectCustomStartBoxes()
 				if battleLobby.name ~= "singleplayer" then
 					SendStartboxOverride()
 				end
@@ -708,6 +725,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 				if #currentStartRects > 0 then
 					externalFunctions.RemoveStartRect(#currentStartRects -1)
 				end
+				SelectCustomStartBoxes()
 				if battleLobby.name ~= "singleplayer" then
 					SendStartboxOverride()
 				end
@@ -2019,6 +2037,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 						startRectValues[tonumber(obj.caption)]={["left"]=l, ["top"]=t, ["right"]=r, ["bottom"]=b}
 
 						obj:Invalidate() --doesnt do much
+						SelectCustomStartBoxes()
 						if battleLobby.name == "singleplayer" then
 							obj.spadsSizes = {left = l, top = t, right = r, bottom = b, caption = obj.caption}
 						else
@@ -2079,10 +2098,11 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 
 	-- We launch with the boxes we drew, and an allyteam without one falls back to the
 	-- engine's own start box, which covers the whole map. Counted the same way for
-	-- skirmish and multiplayer, rects and polygons, sets and overrides; an empty table
-	-- means the boxes have not arrived yet rather than that a team is missing one.
+	-- skirmish and multiplayer, rects and polygons, sets and overrides.
 	function externalFunctions.GetStartboxShortfallMessage()
-		if next(startRectValues) == nil then
+		-- No boxes counts against you, but only once they have been through the renderer
+		-- at least once: before that an empty table means they have not arrived yet.
+		if not renderedAllyTeamCount then
 			return nil
 		end
 
@@ -2108,6 +2128,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 			externalFunctions.AddStartRect(i - 1, box.left, box.top, box.right, box.bottom)
 		end
 
+		SelectCustomStartBoxes()
 		if battleLobby.name ~= "singleplayer" then
 			SendStartboxOverride()
 		end
@@ -2195,8 +2216,6 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 			if v then externalFunctions.AddStartRect(i - 1, v.left, v.top, v.right, v.bottom) end
 		end
 	end
-
-	local renderedAllyTeamCount
 
 	local function RenderArrangement(config, hasPolygon, boxCount)
 		if hasPolygon then
@@ -2308,6 +2327,12 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 
 		if overrideConfig then
 			arrangementActive = true
+			-- Whoever set these picked a layout on their own client; all that survives in
+			-- the modoption is the boxes, so a room joined mid-edit can only report them
+			-- as custom. A layout picked here has already moved the selector off Default.
+			if startBoxComboBox.selected == 1 then
+				SelectCustomStartBoxes()
+			end
 			-- Every override box renders, spares included: someone in the room made
 			-- these by hand, so hiding the one they just added reads as a bug. The
 			-- game takes an override with more boxes than teams too.
