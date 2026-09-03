@@ -1386,7 +1386,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 			teamSizeItems[i] = nil
 		end
 		for size = low, high do
-			teamSizeItems[size - low + 1] = size .. " " .. i18n(size == 1 and "player" or "players")
+			teamSizeItems[size - low + 1] = size .. " per " .. i18n("team")
 		end
 
 		return true
