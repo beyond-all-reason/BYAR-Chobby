@@ -505,13 +505,10 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	}
 
 	local startBoxSelectorNames = {"Default Boxes", "Custom Boxes", "East vs West", "North vs South", "NW vs SE", "NE vs SW", "4 Corners", "4 Sides"}
-	local startBoxSelectorTooltips = {"Reset to default", "Boxes that match none of the layouts below", "East vs West", "North vs South", "Northwest vs Southeast", "Northeast vs Southwest", "Southwest vs Northeast vs Northwest vs Southeast", "West vs East vs North vs South"}
+	local startBoxSelectorTooltips = {"Reset to default", "Edit the boxes as they are now instead of a set layout", "East vs West", "North vs South", "Northwest vs Southeast", "Northeast vs Southwest", "Southwest vs Northeast vs Northwest vs Southeast", "West vs East vs North vs South"}
 	local startBoxSelectorImages = {startBoxDefaultImage, LUA_DIRNAME .. "images/startboxsplit_3v3.png", LUA_DIRNAME .. "images/startboxsplit_v.png", LUA_DIRNAME .. "images/startboxsplit_h.png", LUA_DIRNAME .. "images/startboxsplit_c1.png", LUA_DIRNAME .. "images/startboxsplit_c2.png", LUA_DIRNAME .. "images/startboxsplit_c.png", LUA_DIRNAME .. "images/startboxsplit_s.png"}
 
-	-- Reports what the boxes already are rather than doing anything, so it is set from
-	-- the code below and never picked.
 	local CUSTOM_BOXES_ITEM = 2
-	local startBoxSelectorDisabled = {[CUSTOM_BOXES_ITEM] = true}
 	local startBoxComboBox = ComboBox:New{
 		name = 'startBoxComboBox',
 		x = "12.25%",
@@ -520,7 +517,6 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		bottom = 1,
 		items = startBoxSelectorNames,
 		itemsTooltips = startBoxSelectorTooltips,
-		itemsDisabled = startBoxSelectorDisabled,
 		itemImages = startBoxSelectorImages,
 		itemKeyToName = startBoxSelectorNames,
 		objectOverrideFont = config:GetFont(2),
@@ -530,7 +526,6 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		OnSelectName = {
 			function(obj, selected, item)
 				if freezeSettings then return end -- so these funcs dont run on first init
-				if selected == "Custom Boxes" then return end
 
 				local newSelectedBoxes = selected
 
@@ -573,6 +568,19 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 						end,
 						OnCancelled = function () cancelFunc() end
 					})
+				end
+
+				if selected == "Custom Boxes" then
+					-- Freezes whatever is on screen into rects this room owns. On a
+					-- polygon map that materializes the overlay, which is what has to
+					-- happen before any of it can be dragged.
+					externalFunctions.ExitPolygonMode()
+					if battleLobby.name ~= "singleplayer" then
+						SendStartboxOverride()
+					end
+					UpdateBoxes()
+
+					return
 				end
 
 				if selected == "Default Boxes" then
