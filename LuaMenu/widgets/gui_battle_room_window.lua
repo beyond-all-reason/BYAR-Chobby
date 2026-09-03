@@ -233,8 +233,8 @@ local function ApplyTeamCount(newCount)
 	end
 end
 
--- Mirrors the per-preset nbTeams ranges from the server's spads_cluster.conf, which are
--- never sent to the client. An unlisted preset is left unrestricted.
+-- Mirrors the per-preset nbTeams and teamSize ranges from the server's spads_cluster.conf,
+-- which are never sent to the client. An unlisted preset is left unrestricted.
 local presetTeamCountRange = {
 	team = {1, 80},
 	ffa = {4, 80},
@@ -242,6 +242,16 @@ local presetTeamCountRange = {
 	duel = {2, 2},
 	tourney = {2, 16},
 	custom = {1, 100},
+	event = {1, 100},
+}
+
+local presetTeamSizeRange = {
+	team = {1, 40},
+	ffa = {1, 20},
+	coop = {1, 32},
+	duel = {1, 1},
+	tourney = {1, 16},
+	custom = {1, 50},
 	event = {1, 100},
 }
 
@@ -1288,14 +1298,14 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	-- Only the counts the current preset actually allows are listed. Two is the floor
 	-- everything else here already assumes, and the tail is capped because the server's
 	-- range runs to 80 or 100 on some presets, which is not a list anyone can use.
-	local TEAM_COUNT_LIST_MAX = 16
+	local TEAM_LIST_MAX = 16
 	local teamCountItems = {}
 	local teamCountLow, teamCountHigh
 
 	local function RebuildTeamCountItems()
 		local range = presetTeamCountRange[battle.preset]
 		local low = math.max(range and range[1] or 1, 2)
-		local high = math.max(math.min(range and range[2] or TEAM_COUNT_LIST_MAX, TEAM_COUNT_LIST_MAX), low, teamCount)
+		local high = math.max(math.min(range and range[2] or TEAM_LIST_MAX, TEAM_LIST_MAX), low, teamCount)
 		if low == teamCountLow and high == teamCountHigh then
 			return false
 		end
@@ -1360,13 +1370,28 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	end
 
 	local teamSizeItems = {}
-	local function EnsureTeamSizeItems(upTo)
-		for i = #teamSizeItems + 1, math.max(upTo, 16) do
-			teamSizeItems[i] = i .. " " .. i18n(i == 1 and "player" or "players")
-		end
-	end
+	local teamSizeLow, teamSizeHigh
 	local shownTeamSize = math.max(tonumber(battle.teamSize) or 2, 1)
-	EnsureTeamSizeItems(shownTeamSize)
+
+	local function RebuildTeamSizeItems()
+		local range = presetTeamSizeRange[battle.preset]
+		local low = math.max(range and range[1] or 1, 1)
+		local high = math.max(math.min(range and range[2] or TEAM_LIST_MAX, TEAM_LIST_MAX), low, shownTeamSize)
+		if low == teamSizeLow and high == teamSizeHigh then
+			return false
+		end
+
+		teamSizeLow, teamSizeHigh = low, high
+		for i = #teamSizeItems, 1, -1 do
+			teamSizeItems[i] = nil
+		end
+		for size = low, high do
+			teamSizeItems[size - low + 1] = size .. " " .. i18n(size == 1 and "player" or "players")
+		end
+
+		return true
+	end
+	RebuildTeamSizeItems()
 
 	local ShowTeamSize
 	local teamSizeSelect = ComboBox:New {
@@ -1379,15 +1404,16 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		objectOverrideFont = config:GetFont(2),
 		itemHeight = 24,
 		items = teamSizeItems,
-		selected = shownTeamSize,
+		selected = math.max(shownTeamSize, teamSizeLow) - teamSizeLow + 1,
 		tooltip = "How many players should be on each team",
 		OnSelect = {
 			function (obj, itemIndex)
-				if itemIndex == shownTeamSize then
+				local picked = itemIndex + teamSizeLow - 1
+				if picked == shownTeamSize then
 					return
 				end
 
-				battleLobby:SayBattle(string.format("!set teamSize %d", itemIndex))
+				battleLobby:SayBattle(string.format("!set teamSize %d", picked))
 				ShowTeamSize(shownTeamSize)
 			end
 		},
@@ -1396,10 +1422,12 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	leftOffset = leftOffset + 38
 
 	ShowTeamSize = function (size)
-		EnsureTeamSizeItems(size)
 		shownTeamSize = size
-		if teamSizeSelect.selected ~= size then
-			teamSizeSelect:Select(size)
+		local rebuilt = RebuildTeamSizeItems()
+
+		local item = math.min(math.max(size, teamSizeLow) - teamSizeLow + 1, #teamSizeItems)
+		if rebuilt or teamSizeSelect.selected ~= item then
+			teamSizeSelect:Select(item)
 		end
 	end
 
@@ -1412,10 +1440,8 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 				ApplyTeamCount(serverCount)
 			end
 
-			local serverSize = tonumber(battle.teamSize)
-			if serverSize then
-				ShowTeamSize(math.max(serverSize, 1))
-			end
+			-- Called even when unchanged: a preset change moves what the list may offer.
+			ShowTeamSize(math.max(tonumber(battle.teamSize) or shownTeamSize, 1))
 		end
 
 		-- Also picks up a preset change, which decides what the list may offer.
