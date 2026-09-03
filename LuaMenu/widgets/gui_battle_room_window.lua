@@ -1285,21 +1285,32 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 
 	local leftOffset = 0
 
-	-- Two is the floor everything else here already assumes, so the list starts there and
-	-- an item's index is one below the count it names. SPADS allows far more than the
-	-- list offers on some presets, so it grows to fit a room already using a bigger
-	-- count rather than offering all of them up front.
+	-- Only the counts the current preset actually allows are listed. Two is the floor
+	-- everything else here already assumes, and the tail is capped because the server's
+	-- range runs to 80 or 100 on some presets, which is not a list anyone can use.
+	local TEAM_COUNT_LIST_MAX = 16
 	local teamCountItems = {}
-	local teamCountDisabled = {}
-	local function TeamCountToItem(count)
-		return math.max(count, 2) - 1
-	end
-	local function EnsureTeamCountItems(upTo)
-		for i = #teamCountItems + 1, TeamCountToItem(math.max(upTo, 16)) do
-			teamCountItems[i] = (i + 1) .. " Teams"
+	local teamCountLow, teamCountHigh
+
+	local function RebuildTeamCountItems()
+		local range = presetTeamCountRange[battle.preset]
+		local low = math.max(range and range[1] or 1, 2)
+		local high = math.max(math.min(range and range[2] or TEAM_COUNT_LIST_MAX, TEAM_COUNT_LIST_MAX), low, teamCount)
+		if low == teamCountLow and high == teamCountHigh then
+			return false
 		end
+
+		teamCountLow, teamCountHigh = low, high
+		for i = #teamCountItems, 1, -1 do
+			teamCountItems[i] = nil
+		end
+		for count = low, high do
+			teamCountItems[count - low + 1] = count .. " Teams"
+		end
+
+		return true
 	end
-	EnsureTeamCountItems(teamCount)
+	RebuildTeamCountItems()
 
 	local settingTeamCount = false
 
@@ -1311,17 +1322,14 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		right = 5,
 		classname = "option_button",
 		objectOverrideFont = config:GetFont(2),
-		objectOverrideDisabledFont = config:GetFont(1),
-		hasDisabledFont = true,
 		itemHeight = 24,
 		items = teamCountItems,
-		itemsDisabled = teamCountDisabled,
-		selected = TeamCountToItem(teamCount),
+		selected = math.max(teamCount, teamCountLow) - teamCountLow + 1,
 		tooltip = "Change number of teams for this lobby",
 		OnSelect = {
 			function (obj, itemIndex)
-				local picked = itemIndex + 1
-				if settingTeamCount or picked == math.max(teamCount, 2) then
+				local picked = itemIndex + teamCountLow - 1
+				if settingTeamCount or picked == math.max(teamCount, teamCountLow) then
 					return
 				end
 
@@ -1340,31 +1348,16 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	leftOffset = leftOffset + 38
 
 	ShowTeamCount = function (count)
-		local item = TeamCountToItem(count)
-		if item == teamCountSelect.selected then
+		local rebuilt = RebuildTeamCountItems()
+		local item = math.min(math.max(count, teamCountLow) - teamCountLow + 1, #teamCountItems)
+		if not rebuilt and item == teamCountSelect.selected then
 			return
 		end
 
-		EnsureTeamCountItems(count)
 		settingTeamCount = true
 		teamCountSelect:Select(item)
 		settingTeamCount = false
 	end
-
-	local shownPresetRange, shownItemCount
-	local function RefreshTeamCountOptions()
-		local range = presetTeamCountRange[battle.preset]
-		if range == shownPresetRange and #teamCountItems == shownItemCount then
-			return
-		end
-		shownPresetRange, shownItemCount = range, #teamCountItems
-
-		for i = 1, #teamCountItems do
-			local count = i + 1
-			teamCountDisabled[i] = range and (count < range[1] or count > range[2]) or nil
-		end
-	end
-	RefreshTeamCountOptions()
 
 	local teamSizeItems = {}
 	local function EnsureTeamSizeItems(upTo)
@@ -1425,7 +1418,8 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 			end
 		end
 
-		RefreshTeamCountOptions()
+		-- Also picks up a preset change, which decides what the list may offer.
+		ShowTeamCount(teamCount)
 	end
 
 	local btnPickMap = Button:New {
