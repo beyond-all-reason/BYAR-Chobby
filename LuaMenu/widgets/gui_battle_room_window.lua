@@ -233,28 +233,6 @@ local function ApplyTeamCount(newCount)
 	end
 end
 
--- Mirrors the per-preset nbTeams and teamSize ranges from the server's spads_cluster.conf,
--- which are never sent to the client. An unlisted preset is left unrestricted.
-local presetTeamCountRange = {
-	team = {1, 80},
-	ffa = {4, 80},
-	coop = {1, 1},
-	duel = {2, 2},
-	tourney = {2, 16},
-	custom = {1, 100},
-	event = {1, 100},
-}
-
-local presetTeamSizeRange = {
-	team = {1, 40},
-	ffa = {1, 20},
-	coop = {1, 32},
-	duel = {1, 1},
-	tourney = {1, 16},
-	custom = {1, 50},
-	event = {1, 100},
-}
-
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 -- Chili/interface management
@@ -1295,32 +1273,16 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 
 	local leftOffset = 0
 
-	-- Only the counts the current preset actually allows are listed. Two is the floor
-	-- everything else here already assumes, and the tail is capped because the server's
-	-- range runs to 80 or 100 on some presets, which is not a list anyone can use.
-	local TEAM_LIST_MAX = 16
+	-- Item index is the count it names. The list only ever grows, so a room already past
+	-- the end can still show and re-pick its own value.
+	local TEAM_COUNT_LIST_MAX = 16
 	local teamCountItems = {}
-	local teamCountLow, teamCountHigh
-
-	local function RebuildTeamCountItems()
-		local range = presetTeamCountRange[battle.preset]
-		local low = math.max(range and range[1] or 1, 2)
-		local high = math.max(math.min(range and range[2] or TEAM_LIST_MAX, TEAM_LIST_MAX), low, teamCount)
-		if low == teamCountLow and high == teamCountHigh then
-			return false
+	local function EnsureTeamCountItems(upTo)
+		for i = #teamCountItems + 1, math.max(upTo, TEAM_COUNT_LIST_MAX) do
+			teamCountItems[i] = i .. " " .. i18n(i == 1 and "team" or "teams")
 		end
-
-		teamCountLow, teamCountHigh = low, high
-		for i = #teamCountItems, 1, -1 do
-			teamCountItems[i] = nil
-		end
-		for count = low, high do
-			teamCountItems[count - low + 1] = count .. " " .. i18n(count == 1 and "team" or "teams")
-		end
-
-		return true
 	end
-	RebuildTeamCountItems()
+	EnsureTeamCountItems(teamCount)
 
 	local settingTeamCount = false
 
@@ -1334,22 +1296,21 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		objectOverrideFont = config:GetFont(2),
 		itemHeight = 24,
 		items = teamCountItems,
-		selected = math.max(teamCount, teamCountLow) - teamCountLow + 1,
+		selected = teamCount,
 		tooltip = "Change number of teams for this lobby",
 		OnSelect = {
 			function (obj, itemIndex)
-				local picked = itemIndex + teamCountLow - 1
-				if settingTeamCount or picked == math.max(teamCount, teamCountLow) then
+				if settingTeamCount or itemIndex == teamCount then
 					return
 				end
 
 				if battleLobby.name == "singleplayer" then
-					ApplyTeamCount(picked)
+					ApplyTeamCount(itemIndex)
 
 					return
 				end
 
-				battleLobby:SayBattle(string.format("!nbTeams %d", picked))
+				battleLobby:SayBattle(string.format("!nbTeams %d", itemIndex))
 				ShowTeamCount(teamCount)
 			end
 		},
@@ -1358,40 +1319,25 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	leftOffset = leftOffset + 38
 
 	ShowTeamCount = function (count)
-		local rebuilt = RebuildTeamCountItems()
-		local item = math.min(math.max(count, teamCountLow) - teamCountLow + 1, #teamCountItems)
-		if not rebuilt and item == teamCountSelect.selected then
+		if count == teamCountSelect.selected then
 			return
 		end
 
+		EnsureTeamCountItems(count)
 		settingTeamCount = true
-		teamCountSelect:Select(item)
+		teamCountSelect:Select(count)
 		settingTeamCount = false
 	end
 
+	local TEAM_SIZE_LIST_MAX = 8
 	local teamSizeItems = {}
-	local teamSizeLow, teamSizeHigh
 	local shownTeamSize = math.max(tonumber(battle.teamSize) or 2, 1)
-
-	local function RebuildTeamSizeItems()
-		local range = presetTeamSizeRange[battle.preset]
-		local low = math.max(range and range[1] or 1, 1)
-		local high = math.max(math.min(range and range[2] or TEAM_LIST_MAX, TEAM_LIST_MAX), low, shownTeamSize)
-		if low == teamSizeLow and high == teamSizeHigh then
-			return false
+	local function EnsureTeamSizeItems(upTo)
+		for i = #teamSizeItems + 1, math.max(upTo, TEAM_SIZE_LIST_MAX) do
+			teamSizeItems[i] = i .. " per " .. i18n("team")
 		end
-
-		teamSizeLow, teamSizeHigh = low, high
-		for i = #teamSizeItems, 1, -1 do
-			teamSizeItems[i] = nil
-		end
-		for size = low, high do
-			teamSizeItems[size - low + 1] = size .. " per " .. i18n("team")
-		end
-
-		return true
 	end
-	RebuildTeamSizeItems()
+	EnsureTeamSizeItems(shownTeamSize)
 
 	local ShowTeamSize
 	local teamSizeSelect = ComboBox:New {
@@ -1404,16 +1350,15 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		objectOverrideFont = config:GetFont(2),
 		itemHeight = 24,
 		items = teamSizeItems,
-		selected = math.max(shownTeamSize, teamSizeLow) - teamSizeLow + 1,
+		selected = shownTeamSize,
 		tooltip = "How many players should be on each team",
 		OnSelect = {
 			function (obj, itemIndex)
-				local picked = itemIndex + teamSizeLow - 1
-				if picked == shownTeamSize then
+				if itemIndex == shownTeamSize then
 					return
 				end
 
-				battleLobby:SayBattle(string.format("!set teamSize %d", picked))
+				battleLobby:SayBattle(string.format("!set teamSize %d", itemIndex))
 				ShowTeamSize(shownTeamSize)
 			end
 		},
@@ -1422,30 +1367,29 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	leftOffset = leftOffset + 38
 
 	ShowTeamSize = function (size)
+		EnsureTeamSizeItems(size)
 		shownTeamSize = size
-		local rebuilt = RebuildTeamSizeItems()
-
-		local item = math.min(math.max(size, teamSizeLow) - teamSizeLow + 1, #teamSizeItems)
-		if rebuilt or teamSizeSelect.selected ~= item then
-			teamSizeSelect:Select(item)
+		if teamSizeSelect.selected ~= size then
+			teamSizeSelect:Select(size)
 		end
 	end
 
-	-- nbTeams, teamSize and preset all arrive by BarManager broadcast, which writes them
-	-- into the battle with no event of its own, so they get polled alongside the boxes.
+	-- nbTeams and teamSize both arrive by BarManager broadcast, which writes them into
+	-- the battle with no event of its own, so they get polled alongside the boxes.
 	function externalFunctions.SyncBattleSettings()
-		if battleLobby.name ~= "singleplayer" then
-			local serverCount = tonumber(battle.nbTeams)
-			if serverCount and serverCount ~= teamCount then
-				ApplyTeamCount(serverCount)
-			end
-
-			-- Called even when unchanged: a preset change moves what the list may offer.
-			ShowTeamSize(math.max(tonumber(battle.teamSize) or shownTeamSize, 1))
+		if battleLobby.name == "singleplayer" then
+			return
 		end
 
-		-- Also picks up a preset change, which decides what the list may offer.
-		ShowTeamCount(teamCount)
+		local serverCount = tonumber(battle.nbTeams)
+		if serverCount and serverCount ~= teamCount then
+			ApplyTeamCount(serverCount)
+		end
+
+		local serverSize = tonumber(battle.teamSize)
+		if serverSize then
+			ShowTeamSize(math.max(serverSize, 1))
+		end
 	end
 
 	local btnPickMap = Button:New {
