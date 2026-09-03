@@ -1305,7 +1305,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 			teamCountItems[i] = nil
 		end
 		for count = low, high do
-			teamCountItems[count - low + 1] = count .. " Teams"
+			teamCountItems[count - low + 1] = count .. " " .. i18n(count == 1 and "team" or "teams")
 		end
 
 		return true
