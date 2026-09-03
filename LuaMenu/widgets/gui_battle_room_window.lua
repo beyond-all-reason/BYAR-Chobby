@@ -1362,7 +1362,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	local teamSizeItems = {}
 	local function EnsureTeamSizeItems(upTo)
 		for i = #teamSizeItems + 1, math.max(upTo, 16) do
-			teamSizeItems[i] = i .. " per Team"
+			teamSizeItems[i] = i .. " " .. i18n(i == 1 and "player" or "players")
 		end
 	end
 	local shownTeamSize = math.max(tonumber(battle.teamSize) or 2, 1)
@@ -1380,7 +1380,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		itemHeight = 24,
 		items = teamSizeItems,
 		selected = shownTeamSize,
-		tooltip = "Change number of players per team for this lobby",
+		tooltip = "How many players should be on each team",
 		OnSelect = {
 			function (obj, itemIndex)
 				if itemIndex == shownTeamSize then
