@@ -42,6 +42,7 @@ local multiplayerWrapper
 
 local spadsStatusPanel
 local barManagerPresent
+local UpdateLockButtons
 
 local singleplayerGame = "Chobby $VERSION"
 
@@ -162,6 +163,20 @@ local function RefreshStartButtonForStartboxes()
 	local battle = battleID and battleLobby:GetBattle(battleID)
 	if battle then
 		UpdateStartButton(battle)
+	end
+end
+
+-- battle.locked comes from UPDATEBATTLEINFO, which fires for spectator count and map
+-- changes too, so the buttons are refreshed from the tick rather than off that event.
+local function RefreshLockButtons()
+	if not UpdateLockButtons then
+		return
+	end
+
+	local battleID = battleLobby and battleLobby:GetMyBattleID()
+	local battle = battleID and battleLobby:GetBattle(battleID)
+	if battle then
+		UpdateLockButtons(battle.locked)
 	end
 end
 
@@ -1351,12 +1366,63 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	end
 	RefreshTeamCountOptions()
 
-	-- nbTeams and preset both arrive by BarManager broadcast, which writes them into the
-	-- battle with no event of its own, so they get polled alongside the start boxes.
-	function externalFunctions.SyncTeamCount()
-		local serverCount = tonumber(battle.nbTeams)
-		if serverCount and serverCount ~= teamCount and battleLobby.name ~= "singleplayer" then
-			ApplyTeamCount(serverCount)
+	local teamSizeItems = {}
+	local function EnsureTeamSizeItems(upTo)
+		for i = #teamSizeItems + 1, math.max(upTo, 16) do
+			teamSizeItems[i] = i .. " per Team"
+		end
+	end
+	local shownTeamSize = math.max(tonumber(battle.teamSize) or 2, 1)
+	EnsureTeamSizeItems(shownTeamSize)
+
+	local ShowTeamSize
+	local teamSizeSelect = ComboBox:New {
+		name = "teamSizeSelect",
+		x = 5,
+		y = leftOffset,
+		height = 35,
+		right = 5,
+		classname = "option_button",
+		objectOverrideFont = config:GetFont(2),
+		itemHeight = 24,
+		items = teamSizeItems,
+		selected = shownTeamSize,
+		tooltip = "Change number of players per team for this lobby",
+		OnSelect = {
+			function (obj, itemIndex)
+				if itemIndex == shownTeamSize then
+					return
+				end
+
+				battleLobby:SayBattle(string.format("!set teamSize %d", itemIndex))
+				ShowTeamSize(shownTeamSize)
+			end
+		},
+		parent = leftInfo
+	}
+	leftOffset = leftOffset + 38
+
+	ShowTeamSize = function (size)
+		EnsureTeamSizeItems(size)
+		shownTeamSize = size
+		if teamSizeSelect.selected ~= size then
+			teamSizeSelect:Select(size)
+		end
+	end
+
+	-- nbTeams, teamSize and preset all arrive by BarManager broadcast, which writes them
+	-- into the battle with no event of its own, so they get polled alongside the boxes.
+	function externalFunctions.SyncBattleSettings()
+		if battleLobby.name ~= "singleplayer" then
+			local serverCount = tonumber(battle.nbTeams)
+			if serverCount and serverCount ~= teamCount then
+				ApplyTeamCount(serverCount)
+			end
+
+			local serverSize = tonumber(battle.teamSize)
+			if serverSize then
+				ShowTeamSize(math.max(serverSize, 1))
+			end
 		end
 
 		RefreshTeamCountOptions()
@@ -1724,6 +1790,15 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 			teamCountSelect:SetVisibility(false)
 		else
 			teamCountSelect:SetVisibility(true)
+			teamCountSelect:SetPos(nil, offset)
+			offset = offset + 38
+		end
+		-- Skirmish has no SPADS to set it on, and team size means nothing locally.
+		if battleLobby.name == "singleplayer" then
+			teamSizeSelect:SetVisibility(false)
+		else
+			teamSizeSelect:SetVisibility(true)
+			teamSizeSelect:SetPos(nil, offset)
 			offset = offset + 38
 		end
 		btnPickMap:SetPos(nil, offset)
@@ -3599,15 +3674,8 @@ local function SetupSpadsStatusPanel(battle, battleID)
 
 	local freezeSettings = true
 
-	local spadsSettingsOrder = {'teamSize','preset','autoBalance','balanceMode','locked'}
+	local spadsSettingsOrder = {'autoBalance','balanceMode','preset'}
 	spadsSettingsTable = {
-		teamSize = {
-			current = "2",
-			allowed = {"1","2","3","4","5","6","7","8"},
-			caption = "TeamSize",
-			tooltip = "How many players should be on each team",
-			spadscommand = "!set teamSize",
-		},
 		preset = {
 			current = "team",
 			allowed = {"team","ffa","coop","duel","tourney","custom"},
@@ -3628,13 +3696,6 @@ local function SetupSpadsStatusPanel(battle, battleID)
 			caption = "BalanceMode",
 			tooltip = "Method to use when auto balancing teams",
 			spadscommand = "!balanceMode",
-		},
-		locked = {
-			current = "unlocked",
-			allowed = {"unlocked","locked"},
-			caption = "Locked",
-			tooltip = "Is the game locked?",
-			spadscommand = {unlocked = "!unlock", locked = "!lock"},
 		},
 		--[[
 		boss = {
@@ -3683,7 +3744,7 @@ local function SetupSpadsStatusPanel(battle, battleID)
 	}
 
 
-	local rows = 3
+	local rows = 2
 	local cols = 3
 	local i = 0
 	for j, k in ipairs(spadsSettingsOrder) do
@@ -3740,9 +3801,9 @@ local function SetupSpadsStatusPanel(battle, battleID)
 	local balanceButton = Button:New {
 		name = 'balanceButton',
 		x = '1%',
-		y = '68%',
+		y = '51%',
 		width = '31%',
-		height = '31%',
+		height = '48%',
 		caption = "Balance",
 		tooltip = "Attempt to balance the teams. In Coop Preset this splits Humans and AIs.",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
@@ -3758,9 +3819,9 @@ local function SetupSpadsStatusPanel(battle, battleID)
 	local lockButton = Button:New {
 		name = 'lockButton',
 		x = '34%',
-		y = '68%',
+		y = '51%',
 		width = '31%',
-		height = '31%',
+		height = '48%',
 		caption = "Lock",
 		tooltip = "Lock the battleroom, preventing everyone from joining",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
@@ -3776,9 +3837,9 @@ local function SetupSpadsStatusPanel(battle, battleID)
 	local unlockButton = Button:New {
 		name = 'unlockButton',
 		x = '67%',
-		y = '68%',
+		y = '51%',
 		width = '31%',
-		height = '31%',
+		height = '48%',
 		caption = "Unlock",
 		tooltip = "Unlock the battleroom, to allow players to join",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
@@ -3790,6 +3851,17 @@ local function SetupSpadsStatusPanel(battle, battleID)
 			end
 		},
 	}
+
+	UpdateLockButtons = function (locked)
+		if locked then
+			ButtonUtilities.SetButtonSelected(lockButton)
+			ButtonUtilities.SetButtonDeselected(unlockButton)
+		else
+			ButtonUtilities.SetButtonDeselected(lockButton)
+			ButtonUtilities.SetButtonSelected(unlockButton)
+		end
+	end
+
 	freezeSettings = false
 end
 
@@ -5340,6 +5412,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		teamCount = 2
 		ReconcileTeams = nil
 		ShowTeamCount = nil
+		UpdateLockButtons = nil
 
 		oldLobby:RemoveListener("OnUpdateUserTeamStatus", OnUpdateUserTeamStatus)
 		oldLobby:RemoveListener("OnUpdateUserBattleStatus", OnUpdateUserBattleStatus)
@@ -5590,12 +5663,13 @@ function BattleRoomWindow.UpdateMinimapstartBoxes()
 
 	if mainWindowFunctions and mainWindowFunctions.GetInfoHandler() and not IsMousePressed() then
 		local infoHandler = mainWindowFunctions.GetInfoHandler()
-		infoHandler.SyncTeamCount()
+		infoHandler.SyncBattleSettings()
 		infoHandler.RefreshStartboxesOnTeamChange()
 		infoHandler.rightInfo:Invalidate()
 		infoHandler.UpdateStartRectPositionsInMinimap()
 		infoHandler.rightInfo:UpdateClientArea()
 		RefreshStartButtonForStartboxes()
+		RefreshLockButtons()
 	end
 
 	if WG.Delay then
