@@ -1275,7 +1275,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		items = teamCountItems,
 		itemsDisabled = teamCountDisabled,
 		selected = TeamCountToItem(teamCount),
-		tooltip = "How many teams players and AI can be split into",
+		tooltip = "Change number of teams for this lobby",
 		OnSelect = {
 			function (obj, itemIndex)
 				local picked = itemIndex + 1
