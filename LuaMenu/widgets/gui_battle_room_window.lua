@@ -4965,11 +4965,14 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		or string.match(message, "Map changed by .-%: .+$")
 		or string.match(message, "Preset .%w+. %(.-%) applied by .+$")
 		then
+			-- Default first, then let the render correct it: an override survives a team
+			-- count change and still owns the boxes afterwards.
+			StartBoxComboBoxSelectDefault()
 			if string.match(message, "Global setting changed by .- %((nbTeams=%d+)%)$") then
 				-- team count picks the arrangement, so the polygon render must re-select
 				infoHandler.RefreshStartboxes()
 			end
-			StartBoxComboBoxSelectDefault()
+
 			return false
 		end
 
