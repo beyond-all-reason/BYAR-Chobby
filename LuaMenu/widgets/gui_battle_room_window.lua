@@ -454,8 +454,11 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 			return
 		end
 
+		-- An empty set encodes too: removing the last box means the room has an override
+		-- of no boxes, not the absence of an override, which would put the map defaults
+		-- back on screen. Clearing the override outright is the Default Boxes option.
 		local encoded = mapStartBoxes.encodeStartboxOverrideModoption(startRectValues)
-		if not encoded and next(startRectValues) ~= nil then
+		if not encoded then
 			if AddLocalBattleWarning then
 				AddLocalBattleWarning("These start boxes could not be encoded, so they were not sent to the room.")
 			end
@@ -463,9 +466,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 			return
 		end
 
-		-- "0" rather than "" when clearing: SPADS drops empty values on the floor
-		-- (sendBattleSetting skips ''), same trick as gui_modoptions_panel.
-		battleLobby:SetModOptions({ mapmetadata_startbox_override = encoded or "0" })
+		battleLobby:SetModOptions({ mapmetadata_startbox_override = encoded })
 
 		-- Boxes stay on whatever the server currently holds until the echo says
 		-- otherwise; a rejected or voted-down change then needs no undo.
