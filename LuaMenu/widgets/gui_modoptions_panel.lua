@@ -1100,10 +1100,13 @@ local function CreateModePanel(category, sectionData)
 		end
 	end
 
+	-- No pick yet: the selector option's own default names the mode, never
+	-- whichever file the archive listed first.
 	local defaultSelected = 1
 	if catModes and catModes.modes then
+		local wanted = selectedModeKeys[category] or (selectorOpt and selectorOpt.def)
 		for i, m in ipairs(catModes.modes) do
-			if m.key == (selectedModeKeys[category] or "enabled") then
+			if m.key == wanted then
 				defaultSelected = i; break
 			end
 		end
