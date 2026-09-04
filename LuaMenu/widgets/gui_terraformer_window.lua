@@ -17,10 +17,11 @@ local selectedProject
 local listMode = "maps" -- "maps" | "projects"
 -- Matches #LOAD_PHASES in cmd_map_project.lua; the pointer carries it for progress reporting.
 local PROJECT_LOAD_PHASES = 11
--- Declared up here because Launch, below, reports download state and both of these are
+-- Declared up here because Launch, below, reports download and launch state, and all three are
 -- defined further down with the row rendering.
 local downloading = {}
 local RefreshRowStatus
+local startButton
 
 
 -- Projects live in the write dir as MapProjects/<slug>/project.lua, a plain Lua table. The
@@ -44,6 +45,8 @@ local function ListProjects()
 					sizeZ = manifest.map.size_z,
 					baseHeight = manifest.map.base_height,
 					baseColor = manifest.map.base_color,
+					dnts = manifest.map.dnts,
+					skybox = manifest.map.skybox,
 					modified = manifest.modified,
 				}
 			end
@@ -95,6 +98,65 @@ local function WritePendingProject(entry)
 	return true
 end
 
+-- A blank canvas ships no SSMF splat textures, so the detail normals the project was captured
+-- with have to be handed to the generator or the terrain loads as flat diffuse. The project
+-- carries its own copies under assets/, which is why these resolve against the project rather
+-- than the shared library.
+local function BuildSplatKeys(entry)
+	local dnts = entry.dnts
+	if type(dnts) ~= "table" then
+		return {}
+	end
+
+	local prefix = "MapProjects/" .. entry.slug .. "/"
+	local textures = type(dnts.textures) == "table" and dnts.textures or {}
+	local scales = dnts.scales or {}
+	local mults = dnts.mults or {}
+
+	local keys = {}
+	for ch = 1, 4 do
+		local texture = textures[ch]
+		if type(texture) == "string" and texture ~= "" then
+			keys[#keys + 1] = "blank_map_splatdetailnormaltex" .. ch .. "=" .. prefix .. texture .. ";"
+			keys[#keys + 1] = "blank_map_splattexscale" .. ch .. "=" .. (scales[ch] or 0.01) .. ";"
+			keys[#keys + 1] = "blank_map_splattexmult" .. ch .. "=" .. (mults[ch] or 1.0) .. ";"
+		end
+	end
+
+	-- Older SMFReadMap paths only switch splats on when a detail texture is present, even where
+	-- the normals are the real source, so channel 1 stands in when the project captured none.
+	local detail = dnts.detail or textures[1]
+	if type(detail) == "string" and detail ~= "" then
+		keys[#keys + 1] = "blank_map_splatdetailtex=" .. prefix .. detail .. ";"
+	end
+
+	if #keys > 0 then
+		local diffuseAlpha = (tonumber(dnts.diffuse_alpha) == 1) and 1 or 0
+		keys[#keys + 1] = "blank_map_splatdetailnormaldiffusealpha=" .. diffuseAlpha .. ";"
+	end
+
+	return keys
+end
+
+-- Manifests record only the skybox's file name, so it has to be found in the library again.
+local function FindSkybox(name)
+	if type(name) ~= "string" or name == "" then
+		return nil
+	end
+
+	local files = VFS.DirList("Terraform Brush/SkyBoxes/", "*.dds", VFS.RAW_FIRST) or {}
+	for i = 1, #files do
+		local file = files[i]:gsub("\\", "/")
+		if file:match("([^/]+)$") == name then
+			return file
+		end
+	end
+
+	Spring.Echo("[Map Editor] Project skybox '" .. name .. "' is not in the library; launching without one.")
+
+	return nil
+end
+
 -- Game-scope keys and the [mapoptions] block the engine needs to synthesise a blank map.
 -- The name keeps the "Editor Flat WxH" prefix the terraformer's own matchers look for, and
 -- carries a timestamp because reusing a generated map name can resolve to a stale archive
@@ -102,19 +164,37 @@ end
 local function BuildBlankMapKeys(entry, seed)
 	local color = entry.baseColor or NEWMAP_COLOR
 
+	local options = {
+		"blank_map_x=" .. entry.sizeX .. ";",
+		"blank_map_y=" .. entry.sizeZ .. ";",
+		"blank_map_height=" .. (tonumber(entry.baseHeight) or NEWMAP_BASE_HEIGHT) .. ";",
+		"blank_map_color_r=" .. color[1] .. ";",
+		"blank_map_color_g=" .. color[2] .. ";",
+		"blank_map_color_b=" .. color[3] .. ";",
+	}
+
+	local skybox = FindSkybox(entry.skybox)
+	if skybox then
+		options[#options + 1] = "blank_map_skybox=" .. skybox .. ";"
+	end
+
+	local splat = BuildSplatKeys(entry)
+	for i = 1, #splat do
+		options[#options + 1] = splat[i]
+	end
+
+	for i = 1, #options do
+		options[i] = "\t\t" .. options[i]
+	end
+
 	return table.concat({
-		"	InitBlank=1;",
-		"	MapSeed=" .. seed .. ";",
+		"\tInitBlank=1;",
+		"\tMapSeed=" .. seed .. ";",
 		"",
-		"	[mapoptions]",
-		"	{",
-		"		blank_map_x=" .. entry.sizeX .. ";",
-		"		blank_map_y=" .. entry.sizeZ .. ";",
-		"		blank_map_height=" .. (tonumber(entry.baseHeight) or NEWMAP_BASE_HEIGHT) .. ";",
-		"		blank_map_color_r=" .. color[1] .. ";",
-		"		blank_map_color_g=" .. color[2] .. ";",
-		"		blank_map_color_b=" .. color[3] .. ";",
-		"	}",
+		"\t[mapoptions]",
+		"\t{",
+		table.concat(options, "\n"),
+		"\t}",
 	}, "\n")
 end
 
@@ -216,6 +296,11 @@ local function Launch()
 		return
 	end
 
+	if startButton then
+		startButton:SetEnabled(false)
+		startButton:SetCaption("Starting")
+	end
+
 	-- The same two paths skirmish takes: hand the script to the wrapper where that is how this
 	-- install starts games, otherwise reload this engine onto it.
 	if
@@ -253,10 +338,15 @@ local FOOTER_HEIGHT = 60
 -- anchored that way slides out from under its heading the moment a scrollbar appears.
 local CELL_INSET = 2
 
+-- The installed icon is the one column that keeps to the right edge: it belongs against the
+-- panel border rather than at the end of the text, and an icon shows no drift the way a line
+-- of text under a centred heading would.
+local STATUS_WIDTH = 60
+
 local MAP_COLUMNS = {
 	{name = "Name", x = 0, width = 620, align = "left"},
-	{name = "Details", x = 628, width = 620},
-	{name = "", x = 1256, width = 60, image = IMG_HAVE, imageSize = 20, tooltip = "Installed locally"},
+	{name = "Details", x = 628, right = STATUS_WIDTH + 12, align = "left"},
+	{name = "", right = 5, width = STATUS_WIDTH, image = IMG_HAVE, imageSize = 20, tooltip = "Installed locally"},
 }
 
 local PROJECT_COLUMNS = {
@@ -272,15 +362,15 @@ local COLUMN_MODIFIED = 4
 -- it when it centres too. The name column is the exception: it reads as the row's label.
 local function CellBounds(column)
 	return {
-		x = column.x + CELL_INSET,
-		width = column.width - CELL_INSET * 2,
+		x = column.x and (column.x + CELL_INSET) or nil,
+		width = column.width and (column.width - CELL_INSET * 2) or nil,
+		right = column.right and (column.right + CELL_INSET) or nil,
 		align = column.align or "center",
 	}
 end
 
 local rows = {}
 local projectRows = {}
-local startButton
 local filterText = ""
 local mapList
 local SetSelectedForward
@@ -556,7 +646,7 @@ local function InitializeControls(parent)
 			parent = button,
 			x = factsCell.x,
 			y = 0,
-			width = factsCell.width,
+			right = factsCell.right,
 			height = ROW_HEIGHT,
 			align = factsCell.align,
 			autosize = false,
@@ -569,7 +659,7 @@ local function InitializeControls(parent)
 		local statusCell = CellBounds(MAP_COLUMNS[3])
 		local statusImage = Image:New {
 			parent = button,
-			x = statusCell.x + math.floor((statusCell.width - 16) / 2),
+			right = statusCell.right + math.floor((statusCell.width - 16) / 2),
 			y = math.floor((ROW_HEIGHT - 20) / 2),
 			width = 16,
 			height = 20,
@@ -679,19 +769,15 @@ local function InitializeControls(parent)
 		projectList:Clear()
 		projectList:AddItems(BuildProjectItems())
 
-		local restored
+		selectedProject = nil
 		for i = 1, #projectRows do
 			if projectRows[i].entry.slug == selectedSlug then
-				restored = projectRows[i].entry
+				selectedProject = projectRows[i].entry
 				break
 			end
 		end
 
-		if listMode == "projects" then
-			SetSelectedProject(restored)
-		else
-			selectedProject = restored
-		end
+		SetMode(listMode)
 	end
 
 	mapsTab = Button:New {
