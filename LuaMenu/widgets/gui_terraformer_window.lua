@@ -22,6 +22,9 @@ local PROJECT_LOAD_PHASES = 11
 local downloading = {}
 local RefreshRowStatus
 local startButton
+-- A row click keeps arriving after the double click that launched, and would put "Start" back
+-- on the button; the caption belongs to the launch until the lobby is on screen again.
+local launching = false
 
 
 -- Projects live in the write dir as MapProjects/<slug>/project.lua, a plain Lua table. The
@@ -296,6 +299,7 @@ local function Launch()
 		return
 	end
 
+	launching = true
 	if startButton then
 		startButton:SetEnabled(false)
 		startButton:SetCaption("Starting")
@@ -326,6 +330,9 @@ end
 local ROW_HEIGHT = 64
 local IMG_HAVE = LUA_DIRNAME .. "images/downloadready.png"
 local IMG_MISSING = LUA_DIRNAME .. "images/downloadnotready.png"
+-- The combobox chevron, borrowed the way the map browser borrows the skin's star. It points
+-- down as drawn, so ascending flips it.
+local IMG_SORT_ARROW = LUA_DIRNAME .. "widgets/chili/skins/Armada Blues/combobox_ctrl_arrow.png"
 -- No third icon ships for "in progress", so the missing one is tinted amber instead.
 local TINT_IDLE = {1, 1, 1, 1}
 local TINT_BUSY = {1, 0.8, 0.2, 1}
@@ -438,7 +445,7 @@ local function SetSelectedProject(entry)
 		Highlight(projectRows[i].button, projectRows[i].entry == entry)
 	end
 
-	if startButton then
+	if startButton and not launching then
 		startButton:SetEnabled(entry ~= nil)
 		startButton:SetCaption("Start")
 	end
@@ -450,7 +457,7 @@ SetSelectedForward = function(mapName)
 		Highlight(rows[i].button, rows[i].mapName == mapName)
 	end
 
-	if not startButton then
+	if not startButton or launching then
 		return
 	end
 
@@ -576,6 +583,46 @@ local function InitializeControls(parent)
 
 	local projectList =
 		WG.Chobby.SortableList(projectHolder, PROJECT_COLUMNS, ROW_HEIGHT, COLUMN_MODIFIED, false, nil, ItemInFilter)
+
+	-- SortableList knows which column it is ordering by but draws nothing to say so, and its
+	-- headings are plain buttons. Appending to their click handlers runs after the list has
+	-- already moved sortBy, so the mark lands on the column that just took over.
+	-- Sits on the holder rather than inside the heading button: the button skin pads 10 all round,
+	-- which would cap the glyph at half this size.
+	local function MarkSortedColumn(list, columns, holder)
+		local arrows = {}
+		for i = 1, #list.headingButtons do
+			arrows[i] = Image:New {
+				parent = holder,
+				right = columns[i].right,
+				y = 7,
+				width = 34,
+				height = 24,
+				keepAspect = true,
+				file = IMG_SORT_ARROW,
+			}
+		end
+
+		local function Apply()
+			for i = 1, #list.headingButtons do
+				local active = i == list.sortBy
+				Highlight(list.headingButtons[i], active)
+				arrows[i]:SetVisibility(active)
+				arrows[i].flip = list.smallToLarge
+				arrows[i]:Invalidate()
+			end
+		end
+
+		for i = 1, #list.headingButtons do
+			local heading = list.headingButtons[i]
+			heading.OnClick[#heading.OnClick + 1] = Apply
+		end
+
+		Apply()
+	end
+
+	MarkSortedColumn(mapList, MAP_COLUMNS, mapHolder)
+	MarkSortedColumn(projectList, PROJECT_COLUMNS, projectHolder)
 
 	-- Same source the map browser uses. VFS.GetMaps is not it: the lobby knows maps through
 	-- the generated mapDetails config, which is also what carries their metadata.
@@ -892,6 +939,7 @@ local function OnDownloadFailed(_, _, _, thingName)
 end
 
 function widget:ActivateMenu()
+	launching = false
 	if RefreshProjects then
 		RefreshProjects()
 	end
