@@ -16,6 +16,7 @@ end
 local modoptionDefaults = {}
 local modoptionStructure = {}
 local modesByGame = {}
+local valuesByGame = {} -- the game's modules/modes/lib/values.lua, per archive
 local activeModes = {}
 local selectedModeKeys = {}
 local applyingModes = false -- Apply in progress: the battle listener must not re-seed the picks
@@ -2021,12 +2022,15 @@ function ModoptionsPanel.LoadModoptions(gameName, newBattleLobby, forceReload)
 	local function LoadModes()
 		local byCategory = {}
 		-- The value formatter is the game's, read from the same archive as the
-		-- modes, so what this lobby sends is what the game's export baked.
+		-- modes, so what this lobby sends is what the game's export baked. An
+		-- archive that ships modes without it gets no modes rather than a
+		-- resolver that throws on Accept.
 		local okValues, values = pcall(VFS.Include, "modules/modes/lib/values.lua", nil, VFS.ZIP)
 		if okValues and type(values) == "table" and values.ToModOption then
-			ModeResolver.UseValues(values)
+			valuesByGame[gameName] = values
 		else
-			Spring.Log(LOG_SECTION, LOG.ERROR, "game archive ships modes but no modules/modes/lib/values.lua: " .. tostring(values))
+			Spring.Log(LOG_SECTION, LOG.ERROR, "game archive has no modules/modes/lib/values.lua; its modes are ignored: " .. tostring(values))
+			return nil
 		end
 
 		-- Modes live either at modes/<category>/*.lua or, for encapsulated game
@@ -2078,6 +2082,8 @@ function ModoptionsPanel.LoadModoptions(gameName, newBattleLobby, forceReload)
 		activeModes = VFS.UseArchive(gameName, LoadModes) or {}
 		modesByGame[gameName] = activeModes
 	end
+	-- the resolver formats with the archive in hand, not the last one loaded
+	ModeResolver.UseValues(valuesByGame[gameName])
 	WG.Modes = activeModes
 	WG.ModoptionDefs = modoptions
 
