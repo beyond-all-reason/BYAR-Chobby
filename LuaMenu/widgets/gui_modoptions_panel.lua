@@ -1423,7 +1423,18 @@ local function CreateModoptionWindow()
 		end
 
 		applyingModes = false
-		battleLobby:SetModOptions(localModoptions, managedKeys or allModeKeys)
+		-- Nothing a picked mode owns goes out as a !bSet: not the keys in its
+		-- sections, and not the keys it claims from elsewhere (FFA pins
+		-- ffa_wreckage, which lives with the main options). The !mode carries
+		-- them, and a player has no !bSet right anyway.
+		local modeOwnedKeys = {}
+		for k in pairs(managedKeys or {}) do
+			modeOwnedKeys[k] = true
+		end
+		for k in pairs(allModeKeys or {}) do
+			modeOwnedKeys[k] = true
+		end
+		battleLobby:SetModOptions(localModoptions, modeOwnedKeys)
 		modoptionWindowOpen = false
 		modoptionsSelectionWindow:Dispose()
 		if WG.BattleRoomChatInput then
