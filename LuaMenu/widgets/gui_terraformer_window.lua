@@ -49,11 +49,23 @@ local function ListProjects()
 			end
 		end
 	end
-	table.sort(out, function(a, b)
-		return (a.name or "") < (b.name or "")
-	end)
 
 	return out
+end
+
+-- Manifests record modified as a fixed-width UTC ISO stamp, which sorts lexically. Only the
+-- display goes through the local-time conversion; the raw string stays the sort key.
+local function FormatModified(iso)
+	if not iso then
+		return "-"
+	end
+
+	local t = Spring.Utilities.UtcToLocal(iso)
+	if not t then
+		return iso
+	end
+
+	return string.format("%04d-%02d-%02d %02d:%02d", t[6], t[5], t[4], t[3], t[2])
 end
 
 -- Values the terraformer's own New Map path uses; a project load overwrites the terrain
@@ -233,15 +245,38 @@ local IMG_MISSING = LUA_DIRNAME .. "images/downloadnotready.png"
 local TINT_IDLE = {1, 1, 1, 1}
 local TINT_BUSY = {1, 0.8, 0.2, 1}
 
--- Columns whose content has a predictable width get a fixed one and are anchored to the right
--- edge; the name takes whatever is left. A name that still does not fit had no more room to be
--- given, so clipping there is the honest outcome rather than a layout choice.
-local GAP = 12
-local STATUS_WIDTH = 16
-local FACTS_WIDTH = 450
-local FACTS_RIGHT = GAP + STATUS_WIDTH + GAP
-local NAME_RIGHT = FACTS_RIGHT + FACTS_WIDTH + GAP
 local FOOTER_HEIGHT = 60
+
+-- One spec drives both the heading buttons and the row cells, the way the map browser and the
+-- download list do it. Columns are measured from the left: rows live inside a scroll panel that
+-- takes width off the RIGHT edge, and only once the list is long enough to scroll, so anything
+-- anchored that way slides out from under its heading the moment a scrollbar appears.
+local CELL_INSET = 2
+
+local MAP_COLUMNS = {
+	{name = "Name", x = 0, width = 620, align = "left"},
+	{name = "Details", x = 628, width = 620},
+	{name = "", x = 1256, width = 60, image = IMG_HAVE, imageSize = 20, tooltip = "Installed locally"},
+}
+
+local PROJECT_COLUMNS = {
+	{name = "Project", x = 0, width = 620, align = "left"},
+	{name = "Captured from", x = 628, width = 340},
+	{name = "Size", x = 976, width = 130},
+	{name = "Modified", x = 1114, width = 210},
+}
+
+local COLUMN_MODIFIED = 4
+
+-- Heading captions are centred by the button skin, so a cell only lines up with the words above
+-- it when it centres too. The name column is the exception: it reads as the row's label.
+local function CellBounds(column)
+	return {
+		x = column.x + CELL_INSET,
+		width = column.width - CELL_INSET * 2,
+		align = column.align or "center",
+	}
+end
 
 local rows = {}
 local projectRows = {}
@@ -249,6 +284,9 @@ local startButton
 local filterText = ""
 local mapList
 local SetSelectedForward
+-- LuaMenu survives Spring.Reload, so the panel built on first show outlives every editor
+-- session launched from it. Assigned in InitializeControls, called on the way back.
+local RefreshProjects
 
 -- One line of facts from the generated mapDetails entry. Kept deliberately small: this panel
 -- is a prototype and its own thing, not a second copy of the map browser.
@@ -394,14 +432,32 @@ local function InitializeControls(parent)
 
 	local searchBox = EditBox:New {
 		parent = parent,
+		x = 520,
 		right = 15,
-		y = 13,
-		width = 220,
-		height = 33,
+		y = 11,
+		height = 37,
 		text = "",
 		hint = "Search",
 		objectOverrideFont = Configuration:GetFont(2),
 		objectOverrideHintFont = Configuration:GetFont(11),
+	}
+
+	-- The maps list comes from a static config, so only the projects list has anything to rescan.
+	local refreshButton = Button:New {
+		parent = parent,
+		x = 382,
+		y = 7,
+		width = 120,
+		height = 45,
+		caption = i18n("refresh"),
+		classname = "option_button",
+		objectOverrideFont = Configuration:GetFont(2),
+		tooltip = "Rescan the MapProjects folder",
+		OnClick = {
+			function()
+				RefreshProjects()
+			end,
+		},
 	}
 
 	local mapHolder = Control:New {
@@ -426,19 +482,17 @@ local function InitializeControls(parent)
 		padding = {0, 0, 0, 0},
 	}
 
+	-- Both lists put their searchable text in the first two sort fields.
 	local function ItemInFilter(sortData)
-		return filterText == "" or sortData[1]:find(filterText, 1, true) ~= nil
+		return filterText == ""
+			or sortData[1]:find(filterText, 1, true) ~= nil
+			or sortData[2]:find(filterText, 1, true) ~= nil
 	end
 
-	mapList = WG.Chobby.SortableList(mapHolder, {
-		{name = "Name", x = 0, right = NAME_RIGHT},
-		{name = "Details", right = FACTS_RIGHT, width = FACTS_WIDTH},
-	}, ROW_HEIGHT, 1, true, nil, ItemInFilter)
+	mapList = WG.Chobby.SortableList(mapHolder, MAP_COLUMNS, ROW_HEIGHT, 1, true, nil, ItemInFilter)
 
-	local projectList = WG.Chobby.SortableList(projectHolder, {
-		{name = "Project", x = 0, right = NAME_RIGHT},
-		{name = "Captured from", right = GAP, width = FACTS_WIDTH},
-	}, ROW_HEIGHT, 1, true)
+	local projectList =
+		WG.Chobby.SortableList(projectHolder, PROJECT_COLUMNS, ROW_HEIGHT, COLUMN_MODIFIED, false, nil, ItemInFilter)
 
 	-- Same source the map browser uses. VFS.GetMaps is not it: the lobby knows maps through
 	-- the generated mapDetails config, which is also what carries their metadata.
@@ -482,35 +536,42 @@ local function InitializeControls(parent)
 			parent = minimap,
 		}
 
+		local nameCell = CellBounds(MAP_COLUMNS[1])
 		Label:New {
 			parent = button,
-			x = ROW_HEIGHT + 6,
+			x = nameCell.x + ROW_HEIGHT + 6,
 			y = 0,
-			right = NAME_RIGHT,
+			width = nameCell.width - ROW_HEIGHT - 6,
 			height = ROW_HEIGHT,
+			align = nameCell.align,
+			autosize = false,
 			valign = "center",
 			caption = mapName,
 			objectOverrideFont = Configuration:GetFont(3),
 		}
 
 		local facts = DescribeMap(mapName, data)
+		local factsCell = CellBounds(MAP_COLUMNS[2])
 		Label:New {
 			parent = button,
-			right = FACTS_RIGHT,
+			x = factsCell.x,
 			y = 0,
-			width = FACTS_WIDTH,
+			width = factsCell.width,
 			height = ROW_HEIGHT,
+			align = factsCell.align,
+			autosize = false,
 			valign = "center",
 			caption = facts,
 			objectOverrideFont = Configuration:GetFont(1),
 		}
 
 		-- An icon rather than the words: the browser uses these same two for exactly this.
+		local statusCell = CellBounds(MAP_COLUMNS[3])
 		local statusImage = Image:New {
 			parent = button,
-			right = GAP,
+			x = statusCell.x + math.floor((statusCell.width - 16) / 2),
 			y = math.floor((ROW_HEIGHT - 20) / 2),
-			width = STATUS_WIDTH,
+			width = 16,
 			height = 20,
 			file = VFS.HasArchive(mapName) and IMG_HAVE or IMG_MISSING,
 			tooltip = VFS.HasArchive(mapName) and "Installed" or "Not downloaded",
@@ -521,55 +582,63 @@ local function InitializeControls(parent)
 			status = statusImage,
 			mapName = mapName,
 		}
-		mapItems[i] = {mapName, root, {mapName:lower(), facts}}
+		mapItems[i] = {mapName, root, {mapName:lower(), facts:lower()}}
 	end
 	mapList:AddItems(mapItems)
 
-	projectRows = {}
-	local projects = ListProjects()
-	local projectItems = {}
-	for i = 1, #projects do
-		local entry = projects[i]
-		local root, button = CreateRow(function()
-			SetSelectedProject(entry)
-		end, function()
-			SetSelectedProject(entry)
-			Launch()
-		end)
+	local function BuildProjectItems()
+		projectRows = {}
+		local projects = ListProjects()
+		local projectItems = {}
+		for i = 1, #projects do
+			local entry = projects[i]
+			local root, button = CreateRow(function()
+				SetSelectedProject(entry)
+			end, function()
+				SetSelectedProject(entry)
+				Launch()
+			end)
 
-		Label:New {
-			parent = button,
-			x = 12,
-			y = 0,
-			right = NAME_RIGHT,
-			height = ROW_HEIGHT,
-			valign = "center",
-			caption = entry.name,
-			objectOverrideFont = Configuration:GetFont(3),
-		}
+			local sourceMap = entry.sourceMap or "-"
+			local cells = {
+				{caption = entry.name, font = 3},
+				{caption = sourceMap, font = 1},
+				{caption = string.format("%dx%d", entry.sizeX or 0, entry.sizeZ or 0), font = 1},
+				{caption = FormatModified(entry.modified), font = 1},
+			}
+			for c = 1, #cells do
+				local bounds = CellBounds(PROJECT_COLUMNS[c])
+				Label:New {
+					parent = button,
+					x = bounds.x,
+					y = 0,
+					width = bounds.width,
+					height = ROW_HEIGHT,
+					align = bounds.align,
+					autosize = false,
+					valign = "center",
+					caption = cells[c].caption,
+					objectOverrideFont = Configuration:GetFont(cells[c].font),
+				}
+			end
 
-		local facts = string.format(
-			"%dx%d  -  %s  -  %s",
-			entry.sizeX or 0,
-			entry.sizeZ or 0,
-			tostring(entry.sourceMap),
-			tostring(entry.modified)
-		)
-		Label:New {
-			parent = button,
-			right = GAP,
-			y = 0,
-			width = FACTS_WIDTH,
-			height = ROW_HEIGHT,
-			valign = "center",
-			caption = facts,
-			objectOverrideFont = Configuration:GetFont(1),
-		}
+			projectRows[i] = {button = button, entry = entry}
+			projectItems[i] = {
+				entry.slug,
+				root,
+				{
+					entry.name:lower(),
+					sourceMap:lower(),
+					(entry.sizeX or 0) * (entry.sizeZ or 0),
+					entry.modified or "",
+				},
+			}
+		end
 
-		projectRows[i] = {button = button, entry = entry}
-		projectItems[i] = {entry.slug, root, {entry.name:lower(), facts}}
+		return projectItems
 	end
-	projectList:AddItems(projectItems)
+
+	projectList:AddItems(BuildProjectItems())
 
 	startButton = Button:New {
 		parent = parent,
@@ -583,17 +652,45 @@ local function InitializeControls(parent)
 		OnClick = { Launch },
 	}
 
+	local function ApplyFilter()
+		mapList:RecalculateDisplay()
+		projectList:RecalculateDisplay()
+	end
+
 	local function SetMode(mode)
 		listMode = mode
 		mapHolder:SetVisibility(mode == "maps")
 		projectHolder:SetVisibility(mode == "projects")
-		searchBox:SetVisibility(mode == "maps")
+		refreshButton:SetVisibility(mode == "projects")
 		Highlight(mapsTab, mode == "maps")
 		Highlight(projectsTab, mode == "projects")
 		if mode == "maps" then
 			SetSelectedForward(selectedMap)
 		else
 			SetSelectedProject(selectedProject)
+		end
+	end
+
+	-- Rows carry the manifest table they were built from, and selection is identity on that
+	-- table, so the pick has to be re-resolved by slug against the rebuilt rows.
+	RefreshProjects = function()
+		local selectedSlug = selectedProject and selectedProject.slug
+
+		projectList:Clear()
+		projectList:AddItems(BuildProjectItems())
+
+		local restored
+		for i = 1, #projectRows do
+			if projectRows[i].entry.slug == selectedSlug then
+				restored = projectRows[i].entry
+				break
+			end
+		end
+
+		if listMode == "projects" then
+			SetSelectedProject(restored)
+		else
+			selectedProject = restored
 		end
 	end
 
@@ -637,7 +734,7 @@ local function InitializeControls(parent)
 	searchBox.OnKeyPress = searchBox.OnKeyPress or {}
 	searchBox.OnKeyPress[#searchBox.OnKeyPress + 1] = function(obj)
 		filterText = (obj.text or ""):lower()
-		mapList:RecalculateDisplay()
+		ApplyFilter()
 	end
 end
 
@@ -699,6 +796,12 @@ local function OnDownloadFailed(_, _, _, thingName)
 		downloading[thingName] = nil
 		RefreshRowStatus(thingName)
 		Spring.Echo("[Map Editor] Download failed: " .. tostring(thingName))
+	end
+end
+
+function widget:ActivateMenu()
+	if RefreshProjects then
+		RefreshProjects()
 	end
 end
 
