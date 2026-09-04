@@ -245,6 +245,9 @@ end
 -- Lock Handling
 local lockedOptions = {}
 local postLock = {}
+-- A mode's lock is one bit in lockedOptions next to the item locks (bit 1),
+-- so placing or releasing it leaves an item lock's offscreen row where it is.
+local MODE_LOCK_BIT = 256
 -- ranked_game as it stood before a mode pinned it off, so that leaving every
 -- unranked mode puts it back rather than leaving the pin behind.
 local rankedBeforeModePin = nil
@@ -903,7 +906,8 @@ local function CreateModePanel(category, sectionData)
 		for optKey in pairs(previouslyLocked) do
 			local rule = mode.modOptions and mode.modOptions[optKey]
 			if not (rule and rule.locked) then
-				lockedOptions[optKey] = nil
+				local remaining = math.bit_and(math.bit_inv(MODE_LOCK_BIT), lockedOptions[optKey] or 0)
+				lockedOptions[optKey] = remaining > 0 and remaining or nil
 				SetControlLock(optKey, false)
 			end
 		end
@@ -1088,11 +1092,12 @@ local function CreateModePanel(category, sectionData)
 		if mode.modOptions then
 			for optKey, rule in pairs(mode.modOptions) do
 				if rule.locked then
-					lockedOptions[optKey] = 1
+					lockedOptions[optKey] = math.bit_or(lockedOptions[optKey] or 0, MODE_LOCK_BIT)
 					WG.ModePolicy[category].modeLocked[optKey] = true
 					SetControlLock(optKey, true)
 				else
-					lockedOptions[optKey] = nil
+					local remaining = math.bit_and(math.bit_inv(MODE_LOCK_BIT), lockedOptions[optKey] or 0)
+					lockedOptions[optKey] = remaining > 0 and remaining or nil
 					WG.ModePolicy[category].modeLocked[optKey] = nil
 					SetControlLock(optKey, false)
 				end
