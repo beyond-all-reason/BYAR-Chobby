@@ -249,9 +249,6 @@ local postLock = {}
 -- A mode's lock is one bit in lockedOptions next to the item locks (bit 1),
 -- so placing or releasing it leaves an item lock's offscreen row where it is.
 local MODE_LOCK_BIT = 256
--- ranked_game as it stood before a mode pinned it off, so that leaving every
--- unranked mode puts it back rather than leaving the pin behind.
-local rankedBeforeModePin = nil
 local function processChildrenLocks(unlock, lock, bitmask)
 	local item, itemLock, child
 
@@ -914,29 +911,9 @@ local function CreateModePanel(category, sectionData)
 		end
 		WG.ModePolicy[category].modeLocked = {}
 
-		-- No badge: an unranked mode SAYS so by pinning ranked_game off, and
-		-- the locked option row is the indicator. The pin holds while ANY
-		-- category's mode is unranked, and lifts, restoring the earlier value,
-		-- once none is.
-		local rankedPinned = false
-		for _, catPolicy in pairs(WG.ModePolicy) do
-			if catPolicy.allowRanked == false then
-				rankedPinned = true
-			end
-		end
-		isProgrammaticUpdate = true
-		if rankedPinned then
-			if rankedBeforeModePin == nil then
-				rankedBeforeModePin = localModoptions["ranked_game"] or modoptionDefaults["ranked_game"] or "1"
-			end
-			localModoptions["ranked_game"] = "0"
-			UpdateControlValue("ranked_game", "0")
-		elseif rankedBeforeModePin ~= nil then
-			localModoptions["ranked_game"] = rankedBeforeModePin
-			UpdateControlValue("ranked_game", rankedBeforeModePin)
-			rankedBeforeModePin = nil
-		end
-		isProgrammaticUpdate = false
+		-- An unranked mode pins ranked_game off through its preset (the builder's
+		-- mode.ranked policy), so it travels with modOptions like any claim and
+		-- applyModeValues below sets and releases it. Nothing to do here.
 
 		-- Switching modes resets the category to defaults then applies the preset.
 		-- retainValues modes (Customize) are non-sticky: keep current values, just expose/unlock.
@@ -1200,7 +1177,6 @@ local function CreateModoptionWindow()
 
 	local tabs = {}
 	lockedOptions = {}
-	rankedBeforeModePin = nil
 
 	local tabWidth = 120
 
