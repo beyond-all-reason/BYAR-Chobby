@@ -82,17 +82,6 @@ local function GetModoptionName(key)
 	return key
 end
 
-local function IsOptionalModoption(key)
-	local defs = WG.ModoptionDefs
-	if not defs then return false end
-	for i = 1, #defs do
-		if defs[i].key == key then
-			return defs[i].optional == true
-		end
-	end
-	return false
-end
-
 local function ParseModeVoteTitle(rawTitle)
 	local category, modeKey, rest = string.match(rawTitle, vote_modePattern)
 	if not modeKey then return nil end
@@ -149,9 +138,20 @@ local function FormatModeVoteTitle(rawTitle)
 
 	local defs = WG.ModoptionDefs
 	if defs then
+		-- A section answers to a category directly, or through the
+		-- mode_category its section entry declares (options_main -> game).
+		local governs = {}
 		for i = 1, #defs do
 			local opt = defs[i]
-			if opt.key and opt.section == category and opt.key ~= (category .. "_mode") then
+			if opt.key and opt.type == "section" then
+				governs[opt.key] = opt.mode_category or opt.key
+			end
+		end
+		for i = 1, #defs do
+			local opt = defs[i]
+			if opt.key and opt.section and (governs[opt.section] or opt.section) == category
+					and opt.type ~= "section" and opt.type ~= "subheader" and opt.type ~= "separator"
+					and opt.key ~= (category .. "_mode") then
 				local inMode = mode.modOptions and mode.modOptions[opt.key]
 				if not inMode then
 					disabled[#disabled + 1] = opt.name or opt.key
@@ -4913,10 +4913,6 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 			local _, parsedModeKey = ParseModeVoteTitle(title)
 			if parsedModeKey then
 				title, modeTooltip = FormatModeVoteTitle(title)
-				Spring.Echo("[ModeVote] Display: " .. title)
-				if modeTooltip then
-					Spring.Echo("[ModeVote] Tooltip:\n" .. modeTooltip)
-				end
 			end
 			votePanel.VoteUpdate(title,nil, ismapppoll, candidates, votesNeeded, mapname, userwhocalledvote, newlycalledvote, modeTooltip)
 			return true
