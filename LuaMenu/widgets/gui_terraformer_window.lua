@@ -332,42 +332,32 @@ local TINT_BUSY = {1, 0.8, 0.2, 1}
 
 local FOOTER_HEIGHT = 60
 
--- One spec drives both the heading buttons and the row cells, the way the map browser and the
--- download list do it. Columns are measured from the left: rows live inside a scroll panel that
--- takes width off the RIGHT edge, and only once the list is long enough to scroll, so anything
--- anchored that way slides out from under its heading the moment a scrollbar appears.
-local CELL_INSET = 2
-
--- The installed icon is the one column that keeps to the right edge: it belongs against the
--- panel border rather than at the end of the text, and an icon shows no drift the way a line
--- of text under a centred heading would.
-local STATUS_WIDTH = 60
-
+-- One spec drives both the heading buttons and the row cells, so a cell can never sit anywhere
+-- but under its own heading. Edges are percentages because the panel is as wide as the lobby
+-- window: fixed pixel columns would leave the table bunched on the left of a big screen. The
+-- gaps between the percentages are what stops adjacent heading buttons touching.
+--
+-- Heading captions are centred by the button skin, so cells centre too; the leading name column
+-- is the exception, since it reads as the row's label rather than as a value.
 local MAP_COLUMNS = {
-	{name = "Name", x = 0, width = 620, align = "left"},
-	{name = "Details", x = 628, right = STATUS_WIDTH + 12, align = "left"},
-	{name = "", right = 5, width = STATUS_WIDTH, image = IMG_HAVE, imageSize = 20, tooltip = "Installed locally"},
+	{name = "Name", x = "0%", right = "70%", align = "left"},
+	{name = "Size", x = "30.5%", right = "61%"},
+	{name = "Players", x = "39.5%", right = "54%", tooltip = "Ideal player count in total"},
+	{name = "Teams", x = "46.5%", right = "47%"},
+	{name = "Type", x = "53.5%", right = "34%"},
+	{name = "Terrain", x = "66.5%", right = "11%"},
+	{name = "Status", x = "89.5%", right = "0%", tooltip = "Whether the map archive is installed locally"},
 }
 
 local PROJECT_COLUMNS = {
-	{name = "Project", x = 0, width = 620, align = "left"},
-	{name = "Captured from", x = 628, width = 340},
-	{name = "Size", x = 976, width = 130},
-	{name = "Modified", x = 1114, width = 210},
+	{name = "Project", x = "0%", right = "58%", align = "left"},
+	{name = "Captured from", x = "42.5%", right = "34%"},
+	{name = "Size", x = "66.5%", right = "24%"},
+	{name = "Modified", x = "76.5%", right = "0%"},
 }
 
 local COLUMN_MODIFIED = 4
-
--- Heading captions are centred by the button skin, so a cell only lines up with the words above
--- it when it centres too. The name column is the exception: it reads as the row's label.
-local function CellBounds(column)
-	return {
-		x = column.x and (column.x + CELL_INSET) or nil,
-		width = column.width and (column.width - CELL_INSET * 2) or nil,
-		right = column.right and (column.right + CELL_INSET) or nil,
-		align = column.align or "center",
-	}
-end
+local COLUMN_STATUS = #MAP_COLUMNS
 
 local rows = {}
 local projectRows = {}
@@ -378,23 +368,15 @@ local SetSelectedForward
 -- session launched from it. Assigned in InitializeControls, called on the way back.
 local RefreshProjects
 
--- One line of facts from the generated mapDetails entry. Kept deliberately small: this panel
--- is a prototype and its own thing, not a second copy of the map browser.
-local function DescribeMap(mapName, data)
-	if not data then
-		return "unknown"
-	end
+-- One entry per column between Name and Status, in that order. Sort values are kept apart from
+-- the captions so the counts order by magnitude rather than by how they read.
+local function DescribeMap(data)
+	data = data or {}
 
-	local parts = {}
-	if data.Width and data.Height then
-		parts[#parts + 1] = data.Width .. "x" .. data.Height
-	end
-	if data.PlayerCount then
-		parts[#parts + 1] = data.PlayerCount .. "p"
-	end
-	if data.TeamCount then
-		parts[#parts + 1] = data.TeamCount .. " teams"
-	end
+	local width = tonumber(data.Width)
+	local height = tonumber(data.Height)
+	local players = tonumber(data.PlayerCount)
+	local teams = tonumber(data.TeamCount)
 
 	local kinds = {}
 	if data.Is1v1 then
@@ -405,9 +387,6 @@ local function DescribeMap(mapName, data)
 	end
 	if data.IsFFA then
 		kinds[#kinds + 1] = "FFA"
-	end
-	if #kinds > 0 then
-		parts[#parts + 1] = table.concat(kinds, "/")
 	end
 
 	local terrain = {}
@@ -423,11 +402,26 @@ local function DescribeMap(mapName, data)
 	if data.Special then
 		terrain[#terrain + 1] = data.Special
 	end
-	if #terrain > 0 then
-		parts[#parts + 1] = table.concat(terrain, " ")
+
+	local kindText = table.concat(kinds, "/")
+	local terrainText = table.concat(terrain, " ")
+
+	return {
+		{caption = (width and height) and (width .. "x" .. height) or "-", sort = (width or 0) * (height or 0)},
+		{caption = players and tostring(players) or "-", sort = players or 0},
+		{caption = teams and tostring(teams) or "-", sort = teams or 0},
+		{caption = kindText ~= "" and kindText or "-", sort = kindText:lower()},
+		{caption = terrainText ~= "" and terrainText or "-", sort = terrainText:lower()},
+	}
+end
+
+-- Sorted as text so the Status heading orders installed maps first, then in-flight, then the rest.
+local function StatusSortKey(mapName)
+	if VFS.HasArchive(mapName) then
+		return "1 installed"
 	end
 
-	return table.concat(parts, "  -  ")
+	return downloading[mapName] and "2 downloading" or "3 not downloaded"
 end
 
 local function Highlight(button, chosen)
@@ -522,8 +516,8 @@ local function InitializeControls(parent)
 
 	local searchBox = EditBox:New {
 		parent = parent,
-		x = 520,
-		right = 15,
+		x = 400,
+		right = 147,
 		y = 11,
 		height = 37,
 		text = "",
@@ -535,7 +529,7 @@ local function InitializeControls(parent)
 	-- The maps list comes from a static config, so only the projects list has anything to rescan.
 	local refreshButton = Button:New {
 		parent = parent,
-		x = 382,
+		right = 15,
 		y = 7,
 		width = 120,
 		height = 45,
@@ -572,11 +566,10 @@ local function InitializeControls(parent)
 		padding = {0, 0, 0, 0},
 	}
 
-	-- Both lists put their searchable text in the first two sort fields.
+	-- Sort fields hold whatever each column orders by, counts included, so the text to match a
+	-- query against rides alongside them under its own key.
 	local function ItemInFilter(sortData)
-		return filterText == ""
-			or sortData[1]:find(filterText, 1, true) ~= nil
-			or sortData[2]:find(filterText, 1, true) ~= nil
+		return filterText == "" or (sortData.search or ""):find(filterText, 1, true) ~= nil
 	end
 
 	mapList = WG.Chobby.SortableList(mapHolder, MAP_COLUMNS, ROW_HEIGHT, 1, true, nil, ItemInFilter)
@@ -626,53 +619,64 @@ local function InitializeControls(parent)
 			parent = minimap,
 		}
 
-		local nameCell = CellBounds(MAP_COLUMNS[1])
 		Label:New {
 			parent = button,
-			x = nameCell.x + ROW_HEIGHT + 6,
+			x = ROW_HEIGHT + 6,
 			y = 0,
-			width = nameCell.width - ROW_HEIGHT - 6,
+			right = MAP_COLUMNS[1].right,
 			height = ROW_HEIGHT,
-			align = nameCell.align,
+			align = MAP_COLUMNS[1].align,
 			autosize = false,
 			valign = "center",
 			caption = mapName,
 			objectOverrideFont = Configuration:GetFont(3),
 		}
 
-		local facts = DescribeMap(mapName, data)
-		local factsCell = CellBounds(MAP_COLUMNS[2])
-		Label:New {
-			parent = button,
-			x = factsCell.x,
-			y = 0,
-			right = factsCell.right,
-			height = ROW_HEIGHT,
-			align = factsCell.align,
-			autosize = false,
-			valign = "center",
-			caption = facts,
-			objectOverrideFont = Configuration:GetFont(1),
-		}
+		local sortData = {mapName:lower()}
+		local searchable = {mapName:lower()}
+
+		local facts = DescribeMap(data)
+		for f = 1, #facts do
+			local column = MAP_COLUMNS[f + 1]
+			Label:New {
+				parent = button,
+				x = column.x,
+				y = 0,
+				right = column.right,
+				height = ROW_HEIGHT,
+				align = column.align or "center",
+				autosize = false,
+				valign = "center",
+				caption = facts[f].caption,
+				objectOverrideFont = Configuration:GetFont(1),
+			}
+			sortData[f + 1] = facts[f].sort
+			searchable[#searchable + 1] = facts[f].caption:lower()
+		end
 
 		-- An icon rather than the words: the browser uses these same two for exactly this.
-		local statusCell = CellBounds(MAP_COLUMNS[3])
+		-- keepAspect is what centres it in the column, since the image spans the whole cell.
+		local statusColumn = MAP_COLUMNS[COLUMN_STATUS]
 		local statusImage = Image:New {
 			parent = button,
-			right = statusCell.right + math.floor((statusCell.width - 16) / 2),
+			x = statusColumn.x,
 			y = math.floor((ROW_HEIGHT - 20) / 2),
-			width = 16,
+			right = statusColumn.right,
 			height = 20,
+			keepAspect = true,
 			file = VFS.HasArchive(mapName) and IMG_HAVE or IMG_MISSING,
 			tooltip = VFS.HasArchive(mapName) and "Installed" or "Not downloaded",
 		}
 
+		sortData[COLUMN_STATUS] = StatusSortKey(mapName)
+		sortData.search = table.concat(searchable, " ")
 		rows[i] = {
 			button = button,
 			status = statusImage,
 			mapName = mapName,
+			sortData = sortData,
 		}
-		mapItems[i] = {mapName, root, {mapName:lower(), facts:lower()}}
+		mapItems[i] = {mapName, root, sortData}
 	end
 	mapList:AddItems(mapItems)
 
@@ -697,14 +701,14 @@ local function InitializeControls(parent)
 				{caption = FormatModified(entry.modified), font = 1},
 			}
 			for c = 1, #cells do
-				local bounds = CellBounds(PROJECT_COLUMNS[c])
+				local column = PROJECT_COLUMNS[c]
 				Label:New {
 					parent = button,
-					x = bounds.x,
+					x = column.x,
 					y = 0,
-					width = bounds.width,
+					right = column.right,
 					height = ROW_HEIGHT,
-					align = bounds.align,
+					align = column.align or "center",
 					autosize = false,
 					valign = "center",
 					caption = cells[c].caption,
@@ -712,17 +716,16 @@ local function InitializeControls(parent)
 				}
 			end
 
-			projectRows[i] = {button = button, entry = entry}
-			projectItems[i] = {
-				entry.slug,
-				root,
-				{
-					entry.name:lower(),
-					sourceMap:lower(),
-					(entry.sizeX or 0) * (entry.sizeZ or 0),
-					entry.modified or "",
-				},
+			local sortData = {
+				entry.name:lower(),
+				sourceMap:lower(),
+				(entry.sizeX or 0) * (entry.sizeZ or 0),
+				entry.modified or "",
 			}
+			sortData.search = entry.name:lower() .. " " .. sourceMap:lower()
+
+			projectRows[i] = {button = button, entry = entry}
+			projectItems[i] = {entry.slug, root, sortData}
 		end
 
 		return projectItems
@@ -856,6 +859,9 @@ RefreshRowStatus = function(mapName)
 				or (have and "Installed")
 				or "Not downloaded"
 			row.status:Invalidate()
+
+			row.sortData[COLUMN_STATUS] = StatusSortKey(mapName)
+			mapList:UpdateItemSorting(mapName, row.sortData)
 		end
 	end
 	if mapName == selectedMap then
