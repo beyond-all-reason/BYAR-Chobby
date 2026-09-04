@@ -2,6 +2,7 @@ import perl
 import re
 import os
 import json
+import threading
 import urllib.request
 
 spads = perl.ModeCommand
@@ -41,11 +42,15 @@ _LOCAL_PATHS = [
     '/opt/spads/var/plugins/modes.json',
 ]
 _FETCH_TIMEOUT = 5
+# The modes.json schema this plugin reads (export_modes.lua's SCHEMA_VERSION).
+_SCHEMA_VERSION = 1
 
 # Loaded data, keyed by the version (modName) it was fetched for. _UNSET forces the
-# first lookup to fetch; a `!rehost` to a different version refetches.
+# first lookup to fetch; a `!rehost` to a different version refetches. The fetch
+# runs on a background thread so a slow or unreachable release never stalls the
+# host: until it lands, the last cached copy (or any host-dropped file) is served.
 _UNSET = object()
-_state = {'modName': _UNSET, 'data': {}}
+_state = {'modName': _UNSET, 'data': {}, 'pending': None}
 
 
 def _conf():
@@ -94,28 +99,38 @@ def _commit_sha(mod_name):
 def _fetch(mod_name):
     # Parsed JSON for the hosted version, or None if it could not be fetched (caller
     # falls back). Tries the commit-pinned asset first, then the rolling per-channel
-    # asset. On success the raw body is cached to disk.
+    # asset. On success the raw body is cached to disk. Runs on a worker thread, so
+    # it never touches the perl bridge: log lines come back as (message, level)
+    # pairs for the main thread to emit.
     base = _release_base()
     urls = []
     sha = _commit_sha(mod_name)
     if sha:
-        urls.append('%s/modes-%s.json' % (base, sha))
-    urls.append('%s/modes-%s.json' % (base, _channel(mod_name)))
+        urls.append(('%s/modes-%s.json' % (base, sha), True))
+    urls.append(('%s/modes-%s.json' % (base, _channel(mod_name)), False))
 
-    for url in urls:
+    log = []
+    for (url, pinned) in urls:
         try:
             with urllib.request.urlopen(url, timeout=_FETCH_TIMEOUT) as resp:
                 body = resp.read()
             data = json.loads(body)
+            if not pinned and sha:
+                log.append(('mode: no modes asset pinned to commit %s; serving the rolling %s asset, '
+                            'which may not match the hosted version' % (sha, _channel(mod_name)), 2))
+            schema = data.get('schemaVersion') if isinstance(data, dict) else None
+            if schema != _SCHEMA_VERSION:
+                log.append(('mode: %s has schemaVersion %r, this plugin reads %r; modes may not apply correctly'
+                            % (url, schema, _SCHEMA_VERSION), 1))
             try:
                 with open(_CACHE_PATH, 'wb') as f:
                     f.write(body)
             except OSError:
                 pass
-            return data
+            return data, log
         except Exception as e:
-            spads.slog('mode: could not fetch %s: %s' % (url, e), 2)
-    return None
+            log.append(('mode: could not fetch %s: %s' % (url, e), 2))
+    return None, log
 
 
 def _load_local():
@@ -129,18 +144,53 @@ def _load_local():
     return None
 
 
+def _start_fetch(mod_name):
+    # Kick off a background fetch for this version. The worker only reads the
+    # network and writes the cache file; everything that talks to SPADS happens
+    # on the main thread when the result is collected.
+    pending = {'modName': mod_name, 'done': False, 'data': None, 'log': []}
+
+    def run():
+        try:
+            pending['data'], pending['log'] = _fetch(mod_name)
+        except Exception as e:
+            pending['data'], pending['log'] = None, [('mode: fetch failed: %s' % e, 2)]
+        pending['done'] = True
+
+    _state['pending'] = pending
+    threading.Thread(target=run, name='ModeCommand-fetch', daemon=True).start()
+    return pending
+
+
+def _collect_fetch():
+    # Adopt a finished background fetch, if any, and emit its log lines.
+    pending = _state['pending']
+    if not pending or not pending['done']:
+        return
+    _state['pending'] = None
+    for (message, level) in pending['log']:
+        spads.slog(message, level)
+    if pending['data'] is not None and pending['modName'] == _state['modName']:
+        _state['data'] = _as_dict(pending['data'])
+        spads.slog('mode: modes for "%s" loaded' % pending['modName'], 3)
+
+
 def _modes():
-    # Fetch once per hosted version (modName); a `!rehost` to a different version
-    # refetches. On failure, serve the last cached copy, then any host-dropped file,
-    # then {} — and still mark the version attempted so `!mode` never blocks on a
-    # repeated network call. Reload the plugin to force a refresh.
+    # Never blocks. The first lookup for a hosted version (modName) serves the last
+    # cached copy, then any host-dropped file, then {} — and starts the fetch in the
+    # background; once it lands, later lookups serve it. A `!rehost` to a different
+    # version does the same again. Reload the plugin to force a refresh.
+    _collect_fetch()
     mod_name = _current_mod_name()
     if mod_name != _state['modName']:
-        data = _fetch(mod_name)
-        if data is None:
-            data = _load_local()
-        _state['data'] = data if data is not None else {}
         _state['modName'] = mod_name
+        local = _load_local()
+        _state['data'] = _as_dict(local)
+        if local is None:
+            spads.slog('mode: no cached modes for "%s"; !mode has nothing to apply until the fetch lands' % mod_name, 2)
+        else:
+            spads.slog('mode: serving cached modes for "%s" while the current ones are fetched' % mod_name, 3)
+        _start_fetch(mod_name)
     return _state['data']
 
 
@@ -171,6 +221,8 @@ class ModeCommand:
     def __init__(self, context):
         spads.addSpadsCommandHandler({'mode': hSpadsMode})
         spads.slog("Plugin loaded (version %s)" % pluginVersion, 3)
+        # Warm the modes for the hosted version now, off the command path.
+        _modes()
 
     def onUnload(self, reason):
         spads.removeSpadsCommandHandler(['mode'])
@@ -211,8 +263,10 @@ def hSpadsMode(source, user, params, checkOnly):
             return 0
         settings.append((m.group(1).lower(), m.group(2)))
 
+    # Option keys are compared lowercase throughout: the user's are lowercased
+    # above, and the preset's here, so a lock cannot be dodged by casing.
     locked_keys = set(
-        key for key, spec in mod_options.items()
+        key.lower() for key, spec in mod_options.items()
         if isinstance(spec, dict) and spec.get('locked')
     )
 
@@ -243,7 +297,7 @@ def hSpadsMode(source, user, params, checkOnly):
     effective = {}
     for (key, spec) in mod_options.items():
         if isinstance(spec, dict) and 'value' in spec:
-            effective[key] = spec['value']
+            effective[key.lower()] = spec['value']
     for (key, val) in settings:
         if key not in locked_keys:
             effective[key] = val
