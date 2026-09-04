@@ -867,13 +867,14 @@ local function CreateModePanel(category, sectionData)
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 	}
 
-	local items, itemKeyToName, itemNameToKey, itemsTooltips = {}, {}, {}, {}
+	local items, itemKeyToName, itemNameToKey, itemNameToIndex, itemsTooltips = {}, {}, {}, {}, {}
 	if catModes and catModes.modes then
 		for i, m in ipairs(catModes.modes) do
 			local name = m.name or m.key
 			items[i] = name
 			itemKeyToName[m.key] = name
 			itemNameToKey[name] = m.key
+			itemNameToIndex[name] = i
 			if m.desc then
 				itemsTooltips[i] = m.desc
 			end
@@ -1128,7 +1129,12 @@ local function CreateModePanel(category, sectionData)
 		},
 	}
 
-	modeUI[category] = { modeList = modeList, applyMode = applyMode, itemKeyToName = itemKeyToName }
+	modeUI[category] = {
+		modeList = modeList,
+		applyMode = applyMode,
+		itemKeyToName = itemKeyToName,
+		itemNameToIndex = itemNameToIndex,
+	}
 
 	local parentPanel = Control:New {
 		name = "modeParentPanel_" .. category .. "_" .. (math.random(1000, 9999)),
@@ -1774,17 +1780,22 @@ local function InitializeModoptionsDisplay()
 			for cat in pairs(activeModes) do
 				local battleKey = panelModoptions[cat .. "_mode"]
 				if battleKey and selectedModeKeys[cat] ~= battleKey then
-					selectedModeKeys[cat] = battleKey
 					local ui = modeUI[cat]
 					if modoptionWindowOpen and ui and ui.applyMode then
+						-- Move the selector without firing its listener (that would
+						-- queue a second applyMode), then apply once. applyMode reads
+						-- selectedModeKeys as the previous pick, so it is left alone
+						-- here for the reset-to-defaults pass to see the change.
 						local name = ui.itemKeyToName and ui.itemKeyToName[battleKey]
-						if name and ui.modeList then
-							ui.modeList:Select(name)
+						local index = name and ui.itemNameToIndex and ui.itemNameToIndex[name]
+						if index and ui.modeList then
+							ui.modeList.selected = index
+							ui.modeList:SetCaption(name)
 						end
 						ui.applyMode(battleKey)
+					else
+						selectedModeKeys[cat] = battleKey
 					end
-				elseif battleKey then
-					selectedModeKeys[cat] = battleKey
 				end
 			end
 		end
