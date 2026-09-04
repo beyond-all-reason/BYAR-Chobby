@@ -1037,6 +1037,12 @@ local function CreateModePanel(category, sectionData)
 				rowData.x = rowData.x + (column - 1) * 625
 				row = row + 1
 				rowData.rowOrginal = rowData.y
+				rowData.rowOrginalX = rowData.x
+				-- the search box reads these, same as a plain tab's rows
+				rowData.filterText = string.lower(opt.name or "")
+				rowData.filterType = opt.type
+				rowData.optionKey = opt.key
+				rowData.optionData = opt
 				modeScroll:AddChild(rowData)
 			end
 			if opt.key then
@@ -1162,6 +1168,8 @@ local function CreateModePanel(category, sectionData)
 		applyMode(catModes.modes[defaultSelected].key)
 	end
 
+	-- the search box walks the rows, which live in the scroll, not the frame
+	parentPanel.filterPanel = modeScroll
 	return { parentPanel }
 end
 
@@ -1256,7 +1264,7 @@ local function CreateModoptionWindow()
 			objectOverrideFont = WG.Chobby.Configuration:GetFont(fontSize),
 			children = tabChildren,
 			weight = data.weight or weight,
-			contentPanel = tabChildren[1],
+			contentPanel = tabChildren[1] and (tabChildren[1].filterPanel or tabChildren[1]),
 		}
 		end
 	end
