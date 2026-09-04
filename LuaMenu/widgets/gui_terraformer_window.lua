@@ -14,21 +14,16 @@ local TerraformerWindow = {}
 
 local selectedMap
 local selectedProject
-local listMode = "maps" -- "maps" | "projects"
--- Matches #LOAD_PHASES in cmd_map_project.lua; the pointer carries it for progress reporting.
+local listMode = "maps"
+-- Must match #LOAD_PHASES in the game's cmd_map_project.lua.
 local PROJECT_LOAD_PHASES = 11
--- Declared up here because Launch, below, reports download and launch state, and all three are
--- defined further down with the row rendering.
 local downloading = {}
 local RefreshRowStatus
 local startButton
--- A row click keeps arriving after the double click that launched, and would put "Start" back
--- on the button; the caption belongs to the launch until the lobby is on screen again.
+-- Chili delivers a row's OnClick alongside its OnDblClick, so the launch has to lock the caption.
 local launching = false
 
 
--- Projects live in the write dir as MapProjects/<slug>/project.lua, a plain Lua table. The
--- terraformer owns their format; this only reads the few fields needed to list them.
 local function ListProjects()
 	local out = {}
 	local dirs = VFS.SubDirs("MapProjects/", "*", VFS.RAW) or {}
@@ -59,8 +54,7 @@ local function ListProjects()
 	return out
 end
 
--- Manifests record modified as a fixed-width UTC ISO stamp, which sorts lexically. Only the
--- display goes through the local-time conversion; the raw string stays the sort key.
+-- Manifests record modified as a fixed-width UTC ISO stamp, so the raw string sorts lexically.
 local function FormatModified(iso)
 	if not iso then
 		return "-"
@@ -74,15 +68,11 @@ local function FormatModified(iso)
 	return string.format("%04d-%02d-%02d %02d:%02d", t[6], t[5], t[4], t[3], t[2])
 end
 
--- Values the terraformer's own New Map path uses; a project load overwrites the terrain
--- anyway, so these only decide what the canvas looks like for the moment before it streams in.
+-- Mirrors the defaults the terraformer's own New Map path uses.
 local NEWMAP_BASE_HEIGHT = 100
 local NEWMAP_COLOR = { 110, 130, 90 }
 
--- The terraformer reads this on the next session and streams the project into the blank map.
--- Writing it here rather than routing through WG.MapProject.open is what keeps this to a
--- single launch: that path rewrites the RUNNING game's script and restarts, which would throw
--- away the editor setup this script carries.
+-- Bypasses WG.MapProject.open, which restarts a running game and loses the editor setup.
 local function WritePendingProject(entry)
 	Spring.CreateDir("Terraform Brush")
 	local file = io.open("Terraform Brush/pending_project.lua", "w")
@@ -101,10 +91,7 @@ local function WritePendingProject(entry)
 	return true
 end
 
--- A blank canvas ships no SSMF splat textures, so the detail normals the project was captured
--- with have to be handed to the generator or the terrain loads as flat diffuse. The project
--- carries its own copies under assets/, which is why these resolve against the project rather
--- than the shared library.
+-- A blank canvas ships no SSMF splat textures, so without these the terrain loads as flat diffuse.
 local function BuildSplatKeys(entry)
 	local dnts = entry.dnts
 	if type(dnts) ~= "table" then
@@ -126,8 +113,7 @@ local function BuildSplatKeys(entry)
 		end
 	end
 
-	-- Older SMFReadMap paths only switch splats on when a detail texture is present, even where
-	-- the normals are the real source, so channel 1 stands in when the project captured none.
+	-- Older SMFReadMap paths only switch splats on when a detail texture is present.
 	local detail = dnts.detail or textures[1]
 	if type(detail) == "string" and detail ~= "" then
 		keys[#keys + 1] = "blank_map_splatdetailtex=" .. prefix .. detail .. ";"
@@ -160,10 +146,6 @@ local function FindSkybox(name)
 	return nil
 end
 
--- Game-scope keys and the [mapoptions] block the engine needs to synthesise a blank map.
--- The name keeps the "Editor Flat WxH" prefix the terraformer's own matchers look for, and
--- carries a timestamp because reusing a generated map name can resolve to a stale archive
--- cache entry.
 local function BuildBlankMapKeys(entry, seed)
 	local color = entry.baseColor or NEWMAP_COLOR
 
@@ -201,9 +183,7 @@ local function BuildBlankMapKeys(entry, seed)
 	}, "\n")
 end
 
--- No teams at all: the start unit is spawned per team, so declaring none is what keeps the
--- canvas clear. The player joins as a spectator, which is the only way to be in a game with
--- no teams to belong to. deathmode=neverend still matters, as an empty game ends instantly.
+-- The game spawns a start unit per team, and an empty game ends instantly without neverend.
 local function BuildStartScript(mapName, projectEntry, blankSeed)
 	local Configuration = WG.Chobby.Configuration
 	local gameName = Configuration:GetDefaultGameName()
@@ -269,9 +249,7 @@ local function Launch()
 			Spring.Echo("[Map Editor] Could not write the pending-project pointer.")
 			return
 		end
-		-- The engine synthesises this map from the blank_map options; the name only has to keep
-		-- the prefix the terraformer matches on, and be unique so it cannot hit a stale archive
-		-- cache entry.
+		-- Keeps the prefix the terraformer matches on; the stamp dodges a stale archive cache entry.
 		blankSeed = os.time()
 		mapName = string.format("Editor Flat %dx%d s%d", selectedProject.sizeX, selectedProject.sizeZ, blankSeed)
 	else
@@ -305,8 +283,7 @@ local function Launch()
 		startButton:SetCaption("Starting")
 	end
 
-	-- The same two paths skirmish takes: hand the script to the wrapper where that is how this
-	-- install starts games, otherwise reload this engine onto it.
+	-- The same two paths skirmish takes.
 	if
 		Configuration.multiplayerLaunchNewSpring
 		and WG.WrapperLoopback
@@ -330,8 +307,7 @@ end
 local ROW_HEIGHT = 64
 local IMG_HAVE = LUA_DIRNAME .. "images/downloadready.png"
 local IMG_MISSING = LUA_DIRNAME .. "images/downloadnotready.png"
--- The combobox chevron, borrowed the way the map browser borrows the skin's star. It points
--- down as drawn, so ascending flips it.
+-- Points down as drawn, so ascending flips it.
 local IMG_SORT_ARROW = LUA_DIRNAME .. "widgets/chili/skins/Armada Blues/combobox_ctrl_arrow.png"
 -- No third icon ships for "in progress", so the missing one is tinted amber instead.
 local TINT_IDLE = {1, 1, 1, 1}
@@ -339,13 +315,8 @@ local TINT_BUSY = {1, 0.8, 0.2, 1}
 
 local FOOTER_HEIGHT = 60
 
--- One spec drives both the heading buttons and the row cells, so a cell can never sit anywhere
--- but under its own heading. Edges are percentages because the panel is as wide as the lobby
--- window: fixed pixel columns would leave the table bunched on the left of a big screen. The
--- gaps between the percentages are what stops adjacent heading buttons touching.
---
--- Heading captions are centred by the button skin, so cells centre too; the leading name column
--- is the exception, since it reads as the row's label rather than as a value.
+-- The scroll panel takes width off the right edge once the list scrolls, so right-anchored cells
+-- drift out from under their heading.
 local MAP_COLUMNS = {
 	{name = "Name", x = "0%", right = "70%", align = "left"},
 	{name = "Size", x = "30.5%", right = "61%"},
@@ -371,12 +342,9 @@ local projectRows = {}
 local filterText = ""
 local mapList
 local SetSelectedForward
--- LuaMenu survives Spring.Reload, so the panel built on first show outlives every editor
--- session launched from it. Assigned in InitializeControls, called on the way back.
+-- LuaMenu survives Spring.Reload, so this panel outlives every editor session launched from it.
 local RefreshProjects
 
--- One entry per column between Name and Status, in that order. Sort values are kept apart from
--- the captions so the counts order by magnitude rather than by how they read.
 local function DescribeMap(data)
 	data = data or {}
 
@@ -422,7 +390,6 @@ local function DescribeMap(data)
 	}
 end
 
--- Sorted as text so the Status heading orders installed maps first, then in-flight, then the rest.
 local function StatusSortKey(mapName)
 	if VFS.HasArchive(mapName) then
 		return "1 installed"
@@ -463,8 +430,7 @@ SetSelectedForward = function(mapName)
 
 	local busy = mapName and downloading[mapName]
 	startButton:SetEnabled(mapName ~= nil and not busy)
-	-- mapDetails lists every map the lobby knows of, most of them not downloaded. Rather
-	-- than hide those, the button offers to fetch the one you picked.
+	-- mapDetails lists every map the lobby knows of, most of them not downloaded.
 	local have = mapName and VFS.HasArchive(mapName)
 	if busy then
 		startButton:SetCaption("Downloading...")
@@ -473,8 +439,6 @@ SetSelectedForward = function(mapName)
 	end
 end
 
--- Row shell both lists are built on: the panel is what the list positions, the button inside
--- it is what takes the click and carries the selected tint.
 local function CreateRow(OnPick, OnLaunch)
 	local root = Panel:New {
 		x = 0,
@@ -503,9 +467,7 @@ local function CreateRow(OnPick, OnLaunch)
 	return root, button
 end
 
--- Contents are built on first parent, not in GetControl: that runs while Configuration is
--- still being constructed (the game config includes this file), so Configuration:GetFont has
--- no font table yet. Same deferral the scenario window uses.
+-- GetControl runs while Configuration is still being built, so GetFont has no font table yet.
 local function InitializeControls(parent)
 	local Configuration = WG.Chobby.Configuration
 
@@ -573,8 +535,6 @@ local function InitializeControls(parent)
 		padding = {0, 0, 0, 0},
 	}
 
-	-- Sort fields hold whatever each column orders by, counts included, so the text to match a
-	-- query against rides alongside them under its own key.
 	local function ItemInFilter(sortData)
 		return filterText == "" or (sortData.search or ""):find(filterText, 1, true) ~= nil
 	end
@@ -584,11 +544,8 @@ local function InitializeControls(parent)
 	local projectList =
 		WG.Chobby.SortableList(projectHolder, PROJECT_COLUMNS, ROW_HEIGHT, COLUMN_MODIFIED, false, nil, ItemInFilter)
 
-	-- SortableList knows which column it is ordering by but draws nothing to say so, and its
-	-- headings are plain buttons. Appending to their click handlers runs after the list has
-	-- already moved sortBy, so the mark lands on the column that just took over.
-	-- Sits on the holder rather than inside the heading button: the button skin pads 10 all round,
-	-- which would cap the glyph at half this size.
+	-- Appending to a heading handler runs after the list has moved sortBy. The arrow sits on the
+	-- holder because the button skin pads 10 all round and would cap the glyph at half this size.
 	local function MarkSortedColumn(list, columns, holder)
 		local arrows = {}
 		for i = 1, #list.headingButtons do
@@ -624,8 +581,7 @@ local function InitializeControls(parent)
 	MarkSortedColumn(mapList, MAP_COLUMNS, mapHolder)
 	MarkSortedColumn(projectList, PROJECT_COLUMNS, projectHolder)
 
-	-- Same source the map browser uses. VFS.GetMaps is not it: the lobby knows maps through
-	-- the generated mapDetails config, which is also what carries their metadata.
+	-- VFS.GetMaps is not the source: the lobby knows maps through the generated mapDetails config.
 	local maps = {}
 	for mapName in pairs(Configuration.gameConfig.mapDetails or {}) do
 		maps[#maps + 1] = mapName
@@ -701,7 +657,6 @@ local function InitializeControls(parent)
 			searchable[#searchable + 1] = facts[f].caption:lower()
 		end
 
-		-- An icon rather than the words: the browser uses these same two for exactly this.
 		-- keepAspect is what centres it in the column, since the image spans the whole cell.
 		local statusColumn = MAP_COLUMNS[COLUMN_STATUS]
 		local statusImage = Image:New {
@@ -811,8 +766,6 @@ local function InitializeControls(parent)
 		end
 	end
 
-	-- Rows carry the manifest table they were built from, and selection is identity on that
-	-- table, so the pick has to be re-resolved by slug against the rebuilt rows.
 	RefreshProjects = function()
 		local selectedSlug = selectedProject and selectedProject.slug
 
@@ -846,8 +799,6 @@ local function InitializeControls(parent)
 		},
 	}
 
-	-- Projects are the terraformer's own saves; keeping them on a separate list avoids implying
-	-- a project is just another map, which it is not (it restarts into a blank canvas).
 	projectsTab = Button:New {
 		parent = parent,
 		x = 266,
@@ -866,7 +817,6 @@ local function InitializeControls(parent)
 
 	SetMode(listMode)
 
-	-- One handler only. Hooking both OnKeyPress and OnTextInput ran the filter twice per key.
 	searchBox.OnKeyPress = searchBox.OnKeyPress or {}
 	searchBox.OnKeyPress[#searchBox.OnKeyPress + 1] = function(obj)
 		filterText = (obj.text or ""):lower()
@@ -892,8 +842,6 @@ function TerraformerWindow.GetControl()
 	}
 end
 
--- Without this the button keeps reading Download after the map has arrived, until the user
--- reselects it.
 RefreshRowStatus = function(mapName)
 	for i = 1, #rows do
 		local row = rows[i]
