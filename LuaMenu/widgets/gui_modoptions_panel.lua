@@ -1203,6 +1203,18 @@ local function CreateModoptionWindow()
 		end)
 	end
 
+	-- An option any preset claims belongs to its mode panel, whatever section
+	-- it lives in (FFA pins ffa_wreckage from the main options): it is not
+	-- rendered a second time on its own tab, or two controls would answer to
+	-- one key and only the last built would take the lock.
+	local modeClaimedKeys = {}
+	for _, catModes in pairs(activeModes) do
+		for _, m in ipairs(catModes.modes or {}) do
+			for optKey in pairs(m.modOptions or {}) do
+				modeClaimedKeys[optKey] = true
+			end
+		end
+	end
 	for key, data in pairs(modoptionStructure.sections) do
 		local governedBy = sectionCategory(key)
 		if governedBy ~= key and activeModes[governedBy] then
@@ -1218,7 +1230,16 @@ local function CreateModoptionWindow()
 			tooltip = origCaption
 		end
 		local catModes = activeModes[key]
-		local tabChildren = (not catModes) and PopulateTab(data.options) or {}
+		local tabOptions = data.options
+		if not catModes then
+			tabOptions = {}
+			for _, opt in ipairs(data.options) do
+				if not (opt.key and modeClaimedKeys[opt.key]) then
+					tabOptions[#tabOptions + 1] = opt
+				end
+			end
+		end
+		local tabChildren = (not catModes) and PopulateTab(tabOptions) or {}
 		if catModes then
 			local sectionData = data
 			if governedSections[key] then
