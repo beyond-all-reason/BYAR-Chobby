@@ -1982,6 +1982,14 @@ function ModoptionsPanel.LoadModoptions(gameName, newBattleLobby, forceReload)
 
 	local function LoadModes()
 		local byCategory = {}
+		-- The value formatter is the game's, read from the same archive as the
+		-- modes, so what this lobby sends is what the game's export baked.
+		local okValues, values = pcall(VFS.Include, "modules/modes/lib/values.lua", nil, VFS.ZIP)
+		if okValues and type(values) == "table" and values.ToModOption then
+			ModeResolver.UseValues(values)
+		else
+			Spring.Log(LOG_SECTION, LOG.ERROR, "game archive ships modes but no modules/modes/lib/values.lua: " .. tostring(values))
+		end
 
 		-- Modes live either at modes/<category>/*.lua or, for encapsulated game
 		-- modules, at modules/<module>/modes/*.lua. The game's module handler

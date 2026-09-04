@@ -11,19 +11,23 @@
 
 ModeResolver = ModeResolver or {}
 
--- modoptions are strings on the wire; booleans map to the engine's "1"/"0".
--- Engine Lua numbers are float32, so plain tostring leaks precision noise
--- ("0.60000002"). Round at float32's ~7-digit precision with %.7f, then strip
--- trailing zeros (the engine's %g does not trim them). Yields "0.6", "30", "-1".
--- This MUST match the export widget's toModOptionValue (Beyond-All-Reason
--- modules/modes/widgets/export_modes.lua) byte-for-byte: the values we send must read
--- back identically to modes.json, which the export bakes the same way.
+-- modoptions are strings on the wire, and the string for a value is the
+-- game's to define: the same formatter bakes modes.json in BAR's CI and is
+-- included here out of the game archive (modules/modes/lib/values.lua) when
+-- the modes are loaded, so client and server can never format a value two
+-- ways. There is deliberately no copy of it in the lobby.
+local values = nil
+
+---@param gameValues table the game's modules/modes/lib/values.lua
+function ModeResolver.UseValues(gameValues)
+	values = gameValues
+end
+
 local function toVal(v)
-	if type(v) == "boolean" then return v and "1" or "0" end
-	if type(v) == "number" then
-		return (string.format("%.7f", v):gsub("0+$", ""):gsub("%.$", ""))
+	if not values then
+		error("ModeResolver: the game archive's modules/modes/lib/values.lua was not loaded; load the modes first")
 	end
-	return tostring(v)
+	return values.ToModOption(v)
 end
 
 local function findMode(modes, category, modeKey)
