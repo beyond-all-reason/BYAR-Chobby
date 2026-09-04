@@ -245,6 +245,9 @@ end
 -- Lock Handling
 local lockedOptions = {}
 local postLock = {}
+-- ranked_game as it stood before a mode pinned it off, so that leaving every
+-- unranked mode puts it back rather than leaving the pin behind.
+local rankedBeforeModePin = nil
 local function processChildrenLocks(unlock, lock, bitmask)
 	local item, itemLock, child
 
@@ -891,20 +894,43 @@ local function CreateModePanel(category, sectionData)
 		WG.ModePolicy = WG.ModePolicy or {}
 		WG.ModePolicy[category] = WG.ModePolicy[category] or {}
 		WG.ModePolicy[category].allowRanked = allowRanked
-		WG.ModePolicy[category].modeLocked = {}
-		-- No badge: an unranked mode SAYS so by pinning ranked_game off, and
-		-- the locked option row is the indicator.
 
+		-- Locks the previous mode of this category placed and the new one does
+		-- not: release them here, or Accept treats them as host locks and
+		-- silently reverts the option to the server value.
+		local previouslyLocked = WG.ModePolicy[category].modeLocked or {}
+		for optKey in pairs(previouslyLocked) do
+			local rule = mode.modOptions and mode.modOptions[optKey]
+			if not (rule and rule.locked) then
+				lockedOptions[optKey] = nil
+				SetControlLock(optKey, false)
+			end
+		end
+		WG.ModePolicy[category].modeLocked = {}
+
+		-- No badge: an unranked mode SAYS so by pinning ranked_game off, and
+		-- the locked option row is the indicator. The pin holds while ANY
+		-- category's mode is unranked, and lifts, restoring the earlier value,
+		-- once none is.
+		local rankedPinned = false
+		for _, catPolicy in pairs(WG.ModePolicy) do
+			if catPolicy.allowRanked == false then
+				rankedPinned = true
+			end
+		end
 		isProgrammaticUpdate = true
-		if not allowRanked then
+		if rankedPinned then
+			if rankedBeforeModePin == nil then
+				rankedBeforeModePin = localModoptions["ranked_game"] or modoptionDefaults["ranked_game"] or "1"
+			end
 			localModoptions["ranked_game"] = "0"
 			UpdateControlValue("ranked_game", "0")
+		elseif rankedBeforeModePin ~= nil then
+			localModoptions["ranked_game"] = rankedBeforeModePin
+			UpdateControlValue("ranked_game", rankedBeforeModePin)
+			rankedBeforeModePin = nil
 		end
 		isProgrammaticUpdate = false
-
-		if WG.BattleRoomWindow and WG.BattleRoomWindow.SetRankedModeAllowed then
-			WG.BattleRoomWindow.SetRankedModeAllowed(allowRanked)
-		end
 
 		-- Switching modes resets the category to defaults then applies the preset.
 		-- retainValues modes (Customize) are non-sticky: keep current values, just expose/unlock.
@@ -1151,6 +1177,7 @@ local function CreateModoptionWindow()
 
 	local tabs = {}
 	lockedOptions = {}
+	rankedBeforeModePin = nil
 
 	local tabWidth = 120
 
