@@ -2158,7 +2158,6 @@ end
 function widget:Initialize()
 	CHOBBY_DIR = LUA_DIRNAME .. "widgets/chobby/"
 	VFS.Include(LUA_DIRNAME .. "widgets/chobby/headers/exports.lua", nil, VFS.RAW_FIRST)
-	VFS.Include("libs/json.lua")
 	VFS.Include("libs/liblobby/lobby/moderesolver.lua") -- defines global ModeResolver
 
 	WG.ModoptionsPanel = ModoptionsPanel
