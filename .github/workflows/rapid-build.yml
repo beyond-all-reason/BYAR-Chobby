@@ -1,0 +1,21 @@
+# Builds rapid package and deploys to CDN.
+#
+# The workflow triggers rapid builder developed in https://github.com/beyond-all-reason/rapid-hosting
+name: Rapid build
+on:
+  push:
+    branches:
+      - master
+concurrency:
+  group: rapid-build
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+    steps:
+      - uses: beyond-all-reason/rapid-hosting/action@main
+        with:
+          url: https://repos.beyondallreason.dev/build
+          repo: byar-chobby
+          branch: test
