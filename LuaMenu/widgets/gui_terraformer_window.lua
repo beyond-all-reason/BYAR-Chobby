@@ -354,6 +354,10 @@ local TINT_BUSY = {1, 0.8, 0.2, 1}
 
 local FOOTER_HEIGHT = 60
 
+-- Project rows have no thumbnail to sit behind, so the text needs the inset the heading
+-- buttons get from their own skin padding.
+local CELL_INSET = 10
+
 -- The scroll panel takes width off the right edge once the list scrolls, so right-anchored cells
 -- drift out from under their heading.
 local MAP_COLUMNS = {
@@ -367,7 +371,7 @@ local MAP_COLUMNS = {
 }
 
 local PROJECT_COLUMNS = {
-	{name = "Project", x = "0%", right = "58%", align = "left"},
+	{name = "Project", x = "0%", cellX = CELL_INSET, right = "58%", align = "left"},
 	{name = "Captured from", x = "42.5%", right = "34%"},
 	{name = "Size", x = "66.5%", right = "24%"},
 	{name = "Modified", x = "76.5%", right = "0%"},
@@ -747,7 +751,7 @@ local function InitializeControls(parent)
 				local column = PROJECT_COLUMNS[c]
 				Label:New {
 					parent = button,
-					x = column.x,
+					x = column.cellX or column.x,
 					y = 0,
 					right = column.right,
 					height = ROW_HEIGHT,
