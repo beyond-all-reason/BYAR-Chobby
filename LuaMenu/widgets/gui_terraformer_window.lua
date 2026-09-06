@@ -26,13 +26,13 @@ local launching = false
 
 local PROJECTS_DIR = "MapProjects/"
 
--- Recursive: the terraformer files projects into folders, and the slug carries the path
--- under MapProjects/ because that is what the pointer and the DNTS paths are built from.
+-- Walks into folders, since the terraformer files projects under them, and the slug carries
+-- the path because that is what the pointer and the DNTS paths are built from.
 local function ListProjects()
 	local out = {}
-	local dirs = VFS.SubDirs(PROJECTS_DIR, "*", VFS.RAW, true) or {}
-	for i = 1, #dirs do
-		local dir = dirs[i]:gsub("\\", "/"):gsub("/*$", "") .. "/"
+	local pending = {PROJECTS_DIR}
+	while #pending > 0 do
+		local dir = table.remove(pending)
 		local raw = VFS.LoadFile(dir .. "project.lua", VFS.RAW)
 		if raw then
 			local chunk = loadstring(raw)
@@ -52,6 +52,11 @@ local function ListProjects()
 					skybox = manifest.map.skybox,
 					modified = manifest.modified,
 				}
+			end
+		else
+			local subs = VFS.SubDirs(dir, "*", VFS.RAW) or {}
+			for i = 1, #subs do
+				pending[#pending + 1] = subs[i]:gsub("\\", "/"):gsub("/*$", "") .. "/"
 			end
 		end
 	end
@@ -831,9 +836,6 @@ local function InitializeControls(parent)
 		OnClick = { Launch },
 	}
 
-	-- One container rather than four loose siblings: chili restores a hidden child by
-	-- looking for the neighbour it recorded, and hiding a whole run of them at once leaves
-	-- each one hunting for a neighbour that is also hidden.
 	local newMapSizePanel = Control:New {
 		parent = parent,
 		right = 185,
@@ -855,13 +857,7 @@ local function InitializeControls(parent)
 		objectOverrideFont = Configuration:GetFont(2),
 	}
 
-	local function SetNewMapSize(axis, size)
-		if axis == "x" then
-			NEW_PROJECT.sizeX = size
-		else
-			NEW_PROJECT.sizeZ = size
-		end
-
+	local function RefreshNewMapSizeCell()
 		if newMapSizeLabel then
 			newMapSizeLabel:SetCaption(string.format("%dx%d", NEW_PROJECT.sizeX, NEW_PROJECT.sizeZ))
 		end
@@ -880,7 +876,8 @@ local function InitializeControls(parent)
 		tooltip = "Width in map units, 512 elmos each",
 		OnSelect = {
 			function (obj, itemIndex)
-				SetNewMapSize("x", NEWMAP_MIN_SIZE + (itemIndex - 1) * 2)
+				NEW_PROJECT.sizeX = NEWMAP_MIN_SIZE + (itemIndex - 1) * 2
+				RefreshNewMapSizeCell()
 			end
 		},
 	}
@@ -909,7 +906,8 @@ local function InitializeControls(parent)
 		tooltip = "Height in map units, 512 elmos each",
 		OnSelect = {
 			function (obj, itemIndex)
-				SetNewMapSize("z", NEWMAP_MIN_SIZE + (itemIndex - 1) * 2)
+				NEW_PROJECT.sizeZ = NEWMAP_MIN_SIZE + (itemIndex - 1) * 2
+				RefreshNewMapSizeCell()
 			end
 		},
 	}
