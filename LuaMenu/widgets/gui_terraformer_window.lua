@@ -71,6 +71,15 @@ end
 -- Mirrors the defaults the terraformer's own New Map path uses.
 local NEWMAP_BASE_HEIGHT = 100
 local NEWMAP_COLOR = { 110, 130, 90 }
+local NEWMAP_SIZE = 12
+
+local NEW_PROJECT = {
+	slug = "\0newmap",
+	name = "New Map",
+	sizeX = NEWMAP_SIZE,
+	sizeZ = NEWMAP_SIZE,
+	isNew = true,
+}
 
 -- Bypasses WG.MapProject.open, which restarts a running game and loses the editor setup.
 local function WritePendingProject(entry)
@@ -87,6 +96,23 @@ local function WritePendingProject(entry)
 		PROJECT_LOAD_PHASES
 	))
 	file:close()
+
+	return true
+end
+
+-- The terraformer reads an existing but empty recipe as "flat map, default environment", where a
+-- missing one leaves whatever the last session wrote in place.
+local function WriteNewMapRecipe()
+	Spring.CreateDir("Terraform Brush")
+	os.remove("Terraform Brush/pending_project.lua")
+
+	for _, name in ipairs({"pending_newmap.lua", "pending_newmap_env.lua"}) do
+		local file = io.open("Terraform Brush/" .. name, "w")
+		if not file then
+			return false
+		end
+		file:close()
+	end
 
 	return true
 end
@@ -229,6 +255,11 @@ local function BuildStartScript(mapName, projectEntry, blankSeed)
 end
 
 local function Launch()
+	-- Chobby stays up alongside the editor, and the panel is reachable again while it runs.
+	if launching then
+		return
+	end
+
 	local Configuration = WG.Chobby.Configuration
 	local mapName, projectEntry, blankSeed
 
@@ -242,12 +273,20 @@ local function Launch()
 			Spring.Echo("[Map Editor] Project manifest has no map size.")
 			return
 		end
-		os.remove("Terraform Brush/pending_newmap.lua")
-		os.remove("Terraform Brush/pending_newmap_env.lua")
 
-		if not WritePendingProject(selectedProject) then
-			Spring.Echo("[Map Editor] Could not write the pending-project pointer.")
-			return
+		if selectedProject.isNew then
+			if not WriteNewMapRecipe() then
+				Spring.Echo("[Map Editor] Could not clear the pending New Map recipe.")
+				return
+			end
+		else
+			os.remove("Terraform Brush/pending_newmap.lua")
+			os.remove("Terraform Brush/pending_newmap_env.lua")
+
+			if not WritePendingProject(selectedProject) then
+				Spring.Echo("[Map Editor] Could not write the pending-project pointer.")
+				return
+			end
 		end
 		-- Keeps the prefix the terraformer matches on; the stamp dodges a stale archive cache entry.
 		blankSeed = os.time()
@@ -280,7 +319,7 @@ local function Launch()
 	launching = true
 	if startButton then
 		startButton:SetEnabled(false)
-		startButton:SetCaption("Starting")
+		startButton:SetCaption("Running")
 	end
 
 	-- The same two paths skirmish takes.
@@ -536,7 +575,8 @@ local function InitializeControls(parent)
 	}
 
 	local function ItemInFilter(sortData)
-		return filterText == "" or (sortData.search or ""):find(filterText, 1, true) ~= nil
+		return sortData.alwaysShow or filterText == ""
+			or (sortData.search or ""):find(filterText, 1, true) ~= nil
 	end
 
 	mapList = WG.Chobby.SortableList(mapHolder, MAP_COLUMNS, ROW_HEIGHT, 1, true, nil, ItemInFilter)
@@ -685,6 +725,7 @@ local function InitializeControls(parent)
 	local function BuildProjectItems()
 		projectRows = {}
 		local projects = ListProjects()
+		table.insert(projects, 1, NEW_PROJECT)
 		local projectItems = {}
 		for i = 1, #projects do
 			local entry = projects[i]
@@ -698,7 +739,7 @@ local function InitializeControls(parent)
 			local sourceMap = entry.sourceMap or "-"
 			local cells = {
 				{caption = entry.name, font = 3},
-				{caption = sourceMap, font = 1},
+				{caption = entry.isNew and "Blank canvas" or sourceMap, font = 1},
 				{caption = string.format("%dx%d", entry.sizeX or 0, entry.sizeZ or 0), font = 1},
 				{caption = FormatModified(entry.modified), font = 1},
 			}
@@ -725,6 +766,11 @@ local function InitializeControls(parent)
 				entry.modified or "",
 			}
 			sortData.search = entry.name:lower() .. " " .. sourceMap:lower()
+			-- Starting fresh is always an option, so it outranks both sort directions and the
+			-- search box rather than being something you have to find.
+			if entry.isNew then
+				sortData.alwaysShow = true
+			end
 
 			projectRows[i] = {button = button, entry = entry}
 			projectItems[i] = {entry.slug, root, sortData}
@@ -733,6 +779,7 @@ local function InitializeControls(parent)
 		return projectItems
 	end
 
+	projectList.priorityList[NEW_PROJECT.slug] = true
 	projectList:AddItems(BuildProjectItems())
 
 	startButton = Button:New {
