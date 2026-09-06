@@ -68,10 +68,13 @@ local function FormatModified(iso)
 	return string.format("%04d-%02d-%02d %02d:%02d", t[6], t[5], t[4], t[3], t[2])
 end
 
--- Mirrors the defaults the terraformer's own New Map path uses.
+-- Mirrors the defaults the terraformer's own New Map path uses, including the even-only
+-- sizes its sliders snap to.
 local NEWMAP_BASE_HEIGHT = 100
 local NEWMAP_COLOR = { 110, 130, 90 }
 local NEWMAP_SIZE = 12
+local NEWMAP_MIN_SIZE = 4
+local NEWMAP_MAX_SIZE = 32
 
 local NEW_PROJECT = {
 	slug = "\0newmap",
@@ -80,6 +83,17 @@ local NEW_PROJECT = {
 	sizeZ = NEWMAP_SIZE,
 	isNew = true,
 }
+
+local NEWMAP_SIZES = {}
+for size = NEWMAP_MIN_SIZE, NEWMAP_MAX_SIZE, 2 do
+	NEWMAP_SIZES[#NEWMAP_SIZES + 1] = tostring(size)
+end
+
+local function SizeToItem(size)
+	return (size - NEWMAP_MIN_SIZE) / 2 + 1
+end
+
+local UpdateNewMapControls
 
 -- Bypasses WG.MapProject.open, which restarts a running game and loses the editor setup.
 local function WritePendingProject(entry)
@@ -459,12 +473,20 @@ local function SetSelectedProject(entry)
 		startButton:SetEnabled(entry ~= nil)
 		startButton:SetCaption("Start")
 	end
+
+	if UpdateNewMapControls then
+		UpdateNewMapControls()
+	end
 end
 
 SetSelectedForward = function(mapName)
 	selectedMap = mapName
 	for i = 1, #rows do
 		Highlight(rows[i].button, rows[i].mapName == mapName)
+	end
+
+	if UpdateNewMapControls then
+		UpdateNewMapControls()
 	end
 
 	if not startButton or launching then
@@ -726,6 +748,8 @@ local function InitializeControls(parent)
 	end
 	mapList:AddItems(mapItems)
 
+	local newMapSizeLabel
+
 	local function BuildProjectItems()
 		projectRows = {}
 		local projects = ListProjects()
@@ -749,7 +773,7 @@ local function InitializeControls(parent)
 			}
 			for c = 1, #cells do
 				local column = PROJECT_COLUMNS[c]
-				Label:New {
+				local cell = Label:New {
 					parent = button,
 					x = column.cellX or column.x,
 					y = 0,
@@ -761,6 +785,9 @@ local function InitializeControls(parent)
 					caption = cells[c].caption,
 					objectOverrideFont = Configuration:GetFont(cells[c].font),
 				}
+				if entry.isNew and column.name == "Size" then
+					newMapSizeLabel = cell
+				end
 			end
 
 			local sortData = {
@@ -797,6 +824,86 @@ local function InitializeControls(parent)
 		objectOverrideFont = Configuration:GetFont(3),
 		OnClick = { Launch },
 	}
+
+	local sizeLabel = Label:New {
+		parent = parent,
+		right = 345,
+		bottom = 20,
+		width = 100,
+		height = 20,
+		align = "right",
+		caption = "New map size",
+		objectOverrideFont = Configuration:GetFont(2),
+	}
+
+	local widthCombo, heightCombo
+
+	local function SetNewMapSize(axis, size)
+		if axis == "x" then
+			NEW_PROJECT.sizeX = size
+		else
+			NEW_PROJECT.sizeZ = size
+		end
+		if newMapSizeLabel then
+			newMapSizeLabel:SetCaption(string.format("%dx%d", NEW_PROJECT.sizeX, NEW_PROJECT.sizeZ))
+		end
+	end
+
+	widthCombo = ComboBox:New {
+		parent = parent,
+		right = 275,
+		bottom = 15,
+		width = 65,
+		height = 30,
+		items = NEWMAP_SIZES,
+		selected = SizeToItem(NEW_PROJECT.sizeX),
+		itemHeight = 22,
+		objectOverrideFont = Configuration:GetFont(2),
+		tooltip = "Width in map units, 512 elmos each",
+		OnSelect = {
+			function (obj, itemIndex)
+				SetNewMapSize("x", NEWMAP_MIN_SIZE + (itemIndex - 1) * 2)
+			end
+		},
+	}
+
+	local byLabel = Label:New {
+		parent = parent,
+		right = 255,
+		bottom = 20,
+		width = 20,
+		height = 20,
+		align = "center",
+		caption = "x",
+		objectOverrideFont = Configuration:GetFont(2),
+	}
+
+	heightCombo = ComboBox:New {
+		parent = parent,
+		right = 185,
+		bottom = 15,
+		width = 65,
+		height = 30,
+		items = NEWMAP_SIZES,
+		selected = SizeToItem(NEW_PROJECT.sizeZ),
+		itemHeight = 22,
+		objectOverrideFont = Configuration:GetFont(2),
+		tooltip = "Height in map units, 512 elmos each",
+		OnSelect = {
+			function (obj, itemIndex)
+				SetNewMapSize("z", NEWMAP_MIN_SIZE + (itemIndex - 1) * 2)
+			end
+		},
+	}
+
+	UpdateNewMapControls = function()
+		local show = listMode == "projects" and selectedProject ~= nil and selectedProject.isNew
+		sizeLabel:SetVisibility(show)
+		widthCombo:SetVisibility(show)
+		byLabel:SetVisibility(show)
+		heightCombo:SetVisibility(show)
+	end
+	UpdateNewMapControls()
 
 	local function ApplyFilter()
 		mapList:RecalculateDisplay()
