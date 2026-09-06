@@ -825,10 +825,23 @@ local function InitializeControls(parent)
 		OnClick = { Launch },
 	}
 
-	local sizeLabel = Label:New {
+	-- One container rather than four loose siblings: chili restores a hidden child by
+	-- looking for the neighbour it recorded, and hiding a whole run of them at once leaves
+	-- each one hunting for a neighbour that is also hidden.
+	local newMapSizePanel = Control:New {
 		parent = parent,
-		right = 345,
-		bottom = 20,
+		right = 185,
+		bottom = 8,
+		width = 260,
+		height = 45,
+		padding = {0, 0, 0, 0},
+		noFont = true,
+	}
+
+	Label:New {
+		parent = newMapSizePanel,
+		x = 0,
+		y = 12,
 		width = 100,
 		height = 20,
 		align = "right",
@@ -836,23 +849,22 @@ local function InitializeControls(parent)
 		objectOverrideFont = Configuration:GetFont(2),
 	}
 
-	local widthCombo, heightCombo
-
 	local function SetNewMapSize(axis, size)
 		if axis == "x" then
 			NEW_PROJECT.sizeX = size
 		else
 			NEW_PROJECT.sizeZ = size
 		end
+
 		if newMapSizeLabel then
 			newMapSizeLabel:SetCaption(string.format("%dx%d", NEW_PROJECT.sizeX, NEW_PROJECT.sizeZ))
 		end
 	end
 
-	widthCombo = ComboBox:New {
-		parent = parent,
-		right = 275,
-		bottom = 15,
+	ComboBox:New {
+		parent = newMapSizePanel,
+		x = 108,
+		y = 7,
 		width = 65,
 		height = 30,
 		items = NEWMAP_SIZES,
@@ -867,21 +879,21 @@ local function InitializeControls(parent)
 		},
 	}
 
-	local byLabel = Label:New {
-		parent = parent,
-		right = 255,
-		bottom = 20,
-		width = 20,
+	Label:New {
+		parent = newMapSizePanel,
+		x = 177,
+		y = 12,
+		width = 16,
 		height = 20,
 		align = "center",
 		caption = "x",
 		objectOverrideFont = Configuration:GetFont(2),
 	}
 
-	heightCombo = ComboBox:New {
-		parent = parent,
-		right = 185,
-		bottom = 15,
+	ComboBox:New {
+		parent = newMapSizePanel,
+		x = 195,
+		y = 7,
 		width = 65,
 		height = 30,
 		items = NEWMAP_SIZES,
@@ -897,11 +909,9 @@ local function InitializeControls(parent)
 	}
 
 	UpdateNewMapControls = function()
-		local show = listMode == "projects" and selectedProject ~= nil and selectedProject.isNew
-		sizeLabel:SetVisibility(show)
-		widthCombo:SetVisibility(show)
-		byLabel:SetVisibility(show)
-		heightCombo:SetVisibility(show)
+		newMapSizePanel:SetVisibility(
+			(listMode == "projects" and selectedProject ~= nil and selectedProject.isNew) or false
+		)
 	end
 	UpdateNewMapControls()
 
