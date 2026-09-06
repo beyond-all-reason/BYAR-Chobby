@@ -16,7 +16,7 @@ end
 local modoptionDefaults = {}
 local modoptionStructure = {}
 local modesByGame = {}
-local valuesByGame = {} -- the game's modules/modes/lib/values.lua, per archive
+local valuesByGame = {} -- the game's modules/game/lib/values.lua, per archive
 local activeModes = {}
 local selectedModeKeys = {}
 local applyingModes = false -- Apply in progress: the battle listener must not re-seed the picks
@@ -2022,11 +2022,11 @@ function ModoptionsPanel.LoadModoptions(gameName, newBattleLobby, forceReload)
 		-- modes, so what this lobby sends is what the game's export baked. An
 		-- archive that ships modes without it gets no modes rather than a
 		-- resolver that throws on Accept.
-		local okValues, values = pcall(VFS.Include, "modules/modes/lib/values.lua", nil, VFS.ZIP)
+		local okValues, values = pcall(VFS.Include, "modules/game/lib/values.lua", nil, VFS.ZIP)
 		if okValues and type(values) == "table" and values.ToModOption then
 			valuesByGame[gameName] = values
 		else
-			Spring.Log(LOG_SECTION, LOG.ERROR, "game archive has no modules/modes/lib/values.lua; its modes are ignored: " .. tostring(values))
+			Spring.Log(LOG_SECTION, LOG.ERROR, "game archive has no modules/game/lib/values.lua; its modes are ignored: " .. tostring(values))
 			return nil
 		end
 

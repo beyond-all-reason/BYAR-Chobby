@@ -13,19 +13,19 @@ ModeResolver = ModeResolver or {}
 
 -- modoptions are strings on the wire, and the string for a value is the
 -- game's to define: the same formatter bakes modes.json in BAR's CI and is
--- included here out of the game archive (modules/modes/lib/values.lua) when
+-- included here out of the game archive (modules/game/lib/values.lua) when
 -- the modes are loaded, so client and server can never format a value two
 -- ways. There is deliberately no copy of it in the lobby.
 local values = nil
 
----@param gameValues table the game's modules/modes/lib/values.lua
+---@param gameValues table the game's modules/game/lib/values.lua
 function ModeResolver.UseValues(gameValues)
 	values = gameValues
 end
 
 local function toVal(v)
 	if not values then
-		error("ModeResolver: the game archive's modules/modes/lib/values.lua was not loaded; load the modes first")
+		error("ModeResolver: the game archive's modules/game/lib/values.lua was not loaded; load the modes first")
 	end
 	return values.ToModOption(v)
 end
