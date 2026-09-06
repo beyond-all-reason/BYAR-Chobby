@@ -24,20 +24,25 @@ local startButton
 local launching = false
 
 
+local PROJECTS_DIR = "MapProjects/"
+
+-- Recursive: the terraformer files projects into folders, and the slug carries the path
+-- under MapProjects/ because that is what the pointer and the DNTS paths are built from.
 local function ListProjects()
 	local out = {}
-	local dirs = VFS.SubDirs("MapProjects/", "*", VFS.RAW) or {}
+	local dirs = VFS.SubDirs(PROJECTS_DIR, "*", VFS.RAW, true) or {}
 	for i = 1, #dirs do
-		local dir = dirs[i]
+		local dir = dirs[i]:gsub("\\", "/"):gsub("/*$", "") .. "/"
 		local raw = VFS.LoadFile(dir .. "project.lua", VFS.RAW)
 		if raw then
 			local chunk = loadstring(raw)
 			local ok, manifest = pcall(chunk)
 			if ok and type(manifest) == "table" and manifest.map then
-				local slug = dir:match("([^/\\]+)[/\\]*$")
+				local slug = dir:gsub("^" .. PROJECTS_DIR, ""):gsub("/$", "")
 				out[#out + 1] = {
 					slug = slug,
-					name = manifest.name or slug,
+					folder = slug:match("^(.*)/[^/]+$"),
+					name = manifest.name or slug:match("([^/]+)$") or slug,
 					sourceMap = manifest.map.source_map,
 					sizeX = manifest.map.size_x,
 					sizeZ = manifest.map.size_z,
@@ -104,7 +109,7 @@ local function WritePendingProject(entry)
 	end
 	file:write(string.format(
 		"return { path = %q, size_x = %d, size_z = %d, phase = 0, phases = %d }",
-		"MapProjects/" .. entry.slug .. "/",
+		PROJECTS_DIR .. entry.slug .. "/",
 		entry.sizeX,
 		entry.sizeZ,
 		PROJECT_LOAD_PHASES
@@ -138,7 +143,7 @@ local function BuildSplatKeys(entry)
 		return {}
 	end
 
-	local prefix = "MapProjects/" .. entry.slug .. "/"
+	local prefix = PROJECTS_DIR .. entry.slug .. "/"
 	local textures = type(dnts.textures) == "table" and dnts.textures or {}
 	local scales = dnts.scales or {}
 	local mults = dnts.mults or {}
@@ -765,8 +770,9 @@ local function InitializeControls(parent)
 			end)
 
 			local sourceMap = entry.sourceMap or "-"
+			local label = entry.folder and (entry.folder .. "/" .. entry.name) or entry.name
 			local cells = {
-				{caption = entry.name, font = 3},
+				{caption = label, font = 3},
 				{caption = entry.isNew and "Blank canvas" or sourceMap, font = 1},
 				{caption = string.format("%dx%d", entry.sizeX or 0, entry.sizeZ or 0), font = 1},
 				{caption = FormatModified(entry.modified), font = 1},
@@ -791,12 +797,12 @@ local function InitializeControls(parent)
 			end
 
 			local sortData = {
-				entry.name:lower(),
+				label:lower(),
 				sourceMap:lower(),
 				(entry.sizeX or 0) * (entry.sizeZ or 0),
 				entry.modified or "",
 			}
-			sortData.search = entry.name:lower() .. " " .. sourceMap:lower()
+			sortData.search = label:lower() .. " " .. sourceMap:lower()
 			-- Starting fresh is always an option, so it outranks both sort directions and the
 			-- search box rather than being something you have to find.
 			if entry.isNew then
