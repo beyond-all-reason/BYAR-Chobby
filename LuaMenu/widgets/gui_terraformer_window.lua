@@ -345,6 +345,9 @@ local function Launch()
 		startButton:SetEnabled(false)
 		startButton:SetCaption("Running")
 	end
+	if UpdateNewMapControls then
+		UpdateNewMapControls()
+	end
 
 	-- The same two paths skirmish takes.
 	if
@@ -899,9 +902,12 @@ local function InitializeControls(parent)
 		},
 	}
 
+	-- Hidden rather than disabled while the editor runs: chili only dims a disabled control,
+	-- it still opens the dropdown and takes the click.
 	UpdateNewMapControls = function()
 		newMapSizePanel:SetVisibility(
-			(listMode == "projects" and selectedProject ~= nil and selectedProject.isNew) or false
+			(not launching and listMode == "projects" and selectedProject ~= nil and selectedProject.isNew)
+				or false
 		)
 	end
 	UpdateNewMapControls()
