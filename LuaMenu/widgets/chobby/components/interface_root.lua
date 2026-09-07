@@ -510,25 +510,33 @@ function GetInterfaceRoot(optionsParent, mainWindowParent, fontFunction)
 		ToggleShowFunc(obj, newTab)
 	end
 
+	-- Built up rather than written as one literal: the singleplayer tabs were indexed by hand,
+	-- so adding one meant editing here too, and devOnly needs checking somewhere Configuration
+	-- is available (the config files load before devMode is set).
+	local mainMenuTabs = {
+		{
+			name = "multiplayer",
+			control = battleListWindow,
+			entryCheck = multiplayerentrycheck,
+		},
+	}
+	for i = 1, #singleplayerConfig do
+		local entry = singleplayerConfig[i]
+		if not entry.devOnly or Configuration.devMode then
+			mainMenuTabs[#mainMenuTabs + 1] = entry
+		end
+	end
+	mainMenuTabs[#mainMenuTabs + 1] = {
+		name = "replays",
+		control = WG.ReplayHandler.GetControl(),
+	}
+	mainMenuTabs[#mainMenuTabs + 1] = Configuration.gameConfig.helpSubmenuConfig[1]
+
 	local submenus = {
 		{
 			name = "Main Menu",
 			titleText = "Main Menu",
-			tabs = {
-				{
-					name = "multiplayer",
-					control = battleListWindow,
-					entryCheck = multiplayerentrycheck,
-				},
-				singleplayerConfig[1],
-				singleplayerConfig[2],
-				singleplayerConfig[3],
-				{
-					name = "replays",
-					control = WG.ReplayHandler.GetControl()
-				},
-				Configuration.gameConfig.helpSubmenuConfig[1],
-			},
+			tabs = mainMenuTabs,
 		}
 	}
 
