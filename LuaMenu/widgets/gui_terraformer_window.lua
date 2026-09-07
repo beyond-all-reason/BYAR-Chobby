@@ -840,21 +840,10 @@ local function InitializeControls(parent)
 		parent = parent,
 		right = 185,
 		bottom = 8,
-		width = 260,
+		width = 154,
 		height = 45,
 		padding = {0, 0, 0, 0},
 		noFont = true,
-	}
-
-	Label:New {
-		parent = newMapSizePanel,
-		x = 0,
-		y = 12,
-		width = 100,
-		height = 20,
-		align = "right",
-		caption = "New map size",
-		objectOverrideFont = Configuration:GetFont(2),
 	}
 
 	local function RefreshNewMapSizeCell()
@@ -865,7 +854,7 @@ local function InitializeControls(parent)
 
 	ComboBox:New {
 		parent = newMapSizePanel,
-		x = 108,
+		x = 0,
 		y = 7,
 		width = 65,
 		height = 30,
@@ -873,7 +862,6 @@ local function InitializeControls(parent)
 		selected = SizeToItem(NEW_PROJECT.sizeX),
 		itemHeight = 22,
 		objectOverrideFont = Configuration:GetFont(2),
-		tooltip = "Width in map units, 512 elmos each",
 		OnSelect = {
 			function (obj, itemIndex)
 				NEW_PROJECT.sizeX = NEWMAP_MIN_SIZE + (itemIndex - 1) * 2
@@ -884,7 +872,7 @@ local function InitializeControls(parent)
 
 	Label:New {
 		parent = newMapSizePanel,
-		x = 177,
+		x = 69,
 		y = 12,
 		width = 16,
 		height = 20,
@@ -895,7 +883,7 @@ local function InitializeControls(parent)
 
 	ComboBox:New {
 		parent = newMapSizePanel,
-		x = 195,
+		x = 89,
 		y = 7,
 		width = 65,
 		height = 30,
@@ -903,7 +891,6 @@ local function InitializeControls(parent)
 		selected = SizeToItem(NEW_PROJECT.sizeZ),
 		itemHeight = 22,
 		objectOverrideFont = Configuration:GetFont(2),
-		tooltip = "Height in map units, 512 elmos each",
 		OnSelect = {
 			function (obj, itemIndex)
 				NEW_PROJECT.sizeZ = NEWMAP_MIN_SIZE + (itemIndex - 1) * 2
