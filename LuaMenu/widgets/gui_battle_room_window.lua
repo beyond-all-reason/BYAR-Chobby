@@ -83,6 +83,28 @@ local randomSkirmishCooldownEnds = 0
 
 local emptyTeamIndex = 0
 local teamCount = 2
+-- Set when this client asks for a room shape change, cleared when the server confirms one.
+-- Balancing has a lower privilege bar than the settings themselves, so sending it straight
+-- after the command would run it against the old shape while the setting is still in a vote.
+local balanceWhenSettingLands = 0
+local BALANCE_WAIT_SECONDS = 120
+
+local function RequestBalanceOnNextChange()
+	if battleLobby.name ~= "singleplayer" then
+		balanceWhenSettingLands = os.time() + BALANCE_WAIT_SECONDS
+	end
+end
+
+local function BalanceIfRequested()
+	if balanceWhenSettingLands == 0 or os.time() > balanceWhenSettingLands then
+		balanceWhenSettingLands = 0
+
+		return
+	end
+
+	balanceWhenSettingLands = 0
+	battleLobby:SayBattle("!balance")
+end
 
 local haveMapAndGame = false
 
@@ -1311,7 +1333,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 				end
 
 				battleLobby:SayBattle(string.format("!nbTeams %d", itemIndex))
-				battleLobby:SayBattle("!balance")
+				RequestBalanceOnNextChange()
 				ShowTeamCount(teamCount)
 			end
 		},
@@ -1360,7 +1382,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 				end
 
 				battleLobby:SayBattle(string.format("!set teamSize %d", itemIndex))
-				battleLobby:SayBattle("!balance")
+				RequestBalanceOnNextChange()
 				ShowTeamSize(shownTeamSize)
 			end
 		},
@@ -1378,19 +1400,35 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 
 	-- nbTeams and teamSize both arrive by BarManager broadcast, which writes them into
 	-- the battle with no event of its own, so they get polled alongside the boxes.
+	local shownPreset
 	function externalFunctions.SyncBattleSettings()
 		if battleLobby.name == "singleplayer" then
 			return
 		end
 
+		local changed = false
+
 		local serverCount = tonumber(battle.nbTeams)
 		if serverCount and serverCount ~= teamCount then
 			ApplyTeamCount(serverCount)
+			changed = true
 		end
 
 		local serverSize = tonumber(battle.teamSize)
+		if serverSize and serverSize ~= shownTeamSize then
+			changed = true
+		end
 		if serverSize then
 			ShowTeamSize(math.max(serverSize, 1))
+		end
+
+		if battle.preset ~= shownPreset then
+			changed = changed or shownPreset ~= nil
+			shownPreset = battle.preset
+		end
+
+		if changed then
+			BalanceIfRequested()
 		end
 	end
 
@@ -3782,7 +3820,7 @@ local function SetupSpadsStatusPanel(battle, battleID)
 					-- A preset carries its own team count and size, so the room needs
 					-- redistributing to match them.
 					if k == "preset" then
-						battleLobby:SayBattle("!balance")
+						RequestBalanceOnNextChange()
 					end
 				end
 			},
