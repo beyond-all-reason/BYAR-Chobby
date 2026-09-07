@@ -23,6 +23,7 @@ local includes = {
 	"components/team_window.lua",
 	"components/downloader.lua",
 	"components/background.lua",
+	"components/account_deletion_wizard.lua",
 
 	-- battle
 	"components/battle/battle_list_window.lua",
