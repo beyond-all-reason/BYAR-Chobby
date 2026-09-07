@@ -1311,6 +1311,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 				end
 
 				battleLobby:SayBattle(string.format("!nbTeams %d", itemIndex))
+				battleLobby:SayBattle("!balance")
 				ShowTeamCount(teamCount)
 			end
 		},
@@ -1359,6 +1360,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 				end
 
 				battleLobby:SayBattle(string.format("!set teamSize %d", itemIndex))
+				battleLobby:SayBattle("!balance")
 				ShowTeamSize(shownTeamSize)
 			end
 		},
@@ -3222,11 +3224,35 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 	GetTeam(-1) -- Make Queue heading appear
 	GetTeam(-2) -- Make Spectator heading appear
 
+	-- Skirmish has no SPADS to redistribute, so lowering the count has to move its own
+	-- occupants rather than strand them in teams that no longer exist.
+	local function MoveOverflowDown(target)
+		if battleLobby.name ~= "singleplayer" or target < 1 then
+			return
+		end
+
+		local myName = battleLobby:GetMyUserName()
+		local nextTeam = 0
+		for name, data in pairs(player) do
+			if type(data.team) == "number" and data.team >= target then
+				local status = battleLobby:GetUserBattleStatus(name) or {}
+				if status.aiLib then
+					battleLobby:UpdateAi(name, {allyNumber = nextTeam})
+				elseif name == myName then
+					battleLobby:SetBattleStatus({allyNumber = nextTeam})
+				end
+				nextTeam = (nextTeam + 1) % target
+			end
+		end
+	end
+
 	ReconcileTeams = function ()
 		local target = math.min(GetTargetTeamCount(), 254)
 		for teamIndex = 0, target - 1 do
 			GetTeam(teamIndex)
 		end
+
+		MoveOverflowDown(target)
 
 		for teamIndex, teamData in pairs(team) do
 			if teamIndex >= target then
@@ -3752,6 +3778,11 @@ local function SetupSpadsStatusPanel(battle, battleID)
 						battleLobby:SayBattle(sts.spadscommand[selectedName])
 					else
 						battleLobby:SayBattle(sts.spadscommand .." "..selectedName)
+					end
+					-- A preset carries its own team count and size, so the room needs
+					-- redistributing to match them.
+					if k == "preset" then
+						battleLobby:SayBattle("!balance")
 					end
 				end
 			},
