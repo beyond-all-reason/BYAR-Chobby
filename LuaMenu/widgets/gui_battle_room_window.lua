@@ -467,6 +467,24 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	local externalFunctions = {}
 	local ApplySingleplayerDefaultBoxes
 
+	local spectatingHidesStartBoxes = false
+
+	-- Nothing places by box on these presets, so the controls and the overlay would be
+	-- offering edits that never reach the game.
+	local function StartboxesApply()
+		return not PRESETS_WITHOUT_STARTBOXES[battle.preset]
+	end
+
+	local function RefreshStartboxPanel()
+		if not startBoxPanel then
+			return
+		end
+
+		local show = not spectatingHidesStartBoxes and StartboxesApply()
+		startBoxPanel:SetVisibility(show)
+		minimapPanel.disableChildrenHitTest = not show
+	end
+
 	-- battle.nbTeams only arrives via the s.battle.teams protocol extension, so hosts
 	-- that never send it need the team count on screen rather than an assumed two.
 	local function GetAllyTeamCount()
@@ -1433,6 +1451,8 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		if battle.preset ~= shownPreset then
 			changed = changed or shownPreset ~= nil
 			shownPreset = battle.preset
+			RefreshStartboxPanel()
+			externalFunctions.RefreshStartboxes()
 		end
 
 		if changed then
@@ -1902,15 +1922,9 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	-- Lobby interface
 	function externalFunctions.UpdateUserTeamStatus(userName, allyNumber, isSpectator, queuePos)
 		if userName == myUserName then
-			if battleLobby.name ~= "singleplayer" and battle.bossed ~= true and (isSpectator or (queuePos and queuePos > 0)) then
-				-- SetButtonStateSpectating()
-				startBoxPanel:Hide()
-				minimapPanel.disableChildrenHitTest = true --omg this is amazing
-			else
-				-- SetButtonStatePlaying()
-				startBoxPanel:Show()
-				minimapPanel.disableChildrenHitTest = false
-			end
+			spectatingHidesStartBoxes = battleLobby.name ~= "singleplayer" and battle.bossed ~= true
+				and (isSpectator or (queuePos and queuePos > 0)) or false
+			RefreshStartboxPanel()
 		end
 	end
 
@@ -1954,7 +1968,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 
 			if isSingleplayer then
 				imMinimap.children = {}
-				if startBoxPanel then startBoxPanel:SetVisibility(true) end
+				RefreshStartboxPanel()
 				ApplySingleplayerDefaultBoxes(mapName, allyTeamCount)
 			elseif mapChanged then
 				-- UPDATEBATTLEINFO carries mapName on every update (spec count, lock,
@@ -2405,6 +2419,14 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	-- !bSet, so every client (the editor included) re-renders from server state.
 	function externalFunctions.RefreshStartboxes()
 		if battleLobby.name == "singleplayer" then
+			return
+		end
+
+		if not StartboxesApply() then
+			arrangementActive = false
+			externalFunctions.RemovePolygonOverlays()
+			externalFunctions.RemoveStartRect()
+
 			return
 		end
 
