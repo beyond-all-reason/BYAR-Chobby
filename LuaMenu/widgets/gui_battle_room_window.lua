@@ -877,7 +877,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		tooltip = "Currently selected map. Green boxes show where each team will start"
 	}
 
-	local spectatingHidesStartBoxes = false
+	local spectatingOrQueued = false
 
 	-- Nothing places by box on these presets, so the controls and the overlay would be
 	-- offering edits that never reach the game.
@@ -886,7 +886,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	end
 
 	local function RefreshStartboxPanel()
-		local show = not spectatingHidesStartBoxes and StartboxesApply()
+		local show = not spectatingOrQueued and StartboxesApply()
 
 		startBoxPanel:SetVisibility(show)
 		minimapPanel.disableChildrenHitTest = not show
@@ -1919,7 +1919,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	-- Lobby interface
 	function externalFunctions.UpdateUserTeamStatus(userName, allyNumber, isSpectator, queuePos)
 		if userName == myUserName then
-			spectatingHidesStartBoxes = battleLobby.name ~= "singleplayer" and battle.bossed ~= true
+			spectatingOrQueued = battleLobby.name ~= "singleplayer" and battle.bossed ~= true
 				and (isSpectator or (queuePos and queuePos > 0)) or false
 			RefreshStartboxPanel()
 		end
@@ -2206,7 +2206,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	-- engine's own start box, which covers the whole map. Counted the same way for
 	-- skirmish and multiplayer, rects and polygons, sets and overrides.
 	function externalFunctions.GetStartboxShortfallMessage()
-		if PRESETS_WITHOUT_STARTBOXES[battle.preset] then
+		if not StartboxesApply() then
 			return nil
 		end
 
