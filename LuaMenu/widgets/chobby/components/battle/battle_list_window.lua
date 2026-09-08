@@ -53,24 +53,46 @@ function BattleListWindow:LayoutFilterBar()
 
 	local font = Configuration:GetFont(2)
 	local labelWidth = font:GetTextWidth(self.filterLabel.caption) + FILTER_ITEM_GAP
-	local x = labelWidth
-	local y = FILTER_BAR_PADDING_TOP
-	local row = 0
-	local rowCount = 1
+	local availableWidth = math.max(0, barWidth - labelWidth)
 
+	-- Pack into rows using the minimum gap, then space each row evenly.
+	local rows = {}
+	local currentRow = {items = {}, widths = {}, totalWidth = 0}
 	for i = 1, #self.filterItems do
 		local item = self.filterItems[i]
 		local itemWidth = self:MeasureFilterItemWidth(item, font)
+		local minRowWidth = currentRow.totalWidth + itemWidth
+		if #currentRow.items > 0 then
+			minRowWidth = minRowWidth + FILTER_ITEM_GAP
+		end
+		if #currentRow.items > 0 and minRowWidth > availableWidth then
+			rows[#rows + 1] = currentRow
+			currentRow = {items = {}, widths = {}, totalWidth = 0}
+		end
+		currentRow.items[#currentRow.items + 1] = item
+		currentRow.widths[#currentRow.widths + 1] = itemWidth
+		currentRow.totalWidth = currentRow.totalWidth + itemWidth
+	end
+	if #currentRow.items > 0 then
+		rows[#rows + 1] = currentRow
+	end
 
-		if x + itemWidth > barWidth and x > labelWidth then
-			row = row + 1
-			rowCount = rowCount + 1
-			y = FILTER_BAR_PADDING_TOP + row * FILTER_ROW_HEIGHT
-			x = labelWidth
+	local rowCount = math.max(1, #rows)
+	for rowIndex = 1, #rows do
+		local row = rows[rowIndex]
+		local n = #row.items
+		local y = FILTER_BAR_PADDING_TOP + (rowIndex - 1) * FILTER_ROW_HEIGHT
+		local x = labelWidth
+		local gap = FILTER_ITEM_GAP
+		if n > 1 then
+			gap = math.max(0, (availableWidth - row.totalWidth) / (n - 1))
 		end
 
-		item:SetPos(x, y, itemWidth, FILTER_ROW_HEIGHT)
-		x = x + itemWidth + FILTER_ITEM_GAP
+		for itemIndex = 1, n do
+			local itemWidth = row.widths[itemIndex]
+			row.items[itemIndex]:SetPos(x, y, itemWidth, FILTER_ROW_HEIGHT)
+			x = x + itemWidth + gap
+		end
 	end
 
 	local barHeight = FILTER_BAR_PADDING_TOP + FILTER_BAR_PADDING_BOTTOM + rowCount * FILTER_ROW_HEIGHT
