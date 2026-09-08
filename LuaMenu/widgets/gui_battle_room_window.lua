@@ -467,24 +467,6 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	local externalFunctions = {}
 	local ApplySingleplayerDefaultBoxes
 
-	local spectatingHidesStartBoxes = false
-
-	-- Nothing places by box on these presets, so the controls and the overlay would be
-	-- offering edits that never reach the game.
-	local function StartboxesApply()
-		return not PRESETS_WITHOUT_STARTBOXES[battle.preset]
-	end
-
-	local function RefreshStartboxPanel()
-		if not startBoxPanel then
-			return
-		end
-
-		local show = not spectatingHidesStartBoxes and StartboxesApply()
-		startBoxPanel:SetVisibility(show)
-		minimapPanel.disableChildrenHitTest = not show
-	end
-
 	-- battle.nbTeams only arrives via the s.battle.teams protocol extension, so hosts
 	-- that never send it need the team count on screen rather than an assumed two.
 	local function GetAllyTeamCount()
@@ -894,6 +876,21 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		parent = minimapPanel,
 		tooltip = "Currently selected map. Green boxes show where each team will start"
 	}
+
+	local spectatingHidesStartBoxes = false
+
+	-- Nothing places by box on these presets, so the controls and the overlay would be
+	-- offering edits that never reach the game.
+	local function StartboxesApply()
+		return not PRESETS_WITHOUT_STARTBOXES[battle.preset]
+	end
+
+	local function RefreshStartboxPanel()
+		local show = not spectatingHidesStartBoxes and StartboxesApply()
+
+		startBoxPanel:SetVisibility(show)
+		minimapPanel.disableChildrenHitTest = not show
+	end
 
 	local function RejoinBattleFunc()
 		--Spring.Echo("\LuaMenu\widgets\chobby\components\battle\battle_watch_list_window.lua","RejoinBattleFunc()","") -- Beherith Debug
