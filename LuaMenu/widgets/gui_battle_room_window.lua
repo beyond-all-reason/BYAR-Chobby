@@ -83,6 +83,14 @@ local randomSkirmishCooldownEnds = 0
 
 local emptyTeamIndex = 0
 local teamCount = 2
+
+-- SPADS gives these presets startpostype 1 in battlePresets.conf, where the engine places
+-- everyone on the map's own start positions and start boxes never come into it.
+local PRESETS_WITHOUT_STARTBOXES = {
+	ffa = true,
+	duel = true,
+}
+
 -- Set when this client asks for a room shape change, cleared when the server confirms one.
 -- Balancing has a lower privilege bar than the settings themselves, so sending it straight
 -- after the command would run it against the old shape while the setting is still in a vote.
@@ -2187,6 +2195,10 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	-- engine's own start box, which covers the whole map. Counted the same way for
 	-- skirmish and multiplayer, rects and polygons, sets and overrides.
 	function externalFunctions.GetStartboxShortfallMessage()
+		if PRESETS_WITHOUT_STARTBOXES[battle.preset] then
+			return nil
+		end
+
 		-- No boxes counts against you, but only once they have been through the renderer
 		-- at least once: before that an empty table means they have not arrived yet.
 		if not renderedAllyTeamCount then
