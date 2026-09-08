@@ -5474,6 +5474,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	local function OnDisposeFunction()
 		emptyTeamIndex = 0
 		teamCount = 2
+		balanceWhenSettingLands = 0
 		ReconcileTeams = nil
 		ShowTeamCount = nil
 		UpdateLockButtons = nil
