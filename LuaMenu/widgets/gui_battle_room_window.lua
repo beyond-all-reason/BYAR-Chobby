@@ -91,7 +91,6 @@ local PRESETS_WITHOUT_STARTBOXES = {
 	duel = true,
 }
 
--- Set when this client asks for a room shape change, cleared when the server confirms one.
 -- Balancing has a lower privilege bar than the settings themselves, so sending it straight
 -- after the command would run it against the old shape while the setting is still in a vote.
 local balanceWhenSettingLands = 0
@@ -1329,8 +1328,6 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	end
 	EnsureTeamCountItems(teamCount)
 
-	local settingTeamCount = false
-
 	local teamCountSelect = ComboBox:New {
 		name = "teamCountSelect",
 		x = 5,
@@ -1345,7 +1342,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		tooltip = "Change number of teams for this lobby",
 		OnSelect = {
 			function (obj, itemIndex)
-				if settingTeamCount or itemIndex == teamCount then
+				if itemIndex == teamCount then
 					return
 				end
 
@@ -1370,9 +1367,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		end
 
 		EnsureTeamCountItems(count)
-		settingTeamCount = true
 		teamCountSelect:Select(count)
-		settingTeamCount = false
 	end
 
 	local TEAM_SIZE_LIST_MAX = 8
@@ -1819,7 +1814,6 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 			teamCountSelect:SetVisibility(false)
 		else
 			teamCountSelect:SetVisibility(true)
-			teamCountSelect:SetPos(nil, offset)
 			offset = offset + 38
 		end
 		-- Skirmish has no SPADS to set it on, and team size means nothing locally.
@@ -3222,10 +3216,6 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 				teamHolder:Dispose()
 			end
 
-			-- An emptied team stays exactly as it was before anyone joined it. Only teams
-			-- past the count go away, so lowering the count is the one thing that removes
-			-- one, and a team someone is still sitting in is never pulled out from under
-			-- them.
 			function teamData.CheckRemoval()
 				if not teamStack:IsEmpty() or teamIndex == -2 then
 					return false
