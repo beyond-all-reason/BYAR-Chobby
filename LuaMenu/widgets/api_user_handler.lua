@@ -268,17 +268,6 @@ local function LoadOpenSkillSnapshot()
 end
 
 local function ResolveSnapshotColumns(battle)
-	local ratingType = battle and battle.ratingType
-	if ratingType == "Duel" then
-		return "duel_skill", "duel_skill_un"
-	elseif ratingType == "FFA" then
-		return "ffa_skill", "ffa_skill_un"
-	elseif ratingType == "Small Team" then
-		return "small_team_skill", "small_team_skill_un"
-	elseif ratingType == "Large Team" then
-		return "team_skill", "team_skill_un"
-	end
-
 	if battle and battle.teamSize and battle.nbTeams then
 		local teamSize = tonumber(battle.teamSize)
 		local nbTeams = tonumber(battle.nbTeams)
@@ -287,6 +276,9 @@ local function ResolveSnapshotColumns(battle)
 				return "duel_skill", "duel_skill_un"
 			elseif teamSize == 1 and nbTeams > 2 then
 				return "ffa_skill", "ffa_skill_un"
+			elseif nbTeams > 2 then
+				-- Team FFA (e.g. 2v2v2v2): uses large-team OS for balancing
+				return "team_skill", "team_skill_un"
 			elseif teamSize <= 5 then
 				return "small_team_skill", "small_team_skill_un"
 			else
