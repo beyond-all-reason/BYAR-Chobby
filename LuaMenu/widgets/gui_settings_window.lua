@@ -535,7 +535,7 @@ end
 --------------------------------------------------------------------------------
 -- Lobby Settings
 
-local function AddCheckboxSetting(offset, caption, key, default, clickFunc, tooltip)
+local function AddCheckboxSetting(offset, caption, key, default, clickFunc, tooltip, indent)
 	local Configuration = WG.Chobby.Configuration
 
 	local checked = Configuration[key]
@@ -550,6 +550,7 @@ local function AddCheckboxSetting(offset, caption, key, default, clickFunc, tool
 		height = 30,
 		boxalign = "right",
 		boxsize = 20,
+		captionIndent = indent or 0,
 		caption = caption,
 		checked = checked,
 		tooltip = tooltip,
@@ -563,6 +564,20 @@ local function AddCheckboxSetting(offset, caption, key, default, clickFunc, tool
 	}
 
 	return control, offset + ITEM_OFFSET
+end
+
+local function AddSettingsHeader(offset, caption)
+	local control = Label:New {
+		x = 20,
+		y = offset + 12 + TEXT_OFFSET,
+		width = 350,
+		height = 30,
+		valign = "top",
+		align = "left",
+		caption = caption,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
+	}
+	return control, offset + 12 + ITEM_OFFSET
 end
 
 local function AddNumberSetting(offset, caption, desc, key, default, minVal, maxVal, isPercent)
@@ -1113,9 +1128,14 @@ local function GetLobbyTabControls()
 		children[#children + 1], offset = AddCheckboxSetting(offset, i18n("use_steam_browser"), "useSteamBrowser", true)
 	end
 	--children[#children + 1], offset = AddCheckboxSetting(offset, "Multiplayer in new window", "multiplayerLaunchNewSpring", true)
-	children[#children + 1], offset = AddCheckboxSetting(offset, i18n("ingame_notifcations"), "ingameNotifcations", true, nil , i18n("ingame_notifcations_tooltip"))
-	children[#children + 1], offset = AddCheckboxSetting(offset, i18n("non_friend_notifications"), "nonFriendNotifications", true, nil,  i18n("non_friend_notifications_tooltip"))
-	children[#children + 1], offset = AddCheckboxSetting(offset, "Do Not Disturb", "doNotDisturb", false, nil, "Disables the Chat switching channels when receiving a message")
+
+	local SECTION_INDENT = 20
+	children[#children + 1], offset = AddSettingsHeader(offset, i18n("settings_notifications"))
+	children[#children + 1], offset = AddCheckboxSetting(offset, i18n("os_toast_notifications"), "osToastNotifications", true, nil, i18n("os_toast_notifications_tooltip"), SECTION_INDENT)
+	children[#children + 1], offset = AddCheckboxSetting(offset, "Do Not Disturb", "doNotDisturb", false, nil, "Disables the Chat switching channels when receiving a message", SECTION_INDENT)
+	children[#children + 1], offset = AddCheckboxSetting(offset, i18n("os_taskbar_flash"), "osTaskbarFlash", true, nil, i18n("os_taskbar_flash_tooltip"), SECTION_INDENT)
+	children[#children + 1], offset = AddCheckboxSetting(offset, i18n("non_friend_notifications"), "nonFriendNotifications", true, nil,  i18n("non_friend_notifications_tooltip"), SECTION_INDENT)
+	children[#children + 1], offset = AddCheckboxSetting(offset, i18n("ingame_notifcations"), "ingameNotifcations", true, nil , i18n("ingame_notifcations_tooltip"), SECTION_INDENT)
 	--children[#children + 1], offset = AddCheckboxSetting(offset, i18n("notifyForAllChat"), "notifyForAllChat", false)
 	--children[#children + 1], offset = AddCheckboxSetting(offset, i18n("only_featured_maps"), "onlyShowFeaturedMaps", true)
 	children[#children + 1], offset = AddCheckboxSetting(offset, i18n("simplifiedSkirmishSetup"), "simplifiedSkirmishSetup", true, nil, i18n("simplifiedSkirmishSetup_tooltip"))

@@ -93,6 +93,22 @@ function WrapperLoopback.StartNewSpring(args)
 	WG.Connector.Send("StartNewSpring", args)
 end
 
+-- Shows an OS toast notification and/or flashes the taskbar icon via the launcher.
+-- The launcher only acts when the game window is not in the foreground.
+function WrapperLoopback.Alert(message)
+	local Configuration = WG.Chobby.Configuration
+	local toast = Configuration.osToastNotifications and true or false
+	local flash = Configuration.osTaskbarFlash and true or false
+	if not (toast or flash) then
+		return
+	end
+	WG.Connector.Send("Alert", {
+		message = message,
+		toast = toast,
+		flash = flash,
+	})
+end
+
 local function GetDownloadByName(name)
 	for i, download in ipairs(downloads) do
 		if download.name == name then
