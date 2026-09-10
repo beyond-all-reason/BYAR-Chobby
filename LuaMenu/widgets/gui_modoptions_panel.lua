@@ -15,13 +15,30 @@ end
 -- Structure
 local modoptionDefaults = {}
 local modoptionStructure = {}
+local modesByGame = {}
+local valuesByGame = {} -- the game's modules/game/lib/values.lua, per archive
+local activeModes = {}
+local selectedModeKeys = {}
+local applyingModes = false -- Apply in progress: the battle listener must not re-seed the picks
+local modeUI = {}
+local modoptionWindowOpen = false
+local lockedOverlaysByKey = {}
 
 -- Variables
 local battleLobby
 local localModoptions = {}
+local userModifiedOptions = {}
+local isProgrammaticUpdate = false
 local modoptionControlNames = {}
 local modoptions
 local modoptionsByGame = {}
+
+local function SetUserModifiedOption(key, value)
+	localModoptions[key] = value
+	if not isProgrammaticUpdate then
+		userModifiedOptions[key] = true
+	end
+end
 
 -- constants
 local MARKED_AS_CHANGED_COLOR = {0.99, 0.75, .3, 1} -- {0.07, 0.66, 0.92, 1.0}
@@ -47,7 +64,97 @@ local function UpdateControlValue(key, value)
 	end
 end
 
-local function TextFromNum(num, step)
+-- Forward declarations so SetControlLock (below) can format number values
+-- through the same helpers used by the interactive editboxes.
+local TextFromNum, getModOptionByKey
+
+-- Enable/disable the interactive control for a given modoption key
+local function SetControlLock(key, locked)
+    if not modoptionControlNames then return end
+    local control = modoptionControlNames[key]
+    if not control then return end
+    if control.SetEnabled then
+        control:SetEnabled(not locked)
+    end
+    -- If the control is embedded in a row control, try disabling that too
+    local parent = control.parent
+    if parent and parent.SetEnabled and parent.name ~= "tabPanel" then
+        parent:SetEnabled(not locked)
+    end
+    -- Fallback: disable input handlers if the widget lacks SetEnabled
+    if control.OnSelectName then
+        control._origOnSelectName = control._origOnSelectName or control.OnSelectName
+        control.OnSelectName = locked and {} or control._origOnSelectName
+    end
+    if control.OnChange then
+        control._origOnChange = control._origOnChange or control.OnChange
+        control.OnChange = locked and {} or control._origOnChange
+    end
+
+    -- Add/remove an input-blocking overlay for controls that don't visually disable
+    local parentRow = control.parent
+    if parentRow and parentRow.name ~= "tabPanel" then
+        local displayValue = localModoptions[key] or modoptionDefaults[key] or ""
+        if control.itemKeyToName then
+            displayValue = control.itemKeyToName[displayValue] or displayValue
+        elseif control.SetToggle then
+            if displayValue == "1" or displayValue == 1 or displayValue == true then
+                displayValue = "Enabled"
+            else
+                displayValue = "Disabled"
+            end
+        else
+            local option = getModOptionByKey(key)
+            local num = tonumber(displayValue)
+            if option and option.type == "number" and num then
+                -- Round to the option's step so float32 round-trips (e.g. 0.30000001) display cleanly
+                displayValue = TextFromNum(num, option.step or 1)
+            else
+                displayValue = tostring(displayValue)
+            end
+        end
+
+        if locked then
+            local info = lockedOverlaysByKey[key]
+            if not info then
+                -- Expand narrow areas (e.g. checkboxes) so text like "Disabled" fits
+                local ovX, ovW = control.x, control.width
+                if ovW < 100 then ovW = 300 end
+                local overlay = Label:New {
+                    name = "lockOverlay_" .. key,
+                    x = ovX,
+                    y = control.y,
+                    width = ovW,
+                    height = control.height,
+                    valign = "center",
+                    align = "left",
+                    caption = tostring(displayValue),
+                    tooltip = control.tooltip,
+                    objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+                    greedyHitTest = true,
+                }
+                parentRow:AddChild(overlay)
+                lockedOverlaysByKey[key] = { overlay = overlay, oldX = control.x }
+                if control.SetPos then control:SetPos(control.x + 4095, control.y) end
+            else
+                info.overlay:SetCaption(tostring(displayValue))
+            end
+        else
+            local info = lockedOverlaysByKey[key]
+            if info then
+                if control.SetPos then control:SetPos(info.oldX or control.x, control.y) end
+                if info.overlay and info.overlay.parent then
+                    info.overlay.parent:RemoveChild(info.overlay)
+                end
+            end
+            lockedOverlaysByKey[key] = nil
+        end
+    end
+
+    -- Simple visual state: if a control supports SetEnabled, that's sufficient.
+end
+
+function TextFromNum(num, step)
 
 	-- remove excess accuracy
 	local places = 0
@@ -68,7 +175,7 @@ local function TextFromNum(num, step)
 	return text
 end
 
-local function getModOptionByKey(key)
+function getModOptionByKey(key)
 	local retOption = {}
 	for _, option in ipairs(modoptions) do
 		if option.key and option.key == key then
@@ -79,11 +186,69 @@ local function getModOptionByKey(key)
 	return retOption
 end
 
+local function getActiveMode(category)
+	local catModes = activeModes[category]
+	local selectedKey = selectedModeKeys[category]
+	if not (catModes and catModes.modes and selectedKey) then return nil end
+	for _, m in ipairs(catModes.modes) do
+		if m.key == selectedKey then return m end
+	end
+	return nil
+end
+
+-- The mode category an option's section answers to: the section's declared
+-- mode_category (a flavor's dials handing the choice to a shared axis, e.g.
+-- scav_defense_options -> game), else the section itself.
+local function sectionCategory(sectionKey)
+	local declared = modoptionStructure and modoptionStructure.sectionModeCategories
+		and modoptionStructure.sectionModeCategories[sectionKey]
+	return declared or sectionKey
+end
+
+-- Applies the given mode's values to localModoptions, resets non-whitelisted
+-- mode options to their defaults, and sets the category_mode key.
+local function applyModeValues(mode)
+	if not mode then return end
+
+	if mode.modOptions then
+		for optKey, rule in pairs(mode.modOptions) do
+			if rule.value ~= nil then
+				local modeValue = rule.value
+				if type(modeValue) == "boolean" then modeValue = tostring((modeValue and 1) or 0) end
+				modeValue = tostring(modeValue)
+
+				if rule.locked or not userModifiedOptions[optKey] then
+					localModoptions[optKey] = modeValue
+				end
+			end
+		end
+	end
+
+	if modoptions then
+		for i = 1, #modoptions do
+			local opt = modoptions[i]
+			if opt.key and sectionCategory(opt.section) == mode.category
+					and opt.type ~= "subheader" and opt.type ~= "separator" then
+				local isWhitelisted = mode.modOptions and mode.modOptions[opt.key] ~= nil
+				if not isWhitelisted and modoptionDefaults[opt.key] then
+					localModoptions[opt.key] = modoptionDefaults[opt.key]
+					userModifiedOptions[opt.key] = nil
+				end
+			end
+		end
+	end
+
+	localModoptions[mode.category .. "_mode"] = mode.key
+end
+
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 -- Lock Handling
 local lockedOptions = {}
 local postLock = {}
+-- A mode's lock is one bit in lockedOptions next to the item locks (bit 1),
+-- so placing or releasing it leaves an item lock's offscreen row where it is.
+local MODE_LOCK_BIT = 256
 local function processChildrenLocks(unlock, lock, bitmask)
 	local item, itemLock, child
 
@@ -105,7 +270,10 @@ local function processChildrenLocks(unlock, lock, bitmask)
 					child:SetPos(child.x - 4095)
 
 					for j = 1, #tabPanel.children do
-						if tabPanel.children[j].rowOrginal > cachedY then
+						-- rowOrginal is only stamped on option rows; furniture
+						-- (the mode desc) has none and does not shift.
+						local siblingY = tabPanel.children[j].rowOrginal
+						if siblingY and cachedY and siblingY > cachedY then
 							tabPanel.children[j]:SetPos(nil, tabPanel.children[j].y + 32)
 						end
 					end
@@ -127,7 +295,8 @@ local function processChildrenLocks(unlock, lock, bitmask)
 				child:SetPos(child.x + 4095)
 
 				for j = 1, #tabPanel.children do
-					if tabPanel.children[j].rowOrginal > cachedY then
+					local siblingY = tabPanel.children[j].rowOrginal
+					if siblingY and cachedY and siblingY > cachedY then
 						tabPanel.children[j]:SetPos(nil, tabPanel.children[j].y - 32)
 					end
 				end
@@ -211,7 +380,7 @@ local function ProcessListOption(data, index)
 						label.font = WG.Chobby.Configuration:GetFont(2, "Changed2", {color = MARKED_AS_CHANGED_COLOR})
 						list.font = WG.Chobby.Configuration:GetFont(2, "Changed2", {color = MARKED_AS_CHANGED_COLOR})
 				end
-				localModoptions[data.key] = itemNameToKey[selectedName]
+				SetUserModifiedOption(data.key, itemNameToKey[selectedName])
 			end
 		} or
 			{function (obj, selectedName)	
@@ -222,7 +391,7 @@ local function ProcessListOption(data, index)
 						label.font = WG.Chobby.Configuration:GetFont(2, "Changed2", {color = MARKED_AS_CHANGED_COLOR})
 						list.font = WG.Chobby.Configuration:GetFont(2, "Changed2", {color = MARKED_AS_CHANGED_COLOR})
 				end
-				localModoptions[data.key] = itemNameToKey[selectedName]
+				SetUserModifiedOption(data.key, itemNameToKey[selectedName])
 			end
 		},
 		itemKeyToName = itemKeyToName, -- Not a chili key
@@ -290,7 +459,7 @@ local function ProcessBoolOption(data, index)
 				else -- on disable
 					processChildrenLocks(data.lock, data.unlock, data.bitmask or 1)
 				end
-				localModoptions[data.key] = tostring((newState and 1) or 0)
+				SetUserModifiedOption(data.key, tostring((newState and 1) or 0))
 				if (newState and modoptionDefaults[data.key] == "1") or (not newState and modoptionDefaults[data.key] == "0") then
 					label.font = WG.Chobby.Configuration:GetFont(2)
 				else
@@ -304,7 +473,7 @@ local function ProcessBoolOption(data, index)
 				else
 					label.font = WG.Chobby.Configuration:GetFont(2, "Changed2", {color = MARKED_AS_CHANGED_COLOR})
 				end
-				localModoptions[data.key] = tostring((newState and 1) or 0)
+				SetUserModifiedOption(data.key, tostring((newState and 1) or 0))
 			end
 		},
 	}
@@ -322,7 +491,7 @@ local function ProcessBoolOption(data, index)
 	control = Control:New {
 		x = 0,
 		y = index*32,
-		width = 350,
+		width = 625,
 		height = 32,
 		padding = {0, 0, 0, 0},
 		tooltip = data.desc,
@@ -339,6 +508,15 @@ end
 local function ProcessNumberOption(data, index)
 	local control
 	local oldText = localModoptions[data.key] or modoptionDefaults[data.key]
+
+	-- Seed the editbox with a step-rounded value so a synced float32 round-trip
+	-- (e.g. 0.30000001) shows cleanly before the user ever focuses the box.
+	-- Defaults are already formatted (see modoptionDefaults assignment); this
+	-- covers values coming from localModoptions.
+	local seedNum = tonumber(oldText)
+	if seedNum then
+		oldText = TextFromNum(seedNum, data.step or 1)
+	end
 
 	local label = Label:New {
 		x = 5,
@@ -382,7 +560,7 @@ local function ProcessNumberOption(data, index)
 				newValue = math.floor(newValue/data.step + 0.5)*data.step + 0.01*data.step
 
 				oldText = TextFromNum(newValue, data.step)
-				localModoptions[data.key] = oldText
+				SetUserModifiedOption(data.key, oldText)
 				obj:SetText(oldText)
 
 				if oldText == modoptionDefaults[data.key] then
@@ -414,7 +592,7 @@ local function ProcessNumberOption(data, index)
 				newValue = math.floor(newValue/data.step + 0.5)*data.step + 0.01*data.step
 
 				oldText = TextFromNum(newValue, data.step)
-				localModoptions[data.key] = oldText
+				SetUserModifiedOption(data.key, oldText)
 				obj:SetText(oldText)
 
 				if oldText == modoptionDefaults[data.key] then
@@ -492,14 +670,14 @@ local function ProcessStringOption(data, index)
 
 				if string.len(obj.text) <= 1 then
 					if not textHidden then
-						localModoptions[data.key] = 0
+						SetUserModifiedOption(data.key, 0)
 					end
 					obj.text = ""
 					textBox.font = WG.Chobby.Configuration:GetFont(2)
 					label.font = WG.Chobby.Configuration:GetFont(2)
 
 				else
-					localModoptions[data.key] = obj.text
+					SetUserModifiedOption(data.key, obj.text)
 					if obj.text == modoptionDefaults[data.key] then
 						textBox.font = WG.Chobby.Configuration:GetFont(2)
 						label.font = WG.Chobby.Configuration:GetFont(2)
@@ -657,9 +835,328 @@ end
 
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
+-- Mode Panel
+
+local function CreateModePanel(category, sectionData)
+	local selectorKey = category .. "_mode"
+	local catModes = activeModes[category]
+
+	local modeScroll = ScrollPanel:New {
+		name = "modeTabPanel_" .. category .. "_" .. (math.random(1000, 9999)),
+		x = 10,
+		right = 10,
+		y = 56,
+		bottom = 10,
+		horizontalScrollbar = false,
+	}
+
+	local panelOptions = sectionData.options or {}
+
+	local selectorOpt = nil
+	for _, opt in ipairs(panelOptions) do
+		if opt.key == selectorKey then selectorOpt = opt; break end
+	end
+
+	local modeLabel = Label:New {
+		x = 15,
+		y = 10,
+		width = 200,
+		height = 30,
+		valign = "center",
+		align = "left",
+		caption = selectorOpt and selectorOpt.name or (category:sub(1,1):upper() .. category:sub(2) .. " Mode"),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+	}
+
+	local items, itemKeyToName, itemNameToKey, itemNameToIndex, itemsTooltips = {}, {}, {}, {}, {}
+	if catModes and catModes.modes then
+		for i, m in ipairs(catModes.modes) do
+			local name = m.name or m.key
+			items[i] = name
+			itemKeyToName[m.key] = name
+			itemNameToKey[name] = m.key
+			itemNameToIndex[name] = i
+			if m.desc then
+				itemsTooltips[i] = m.desc
+			end
+		end
+	end
+
+	local function applyMode(modeKey)
+		if not (catModes and catModes.modes) then return end
+		local previousModeKey = selectedModeKeys[category]
+		selectedModeKeys[category] = modeKey
+		local mode
+		for _, m in ipairs(catModes.modes) do
+			if m.key == modeKey then mode = m; break end
+		end
+		if not mode then return end
+
+		local allowRanked = (mode.allowRanked ~= false)
+		WG.ModePolicy = WG.ModePolicy or {}
+		WG.ModePolicy[category] = WG.ModePolicy[category] or {}
+		WG.ModePolicy[category].allowRanked = allowRanked
+
+		-- Locks the previous mode of this category placed and the new one does
+		-- not: release them here, or Accept treats them as host locks and
+		-- silently reverts the option to the server value.
+		local previouslyLocked = WG.ModePolicy[category].modeLocked or {}
+		for optKey in pairs(previouslyLocked) do
+			local rule = mode.modOptions and mode.modOptions[optKey]
+			if not (rule and rule.locked) then
+				local remaining = math.bit_and(math.bit_inv(MODE_LOCK_BIT), lockedOptions[optKey] or 0)
+				lockedOptions[optKey] = remaining > 0 and remaining or nil
+				SetControlLock(optKey, false)
+			end
+		end
+		WG.ModePolicy[category].modeLocked = {}
+
+		-- An unranked mode pins ranked_game off through its preset (the builder's
+		-- mode.ranked policy), so it travels with modOptions like any claim and
+		-- applyModeValues below sets and releases it. Nothing to do here.
+
+		-- Switching modes resets the category to defaults then applies the preset.
+		-- retainValues modes (Customize) are non-sticky: keep current values, just expose/unlock.
+		if not mode.retainValues then
+			if previousModeKey ~= modeKey and modoptions then
+				for i = 1, #modoptions do
+					local opt = modoptions[i]
+					if opt.key and sectionCategory(opt.section) == category
+							and opt.type ~= "subheader" and opt.type ~= "separator" then
+						userModifiedOptions[opt.key] = nil
+						localModoptions[opt.key] = modoptionDefaults[opt.key]
+					end
+				end
+			end
+
+			applyModeValues(mode)
+		end
+
+		for _, opt in ipairs(panelOptions) do
+			if opt.key then
+				modoptionControlNames[opt.key] = nil
+				lockedOverlaysByKey[opt.key] = nil
+			end
+		end
+
+		modeScroll:ClearChildren()
+
+		-- The panel is a WHITELIST: a mode shows exactly what it claims, and
+		-- nothing else. Sections still matter for grouping, reset scope and
+		-- the resolver's defaults; visibility is the preset's own inventory.
+		local function optionVisible(opt)
+			if not opt.key or opt.key == selectorKey then
+				return false
+			end
+			local claim = mode.modOptions and mode.modOptions[opt.key]
+			return claim ~= nil and claim.ui ~= "hidden"
+		end
+
+		-- A subheader has no key of its own, so it can't be whitelisted/hidden per mode.
+		-- Hide it when every option in its group (up to the next subheader/separator)
+		-- is filtered out, so modes don't render an orphan group header.
+		local function modeGroupHasVisibleOption(startIndex)
+			for i = startIndex + 1, #panelOptions do
+				local o = panelOptions[i]
+				if o.type == "subheader" or o.type == "separator" then break end
+				if optionVisible(o) then
+					return true
+				end
+			end
+			return false
+		end
+
+		local column, row = 1, 0
+		local renderedKeys = {}
+
+		-- The mode explains itself before its dials do. No rowOrginal: the
+		-- desc is furniture, not an option row, and never shifts with locks.
+		-- Reserve the height the text will actually wrap to (measured against
+		-- a conservative width, since layout has not run yet) so the first
+		-- option row starts below it.
+		if mode.desc and mode.desc ~= "" then
+			local font = WG.Chobby.Configuration:GetFont(2)
+			local measured = font.GetTextWidth and font:GetTextWidth(mode.desc) or (#mode.desc * 8)
+			local descLines = math.max(1, math.ceil(measured / 900))
+			local descHeight = descLines * 20 + 4
+			modeScroll:AddChild(TextBox:New {
+				x = 15,
+				right = 15,
+				y = 8,
+				height = descHeight,
+				text = mode.desc,
+				objectOverrideFont = font,
+			})
+			row = row + math.ceil((descHeight + 20) / 16) / 2
+		end
+
+		local function addRow(opt)
+			if (opt.column or -1) > column then
+				row = row - 1
+			end
+
+			local rowData = nil
+			if opt.type == "number" then
+				rowData = ProcessNumberOption(opt, row)
+			elseif opt.type == "string" then
+				rowData = ProcessStringOption(opt, row)
+			elseif opt.type == "subheader" then
+				rowData = ProcessSubHeader(opt, row)
+			elseif opt.type == "bool" then
+				rowData = ProcessBoolOption(opt, row)
+			elseif opt.type == "list" then
+				rowData = ProcessListOption(opt, row)
+			elseif opt.type == "separator" then
+				rowData = ProcessLineSeparator(opt, row)
+				row = row - 0.5
+			end
+			if rowData then
+				column = math.abs(opt.column or 1)
+				rowData.x = rowData.x + (column - 1) * 625
+				row = row + 1
+				rowData.rowOrginal = rowData.y
+				rowData.rowOrginalX = rowData.x
+				-- the search box reads these, same as a plain tab's rows
+				rowData.filterText = string.lower(opt.name or "")
+				rowData.filterType = opt.type
+				rowData.optionKey = opt.key
+				rowData.optionData = opt
+				modeScroll:AddChild(rowData)
+			end
+			if opt.key then
+				renderedKeys[opt.key] = true
+			end
+		end
+
+		-- A separator earns its line only when visible rows sit on both sides
+		-- of it: hold each one until the next visible row flushes it, so
+		-- filtered-out groups leave no stacked rules behind.
+		local renderedAny = false
+		local pendingSeparator = nil
+		local function addVisibleRow(opt)
+			if pendingSeparator then
+				addRow(pendingSeparator)
+				pendingSeparator = nil
+			end
+			addRow(opt)
+			renderedAny = true
+		end
+		for index, opt in ipairs(panelOptions) do
+			if opt.type == "subheader" then
+				if modeGroupHasVisibleOption(index) then
+					addVisibleRow(opt)
+				end
+			elseif opt.type == "separator" then
+				if renderedAny then
+					pendingSeparator = opt
+				end
+			elseif optionVisible(opt) then
+				addVisibleRow(opt)
+			end
+		end
+		pendingSeparator = nil
+
+		-- Options the mode pins outside the panel's sections (a mission pins
+		-- forceallunits, which lives with the cheats): rendered here so
+		-- picking the mode shows everything it does. Options hidden from the
+		-- lobby stay hidden — the pin still applies, silently.
+		if mode.modOptions and modoptions then
+			for i = 1, #modoptions do
+				local opt = modoptions[i]
+				if opt.key and mode.modOptions[opt.key] and not renderedKeys[opt.key]
+						and opt.key ~= selectorKey and not opt.hidden
+						and mode.modOptions[opt.key].ui ~= "hidden"
+						and opt.type ~= "subheader" and opt.type ~= "separator"
+						and opt.type ~= "section" then
+					addRow(opt)
+				end
+			end
+		end
+
+		if mode.modOptions then
+			for optKey, rule in pairs(mode.modOptions) do
+				if rule.locked then
+					lockedOptions[optKey] = math.bit_or(lockedOptions[optKey] or 0, MODE_LOCK_BIT)
+					WG.ModePolicy[category].modeLocked[optKey] = true
+					SetControlLock(optKey, true)
+				else
+					local remaining = math.bit_and(math.bit_inv(MODE_LOCK_BIT), lockedOptions[optKey] or 0)
+					lockedOptions[optKey] = remaining > 0 and remaining or nil
+					WG.ModePolicy[category].modeLocked[optKey] = nil
+					SetControlLock(optKey, false)
+				end
+			end
+		end
+	end
+
+	-- No pick yet: the selector option's own default names the mode, never
+	-- whichever file the archive listed first.
+	local defaultSelected = 1
+	if catModes and catModes.modes then
+		local wanted = selectedModeKeys[category] or (selectorOpt and selectorOpt.def)
+		for i, m in ipairs(catModes.modes) do
+			if m.key == wanted then
+				defaultSelected = i; break
+			end
+		end
+	end
+
+	local modeList = ComboBox:New {
+		x = 340,
+		y = 11,
+		width = 300,
+		height = 30,
+		items = items,
+		itemsTooltips = itemsTooltips,
+		selectByName = true,
+		selected = defaultSelected,
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		OnSelectName = {
+			function (obj, selectedName)
+				local k = itemNameToKey[selectedName]
+				WG.Delay(function()
+					applyMode(k)
+				end, 0.05)
+			end
+		},
+	}
+
+	modeUI[category] = {
+		modeList = modeList,
+		applyMode = applyMode,
+		itemKeyToName = itemKeyToName,
+		itemNameToIndex = itemNameToIndex,
+	}
+
+	local parentPanel = Control:New {
+		name = "modeParentPanel_" .. category .. "_" .. (math.random(1000, 9999)),
+		x = 6,
+		right = 5,
+		y = 10,
+		bottom = 8,
+		padding = {0,0,0,0},
+	}
+
+	parentPanel:AddChild(modeLabel)
+	parentPanel:AddChild(modeList)
+	parentPanel:AddChild(Line:New { classname = "line_solid", x = 10, y = 48, right = 10, height = 2 })
+	parentPanel:AddChild(modeScroll)
+
+	if catModes and catModes.modes and catModes.modes[defaultSelected] then
+		applyMode(catModes.modes[defaultSelected].key)
+	end
+
+	-- the search box walks the rows, which live in the scroll, not the frame
+	parentPanel.filterPanel = modeScroll
+	return { parentPanel }
+end
+
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 -- Modoptions Window Handler
 
 local function CreateModoptionWindow()
+	modoptionWindowOpen = true
 	local ww, wh = Spring.GetWindowGeometry()
 
 	local modoptionsSelectionWindow = Window:New {
@@ -675,13 +1172,54 @@ local function CreateModoptionWindow()
 
 	localModoptions = Spring.Utilities.CopyTable(battleLobby:GetMyBattleModoptions() or {})
 	modoptionControlNames = {}
+	lockedOverlaysByKey = {}
+	postLock = {}
 
 	local tabs = {}
 	lockedOptions = {}
 
 	local tabWidth = 120
 
+	-- A section governed by a mode category (mode_category on its section
+	-- entry) gets no tab of its own: the axis owns the choice, so the
+	-- section's dials fold into the governing category's mode panel, where
+	-- the active mode decides what shows. Heavier sections fold in first.
+	local governedSections = {}
 	for key, data in pairs(modoptionStructure.sections) do
+		local governedBy = sectionCategory(key)
+		if governedBy ~= key and activeModes[governedBy] then
+			governedSections[governedBy] = governedSections[governedBy] or {}
+			table.insert(governedSections[governedBy], { key = key, options = data.options })
+		end
+	end
+	for _, sections in pairs(governedSections) do
+		table.sort(sections, function(a, b)
+			local wa = modoptionStructure.sectionWeights[a.key] or 0
+			local wb = modoptionStructure.sectionWeights[b.key] or 0
+			if wa ~= wb then
+				return wa > wb
+			end
+			return a.key < b.key
+		end)
+	end
+
+	-- An option any preset claims belongs to its mode panel, whatever section
+	-- it lives in (FFA pins ffa_wreckage from the main options): it is not
+	-- rendered a second time on its own tab, or two controls would answer to
+	-- one key and only the last built would take the lock.
+	local modeClaimedKeys = {}
+	for _, catModes in pairs(activeModes) do
+		for _, m in ipairs(catModes.modes or {}) do
+			for optKey in pairs(m.modOptions or {}) do
+				modeClaimedKeys[optKey] = true
+			end
+		end
+	end
+	for key, data in pairs(modoptionStructure.sections) do
+		local governedBy = sectionCategory(key)
+		if governedBy ~= key and activeModes[governedBy] then
+			-- folded into the governing category's mode panel above
+		else
 		local caption = modoptionStructure.sectionTitles[data.title] or data.title
 		local weight = modoptionStructure.sectionWeights[data.title] or -#tabs
 		local fontSize = 2
@@ -691,7 +1229,32 @@ local function CreateModoptionWindow()
 		if origCaption ~= caption then
 			tooltip = origCaption
 		end
-		local tabChildren = PopulateTab(data.options)
+		local catModes = activeModes[key]
+		local tabOptions = data.options
+		if not catModes then
+			tabOptions = {}
+			for _, opt in ipairs(data.options) do
+				if not (opt.key and modeClaimedKeys[opt.key]) then
+					tabOptions[#tabOptions + 1] = opt
+				end
+			end
+		end
+		local tabChildren = (not catModes) and PopulateTab(tabOptions) or {}
+		if catModes then
+			local sectionData = data
+			if governedSections[key] then
+				sectionData = { title = data.title, options = {} }
+				for _, opt in ipairs(data.options) do
+					sectionData.options[#sectionData.options + 1] = opt
+				end
+				for _, governed in ipairs(governedSections[key]) do
+					for _, opt in ipairs(governed.options) do
+						sectionData.options[#sectionData.options + 1] = opt
+					end
+				end
+			end
+			tabChildren = CreateModePanel(key, sectionData)
+		end
 		tabs[#tabs + 1] = {
 			name = key,
 			caption = caption,
@@ -699,8 +1262,9 @@ local function CreateModoptionWindow()
 			objectOverrideFont = WG.Chobby.Configuration:GetFont(fontSize),
 			children = tabChildren,
 			weight = data.weight or weight,
-			contentPanel = tabChildren[1],
+			contentPanel = tabChildren[1] and (tabChildren[1].filterPanel or tabChildren[1]),
 		}
+		end
 	end
 
 	for i = 1, #postLock do
@@ -745,6 +1309,7 @@ local function CreateModoptionWindow()
 		}
 	}
 	local function CancelFunc()
+		modoptionWindowOpen = false
 		modoptionsSelectionWindow:Dispose()
 		if WG.BattleRoomChatInput then
 			screen0:FocusControl(WG.BattleRoomChatInput)
@@ -755,15 +1320,142 @@ local function CreateModoptionWindow()
 
 	local function AcceptFunc()
 		screen0:FocusControl(buttonAccept) -- Defocus the text entry
-		local isBoss = false
-		if not isBoss then
-			for k, v in pairs(localModoptions) do
-				if lockedOptions[k] then
-					localModoptions[k] = battleLobby.modoptions[k]
+
+		local allModeKeys -- keys this mode defines; drives the deviation diff
+		local managedKeys -- the whole mode category; the !mode plugin owns it server-side
+		for cat, _ in pairs(activeModes) do
+			local mode = getActiveMode(cat)
+			if mode then
+				if mode.retainValues then
+					-- Non-sticky mode (Customize): keep the retained/edited values and
+					-- only record the mode key. applyModeValues would overwrite every
+					-- option with the mode's default value (the carried-over settings
+					-- aren't flagged in userModifiedOptions), wiping the customization.
+					localModoptions[cat .. "_mode"] = mode.key
+				else
+					applyModeValues(mode)
+				end
+
+				local selectorKey = cat .. "_mode"
+				allModeKeys = allModeKeys or {}
+				managedKeys = managedKeys or {}
+				allModeKeys[selectorKey] = true
+				managedKeys[selectorKey] = true
+				if mode.modOptions then
+					for optKey, _ in pairs(mode.modOptions) do
+						allModeKeys[optKey] = true
+					end
+				end
+				-- !mode resets the whole category server-side; keep every category key
+				-- off the !bSet path (BAR grants players no bSet command).
+				if modoptions then
+					for i = 1, #modoptions do
+						local opt = modoptions[i]
+						if opt.key and sectionCategory(opt.section) == cat
+								and opt.type ~= "subheader" and opt.type ~= "separator" then
+							managedKeys[opt.key] = true
+						end
+					end
 				end
 			end
 		end
-		battleLobby:SetModOptions(localModoptions)
+
+		local isBoss = false
+		if not isBoss then
+			local policy = WG.ModePolicy or {}
+			for k, v in pairs(localModoptions) do
+				if lockedOptions[k] then
+					local isModeLocked = false
+					for cat, catPolicy in pairs(policy) do
+						if catPolicy.modeLocked and catPolicy.modeLocked[k] then
+							isModeLocked = true
+							break
+						end
+					end
+					if not isModeLocked then
+						localModoptions[k] = battleLobby.modoptions[k]
+					end
+				end
+			end
+		end
+
+		-- Every category's pick is read before any is applied: applying one
+		-- category updates the battle, and the battle listener below re-seeds
+		-- the selectors from it — which would overwrite a pick not yet applied
+		-- with the battle's previous value.
+		local picks = {}
+		for cat, _ in pairs(activeModes) do
+			picks[cat] = getActiveMode(cat)
+		end
+		applyingModes = true
+		for cat, mode in pairs(picks) do
+			if mode and mode.modOptions then
+				local selectorKey = cat .. "_mode"
+
+				-- Carry the user's in-category edits as deviations on top of the preset;
+				-- locked options always take the preset value (and the plugin would reject
+				-- them as explicit params anyway).
+				local deviations = {}
+				if modoptions then
+					for i = 1, #modoptions do
+						local opt = modoptions[i]
+						if opt.key and sectionCategory(opt.section) == cat
+								and opt.type ~= "subheader" and opt.type ~= "separator" then
+							local rule = mode.modOptions[opt.key]
+							if userModifiedOptions[opt.key] and not (rule and rule.locked)
+									and localModoptions[opt.key] ~= nil then
+								deviations[opt.key] = localModoptions[opt.key]
+							end
+						end
+					end
+				end
+
+				-- Resolve the mode's full effective set with the SAME shared resolver the
+				-- singleplayer path uses (and the SPADS plugin mirrors server-side), then
+				-- send only the user's deviations from the mode's own preset (see
+				-- ModeResolver.DeviationsFromMode). A clean mode pick sends no option params;
+				-- the server expands the preset from its version-matched modes.json.
+				local resolved = ModeResolver.Resolve(activeModes, modoptions, cat, mode.key, deviations)
+				local params = ModeResolver.DeviationsFromMode(resolved, modoptions, mode, cat)
+
+				-- Send a !mode when the selector changes or the user deviated from the
+				-- preset. (Locked options can't be deviated, so they never reach params.)
+				local modeChanged = battleLobby.modoptions[selectorKey] ~= mode.key
+				for k, v in pairs(params) do
+					if battleLobby.modoptions[k] ~= v then modeChanged = true; break end
+				end
+
+				if modeChanged then
+					local MAX_COMMAND_LENGTH = 1024 -- teiserver SAYBATTLE cap
+					local parts = { "!mode", tostring(cat), tostring(mode.key) }
+					for k, v in pairs(params) do
+						parts[#parts + 1] = tostring(k) .. "=" .. tostring(v)
+					end
+					if #table.concat(parts, " ") > MAX_COMMAND_LENGTH then
+						WG.Chobby.InformationPopup(
+							"Too many customizations to send as one vote — the lobby caps commands at " .. MAX_COMMAND_LENGTH .. " characters.\n\nReduce your overrides, or use Customize mode to set options individually.",
+							{ width = 480, height = 260 })
+					else
+						battleLobby:SetMode(mode.category, mode.key, params)
+					end
+				end
+			end
+		end
+
+		applyingModes = false
+		-- Nothing a picked mode owns goes out as a !bSet: not the keys in its
+		-- sections, and not the keys it claims from elsewhere (FFA pins
+		-- ffa_wreckage, which lives with the main options). The !mode carries
+		-- them, and a player has no !bSet right anyway.
+		local modeOwnedKeys = {}
+		for k in pairs(managedKeys or {}) do
+			modeOwnedKeys[k] = true
+		end
+		for k in pairs(allModeKeys or {}) do
+			modeOwnedKeys[k] = true
+		end
+		battleLobby:SetModOptions(localModoptions, modeOwnedKeys)
+		modoptionWindowOpen = false
 		modoptionsSelectionWindow:Dispose()
 		if WG.BattleRoomChatInput then
 			screen0:FocusControl(WG.BattleRoomChatInput)
@@ -1094,6 +1786,34 @@ local function InitializeModoptionsDisplay()
 		panelModoptions = modopts or panelModoptions or {}
 		if not modoptions then return end
 
+		-- Reflect the mode chosen in the battle (e.g. sharing_mode) so the tab shows
+		-- the active mode even when it was changed externally (SPADS, other players).
+		-- If the modoptions window is open, live-refresh that category's panel so the
+		-- selector and its sub-options update without reopening.
+		if activeModes and not applyingModes then
+			for cat in pairs(activeModes) do
+				local battleKey = panelModoptions[cat .. "_mode"]
+				if battleKey and selectedModeKeys[cat] ~= battleKey then
+					local ui = modeUI[cat]
+					if modoptionWindowOpen and ui and ui.applyMode then
+						-- Move the selector without firing its listener (that would
+						-- queue a second applyMode), then apply once. applyMode reads
+						-- selectedModeKeys as the previous pick, so it is left alone
+						-- here for the reset-to-defaults pass to see the change.
+						local name = ui.itemKeyToName and ui.itemKeyToName[battleKey]
+						local index = name and ui.itemNameToIndex and ui.itemNameToIndex[name]
+						if index and ui.modeList then
+							ui.modeList.selected = index
+							ui.modeList:SetCaption(name)
+						end
+						ui.applyMode(battleKey)
+					else
+						selectedModeKeys[cat] = battleKey
+					end
+				end
+			end
+		end
+
 		for _, option in pairs(modoptions) do
 			if option.type == "bool" then
 				if panelModoptions[option.key] == "1" then
@@ -1150,7 +1870,13 @@ local function InitializeModoptionsDisplay()
 						text = text .. "\255\255\75\75".."Couldn't Parse\n".."\255\128\128\128"..shortenedValue(value)
 					end
 				else
-					text = text .. shortenedValue(value)
+					local num = tonumber(value)
+					if option.type == "number" and num then
+						-- Round to the option's step so float32 round-trips display cleanly
+						text = text .. TextFromNum(num, option.step or 1)
+					else
+						text = text .. shortenedValue(value)
+					end
 				end
 				text = text .. "\n"
 				empty = false
@@ -1209,15 +1935,18 @@ function ModoptionsPanel.RefreshModoptions()
 	modoptionStructure = {
 		sectionTitles = {},
 		sectionWeights = {},
+		-- section key -> the mode category governing it (mode_category on the
+		-- section entry): a flavor's dials handing the choice to a shared axis.
+		sectionModeCategories = {},
 		sections = {}
 	}
 
-	-- Populate the sections
 	for i = 1, #modoptions do
 		local data = modoptions[i]
 		if data.type == "section" then
 			modoptionStructure.sectionTitles[data.key] = data.name
 			modoptionStructure.sectionWeights[data.key] = data.weight
+			modoptionStructure.sectionModeCategories[data.key] = data.mode_category
 		else
 			if data.section then
 				if data.hidden ~= true then
@@ -1225,7 +1954,6 @@ function ModoptionsPanel.RefreshModoptions()
 						title = data.section,
 						options = {}
 					}
-
 					local options = modoptionStructure.sections[data.section].options
 					options[#options + 1] = data
 				elseif showHidden and devmode then
@@ -1237,6 +1965,7 @@ function ModoptionsPanel.RefreshModoptions()
 			end
 		end
 	end
+
 
 	if not devmode then
 		modoptionStructure.sections["dev"] = nil
@@ -1287,14 +2016,99 @@ function ModoptionsPanel.LoadModoptions(gameName, newBattleLobby, forceReload)
 
 	end
 
+	local function LoadModes()
+		local byCategory = {}
+		-- The value formatter is the game's, read from the same archive as the
+		-- modes, so what this lobby sends is what the game's export baked. An
+		-- archive that ships modes without it gets no modes rather than a
+		-- resolver that throws on Accept.
+		local okValues, values = pcall(VFS.Include, "modules/game/lib/values.lua", nil, VFS.ZIP)
+		if okValues and type(values) == "table" and values.ToModOption then
+			valuesByGame[gameName] = values
+		else
+			Spring.Log(LOG_SECTION, LOG.ERROR, "game archive has no modules/game/lib/values.lua; its modes are ignored: " .. tostring(values))
+			return nil
+		end
+
+		-- Modes live either at modes/<category>/*.lua or, for encapsulated game
+		-- modules, at modules/<module>/modes/*.lua. The game's module handler
+		-- owns the module layout; ask it rather than mirroring the convention
+		-- (older game archives predate it, hence the pcall + fallback scan).
+		local modeDirs = VFS.SubDirs("modes/", "*", VFS.ZIP)
+		local ok, moduleHandler = pcall(VFS.Include, "modules/module_handler.lua", nil, VFS.ZIP)
+		if ok and type(moduleHandler) == "table" and moduleHandler.ModeDirs then
+			for _, dir in ipairs(moduleHandler.ModeDirs(VFS.ZIP)) do
+				modeDirs[#modeDirs + 1] = dir
+			end
+		else
+			for _, moduleDir in ipairs(VFS.SubDirs("modules/", "*", VFS.ZIP)) do
+				for _, dir in ipairs(VFS.SubDirs(moduleDir, "*", VFS.ZIP)) do
+					if dir:match("modes[/\\]?$") then
+						modeDirs[#modeDirs + 1] = dir
+					end
+				end
+			end
+		end
+		for _, dir in ipairs(modeDirs) do
+			local modeFiles = VFS.DirList(dir, "*.lua", VFS.ZIP)
+			for _, modeFile in ipairs(modeFiles) do
+				local mode = VFS.Include(modeFile)
+				if mode and mode.key and mode.category then
+					byCategory[mode.category] = byCategory[mode.category] or { modes = {}, indexByKey = {} }
+					local cat = byCategory[mode.category]
+					-- Module presets scan after modes/; same key replaces in
+					-- place so a mode never lists twice.
+					local existing = cat.indexByKey[mode.key]
+					if existing then
+						cat.modes[existing] = mode
+					else
+						cat.modes[#cat.modes + 1] = mode
+						cat.indexByKey[mode.key] = #cat.modes
+					end
+				end
+			end
+		end
+
+		if next(byCategory) then
+			return byCategory
+		end
+		return nil
+	end
+	activeModes = modesByGame[gameName]
+	if not activeModes then
+		activeModes = VFS.UseArchive(gameName, LoadModes) or {}
+		modesByGame[gameName] = activeModes
+	end
+	-- the resolver formats with the archive in hand, not the last one loaded
+	ModeResolver.UseValues(valuesByGame[gameName])
+	WG.Modes = activeModes
+	WG.ModoptionDefs = modoptions
 
 	modoptionDefaults = {}
 	if not modoptions then
 		return
 	end
 
+	-- Populate mode selector items dynamically for each category
+	for cat, catModes in pairs(activeModes) do
+		local selectorKey = cat .. "_mode"
+		for i = 1, #modoptions do
+			local data = modoptions[i]
+			if data.key == selectorKey and data.type == "list" then
+				data.items = {}
+				for _, mode in ipairs(catModes.modes) do
+					data.items[#data.items + 1] = {
+						key = mode.key,
+						name = mode.name,
+						desc = mode.desc or ""
+					}
+				end
+				break
+			end
+		end
+	end
+	
 	local currentUnixTime = os.time()
-
 	-- Set modoptionDefaults
 	for i = 1, #modoptions do
 		local data = modoptions[i]
@@ -1344,6 +2158,7 @@ end
 function widget:Initialize()
 	CHOBBY_DIR = LUA_DIRNAME .. "widgets/chobby/"
 	VFS.Include(LUA_DIRNAME .. "widgets/chobby/headers/exports.lua", nil, VFS.RAW_FIRST)
+	VFS.Include("libs/liblobby/lobby/moderesolver.lua") -- defines global ModeResolver
 
 	WG.ModoptionsPanel = ModoptionsPanel
 end

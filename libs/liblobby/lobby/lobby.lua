@@ -4,6 +4,7 @@
 
 VFS.Include(LIB_LOBBY_DIRNAME .. "observable.lua")
 VFS.Include(LIB_LOBBY_DIRNAME .. "utilities.lua")
+VFS.Include(LIB_LOBBY_DIRNAME .. "moderesolver.lua")
 
 local JsonDecode = Json.decode
 local spGetTimer = Spring.GetTimer
