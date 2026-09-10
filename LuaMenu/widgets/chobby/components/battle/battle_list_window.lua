@@ -88,7 +88,7 @@ function BattleListWindow:init(parent)
 	}
 
 	local checkPassworded = Checkbox:New {
-		x = "15%",
+		x = "13%",
 		width = 21,
 		bottom = 8,
 		height = 30,
@@ -107,7 +107,7 @@ function BattleListWindow:init(parent)
 		tooltip = "Hides all battles that require a password to join",
 	}
 	local checkNonFriend = Checkbox:New {
-		x = "35%",
+		x = "30%",
 		width = 21,
 		bottom = 8,
 		height = 30,
@@ -126,7 +126,7 @@ function BattleListWindow:init(parent)
 		tooltip = "Hides all battles that don't have your friends in them",
 	}
 	local checkRunning = Checkbox:New {
-		x = "55%",
+		x = "45%",
 		width = 21,
 		bottom = 8,
 		height = 30,
@@ -144,8 +144,27 @@ function BattleListWindow:init(parent)
 		parent = self.window,
 		tooltip = "Hides all battles that are in progress",
 	}
+	local checkOutOfRange = Checkbox:New {
+		x = "58%",
+		width = 21,
+		bottom = 8,
+		height = 30,
+		boxalign = "left",
+		boxsize = 20,
+		caption = " Chev/Rating",
+		checked = Configuration.battleFilterOutOfRange or false,
+		objectOverrideFont = myFont2,
+		OnChange = {
+			function (obj, newState)
+				Configuration:SetConfigValue("battleFilterOutOfRange", newState)
+				self:SoftUpdate(true)
+			end
+		},
+		parent = self.window,
+		tooltip = "Hides battles whose min/max chev or rating restrictions you don't meet",
+	}
 	local combPvMode = ComboBox:New {
-		x = "70%",
+		x = "75%",
 		width = 85,
 		bottom = 8,
 		height = 30,
@@ -164,7 +183,7 @@ function BattleListWindow:init(parent)
 		tooltip = "Hides all AI (including PvE) or PvP battles.",
 	}
     local checkLocked = Checkbox:New {
-		x = "85%",
+		x = "87%",
 		width = 21,
 		bottom = 8,
 		height = 30,
@@ -187,6 +206,7 @@ function BattleListWindow:init(parent)
 		checkPassworded:SetToggle(Configuration.battleFilterPassworded2)
 		checkNonFriend:SetToggle(Configuration.battleFilterNonFriend)
 		checkRunning:SetToggle(Configuration.battleFilterRunning)
+        checkOutOfRange:SetToggle(Configuration.battleFilterOutOfRange)
         checkLocked:SetToggle(Configuration.battleFilterLocked)
 		combPvMode:Select(Configuration.battleFilterPvMode)
 	end
@@ -780,6 +800,66 @@ local function fuzzyScore(query, target)
 	return score
 end
 
+-- Parses server-appended chev/rating restriction tags out of a battle title, e.g.
+-- "Min chev: 3 | Rating: 10-35", "Max chev: 7 | Min rating: 15". Returns nil if none found.
+local function ParseBattleRestrictions(title)
+	local minChev = tonumber(title:match("Min chev:%s*(%d+)"))
+	local maxChev = tonumber(title:match("Max chev:%s*(%d+)"))
+	local minRating = tonumber(title:match("Min rating:%s*(%d+)"))
+	local maxRating = tonumber(title:match("Max rating:%s*(%d+)"))
+	local rangeMin, rangeMax = title:match("Rating:%s*(%d+)%s*%-%s*(%d+)")
+	minRating = minRating or tonumber(rangeMin)
+	maxRating = maxRating or tonumber(rangeMax)
+
+	if not (minChev or maxChev or minRating or maxRating) then
+		return nil
+	end
+	return {
+		minChev = minChev,
+		maxChev = maxChev,
+		minRating = minRating,
+		maxRating = maxRating,
+	}
+end
+
+-- True if the local player doesn't meet this battle's chev/rating restrictions (if any).
+function BattleListWindow:IsOutOfPlayerRange(battle)
+	local restrictions = ParseBattleRestrictions(battle.title)
+	if not restrictions then
+		return false
+	end
+
+	local myUserName = lobby:GetMyUserName()
+	local myUserInfo = myUserName and lobby:GetUser(myUserName)
+	if not myUserInfo then
+		return false
+	end
+
+	local myChev = myUserInfo.level
+	if myChev then
+		if restrictions.minChev and myChev < restrictions.minChev then
+			return true
+		end
+		if restrictions.maxChev and myChev > restrictions.maxChev then
+			return true
+		end
+	end
+
+	if (restrictions.minRating or restrictions.maxRating) and WG.UserHandler and WG.UserHandler.GetSnapshotSkillValue and myUserInfo.accountID then
+		local myRating = WG.UserHandler.GetSnapshotSkillValue(myUserInfo.accountID, battle)
+		if myRating then
+			if restrictions.minRating and myRating < restrictions.minRating then
+				return true
+			end
+			if restrictions.maxRating and myRating > restrictions.maxRating then
+				return true
+			end
+		end
+	end
+
+	return false
+end
+
 function BattleListWindow:ItemInFilter(id)
 	local battle = lobby:GetBattle(id)
 	local filterString = Configuration.gameConfig.battleListOnlyShow
@@ -887,6 +967,10 @@ function BattleListWindow:ItemInFilter(id)
 		or (not vsAI and Configuration.battleFilterPvMode == 3) then
 			return false
 		end
+	end
+
+	if Configuration.battleFilterOutOfRange and self:IsOutOfPlayerRange(battle) then
+		return false
 	end
 
 	if Configuration.battleFilterRedundant then
