@@ -4367,6 +4367,16 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	UpdateBattleTitle()
 
 	local function MessageListener(message)
+		local startboxShortfall = (not battle.isRunning) and message:lower():match("^%s*!start%s*$")
+			and GetStartboxShortfallMessage()
+		if startboxShortfall then
+			if AddLocalBattleWarning then
+				AddLocalBattleWarning(startboxShortfall)
+			end
+
+			return
+		end
+
 		if message:starts("/me ") then
 			battleLobby:SayBattleEx(message:sub(5))
 		else
