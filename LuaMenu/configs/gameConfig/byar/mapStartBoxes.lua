@@ -308,7 +308,6 @@ local function decodeStartboxOverride(encoded)
   if not encoded or encoded == "" or encoded == "0" then return nil end
   local parsed = decodeBlob(encoded)
   if not parsed or type(parsed.startboxes) ~= "table" then return nil, nil, true end
-  if #parsed.startboxes == 0 then return nil, nil, true end
 
   for _, box in ipairs(parsed.startboxes) do
     local poly = type(box) == "table" and box.poly
@@ -424,7 +423,6 @@ local function encodeStartboxOverrideModoption(boxes)
     } }
     i = i + 1
   end
-  if #startboxes == 0 then return nil end
 
   local ok, encoded = pcall(Json.encode, { startboxes = startboxes })
   if not ok or not encoded then return nil end
