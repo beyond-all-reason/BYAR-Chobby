@@ -901,7 +901,6 @@ local function GetFriendNotePreview(note, font, maxWidth)
 	-- Presentation only: preserve the existing stored note for editing and the full tooltip.
 	local text = note:gsub("%s+", " ")
 	local characters = {}
-	-- Lua 5.1 strings are byte-based; count UTF-8 code points to avoid splitting a character.
 	for character in text:gmatch("[%z\1-\127\194-\244][\128-\191]*") do
 		characters[#characters + 1] = character
 	end
