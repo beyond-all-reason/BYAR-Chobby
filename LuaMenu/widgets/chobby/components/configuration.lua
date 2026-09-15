@@ -106,6 +106,9 @@ function Configuration:init()
 	self.hostRegions = {"DE","EU","EU2","US","US2","AU"}
 
 	self.friendsFilterOnline = false
+	-- Local installation preference, saved by GetConfigData; never sent to the lobby server.
+	-- Keys are friends' account IDs so renaming a friend preserves their pin. No pin limit.
+	self.pinnedFriends = {}
 
 	self.manualBorderless = {
 		game = {},
@@ -800,6 +803,7 @@ function Configuration:GetConfigData()
 		showCountry = self.showCountry,
 		useLastGameSpectatorState = self.useLastGameSpectatorState,
 		friendsFilterOnline = self.friendsFilterOnline,
+		pinnedFriends = self.pinnedFriends,
 		queueExitConfirmPromptDoNotAskAgain = self.queueExitConfirmPromptDoNotAskAgain,
 		pluginsInstallDisclaimerAccepted = self.pluginsInstallDisclaimerAccepted,
 		supperAnnouncementKey = self.supperAnnouncementKey,
@@ -810,6 +814,24 @@ end
 ---------------------------------------------------------------------------------
 -- Setters
 ---------------------------------------------------------------------------------
+
+function Configuration:IsFriendPinned(accountID)
+	return accountID ~= nil and self.pinnedFriends[tostring(accountID)] == true
+end
+
+function Configuration:SetFriendPinned(accountID, pinned)
+	if accountID == nil or self:IsFriendPinned(accountID) == (pinned == true) then
+		return
+	end
+	-- Replace the table so SetConfigValue notifies listeners. String keys also
+	-- survive serialization and changes between numeric and string account IDs.
+	local pins = {}
+	for id, value in pairs(self.pinnedFriends) do
+		pins[id] = value
+	end
+	pins[tostring(accountID)] = pinned == true or nil
+	self:SetConfigValue("pinnedFriends", pins)
+end
 
 function Configuration:SetConfigValue(key, value)
 	if self[key] == value then
