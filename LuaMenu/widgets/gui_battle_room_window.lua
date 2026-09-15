@@ -91,25 +91,22 @@ local PRESETS_WITHOUT_STARTBOXES = {
 	duel = true,
 }
 
--- Balancing has a lower privilege bar than the settings themselves, so sending it straight
--- after the command would run it against the old shape while the setting is still in a vote.
-local balanceWhenSettingLands = 0
-local BALANCE_WAIT_SECONDS = 120
+-- A setting can sit in a vote before it lands, and SPADS confirms it with a line naming
+-- whoever called the command, so the balance waits for that rather than for a timer.
+local pendingBalanceSetting
 
-local function RequestBalanceOnNextChange()
+local function RequestBalanceAfter(settingName)
 	if battleLobby.name ~= "singleplayer" then
-		balanceWhenSettingLands = os.time() + BALANCE_WAIT_SECONDS
+		pendingBalanceSetting = settingName
 	end
 end
 
-local function BalanceIfRequested()
-	if balanceWhenSettingLands == 0 or os.time() > balanceWhenSettingLands then
-		balanceWhenSettingLands = 0
-
+local function BalanceIfRequestLanded(userName, settingName)
+	if pendingBalanceSetting ~= settingName or userName ~= battleLobby:GetMyUserName() then
 		return
 	end
 
-	balanceWhenSettingLands = 0
+	pendingBalanceSetting = nil
 	battleLobby:SayBattle("!balance")
 end
 
@@ -1353,7 +1350,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 				end
 
 				battleLobby:SayBattle(string.format("!nbTeams %d", itemIndex))
-				RequestBalanceOnNextChange()
+				RequestBalanceAfter("nbTeams")
 				ShowTeamCount(teamCount)
 			end
 		},
@@ -1400,7 +1397,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 				end
 
 				battleLobby:SayBattle(string.format("!set teamSize %d", itemIndex))
-				RequestBalanceOnNextChange()
+				RequestBalanceAfter("teamSize")
 				ShowTeamSize(shownTeamSize)
 			end
 		},
@@ -1424,31 +1421,23 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 			return
 		end
 
-		local changed = false
-
 		local serverCount = tonumber(battle.nbTeams)
 		if serverCount and serverCount ~= teamCount then
 			ApplyTeamCount(serverCount)
-			changed = true
 		end
 
 		local serverSize = tonumber(battle.teamSize)
-		if serverSize and serverSize ~= shownTeamSize then
-			changed = true
-		end
 		if serverSize then
-			ShowTeamSize(math.max(serverSize, 1))
+			serverSize = math.max(serverSize, 1)
+		end
+		if serverSize and serverSize ~= shownTeamSize then
+			ShowTeamSize(serverSize)
 		end
 
 		if battle.preset ~= shownPreset then
-			changed = changed or shownPreset ~= nil
 			shownPreset = battle.preset
 			RefreshStartboxPanel()
 			externalFunctions.RefreshStartboxes()
-		end
-
-		if changed then
-			BalanceIfRequested()
 		end
 	end
 
@@ -3841,7 +3830,7 @@ local function SetupSpadsStatusPanel(battle, battleID)
 					-- A preset carries its own team count and size, so the room needs
 					-- redistributing to match them.
 					if k == "preset" then
-						RequestBalanceOnNextChange()
+						RequestBalanceAfter("preset")
 					end
 				end
 			},
@@ -5086,6 +5075,16 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		end
 		if string.match(message, "%(mapmetadata_startbox_override=") then return true end
 
+		local settingChanger, changedSetting = string.match(message, "Global setting changed by (%S+) %((%w+)=.-%)$")
+		if settingChanger then
+			BalanceIfRequestLanded(settingChanger, changedSetting)
+		end
+
+		local presetApplier = string.match(message, "Preset .- %(.-%) applied by (%S+)$")
+		if presetApplier then
+			BalanceIfRequestLanded(presetApplier, "preset")
+		end
+
 		-- Restore default position on startbox selector when map, preset or teamcount changes
 		if string.match(message, "Global setting changed by .- %((nbTeams=%d+)%)$")
 		or string.match(message, "Map changed by .-%: .+$")
@@ -5464,7 +5463,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	local function OnDisposeFunction()
 		emptyTeamIndex = 0
 		teamCount = 2
-		balanceWhenSettingLands = 0
+		pendingBalanceSetting = nil
 		ReconcileTeams = nil
 		ShowTeamCount = nil
 		UpdateLockButtons = nil
