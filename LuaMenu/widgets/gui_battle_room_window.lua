@@ -499,8 +499,9 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		battleLobby:SetModOptions({ mapmetadata_startbox_override = encoded })
 
 		-- Boxes stay on whatever the server currently holds until the echo says
-		-- otherwise; a rejected or voted-down change then needs no undo.
-		externalFunctions.RefreshStartboxes()
+		-- otherwise; a rejected or voted-down change then needs no undo. The selector is
+		-- left alone because the state it would read back predates this send.
+		externalFunctions.RefreshStartboxes(true)
 	end
 
 	local startBoxPanel = Control:New{
@@ -704,6 +705,22 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		oldSelectedBoxes = startBoxSelectorNames[CUSTOM_BOXES_ITEM]
 		startBoxImage.file = startBoxSelectorImages[CUSTOM_BOXES_ITEM]
 		startBoxImage:Invalidate()
+	end
+
+	-- The modoption carries the boxes and not the layout that produced them, so an override
+	-- someone else set can only be reported as custom.
+	local function SyncStartBoxSelector(hasOverride)
+		if not hasOverride then
+			if startBoxComboBox.selected ~= 1 then
+				StartBoxComboBoxSelectDefault()
+			end
+
+			return
+		end
+
+		if startBoxComboBox.selected == 1 then
+			SelectCustomStartBoxes()
+		end
 	end
 
 	local btnAddBox = Button:New{
@@ -2397,7 +2414,7 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 	-- MP render priority: override modoption > startboxes set modoption > SPADS
 	-- engine rects. Modoptions arrive via SETSCRIPTTAGS once SPADS applies the
 	-- !bSet, so every client (the editor included) re-renders from server state.
-	function externalFunctions.RefreshStartboxes()
+	function externalFunctions.RefreshStartboxes(keepSelector)
 		if battleLobby.name == "singleplayer" then
 			return
 		end
@@ -2426,14 +2443,12 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 			"The custom start boxes in this room could not be read, so the game will use the map default boxes.")
 		defaultStartboxMode = (overrideConfig == nil)
 
+		if not keepSelector then
+			SyncStartBoxSelector(overrideConfig ~= nil)
+		end
+
 		if overrideConfig then
 			arrangementActive = true
-			-- Whoever set these picked a layout on their own client; all that survives in
-			-- the modoption is the boxes, so a room joined mid-edit can only report them
-			-- as custom. A layout picked here has already moved the selector off Default.
-			if startBoxComboBox.selected == 1 then
-				SelectCustomStartBoxes()
-			end
 			-- Every override box renders, spares included: someone in the room made
 			-- these by hand, so hiding the one they just added reads as a bug. The
 			-- game takes an override with more boxes than teams too.
@@ -5085,18 +5100,13 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 			BalanceIfRequestLanded(presetApplier, "preset")
 		end
 
-		-- Restore default position on startbox selector when map, preset or teamcount changes
+		-- These reshape the boxes without changing a modoption, so nothing else asks for
+		-- the render that the selector reads its value back from.
 		if string.match(message, "Global setting changed by .- %((nbTeams=%d+)%)$")
 		or string.match(message, "Map changed by .-%: .+$")
 		or string.match(message, "Preset .%w+. %(.-%) applied by .+$")
 		then
-			-- Default first, then let the render correct it: an override survives a team
-			-- count change and still owns the boxes afterwards.
-			StartBoxComboBoxSelectDefault()
-			if string.match(message, "Global setting changed by .- %((nbTeams=%d+)%)$") then
-				-- team count picks the arrangement, so the polygon render must re-select
-				infoHandler.RefreshStartboxes()
-			end
+			infoHandler.RefreshStartboxes()
 
 			return false
 		end
@@ -5212,6 +5222,9 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 
 		elseif string.match(message, "Vote for command.*failed" )then	--[21:13:58] * [teh]host * Vote for command "bSet coop 1" passed. --voteend
 			votePanel.VoteEnd(nil, false)
+			-- A box edit that loses its vote changes no modoption, so this is the only
+			-- word the room gets that the boxes on screen are the ones it still has.
+			infoHandler.RefreshStartboxes()
 			return true
 
 		elseif string.find(message, "Vote cancelled by", nil, true) then --votecancel
