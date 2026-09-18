@@ -306,6 +306,8 @@ function Configuration:init()
 	self.nonFriendNotifications = true -- Party, chat
 	self.friendActivityNotification = true
 	self.doNotDisturb = false
+	self.osToastNotifications = true -- Ring, battle start/return; shown by the launcher when unfocused
+	self.osTaskbarFlash = true -- Ring, battle start/return; shown by the launcher when unfocused
 	self.addFriendWindowButton = true
 	self.simplifiedSkirmishSetup = true
 	self.randomSkirmishDifficulty = "easy"
@@ -731,6 +733,8 @@ function Configuration:GetConfigData()
 		ingameNotifcations = self.ingameNotifcations,
 		nonFriendNotifications = self.nonFriendNotifications,
 		doNotDisturb = self.doNotDisturb,
+		osToastNotifications = self.osToastNotifications,
+		osTaskbarFlash = self.osTaskbarFlash,
 		simplifiedSkirmishSetup = self.simplifiedSkirmishSetup,
 		randomSkirmishDifficulty = self.randomSkirmishDifficulty,
 		debugMode = self.debugMode,

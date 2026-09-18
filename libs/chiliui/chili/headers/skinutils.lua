@@ -988,6 +988,7 @@ function DrawCheckbox(obj)
 		x  = 0
 		tx = boxSize + 2
 	end
+	tx = tx + (obj.captionIndent or 0)
 
 	local skLeft, skTop, skRight, skBottom = unpack4(obj.tiles)
 
