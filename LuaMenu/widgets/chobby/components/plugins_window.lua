@@ -1307,12 +1307,6 @@ function PluginsWindow:init(parent)
         Spring.Echo("[PluginsWindow] WARNING: DownloadHandler not available for event registration")
     end
 
-    -- Compute dynamic item width inside init based on parent width
-    local parentWidth = (parent and parent.width) or 1300
-    local usableWidth = parentWidth - 40  -- margins
-    local columns = math.max(1, math.floor((usableWidth + 8) / (ITEM_MIN_WIDTH + 8))) -- 8 is margin
-    local itemWidth = math.floor(usableWidth / columns)
-
     -- Main container (use Control to avoid nesting a full Window inside the main window)
     self.window = Control:New {
         x = 0,
@@ -1551,7 +1545,6 @@ function PluginsWindow:init(parent)
         draggable = false,
         children = {},
     }
-    mainGrid.itemWidth = itemWidth  -- keep for refreshGrid reference
 
     scrollPanel = ScrollPanel:New {
         x = 0,
