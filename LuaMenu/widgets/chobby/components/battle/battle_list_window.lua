@@ -254,21 +254,41 @@ function BattleListWindow:init(parent)
 		parent = self.filterBar,
 		tooltip = "Hides all battles that are in progress",
 	}
+	local OUT_OF_RANGE_TOOLTIP = "Hides battles whose title lists chevron/rating limits you are outside (e.g. Min chev, Max chev, Rating, Max rating)"
+	local OUT_OF_RANGE_TOOLTIP_WAITING = "Waiting for skill snapshot to load before this filter can be used"
+	local outOfRangeDisabledFont = Configuration:GetFont(2, "filterOutOfRangeDisabled", {color = {0.55, 0.55, 0.55, 0.85}})
 	local checkOutOfRange = Checkbox:New {
 		boxalign = "left",
 		boxsize = FILTER_BOX_SIZE,
 		caption = " Out of range",
 		checked = Configuration.battleFilterOutOfRange or false,
 		objectOverrideFont = myFont2,
+		hasDisabledFont = true,
+		objectOverrideDisabledFont = outOfRangeDisabledFont,
 		OnChange = {
 			function (obj, newState)
+				if not self:IsOpenSkillSnapshotReady() then
+					return
+				end
 				Configuration:SetConfigValue("battleFilterOutOfRange", newState)
 				self:SoftUpdate(true)
 			end
 		},
 		parent = self.filterBar,
-		tooltip = "Hides battles whose title lists chevron/rating limits you are outside (e.g. Min chev, Max chev, Rating, Max rating)",
+		tooltip = OUT_OF_RANGE_TOOLTIP,
 	}
+	-- Chili checkboxes still toggle when disabled; block clicks until the snapshot is ready.
+	checkOutOfRange.MouseDown = function (obj)
+		if not obj.state.enabled then
+			return obj
+		end
+		obj:Toggle()
+		return obj
+	end
+	self.checkOutOfRange = checkOutOfRange
+	self.outOfRangeTooltip = OUT_OF_RANGE_TOOLTIP
+	self.outOfRangeTooltipWaiting = OUT_OF_RANGE_TOOLTIP_WAITING
+	self:UpdateOutOfRangeFilterAvailability()
 	local combPvMode = ComboBox:New {
 		boxalign = "left",
 		boxsize = 20,
@@ -316,6 +336,7 @@ function BattleListWindow:init(parent)
 		checkOutOfRange:SetToggle(Configuration.battleFilterOutOfRange)
 		checkLocked:SetToggle(Configuration.battleFilterLocked)
 		combPvMode:Select(Configuration.battleFilterPvMode)
+		self:UpdateOutOfRangeFilterAvailability()
 	end
 	WG.Delay(UpdateCheckboxes, 0.2)
 	-- Delay required as Configuration:GetConfigData (where these values are set) runs after this is initialised.
@@ -450,6 +471,21 @@ function BattleListWindow:Update()
 	end
 
 	self:SoftUpdate(true) -- on a "hard" update, force the Filters call to be immediate
+end
+
+function BattleListWindow:IsOpenSkillSnapshotReady()
+	return WG.UserHandler and WG.UserHandler.IsOpenSkillSnapshotReady and WG.UserHandler.IsOpenSkillSnapshotReady()
+end
+
+function BattleListWindow:UpdateOutOfRangeFilterAvailability()
+	local check = self.checkOutOfRange
+	if not check then
+		return
+	end
+	local ready = self:IsOpenSkillSnapshotReady()
+	check:SetEnabled(ready)
+	check.tooltip = ready and self.outOfRangeTooltip or self.outOfRangeTooltipWaiting
+	check:Invalidate()
 end
 
 function BattleListWindow:SoftUpdate(forceNow)
@@ -1084,7 +1120,9 @@ function BattleListWindow:ItemInFilter(id)
 		return false
 	end
 
-	if Configuration.battleFilterOutOfRange and not CanJoinByTitleLimits(battle) then
+	if Configuration.battleFilterOutOfRange
+		and self:IsOpenSkillSnapshotReady()
+		and not CanJoinByTitleLimits(battle) then
 		return false
 	end
 

@@ -33,6 +33,13 @@ function BattleListWindowHolder.GetControl()
 	return battleListWindow.window, JoinBattleFunc
 end
 
+function BattleListWindowHolder.OnOpenSkillSnapshotReady()
+	if battleListWindow then
+		battleListWindow:UpdateOutOfRangeFilterAvailability()
+		battleListWindow:SoftUpdate(true)
+	end
+end
+
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 -- Widget Interface

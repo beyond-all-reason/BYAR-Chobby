@@ -257,6 +257,9 @@ local function LoadOpenSkillSnapshot()
 	openSkillLoadFailed = false
 	openSkillLoading = false
 	WG.OpenSkillCache = openSkillCache
+	if WG.BattleListWindowHolder and WG.BattleListWindowHolder.OnOpenSkillSnapshotReady then
+		WG.BattleListWindowHolder.OnOpenSkillSnapshotReady()
+	end
 	end)
 	local ok, err = coroutine.resume(openSkillLoadCo, OPEN_SKILL_LINES_PER_STEP)
 	if not ok then
@@ -2194,6 +2197,10 @@ function userHandler.GetSnapshotSkillValue(userID, battle)
 		adjusted = 0
 	end
 	return adjusted
+end
+
+function userHandler.IsOpenSkillSnapshotReady()
+	return openSkillLoaded
 end
 
 local function _GetUser(userList, userName, opts)
