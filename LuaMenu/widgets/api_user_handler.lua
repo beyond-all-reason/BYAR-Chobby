@@ -506,6 +506,9 @@ local function GetUserComboBoxOptions(userName, isInBattle, control, showTeamCol
 	local isBoss = bs.isBoss or false
 	local bossed = info.battleID and control.lobby.battles[info.battleID] and control.lobby.battles[info.battleID].bossed
 	local validEngine = info.battleID and control.lobby.battles[info.battleID] and (Configuration.displayBadEngines2 or Configuration:IsValidEngineVersion(control.lobby.battles[info.battleID].engineVersion))
+	if control.lobby == lobby and info.isFriend and info.accountID and not (itsme or bs.aiLib or info.isBot) then
+		comboOptions[#comboOptions + 1] = Configuration:IsFriendPinned(info.accountID) and "Unpin Friend" or "Pin Friend to Top"
+	end
 
 	local inMyParty, invitedToMyParty
 	if control.lobby.myPartyID then
@@ -889,9 +892,56 @@ local function UpdateUserComboboxOptions(_, userName)
 	end
 end
 
+local function GetFriendNotePreview(note, font, maxWidth)
+	-- Presentation only: preserve the existing stored note for editing and the full tooltip.
+	local text = note:gsub("%s+", " ")
+	local characters = {}
+	for character in text:gmatch("[%z\1-\127\194-\244][\128-\191]*") do
+		characters[#characters + 1] = character
+	end
+	local count = math.min(20, #characters)
+	-- The 20-character cap excludes the ellipsis. Measure it too when fitting narrow cards.
+	while count > 0 do
+		local preview = table.concat(characters, "", 1, count)
+		if count < #characters then
+			preview = preview .. "…"
+		end
+		if font:GetTextWidth(preview) <= maxWidth then
+			return preview
+		end
+		count = count - 1
+	end
+	return ""
+end
+
+local function UpdateFriendPinStatus(userName, userControls)
+	-- This friend-card footer shows either or both of the pin and existing local player note.
+	-- Activity updates refresh note edits; configuration changes refresh pins.
+	local label = userControls.lblFriendPin
+	if not label then
+		return
+	end
+	local info = userControls.lobby:GetUser(userName) or {}
+	local pinned = info.isFriend and WG.Chobby.Configuration:IsFriendPinned(info.accountID)
+	local note = GetPlayerNote(userName, info)
+	local caption = pinned and "Pinned" or ""
+	if note then
+		local separator = pinned and " · " or ""
+		-- Reserve space for the 70px map thumbnail, margins and text padding, even while offline.
+		local maxWidth = math.max(0, (tonumber(userControls.mainControl.width) or 240) - 86)
+		local preview = GetFriendNotePreview(note, label.font, maxWidth - label.font:GetTextWidth(caption .. separator))
+		if preview ~= "" then
+			caption = caption .. "\255\190\190\190" .. separator .. preview
+		end
+	end
+	label:SetCaption(caption)
+	label:SetVisibility(caption ~= "")
+end
+
 local function UpdateUserActivitySingleList(userList, userName, status)
 	local userControls = userList[userName]
 	if userControls then
+		UpdateFriendPinStatus(userName, userControls)
 		userControls.mainControl.items = GetUserComboBoxOptions(userName, userControls.isInBattle, userControls,
 																userControls.imTeamColor ~= nil, userControls.imSide ~= nil)
 		if userControls.imLevel then
@@ -1445,7 +1495,12 @@ local function GetUserControls(userName, opts)
 			},
 			OnSelectName = {
 				function (obj, selectedName)
-					if selectedName == "Message" then
+					if selectedName == "Pin Friend to Top" or selectedName == "Unpin Friend" then
+						local info = userControls.lobby:GetUser(userName)
+						if userControls.lobby == lobby and info and info.isFriend then
+							Configuration:SetFriendPinned(info.accountID, selectedName == "Pin Friend to Top")
+						end
+					elseif selectedName == "Message" then
 						local chatWindow = WG.Chobby.interfaceRoot.OpenPrivateChat(userName)
 					elseif selectedName == "Copy Name" then
 						Spring.SetClipboard(userName)
@@ -2074,6 +2129,26 @@ local function GetUserControls(userName, opts)
 		end
 	end
 
+	if opts.showFriendPin then
+		userControls.lblFriendPin = Label:New {
+			x = 5,
+			bottom = 1,
+			width = 100,
+			height = 12,
+			caption = "Pinned",
+			objectOverrideFont = Configuration:GetFont(10, "friend_pin", {color = {1, 0.8, 0.35, 1}}, true),
+			parent = userControls.mainControl,
+		}
+		UpdateFriendPinStatus(userName, userControls)
+		if not reinitialize then
+			-- Cached controls retain callbacks when rebuilt; register the resize handler only once.
+			userControls.mainControl.OnResize = userControls.mainControl.OnResize or {}
+			userControls.mainControl.OnResize[#userControls.mainControl.OnResize + 1] = function()
+				UpdateFriendPinStatus(userName, userControls)
+			end
+		end
+	end
+
 	UpdateVisualPartyStatus(userControls)
 
 	if autoResize then
@@ -2102,7 +2177,10 @@ local function GetUserControls(userName, opts)
 	end
 
 	local function OnConfigurationChange(listener, key, value)
-		if key == "showCountry" and userControls.showCountry then
+		if key == "pinnedFriends" then
+			userControls.mainControl.items = GetUserComboBoxOptions(userName, isInBattle, userControls, showTeamColor, showSide)
+			UpdateFriendPinStatus(userName, userControls)
+		elseif key == "showCountry" and userControls.showCountry then
 			UpdateUserBattleStatus(_, userName)
 		elseif key == "showRank" and userControls.showRank then
 			UpdateUserBattleStatus(_, userName)
@@ -2383,6 +2461,7 @@ function userHandler.GetFriendUser(userName)
 		return nil
 	end
 	return _GetUser(friendUsers, userName, {
+		showFriendPin    = true,
 		large            = true,
 		hideStatusAway   = true,
 		hideStatusIngame = true,
