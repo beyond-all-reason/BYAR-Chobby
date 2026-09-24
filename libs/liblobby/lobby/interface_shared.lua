@@ -10,7 +10,7 @@ end
 Interface = Lobby:extends{}
 
 function Interface:init()
--- dumpConfig()
+ dumpConfig()
 	self.messagesSentCount = 0
 	self.lastSentSeconds = Spring.GetTimer()
 	self.status = "offline"
