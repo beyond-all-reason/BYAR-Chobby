@@ -1324,7 +1324,7 @@ local function testEncodeDecode()
 end
 
 function Interface:_OnSaidBattle(userName, message)
-	if (message == "?test EncodeBattleStatus") then
+	if message == "?test EncodeBattleStatus" and userName == self:GetMyUserName() then
 		testEncodeDecode()
 	end
 	self:super("_OnSaidBattle", userName, message)
@@ -1333,7 +1333,9 @@ Interface.commands["SAIDBATTLE"] = Interface._OnSaidBattle
 Interface.commandPattern["SAIDBATTLE"] = "(%S+)%s+(.*)"
 
 function Interface:_OnSaidBattleEx(userName, message)
-	if startsWith(message, WG.Chobby.Configuration.BTLEX_JOINQUEUE) then
+	-- The Coordinator sends this. The bot flag is set by the server, so a player's /me of the same text stays plain chat.
+	local sender = self.users[userName]
+	if sender and sender.isBot and startsWith(message, WG.Chobby.Configuration.BTLEX_JOINQUEUE) then
 		self:_SendCommand(concat("c.battle.queue_status")) -- request the whole join-queue again, because server doesn´t always send s.battle.queue_status or sends it before the change took affect
 		return
 	end

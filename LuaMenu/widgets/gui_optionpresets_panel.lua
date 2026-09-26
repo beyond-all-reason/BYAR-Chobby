@@ -170,15 +170,7 @@ local function applyPreset(presetName, progressCallback, cancelToken)
 		end
 
 		if (presetRectangles ~= nil and enabledOptions["Start Boxes"]) then
-			WG.BattleRoomWindow.RemoveStartRect()
-			for index, value in ipairs(presetRectangles) do
-				local l = value["left"]
-				local r = value["right"]
-				local t = value["top"]
-				local b = value["bottom"]
-
-				WG.BattleRoomWindow.AddStartRect(index - 1, l, t, r, b)
-			end
+			WG.BattleRoomWindow.ApplyStartBoxes(presetRectangles)
 		end
 
 		-- AIs with their settings

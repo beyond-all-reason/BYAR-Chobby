@@ -178,7 +178,7 @@ local function LoadGameByFilename(filename)
 		return
 	end
 
-	if saveData.engineVersion and (Engine.versionFull ~= saveData.engineVersion) then
+	if saveData.engineVersion and (Engine.version ~= saveData.engineVersion) then
 		-- Both should be "105.1.1-1723-gd990800 BAR105" or whatever
 		local ssfFileName = SAVE_DIR .. '/' .. filename .. ".ssf"
 

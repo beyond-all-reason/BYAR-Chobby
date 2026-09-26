@@ -242,22 +242,38 @@ function InterfaceSkirmish:_StartScript(gameName, mapName, playerName, friendLis
 	local Configuration = WG.Chobby.Configuration
 
 	local startBoxes  = nil
-	--if Configuration.gameConfig.mapStartBoxes then
-	--  Spring.Echo("Number of mapStartBoxes is",#Configuration.gameConfig.mapStartBoxes, allyTeamCount)
-	--end
+	local polygonConfig = nil
+	local customBoxes = nil
 
 	if Configuration.gameConfig and
 		Configuration.gameConfig.useDefaultStartBoxes and
 		Configuration.gameConfig.mapStartBoxes then
-		if Configuration.gameConfig.mapStartBoxes.singleplayerboxes and next(Configuration.gameConfig.mapStartBoxes.singleplayerboxes) ~= nil then
-			startBoxes = Configuration.gameConfig.mapStartBoxes.singleplayerboxes
+
+		local mapStartBoxes = Configuration.gameConfig.mapStartBoxes
+
+		if mapStartBoxes.loadStartboxesSet then
+			polygonConfig = mapStartBoxes.loadStartboxesSet(mapName, allyTeamCount)
+		end
+
+		-- The game drops an override that does not cover every allyteam (matchOverride in
+		-- startbox_utilities.lua) and resolves the set instead, rewriting every rect, so
+		-- short custom boxes are ignored here too rather than written into a script the
+		-- game will contradict.
+		local customBoxCount = 0
+		while mapStartBoxes.singleplayerboxes and mapStartBoxes.singleplayerboxes[customBoxCount + 1] do
+			customBoxCount = customBoxCount + 1
+		end
+
+		if customBoxCount >= allyTeamCount then
+			customBoxes = mapStartBoxes.singleplayerboxes
+			startBoxes = customBoxes
 			Spring.Echo("Skirmish: Using custom startboxes",startBoxes)
-			--Spring.Echo(Spring.Utilities.TableToString(startBoxes))
-		elseif Configuration.gameConfig.mapStartBoxes.savedBoxes and
-			Configuration.gameConfig.mapStartBoxes.savedBoxes[mapName] then
-			startBoxes = Configuration.gameConfig.mapStartBoxes.savedBoxes[mapName]
+		elseif polygonConfig then
+			Spring.Echo("Skirmish: Using the map startboxes set for", mapName)
+		elseif mapStartBoxes.savedBoxes and mapStartBoxes.savedBoxes[mapName] then
+			startBoxes = mapStartBoxes.savedBoxes[mapName]
 			Spring.Echo("Skirmish: Using default startboxes",startBoxes)
-			startBoxes = Configuration.gameConfig.mapStartBoxes.selectStartBoxesForAllyTeamCount(startBoxes,allyTeamCount)
+			startBoxes = mapStartBoxes.selectStartBoxesForAllyTeamCount(startBoxes,allyTeamCount)
 		end
 	else
 		Spring.Echo("No map startBoxes found or disabled for map",mapName)
@@ -265,7 +281,9 @@ function InterfaceSkirmish:_StartScript(gameName, mapName, playerName, friendLis
 
 	for i, teamData in pairs(teams) do
 		if not allyTeams[teamData.AllyTeam] then
-		    if startBoxes then
+			if polygonConfig and not startBoxes then
+				allyTeams[teamData.AllyTeam] = Configuration.gameConfig.mapStartBoxes.makeAllyTeamBoxFromPolygon(polygonConfig, teamData.AllyTeam)
+		    elseif startBoxes then
 				allyTeams[teamData.AllyTeam] = Configuration.gameConfig.mapStartBoxes.makeAllyTeamBox(startBoxes,teamData.AllyTeam)
 		    else
 				allyTeams[teamData.AllyTeam] = {
@@ -328,6 +346,22 @@ function InterfaceSkirmish:_StartScript(gameName, mapName, playerName, friendLis
 	script.modoptions["date_month"] = os.date("%m")
 	script.modoptions["date_year"] = os.date("%Y")
 	script.modoptions["date_hour"] = os.date("%H")
+
+	-- script.modoptions aliases self.modoptions and persists across launches, so boxes
+	-- from a previously launched map would leak into this one; clear before re-adding.
+	script.modoptions["mapmetadata_startboxes_set"] = nil
+	script.modoptions["mapmetadata_startbox_override"] = nil
+	local mapStartBoxes = Configuration.gameConfig and Configuration.gameConfig.mapStartBoxes
+	if mapStartBoxes then
+		if polygonConfig and mapStartBoxes.encodeStartboxesSetModoption then
+			script.modoptions["mapmetadata_startboxes_set"] =
+				mapStartBoxes.encodeStartboxesSetModoption(polygonConfig) or nil
+		end
+		if customBoxes and mapStartBoxes.encodeStartboxOverrideModoption then
+			script.modoptions["mapmetadata_startbox_override"] =
+				mapStartBoxes.encodeStartboxOverrideModoption(customBoxes) or nil
+		end
+	end
 
 	for i, ai in pairs(ais) do
 		script["ai" .. i] = ai

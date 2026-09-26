@@ -117,15 +117,21 @@ function widget:DrawScreen()
 
 		gl.Color(1,1,1,loadFade)
 		gl.Texture(loadTex)
-    -- assume loadscreen is 16:9
-    if (16.0 * vsy < 9.0 * vsx) then
-      local pad = (1.0 - (16 * vsy) / (9.0 * vsx) ) * 0.5
-      gl.TexRect(0,0,vsx,vsy,0, 1.0 - pad, 1.0, pad)
-    else
-      local pad = (1.0 - (9.0 * vsx) / (16 * vsy) ) * 0.5
-      gl.TexRect(0,0,vsx,vsy,pad, 1.0, 1.0-pad, 0)
-    end
 
+		-- assume loadscreen is 16:9
+		if (16.0 * vsy < 9.0 * vsx) then
+			local pad = 0
+			if vsx ~= 0 then
+				pad = (1.0 - (16 * vsy) / (9.0 * vsx) ) * 0.5
+			end
+			gl.TexRect(0,0,vsx,vsy,0, 1.0 - pad, 1.0, pad)
+		else
+			local pad = 0
+			if vsy ~= 0 then
+				pad = (1.0 - (9.0 * vsx) / (16 * vsy) ) * 0.5
+			end
+			gl.TexRect(0,0,vsx,vsy,pad, 1.0, 1.0-pad, 0)
+		end
 
 		gl.Color(1,1,1,1)
 
