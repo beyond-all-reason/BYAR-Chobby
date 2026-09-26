@@ -627,6 +627,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		width =   formw * 3 ,
 		height =  formh * 2 ,
 		caption = "Reset your password via a browser link",
+		tooltip = "Opens a link to https://server4.beyondallreason.info/forgot_password in your browser.",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		classname = "negative_button",
 		OnClick = {
@@ -658,6 +659,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		width =   formw * 3 ,
 		height =  formh * 2 ,
 		caption = "Edit your password via a browser link",
+		tooltip = "Opens a link to https://server4.beyondallreason.info/teiserver/account/security/edit_password in your browser.",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		classname = "negative_button",
 		OnClick = {
@@ -688,6 +690,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		width =   formw * 3 ,
 		height =  formh * 2 ,
 		caption = "Change your email via a browser link",
+		tooltip = "Opens a link to https://server4.beyondallreason.info/teiserver/account/details in your browser.",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		classname = "negative_button",
 		OnClick = {
@@ -718,6 +721,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		width =   formw * 3 ,
 		height =  formh * 2 ,
 		caption = i18n("delete_account"),
+		tooltip = "Opens a link to https://server4.beyondallreason.info/teiserver/account/security in your browser.",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		classname = "negative_button",
 		OnClick = {
