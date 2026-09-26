@@ -557,7 +557,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 -----------------------CHANGE USERNAME-------------------------------
 	self.txtChangeUserName = TextBox:New {
 		x = pad + formw * 0 ,
-		y = pad + formh * 0 ,
+		y = 5 ,
 		width =   formw * 3 ,
 		height =  60 ,
 		-- caption = i18n("register_long"),
@@ -569,7 +569,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 
 	self.ebChangeUserName = EditBox:New {
 		x = pad ,
-		y = 80 ,
+		y = 65 ,
 		width =   350 ,
 		height =  formh * 1 ,
 		text = Configuration.userName or Configuration.suggestedNameFromSteam or "",
@@ -581,7 +581,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 
 	self.btnChangeUserName = Button:New {
 		x = pad + 360 ,
-		y = 80 ,
+		y = 65 ,
 		width =   150 ,
 		height =  formh * 1 ,
 		caption = i18n("change_username"),
@@ -595,20 +595,9 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 	}
 	recoverChildren[#recoverChildren+1] = self.btnChangeUserName
 
-	self.txtHelpChangeUserName = TextBox:New {
-		x = pad + formw * 0 ,
-		y = 105 ,
-		width =   formw * 3 + 60 ,
-		height =  formh * 1 ,
-		text = "If this doesnt work contact us on Discord.",
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
-		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(1),
-	}
-	recoverChildren[#recoverChildren+1] = self.txtHelpChangeUserName
-
 	self.txtErrorChangeUserName = TextBox:New {
 		x = pad + formw * 0 ,
-		y = 128 ,
+		y = 90 ,
 		width =   formw * 3 + 60 ,
 		height =  28 ,
 		text = "",
@@ -617,12 +606,12 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 	}
 	recoverChildren[#recoverChildren+1] = self.txtErrorChangeUserName
 
-	recoverChildren[#recoverChildren+1] = Line:New{x=5,y=160,right=5, height = 1}
+	recoverChildren[#recoverChildren+1] = Line:New{x=5,y=120,right=5, height = 1}
 
 ------------------------------RESET PASSWORD----------------------------------
 	self.txtResetPassword = TextBox:New {
 		x = pad + formw * 0 ,
-		y = 168 ,
+		y = 130 ,
 		width =   formw * 3 ,
 		height =  formh * 2 ,
 		-- caption = i18n("register_long"),
@@ -634,7 +623,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 
 	self.btnResetPassword = Button:New {
 		x = pad + formw * 0 ,
-		y = 220 ,
+		y = 170 ,
 		width =   formw * 3 ,
 		height =  formh * 2 ,
 		caption = "Reset your password via a browser link",
@@ -648,110 +637,16 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 	}
 	recoverChildren[#recoverChildren+1] = self.btnResetPassword
 	
-	recoverChildren[#recoverChildren+1] = Line:New{x=5,y=280,right=5, height = 1}
---[[
+	recoverChildren[#recoverChildren+1] = Line:New{x=5,y=215,right=5, height = 1}
 
-
-
-	self.lblResetPasswordEmail =  Label:New {
-		x = pad + formw * 0 ,
-		y = pad + formh * 7 ,
-		width =   formw * 1 ,
-		height =  formh * 1 ,
-		-- caption = i18n("register_long"),
-		caption = "Email address:",
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
-	}
-	recoverChildren[#recoverChildren+1] = self.lblResetPasswordEmail
-
-	self.ebResetPasswordEmail = EditBox:New {
-		x = pad + formw * 1 ,
-		y = pad + formh * 7 ,
-		width =   formw * 1 ,
-		height =  formh * 1 ,
-		text = "",
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
-		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(1),
-		tooltip = 'Make sure you enter your valid email address',
-	}
-	recoverChildren[#recoverChildren+1] = self.ebResetPasswordEmail
-
-	self.lblResetPasswordVerification =  Label:New {
-		x = pad + formw * 0 ,
-		y = pad + formh * 8 ,
-		width =   formw * 1 ,
-		height =  formh * 1 ,
-		-- caption = i18n("register_long"),
-		caption = "Verification Code:",
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
-	}
-	recoverChildren[#recoverChildren+1] = self.lblResetPasswordVerification
-
-	self.ebResetPasswordVerification = EditBox:New {
-		x = pad + formw * 1 ,
-		y = pad + formh * 8 ,
-		width =   formw * 1 ,
-		height =  formh * 1 ,
-		text = "",
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
-		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(1),
-		tooltip = 'You will recieve this code via email after submitting your email in the above box',
-	}
-	recoverChildren[#recoverChildren+1] = self.ebResetPasswordVerification
-
-	self.btnResetPasswordEmail = Button:New {
-		x = pad + formw * 2 ,
-		y = pad + formh * 7 ,
-		width =   formw * 1 ,
-		height =  formh * 1 ,
-		caption = i18n("submit_email"),
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
-		classname = "negative_button",
-		OnClick = {
-			function()
-				self:tryResetPasswordEmail()
-			end
-		},
-	}
-	recoverChildren[#recoverChildren+1] = self.btnResetPasswordEmail
-
-	self.btnResetPasswordVerification = Button:New {
-		x = pad + formw * 2 ,
-		y = pad + formh * 8 ,
-		width =   formw * 1 ,
-		height =  formh * 1 ,
-		caption = i18n("submit_verification"),
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
-		classname = "negative_button",
-		OnClick = {
-			function()
-				self:tryResetPasswordVerification()
-			end
-		},
-	}
-	recoverChildren[#recoverChildren+1] = self.btnResetPasswordVerification
-
-	self.txtErrorResetPassword = TextBox:New {
-		x = pad + formw * 0 ,
-		y = pad + formh * 9 ,
-		width =   formw * 3 ,
-		height =  formh * 1 ,
-		text = "If this doesnt work contact us on Discord",
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
-		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(1),
-	}
-	recoverChildren[#recoverChildren+1] = self.txtErrorResetPassword
-
-	recoverChildren[#recoverChildren+1] = Line:New{x=5,y=formh * 11,right=5, height = 1}
---]]
----------------------------Change Password--------------------------------
+---------------------------CHANGE PASSWORD--------------------------------
 	self.txtChangePassword = TextBox:New {
 		x = pad + formw * 0 ,
-		y = 292 ,
+		y = 225 ,
 		width =   formw * 3 ,
 		height =  formh * 2 ,
 		-- caption = i18n("register_long"),
-		text = "Change Password: You must be logged in, enter your old and your new password",
+		text = "Change Password: You must login in the browser, then enter your old and your new password",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
 		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(1),
 	}
@@ -759,7 +654,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 
 	self.btnChangePassword = Button:New {
 		x = pad + formw * 0 ,
-		y = 342 ,
+		y = 265 ,
 		width =   formw * 3 ,
 		height =  formh * 2 ,
 		caption = "Edit your password via a browser link",
@@ -772,190 +667,78 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		},
 	}
 	recoverChildren[#recoverChildren+1] = self.btnChangePassword
-	recoverChildren[#recoverChildren+1] = Line:New{x=5,y=410,right=5, height = 1}
+	recoverChildren[#recoverChildren+1] = Line:New{x=5,y=310,right=5, height = 1}
 
---[[
-	self.lblChangePasswordOld =  Label:New {
-		x = pad + formw * 0 ,
-		y = pad + formh * 13 ,
-		width =   formw * 1 ,
-		height =  formh * 1 ,
-		-- caption = i18n("register_long"),
-		caption = "Old password:",
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
-	}
-	recoverChildren[#recoverChildren+1] = self.lblChangePasswordOld
-
-	self.ebChangePasswordOld = EditBox:New {
-		x = pad + formw * 1 ,
-		y = pad + formh * 13 ,
-		width =   formw * 1 ,
-		height =  formh * 1 ,
-		text = "",
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
-		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(1),
-		tooltip = 'Enter your old password here',
-	}
-	recoverChildren[#recoverChildren+1] = self.ebChangePasswordOld
-
-	self.lblChangePasswordNew =  Label:New {
-		x = pad + formw * 0 ,
-		y = pad + formh * 14 ,
-		width =   formw * 1 ,
-		height =  formh * 1 ,
-		-- caption = i18n("register_long"),
-		caption = "New Password:",
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
-	}
-	recoverChildren[#recoverChildren+1] = self.lblChangePasswordNew
-
-	self.ebChangePasswordNew = EditBox:New {
-		x = pad + formw * 1 ,
-		y = pad + formh * 14 ,
-		width =   formw * 1 ,
-		height =  formh * 1 ,
-		text = "",
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
-		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(1),
-		tooltip = 'Enter your new password here',
-	}
-	recoverChildren[#recoverChildren+1] = self.ebChangePasswordNew
-
-	self.btnChangePassword = Button:New {
-		x = pad + formw * 2 ,
-		y = pad + formh * 13 ,
-		width =   formw * 1 ,
-		height =  formh * 2 ,
-		caption = i18n("change_password"),
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
-		classname = "negative_button",
-		OnClick = {
-			function()
-				self:tryChangePassword()
-			end
-		},
-	}
-	recoverChildren[#recoverChildren+1] = self.btnChangePassword
-
-	self.txtErrorChangePassword = TextBox:New {
-		x = pad + formw * 0 ,
-		y = 4 + pad + formh * 15 ,
-		width =   formw * 3 ,
-		height =  formh * 1 ,
-		text = "If this doesnt work contact us on Discord",
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
-		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(1),
-	}
-	recoverChildren[#recoverChildren+1] = self.txtErrorChangePassword
-
-	recoverChildren[#recoverChildren+1] = Line:New{x=5,y=formh * 17,right=5, height = 1}
---]]
-	---------------------------Change Email-------------------------------
+	---------------------------CHANGE EMAIL-------------------------------
 	self.txtChangeEmail = TextBox:New {
 		x = pad + formw * 0 ,
-		y = 420 ,
+		y = 320 ,
 		width =   520 ,
-		height =  82 ,
+		height =  70 ,
 		-- caption = i18n("register_long"),
-		text = "Change email address associated with your account. You must be logged in. Enter the new email address you wish to use, then enter the validation code sent to the new email address.",
+		text = "Change email address associated with your account. You must login in the browser.",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
 		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(1),
 	}
 	recoverChildren[#recoverChildren+1] = self.txtChangeEmail
 
-	self.lblChangeEmailEmail =  Label:New {
-		x = pad + formw * 0 ,
-		y = 510 ,
-		width =   170 ,
-		height =  formh * 1 ,
-		autosize = false,
-		valign = "center",
-		-- caption = i18n("register_long"),
-		caption = "New email address:",
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
-	}
-	recoverChildren[#recoverChildren+1] = self.lblChangeEmailEmail
-
-	self.ebChangeEmailEmail = EditBox:New {
-		x = 190 ,
-		y = 510 ,
-		width =   210 ,
-		height =  formh * 1 ,
-		text = "",
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
-		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(1),
-		tooltip = 'Make sure you enter your new email address',
-	}
-	recoverChildren[#recoverChildren+1] = self.ebChangeEmailEmail
-
-	self.lblChangeEmailVerification =  Label:New {
-		x = pad + formw * 0 ,
-		y = 540 ,
-		width =   170 ,
-		height =  formh * 1 ,
-		autosize = false,
-		valign = "center",
-		-- caption = i18n("register_long"),
-		caption = "Verification Code:",
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
-	}
-	recoverChildren[#recoverChildren+1] = self.lblChangeEmailVerification
-
-	self.ebChangeEmailVerification = EditBox:New {
-		x = 190 ,
-		y = 540 ,
-		width =   210 ,
-		height =  formh * 1 ,
-		text = "",
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
-		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(1),
-		tooltip = 'You will recieve this code via email after submitting your email in the above box',
-	}
-	recoverChildren[#recoverChildren+1] = self.ebChangeEmailVerification
-
 	self.btnChangeEmail = Button:New {
-		x = 405 ,
-		y = 510 ,
-		width =   155 ,
-		height =  formh * 1 ,
-		caption = i18n("submit_email"),
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
+		x = pad + formw * 0 ,
+		y = 360 ,
+		width =   formw * 3 ,
+		height =  formh * 2 ,
+		caption = "Change your email via a browser link",
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		classname = "negative_button",
 		OnClick = {
 			function()
-				self:tryChangeEmail()
+				WG.BrowserHandler.OpenUrl("https://server4.beyondallreason.info/teiserver/account/details")
 			end
 		},
 	}
 	recoverChildren[#recoverChildren+1] = self.btnChangeEmail
+	recoverChildren[#recoverChildren+1] = Line:New{x=5,y=405,right=5, height = 1}
 
-	self.btnChangeEmailVerification = Button:New {
-		x = 405 ,
-		y = 540 ,
-		width =   155 ,
-		height =  formh * 1 ,
-		caption = i18n("submit_verification"),
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
-		classname = "negative_button",
-		OnClick = {
-			function()
-				self:tryChangeEmailVerification()
-			end
-		},
-	}
-	recoverChildren[#recoverChildren+1] = self.btnChangeEmailVerification
-
-	self.txtErrorChangeEmail = TextBox:New {
+---------------------------DELETE ACCOUNT--------------------------------
+--Fix the link and uncomment this when the function is added to server.
+--[[ 	self.txtDeleteAccount = TextBox:New {
 		x = pad + formw * 0 ,
-		y = 570 ,
-		width =   560 ,
-		height =  formh * 1 ,
-		text = "If this doesnt work contact us on Discord",
+		y = 415 ,
+		width =   520 ,
+		height =  70 ,
+		text = "Delete your account: You must login in the browser.",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
 		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(1),
 	}
-	recoverChildren[#recoverChildren+1] = self.txtErrorChangeEmail
+	recoverChildren[#recoverChildren+1] = self.txtDeleteAccount
 
+ 	self.btnDeleteAccount = Button:New {
+		x = pad + formw * 0 ,
+		y = 440 ,
+		width =   formw * 3 ,
+		height =  formh * 2 ,
+		caption = i18n("delete_account"),
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		classname = "negative_button",
+		OnClick = {
+			function()
+				WG.BrowserHandler.OpenUrl("https://server4.beyondallreason.info/teiserver/account/security")
+			end
+		},
+	}
+	recoverChildren[#recoverChildren+1] = self.btnDeleteAccount
+	recoverChildren[#recoverChildren+1] = Line:New{x=5,y=485,right=5, height = 1} ]]
+
+	self.txtContactUs = TextBox:New {
+		x = pad + formw * 0 ,
+		y = 495 ,
+		width =   560 ,
+		height =  formh * 1 ,
+		text = "If anything doesn't work, contact us on Discord.",
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(1),
+	}
+	recoverChildren[#recoverChildren+1] = self.txtContactUs
 
 	--------- just logout button --------
 	local function LogoutFunc()
@@ -1119,10 +902,6 @@ function LoginWindow:RemoveListeners()
 	if self.onDisconnected then
 		lobby:RemoveListener("OnDisconnected", self.onDisconnected)
 		self.onDisconnected = nil
-	end
-	-- FIXME: the rest should be removed too
-	if self.OnChangeEmailRequestDenied then
-		lobby:RemoveListener("OnChangeEmailRequestDenied", self.OnChangeEmailRequestDenied)
 	end
 end
 
@@ -1430,300 +1209,7 @@ function LoginWindow:tryChangeUserName()
 	end
 end
 
----------------------------- Change Email Address ---------------------------
-
-
-
-function LoginWindow:tryChangeEmail()
-	--Spring.Echo("lobby:GetConnectionStatus()",lobby:GetConnectionStatus())
-	-- https://springrts.com/dl/LobbyProtocol/ProtocolDescription.html#CHANGEEMAILREQUEST:client
-	-- step 1, send a CHANGEEMAILREQUEST packet, which either returns CHANGEEMAILREQUESTDENIED or CHANGEEMAILREQUESTACCEPTED
-
-	local newemail = self.ebChangeEmailEmail.text
-	if string.len(newemail) < 5 then
-		self.txtErrorChangeEmail:SetText(
-		Configuration:GetErrorColor() ..
-		"Enter a valid email address, not " .. newemail
-		)
-		return false
-	end
-
-	local isInvalidEmail = isInValidEmail(newemail)
-	if isInvalidEmail then
-		self.txtErrorChangeEmail:SetText(Configuration:GetErrorColor() .. isInvalidEmail)
-		return false
-	end
-
-	if  lobby:GetConnectionStatus() ~= "connected" then
-		self.txtErrorChangeEmail:SetText(
-			Configuration:GetErrorColor() ..
-			"Must be logged in to change email address"
-		)
-		return false
-	end
-
-	self.txtErrorChangeEmail:SetText(
-		Configuration:GetWarningColor() ..
-		"Sending Request for: " .. newemail
-	)
-
-	WG.Analytics.SendOnetimeEvent("lobby:try_changeemail")
-
-	self.onChangeEmailRequestDenied = function(listener, errorMsg)
-		lobby:RemoveListener("OnChangeEmailRequestDenied", self.onChangeEmailRequestDenied)
-		self.txtErrorChangeEmail:SetText(
-				Configuration:GetErrorColor() ..
-				"Change Email Request Denied: " .. errorMsg
-			)
-	end
-
-	self.onChangeEmailRequestAccepted = function(listener)
-		lobby:RemoveListener("OnChangeEmailRequestAccepted", self.onChangeEmailRequestAccepted)
-		self.txtErrorChangeEmail:SetText(
-				Configuration:GetSuccessColor() ..
-				"Request Accepted, enter verification code recieved via email"
-			)
-	end
-
-	lobby:AddListener("OnChangeEmailRequestDenied", self.onChangeEmailRequestDenied)
-	lobby:AddListener("OnChangeEmailRequestAccepted", self.onChangeEmailRequestAccepted)
-	lobby:ChangeEmailRequest(newemail)
-end
-
-
-
-
-function LoginWindow:tryChangeEmailVerification ()
-	if  lobby:GetConnectionStatus() ~= "connected" then
-		self.txtErrorChangeEmail:SetText(
-			Configuration:GetErrorColor() ..
-			"Must be logged in to verify change email address"
-		)
-		return false
-	end
-
-	local newemail = self.ebChangeEmailEmail.text
-	if string.len(newemail) < 5 then
-		self.txtErrorChangeEmail:SetText(
-		Configuration:GetErrorColor() ..
-		"Enter a valid email address, not" .. newemail
-		)
-		return false
-	end
-
-	local verificationCode = self.ebChangeEmailVerification.text
-
-	if string.len(verificationCode) < 3 then
-		self.txtErrorChangeEmail:SetText(
-			Configuration:GetErrorColor() ..
-			"Verification code too short: " .. verificationCode
-			)
-		return false
-	end
-
-	self.txtErrorChangeEmail:SetText(
-		Configuration:GetWarningColor() ..
-		"Sending Verification Code: " .. verificationCode .. " for ".. newemail
-	)
-
-	self.onChangeEmailDenied = function (listener, errorMsg)
-		lobby:RemoveListener("OnChangeEmailDenied", self.onChangeEmailDenied)
-		self.txtErrorChangeEmail:SetText(
-				Configuration:GetErrorColor() ..
-				"Change Email Denied: " .. errorMsg
-			)
-	end
-
-	self.onChangeEmailReqestAccepted = function (listener)
-		lobby:RemoveListener("OnChangeEmailAccepted", self.onChangeEmailAccepted)
-		self.txtErrorChangeEmail:SetText(
-				Configuration:GetSuccessColor() ..
-				"Email changed successfully to " .. self.ebChangeEmailEmail.text
-			)
-	end
-
-	lobby:AddListener("OnChangeEmailDenied", self.onChangeEmailDenied)
-	lobby:AddListener("OnChangeEmailAccepted", self.onChangeEmailAccepted)
-
-	WG.Analytics.SendOnetimeEvent("lobby:try_changeemailverification")
-	lobby:ChangeEmail(newemail, verificationCode)
-end
-
-
----------------------------- Reset Password ---------------------------
-
-
-function LoginWindow:tryResetPasswordEmail()
-	Spring.Echo("lobby:GetConnectionStatus()",lobby:GetConnectionStatus())
-	-- https://springrts.com/dl/LobbyProtocol/ProtocolDescription.html#RESETPASSWORDREQUEST:client
-	if  lobby:GetConnectionStatus() == "connected" then
-		self.txtErrorResetPassword:SetText("Already connected, why do need to reset your password?")
-		return false
-	end
-
-	local emailaddress = self.ebResetPasswordEmail.text
-	if string.len(emailaddress) < 5 then
-		self.txtErrorResetPassword:SetText(
-		Configuration:GetErrorColor() ..
-		"Enter a valid email address, not " .. emailaddress
-		)
-		return false
-	end
-
-	local isInvalidEmail = isInValidEmail(emailaddress)
-	if isInvalidEmail then
-		self.txtErrorResetPassword:SetText(Configuration:GetErrorColor() .. isInvalidEmail)
-		return false
-	end
-
-	self.txtErrorResetPassword:SetText(
-		Configuration:GetWarningColor() ..
-		"Sending reset request for: " .. emailaddress
-	)
-
-	self.onResetPasswordRequestDenied = function(listener,errorMsg)
-		lobby:RemoveListener("OnResetPasswordRequestDenied", self.onResetPasswordRequestDenied)
-		lobby:Disconnect()
-		self.txtErrorResetPassword:SetText(
-				Configuration:GetErrorColor() ..
-				"Password reset request denied: " .. errorMsg
-			)
-	end
-
-	self.onResetPasswordRequestAccepted = function(listener)
-		lobby:RemoveListener("OnResetPasswordRequestAccepted", self.onResetPasswordRequestAccepted)
-		lobby:RemoveListener("OnChangeEmailAccepted", self.onChangeEmailAccepted)
-		self.txtErrorResetPassword:SetText(
-				Configuration:GetSuccessColor() ..
-				"Request Accepted, enter email and verification code recieved via email"
-			)
-	end
-
-	lobby:AddListener("OnResetPasswordRequestDenied", self.onResetPasswordRequestDenied)
-	lobby:AddListener("OnResetPasswordRequestAccepted", self.onResetPasswordRequestAccepted)
-
-	function ResetPasswordRequest()
-		lobby:ResetPasswordRequest(emailaddress)
-		lobby:RemoveListener("OnConnect",ResetPasswordRequest)
-		--lobby:RemoveListener("OnConnect",)
-	end
-
-	lobby:AddListener("OnConnect",ResetPasswordRequest)
-
-	lobby:AddListener("OnDenied",ResetPasswordRequest)
-
-	WG.Analytics.SendOnetimeEvent("lobby:try_resetpassword")
-
-	self.txtErrorResetPassword:SetText(
-		Configuration:GetErrorColor() ..
-		"Attempting to send a reset request..."
-	)
-	Configuration.userName = false --nuke username so we dont try to log in unsuccessfully
-	lobby:Connect(Configuration:GetServerAddress(), Configuration:GetServerPort(), nil, nil, 3, nil, GetLobbyName())
-
-end
-
-
-function LoginWindow:tryResetPasswordVerification ()
-	if  lobby:GetConnectionStatus() == "connected" then
-		self.txtErrorResetPassword:SetText("Already connected, why do need to reset your password?")
-		return false
-	end
-
-	local emailaddress = self.ebResetPasswordEmail.text
-	if string.len(emailaddress) < 5 then
-		self.txtErrorResetPassword:SetText(
-		Configuration:GetErrorColor() ..
-		"Enter a valid email address, not " .. emailaddress
-		)
-		return false
-	end
-
-	local verificationCode = self.ebResetPasswordVerification.text
-	if string.len(verificationCode) < 3 then
-		self.txtErrorResetPassword:SetText(
-			Configuration:GetErrorColor() ..
-			"Verification code too short: " .. verificationCode
-			)
-		return false
-	end
-
-	self.onResetPasswordDenied = function(listener,errorMsg)
-		lobby:RemoveListener("OnResetPasswordDenied", self.onResetPasswordDenied)
-		lobby:Disconnect()
-		self.txtErrorResetPassword:SetText(
-				Configuration:GetErrorColor() ..
-				"Reset Password Denied: " .. errorMsg
-			)
-	end
-
-	self.onResetPasswordAccepted = function(listener)
-		lobby:RemoveListener("OnResetPasswordAccepted", self.onResetPasswordAccepted)
-		self.txtErrorResetPassword:SetText(
-				Configuration:GetSuccessColor() ..
-				"Password successfully reset for " .. self.ebResetPasswordEmail.text
-			)
-	end
-
-	self.txtErrorResetPassword:SetText(
-		Configuration:GetWarningColor() ..
-		"Sending Verification Code: " .. verificationCode .. " for ".. emailaddress
-	)
-	lobby:AddListener("OnResetPasswordDenied", self.onResetPasswordDenied)
-	lobby:AddListener("OnResetPasswordAccepted", self.onResetPasswordAccepted)
-
-	function ResetPassword()
-		lobby:ResetPassword(emailaddress,verificationCode)
-		lobby:RemoveListener("OnConnect",ResetPassword)
-		--lobby:RemoveListener("OnConnect",)
-	end
-
-	lobby:AddListener("OnConnect",ResetPassword)
-
-	lobby:AddListener("OnDenied",ResetPassword)
-
-	WG.Analytics.SendOnetimeEvent("lobby:try_resetpasswordverification")
-
-	Configuration.userName = false --nuke username so we dont try to log in unsuccessfully
-	lobby:Connect(Configuration:GetServerAddress(), Configuration:GetServerPort(), nil, nil, 3, nil, GetLobbyName())
-end
-
-
------------------- Change Password --------------
-
-function LoginWindow:tryChangePassword()
-	Spring.Echo("lobby:GetConnectionStatus()",lobby:GetConnectionStatus())
-	if lobby:GetConnectionStatus() ~= "connected" then
-		self.txtErrorChangePassword:SetText(
-			Configuration:GetErrorColor() ..
-			"Must be connected to change password!"
-		)
-		return
-	end
-
-	local oldPassword = (self.ebChangePasswordOld.text and string.len(self.ebChangePasswordOld.text) > 0 and VFS.CalculateHash(self.ebChangePasswordOld.text, 0)) or nil
-	local newPassword =  (self.ebChangePasswordNew.text and string.len(self.ebChangePasswordNew.text) > 0 and VFS.CalculateHash(self.ebChangePasswordNew.text, 0)) or nil
-
-	if oldPassword == nil or newPassword == nil then
-		self.txtErrorChangePassword:SetText(
-			Configuration:GetErrorColor() ..
-			"At least one password is invalid!"
-		)
-	end
-
-	WG.Analytics.SendOnetimeEvent("lobby:try_changepassword")
-	lobby:ChangePassword(oldPassword, newPassword)
-
-	self.txtErrorChangePassword:SetText(
-		Configuration:GetWarningColor() ..
-		"Password change request sent, you will be logged out if it succeeds"
-	)
-end
-
-
-
 -----------------  OnConnected ----------------------
-
 
 function LoginWindow:OnConnected()
 	Spring.Echo("OnConnected")

@@ -113,6 +113,7 @@ return {
 		submit_verification = "Submit Verification",
 		required_for_online = "Required for online play only",
 		ask_moderation = "Ask moderation on Discord for keyword",
+		delete_account = "Delete your account via a browser link",
 		-- gui_battle_status_panel
 		spectating_game_status = "Spectating",
 		playing_game_status = "Playing",
