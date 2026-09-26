@@ -1527,26 +1527,44 @@ function Lobby:_OnSaidBattle(userName, message, sayTime)
 	self:_CallListeners("OnSaidBattle", userName, message, sayTime)
 end
 
+-- The battle room builds its team count and team size lists one entry per value, so keep
+-- these within the engine's team limit.
+local BARMANAGER_MAX_TEAMS = 255
+local barManagerTeamCounts = {teamSize = true, nbTeams = true}
+
 -- message = {"BattleStateChanged": {"locked": "locked", "autoBalance": "advanced", "teamSize": "8", "nbTeams": "2", "balanceMode": "clan;skill", "preset": "team", "boss": "Fireball"}}
 function Lobby:ParseBarManager(battleID, message)
 	local battleInfo = {}
 	local newBosses
 
-	local barManagerSettings = JsonDecode(message)
-	if not barManagerSettings['BattleStateChanged'] then
+	-- Json.decode raises on malformed input, and an error here would drop the rest of the commands received with it.
+	local decoded, barManagerSettings = pcall(JsonDecode, message)
+	local stateChanged = decoded and type(barManagerSettings) == "table" and barManagerSettings['BattleStateChanged']
+	if type(stateChanged) ~= "table" then
 		return battleInfo
 	end
-	
-	for k, v in pairs(barManagerSettings['BattleStateChanged']) do
-		if k == "boss" then
-			if v == "" then
-				battleInfo["bossed"] = false
-			else
-				battleInfo["bossed"] = true
-				newBosses = v
+
+	for k, v in pairs(stateChanged) do
+		if type(v) == "number" then
+			v = tostring(v)
+		end
+		-- tables, booleans and json null can't be used by anything below
+		if type(v) == "string" then
+			if barManagerTeamCounts[k] then
+				local count = tonumber(v)
+				if count and count >= 1 and count <= BARMANAGER_MAX_TEAMS and count % 1 == 0 then
+					battleInfo[k] = v
+				end
+			elseif k == "boss" then
+				if v == "" then
+					battleInfo["bossed"] = false
+				else
+					battleInfo["bossed"] = true
+					newBosses = v
+				end
+			elseif WG.Chobby.Configuration.barMngSettings[k] then
+				battleInfo[k] = v
 			end
-		elseif WG.Chobby.Configuration.barMngSettings[k] then
-			battleInfo[k] = v
 		end
 	end
 	return battleInfo, newBosses
@@ -1555,12 +1573,10 @@ end
 function Lobby:_OnSaidBattleEx(userName, message, sayTime)
 	
 	local found, bmMessage = startsWith(message, WG.Chobby.Configuration.BTLEX_BARMANAGER)
-	if found then
-		local battleID = self.users[userName] and self.users[userName].battleID
-		if not battleID then
-			Spring.Log(LOG_SECTION, LOG_WARNING, "couldn't match barmanager message to any known battle", tostring(founder))
-			return
-		end
+	local battleID = self.myBattleID
+	local battle = battleID and self.battles[battleID]
+	-- Anyone in the room can /me this prefix, so only the host's messages change battle state; anyone else's stay plain chat.
+	if found and battle and battle.founder == userName then
 		local battleInfo, newBosses = self:ParseBarManager(battleID, bmMessage)
 		if next(battleInfo) then
 			self:super("_OnUpdateBattleInfo", battleID, battleInfo)
