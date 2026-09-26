@@ -19,6 +19,12 @@ local welcomePanelItems = {
     },
 
     {
+        Header = "New Map: Ceasefire",
+        Text = "An ancient canyon with few remaining cliffs once left 2 sides with no choice. 3v3 East vs West. Made by Phalange." .. " \n" .. " \n",
+        Image = "LuaMenu/configs/gameConfig/byar/minimapOverride/Ceasefire_1.0.jpg",
+    },
+
+    {
         Header = "July Balance Patch is Live!",
         Text = "The July balance patch introduces three major focus areas: an Anti-Air overhaul that buffs weaker AA turrets while toning down T2 fighters, medium tank nerfs (Stout, Brute, Rover, Pounder) to diversify open-map strategies, and buffs to underused T2 bruisers (Welder, Sumo)." .. " \n" .. " \n" .. "Also included: Gauss weapon consistency buffs, seaplane gunship tuning, and a new \"Slow Commander Transport\" modoption that caps T2 transports carrying Commanders at speed 120." .. " \n" .. " \n",
         Url = "https://www.beyondallreason.info/microblogs/194",
@@ -42,19 +48,7 @@ local welcomePanelItems = {
     },
 
     {
-        Header = "New Map: SailAway",
-        Text = "Islands of forests and wildflowers above the sea. 8v8 N vs S. Made by Moose and IceXuick." .. " \n" .. " \n",
-        Image = "LuaMenu/configs/gameConfig/byar/minimapOverride/SailAway_2.jpg",
-    },
-
-    {
-        Header = "New Map: Vittra",
-        Text = "Close quarters combat over grassy plateaus and cliffs. 1v1 - 2v2 N vs S. Made by Moose and Beherith." .. " \n" .. " \n",
-        Image = "LuaMenu/configs/gameConfig/byar/minimapOverride/Vittra_3.jpg",
-    },
-
-    {
-        Header = "This Month in BAR – April/May 2026",
+        Header = "This Month in BAR - April/May 2026",
         Text = "New visual effects, gameplay changes, and balance updates are here! GL4 visual overhaul brings build particles, death fire, beam lasers, plasma projectiles, missile trails, shield effects, bloom and more!" .. " \n" .. " \n" .. "EasyTax 2.0 overhauls resource sharing. New UI widgets, PiP improvements, ETA timers for reclaim/resurrect, and 4 new music tracks round out the update." .. " \n" .. " \n",
         Url = "https://www.beyondallreason.info/microblogs/184",
         UrlText = "Read the devlog",
