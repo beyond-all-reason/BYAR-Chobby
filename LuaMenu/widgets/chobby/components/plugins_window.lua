@@ -41,7 +41,6 @@ local IMG_DISCORD         = "LuaMenu/images/Discord-Symbol-White.png"
 
 local ITEM_MIN_WIDTH   = 300  -- Minimum width for a widget card; actual width is dynamic based on container size
 local ITEM_HEIGHT      = 240
-local ITEMS_PER_PAGE   = 10    -- 5 rows * 2 columns
 local HEADER_HEIGHT    = 48
 local HEADER_ROW_GAP   = 4
 local HEADER_TOTAL_HEIGHT = HEADER_HEIGHT * 2 + HEADER_ROW_GAP
@@ -59,6 +58,7 @@ local widgetsList      = {}       -- Array of parsed widget entries
 local widgetPanelCache = {}       -- id -> Chili panel cache
 local currentFilter    = ""       -- Current search string
 local currentPage      = 1        -- Current pagination page
+local itemsPerPage     = 1        -- Cards per page, derived from the visible grid
 local loadState        = STATE_LOADING
 local loadError        = nil
 
@@ -490,12 +490,12 @@ end
 
 local function getTotalPages(filteredCount)
     if filteredCount <= 0 then return 1 end
-    return math.ceil(filteredCount / ITEMS_PER_PAGE)
+    return math.ceil(filteredCount / itemsPerPage)
 end
 
 local function getPageSlice(filteredList, page)
-    local startIdx = (page - 1) * ITEMS_PER_PAGE + 1
-    local endIdx = math.min(startIdx + ITEMS_PER_PAGE - 1, #filteredList)
+    local startIdx = (page - 1) * itemsPerPage + 1
+    local endIdx = math.min(startIdx + itemsPerPage - 1, #filteredList)
     local slice = {}
     for i = startIdx, endIdx do
         slice[#slice + 1] = filteredList[i]
@@ -929,9 +929,6 @@ local function refreshGrid()
     end
 
     local filtered = getFilteredWidgets()
-    local totalPages = getTotalPages(#filtered)
-    currentPage = clamp(currentPage, 1, totalPages)
-    local pageSlice = getPageSlice(filtered, currentPage)
 
     if #filtered == 0 then
         if statusLabel then
@@ -950,17 +947,28 @@ local function refreshGrid()
     if statusLabel then statusLabel:SetVisibility(false) end
 
     -- Calculate grid dimensions.
-    -- Use scrollPanel.clientWidth for accurate container width.
+    -- Use the scroll panel client size for accurate container dimensions.
     -- If not yet available (first frame), defer the refresh.
     local margin = 8
     local containerWidth = scrollPanel and scrollPanel.clientWidth or 0
-    if containerWidth <= 0 then
-        -- clientWidth not available yet; schedule a deferred refresh
+    local containerHeight = scrollPanel and scrollPanel.clientHeight or 0
+    if containerWidth <= 0 or containerHeight <= 0 then
+        -- client size not available yet; schedule a deferred refresh
         WG.Delay(function() refreshGrid() end, 0.05)
         return
     end
     local columns = math.max(1, math.floor((containerWidth + margin) / (ITEM_MIN_WIDTH + margin)))
     local itemWidth = math.floor((containerWidth - margin * (columns + 1)) / columns)
+    local visibleRows = math.max(1, math.floor(containerHeight / ITEM_HEIGHT))
+
+    -- Keep the first card of the current page in view when the page size changes
+    local firstIndex = (currentPage - 1) * itemsPerPage
+    itemsPerPage = columns * visibleRows
+    currentPage = math.floor(firstIndex / itemsPerPage) + 1
+
+    local totalPages = getTotalPages(#filtered)
+    currentPage = clamp(currentPage, 1, totalPages)
+    local pageSlice = getPageSlice(filtered, currentPage)
     local rows = math.ceil(#pageSlice / columns)
 
     -- Manually position each card so size is always exactly ITEM_HEIGHT,
@@ -1299,12 +1307,6 @@ function PluginsWindow:init(parent)
         Spring.Echo("[PluginsWindow] WARNING: DownloadHandler not available for event registration")
     end
 
-    -- Compute dynamic item width inside init based on parent width
-    local parentWidth = (parent and parent.width) or 1300
-    local usableWidth = parentWidth - 40  -- margins
-    local columns = math.max(1, math.floor((usableWidth + 8) / (ITEM_MIN_WIDTH + 8))) -- 8 is margin
-    local itemWidth = math.floor(usableWidth / columns)
-
     -- Main container (use Control to avoid nesting a full Window inside the main window)
     self.window = Control:New {
         x = 0,
@@ -1543,7 +1545,6 @@ function PluginsWindow:init(parent)
         draggable = false,
         children = {},
     }
-    mainGrid.itemWidth = itemWidth  -- keep for refreshGrid reference
 
     scrollPanel = ScrollPanel:New {
         x = 0,
