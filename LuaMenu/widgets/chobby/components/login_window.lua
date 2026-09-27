@@ -734,7 +734,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 
 ---------------------------DELETE ACCOUNT--------------------------------
 --Fix the link and uncomment this when the function is added to server.
-	self.txtDeleteAccount = TextBox:New {
+--[[ 	self.txtDeleteAccount = TextBox:New {
 		x = pad + formw * 0 ,
 		y = 515 ,
 		width =   520 ,
@@ -761,7 +761,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		},
 	}
 	recoverChildren[#recoverChildren+1] = self.btnDeleteAccount
-	recoverChildren[#recoverChildren+1] = Line:New{x=5,y=585,right=5, height = 1}
+	recoverChildren[#recoverChildren+1] = Line:New{x=5,y=585,right=5, height = 1} ]]
 
 	self.txtContactUs = TextBox:New {
 		x = pad + formw * 0 ,
