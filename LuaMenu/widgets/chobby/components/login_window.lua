@@ -608,14 +608,44 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 
 	recoverChildren[#recoverChildren+1] = Line:New{x=5,y=120,right=5, height = 1}
 
-------------------------------RESET PASSWORD----------------------------------
-	self.txtResetPassword = TextBox:New {
+------------------------------FORGOT USERNAME----------------------------------
+	self.txtForgotUsername = TextBox:New {
 		x = pad + formw * 0 ,
 		y = 130 ,
 		width =   formw * 3 ,
 		height =  formh * 2 ,
+		text = "View your username: You must login in your web browser with email and password.",
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
+		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(1),
+	}
+	recoverChildren[#recoverChildren+1] = self.txtForgotUsername
+
+	self.btnForgotUsername = Button:New {
+		x = pad + formw * 0 ,
+		y = 170 ,
+		width =   formw * 3 ,
+		height =  formh * 2 ,
+		caption = "Recover your username via a browser link",
+		tooltip = "Opens a link to https://server4.beyondallreason.info/teiserver/account/details in your browser.",
+		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
+		classname = "negative_button",
+		OnClick = {
+			function()
+				WG.BrowserHandler.OpenUrl("https://server4.beyondallreason.info/teiserver/account/details")
+			end
+		},
+	}
+	recoverChildren[#recoverChildren+1] = self.btnForgotUsername
+	
+	recoverChildren[#recoverChildren+1] = Line:New{x=5,y=215,right=5, height = 1}
+------------------------------RESET PASSWORD----------------------------------
+	self.txtResetPassword = TextBox:New {
+		x = pad + formw * 0 ,
+		y = 230 ,
+		width =   formw * 3 ,
+		height =  formh * 2 ,
 		-- caption = i18n("register_long"),
-		text = "Reset forgotten password: You need to use your web browser to reset a forgotten password.",
+		text = "Reset forgotten password: You must login in your web browser to reset a forgotten password.",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
 		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(1),
 	}
@@ -623,7 +653,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 
 	self.btnResetPassword = Button:New {
 		x = pad + formw * 0 ,
-		y = 170 ,
+		y = 270 ,
 		width =   formw * 3 ,
 		height =  formh * 2 ,
 		caption = "Reset your password via a browser link",
@@ -638,16 +668,16 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 	}
 	recoverChildren[#recoverChildren+1] = self.btnResetPassword
 	
-	recoverChildren[#recoverChildren+1] = Line:New{x=5,y=215,right=5, height = 1}
+	recoverChildren[#recoverChildren+1] = Line:New{x=5,y=315,right=5, height = 1}
 
 ---------------------------CHANGE PASSWORD--------------------------------
 	self.txtChangePassword = TextBox:New {
 		x = pad + formw * 0 ,
-		y = 225 ,
+		y = 325 ,
 		width =   formw * 3 ,
 		height =  formh * 2 ,
 		-- caption = i18n("register_long"),
-		text = "Change Password: You must login in the browser, then enter your old and your new password",
+		text = "Change password: You must login in your web browser, then enter your old and your new password",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
 		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(1),
 	}
@@ -655,7 +685,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 
 	self.btnChangePassword = Button:New {
 		x = pad + formw * 0 ,
-		y = 265 ,
+		y = 365 ,
 		width =   formw * 3 ,
 		height =  formh * 2 ,
 		caption = "Edit your password via a browser link",
@@ -669,16 +699,16 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		},
 	}
 	recoverChildren[#recoverChildren+1] = self.btnChangePassword
-	recoverChildren[#recoverChildren+1] = Line:New{x=5,y=310,right=5, height = 1}
+	recoverChildren[#recoverChildren+1] = Line:New{x=5,y=410,right=5, height = 1}
 
 	---------------------------CHANGE EMAIL-------------------------------
 	self.txtChangeEmail = TextBox:New {
 		x = pad + formw * 0 ,
-		y = 320 ,
+		y = 420 ,
 		width =   520 ,
 		height =  70 ,
 		-- caption = i18n("register_long"),
-		text = "Change email address associated with your account. You must login in the browser.",
+		text = "Change email address associated with your account. You must login in your web browser.",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
 		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(1),
 	}
@@ -686,7 +716,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 
 	self.btnChangeEmail = Button:New {
 		x = pad + formw * 0 ,
-		y = 360 ,
+		y = 460 ,
 		width =   formw * 3 ,
 		height =  formh * 2 ,
 		caption = "Change your email via a browser link",
@@ -700,16 +730,16 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		},
 	}
 	recoverChildren[#recoverChildren+1] = self.btnChangeEmail
-	recoverChildren[#recoverChildren+1] = Line:New{x=5,y=405,right=5, height = 1}
+	recoverChildren[#recoverChildren+1] = Line:New{x=5,y=505,right=5, height = 1}
 
 ---------------------------DELETE ACCOUNT--------------------------------
 --Fix the link and uncomment this when the function is added to server.
---[[ 	self.txtDeleteAccount = TextBox:New {
+	self.txtDeleteAccount = TextBox:New {
 		x = pad + formw * 0 ,
-		y = 415 ,
+		y = 515 ,
 		width =   520 ,
 		height =  70 ,
-		text = "Delete your account: You must login in the browser.",
+		text = "Delete your account: You must login in your web browser.",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
 		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(1),
 	}
@@ -717,7 +747,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 
  	self.btnDeleteAccount = Button:New {
 		x = pad + formw * 0 ,
-		y = 440 ,
+		y = 540 ,
 		width =   formw * 3 ,
 		height =  formh * 2 ,
 		caption = i18n("delete_account"),
@@ -731,11 +761,11 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		},
 	}
 	recoverChildren[#recoverChildren+1] = self.btnDeleteAccount
-	recoverChildren[#recoverChildren+1] = Line:New{x=5,y=485,right=5, height = 1} ]]
+	recoverChildren[#recoverChildren+1] = Line:New{x=5,y=585,right=5, height = 1}
 
 	self.txtContactUs = TextBox:New {
 		x = pad + formw * 0 ,
-		y = 495 ,
+		y = 595 ,
 		width =   560 ,
 		height =  formh * 1 ,
 		text = "If anything doesn't work, contact us on Discord.",
@@ -784,7 +814,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 				WG.BrowserHandler.OpenUrl("https://server4.beyondallreason.info/")
 			end
 		},
-		tooltip = "Visit the server's website for all your account and clan management needs at https://server4.beyondallreason.info/. You can also recover your account/password from there.",
+		tooltip = "Visit the server's website for all your account needs at https://server4.beyondallreason.info/. You can also recover your account/password from there.",
 	}
 
 	
