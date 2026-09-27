@@ -19,6 +19,12 @@ local welcomePanelItems = {
     },
 
     {
+        Header = "New Map: Pyroclast",
+        Text = "A highly asymmetric battle fought amongst the debris of a volcanic eruption. Designed for PvE or 8v8. Made by Cinnamon18." .. " \n" .. " \n",
+        Image = "LuaMenu/configs/gameConfig/byar/minimapOverride/Pyroclast_1.0.3.jpg",
+    },
+
+    {
         Header = "New Map: Ceasefire",
         Text = "An ancient canyon with few remaining cliffs once left 2 sides with no choice. 3v3 East vs West. Made by Phalange." .. " \n" .. " \n",
         Image = "LuaMenu/configs/gameConfig/byar/minimapOverride/Ceasefire_1.0.jpg",
