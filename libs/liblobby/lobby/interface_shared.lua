@@ -133,6 +133,17 @@ function Interface:SendCustomCommand(command)
 	self:_SendCommand(command, false)
 end
 
+-- Handles one received command and logs an error from its handler instead of raising it, so a malformed
+-- command can't abort the rest of a received batch or leave the command buffer half processed.
+function Interface:_SafeCommandReceived(command)
+	if not self._runPendingCommand then
+		self._runPendingCommand = function() self:CommandReceived(self._pendingCommand) end
+		self._commandErrHandler = function(err) self:_PrintError(err) end
+	end
+	self._pendingCommand = command
+	xpcall(self._runPendingCommand, self._commandErrHandler)
+end
+
 function Interface:ProcessBuffer()
 	if not self.commandBuffer then
 		return false
@@ -143,7 +154,7 @@ function Interface:ProcessBuffer()
 	if not self.commandBuffer[self.bufferExecutionPos + 1] then
 		-- This means that there are no further commands to be executed, 
 		-- so we should reset the state of the buffer  
-		self:CommandReceived(command)
+		self:_SafeCommandReceived(command)
 		self.commandBuffer = false
 		self.commandsInBuffer = 0
 		self.bufferExecutionPos = 0
@@ -154,7 +165,7 @@ function Interface:ProcessBuffer()
 		end
 		return false
 	end
-	self:CommandReceived(command)
+	self:_SafeCommandReceived(command)
 	return true
 end
 
@@ -325,7 +336,7 @@ function Interface:_SocketUpdate()
 			for i = 1, #commands-1 do
 				local command = commands[i]
 				if command ~= nil then
-					self:CommandReceived(command)
+					self:_SafeCommandReceived(command)
 				end
 			end
 			self.buffer = commands[#commands]

@@ -1494,6 +1494,13 @@ end
 
 -- Also calls the OnUpdateUserBattleStatus
 function Lobby:_OnAddAi(battleID, aiName, status)
+	-- Whoever adds an AI picks its name; one named after a connected user would overwrite that user's state,
+	-- and removing it would remove the user.
+	local user = self.users[aiName]
+	if user and not user.isOffline then
+		Spring.Log(LOG_SECTION, LOG.WARNING, "Ignoring AI with the name of a connected user: " .. tostring(aiName))
+		return
+	end
 	status.isSpectator = false
 	table.insert(self.battleAis, aiName)
 	self:_OnUpdateUserBattleStatus(aiName, status)
@@ -1501,16 +1508,18 @@ function Lobby:_OnAddAi(battleID, aiName, status)
 end
 
 function Lobby:_OnRemoveAi(battleID, aiName, aiLib, allyNumber, owner)
-	for i, v in pairs(self.battleAis) do
-		if v == aiName then
-			table.remove(self.battleAis, i)
-			break
-		end
+	local index = table.ifind(self.battleAis, aiName)
+	if not index then
+		return -- not an AI we accepted, so the name may belong to a user
 	end
+	table.remove(self.battleAis, index)
 
 	-- Unfortunately all AIs get added to users table sooner or later once TryGetUser("AiName") is called
 	self:_OnLeftBattle(battleID, aiName)
-	self.users[aiName] = nil
+	local user = self.users[aiName]
+	if user and user.isOffline then
+		self.users[aiName] = nil
+	end
 end
 
 function Lobby:_OnSaidBattle(userName, message, sayTime)
