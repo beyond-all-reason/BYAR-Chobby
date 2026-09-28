@@ -4641,11 +4641,14 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 	if battleLobby.name == "singleplayer" then
 		local realMessageListener = MessageListener
 		MessageListener = function(message)
-			if message:find("!bset ") then
+			if message:find("!bset ") or message:find("!map ") then
 				local cmdCounter = 0
+				local mapName
 				local modoptions = battleLobby:GetMyBattleModoptions()
 				for line in message:gmatch("[^\n]+") do
-					if line:starts("!bset ") then
+					if line:starts("!map ") then
+						mapName = line:match("^!map%s+(.+%S)%s*$")
+					elseif line:starts("!bset ") then
 						local key, value = line:match("^!bset%s+([%a_][%w_]*)%s+(.*%S)%s*$")
 						if key and value then
 							modoptions[key] = value
@@ -4655,10 +4658,16 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 						end
 					end
 				end
+				if mapName then
+					battleLobby:SelectMap(mapName)
+				end
 				if cmdCounter > 0 then
 					battleLobby:SetModOptions(modoptions)
+				end
+				if mapName or cmdCounter > 0 then
 					battleLobby:SayBattleEx(
 						"\255\128\128\255"..-- My Cool Blue™ (it purple)
+						(mapName and ('Map selected: "' .. mapName .. '". ') or "")..
 						"Applied: "..cmdCounter.." \"bset\" commands"
 					)
 				end
