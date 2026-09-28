@@ -4660,14 +4660,12 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 				end
 				if mapName then
 					battleLobby:SelectMap(mapName)
+					battleLobby:SayBattleEx("\255\128\128\255Map selected: \"" .. mapName .. "\"")
 				end
 				if cmdCounter > 0 then
 					battleLobby:SetModOptions(modoptions)
-				end
-				if mapName or cmdCounter > 0 then
 					battleLobby:SayBattleEx(
 						"\255\128\128\255"..-- My Cool Blue™ (it purple)
-						(mapName and ('Map selected: "' .. mapName .. '". ') or "")..
 						"Applied: "..cmdCounter.." \"bset\" commands"
 					)
 				end
