@@ -511,7 +511,7 @@ local function GetUserComboBoxOptions(userName, isInBattle, control, showTeamCol
 	local isBoss = bs.isBoss or false
 	local bossed = info.battleID and control.lobby.battles[info.battleID] and control.lobby.battles[info.battleID].bossed
 	local validEngine = info.battleID and control.lobby.battles[info.battleID] and (Configuration.displayBadEngines2 or Configuration:IsValidEngineVersion(control.lobby.battles[info.battleID].engineVersion))
-	if control.lobby == lobby and info.isFriend and info.accountID and not (itsme or bs.aiLib or info.isBot) then
+	if control.isFriendList and info.isFriend and info.accountID then
 		comboOptions[#comboOptions + 1] = Configuration:IsFriendPinned(info.accountID) and "Unpin Friend" or "Pin Friend to Top"
 	end
 
@@ -919,10 +919,10 @@ local function GetFriendNotePreview(note, font, maxWidth)
 	return ""
 end
 
-local function UpdateFriendPinStatus(userName, userControls)
+local function UpdateFriendFooter(userName, userControls)
 	-- This friend-card footer shows either or both of the pin and existing local player note.
 	-- Activity updates refresh note edits; configuration changes refresh pins.
-	local label = userControls.lblFriendPin
+	local label = userControls.friendFooter
 	if not label then
 		return
 	end
@@ -946,7 +946,7 @@ end
 local function UpdateUserActivitySingleList(userList, userName, status)
 	local userControls = userList[userName]
 	if userControls then
-		UpdateFriendPinStatus(userName, userControls)
+		UpdateFriendFooter(userName, userControls)
 		userControls.mainControl.items = GetUserComboBoxOptions(userName, userControls.isInBattle, userControls,
 																userControls.imTeamColor ~= nil, userControls.imSide ~= nil)
 		if userControls.imLevel then
@@ -1435,6 +1435,7 @@ local function GetUserControls(userName, opts)
 	userControls.colorizeFriends    = opts.colorizeFriends or false
 	userControls.partyStatus        = opts.partyStatus
 	userControls.showPartyStatus    = opts.showPartyStatus
+	userControls.isFriendList       = opts.isFriendList
 	userControls.useSnapshotSkill   = opts.useSnapshotSkill or false
 	userControls.tooltipBattle      = opts.tooltipBattle
 
@@ -2134,8 +2135,8 @@ local function GetUserControls(userName, opts)
 		end
 	end
 
-	if opts.showFriendPin then
-		userControls.lblFriendPin = Label:New {
+	if opts.isFriendList then
+		userControls.friendFooter = Label:New {
 			x = 5,
 			bottom = 1,
 			width = 100,
@@ -2144,12 +2145,12 @@ local function GetUserControls(userName, opts)
 			objectOverrideFont = Configuration:GetFont(10, "friend_pin", {color = {1, 0.8, 0.35, 1}}, true),
 			parent = userControls.mainControl,
 		}
-		UpdateFriendPinStatus(userName, userControls)
+		UpdateFriendFooter(userName, userControls)
 		if not reinitialize then
 			-- Cached controls retain callbacks when rebuilt; register the resize handler only once.
 			userControls.mainControl.OnResize = userControls.mainControl.OnResize or {}
 			userControls.mainControl.OnResize[#userControls.mainControl.OnResize + 1] = function()
-				UpdateFriendPinStatus(userName, userControls)
+				UpdateFriendFooter(userName, userControls)
 			end
 		end
 	end
@@ -2182,9 +2183,9 @@ local function GetUserControls(userName, opts)
 	end
 
 	local function OnConfigurationChange(listener, key, value)
-		if key == "pinnedFriends" then
+		if key == "pinnedFriends" and userControls.isFriendList then
 			userControls.mainControl.items = GetUserComboBoxOptions(userName, isInBattle, userControls, showTeamColor, showSide)
-			UpdateFriendPinStatus(userName, userControls)
+			UpdateFriendFooter(userName, userControls)
 		elseif key == "showCountry" and userControls.showCountry then
 			UpdateUserBattleStatus(_, userName)
 		elseif key == "showRank" and userControls.showRank then
@@ -2462,7 +2463,7 @@ function userHandler.GetFriendUser(userName)
 		return nil
 	end
 	return _GetUser(friendUsers, userName, {
-		showFriendPin    = true,
+		isFriendList     = true,
 		large            = true,
 		hideStatusAway   = true,
 		hideStatusIngame = true,
