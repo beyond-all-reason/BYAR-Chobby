@@ -3923,6 +3923,174 @@ local function SetupSpadsStatusPanel(battle, battleID)
 	freezeSettings = false
 end
 
+local function SetupSplitLobbyPanel(splitLobbyPanel)
+	local height = splitLobbyPanel.clientHeight
+	local config = WG.Chobby.Configuration
+	local offset = 0
+	local panelId = 0
+
+	local activePanel = Control:New {
+		name = 'activePanel',
+		x = 0,
+		y = 0,
+		right = 0,
+		bottom = 0,
+		padding = {0, 0, 0, 0},
+		parent = splitLobbyPanel,
+	}
+
+	local btnFollow = Button:New {
+		name = 'btnFollow',
+		x = 0,
+		y = 0,
+		bottom = 0,
+		width = height,
+		caption = "",
+		noFont = true,
+		classname = "positive_button",
+		tooltip = "Follow player to lobby",
+		padding = {10,10,10,10},
+		children = {
+			Image:New {
+				name = 'buttonYes',
+				x = 0,
+				y = 0,
+				right = 0,
+				bottom = 0,
+				autosize = true,
+				file = IMG_READY,
+			}
+		},
+		parent = activePanel,
+	}
+
+	offset = offset + height
+
+	local btnStay = Button:New {
+		name = 'btnStay',
+		x = offset,
+		y = 0,
+		bottom = 0,
+		width = height,
+		caption = "",
+		noFont = true,
+		classname = "negative_button",
+		tooltip = "Stay in lobby",
+		padding = {10,10,10,10},
+		children = {
+			Image:New {
+				x = 0,
+				y = 0,
+				right = 0,
+				bottom = 0,
+				file = IMG_UNREADY,
+			}
+		},
+		parent = activePanel,
+	}
+
+	offset = offset + height + 2
+
+	local splitLobbyPanelTitle = Label:New {
+		name ='splitLobbyPanelTitle',
+		x = offset,
+		y = 4,
+		width = 50,
+		bottom = height * 0.4,
+		objectOverrideFont = config:GetFont(2),
+		caption = "follow split leader",
+		parent = activePanel,
+	}
+
+	activePanel:SetVisibility(false)
+
+	local function DisplayPanel(splitLeader)
+		splitLobbyPanelTitle:SetCaption(
+			splitLeader .. " wants to split the lobby.\nFollow them?"
+		)
+		if spadsStatusPanel then
+			spadsStatusPanel:SetVisibility(false)
+		end
+		activePanel:SetVisibility(true)
+	end
+
+	local function ClosePanel(listener)
+		-- Invalidates any pending timeout events caused by SPLIT_TIMEOUT
+		panelId = panelId + 1
+		splitLobbyPanelTitle:SetCaption("")
+		activePanel:SetVisibility(false)
+		if barManagerPresent and spadsStatusPanel then
+			spadsStatusPanel:SetVisibility(true)
+		end
+		if WG.BattleRoomChatInput then
+			screen0:FocusControl(WG.BattleRoomChatInput)
+		end
+		battleLobby:RemoveListener("OnSaidBattleEx", listener)
+	end
+
+	local function OnSplitLobbyServerMessage(listener, userName, message)
+		local sender = battleLobby.users[userName]
+		local isServer = (userName == "Coordinator") or (sender and sender.isBot)
+
+		-- prevent spoofing
+		if not isServer then return end
+
+		-- Check for server cancellation, split timeouts or completions
+		if string.match(message, "^Split failed") or
+			string.match(message, "^Split completed.$") or
+			string.match(message, "^Splitting lobby")
+		then
+			ClosePanel(OnSplitLobbyServerMessage)
+		end
+	end
+
+	btnFollow.OnClick = {
+		function()
+			battleLobby:SayBattle("$y")
+			ClosePanel(OnSplitLobbyServerMessage)
+		end
+	}
+
+	btnStay.OnClick = {
+		function()
+			battleLobby:SayBattle("$n")
+			ClosePanel(OnSplitLobbyServerMessage)
+		end
+	}
+
+	local externalFunctions = {}
+
+	function externalFunctions.OnSplitLobby(splitLeader)
+		if battleLobby.name == "singleplayer" then return end
+
+		-- Teiserver allows 60 seconds for a split lobby sequence after which it
+		-- terminates it and broadcasts a notification message
+		local SPLIT_TIMEOUT = 60 - 2
+
+		-- Make sure the only splitLobbyPanel we close is this one
+		panelId = panelId + 1
+		local currentPanelId = panelId
+
+		DisplayPanel(splitLeader)
+		battleLobby:AddListener("OnSaidBattleEx", OnSplitLobbyServerMessage)
+
+		WG.Delay(
+			function()
+				if currentPanelId == panelId then
+					ClosePanel(OnSplitLobbyServerMessage)
+				end
+			end,
+			SPLIT_TIMEOUT
+		)
+	end
+
+	function externalFunctions.Dispose()
+		ClosePanel(OnSplitLobbyServerMessage)
+	end
+
+	return externalFunctions
+end
+
 local function InitializeSetupPage(subPanel, screenHeight, pageConfig, nextPage, prevPage, selectedOptions, ApplyFunction)
 	local Configuration = WG.Chobby.Configuration
 
@@ -4430,9 +4598,19 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		parent = topPanel,
 	}
 
-
-
 	local votePanel = SetupVotePanel(votePanel)
+
+	local splitLobbyPanel = Control:New {
+		name = 'splitLobbyPanel',
+		x = 0,
+		right = "33%",
+		bottom = 0,
+		height = BOTTOM_SPACING,
+		padding = {EXTERNAL_PAD_HOR, INTERNAL_PAD, 1, INTERNAL_PAD},
+		parent = topPanel,
+	}
+
+	local splitLobbyHandler = SetupSplitLobbyPanel(splitLobbyPanel)
 
 	local leftInfo = Control:New {
 		name = 'leftInfo',
@@ -5171,6 +5349,14 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		if string.match(message, "^!ring .*") then return true end
 
 		if string.match(message, "^!endvote$") then return true end
+
+		if string.match(message, "^%$splitlobby$")
+			or string.match(message, "^%$splitlobby .*$") then
+			-- This function should not run for the user that executed the
+			-- $splitlobby command which is already handled for us above
+			splitLobbyHandler.OnSplitLobby(userName)
+			return false -- is there a reason to hide the command from the splitLeader?
+		end
 	end
 
 
@@ -5526,6 +5712,7 @@ local function InitializeControls(battleID, oldLobby, topPoportion, setupData)
 		WG.BattleRoomInlineProgress = nil
 		AddLocalBattleWarning = nil
 		reportedStartboxDecodeFailures = {}
+		splitLobbyHandler.Dispose()
 	end
 
 	mainWindow.OnDispose = mainWindow.OnDispose or {}
