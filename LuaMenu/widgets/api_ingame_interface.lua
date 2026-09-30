@@ -242,6 +242,18 @@ function widget:RecvLuaMsg(msg)
 	end
 end
 
+-- Garbage collector budget of the menu's Lua state. While a game runs the lobby only processes
+-- server traffic, but the engine still hands it its full per-frame collection budget (the same as
+-- LuaUI's), so keep it small during a game and restore the configured budget when the lobby is
+-- back in front. The state's own garbage is still collected within the small budget.
+local GC_INGAME_BUDGET_MS = 0.1
+
+local function SetGarbageCollectorBudget(ms)
+	if Spring.GarbageCollectCtrl then
+		Spring.GarbageCollectCtrl(nil, nil, nil, nil, nil, nil, ms)
+	end
+end
+
 function widget:ActivateMenu()
 	local Chobby = WG.Chobby
 	local interfaceRoot = Chobby and Chobby.interfaceRoot
@@ -253,9 +265,12 @@ function widget:ActivateMenu()
 
 	-- Re-enforce minimum nano-particle budget on return-from-game. (fix for older game versions)
 	Spring.SetConfigInt("MaxNanoParticles", math.max(Spring.GetConfigInt("MaxNanoParticles", 0), 5000))
+
+	SetGarbageCollectorBudget(Spring.GetConfigFloat("LuaGarbageCollectionRunTimeMult", 1))
 end
 
 function widget:ActivateGame()
+	SetGarbageCollectorBudget(GC_INGAME_BUDGET_MS)
 end
 
 function widget:Initialize()
