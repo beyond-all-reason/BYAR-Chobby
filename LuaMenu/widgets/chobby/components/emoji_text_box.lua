@@ -15,6 +15,7 @@ EmojiTextBox = TextBox:Inherit{
 	emojiInlinePadding = 2,
 	lines = {},
 	physicalLines = {},
+	drawcontrolv2 = true,
 }
 
 local this = EmojiTextBox
