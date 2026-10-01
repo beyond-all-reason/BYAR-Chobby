@@ -414,14 +414,6 @@ function Configuration:init()
 		self.saneCharacters[saneCharacterList[i]] = true
 	end
 
-	local engineSaneCharacterList = {
-		"-", ".", " ",
-	}
-	self.engineSaneCharacters = {}
-	for i = 1, #engineSaneCharacterList do
-		self.engineSaneCharacters[engineSaneCharacterList[i]] = true
-	end
-
 	self.barMngSettings = {
 		autoBalance = true,
 		teamSize = true,
@@ -1115,26 +1107,6 @@ function Configuration:IsValidEngineVersion(engineVersion)
 	--Spring.Echo(" Spring.Utilities.GetEngineVersion() ",Spring.Utilities.GetEngineVersion() )
 	--Spring.Echo(" self:GetTruncatedEngineVersion()",self:GetTruncatedEngineVersion())
 	return validengine
-end
-
-function Configuration:SanitizeEngineVersion(engineVersion)
-	local ret = ""
-	local length = string.len(engineVersion)
-	for i = 1, length do
-		local c = string.sub(engineVersion, i, i)
-		if self.saneCharacters[c] or self.engineSaneCharacters[c] then
-			ret = ret .. c
-		end
-	end
-
-	local oldFormat = "(%d+)%.(%d+)%.(%d+)%-(%d+)%-g([%x][%x][%x][%x][%x][%x][%x])%s"
-	local newFormat = "(%d+)%.(%d+)%.(%d+)"
-	if not ret:match(oldFormat) and not ret:match(newFormat) then
-        Spring.Echo("Invalid engine version format: " .. engineVersion)
-		ret = ""
-    end
-
-	return ret
 end
 
 function Configuration:SanitizeName(name, usedNames)

@@ -185,24 +185,23 @@ local function haveEngineVersion(engineVersion)
 	return VFS.FileExists(GetEnginePath(engineVersion) .. "//" .. springExecutable)
 end
 
--- outcome example: https://github.com/beyond-all-reason/spring/releases/download/spring_bar_%7BBAR105%7D105.1.1-1354-g72b2d55/spring_bar_.BAR105.105.1.1-1354-g72b2d55_windows-64-minimal-portable.7z
--- new naming example :https://github.com/beyond-all-reason/spring/releases/download/2025.01.5/spring_bar_.rel2501.2025.01.5_linux-64-minimal-portable.7z
+-- Example output (new format):
+-- https://files-cdn.beyondallreason.dev/download?category=engine_linux64&springname=2025.01.6#.7z
+-- Example output (old format):
+-- https://files-cdn.beyondallreason.dev/download?category=engine_linux64&springname=105.1.1-1354-g72b2d55%20BAR105#.7z
 local function GetEngineDownloadUrl(engineVersion)
-	local sanitizedEngineVersion = WG.Chobby.Configuration:SanitizeEngineVersion(engineVersion)
-	local branch = sanitizedEngineVersion:match("%s([%w-.]*)") or ""
-	local pureVersion = sanitizedEngineVersion:gsub(" " .. branch, "")
-	local year, month = pureVersion:match("^%d%d(%d%d)%.(%d%d)")
-	local versionDir
-	if pureVersion:match("^2") then	--Handle new naming scheme
-		branch = "rel" .. year .. month
-		versionDir = pureVersion .. "/"
-	else	--Assume old naming scheme
-		versionDir = "spring_bar_%7B" .. branch .. "%7D" .. pureVersion .. "/"
-	end
-	local baseUrl = "https://github.com/beyond-all-reason/spring/releases/download/"
-	local platform64 = Platform.osFamily:lower() .. "-64"
-	local fileName = "spring_bar_." .. branch .. "." .. pureVersion .. "_" .. platform64 .. "-minimal-portable.7z"
-	return baseUrl .. versionDir .. fileName
+	local platform64 = Platform.osFamily:lower() .. "64"
+	local basename = "https://files-cdn.beyondallreason.dev/download"
+	local query = "category=" .. Spring.Utilities.EncodeURIComponent("engine_" .. platform64)
+		.. "&springname=" .. Spring.Utilities.EncodeURIComponent(engineVersion)
+
+	-- Fragment is used in a hackish way, spring-launcher expects the URL to end
+	-- in a archive format file extension (.7z, .zip). Because the new method of
+	-- downloading archives goes through BAR's CDN, the URL does not specify an
+	-- actual archive but does respond with one. Using the fragment solves the
+	-- issue, since it is ignored by HTTP servers but not ignored by
+	-- spring-launcher
+	return basename .. "?" .. query .. "#.7z"
 end
 
 -- gameList = nil
