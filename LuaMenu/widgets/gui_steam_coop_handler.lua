@@ -186,13 +186,14 @@ local function haveEngineVersion(engineVersion)
 end
 
 -- Example output (new format):
--- https://files-cdn.beyondallreason.dev/download?category=engine_linux64&springname=2025.01.6
+-- https://files-cdn.beyondallreason.dev/download?category=engine_linux64&springname=2025.01.6#.7z
 -- Example output (old format):
 -- https://files-cdn.beyondallreason.dev/download?category=engine_linux64&springname=105.1.1-1354-g72b2d55%20BAR105#.7z
 local function GetEngineDownloadUrl(engineVersion)
-	local sanitizedEngineVersion = WG.Chobby.Configuration:SanitizeEngineVersion(engineVersion)
 	local platform64 = Platform.osFamily:lower() .. "64"
 	local basename = "https://files-cdn.beyondallreason.dev/download"
+	local query = "category=" .. Spring.Utilities.EncodeURIComponent("engine_" .. platform64)
+		.. "&springname=" .. Spring.Utilities.EncodeURIComponent(engineVersion)
 
 	-- Fragment is used in a hackish way, spring-launcher expects the URL to end
 	-- in a archive format file extension (.7z, .zip). Because the new method of
@@ -200,8 +201,7 @@ local function GetEngineDownloadUrl(engineVersion)
 	-- actual archive but does respond with one. Using the fragment solves the
 	-- issue, since it is ignored by HTTP servers but not ignored by
 	-- spring-launcher
-	return basename .. "?category=engine_" .. platform64 ..
-		"&springname=" .. sanitizedEngineVersion .. "#.7z"
+	return basename .. "?" .. query .. "#.7z"
 end
 
 -- gameList = nil
