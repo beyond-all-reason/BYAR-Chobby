@@ -9,7 +9,22 @@ end
 -----------------------------
 
 function FriendListWindow:CompareItems(userName1, userName2)
-	return userName1:lower() < userName2:lower()
+	-- Requests share this list, but only current friends can enter the pinned group.
+	-- Both groups retain alphabetical order; online-only filtering still applies separately.
+	local configuration = WG.Chobby.Configuration
+	local user1 = lobby:GetUser(userName1)
+	local user2 = lobby:GetUser(userName2)
+	local pinned1 = user1 ~= nil and user1.isFriend == true and configuration:IsFriendPinned(user1.accountID)
+	local pinned2 = user2 ~= nil and user2.isFriend == true and configuration:IsFriendPinned(user2.accountID)
+	if pinned1 ~= pinned2 then
+		return pinned1
+	end
+	local lower1, lower2 = userName1:lower(), userName2:lower()
+	if lower1 == lower2 then
+		-- Keep the order deterministic for names that differ only in case.
+		return userName1 < userName2
+	end
+	return lower1 < lower2
 end
 
 function FriendListWindow:AddFriendRequest(userName)
@@ -109,6 +124,7 @@ function FriendListWindow:OnAddUser(userName)
 		if WG.Chobby.Configuration.friendsFilterOnline then
 			self:AddFriend(userInfo.userName)
 		end
+		self:RecalculateOrder(userInfo.userName)
 		if WG.Chobby.Configuration:AllowNotification(userName) then
 			local userControl = WG.UserHandler.GetNotificationUser(userName)
 			userControl:SetPos(30, 30, 250, 80)
@@ -168,6 +184,7 @@ end
 function FriendListWindow:OnUnfriendByID(userID, userName)
 -- 	interfaceRoot.GetRightPanelHandler().SetActivity("friends", lobby:GetFriendRequestCount())
 	self:RemoveRow(userName)
+	WG.Chobby.Configuration:SetFriendPinned(userID, false)
 end
 
 function FriendListWindow:OnFriendList(friends)
@@ -442,6 +459,9 @@ function FriendListWindow:init(parent)
 	local function onConfigurationChange(listener, key, value)
 		if key == "canAuthenticateWithSteam" then
 			self.btnSteamFriends:SetVisibility((lobby and lobby.status == "connected") and value)
+		elseif key == "pinnedFriends" then
+			-- Also handles saved settings loading after the list has been populated.
+			self:UpdateFilters()
 		elseif key == "friendsFilterOnline" then
 			-- user config is loaded after friend_list_window was initialized, so we toggle this checkbox accordingly when the config value arrives
 			if self.checkOnlineOnly.checked ~= value then
