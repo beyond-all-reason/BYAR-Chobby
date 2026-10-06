@@ -19,6 +19,15 @@ local welcomePanelItems = {
     },
 
     {
+        Header = "Get Ready for the Omega Series 5 Tournament",
+        Text = "The biggest and most important team tourney is back! Gather your team and join Omega Series 5th edition!" .. " \n" .. "Format: 5v5" .. " \n" .. "Date: 7th and 8th of November" .. " \n" .. "Prize pool so far: $1100" .. " \n" .. "Register by 5 Nov 2026, 13:00 GMT-7",
+        Image = "LuaMenu/images/welcomepanel/recurring_events/omegaseries.png",
+        Time = "2026-11-07T15:00:00", -- needs to be in UTC and is converted to user's local timezone, shows the time difference
+        Url = "https://apm.bar/tournaments/omega-series-5",
+        UrlText = "Register here",
+    },
+
+    {
         Header = "New Map: Pyroclast",
         Text = "A highly asymmetric battle fought amongst the debris of a volcanic eruption. Designed for PvE or 8v8. Made by Cinnamon18." .. " \n" .. " \n",
         Image = "LuaMenu/configs/gameConfig/byar/minimapOverride/Pyroclast_1.0.3.jpg",
