@@ -377,6 +377,8 @@ local function ApplySingleplayerSkirmishSetup(singleplayerDefault)
 	for i = 1, #aiNames do
 		battleLobby:RemoveAi(aiNames[i])
 	end
+	-- Empty teams opened manually have no player-removal event to close them.
+	playerHandler.RemoveEmptyTeams()
 
 	if singleplayerDefault.map then
 		battleLobby:SelectMap(singleplayerDefault.map)
@@ -3340,6 +3342,15 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 	}
 
 	local externalFunctions = {}
+
+	function externalFunctions.RemoveEmptyTeams()
+		for teamIndex, teamData in pairs(team) do
+			if teamIndex > 1 then
+				teamData.CheckRemoval()
+			end
+		end
+		PositionChildren(mainStackPanel, mainScrollPanel.height)
+	end
 
 	function externalFunctions.UpdateBattleMode(newDisallowCustomTeams, newDisallowBots)
 		disallowCustomTeams = newDisallowCustomTeams
