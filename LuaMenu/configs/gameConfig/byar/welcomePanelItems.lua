@@ -28,6 +28,13 @@ local welcomePanelItems = {
     },
 
     {
+        Header = "New: In-game Keybind Editor is here!",
+        Text = "Edit and manage your keybinds through a proper visual interface, available from the Keys panel in the top-right corner while in-game." .. " \n" .. " \n" .. "It also supports separate keybind profiles, so you can keep different setups or experiment without touching your main configuration." .. " \n" .. " \n" .. "Huge kudos to Harkenn for creating it!" .. " \n" .. " \n",
+        Url = "https://www.beyondallreason.info/microblogs/204",
+        UrlText = "Read more",
+    },
+
+    {
         Header = "New Map: Pyroclast",
         Text = "A highly asymmetric battle fought amongst the debris of a volcanic eruption. Designed for PvE or 8v8. Made by Cinnamon18." .. " \n" .. " \n",
         Image = "LuaMenu/configs/gameConfig/byar/minimapOverride/Pyroclast_1.0.3.jpg",
