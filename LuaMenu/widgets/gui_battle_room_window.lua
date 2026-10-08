@@ -416,8 +416,8 @@ local function ApplySingleplayerSkirmishSetup(singleplayerDefault)
 		if not infoHandler then
 			return
 		end
-		infoHandler.RemoveStartRect()
 		if singleplayerDefault.startboxes then
+			infoHandler.RemoveStartRect()
 			for allyNo, box in pairs(singleplayerDefault.startboxes) do
 				infoHandler.AddStartRect(allyNo, box[1], box[2], box[3], box[4])
 			end
@@ -2068,8 +2068,6 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		-- it doesnt even know how big it is right nowhere
 		-- Spring.Utilities.TraceFullEcho()
 
-		startRectValues[allyNo+1]={["left"]=left, ["top"]=top, ["right"]=right, ["bottom"]=bottom}
-
 		if polygonStartboxesActive then
 			externalFunctions.RemovePolygonOverlays()
 		end
@@ -2081,6 +2079,8 @@ local function SetupInfoButtonsPanel(leftInfo, rightInfo, battle, battleID, myUs
 		local ow = math.floor(minimapPanel.width * (right-left) / 200)
 		local oh = math.floor(minimapPanel.height * (bottom-top) / 200)
 		if currentStartRects[allyNo+1] then externalFunctions.RemoveStartRect(allyNo) end
+		-- Removing the old window also clears its coordinates used when launching.
+		startRectValues[allyNo+1]={["left"]=left, ["top"]=top, ["right"]=right, ["bottom"]=bottom}
 		local newStartRect = Window:New {
 			name = 'newStartRect'..tostring(allyNo + 1),
 
