@@ -305,6 +305,13 @@ local function BuildRandomSkirmishSetup()
 
 	local picked = validMaps[math.random(1, #validMaps)]
 	local teamCount = picked.teamCount
+	local mapStartBoxes = WG.Chobby.Configuration.gameConfig and WG.Chobby.Configuration.gameConfig.mapStartBoxes
+	local selectedBoxes
+	if mapStartBoxes and mapStartBoxes.savedBoxes and mapStartBoxes.selectStartBoxesForAllyTeamCount then
+		selectedBoxes = mapStartBoxes.selectStartBoxesForAllyTeamCount(mapStartBoxes.savedBoxes[picked.map], teamCount)
+	end
+	-- Match the available start boxes, including the two-box fallback.
+	teamCount = math.min(teamCount, selectedBoxes and #selectedBoxes or 2)
 	local playersPerTeam = math.max(1, math.floor((picked.playerCount / teamCount) + 0.5))
 
 	local setup = {
@@ -336,10 +343,7 @@ local function BuildRandomSkirmishSetup()
 		end
 	end
 
-	local mapStartBoxes = WG.Chobby.Configuration.gameConfig and WG.Chobby.Configuration.gameConfig.mapStartBoxes
 	if mapStartBoxes and mapStartBoxes.savedBoxes and mapStartBoxes.selectStartBoxesForAllyTeamCount then
-		local allBoxes = mapStartBoxes.savedBoxes[setup.map]
-		local selectedBoxes = mapStartBoxes.selectStartBoxesForAllyTeamCount(allBoxes, setup.teamCount)
 		if selectedBoxes then
 			setup.startboxes = {}
 			for i = 1, setup.teamCount do
