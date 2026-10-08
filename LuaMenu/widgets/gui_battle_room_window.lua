@@ -377,6 +377,7 @@ local function ApplySingleplayerSkirmishSetup(singleplayerDefault)
 	for i = 1, #aiNames do
 		battleLobby:RemoveAi(aiNames[i])
 	end
+	ApplyTeamCount(singleplayerDefault.teamCount)
 	-- Empty teams opened manually have no player-removal event to close them.
 	playerHandler.RemoveEmptyTeams()
 
