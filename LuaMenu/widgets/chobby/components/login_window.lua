@@ -733,8 +733,7 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 	recoverChildren[#recoverChildren+1] = Line:New{x=5,y=505,right=5, height = 1}
 
 ---------------------------DELETE ACCOUNT--------------------------------
---Fix the link and uncomment this when the function is added to server.
---[[ 	self.txtDeleteAccount = TextBox:New {
+ 	self.txtDeleteAccount = TextBox:New {
 		x = pad + formw * 0 ,
 		y = 515 ,
 		width =   520 ,
@@ -751,17 +750,17 @@ function LoginWindow:init(failFunction, cancelText, windowClassname, params)
 		width =   formw * 3 ,
 		height =  formh * 2 ,
 		caption = i18n("delete_account"),
-		tooltip = "Opens a link to https://server4.beyondallreason.info/teiserver/account/security in your browser.",
+		tooltip = "Opens a link to https://server4.beyondallreason.info/account/gdpr-self-service in your browser.",
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		classname = "negative_button",
 		OnClick = {
 			function()
-				WG.BrowserHandler.OpenUrl("https://server4.beyondallreason.info/teiserver/account/security")
+				WG.BrowserHandler.OpenUrl("https://server4.beyondallreason.info/account/gdpr-self-service")
 			end
 		},
 	}
 	recoverChildren[#recoverChildren+1] = self.btnDeleteAccount
-	recoverChildren[#recoverChildren+1] = Line:New{x=5,y=585,right=5, height = 1} ]]
+	recoverChildren[#recoverChildren+1] = Line:New{x=5,y=585,right=5, height = 1}
 
 	self.txtContactUs = TextBox:New {
 		x = pad + formw * 0 ,
