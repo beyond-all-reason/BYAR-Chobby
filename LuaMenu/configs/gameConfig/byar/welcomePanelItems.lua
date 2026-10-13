@@ -28,6 +28,13 @@ local welcomePanelItems = {
     },
 
     {
+        Header = "Important Notice to Custom Widget makers and users",
+        Text = "With the new Plugins tab we're now more officially supporting community-made widgets. To keep every widget you install safe and unable to run malicious code on your system, user widgets will run in a sandbox starting with the next release." .. " \n" .. " \n" .. "Players: some of your widgets may stop working until their authors update them. If one breaks, check with its creator for a new version. Built-in widgets are not affected." .. " \n" .. " \n" .. "Widget creators: please review the changes and update your widgets. Migration guides are linked in the post." .. " \n",
+        Url = "https://server4.beyondallreason.info/microblog/show/205",
+        UrlText = "Read the details",
+    },
+
+    {
         Header = "New: In-game Keybind Editor is here!",
         Text = "Edit and manage your keybinds through a proper visual interface, available from the Keys panel in the top-right corner while in-game." .. " \n" .. " \n" .. "It also supports separate keybind profiles, so you can keep different setups or experiment without touching your main configuration." .. " \n" .. " \n" .. "Huge kudos to Harkenn for creating it!" .. " \n" .. " \n",
         Url = "https://www.beyondallreason.info/microblogs/204",
