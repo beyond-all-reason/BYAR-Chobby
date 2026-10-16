@@ -28,9 +28,16 @@ local welcomePanelItems = {
     },
 
     {
+        Header = "Code of Conduct Update: Spec Cheating, Coaching & Stream Chat",
+        Text = "We've updated Code of Conduct rule B.5 to clarify what counts as spectator cheating, and what's fine when coaching or streaming. Read the full update to see what changed." .. " \n",
+        Url = "https://www.beyondallreason.info/microblogs/207",
+        UrlText = "Read the full update",
+    },
+
+    {
         Header = "Important Notice to Custom Widget makers and users",
         Text = "With the new Plugins tab we're now more officially supporting community-made widgets. To keep every widget you install safe and unable to run malicious code on your system, user widgets will run in a sandbox starting with the next release." .. " \n" .. " \n" .. "Players: some of your widgets may stop working until their authors update them. If one breaks, check with its creator for a new version. Built-in widgets are not affected." .. " \n" .. " \n" .. "Widget creators: please review the changes and update your widgets. Migration guides are linked in the post." .. " \n",
-        Url = "https://server4.beyondallreason.info/microblog/show/205",
+        Url = "https://www.beyondallreason.info/microblogs/205",
         UrlText = "Read the details",
     },
 
@@ -54,13 +61,6 @@ local welcomePanelItems = {
     },
 
     {
-        Header = "July Balance Patch is Live!",
-        Text = "The July balance patch introduces three major focus areas: an Anti-Air overhaul that buffs weaker AA turrets while toning down T2 fighters, medium tank nerfs (Stout, Brute, Rover, Pounder) to diversify open-map strategies, and buffs to underused T2 bruisers (Welder, Sumo)." .. " \n" .. " \n" .. "Also included: Gauss weapon consistency buffs, seaplane gunship tuning, and a new \"Slow Commander Transport\" modoption that caps T2 transports carrying Commanders at speed 120." .. " \n" .. " \n",
-        Url = "https://www.beyondallreason.info/microblogs/194",
-        UrlText = "Read the patch notes",
-    },
-
-    {
         Header = "BAR & Hooded Horse: A New Chapter",
         Text = "After almost seven years of development, BAR is going professional and teaming up with Hooded Horse, one of the most respected publishers in the strategy space, to bring the game to a full Steam release." .. " \n" .. " \n" .. "Multiplayer stays free forever on the website. A paid Premium Edition on Steam will add a single-player campaign, with the same multiplayer playable across both versions." .. " \n" .. " \n" .. "Read the full announcement for all the details.",
         Image = "LuaMenu/images/welcomepanel/hoodedhorse.png",
@@ -74,21 +74,6 @@ local welcomePanelItems = {
         Image = "LuaMenu/images/welcomepanel/overwatch.png",
         Url = "https://discord.com/channels/549281623154229250/1097438343861649458",
         UrlText = "Sign Up for Overwatch",
-    },
-
-    {
-        Header = "This Month in BAR - April/May 2026",
-        Text = "New visual effects, gameplay changes, and balance updates are here! GL4 visual overhaul brings build particles, death fire, beam lasers, plasma projectiles, missile trails, shield effects, bloom and more!" .. " \n" .. " \n" .. "EasyTax 2.0 overhauls resource sharing. New UI widgets, PiP improvements, ETA timers for reclaim/resurrect, and 4 new music tracks round out the update." .. " \n" .. " \n",
-        Url = "https://www.beyondallreason.info/microblogs/184",
-        UrlText = "Read the devlog",
-    },
-
-    {
-        Header = "The BAR Documentary is Here!",
-        Text = "From community roots to modern RTS ambition, this is the story of Beyond All Reason, featuring the one and only Chris Taylor." .. " \n" .. " \n" .. "Hear from BAR devs as they look back at the project's history, share where it stands today, and talk about where it's heading next. Go behind the scenes, with the journey put into context by the man who started it all." .. " \n" .. " \n" .. "Huge thanks to Fortress Sydney and the Source Code crew for making this possible!" .. " \n" .. " \n",
-        Image = "LuaMenu/images/welcomepanel/sourcecode_documentary.png",
-        Url = "https://www.youtube.com/watch?v=5F36yViPz7w",
-        UrlText = "Watch the Documentary",
     },
 
     --{
