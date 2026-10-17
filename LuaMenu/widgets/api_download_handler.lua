@@ -126,12 +126,22 @@ local function DownloadSortFunc(a, b)
 	return a.priority > b.priority or (a.priority == b.priority and a.id < b.id)
 end
 
+local function GetVisibleDownloads(downloadList)
+	local visibleDownloads = {}
+	for i = 1, #downloadList do
+		if not downloadList[i].hidden then
+			visibleDownloads[#visibleDownloads + 1] = downloadList[i]
+		end
+	end
+	return visibleDownloads
+end
+
 
 local function DownloadQueueUpdate()
 	requestUpdate = false
 
 	if #downloadQueue == 0 then
-		CallListeners("DownloadQueueUpdate", downloadQueue, removedDownloads)
+		CallListeners("DownloadQueueUpdate", downloadQueue, GetVisibleDownloads(removedDownloads))
 		return
 	end
 	table.sort(downloadQueue, DownloadSortFunc)
@@ -181,13 +191,7 @@ local function DownloadQueueUpdate()
 	end
 
 	-- Build filtered queues that exclude hidden items for UI listeners
-	local visibleQueue = {}
-	for i = 1, #downloadQueue do
-		if not downloadQueue[i].hidden then
-			visibleQueue[#visibleQueue + 1] = downloadQueue[i]
-		end
-	end
-	CallListeners("DownloadQueueUpdate", visibleQueue, removedDownloads)
+	CallListeners("DownloadQueueUpdate", GetVisibleDownloads(downloadQueue), GetVisibleDownloads(removedDownloads))
 end
 
 local function GetDownloadIndex(downloadList, name, fileType)
@@ -401,7 +405,7 @@ function externalFunctions.MaybeDownloadArchive(name, archiveType, priority, res
 end
 
 function externalFunctions.GetDownloadQueue()
-	return downloadQueue, removedDownloads
+	return GetVisibleDownloads(downloadQueue), GetVisibleDownloads(removedDownloads)
 end
 
 --------------------------------------------------------------------------------
@@ -410,7 +414,11 @@ end
 
 function wrapperFunctions.DownloadFinished(name, fileType, success, aborted)
 	fileType = fileType and reverseTypeMap[fileType]
+	local hidden = false
 	if fileType then
+		local index = GetDownloadIndex(downloadQueue, name, fileType)
+		hidden = index and downloadQueue[index].hidden
+
 		if (fileType == 'RAPID' or fileType == 'game') and SaveLobbyVersionGZPath then
 			RestoreVersionGZ(SaveLobbyVersionGZPath)
 		end
@@ -424,7 +432,7 @@ function wrapperFunctions.DownloadFinished(name, fileType, success, aborted)
 		RemoveDownload(name, fileType, true, (aborted and "cancel") or (success and "success") or "fail")
 	end
 
-	if not success then
+	if not success and not hidden then
 		Chotify:Post({
 			title = i18n("download_failed"),
 			body = (name or "???") .. " of type " .. (fileType or "???"),
