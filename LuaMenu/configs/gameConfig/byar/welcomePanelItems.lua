@@ -35,6 +35,14 @@ local welcomePanelItems = {
     },
 
     {
+        Header = "Help Keep BAR Clean - Join the Overwatch Team!",
+        Text = "As BAR grows, so does the need for solid community moderation. We're looking for reliable, level-headed players to join the Overwatch Team—a trusted group that helps review reports, flag issues, and keep things fair.".." \n".." \n".."If you're active and care about a respectful game space, we'd love your help!".." \n".." \n",
+        Image = "LuaMenu/images/welcomepanel/overwatch.png",
+        Url = "https://discord.com/channels/549281623154229250/1097438343861649458",
+        UrlText = "Sign Up for Overwatch",
+    },
+
+    {
         Header = "Important Notice to Custom Widget makers and users",
         Text = "With the new Plugins tab we're now more officially supporting community-made widgets. To keep every widget you install safe and unable to run malicious code on your system, user widgets will run in a sandbox starting with the next release." .. " \n" .. " \n" .. "Players: some of your widgets may stop working until their authors update them. If one breaks, check with its creator for a new version. Built-in widgets are not affected." .. " \n" .. " \n" .. "Widget creators: please review the changes and update your widgets. Migration guides are linked in the post." .. " \n",
         Url = "https://www.beyondallreason.info/microblogs/205",
@@ -66,14 +74,6 @@ local welcomePanelItems = {
         Image = "LuaMenu/images/welcomepanel/hoodedhorse.png",
         Url = "https://www.beyondallreason.info/news/beyond-all-reason-and-hooded-horse",
         UrlText = "Read the Announcement",
-    },
-
-    {
-        Header = "Help Keep BAR Clean - Join the Overwatch Team!",
-        Text = "As BAR grows, so does the need for solid community moderation. We're looking for reliable, level-headed players to join the Overwatch Team—a trusted group that helps review reports, flag issues, and keep things fair.".." \n".." \n".."If you're active and care about a respectful game space, we'd love your help!".." \n".." \n",
-        Image = "LuaMenu/images/welcomepanel/overwatch.png",
-        Url = "https://discord.com/channels/549281623154229250/1097438343861649458",
-        UrlText = "Sign Up for Overwatch",
     },
 
     --{
