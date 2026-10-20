@@ -1896,7 +1896,7 @@ function BattleListWindow:OpenHostWindow()
 			local function delayedWatchRooms()
 				if trytime < 1 then
 					lobby:RemoveListener("OnSaidPrivate", listenForPrivateBattle)
-					errorLabel:SetCaption("Unable to spin up a private battle right now. Try a different region.")
+					errorLabel:SetCaption("Unable to spin up a private battle right now.\nTry a different region.")
 					return
 				end
 				local myplayername = lobby:GetMyUserName() or ''
@@ -1947,7 +1947,7 @@ function BattleListWindow:OpenHostWindow()
 				trytime = trytime -1
 			end
 
-			for i=1, trytime do -- poll every sec for success
+			for i=1, trytime + 1 do -- poll every sec for success, the extra check reports the timeout
 				WG.Delay(delayedWatchRooms, i)
 			end
 
