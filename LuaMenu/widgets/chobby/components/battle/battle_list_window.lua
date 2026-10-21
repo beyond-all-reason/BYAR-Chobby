@@ -1642,6 +1642,11 @@ end
 
 
 
+-- Password of the private instance each cluster manager started for us. A manager sends it once,
+-- when it launches the instance, and answers any later !privatehost with "There is already a
+-- private host created for you", so a retry or a reopened window has to reuse it.
+local privateHostPasswords = {}
+
 function BattleListWindow:OpenHostWindow()
 	-- Enumerate all known clusters and their number of children
 	local regions = {'EU','US','AU','EA'}
@@ -1861,11 +1866,12 @@ function BattleListWindow:OpenHostWindow()
 		parent = hostBattleWindow,
 	}
 
+	local activeAttempt
+
 	local function CancelFunc()
+		activeAttempt = nil
 		hostBattleWindow:Dispose()
 	end
-
-	local activeAttempt
 
 	local function HostBattle()
 		local attempt = {}
@@ -1880,13 +1886,12 @@ function BattleListWindow:OpenHostWindow()
 		local targetCluster, errmsg = TryGetRegion(requestedregion)
 
 		if userWantsPrivateBattle then
-			local mypassword = ""
 			local function listenForPrivateBattle(listener, userName, message, msgDate)
 				--Spring.Echo("listenForPrivateBattle",listener, userName, message, msgDate)
 				if userName == targetCluster and string.find(message,"Starting a new private instance in", nil, true) then
 					local pwindex = string.find(message,"password=", nil, true)
-					mypassword = string.sub(message, pwindex + 9, pwindex + 9 + 3)
-					Spring.Echo("Got the password:", mypassword)
+					privateHostPasswords[targetCluster] = string.sub(message, pwindex + 9, pwindex + 9 + 3)
+					Spring.Echo("Got the password:", privateHostPasswords[targetCluster])
 				end
 			end
 			
@@ -1925,6 +1930,7 @@ function BattleListWindow:OpenHostWindow()
 				end
 				if myprivatebattleID ~= nil then
 					trytime = -1
+					local mypassword = privateHostPasswords[targetCluster] or ""
 
 					WG.BattleRoomWindow.LeaveBattle()
 					-- Configuration:SetConfigValue("lastGameSpectatorState", false) -- assume that private hoster wants to play, needed so he can boss self!
