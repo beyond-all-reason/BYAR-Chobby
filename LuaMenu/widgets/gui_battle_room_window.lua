@@ -2599,7 +2599,12 @@ local ARM_MASK = 2^0
 local COR_MASK = 2^1
 local LEG_MASK = 2^2
 local FULL_BITMASK = math.bit_or(ARM_MASK, COR_MASK, LEG_MASK)
-local function AddTeamButtons(parent, offX, joinFunc, aiFunc, unjoinable, disallowBots, allyTeam)
+local function SetAddAiAllowed(addAiButton, allowed)
+	addAiButton:SetEnabled(allowed)
+	addAiButton.tooltip = allowed and "Add an AI to the game" or "Join a team to add an AI"
+end
+
+local function AddTeamButtons(parent, offX, joinFunc, aiFunc, unjoinable, disallowBots, allyTeam, canAddAi)
 	if not disallowBots then
 		local addAiButton = Button:New {
 			name = "addAiButton",
@@ -2609,11 +2614,17 @@ local function AddTeamButtons(parent, offX, joinFunc, aiFunc, unjoinable, disall
 			width = 95,
 			objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 			caption = i18n("add_ai") .. "\b",
-			OnClick = {aiFunc},
+			OnClick = {
+				function(obj, ...)
+					if obj.state.enabled then
+						aiFunc(obj, ...)
+					end
+				end
+			},
 			classname = "button_small",
 			parent = parent,
-			tooltip = "Add an AI to the game",
 		}
+		SetAddAiAllowed(addAiButton, canAddAi)
 		offX = offX + 95
 	end
 	if not unjoinable then
@@ -2891,6 +2902,13 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 	local disallowCustomTeams = battle.disallowCustomTeams
 	local disallowBots = battle.disallowBots
 
+	-- Teiserver silently drops ADDBOT from spectators unless they founded the battle
+	local function CanAddAi()
+		return battleLobby.name == "singleplayer"
+			or not battleLobby:GetMyIsSpectator()
+			or battleLobby:GetMyUserName() == battle.founder
+	end
+
 	local mainScrollPanel = ScrollPanel:New {
 		name = 'mainScrollPanel',
 		x = 0,
@@ -3092,7 +3110,8 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 					end,
 					disallowCustomTeams and teamIndex ~= 0,
 					(disallowBots or disallowCustomTeams) and teamIndex ~= 1,
-					teamIndex
+					teamIndex,
+					CanAddAi()
 				)
 			end
 			local teamStack = Control:New {
@@ -3178,7 +3197,8 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 						end,
 						disallowCustomTeams and teamIndex ~= 0,
 						(disallowBots or disallowCustomTeams) and teamIndex ~= 1,
-						teamIndex
+						teamIndex,
+						CanAddAi()
 					)
 
 					if disallowCustomTeams then
@@ -3194,6 +3214,13 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 					end
 				end
 				label:SetCaption(humanName)
+			end
+
+			function teamData.UpdateAddAiButton()
+				local addAiButton = teamHolder:GetChildByName("addAiButton")
+				if addAiButton then
+					SetAddAiAllowed(addAiButton, CanAddAi())
+				end
 			end
 
 			function teamData.AddPlayer(name)
@@ -3386,6 +3413,12 @@ local function SetupPlayerPanel(playerParent, spectatorParent, battle, battleID)
 			RemovePlayerFromTeam(userName)
 		end
 		AddPlayerToTeam(teamNew, userName)
+
+		if userName == battleLobby:GetMyUserName() then
+			for _, teamData in pairs(team) do
+				teamData.UpdateAddAiButton()
+			end
+		end
 	end
 
 	function externalFunctions.LeftBattle(leftBattleID, userName)
