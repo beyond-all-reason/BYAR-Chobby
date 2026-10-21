@@ -1865,8 +1865,12 @@ function BattleListWindow:OpenHostWindow()
 		hostBattleWindow:Dispose()
 	end
 
+	local activeAttempt
+
 	local function HostBattle()
-		
+		local attempt = {}
+		activeAttempt = attempt
+
 		--Attempting to host game at
 		--local requestedregion = typeCombo.items[typeCombo.selected] ---self.hostRegions = {"DE","EU","EU2","US","AU"}
 		local regionStrings = {'Europe', 'North America', 'Australia', 'East Asia'} -- {'EU','US','AU','EA'}
@@ -1894,6 +1898,10 @@ function BattleListWindow:OpenHostWindow()
 			local trytime = 30
 
 			local function delayedWatchRooms()
+				if activeAttempt ~= attempt then -- a newer request has replaced this one
+					lobby:RemoveListener("OnSaidPrivate", listenForPrivateBattle)
+					return
+				end
 				if trytime < 1 then
 					lobby:RemoveListener("OnSaidPrivate", listenForPrivateBattle)
 					errorLabel:SetCaption("Unable to spin up a private battle right now.\nTry a different region.")
