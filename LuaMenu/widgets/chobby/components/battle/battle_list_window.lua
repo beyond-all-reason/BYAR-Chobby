@@ -1642,6 +1642,11 @@ end
 
 
 
+-- Password of the private instance each cluster manager started for us. A manager sends it once,
+-- when it launches the instance, and answers any later !privatehost with "There is already a
+-- private host created for you", so a retry or a reopened window has to reuse it.
+local privateHostPasswords = {}
+
 function BattleListWindow:OpenHostWindow()
 	-- Enumerate all known clusters and their number of children
 	local regions = {'EU','US','AU','EA'}
@@ -1861,12 +1866,17 @@ function BattleListWindow:OpenHostWindow()
 		parent = hostBattleWindow,
 	}
 
+	local activeAttempt
+
 	local function CancelFunc()
+		activeAttempt = nil
 		hostBattleWindow:Dispose()
 	end
 
 	local function HostBattle()
-		
+		local attempt = {}
+		activeAttempt = attempt
+
 		--Attempting to host game at
 		--local requestedregion = typeCombo.items[typeCombo.selected] ---self.hostRegions = {"DE","EU","EU2","US","AU"}
 		local regionStrings = {'Europe', 'North America', 'Australia', 'East Asia'} -- {'EU','US','AU','EA'}
@@ -1876,13 +1886,12 @@ function BattleListWindow:OpenHostWindow()
 		local targetCluster, errmsg = TryGetRegion(requestedregion)
 
 		if userWantsPrivateBattle then
-			local mypassword = ""
 			local function listenForPrivateBattle(listener, userName, message, msgDate)
 				--Spring.Echo("listenForPrivateBattle",listener, userName, message, msgDate)
 				if userName == targetCluster and string.find(message,"Starting a new private instance in", nil, true) then
 					local pwindex = string.find(message,"password=", nil, true)
-					mypassword = string.sub(message, pwindex + 9, pwindex + 9 + 3)
-					Spring.Echo("Got the password:", mypassword)
+					privateHostPasswords[targetCluster] = string.sub(message, pwindex + 9, pwindex + 9 + 3)
+					Spring.Echo("Got the password:", privateHostPasswords[targetCluster])
 				end
 			end
 			
@@ -1894,9 +1903,13 @@ function BattleListWindow:OpenHostWindow()
 			local trytime = 30
 
 			local function delayedWatchRooms()
+				if activeAttempt ~= attempt then -- a newer request has replaced this one
+					lobby:RemoveListener("OnSaidPrivate", listenForPrivateBattle)
+					return
+				end
 				if trytime < 1 then
 					lobby:RemoveListener("OnSaidPrivate", listenForPrivateBattle)
-					errorLabel:SetCaption("Unable to spin up a private battle right now. Try a different region.")
+					errorLabel:SetCaption("Unable to spin up a private battle right now.\nTry a different region.")
 					return
 				end
 				local myplayername = lobby:GetMyUserName() or ''
@@ -1917,6 +1930,7 @@ function BattleListWindow:OpenHostWindow()
 				end
 				if myprivatebattleID ~= nil then
 					trytime = -1
+					local mypassword = privateHostPasswords[targetCluster] or ""
 
 					WG.BattleRoomWindow.LeaveBattle()
 					-- Configuration:SetConfigValue("lastGameSpectatorState", false) -- assume that private hoster wants to play, needed so he can boss self!
@@ -1947,7 +1961,7 @@ function BattleListWindow:OpenHostWindow()
 				trytime = trytime -1
 			end
 
-			for i=1, trytime do -- poll every sec for success
+			for i=1, trytime + 1 do -- poll every sec for success, the extra check reports the timeout
 				WG.Delay(delayedWatchRooms, i)
 			end
 
