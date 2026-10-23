@@ -1642,10 +1642,34 @@ end
 
 
 
--- Password of the private instance each cluster manager started for us. A manager sends it once,
--- when it launches the instance, and answers any later !privatehost with "There is already a
--- private host created for you", so a retry or a reopened window has to reuse it.
-local privateHostPasswords = {}
+-- What each cluster manager has told us about the private instance it started for us. A manager
+-- sends the password once, when it launches the instance (which can be after the request gave up),
+-- and answers any later !privatehost with "There is already a private host created for you:
+-- <instance>", so both are recorded for the whole session by one listener.
+local privateHosts = {} -- [manager] = {instance = "Host[EU1][05]", password = "abcd"}
+local privateHostListener
+
+local function ListenForPrivateHosts()
+	if privateHostListener then
+		return
+	end
+	privateHostListener = function(listener, userName, message)
+		if not string.match(userName, '^Host%[%a+%d+%]$') then
+			return
+		end
+		local instance, password = string.match(message, "^Starting a new private instance in .- cluster %(name=(.-), password=(.-)%)")
+		if instance then
+			privateHosts[userName] = {instance = instance, password = password}
+			Spring.Echo("Private instance started", userName, instance)
+			return
+		end
+		instance = string.match(message, "^There is already a private host created for you: (%S+)")
+		if instance and not (privateHosts[userName] and privateHosts[userName].instance == instance) then
+			privateHosts[userName] = {instance = instance} -- an instance we never heard start: no password
+		end
+	end
+	lobby:AddListener("OnSaidPrivate", privateHostListener)
+end
 
 function BattleListWindow:OpenHostWindow()
 	-- Enumerate all known clusters and their number of children
@@ -1886,17 +1910,7 @@ function BattleListWindow:OpenHostWindow()
 		local targetCluster, errmsg = TryGetRegion(requestedregion)
 
 		if userWantsPrivateBattle then
-			local function listenForPrivateBattle(listener, userName, message, msgDate)
-				--Spring.Echo("listenForPrivateBattle",listener, userName, message, msgDate)
-				if userName == targetCluster and string.find(message,"Starting a new private instance in", nil, true) then
-					local pwindex = string.find(message,"password=", nil, true)
-					privateHostPasswords[targetCluster] = string.sub(message, pwindex + 9, pwindex + 9 + 3)
-					Spring.Echo("Got the password:", privateHostPasswords[targetCluster])
-				end
-			end
-			
-
-			lobby:AddListener("OnSaidPrivate", listenForPrivateBattle)
+			ListenForPrivateHosts()
 			lobby:SayPrivate(targetCluster, "!privatehost")
 			errorLabel:SetCaption("Please wait while we spin up a \nbattle room for you.")
 
@@ -1904,11 +1918,9 @@ function BattleListWindow:OpenHostWindow()
 
 			local function delayedWatchRooms()
 				if activeAttempt ~= attempt then -- a newer request has replaced this one
-					lobby:RemoveListener("OnSaidPrivate", listenForPrivateBattle)
 					return
 				end
 				if trytime < 1 then
-					lobby:RemoveListener("OnSaidPrivate", listenForPrivateBattle)
 					errorLabel:SetCaption("Unable to spin up a private battle right now.\nTry a different region.")
 					return
 				end
@@ -1921,21 +1933,30 @@ function BattleListWindow:OpenHostWindow()
 					table.insert(tmp, battle)
 				end
 				battles = tmp
+				-- Only a battle founded by the manager this request went to (by our own instance once the
+				-- manager has named it): a retry can go to another manager in the same region, and another
+				-- player's title can start with our name.
+				local known = privateHosts[targetCluster]
 				for _, battle in pairs(battles) do
-					if string.sub(battle.title,1,string.len(myplayername)) == myplayername and
-						Configuration:IsValidEngineVersion(battle.engineVersion) then
+					local ours
+					if known then
+						ours = battle.founder == known.instance
+					else
+						ours = string.sub(battle.founder or "", 1, string.len(targetCluster) + 1) == targetCluster .. "[" and
+							string.sub(battle.title,1,string.len(myplayername)) == myplayername
+					end
+					if ours and Configuration:IsValidEngineVersion(battle.engineVersion) then
 							myprivatebattleID = battle.battleID
 						break
 					end
 				end
 				if myprivatebattleID ~= nil then
 					trytime = -1
-					local mypassword = privateHostPasswords[targetCluster] or ""
+					local mypassword = known and known.password or ""
 
 					WG.BattleRoomWindow.LeaveBattle()
 					-- Configuration:SetConfigValue("lastGameSpectatorState", false) -- assume that private hoster wants to play, needed so he can boss self!
 					lobby:JoinBattle(myprivatebattleID, mypassword, _, true) -- forcePlayer = true
-					lobby:RemoveListener("OnSaidPrivate", listenForPrivateBattle)
 
 					local function listenForBoss(listener, userName, message, msgDate)
 						if string.find(userName, targetCluster, nil, true) and string.find(message, "* Boss mode enabled for", nil, true) then
