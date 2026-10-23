@@ -1646,7 +1646,8 @@ end
 -- sends the password once, when it launches the instance (which can be after the request gave up),
 -- and answers any later !privatehost with "There is already a private host created for you:
 -- <instance>", so both are recorded for the whole session by one listener.
-local privateHosts = {} -- [manager] = {instance = "Host[EU1][05]", password = "abcd"}
+local privateHosts = {} -- [manager] = {instance = "Host[EU1][05]", password = "abcd", heard = n}
+local privateHostsHeard = 0 -- counts the managers' answers, so a request can tell one came after it
 local privateHostListener
 
 local function ListenForPrivateHosts()
@@ -1659,13 +1660,19 @@ local function ListenForPrivateHosts()
 		end
 		local instance, password = string.match(message, "^Starting a new private instance in .- cluster %(name=(.-), password=(.-)%)")
 		if instance then
-			privateHosts[userName] = {instance = instance, password = password}
+			privateHostsHeard = privateHostsHeard + 1
+			privateHosts[userName] = {instance = instance, password = password, heard = privateHostsHeard}
 			Spring.Echo("Private instance started", userName, instance)
 			return
 		end
 		instance = string.match(message, "^There is already a private host created for you: (%S+)")
-		if instance and not (privateHosts[userName] and privateHosts[userName].instance == instance) then
-			privateHosts[userName] = {instance = instance} -- an instance we never heard start: no password
+		if instance then
+			privateHostsHeard = privateHostsHeard + 1
+			if privateHosts[userName] and privateHosts[userName].instance == instance then
+				privateHosts[userName].heard = privateHostsHeard
+			else
+				privateHosts[userName] = {instance = instance, heard = privateHostsHeard} -- never heard it start: no password
+			end
 		end
 	end
 	lobby:AddListener("OnSaidPrivate", privateHostListener)
@@ -1911,6 +1918,8 @@ function BattleListWindow:OpenHostWindow()
 
 		if userWantsPrivateBattle then
 			ListenForPrivateHosts()
+			local askedAfter = privateHostsHeard
+			local extended = false
 			lobby:SayPrivate(targetCluster, "!privatehost")
 			errorLabel:SetCaption("Please wait while we spin up a \nbattle room for you.")
 
@@ -1921,6 +1930,18 @@ function BattleListWindow:OpenHostWindow()
 					return
 				end
 				if trytime < 1 then
+					-- The manager has answered this request, so its instance is starting: it can take
+					-- longer than 30 s (the manager itself allows 240 s), so look for another 90 s.
+					local answer = privateHosts[targetCluster]
+					if not extended and answer and answer.heard > askedAfter then
+						extended = true
+						trytime = 90
+						errorLabel:SetCaption("Your battle room is starting.\nThis can take a minute or two.")
+						for i = 1, trytime + 1 do
+							WG.Delay(delayedWatchRooms, i)
+						end
+						return
+					end
 					errorLabel:SetCaption("Unable to spin up a private battle right now.\nTry a different region.")
 					return
 				end
