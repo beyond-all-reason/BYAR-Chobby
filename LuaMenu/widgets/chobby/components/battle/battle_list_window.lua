@@ -1952,6 +1952,7 @@ function BattleListWindow:OpenHostWindow()
 				end
 				if myprivatebattleID ~= nil then
 					trytime = -1
+					activeAttempt = nil -- done: the checks still scheduled stand down
 					local mypassword = known and known.password or ""
 
 					WG.BattleRoomWindow.LeaveBattle()
