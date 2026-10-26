@@ -28,6 +28,13 @@ local welcomePanelItems = {
     },
 
     {
+        Header = "Changes to Moderation Warnings",
+        Text = "Warnings now only need to be acknowledged once, after which the restriction is lifted. Minor, non-malicious slip-ups may also get a private, non-punitive notice instead of formal action." .. " \n",
+        Url = "https://www.beyondallreason.info/microblogs/212",
+        UrlText = "Read the full update",
+    },
+
+    {
         Header = "⚖️ Balance Update: Targeting & Weapon Improvements",
         Text = "This update improves targeting, missile effectiveness and weapon responsiveness. AA should handle large air swarms more consistently, with missiles now able to switch targets mid-flight." .. " \n" .. " \n" .. "Several ground defenses and units also get targeting, range and behaviour fixes." .. " \n",
         Url = "https://www.beyondallreason.info/microblogs/210",
