@@ -18,40 +18,74 @@ end
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 -- Initialization
-local IMG_SUPERANNOUNCE = LUA_DIRNAME .. "images/welcomepanel/Commanders _Down_Under.png"
-local doNotAskAgainValue = "cdu2026" -- change this for new announcement
+local IMG_SUPERANNOUNCE = LUA_DIRNAME .. "images/welcomepanel/koth_2years.png"
 
 local enableAnnouncement = true -- this is the actual enable/disable switch
--- The date from whichforth this announcement is meant to be visbile
--- So that you may make once ahead of time
-local announceDate = {0, 0, 0, 1, 7, 2026} -- second, minute, hour, day, month, year (UTC)
-local announceEndDate = {0, 0, 0, 25, 10, 2026} -- stop showing when event starts (25 Oct 11:00 AEDT)
+
+-- The announcement runs in phases. Each phase has its own doNotAskAgain key,
+-- so closing or opting out of one phase does not hide the next one.
+-- Dates are second, minute, hour, day, month, year (UTC).
+local phases = {
+	{
+		-- Build-up: no stream to link to yet
+		doNotAskAgainValue = "koth2years2026",
+		startDate = {0, 0, 0, 27, 10, 2026},
+		endDate = {0, 0, 10, 1, 11, 2026}, -- stream starts 1 Nov 11:00 CET
+		text = "Sunday 1 November 2026, 10:00 UTC (11:00 CET)"
+			.. " \n" .. " \n"
+			.. "Two years of Kings, Peasants and absolute chaos! KOTH has grown into BAR's largest"
+			.. " player-hosted event, with over 5000 players to date."
+			.. " \n" .. " \n"
+			.. "Celebrate with us live on the official BAR Twitch and YouTube channels, and keep an eye"
+			.. " out for something new dropping halfway through the stream!",
+	},
+	{
+		-- Live: stream is up, show the Watch button
+		doNotAskAgainValue = "koth2years2026_live",
+		startDate = {0, 0, 10, 1, 11, 2026},
+		endDate = {0, 0, 0, 2, 11, 2026},
+		watchUrl = "https://www.twitch.tv/beyondallreasonofficial",
+		text = "We're live now!"
+			.. " \n" .. " \n"
+			.. "Two years of Kings, Peasants and absolute chaos! Celebrate KOTH, BAR's largest player-hosted"
+			.. " event with over 5000 players to date, and keep an eye out for something new dropping halfway through!"
+			.. " \n" .. " \n"
+			.. "A huge thank you to everyone who has played and volunteered!",
+	},
+}
 
 -- Country gate. The lobby server hands us an ISO country code per user (ADDUSER),
 -- so we can restrict an announcement to a region. Set to nil to show it to everyone.
 -- Players whose country the server does not know are treated as not matching.
-local allowedCountries = {
-	AU = true,
-	NZ = true,
-}
+local allowedCountries = nil
 
 -- shoutout to PTAQ for breaking things
-announceDate = {
-	math.min(math.max(1, announceDate[1] or 0), 60),
-	math.min(math.max(1, announceDate[2] or 0), 60),
-	math.min(math.max(1, announceDate[3] or 0), 24),
-	math.min(math.max(1, announceDate[4] or 0), 28), -- no way am i checking how this handles 31 in a 28 day month
-	math.min(math.max(1, announceDate[5] or 0), 12),
-	math.min(math.max(2024, announceDate[6] or 0), 2077)
-}
-announceEndDate = {
-	math.min(math.max(1, announceEndDate[1] or 0), 60),
-	math.min(math.max(1, announceEndDate[2] or 0), 60),
-	math.min(math.max(1, announceEndDate[3] or 0), 24),
-	math.min(math.max(1, announceEndDate[4] or 0), 28),
-	math.min(math.max(1, announceEndDate[5] or 0), 12),
-	math.min(math.max(2024, announceEndDate[6] or 0), 2077)
-}
+local function ClampDate(date)
+	return {
+		math.min(math.max(1, date[1] or 0), 60),
+		math.min(math.max(1, date[2] or 0), 60),
+		math.min(math.max(1, date[3] or 0), 24),
+		math.min(math.max(1, date[4] or 0), 28), -- no way am i checking how this handles 31 in a 28 day month
+		math.min(math.max(1, date[5] or 0), 12),
+		math.min(math.max(2024, date[6] or 0), 2077)
+	}
+end
+
+for i = 1, #phases do
+	phases[i].startDate = ClampDate(phases[i].startDate)
+	phases[i].endDate = ClampDate(phases[i].endDate)
+end
+
+local function GetActivePhase()
+	for i = 1, #phases do
+		local phase = phases[i]
+		local _, startIsInTheFuture = Spring.Utilities.GetTimeDifferenceTable(phase.startDate)
+		local _, endIsInTheFuture = Spring.Utilities.GetTimeDifferenceTable(phase.endDate)
+		if not startIsInTheFuture and endIsInTheFuture then
+			return phase
+		end
+	end
+end
 
 local function InAllowedCountry()
 	if not allowedCountries then
@@ -71,7 +105,12 @@ end
 local function SuperAnnouncePopup()
 	local Configuration = WG.Chobby.Configuration
 
-	if enableAnnouncement == false or Configuration.supperAnnouncementKey == doNotAskAgainValue then
+	if enableAnnouncement == false then
+		return
+	end
+
+	local phase = GetActivePhase()
+	if not phase or Configuration.supperAnnouncementKey == phase.doNotAskAgainValue then
 		return
 	end
 
@@ -79,31 +118,23 @@ local function SuperAnnouncePopup()
 		return
 	end
 
-	local _, startIsInTheFuture = Spring.Utilities.GetTimeDifferenceTable(announceDate)
-	if startIsInTheFuture then
-		return
-	end
-
-	local _, endIsInTheFuture = Spring.Utilities.GetTimeDifferenceTable(announceEndDate)
-	if not endIsInTheFuture then
-		return
-	end
-
 	local width, height = Spring.GetViewSizes()
 
-	-- The banner art is 2:1 and spans the full window, so it is 'winW / 2' tall on
-	-- its own. That makes the window tall, so clamp to the viewport and let the
-	-- banner shrink first on short screens rather than pushing content off-window.
-	local winW = math.min(880, width - 60)
-	local winH = math.min(1026, height - 40)
+	-- The banner art is 16:9 and spans the full window. Size the window to fit it,
+	-- clamped to the viewport, and let the banner shrink first on short screens
+	-- rather than pushing content off-window.
+	local BANNER_ASPECT = 720 / 1280
 
-	local BOTTOM_STACK = 232 -- everything from the Get Tickets button down
+	local BOTTOM_STACK = phase.watchUrl and 150 or 70 -- everything from the Watch button (or Close) down
 	local HEADER_H = 128     -- title + subtitle
-	local TEXT_GAP = 24      -- breathing room between description and Get Tickets
+	local TEXT_GAP = 24      -- breathing room between description and the buttons
 
 	local TEXT_H = 192 -- 8 lines at font 3, never squeezed below this
 
-	local bannerH = math.floor((winW - 24) / 2)
+	local winW = math.min(880, width - 60)
+	local bannerH = math.floor((winW - 24) * BANNER_ASPECT)
+	local winH = math.min(HEADER_H + bannerH + 22 + TEXT_H + TEXT_GAP + BOTTOM_STACK, height - 40)
+
 	local maxBannerH = winH - BOTTOM_STACK - HEADER_H - TEXT_GAP - TEXT_H - 22
 	if bannerH > maxBannerH then
 		bannerH = math.max(120, maxBannerH)
@@ -134,7 +165,7 @@ local function SuperAnnouncePopup()
 		height = 48,
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(6),
 		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(6),
-		caption = "Commanders Down Under",
+		caption = "King of the Hill Turns 2!",
 		parent = superAnnounceWindow
 	}
 
@@ -147,7 +178,7 @@ local function SuperAnnouncePopup()
 		height = 26,
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
-		caption = "Australia's first ever Beyond All Reason tournament",
+		caption = "AllReasonNoLogic's 2-year anniversary stream",
 		parent = superAnnounceWindow
 	}
 
@@ -175,15 +206,7 @@ local function SuperAnnouncePopup()
 		height = textH,
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
 		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(3),
-		text = "Sunday 25 October 2026, 11:00 - 21:45 AEDT"
-			.. " \n"
-			.. "Fortress Sydney - Chippendale, NSW"
-			.. " \n" .. " \n"
-			.. "A seeded 1v1 Swiss bracket, open to every skill level, with a $300+ prize pool"
-			.. " supported by Fortress and the Beyond All Reason team."
-			.. " \n" .. " \n"
-			.. "Tickets include 10% off food and drink at Fortress Sydney from 22-25 October,"
-			.. " plus a free 1-hour LAN Lounge pass.",
+		text = phase.text,
 		parent = superAnnounceWindow
 	}
 
@@ -191,54 +214,25 @@ local function SuperAnnouncePopup()
 		superAnnounceWindow:Dispose()
 	end
 
-	-- Main call to action
-	Button:New {
-		x = "22%",
-		right = "22%",
-		bottom = 174,
-		height = 58,
-		caption = "Get Tickets",
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(4),
-		classname = "action_button",
-		padding = {2, 4, 4, 4},
-		OnClick = {
-			function()
-				WG.BrowserHandler.OpenUrl("https://events.humanitix.com/commanders-down-under")
-			end
-		},
-		parent = superAnnounceWindow
-	}
-
-	Button:New {
-		x = "17%",
-		right = "17%",
-		bottom = 118,
-		height = 46,
-		caption = "Join the CDU Discord",
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(3),
-		classname = "option_button",
-		padding = {2, 4, 4, 4},
-		OnClick = {
-			function()
-				WG.BrowserHandler.OpenUrl("https://discord.gg/YAcNP5MjEn")
-			end
-		},
-		parent = superAnnounceWindow
-	}
-
-	-- Region note. Labels autosize to their text, so keep it well clear of the
-	-- button above rather than trusting the declared height.
-	Label:New {
-		x = 0,
-		width = winW - 35,
-		align = "center",
-		bottom = 64,
-		height = 28,
-		objectOverrideFont = WG.Chobby.Configuration:GetFont(1),
-		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(1),
-		caption = "Special announcement visible to AU/NZ players only",
-		parent = superAnnounceWindow
-	}
+	-- Main call to action, only once there is something to watch
+	if phase.watchUrl then
+		Button:New {
+			x = "22%",
+			right = "22%",
+			bottom = 78,
+			height = 58,
+			caption = "Watch the Stream",
+			objectOverrideFont = WG.Chobby.Configuration:GetFont(4),
+			classname = "action_button",
+			padding = {2, 4, 4, 4},
+			OnClick = {
+				function()
+					WG.BrowserHandler.OpenUrl(phase.watchUrl)
+				end
+			},
+			parent = superAnnounceWindow
+		}
+	end
 
 	-- Close button
 	Button:New {
@@ -263,13 +257,13 @@ local function SuperAnnouncePopup()
 		boxalign = "right",
 		boxsize = 20,
 		caption = "Do not notify again",
-		checked = Configuration.supperAnnouncementKey == doNotAskAgainValue or false,
+		checked = Configuration.supperAnnouncementKey == phase.doNotAskAgainValue or false,
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		parent = superAnnounceWindow,
 		OnClick = {
 			function (obj)
 				if obj.checked then
-					Configuration:SetConfigValue("supperAnnouncementKey", doNotAskAgainValue)
+					Configuration:SetConfigValue("supperAnnouncementKey", phase.doNotAskAgainValue)
 				end
 			end
 		}
