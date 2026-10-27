@@ -1944,14 +1944,6 @@ function BattleListWindow:OpenHostWindow()
 				if answer and answer.heard <= askedAfter then
 					answer = nil
 				end
-				if answer and not answer.password then
-					-- "There is already a private host created for you" and no password ever heard: the
-					-- lobby was restarted while the room runs. The manager sends the password only once,
-					-- at launch, and closes a room a few minutes after it empties, so ask again later.
-					activeAttempt = nil
-					errorLabel:SetCaption("You already have a private battle room this lobby\ncannot rejoin. Try again in a few minutes.")
-					return
-				end
 				if trytime < 1 then
 					-- The manager has answered this request, so its instance is starting: it can take
 					-- longer than 30 s (the manager itself allows 240 s), so look for another 90 s.
@@ -1983,6 +1975,38 @@ function BattleListWindow:OpenHostWindow()
 					trytime = -1
 					activeAttempt = nil -- done: the checks still scheduled stand down
 					local mypassword = answer.password
+
+					if not mypassword then
+						-- "There is already a private host created for you" and no password ever heard: the
+						-- lobby was restarted while the room runs. The manager sends the password only once,
+						-- at launch. The server lets a player who was already in the room back in without
+						-- one, so try; if that is refused, say so instead of failing with nothing shown.
+						local onJoined, onRefused
+						local function stopListening()
+							lobby:RemoveListener("OnJoinBattle", onJoined)
+							lobby:RemoveListener("OnJoinBattleFailed", onRefused)
+						end
+						onJoined = function(listener, battleID)
+							if battleID ~= myprivatebattleID then
+								return
+							end
+							stopListening()
+							WG.Delay(function() lobby:SayBattle("!boss " .. (lobby:GetMyUserName() or '')) end, 1)
+							hostBattleWindow:Dispose()
+						end
+						onRefused = function()
+							stopListening()
+							if not errorLabel.disposed then -- Cancel may have closed the window meanwhile
+								errorLabel:SetCaption("You already have a private battle room this lobby\ncannot rejoin. Try again in a few minutes.")
+							end
+						end
+						lobby:AddListener("OnJoinBattle", onJoined)
+						lobby:AddListener("OnJoinBattleFailed", onRefused)
+						WG.Delay(stopListening, 30) -- no answer either way (disconnected): do not keep listening
+						WG.BattleRoomWindow.LeaveBattle()
+						lobby:JoinBattle(myprivatebattleID, "", _, true) -- forcePlayer = true
+						return
+					end
 
 					WG.BattleRoomWindow.LeaveBattle()
 					-- Configuration:SetConfigValue("lastGameSpectatorState", false) -- assume that private hoster wants to play, needed so he can boss self!
