@@ -104,7 +104,7 @@
                         "optional": true
                     },
                     {
-                        "url": "https://github.com/beyond-all-reason/RecoilEngine/releases/download/2026.09.01/recoil_2026.09.02_amd64-linux.7z",
+                        "url": "https://github.com/beyond-all-reason/RecoilEngine/releases/download/2026.09.02/recoil_2026.09.02_amd64-linux.7z",
                         "destination": "engine/recoil_2026.09.02",
                         "extract": true
                     }
@@ -143,7 +143,7 @@
                         "optional": true
                     },
                     {           
-                        "url": "https://github.com/beyond-all-reason/RecoilEngine/releases/download/2026.09.01/recoil_2026.09.02_amd64-windows.7z",
+                        "url": "https://github.com/beyond-all-reason/RecoilEngine/releases/download/2026.09.02/recoil_2026.09.02_amd64-windows.7z",
                         "destination": "engine/recoil_2026.09.02",
                         "extract": true
                     }
