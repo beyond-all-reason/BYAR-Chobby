@@ -1642,13 +1642,21 @@ end
 
 
 
--- What each cluster manager has told us about the private instance it started for us. A manager
--- sends the password once, when it launches the instance (which can be after the request gave up),
--- and answers any later !privatehost with "There is already a private host created for you:
--- <instance>", so both are recorded for the whole session by one listener.
-local privateHosts = {} -- [manager] = {instance = "Host[EU1][05]", password = "abcd", heard = n}
+-- What each cluster manager has told the logged-in account about the private instance it started
+-- for it. A manager sends the password once, when it launches the instance (which can be after the
+-- request gave up), and answers any later !privatehost with "There is already a private host
+-- created for you: <instance>", so both are recorded per account by one listener. A request only
+-- acts on what its manager said after it asked (see delayedWatchRooms): an older entry may describe
+-- an instance that has since quit, whose name the manager can reuse for someone else's room.
+local privateHosts = {} -- [account][manager] = {instance = "Host[EU1][005]", password = "abcd", heard = n}
 local privateHostsHeard = 0 -- counts the managers' answers, so a request can tell one came after it
 local privateHostListener
+
+local function MyPrivateHosts()
+	local account = lobby:GetMyUserName() or ""
+	privateHosts[account] = privateHosts[account] or {}
+	return privateHosts[account]
+end
 
 local function ListenForPrivateHosts()
 	if privateHostListener then
@@ -1658,20 +1666,21 @@ local function ListenForPrivateHosts()
 		if not string.match(userName, '^Host%[%a+%d+%]$') then
 			return
 		end
+		local mine = MyPrivateHosts()
 		local instance, password = string.match(message, "^Starting a new private instance in .- cluster %(name=(.-), password=(.-)%)")
 		if instance then
 			privateHostsHeard = privateHostsHeard + 1
-			privateHosts[userName] = {instance = instance, password = password, heard = privateHostsHeard}
+			mine[userName] = {instance = instance, password = password, heard = privateHostsHeard}
 			Spring.Echo("Private instance started", userName, instance)
 			return
 		end
 		instance = string.match(message, "^There is already a private host created for you: (%S+)")
 		if instance then
 			privateHostsHeard = privateHostsHeard + 1
-			if privateHosts[userName] and privateHosts[userName].instance == instance then
-				privateHosts[userName].heard = privateHostsHeard
+			if mine[userName] and mine[userName].instance == instance then
+				mine[userName].heard = privateHostsHeard
 			else
-				privateHosts[userName] = {instance = instance, heard = privateHostsHeard} -- never heard it start: no password
+				mine[userName] = {instance = instance, heard = privateHostsHeard} -- never heard it start: no password
 			end
 		end
 	end
@@ -1929,11 +1938,24 @@ function BattleListWindow:OpenHostWindow()
 				if activeAttempt ~= attempt then -- a newer request has replaced this one
 					return
 				end
+				-- Only an answer this manager gave after this request was sent is about this request.
+				-- Anything older is unknown: it may name an instance that has since quit.
+				local answer = MyPrivateHosts()[targetCluster]
+				if answer and answer.heard <= askedAfter then
+					answer = nil
+				end
+				if answer and not answer.password then
+					-- "There is already a private host created for you" and no password ever heard: the
+					-- lobby was restarted while the room runs. The manager sends the password only once,
+					-- at launch, and closes a room a few minutes after it empties, so ask again later.
+					activeAttempt = nil
+					errorLabel:SetCaption("You already have a private battle room this lobby\ncannot rejoin. Try again in a few minutes.")
+					return
+				end
 				if trytime < 1 then
 					-- The manager has answered this request, so its instance is starting: it can take
 					-- longer than 30 s (the manager itself allows 240 s), so look for another 90 s.
-					local answer = privateHosts[targetCluster]
-					if not extended and answer and answer.heard > askedAfter then
+					if not extended and answer then
 						extended = true
 						trytime = 90
 						errorLabel:SetCaption("Your battle room is starting.\nThis can take a minute or two.")
@@ -1945,36 +1967,22 @@ function BattleListWindow:OpenHostWindow()
 					errorLabel:SetCaption("Unable to spin up a private battle right now.\nTry a different region.")
 					return
 				end
-				local myplayername = lobby:GetMyUserName() or ''
-				--lobby:SayBattle("!boss " .. myplayername)
+				-- Only the battle founded by the instance this request's manager named for us: without
+				-- that answer no battle can be known to be ours (a retry can go to another manager in
+				-- the same region, and another player's title can start with our name).
 				local myprivatebattleID = nil
-				local battles = lobby:GetBattles()
-				local tmp = {}
-				for _, battle in pairs(battles) do
-					table.insert(tmp, battle)
-				end
-				battles = tmp
-				-- Only a battle founded by the manager this request went to (by our own instance once the
-				-- manager has named it): a retry can go to another manager in the same region, and another
-				-- player's title can start with our name.
-				local known = privateHosts[targetCluster]
-				for _, battle in pairs(battles) do
-					local ours
-					if known then
-						ours = battle.founder == known.instance
-					else
-						ours = string.sub(battle.founder or "", 1, string.len(targetCluster) + 1) == targetCluster .. "[" and
-							string.sub(battle.title,1,string.len(myplayername)) == myplayername
-					end
-					if ours and Configuration:IsValidEngineVersion(battle.engineVersion) then
+				if answer then
+					for _, battle in pairs(lobby:GetBattles()) do
+						if battle.founder == answer.instance and Configuration:IsValidEngineVersion(battle.engineVersion) then
 							myprivatebattleID = battle.battleID
-						break
+							break
+						end
 					end
 				end
 				if myprivatebattleID ~= nil then
 					trytime = -1
 					activeAttempt = nil -- done: the checks still scheduled stand down
-					local mypassword = known and known.password or ""
+					local mypassword = answer.password
 
 					WG.BattleRoomWindow.LeaveBattle()
 					-- Configuration:SetConfigValue("lastGameSpectatorState", false) -- assume that private hoster wants to play, needed so he can boss self!
