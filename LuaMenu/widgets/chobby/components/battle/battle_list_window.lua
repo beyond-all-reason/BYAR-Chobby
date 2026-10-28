@@ -1959,13 +1959,19 @@ function BattleListWindow:OpenHostWindow()
 					errorLabel:SetCaption("Unable to spin up a private battle right now.\nTry a different region.")
 					return
 				end
-				-- Only the battle founded by the instance this request's manager named for us: without
-				-- that answer no battle can be known to be ours (a retry can go to another manager in
-				-- the same region, and another player's title can start with our name).
+				-- Only the battle founded by the instance this request's manager named for us, AND titled
+				-- with our name: without the answer no battle can be known to be ours (a retry can go to
+				-- another manager in the same region), and an instance that quits before its room opens
+				-- has its name reused for the next player's room while we are still waiting. The manager
+				-- names a private room "<owner> - Private Battle" (ClusterManager.conf confMacrosPrivate)
+				-- and a name cannot contain a space, so "<our name> " cannot start another player's title.
 				local myprivatebattleID = nil
+				local myplayername = lobby:GetMyUserName() or ''
 				if answer then
 					for _, battle in pairs(lobby:GetBattles()) do
-						if battle.founder == answer.instance and Configuration:IsValidEngineVersion(battle.engineVersion) then
+						local title = battle.title or ''
+						local named = title == myplayername or string.sub(title, 1, string.len(myplayername) + 1) == myplayername .. ' '
+						if battle.founder == answer.instance and named and Configuration:IsValidEngineVersion(battle.engineVersion) then
 							myprivatebattleID = battle.battleID
 							break
 						end
