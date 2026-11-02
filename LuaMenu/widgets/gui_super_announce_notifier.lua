@@ -18,39 +18,36 @@ end
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 -- Initialization
-local IMG_SUPERANNOUNCE = LUA_DIRNAME .. "images/welcomepanel/koth_2years.png"
-
 local enableAnnouncement = true -- this is the actual enable/disable switch
 
 -- The announcement runs in phases. Each phase has its own doNotAskAgain key,
 -- so closing or opting out of one phase does not hide the next one.
 -- Dates are second, minute, hour, day, month, year (UTC).
+-- Text fits ~8 lines of ~70 characters; every " \n" is a line too.
+-- Buttons stack bottom-up above the Close row; the first one is the main call to action.
 local phases = {
 	{
-		-- Build-up: no stream to link to yet
-		doNotAskAgainValue = "koth2years2026",
-		startDate = {0, 0, 0, 27, 10, 2026},
-		endDate = {0, 0, 10, 1, 11, 2026}, -- stream starts 1 Nov 11:00 CET
-		text = "Sunday 1 November 2026, 10:00 UTC (11:00 CET)"
+		doNotAskAgainValue = "omegaseries5_2026",
+		startDate = {0, 0, 0, 2, 11, 2026},
+		endDate = {0, 0, 22, 5, 11, 2026}, -- registration deadline
+		title = "Omega Series 5v5 Tournament #5",
+		subtitle = "Last week to register!",
+		image = "images/welcomepanel/omegaseries5.png",
+		imageAspect = 574 / 1024,
+		text = "Assemble your squad, sharpen your strategies, and claim glory in the fifth edition"
+			.. " of the BAR Omega Series!"
 			.. " \n" .. " \n"
-			.. "Two years of Kings, Peasants and absolute chaos! KOTH has grown into BAR's largest"
-			.. " player-hosted event, with over 5000 players to date."
-			.. " \n" .. " \n"
-			.. "Celebrate with us live on the official BAR Twitch and YouTube channels, and keep an eye"
-			.. " out for something new dropping halfway through the stream!",
-	},
-	{
-		-- Live: stream is up, show the Watch button
-		doNotAskAgainValue = "koth2years2026_live",
-		startDate = {0, 0, 10, 1, 11, 2026},
-		endDate = {0, 0, 0, 2, 11, 2026},
-		watchUrl = "https://www.twitch.tv/beyondallreasonofficial",
-		text = "We're live now!"
-			.. " \n" .. " \n"
-			.. "Two years of Kings, Peasants and absolute chaos! Celebrate KOTH, BAR's largest player-hosted"
-			.. " event with over 5000 players to date, and keep an eye out for something new dropping halfway through!"
-			.. " \n" .. " \n"
-			.. "A huge thank you to everyone who has played and volunteered!",
+			.. "Registration closes: Thu 5 Nov, 22:00 UTC"
+			.. " \n"
+			.. "Swiss Stage: Sat 7 Nov, 15:00 UTC"
+			.. " \n"
+			.. "Playoffs & Finals: Sun 8 Nov, 15:00 UTC"
+			.. " \n"
+			.. "Prize pool: $1100, thanks to our awesome donors!",
+		buttons = {
+			{caption = "Register Your Team", url = "https://apm.bar/tournaments/omega-series-5"},
+			{caption = "Join the Tournament Discord", url = "https://discord.gg/YPdBqtwh5"},
+		},
 	},
 }
 
@@ -120,12 +117,24 @@ local function SuperAnnouncePopup()
 
 	local width, height = Spring.GetViewSizes()
 
-	-- The banner art is 16:9 and spans the full window. Size the window to fit it,
-	-- clamped to the viewport, and let the banner shrink first on short screens
-	-- rather than pushing content off-window.
-	local BANNER_ASPECT = 720 / 1280
+	-- The banner art spans the full window. Size the window to fit it, clamped to
+	-- the viewport, and let the banner shrink first on short screens rather than
+	-- pushing content off-window.
+	local imageFile = phase.image and (LUA_DIRNAME .. phase.image)
+	local hasImage = imageFile and VFS.FileExists(imageFile)
+	local BANNER_ASPECT = hasImage and (phase.imageAspect or 0.5) or 0
 
-	local BOTTOM_STACK = phase.watchUrl and 150 or 70 -- everything from the Watch button (or Close) down
+	-- Buttons stack upwards from just above the Close row, main call to action on top.
+	local buttons = phase.buttons or {}
+	local BUTTON_GAP = 10
+	local buttonBottoms = {}
+	local stackTop = 78
+	for i = #buttons, 1, -1 do
+		buttonBottoms[i] = stackTop
+		stackTop = stackTop + (i == 1 and 58 or 46) + BUTTON_GAP
+	end
+
+	local BOTTOM_STACK = #buttons > 0 and stackTop or 70 -- everything from the top button (or Close) down
 	local HEADER_H = 128     -- title + subtitle
 	local TEXT_GAP = 24      -- breathing room between description and the buttons
 
@@ -165,7 +174,7 @@ local function SuperAnnouncePopup()
 		height = 48,
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(6),
 		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(6),
-		caption = "King of the Hill Turns 2!",
+		caption = phase.title,
 		parent = superAnnounceWindow
 	}
 
@@ -178,19 +187,19 @@ local function SuperAnnouncePopup()
 		height = 26,
 		objectOverrideFont = WG.Chobby.Configuration:GetFont(2),
 		objectOverrideHintFont = WG.Chobby.Configuration:GetFont(2),
-		caption = "AllReasonNoLogic's 2-year anniversary stream",
+		caption = phase.subtitle or "",
 		parent = superAnnounceWindow
 	}
 
 	-- Banner. Full window width, no side margins, so the art is not letterboxed.
-	if VFS.FileExists(IMG_SUPERANNOUNCE) then
+	if hasImage then
 		Image:New {
 			x = 0,
 			right = 0,
 			y = HEADER_H,
 			height = bannerH,
 			keepAspect = true,
-			file = IMG_SUPERANNOUNCE,
+			file = imageFile,
 			parent = superAnnounceWindow
 		}
 	else
@@ -214,20 +223,21 @@ local function SuperAnnouncePopup()
 		superAnnounceWindow:Dispose()
 	end
 
-	-- Main call to action, only once there is something to watch
-	if phase.watchUrl then
+	for i = 1, #buttons do
+		local button = buttons[i]
+		local isMain = (i == 1)
 		Button:New {
-			x = "22%",
-			right = "22%",
-			bottom = 78,
-			height = 58,
-			caption = "Watch the Stream",
-			objectOverrideFont = WG.Chobby.Configuration:GetFont(4),
-			classname = "action_button",
+			x = isMain and "22%" or "17%",
+			right = isMain and "22%" or "17%",
+			bottom = buttonBottoms[i],
+			height = isMain and 58 or 46,
+			caption = button.caption,
+			objectOverrideFont = WG.Chobby.Configuration:GetFont(isMain and 4 or 3),
+			classname = isMain and "action_button" or "option_button",
 			padding = {2, 4, 4, 4},
 			OnClick = {
 				function()
-					WG.BrowserHandler.OpenUrl(phase.watchUrl)
+					WG.BrowserHandler.OpenUrl(button.url)
 				end
 			},
 			parent = superAnnounceWindow
