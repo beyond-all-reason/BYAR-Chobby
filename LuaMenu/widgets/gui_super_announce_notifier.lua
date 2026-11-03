@@ -33,7 +33,7 @@ local phases = {
 		title = "Omega Series 5v5 Tournament #5",
 		subtitle = "Last week to register!",
 		image = "images/welcomepanel/omegaseries5.png",
-		imageAspect = 574 / 1024,
+		imageAspect = 267 / 1280,
 		text = "Assemble your squad, sharpen your strategies, and claim glory in the fifth edition"
 			.. " of the BAR Omega Series!"
 			.. " \n" .. " \n"
