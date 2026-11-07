@@ -49,6 +49,42 @@ local phases = {
 			{caption = "Join the Tournament Discord", url = "https://discord.gg/YPdBqtwh5"},
 		},
 	},
+	{
+		doNotAskAgainValue = "omegaseries5_live_day1",
+		startDate = {0, 0, 15, 7, 11, 2026},
+		endDate = {0, 0, 20, 7, 11, 2026},
+		title = "Omega Series #5 is LIVE!",
+		subtitle = "Day 1: Swiss Stage",
+		image = "images/welcomepanel/omegaseries5.png",
+		imageAspect = 267 / 1280,
+		text = "The fifth edition of the BAR Omega Series is on right now: 16 teams battle it out"
+			.. " in the 5v5 Swiss Stage for a spot in tomorrow's playoffs."
+			.. " \n" .. " \n"
+			.. "Tune in live, cast by Lostdeadman and lJademl!"
+			.. " \n" .. " \n"
+			.. "Playoffs & Finals: Sun 8 Nov, 15:00 UTC",
+		buttons = {
+			{caption = "Watch on Twitch", url = "https://www.twitch.tv/beyondallreasonofficial"},
+			{caption = "Watch on YouTube", url = "https://www.youtube.com/BeyondAllReason"},
+		},
+	},
+	{
+		doNotAskAgainValue = "omegaseries5_live_day2",
+		startDate = {0, 0, 15, 8, 11, 2026},
+		endDate = {0, 0, 20, 8, 11, 2026},
+		title = "Omega Series #5 Finals are LIVE!",
+		subtitle = "Day 2: Playoffs & Grand Finals",
+		image = "images/welcomepanel/omegaseries5.png",
+		imageAspect = 267 / 1280,
+		text = "The top 8 teams fight for the title and the $1100 prize pool: Bo3 quarterfinals"
+			.. " and semifinals, then a Bo5 grand final."
+			.. " \n" .. " \n"
+			.. "Tune in live, cast by Lostdeadman and lJademl!",
+		buttons = {
+			{caption = "Watch on Twitch", url = "https://www.twitch.tv/beyondallreasonofficial"},
+			{caption = "Watch on YouTube", url = "https://www.youtube.com/BeyondAllReason"},
+		},
+	},
 }
 
 -- Country gate. The lobby server hands us an ISO country code per user (ADDUSER),
@@ -76,8 +112,9 @@ end
 local function GetActivePhase()
 	for i = 1, #phases do
 		local phase = phases[i]
-		local _, startIsInTheFuture = Spring.Utilities.GetTimeDifferenceTable(phase.startDate)
-		local _, endIsInTheFuture = Spring.Utilities.GetTimeDifferenceTable(phase.endDate)
+		-- copies: GetTimeDifferenceTable overwrites the tables it is given
+		local _, startIsInTheFuture = Spring.Utilities.GetTimeDifferenceTable({unpack(phase.startDate)})
+		local _, endIsInTheFuture = Spring.Utilities.GetTimeDifferenceTable({unpack(phase.endDate)})
 		if not startIsInTheFuture and endIsInTheFuture then
 			return phase
 		end
