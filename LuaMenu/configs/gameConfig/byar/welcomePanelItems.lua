@@ -19,26 +19,10 @@ local welcomePanelItems = {
     },
 
     {
-        Header = "Get Ready for the Omega Series 5 Tournament",
-        Text = "The biggest and most important team tourney is back! Gather your team and join Omega Series 5th edition!" .. " \n" .. "Format: 5v5" .. " \n" .. "Date: 7th and 8th of November" .. " \n" .. "Prize pool so far: $1100" .. " \n" .. "Register by 5 Nov 2026, 13:00 GMT-7",
-        Image = "LuaMenu/images/welcomepanel/recurring_events/omegaseries.png",
-        Time = "2026-11-07T15:00:00", -- needs to be in UTC and is converted to user's local timezone, shows the time difference
-        Url = "https://apm.bar/tournaments/omega-series-5",
-        UrlText = "Register here",
-    },
-
-    {
-        Header = "Changes to Moderation Warnings",
-        Text = "Warnings now only need to be acknowledged once, after which the restriction is lifted. Minor, non-malicious slip-ups may also get a private, non-punitive notice instead of formal action." .. " \n",
-        Url = "https://www.beyondallreason.info/microblogs/212",
-        UrlText = "Read the full update",
-    },
-
-    {
-        Header = "⚖️ Balance Update: Targeting & Weapon Improvements",
-        Text = "This update improves targeting, missile effectiveness and weapon responsiveness. AA should handle large air swarms more consistently, with missiles now able to switch targets mid-flight." .. " \n" .. " \n" .. "Several ground defenses and units also get targeting, range and behaviour fixes." .. " \n",
-        Url = "https://www.beyondallreason.info/microblogs/210",
-        UrlText = "Read the patch notes",
+        Header = "Engine Update: Recoil 2026.09.02",
+        Text = "Mostly dev-facing features, plus stability improvements and fixes to unit behaviour, targeting and pathfinding: ships no longer get stuck around underwater structures, units stop stalling behind hills, and attack queues behave." .. " \n" .. " \n" .. "Fewer crashes and desyncs too. Please report any new issues you run into!" .. " \n",
+        Url = "https://www.beyondallreason.info/microblogs/214",
+        UrlText = "Read the changelog",
     },
 
     {
@@ -50,30 +34,10 @@ local welcomePanelItems = {
     },
 
     {
-        Header = "Code of Conduct Update: Spec Cheating, Coaching & Stream Chat",
-        Text = "We've updated Code of Conduct rule B.5 to clarify what counts as spectator cheating, and what's fine when coaching or streaming. Read the full update to see what changed." .. " \n",
-        Url = "https://www.beyondallreason.info/microblogs/207",
-        UrlText = "Read the full update",
-    },
-
-    {
         Header = "Important Notice to Custom Widget makers and users",
         Text = "With the new Plugins tab we're now more officially supporting community-made widgets. To keep every widget you install safe and unable to run malicious code on your system, user widgets will run in a sandbox starting with the next release." .. " \n" .. " \n" .. "Players: some of your widgets may stop working until their authors update them. If one breaks, check with its creator for a new version. Built-in widgets are not affected." .. " \n" .. " \n" .. "Widget creators: please review the changes and update your widgets. Migration guides are linked in the post." .. " \n",
         Url = "https://www.beyondallreason.info/microblogs/205",
         UrlText = "Read the details",
-    },
-
-    {
-        Header = "New: In-game Keybind Editor is here!",
-        Text = "Edit and manage your keybinds through a proper visual interface, available from the Keys panel in the top-right corner while in-game." .. " \n" .. " \n" .. "It also supports separate keybind profiles, so you can keep different setups or experiment without touching your main configuration." .. " \n" .. " \n" .. "Huge kudos to Harkenn for creating it!" .. " \n" .. " \n",
-        Url = "https://www.beyondallreason.info/microblogs/204",
-        UrlText = "Read more",
-    },
-
-    {
-        Header = "New Map: Pyroclast",
-        Text = "A highly asymmetric battle fought amongst the debris of a volcanic eruption. Designed for PvE or 8v8. Made by Cinnamon18." .. " \n" .. " \n",
-        Image = "LuaMenu/configs/gameConfig/byar/minimapOverride/Pyroclast_1.0.3.jpg",
     },
 
     {
