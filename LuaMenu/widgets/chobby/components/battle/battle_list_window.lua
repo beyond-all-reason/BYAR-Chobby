@@ -1642,12 +1642,7 @@ end
 
 
 
--- What each cluster manager has told the logged-in account about the private instance it started
--- for it. A manager sends the password once, when it launches the instance (which can be after the
--- request gave up), and answers any later !privatehost with "There is already a private host
--- created for you: <instance>", so both are recorded per account by one listener. A request only
--- acts on what its manager said after it asked (see delayedWatchRooms): an older entry may describe
--- an instance that has since quit, whose name the manager can reuse for someone else's room.
+-- What each manager last told each account about its private instance; the password comes only once, at launch.
 local privateHosts = {} -- [account][manager] = {instance = "Host[EU1][005]", password = "abcd", heard = n}
 local privateHostsHeard = 0 -- counts the managers' answers, so a request can tell one came after it
 local privateHostListener
@@ -1938,16 +1933,12 @@ function BattleListWindow:OpenHostWindow()
 				if activeAttempt ~= attempt then -- a newer request has replaced this one
 					return
 				end
-				-- Only an answer this manager gave after this request was sent is about this request.
-				-- Anything older is unknown: it may name an instance that has since quit.
-				local answer = MyPrivateHosts()[targetCluster]
+				local answer = MyPrivateHosts()[targetCluster] -- only an answer given after this request is about it
 				if answer and answer.heard <= askedAfter then
 					answer = nil
 				end
 				if trytime < 1 then
-					-- The manager has answered this request, so its instance is starting: it can take
-					-- longer than 30 s (the manager itself allows 240 s), so look for another 90 s.
-					if not extended and answer then
+					if not extended and answer then -- the manager answered, so the room is starting: wait another 90 s
 						extended = true
 						trytime = 90
 						errorLabel:SetCaption("Your battle room is starting.\nThis can take a minute or two.")
@@ -1956,15 +1947,15 @@ function BattleListWindow:OpenHostWindow()
 						end
 						return
 					end
+					if answer then -- the room may still open later: say where, so it can be joined by hand
+						errorLabel:SetCaption("Your room " .. answer.instance .. " has not opened yet.\n" ..
+							(answer.password and ("If it opens later, its password is " .. answer.password .. ".") or "It may still open later."))
+						return
+					end
 					errorLabel:SetCaption("Unable to spin up a private battle right now.\nTry a different region.")
 					return
 				end
-				-- Only the battle founded by the instance this request's manager named for us, AND titled
-				-- with our name: without the answer no battle can be known to be ours (a retry can go to
-				-- another manager in the same region), and an instance that quits before its room opens
-				-- has its name reused for the next player's room while we are still waiting. The manager
-				-- names a private room "<owner> - Private Battle" (ClusterManager.conf confMacrosPrivate)
-				-- and a name cannot contain a space, so "<our name> " cannot start another player's title.
+				-- Ours only if founded by the instance named for this request and titled "<our name> - Private Battle".
 				local myprivatebattleID = nil
 				local myplayername = lobby:GetMyUserName() or ''
 				if answer then
@@ -1982,11 +1973,27 @@ function BattleListWindow:OpenHostWindow()
 					activeAttempt = nil -- done: the checks still scheduled stand down
 					local mypassword = answer.password
 
+					local function listenForBoss(listener, userName, message, msgDate)
+						if string.find(userName, targetCluster, nil, true) and string.find(message, "* Boss mode enabled for", nil, true) then
+							Spring.Echo(userName)
+							lobby:SayBattle("$gatekeeper friends")
+							lobby:RemoveListener("OnSaidBattleEx", listenForBoss)
+						end
+					end
+
+					local function bossSelf()
+						if allowFriendsToJoin then
+							-- sets the gatekeeper after being set to boss
+							lobby:AddListener("OnSaidBattleEx", listenForBoss)
+						end
+						if mypassword then
+							lobby:SayBattle("Password is: " .. mypassword)
+						end
+						lobby:SayBattle("!boss " .. myplayername)
+					end
+
 					if not mypassword then
-						-- "There is already a private host created for you" and no password ever heard: the
-						-- lobby was restarted while the room runs. The manager sends the password only once,
-						-- at launch. The server lets a player who was already in the room back in without
-						-- one, so try; if that is refused, say so instead of failing with nothing shown.
+						-- No password heard since a lobby restart: the server lets a player who was in the room back in without one.
 						local onJoined, onRefused
 						local function stopListening()
 							lobby:RemoveListener("OnJoinBattle", onJoined)
@@ -1997,13 +2004,17 @@ function BattleListWindow:OpenHostWindow()
 								return
 							end
 							stopListening()
-							WG.Delay(function() lobby:SayBattle("!boss " .. (lobby:GetMyUserName() or '')) end, 1)
+							WG.Delay(bossSelf, 1)
 							hostBattleWindow:Dispose()
 						end
-						onRefused = function()
+						onRefused = function(listener, reason)
 							stopListening()
 							if not errorLabel.disposed then -- Cancel may have closed the window meanwhile
-								errorLabel:SetCaption("You already have a private battle room this lobby\ncannot rejoin. Try again in a few minutes.")
+								if reason == nil or reason == "Invalid password" then
+									errorLabel:SetCaption("You already have a private battle room this lobby\ncannot rejoin. Try again in a few minutes.")
+								else
+									errorLabel:SetCaption("Unable to rejoin your private battle room:\n" .. reason)
+								end
 							end
 						end
 						lobby:AddListener("OnJoinBattle", onJoined)
@@ -2017,24 +2028,6 @@ function BattleListWindow:OpenHostWindow()
 					WG.BattleRoomWindow.LeaveBattle()
 					-- Configuration:SetConfigValue("lastGameSpectatorState", false) -- assume that private hoster wants to play, needed so he can boss self!
 					lobby:JoinBattle(myprivatebattleID, mypassword, _, true) -- forcePlayer = true
-
-					local function listenForBoss(listener, userName, message, msgDate)
-						if string.find(userName, targetCluster, nil, true) and string.find(message, "* Boss mode enabled for", nil, true) then
-							Spring.Echo(userName)
-							lobby:SayBattle("$gatekeeper friends")
-							lobby:RemoveListener("OnSaidBattleEx", listenForBoss)
-						end
-					end
-
-					local function bossSelf()
-						local myplayername = lobby:GetMyUserName() or ''
-						if allowFriendsToJoin then
-							-- sets the gatekeeper after being set to boss
-							lobby:AddListener("OnSaidBattleEx", listenForBoss)
-						end
-						lobby:SayBattle("Password is: " .. mypassword)
-						lobby:SayBattle("!boss " .. myplayername)
-					end
 
 					WG.Delay(bossSelf, 1)
 					hostBattleWindow:Dispose()
