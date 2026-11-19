@@ -24,6 +24,7 @@ end
 --Map stuff:
 local mapDetails   = VFS.Include(LUA_DIRNAME .. "configs/gameConfig/" .. shortname .. "/mapDetails.lua")
 local mapStartBoxes   = VFS.Include(LUA_DIRNAME .. "configs/gameConfig/" .. shortname .. "/mapStartBoxes.lua")
+local mapMexRegions   = VFS.Include(LUA_DIRNAME .. "configs/gameConfig/" .. shortname .. "/mapMexRegions.lua")
 local useDefaultStartBoxes = true
 
 
@@ -89,6 +90,7 @@ local externalFuncAndData = {
 	CustomAiProfiles       = aiCustomData.CustomAiProfiles,
 	mapDetails             = mapDetails,
 	mapStartBoxes          = mapStartBoxes,
+	mapMexRegions          = mapMexRegions,
 	useDefaultStartBoxes   = useDefaultStartBoxes,
 	welcomePanelItems      = welcomePanelItems,
 	showSinglePlayerIngame = showSinglePlayerIngame,

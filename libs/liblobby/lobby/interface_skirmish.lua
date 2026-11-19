@@ -363,6 +363,14 @@ function InterfaceSkirmish:_StartScript(gameName, mapName, playerName, friendLis
 		end
 	end
 
+	-- The map's mex region layout rides the same way: maps-metadata row -> modoption -> game,
+	-- read by the game when Mex Splitting is Map Assigned. Cleared first for the same reason.
+	script.modoptions["mex_regions_layout"] = nil
+	local mapMexRegions = Configuration.gameConfig and Configuration.gameConfig.mapMexRegions
+	if mapMexRegions and mapMexRegions.getLayoutBlob then
+		script.modoptions["mex_regions_layout"] = mapMexRegions.getLayoutBlob(mapName) or nil
+	end
+
 	for i, ai in pairs(ais) do
 		script["ai" .. i] = ai
 	end
