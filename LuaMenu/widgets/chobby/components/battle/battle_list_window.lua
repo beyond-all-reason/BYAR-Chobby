@@ -1955,14 +1955,12 @@ function BattleListWindow:OpenHostWindow()
 					errorLabel:SetCaption("Unable to spin up a private battle right now.\nTry a different region.")
 					return
 				end
-				-- Ours only if founded by the instance named for this request and titled "<our name> - Private Battle".
+				-- Ours only if founded by the instance named in the answer to this request.
 				local myprivatebattleID = nil
 				local myplayername = lobby:GetMyUserName() or ''
 				if answer then
 					for _, battle in pairs(lobby:GetBattles()) do
-						local title = battle.title or ''
-						local named = title == myplayername or string.sub(title, 1, string.len(myplayername) + 1) == myplayername .. ' '
-						if battle.founder == answer.instance and named and Configuration:IsValidEngineVersion(battle.engineVersion) then
+						if battle.founder == answer.instance and Configuration:IsValidEngineVersion(battle.engineVersion) then
 							myprivatebattleID = battle.battleID
 							break
 						end
@@ -1992,45 +1990,39 @@ function BattleListWindow:OpenHostWindow()
 						lobby:SayBattle("!boss " .. myplayername)
 					end
 
-					if not mypassword then
-						-- No password heard since a lobby restart: the server lets a player who was in the room back in without one.
-						local onJoined, onRefused
-						local function stopListening()
-							lobby:RemoveListener("OnJoinBattle", onJoined)
-							lobby:RemoveListener("OnJoinBattleFailed", onRefused)
-						end
-						onJoined = function(listener, battleID)
-							if battleID ~= myprivatebattleID then
-								return
-							end
-							stopListening()
-							WG.Delay(bossSelf, 1)
-							hostBattleWindow:Dispose()
-						end
-						onRefused = function(listener, reason)
-							stopListening()
-							if not errorLabel.disposed then -- Cancel may have closed the window meanwhile
-								if reason == nil or reason == "Invalid password" then
-									errorLabel:SetCaption("You already have a private battle room this lobby\ncannot rejoin. Try again in a few minutes.")
-								else
-									errorLabel:SetCaption("Unable to rejoin your private battle room:\n" .. reason)
-								end
-							end
-						end
-						lobby:AddListener("OnJoinBattle", onJoined)
-						lobby:AddListener("OnJoinBattleFailed", onRefused)
-						WG.Delay(stopListening, 30) -- no answer either way (disconnected): do not keep listening
-						WG.BattleRoomWindow.LeaveBattle()
-						lobby:JoinBattle(myprivatebattleID, "", _, true) -- forcePlayer = true
-						return
+					-- Keep the window until the server answers the join, so a refusal can be shown.
+					-- With no password heard since a lobby restart, the server lets a player who was in the room back in without one.
+					local onJoined, onRefused
+					local function stopListening()
+						lobby:RemoveListener("OnJoinBattle", onJoined)
+						lobby:RemoveListener("OnJoinBattleFailed", onRefused)
 					end
-
+					onJoined = function(listener, battleID)
+						if battleID ~= myprivatebattleID then
+							return
+						end
+						stopListening()
+						WG.Delay(bossSelf, 1)
+						hostBattleWindow:Dispose()
+					end
+					onRefused = function(listener, reason)
+						stopListening()
+						if not errorLabel.disposed then -- Cancel may have closed the window meanwhile
+							if not mypassword and (reason == nil or reason == "Invalid password") then
+								errorLabel:SetCaption("You already have a private battle room this lobby\ncannot rejoin. Try again in a few minutes.")
+							elseif mypassword then
+								errorLabel:SetCaption("Unable to join your private battle room:\n" .. (reason or ""))
+							else
+								errorLabel:SetCaption("Unable to rejoin your private battle room:\n" .. reason)
+							end
+						end
+					end
+					lobby:AddListener("OnJoinBattle", onJoined)
+					lobby:AddListener("OnJoinBattleFailed", onRefused)
+					WG.Delay(stopListening, 30) -- no answer either way (disconnected): do not keep listening
 					WG.BattleRoomWindow.LeaveBattle()
 					-- Configuration:SetConfigValue("lastGameSpectatorState", false) -- assume that private hoster wants to play, needed so he can boss self!
-					lobby:JoinBattle(myprivatebattleID, mypassword, _, true) -- forcePlayer = true
-
-					WG.Delay(bossSelf, 1)
-					hostBattleWindow:Dispose()
+					lobby:JoinBattle(myprivatebattleID, mypassword or "", _, true) -- forcePlayer = true
 				end
 				trytime = trytime -1
 			end
