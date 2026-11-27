@@ -70,6 +70,7 @@ local settings = {
 	SmoothLines = 1,
 	SmoothPoints = 1,
 	SplashScreenDir = "./MenuLoadscreens",
+	TCPAllowConnect = "127.0.0.1:-1 server4.beyondallreason.info:8200",
 	TreeRadius = 1200,
 	--UnitIconDist = 151, -- Stored in springsettings.cfg and interacted with directly.
 	UnitLodDist = 9999,

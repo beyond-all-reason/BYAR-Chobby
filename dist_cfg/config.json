@@ -297,6 +297,7 @@
         "SmoothLines": 1,
         "SplashScreenDir": "./MenuLoadscreens",
         "TreeRadius": 1000,
+        "TCPAllowConnect" : "127.0.0.1:-1 server4.beyondallreason.info:8200",
         "UnitIconDist": 160,
         "UnitLodDist": 999999,
         "UnitIconsAsUI": 1,
